@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ServiceStack.Text.Tests</RootNamespace>
+    <AssemblyName>ServiceStack.Text.Tests</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Northwind.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\Northwind.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Platform, Version=1.0.0.341, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\ServiceStack.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Common.Tests, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\ServiceStack.Common.Tests.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Messaging.Tests, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\ServiceStack.Messaging.Tests.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.ServiceModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\ServiceStack.ServiceModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdhocModelTests.cs" />
+    <Compile Include="AnonymousTypes.cs" />
+    <Compile Include="BasicStringSerializerTests.cs" />
+    <Compile Include="CsvStreamTests.cs" />
+    <Compile Include="CultureInfoTests.cs" />
+    <Compile Include="CustomStructTests.cs" />
+    <Compile Include="DataContractTests.cs" />
+    <Compile Include="DictionaryTests.cs" />
+    <Compile Include="DynamicObjectTests.cs" />
+    <Compile Include="JsonTests\BasicJsonTests.cs" />
+    <Compile Include="JsonTests\EscapedCharsTests.cs" />
+    <Compile Include="JsonTests\JsonDataContractCompatibilityTests.cs" />
+    <Compile Include="QueryStringSerializerTests.cs" />
+    <Compile Include="Support\BenchmarkTests.cs" />
+    <Compile Include="Utils\DateTimeSerializerTests.cs" />
+    <Compile Include="DdnContentIngestTests.cs" />
+    <Compile Include="Support\DdnDtos.cs" />
+    <Compile Include="DdnDtoTests.cs" />
+    <Compile Include="DynamicModels\ComplexObjectGraphTest.cs" />
+    <Compile Include="DynamicModels\DataModel\CustomCollectionDto.cs" />
+    <Compile Include="DynamicModels\DataModel\CustomCollection.cs" />
+    <Compile Include="DynamicModels\DataModel\CustomCollectionItem.cs" />
+    <Compile Include="DynamicModels\DataModel\CustomException.cs" />
+    <Compile Include="DynamicModels\DataModel\DataContainer.cs" />
+    <Compile Include="DynamicModels\DataModel\DataContainerBase.cs" />
+    <Compile Include="DynamicModels\DataModel\DynamicType.cs" />
+    <Compile Include="DynamicModels\DataModel\ObjectGraph.cs" />
+    <Compile Include="DynamicModels\DataModel\StrictType.cs" />
+    <Compile Include="DynamicModels\DynamicMessageTests.cs" />
+    <Compile Include="DynamicModels\ModelWithAllTypes.cs" />
+    <Compile Include="InterfaceTests.cs" />
+    <Compile Include="JsonTests\ModelWithAllTypesTests.cs" />
+    <Compile Include="Utils\JsvFormatterTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryStringWriterTests.cs" />
+    <Compile Include="ReflectionExtensionTests.cs" />
+    <Compile Include="ReportedIssues.cs" />
+    <Compile Include="DataTests.cs" />
+    <Compile Include="StringSerializerNorthwindDatabaseTests.cs" />
+    <Compile Include="StringSerializerTests.cs" />
+    <Compile Include="StringSerializerTranslationTests.cs" />
+    <Compile Include="TestBase.cs" />
+    <Compile Include="TypeConverterTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj">
+      <Project>{579B3FDB-CDAD-44E1-8417-885C38E49A0E}</Project>
+      <Name>ServiceStack.Text</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="JsvTests\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
