@@ -22,10 +22,10 @@ With that in mind, TypeSerializer's main features are:
   *  Respects opt-in DataMember custom serialization for DataContract dto types.
 
 These characteristics make it ideal for use anywhere you need to store or transport .NET data-types, e.g. for text blobs in a ORM, data in and out of a key-value store or as the text-protocol in .NET to .NET web services.  
-
+ 
 As such, it's utilized within ServiceStack's other components:
- * OrmLite - to store complex types on table models as text blobs in a database field and 
- * [ServiceStack.Redis](https://github.com/mythz/ServiceStack.Redis) - to store rich POCO data types into the very fast [redis](http://code.google.com/p/redis) instances.
+*  OrmLite - to store complex types on table models as text blobs in a database field and 
+*  [ServiceStack.Redis](https://github.com/mythz/ServiceStack.Redis) - to store rich POCO data types into the very fast [redis](http://code.google.com/p/redis) instances.
 
 # Download
 `TypeSerializer` is included with [ServiceStack.zip](https://github.com/downloads/mythz/ServiceStack/ServiceStack.zip) 
