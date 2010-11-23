@@ -12,6 +12,7 @@ TypeSerializer addresses these shortcomings by being both smaller and significan
 It's also more resilient, e.g. a strongly-typed POCO object can be deserialized back into a loosely-typed string Dictionary and vice-versa.
 
 With that in mind, TypeSerializer's main features are:
+
  - Fastest and most compact text-serializer for .NET
  - Human readable and writeable, self-describing text format
  - Non-invasive and configuration-free
