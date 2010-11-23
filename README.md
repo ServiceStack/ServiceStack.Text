@@ -1,8 +1,8 @@
 The fastest and most compact text-based serializer for .NET - more info on its JSV Format is on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
 
-# Fast new text-serialization format optimized for serializing C# POCO types
+# Fast new JSV and JSON text-serialization formats optimized for serializing C# POCO types
 
-Included in the Service Stack libraries is *Type Serializer*, a fast, light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's.
+Included in the Service Stack libraries is `TypeSerializer`, a fast, light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's.
 
 Out of the box .NET provides a fairly quick but verbose Xml DataContractSerializer or a slightly more compact but slower JsonDataContractSerializer. 
 Both of these options are fragile and likely to break with any significant schema changes. 
