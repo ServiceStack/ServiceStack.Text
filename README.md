@@ -1,6 +1,4 @@
-The fastest and most compact text-based serializer for .NET - 
-more info on its JSV Format is on the [introductory blog post](http://www.servicestack.net/mythz_blog/?p=176).
-
+The fastest and most compact text-based serializer for .NET - more info on its JSV Format is on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
 
 # Fast new text-serialization format optimized for serializing C# POCO types
 
