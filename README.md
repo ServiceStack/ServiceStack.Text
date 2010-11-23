@@ -41,7 +41,7 @@ Like most of the interfaces in Service Stack, the API is simple and descriptive.
 	T TypeSerializer.DeserializeFromString<T>(string value);
 	T TypeSerializer.DeserializeFromReader<T>(TextReader reader);
 
-Where *T* can be any .NET POCO type. That’s all there is - the API was intentionally left simple :)
+Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
 
 You may also be interested in the very useful [T.Dump() extension method](http://www.servicestack.net/mythz_blog/?p=202) for recursively viewing the contents of any C# POCO Type.
 
