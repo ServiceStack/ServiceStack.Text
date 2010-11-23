@@ -12,14 +12,14 @@ TypeSerializer addresses these shortcomings by being both smaller and significan
 It's also more resilient, e.g. a strongly-typed POCO object can be deserialized back into a loosely-typed string Dictionary and vice-versa.
 
 With that in mind, TypeSerializer's main features are:
-- Fastest and most compact text-serializer for .NET
-- Human readable and writeable, self-describing text format
-- Non-invasive and configuration-free
-- Resilient to schema changes
-- Serializes / De-serializes any .NET data type (by convention)
-  + Supports custom, compact serialization of structs by overriding `ToString()` and `static T Parse(string)` methods
-  + Can serialize inherited, interface or 'late-bound objects' data types
-  + Respects opt-in DataMember custom serialization for DataContract dto types.
+    - Fastest and most compact text-serializer for .NET
+    - Human readable and writeable, self-describing text format
+    - Non-invasive and configuration-free
+    - Resilient to schema changes
+    - Serializes / De-serializes any .NET data type (by convention)
+      + Supports custom, compact serialization of structs by overriding `ToString()` and `static T Parse(string)` methods
+      + Can serialize inherited, interface or 'late-bound objects' data types
+      + Respects opt-in DataMember custom serialization for DataContract dto types.
 
 These characteristics make it ideal for use anywhere you need to store or transport .NET data-types, e.g. for text blobs in a ORM, data in and out of a key-value store or as the text-protocol in .NET to .NET web services.  
  
