@@ -1,8 +1,47 @@
-The fastest and most compact text-based serializer for .NET - more info on its JSV Format is on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
+ServiceStack.Text is an independent, dependency-free assembly that contains ServiceStack's text processing functionality.
 
-# Fast new JSV and JSON text-serialization formats optimized for C# POCO types
+## ServiceStack.TypeSerializer and the JSV-format
+Included in this project is `TypeSerializer` - The fastest and most compact text-based serializer for .NET. It's a light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's. More info on its JSV Format can be found on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
 
-Included in the Service Stack libraries is `TypeSerializer` - a fast, light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's.
+## ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET
+For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/?p=344) I decided to re-use *TypeSerializer's* text processing-core to create ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET. 
+Based on the [Northwind Benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.100000-times.2010-08-17.html) it's *3.6x* faster than .NET's BCL JsonDataContractSerializer and *3x* faster then the previous fastest JSON serializer benchmarked - [JSON.NET](http://json.codeplex.com/).
+
+## T.Dump() Extension method
+Another useful library to have in your .NET toolbox is the [T.Dump() Extension Method](http://www.servicestack.net/mythz_blog/?p=202). Under the hood it uses a *Pretty Print* Output of the JSV Format to recursively dump the contents of any .NET object. Example usage and output: 
+
+	var model = new TestModel();
+	Console.WriteLine(model.Dump());
+
+	//Example Output
+	{
+	    Int: 1,
+	    String: One,
+	    DateTime: 2010-04-11,
+	    Guid: c050437f6fcd46be9b2d0806a0860b3e,
+	    EmptyIntList: [],
+	    IntList:
+	    [
+		1,
+		2,
+		3
+	    ],
+	    StringList:
+	    [
+		one,
+		two,
+		three
+	    ],
+	    StringIntMap:
+	    {
+		a: 1,
+		b: 2,
+		c: 3
+	    }
+	}
+
+
+#TypeSerializer Details
 
 Out of the box .NET provides a fairly quick but verbose Xml DataContractSerializer or a slightly more compact but slower JsonDataContractSerializer. 
 Both of these options are fragile and likely to break with any significant schema changes. 
