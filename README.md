@@ -48,20 +48,30 @@ You may also be interested in the very useful [T.Dump() extension method](http:/
 
 # Performance
 Type Serializer is actually the fastest and most compact *text serializer* available for .NET. 
-Out of all the serializers benchmarked, it is the only one to remain competitive with [http://code.google.com/p/protobuf-net/ protobuf-net]'s very fast implementation of [http://code.google.com/apis/protocolbuffers/ Protocol Buffers] - google's high-speed binary protocol.
+Out of all the serializers benchmarked, it is the only one to remain competitive with [protobuf-net's](http://code.google.com/p/protobuf-net/) very fast implementation of [Protocol Buffers](http://code.google.com/apis/protocolbuffers/) - google's high-speed binary protocol.
 
 Below is a series of benchmarks serialize the different tables in the [http://code.google.com/p/servicestack/source/browse/trunk/Common/Northwind.Benchmarks/Northwind.Common/DataModel/NorthwindData.cs Northwind database] (3202 records) with the most popular serializers available for .NET:
 
 ### Combined results for serializing / deserialzing a single row of each table in the Northwind database 1,000,000 times
 _[view the detailed benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.1000000-times.2010-02-06.html)_
 
-|| Serializer || Size || Peformance ||
-|| Microsoft DataContractSerializer || 4.68x || 6.72x ||
-|| Microsoft JsonDataContractSerializer|| 2.24x || 10.18x ||
-|| Microsoft BinaryFormatter || 5.62x || 9.06x ||
-|| NewtonSoft.Json || 2.30x || 8.15x ||
-|| ProtoBuf.net || 1x || 1x ||
-|| ServiceStack TypeSerializer || 1.78x || 1.92x ||
+<table>
+<thead>
+<tr>
+<th>Serializer</th>
+<th>Size</th>
+<th>Peformance</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Microsoft DataContractSerializer</td><td>4.68x</td><td>6.72x</td></tr>
+<tr><td>Microsoft JsonDataContractSerializer</td><td>2.24x</td><td>10.18x</td></tr>
+<tr><td>Microsoft BinaryFormatter</td><td>5.62x</td><td>9.06x</td></tr>
+<tr><td>NewtonSoft.Json</td><td>2.30x</td><td>8.15x</td></tr>
+<tr><td>ProtoBuf.net</td><td>1x</td><td>1x</td></tr>
+<tr><td>ServiceStack TypeSerializer</td><td>1.78x</td><td>1.92x</td></tr>
+</tbody>
+</table>
 
 _number of times larger in size and slower in performance than the best - lower is better_
 
