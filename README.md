@@ -46,8 +46,7 @@ Another useful library to have in your .NET toolbox is the [T.Dump() Extension M
 
 
 # Download
-#### ServiceStack.Text is included with [ServiceStack.zip](https://github.com/downloads/mythz/ServiceStack/ServiceStack.zip)
-or available to download separately in a standalone ***[ServiceStack.Text.zip](https://github.com/downloads/mythz/ServiceStack.Text/ServiceStack.Text.zip). ####
+#### ServiceStack.Text is included with [ServiceStack.zip](https://github.com/downloads/mythz/ServiceStack/ServiceStack.zip) or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/downloads/mythz/ServiceStack.Text/ServiceStack.Text.zip). ####
 
 <hr />
 
