@@ -1,6 +1,4 @@
-ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality.
-
-Some noteworthy features inside **ServiceStack.Text** include:
+ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
 
  * TypeSerializer and the JSV-format
  * JSON Serializer
