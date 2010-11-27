@@ -1,10 +1,9 @@
-ServiceStack.Text is an independent, dependency-free assembly that contains ServiceStack's text processing functionality.
+ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality.
 
-# Download
-`ServiceStack.Text` is included with [ServiceStack.zip](https://github.com/downloads/mythz/ServiceStack/ServiceStack.zip) 
-or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/downloads/mythz/ServiceStack.Text/ServiceStack.Text.zip).
-
-<hr />
+Some noteworthy features inside **ServiceStack.Text** include:
+ * TypeSerializer and the JSV-format
+ * JSON Serializer
+ * T.Dump() Extension Method
 
 ## ServiceStack.TypeSerializer and the JSV-format
 Included in this project is `TypeSerializer` - The fastest and most compact text-based serializer for .NET. It's a light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's. More info on its JSV Format can be found on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
@@ -46,6 +45,12 @@ Another useful library to have in your .NET toolbox is the [T.Dump() Extension M
 	    }
 	}
 
+
+# Download
+**ServiceStack.Text** is included with [ServiceStack.zip](https://github.com/downloads/mythz/ServiceStack/ServiceStack.zip) 
+or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/downloads/mythz/ServiceStack.Text/ServiceStack.Text.zip).
+
+<hr />
 
 #TypeSerializer Details
 
@@ -159,6 +164,6 @@ A value with a double-quote is escaped with another double quote e.g:
 
 
 ## Rich support for resilience and schema versioning
-To better illustrate the resilience of `TypeSerializer` and the JSV Format check out a real world example of it when it's used to [Painlessly migrate between old and new types in Redis](http://code.google.com/p/servicestack/wiki/MigrationsUsingSchemalessNoSql). 
+To better illustrate the resilience of `TypeSerializer` and the JSV Format check out a real world example of it when it's used to [Painlessly migrate between old and new types in Redis](https://github.com/mythz/ServiceStack.Redis/wiki/MigrationsUsingSchemalessNoSql). 
 
 Support for dynamic payloads and late-bound objects is explained in the post [Versatility of JSV Late-bound objects](http://www.servicestack.net/mythz_blog/?p=314).
