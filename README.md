@@ -1,5 +1,11 @@
 ServiceStack.Text is an independent, dependency-free assembly that contains ServiceStack's text processing functionality.
 
+# Download
+`ServiceStack.Text` is included with [ServiceStack.zip](https://github.com/downloads/mythz/ServiceStack/ServiceStack.zip) 
+or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/downloads/mythz/ServiceStack.Text/ServiceStack.Text.zip).
+
+<hr />
+
 ## ServiceStack.TypeSerializer and the JSV-format
 Included in this project is `TypeSerializer` - The fastest and most compact text-based serializer for .NET. It's a light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's. More info on its JSV Format can be found on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
 
@@ -64,10 +70,6 @@ These characteristics make it ideal for use anywhere you need to store or transp
 As such, it's utilized within ServiceStack's other components:
  - OrmLite - to store complex types on table models as text blobs in a database field and
  - [ServiceStack.Redis](https://github.com/mythz/ServiceStack.Redis) - to store rich POCO data types into the very fast [redis](http://code.google.com/p/redis) instances.
-
-# Download
-`TypeSerializer` is included with [ServiceStack.zip](https://github.com/downloads/mythz/ServiceStack/ServiceStack.zip) 
-or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/downloads/mythz/ServiceStack.Text/ServiceStack.Text.zip).
 
 # Simple API
 
