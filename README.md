@@ -19,29 +19,29 @@ Another useful library to have in your .NET toolbox is the [T.Dump() Extension M
 
 	//Example Output
 	{
-	    Int: 1,
-	    String: One,
-	    DateTime: 2010-04-11,
-	    Guid: c050437f6fcd46be9b2d0806a0860b3e,
-	    EmptyIntList: [],
-	    IntList:
-	    [
-		1,
-		2,
-		3
-	    ],
-	    StringList:
-	    [
-		one,
-		two,
-		three
-	    ],
-	    StringIntMap:
-	    {
-		a: 1,
-		b: 2,
-		c: 3
-	    }
+		Int: 1,
+		String: One,
+		DateTime: 2010-04-11,
+		Guid: c050437f6fcd46be9b2d0806a0860b3e,
+		EmptyIntList: [],
+		IntList:
+		[
+			1,
+			2,
+			3
+		],
+		StringList:
+		[
+			one,
+			two,
+			three
+		],
+		StringIntMap:
+		{
+			a: 1,
+			b: 2,
+			c: 3
+		}
 	}
 
 
