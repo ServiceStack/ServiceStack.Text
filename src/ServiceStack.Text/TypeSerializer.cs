@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
 using ServiceStack.Text.Jsv;
 
@@ -112,6 +113,22 @@ namespace ServiceStack.Text
 			var serializedValue = SerializeToString(value);
 			var cloneObj = DeserializeFromString<T>(serializedValue);
 			return cloneObj;
+		}
+
+		public static void SerializeToStream<T>(T value, Stream stream)
+		{
+			using (var writer = new StreamWriter(stream, Encoding.UTF8))
+			{
+				JsvWriter<T>.WriteObject(writer, value);
+			}
+		}
+
+		public static T DeserializeFromStream<T>(Stream stream)
+		{
+			using (var reader = new StreamReader(stream, Encoding.UTF8))
+			{
+				return DeserializeFromString<T>(reader.ReadToEnd());
+			}
 		}
 	}
 }

@@ -35,6 +35,9 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -96,6 +99,7 @@
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="TextExtensions.cs" />
     <Compile Include="TypeSerializer.Generic.cs" />
+    <Compile Include="XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Build\ilmerge-all.bat" />
