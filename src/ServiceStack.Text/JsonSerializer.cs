@@ -87,5 +87,13 @@ namespace ServiceStack.Text
 			}
 		}
 
+		public static object DeserializeFromStream(Type type, Stream stream)
+		{
+			using (var reader = new StreamReader(stream, Encoding.UTF8))
+			{
+				return DeserializeFromString(reader.ReadToEnd(), type);
+			}
+		}
+
 	}
 }

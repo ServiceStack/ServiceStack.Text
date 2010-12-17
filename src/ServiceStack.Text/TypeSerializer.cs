@@ -130,5 +130,14 @@ namespace ServiceStack.Text
 				return DeserializeFromString<T>(reader.ReadToEnd());
 			}
 		}
+
+		public static object DeserializeFromStream(Type type, Stream stream)
+		{
+			using (var reader = new StreamReader(stream, Encoding.UTF8))
+			{
+				return DeserializeFromString(reader.ReadToEnd(), type);
+			}
+		}
+
 	}
 }

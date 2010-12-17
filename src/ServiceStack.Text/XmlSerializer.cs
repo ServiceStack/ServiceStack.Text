@@ -56,6 +56,19 @@ namespace ServiceStack.Text
 			return DeserializeFromString<T>(reader.ReadToEnd());
 		}
 
+		public static T DeserializeFromStream<T>(Stream stream)
+		{
+			var serializer = new System.Runtime.Serialization.DataContractSerializer(typeof(T));
+
+			return (T)serializer.ReadObject(stream);
+		}
+
+		public static object DeserializeFromStream(Type type, Stream stream)
+		{
+			var serializer = new System.Runtime.Serialization.DataContractSerializer(type);
+			return serializer.ReadObject(stream);
+		}
+
 		public static string SerializeToString<T>(T from)
 		{
 			try
@@ -88,17 +101,21 @@ namespace ServiceStack.Text
 
 		public static void SerializeToWriter<T>(T value, TextWriter writer)
 		{
-			if (value == null) return;
-			if (typeof(T) == typeof(string))
+			try
 			{
-				writer.Write(value);
-				return;
+				using (var xw = new XmlTextWriter(writer))
+				{
+					var serializer = new System.Runtime.Serialization.DataContractSerializer(typeof(T));
+					serializer.WriteObject(xw, value);
+				}
 			}
-
-			JsvWriter<T>.WriteObject(writer, value);
+			catch (Exception ex)
+			{
+				throw new SerializationException(string.Format("Error serializing object of type {0}", typeof(T).FullName), ex);
+			}
 		}
 
-		public static void CompressToStream<XmlDto>(XmlDto from, Stream stream)
+		public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
 		{
 			using (var deflateStream = new DeflateStream(stream, CompressionMode.Compress))
 			using (var xw = new XmlTextWriter(deflateStream, Encoding.UTF8))
@@ -118,7 +135,7 @@ namespace ServiceStack.Text
 			}
 		}
 
-		public static byte[] Compress<XmlDto>(XmlDto from)
+		public static byte[] Compress<TXmlDto>(TXmlDto from)
 		{
 			using (var ms = new MemoryStream())
 			{
