@@ -99,6 +99,7 @@
     <Compile Include="JsonTests\BasicJsonTests.cs" />
     <Compile Include="JsonTests\EscapedCharsTests.cs" />
     <Compile Include="JsonTests\JsonDataContractCompatibilityTests.cs" />
+    <Compile Include="JsvTests\TypeSerializerToStringDictionaryTests.cs" />
     <Compile Include="QueryStringSerializerTests.cs" />
     <Compile Include="Support\BenchmarkTests.cs" />
     <Compile Include="Utils\DateTimeSerializerTests.cs" />
@@ -136,9 +137,6 @@
       <Project>{579B3FDB-CDAD-44E1-8417-885C38E49A0E}</Project>
       <Name>ServiceStack.Text</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="JsvTests\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

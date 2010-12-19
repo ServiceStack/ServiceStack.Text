@@ -139,5 +139,32 @@ namespace ServiceStack.Text
 			}
 		}
 
+		/// <summary>
+		/// Useful extension method to get the Dictionary[string,string] representation of any POCO type.
+		/// </summary>
+		/// <returns></returns>
+		public static Dictionary<string, string> ToStringDictionary<T>(this T obj)
+			where T : class
+		{
+			var jsv = SerializeToString(obj);
+			var map = DeserializeFromString<Dictionary<string, string>>(jsv);
+			return map;
+		}
+		
+		/// <summary>
+		/// Recursively prints the contents of any POCO object in a human-friendly, readable format
+		/// </summary>
+		/// <returns></returns>
+		public static string Dump<T>(this T instance)
+		{
+			return SerializeAndFormat(instance);
+		}
+
+		public static string SerializeAndFormat<T>(this T instance)
+		{
+			var dtoStr = SerializeToString(instance);
+			var formatStr = JsvFormatter.Format(dtoStr);
+			return formatStr;
+		}
 	}
 }

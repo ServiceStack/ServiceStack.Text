@@ -12,6 +12,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using ServiceStack.Text.Common;
 
@@ -19,18 +20,6 @@ namespace ServiceStack.Text
 {
 	public static class JsvFormatter
 	{
-		public static string Dump<T>(this T instance)
-		{
-			return SerializeAndFormat(instance);
-		}
-
-		public static string SerializeAndFormat<T>(this T instance)
-		{
-			var dtoStr = TypeSerializer.SerializeToString(instance);
-			var formatStr = Format(dtoStr);
-			return formatStr;
-		}
-
 		public static string Format(string serializedText)
 		{
 			if (string.IsNullOrEmpty(serializedText)) return null;
