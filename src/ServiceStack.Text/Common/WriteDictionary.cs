@@ -108,6 +108,7 @@ namespace ServiceStack.Text.Common
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
 				JsState.WritingKeyCount++;
+				JsState.IsWritingValue = false;
 				writeKeyFn(writer, key);
 				JsState.WritingKeyCount--;
 

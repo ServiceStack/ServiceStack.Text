@@ -37,3 +37,5 @@ App_Data/
 
 *.resharper.user
 *.suo
+*.user
+*.suo
