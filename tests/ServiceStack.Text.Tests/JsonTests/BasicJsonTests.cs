@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.Common.Tests.Models;
 
@@ -51,5 +52,24 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(value.Int, Is.EqualTo(1));
 			Assert.That(value.NullString, Is.Null);
 		}
+
+        [Test]
+        public void Can_serialize_dictionary_of_int_int()
+        {
+            var json = JsonSerializer.SerializeToString<IntIntDictionary>(new IntIntDictionary() {Dictionary = {{10,100},{20,200}}});
+            const string expected = "{\"Dictionary\":{\"10\":100,\"20\":200}}";
+            Assert.That(json,Is.EqualTo(expected));
+        }
+
+        private class IntIntDictionary
+        {
+            public IntIntDictionary()
+            {
+                Dictionary = new Dictionary<int, int>();
+            }
+            public IDictionary<int,int> Dictionary { get; set; }
+        }
+
+    
 	}
 }

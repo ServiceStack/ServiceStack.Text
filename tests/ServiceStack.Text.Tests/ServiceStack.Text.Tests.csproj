@@ -43,6 +43,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\tests\Platform.dll</HintPath>
     </Reference>
+    <Reference Include="protobuf-net, Version=1.0.0.278, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net.Extensions, Version=1.0.0.278, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\tests\protobuf-net.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\tests\ServiceStack.Client.dll</HintPath>
@@ -101,6 +109,7 @@
     <Compile Include="JsonTests\JsonDataContractCompatibilityTests.cs" />
     <Compile Include="JsvTests\TypeSerializerToStringDictionaryTests.cs" />
     <Compile Include="QueryStringSerializerTests.cs" />
+    <Compile Include="SpecialTypesTests.cs" />
     <Compile Include="Support\BenchmarkTests.cs" />
     <Compile Include="Utils\DateTimeSerializerTests.cs" />
     <Compile Include="DdnContentIngestTests.cs" />
