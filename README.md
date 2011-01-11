@@ -1,5 +1,6 @@
 [Join in the mailing list](http://groups.google.com/group/servicestack) or
-for twitter updates follow [@demisbellot](http://twitter.com/demisbellot) and [@ServiceStack](http://twitter.com/servicestack)
+follow [@demisbellot](http://twitter.com/demisbellot) and [@ServiceStack](http://twitter.com/servicestack)
+for twitter updates.
 
 ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
 
