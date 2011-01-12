@@ -98,7 +98,7 @@ namespace ServiceStack.Text.Tests.UseCases
 		}
 		
 		[Test]
-		public void Can_convert_using_DTOs()
+		public void Can_convert_using_custom_client_DTOs()
 		{
 			var gitHubResponse = JsonSerializer.DeserializeFromString<GitHubResponse>(JsonPullRequest);
 			
