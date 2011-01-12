@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests.UseCases
 	[TestFixture]
 	public class GitHubRestTests
 	{
-		private const string JsonPullRequest = @"{
+		private const string JsonGitHubPullsResponse = @"{
   ""pulls"": [
     {
       ""state"": ""open"",
@@ -66,7 +66,7 @@ namespace ServiceStack.Text.Tests.UseCases
 
 		public class Pull
 		{
-			public List<DiscussionDto> discussion { get; set; }
+			public List<Discussion> discussion { get; set; }
 			public string title { get; set; }
 			public string body { get; set; }
 			public double position { get; set; }
@@ -82,7 +82,7 @@ namespace ServiceStack.Text.Tests.UseCases
 			public DateTime updated_at { get; set; }
 		}
 
-		public class DiscussionDto
+		public class Discussion
 		{
 			public string type { get; set; }
 			public string gravatar_id { get; set; }
@@ -100,7 +100,7 @@ namespace ServiceStack.Text.Tests.UseCases
 		[Test]
 		public void Can_convert_using_custom_client_DTOs()
 		{
-			var gitHubResponse = JsonSerializer.DeserializeFromString<GitHubResponse>(JsonPullRequest);
+			var gitHubResponse = JsonSerializer.DeserializeFromString<GitHubResponse>(JsonGitHubPullsResponse);
 			
 			Console.WriteLine(gitHubResponse.Dump()); //See what's been parsed
 			Assert.That(gitHubResponse.pulls.SelectMany(p => p.discussion).ConvertAll(x => x.type), 
@@ -121,7 +121,7 @@ namespace ServiceStack.Text.Tests.UseCases
 			return map.TryGetValue(key, out strVal) ? strVal : null;
 		}
 
-		public class Discussion
+		public class DiscussionPoco
 		{
 			public string Type { get; set; }
 			public string GravatarId { get; set; }
@@ -140,10 +140,10 @@ namespace ServiceStack.Text.Tests.UseCases
 		[Test]
 		public void Can_parse_GitHub_discussion()
 		{
-			var jsonObj = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(JsonPullRequest);
+			var jsonObj = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(JsonGitHubPullsResponse);
 			var jsonPulls = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(jsonObj[0]["pulls"]);
 			var discussions = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(jsonPulls[0]["discussion"])
-				.ConvertAll(x => new Discussion {
+				.ConvertAll(x => new DiscussionPoco {
 					Type = GetString(x, "type"),
 					GravatarId = GetString(x, "gravatar_id"),
 					CreatedAt = GetString(x, "created_at"),
