@@ -1,9 +1,12 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using NUnit.Framework;
+using ServiceStack.Common.Extensions;
 
 namespace ServiceStack.Text.Tests.UseCases
 {
+	[TestFixture]
 	public class GitHubRestTests
 	{
 		private const string JsonPullRequest = @"{
@@ -55,21 +58,56 @@ namespace ServiceStack.Text.Tests.UseCases
     }
   ]
 }";
-		public class Discussion
+
+		public class GitHubResponse
 		{
-			public string Type { get; set; }
-			public string GravatarId { get; set; }
-			public string Body { get; set; }
-			public string CreatedAt { get; set; }
-			public string UpdatedAt { get; set; }
-
-			public int? Id { get; set; }
-			public string Sha { get; set; }
-			public string Author { get; set; }
-			public string Subject { get; set; }
-			public string Email { get; set; }
-
+			public List<Pull> pulls { get; set; }
 		}
+
+		public class Pull
+		{
+			public List<DiscussionDto> discussion { get; set; }
+			public string title { get; set; }
+			public string body { get; set; }
+			public double position { get; set; }
+			public int number { get; set; }
+			public int votes { get; set; }
+			public int comments { get; set; }
+			public string diff_url { get; set; }
+			public string patch_url { get; set; }
+			public string html_url { get; set; }
+			public DateTime issue_created_date { get; set; }
+			public DateTime issue_updated_at { get; set; }
+			public DateTime created_at { get; set; }
+			public DateTime updated_at { get; set; }
+		}
+
+		public class DiscussionDto
+		{
+			public string type { get; set; }
+			public string gravatar_id { get; set; }
+			public string created_at { get; set; }
+			public string body { get; set; }
+			public string updated_at { get; set; }
+
+			public int? id { get; set; }
+			public string sha { get; set; }
+			public string author { get; set; }
+			public string subject { get; set; }
+			public string email { get; set; }
+		}
+		
+		[Test]
+		public void Can_convert_using_DTOs()
+		{
+			var gitHubResponse = JsonSerializer.DeserializeFromString<GitHubResponse>(JsonPullRequest);
+			
+			Console.WriteLine(gitHubResponse.Dump()); //See what's been parsed
+			Assert.That(gitHubResponse.pulls.SelectMany(p => p.discussion).ConvertAll(x => x.type), 
+				Is.EquivalentTo(new[] { "IssueComment", "Commit" }));
+		}
+
+
 
 		T Get<T>(Dictionary<string, string> map, string key)
 		{
@@ -83,6 +121,21 @@ namespace ServiceStack.Text.Tests.UseCases
 			return map.TryGetValue(key, out strVal) ? strVal : null;
 		}
 
+		public class Discussion
+		{
+			public string Type { get; set; }
+			public string GravatarId { get; set; }
+			public string CreatedAt { get; set; }
+			public string Body { get; set; }
+			public string UpdatedAt { get; set; }
+
+			public int? Id { get; set; }
+			public string Sha { get; set; }
+			public string Author { get; set; }
+			public string Subject { get; set; }
+			public string Email { get; set; }
+
+		}
 
 		[Test]
 		public void Can_parse_GitHub_discussion()
