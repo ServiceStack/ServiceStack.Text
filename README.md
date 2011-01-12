@@ -1,16 +1,19 @@
-ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
-For twitter updates follow <a href="http://twitter.com/demisbellot">@demisbellot</a> or <a href="http://twitter.com/servicestack">@ServiceStack</a>
+[Join the new google group](http://groups.google.com/group/servicestack) or
+follow [@demisbellot](http://twitter.com/demisbellot) and [@ServiceStack](http://twitter.com/servicestack)
+for twitter updates.
 
- * TypeSerializer and the JSV-format
+ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
+
  * JSON Serializer
+ * TypeSerializer and the JSV-format
  * T.Dump() Extension Method
+
+## ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET
+For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/?p=344) I decided to re-use *TypeSerializer's* text processing-core to create ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET.
+Based on the [Northwind Benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.100000-times.2010-08-17.html) it's *3.6x* faster than .NET's BCL JsonDataContractSerializer and *3x* faster then the previous fastest JSON serializer benchmarked - [JSON.NET](http://json.codeplex.com/).
 
 ## ServiceStack.TypeSerializer and the JSV-format
 Included in this project is `TypeSerializer` - The fastest and most compact text-based serializer for .NET. It's a light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's. More info on its JSV Format can be found on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
-
-## ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET
-For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/?p=344) I decided to re-use *TypeSerializer's* text processing-core to create ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET. 
-Based on the [Northwind Benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.100000-times.2010-08-17.html) it's *3.6x* faster than .NET's BCL JsonDataContractSerializer and *3x* faster then the previous fastest JSON serializer benchmarked - [JSON.NET](http://json.codeplex.com/).
 
 ## T.Dump() Extension method
 Another useful library to have in your .NET toolbox is the [T.Dump() Extension Method](http://www.servicestack.net/mythz_blog/?p=202). Under the hood it uses a *Pretty Print* Output of the JSV Format to recursively dump the contents of any .NET object. Example usage and output: 
@@ -96,7 +99,7 @@ You may also be interested in the very useful [T.Dump() extension method](http:/
 Type Serializer is actually the fastest and most compact *text serializer* available for .NET. 
 Out of all the serializers benchmarked, it is the only one to remain competitive with [protobuf-net's](http://code.google.com/p/protobuf-net/) very fast implementation of [Protocol Buffers](http://code.google.com/apis/protocolbuffers/) - google's high-speed binary protocol.
 
-Below is a series of benchmarks serialize the different tables in the [http://code.google.com/p/servicestack/source/browse/trunk/Common/Northwind.Benchmarks/Northwind.Common/DataModel/NorthwindData.cs Northwind database] (3202 records) with the most popular serializers available for .NET:
+Below is a series of benchmarks serialize the different tables in the [Northwind database](http://code.google.com/p/servicestack/source/browse/trunk/Common/Northwind.Benchmarks/Northwind.Common/DataModel/NorthwindData.cs) (3202 records) with the most popular serializers available for .NET:
 
 ### Combined results for serializing / deserialzing a single row of each table in the Northwind database 1,000,000 times
 _[view the detailed benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.1000000-times.2010-02-06.html)_
