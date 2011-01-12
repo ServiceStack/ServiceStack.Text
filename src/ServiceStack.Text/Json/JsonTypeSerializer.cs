@@ -381,6 +381,7 @@ namespace ServiceStack.Text.Json
 		public bool EatMapKeySeperator(string value, ref int i)
 		{
 			EatWhitespace(value, ref i);
+			if (value.Length == i) return false;
 			return value[i++] == JsWriter.MapKeySeperator;
 		}
 
