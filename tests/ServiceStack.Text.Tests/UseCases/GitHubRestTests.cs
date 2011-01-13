@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests.UseCases
 	[TestFixture]
 	public class GitHubRestTests
 	{
-		private const string JsonGitHubPullsResponse = @"{
+		private const string JsonGitResponse = @"{
   ""pulls"": [
     {
       ""state"": ""open"",
@@ -59,6 +59,72 @@ namespace ServiceStack.Text.Tests.UseCases
   ]
 }";
 
+		public class Discussion
+		{
+			public string Type { get; set; }
+			public string GravatarId { get; set; }
+			public string CreatedAt { get; set; }
+			public string Body { get; set; }
+			public string UpdatedAt { get; set; }
+
+			public int? Id { get; set; }
+			public string Sha { get; set; }
+			public string Author { get; set; }
+			public string Subject { get; set; }
+			public string Email { get; set; }
+		}
+
+		[Test]
+		public void Can_Parse_Discussion_using_JsonObject()
+		{
+			List<Discussion> discussions = JsonObject.Parse(JsonGitResponse)
+			.ArrayObjects("pulls")[0]
+			.ArrayObjects("discussion")
+			.ConvertAll(x => new Discussion
+			{
+				Type = x.Get("type"),
+				GravatarId = x.Get("gravatar_id"),
+				CreatedAt = x.Get("created_at"),
+				Body = x.Get("body"),
+				UpdatedAt = x.Get("updated_at"),
+
+				Id = x.JsonTo<int?>("id"),
+				Sha = x.Get("sha"),
+				Author = x.Get("author"),
+				Subject = x.Get("subject"),
+				Email = x.Get("email"),
+			});
+
+			Console.WriteLine(discussions.Dump()); //See what's been parsed
+			Assert.That(discussions.ConvertAll(x => x.Type), Is.EquivalentTo(new[] { "IssueComment", "Commit" }));
+		}
+
+		[Test]
+		public void Can_Parse_Discussion_using_only_NET_collection_classes()
+		{
+			var jsonObj = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(JsonGitResponse);
+			var jsonPulls = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(jsonObj[0]["pulls"]);
+			var discussions = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(jsonPulls[0]["discussion"])
+				.ConvertAll(x => new Discussion
+				{
+					Type = x.Get("type"),
+					GravatarId = x.Get("gravatar_id"),
+					CreatedAt = x.Get("created_at"),
+					Body = x.Get("body"),
+					UpdatedAt = x.Get("updated_at"),
+
+					Id = x.JsonTo<int?>("id"),
+					Sha = x.Get("sha"),
+					Author = x.Get("author"),
+					Subject = x.Get("subject"),
+					Email = x.Get("email"),
+				});
+
+			Console.WriteLine(discussions.Dump()); //See what's been parsed
+			Assert.That(discussions.ConvertAll(x => x.Type), Is.EquivalentTo(new[] { "IssueComment", "Commit" }));
+		}
+
+
 		public class GitHubResponse
 		{
 			public List<Pull> pulls { get; set; }
@@ -66,7 +132,7 @@ namespace ServiceStack.Text.Tests.UseCases
 
 		public class Pull
 		{
-			public List<Discussion> discussion { get; set; }
+			public List<discussion> discussion { get; set; }
 			public string title { get; set; }
 			public string body { get; set; }
 			public double position { get; set; }
@@ -82,7 +148,7 @@ namespace ServiceStack.Text.Tests.UseCases
 			public DateTime updated_at { get; set; }
 		}
 
-		public class Discussion
+		public class discussion
 		{
 			public string type { get; set; }
 			public string gravatar_id { get; set; }
@@ -96,69 +162,15 @@ namespace ServiceStack.Text.Tests.UseCases
 			public string subject { get; set; }
 			public string email { get; set; }
 		}
-		
+
 		[Test]
-		public void Can_convert_using_custom_client_DTOs()
+		public void Can_Parse_Discussion_using_custom_client_DTOs()
 		{
-			var gitHubResponse = JsonSerializer.DeserializeFromString<GitHubResponse>(JsonGitHubPullsResponse);
-			
+			var gitHubResponse = JsonSerializer.DeserializeFromString<GitHubResponse>(JsonGitResponse);
+
 			Console.WriteLine(gitHubResponse.Dump()); //See what's been parsed
-			Assert.That(gitHubResponse.pulls.SelectMany(p => p.discussion).ConvertAll(x => x.type), 
+			Assert.That(gitHubResponse.pulls.SelectMany(p => p.discussion).ConvertAll(x => x.type),
 				Is.EquivalentTo(new[] { "IssueComment", "Commit" }));
-		}
-
-
-
-		T Get<T>(Dictionary<string, string> map, string key)
-		{
-			string strVal;
-			return map.TryGetValue(key, out strVal) ? TypeSerializer.DeserializeFromString<T>(strVal) : default(T);
-		}
-
-		string GetString(Dictionary<string, string> map, string key)
-		{
-			string strVal;
-			return map.TryGetValue(key, out strVal) ? strVal : null;
-		}
-
-		public class DiscussionPoco
-		{
-			public string Type { get; set; }
-			public string GravatarId { get; set; }
-			public string CreatedAt { get; set; }
-			public string Body { get; set; }
-			public string UpdatedAt { get; set; }
-
-			public int? Id { get; set; }
-			public string Sha { get; set; }
-			public string Author { get; set; }
-			public string Subject { get; set; }
-			public string Email { get; set; }
-
-		}
-
-		[Test]
-		public void Can_parse_GitHub_discussion()
-		{
-			var jsonObj = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(JsonGitHubPullsResponse);
-			var jsonPulls = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(jsonObj[0]["pulls"]);
-			var discussions = JsonSerializer.DeserializeFromString<List<Dictionary<string, string>>>(jsonPulls[0]["discussion"])
-				.ConvertAll(x => new DiscussionPoco {
-					Type = GetString(x, "type"),
-					GravatarId = GetString(x, "gravatar_id"),
-					CreatedAt = GetString(x, "created_at"),
-					Body = GetString(x, "body"),
-					UpdatedAt = GetString(x, "updated_at"),
-
-					Id = Get<int?>(x, "id"),
-					Sha = GetString(x, "sha"),
-					Author = GetString(x, "author"),
-					Subject = GetString(x, "subject"),
-					Email = GetString(x, "email"),
-				});
-
-			Console.WriteLine(discussions.Dump()); //See what's been parsed
-			Assert.That(discussions.ConvertAll(x => x.Type), Is.EquivalentTo(new[] { "IssueComment", "Commit" }));
 		}
 
 	}
