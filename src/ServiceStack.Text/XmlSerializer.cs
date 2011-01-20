@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
-using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text
 {

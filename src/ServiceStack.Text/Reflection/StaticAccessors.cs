@@ -61,9 +61,9 @@ namespace ServiceStack.Text.Reflection
 				Expression.Convert(argument, propertyInfo.PropertyType));
 
 			return Expression.Lambda<Action<T, object>>
-				(
+			(
 				setterCall, instance, argument
-				).Compile();
+			).Compile();
 		}
 
 	}
