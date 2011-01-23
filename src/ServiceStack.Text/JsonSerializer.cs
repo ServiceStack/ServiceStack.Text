@@ -23,6 +23,8 @@ namespace ServiceStack.Text
 	/// </summary>
 	public static class JsonSerializer
 	{
+		private static readonly UTF8Encoding UTF8EncodingWithoutBom = new UTF8Encoding(false);
+
 		public static T DeserializeFromString<T>(string value)
 		{
 			if (string.IsNullOrEmpty(value)) return default(T);
@@ -73,7 +75,7 @@ namespace ServiceStack.Text
 
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
-			using (var writer = new StreamWriter(stream, Encoding.UTF8))
+			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
 			{
 				JsonWriter<T>.WriteObject(writer, value);
 			}
@@ -81,7 +83,7 @@ namespace ServiceStack.Text
 
 		public static T DeserializeFromStream<T>(Stream stream)
 		{
-			using (var reader = new StreamReader(stream, Encoding.UTF8))
+			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
 			{
 				return DeserializeFromString<T>(reader.ReadToEnd());
 			}
@@ -89,7 +91,7 @@ namespace ServiceStack.Text
 
 		public static object DeserializeFromStream(Type type, Stream stream)
 		{
-			using (var reader = new StreamReader(stream, Encoding.UTF8))
+			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
 			{
 				return DeserializeFromString(reader.ReadToEnd(), type);
 			}

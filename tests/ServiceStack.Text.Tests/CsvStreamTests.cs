@@ -16,7 +16,7 @@ namespace ServiceStack.Text.Tests
 		public void Can_create_csv_from_Customers()
 		{
 			NorthwindData.LoadData(false);
-			var csv = TypeSerializer.SerializeToCsv(NorthwindData.Customers);
+			var csv = CsvSerializer.SerializeToCsv(NorthwindData.Customers);
 			Log(csv);
 			Assert.That(csv, Is.Not.Null);
 		}
@@ -27,7 +27,7 @@ namespace ServiceStack.Text.Tests
 			NorthwindData.LoadData(false);
 			var category = NorthwindFactory.Category(1, "between \"quotes\" here", "with, comma", null);
 			var categories =  new[] { category, category };
-			var csv = TypeSerializer.SerializeToCsv(categories);
+			var csv = CsvSerializer.SerializeToCsv(categories);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo("Id,CategoryName,Description,Picture\r\n1,\"between \"\"quotes\"\" here\",\"with, comma\",\r\n1,\"between \"\"quotes\"\" here\",\"with, comma\",\r\n"));
 		}
@@ -36,7 +36,7 @@ namespace ServiceStack.Text.Tests
 		public void Can_generate_csv_with_invalid_chars()
 		{
 			var fields = new[] { "1", "2", "3\"", "4", "5\"five,six\"", "7,7.1", "\"7,7.1\"", "8" };
-			var csv = TypeSerializer.SerializeToCsv(fields);
+			var csv = CsvSerializer.SerializeToCsv(fields);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo("1,2,\"3\"\"\",4,\"5\"\"five,six\"\"\",\"7,7.1\",\"\"\"7,7.1\"\"\",8\r\n"));
 		}

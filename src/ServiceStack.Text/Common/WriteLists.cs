@@ -112,7 +112,7 @@ namespace ServiceStack.Text.Common
 					var mi = genericType.GetMethod("WriteEnumerable", BindingFlags.Static | BindingFlags.Public);
 
 					writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-															typeof(WriteObjectDelegate), mi);
+						typeof(WriteObjectDelegate), mi);
 
 					EnumerableCacheFns.Add(elementType, writeFn);
 				}

@@ -51,6 +51,8 @@
     <Compile Include="AssemblyUtils.cs" />
     <Compile Include="Common\JsReader.cs" />
     <Compile Include="Common\JsState.cs" />
+    <Compile Include="CsvSerializer.cs" />
+    <Compile Include="CsvWriter.cs" />
     <Compile Include="JsonObject.cs" />
     <Compile Include="JsonSerializer.Generic.cs" />
     <Compile Include="Jsv\JsvDeserializeType.cs" />

@@ -18,12 +18,12 @@ namespace ServiceStack.Text.Reflection
 {
 	public static class StaticAccessors
 	{
-		public static Func<object, object> GetValueGetter(Type type, PropertyInfo propertyInfo)
+		public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
 		{
-			if (type != propertyInfo.DeclaringType)
-			{
-				throw new ArgumentException();
-			}
+			//if (type != propertyInfo.DeclaringType)
+			//{
+			//    throw new ArgumentException();
+			//}
 
 			var instance = Expression.Parameter(typeof(object), "i");
 			var convertInstance = Expression.TypeAs(instance, propertyInfo.DeclaringType);

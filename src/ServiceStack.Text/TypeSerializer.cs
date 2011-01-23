@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Text;
 using ServiceStack.Text.Jsv;
 
@@ -25,6 +24,8 @@ namespace ServiceStack.Text
 	/// </summary>
 	public static class TypeSerializer
 	{
+		private static readonly UTF8Encoding UTF8EncodingWithoutBom = new UTF8Encoding(false);
+
 		public const string DoubleQuoteString = "\"\"";
 
 		/// <summary>
@@ -98,16 +99,6 @@ namespace ServiceStack.Text
 			JsvWriter<T>.WriteObject(writer, value);
 		}
 
-		public static string SerializeToCsv<T>(IEnumerable<T> records)
-		{
-			var sb = new StringBuilder();
-			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
-			{
-				writer.WriteCsv(records);
-				return sb.ToString();
-			}
-		}
-
 		public static T Clone<T>(T value)
 		{
 			var serializedValue = SerializeToString(value);
@@ -117,7 +108,7 @@ namespace ServiceStack.Text
 
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
-			using (var writer = new StreamWriter(stream, Encoding.UTF8))
+			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
 			{
 				JsvWriter<T>.WriteObject(writer, value);
 			}
@@ -125,7 +116,7 @@ namespace ServiceStack.Text
 
 		public static T DeserializeFromStream<T>(Stream stream)
 		{
-			using (var reader = new StreamReader(stream, Encoding.UTF8))
+			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
 			{
 				return DeserializeFromString<T>(reader.ReadToEnd());
 			}
@@ -133,7 +124,7 @@ namespace ServiceStack.Text
 
 		public static object DeserializeFromStream(Type type, Stream stream)
 		{
-			using (var reader = new StreamReader(stream, Encoding.UTF8))
+			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
 			{
 				return DeserializeFromString(reader.ReadToEnd(), type);
 			}
