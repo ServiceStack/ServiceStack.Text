@@ -97,5 +97,37 @@ namespace ServiceStack.Text
 			}
 		}
 
+		public static string SerializeToString(object value, Type type)
+		{
+			if (value == null) return null;
+			if (type == typeof(string)) return value as string;
+
+			var sb = new StringBuilder(4096);
+			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
+			{
+				JsonWriter.GetWriteFn(type)(writer, value);
+			}
+			return sb.ToString();
+		}
+
+		public static void SerializeToWriter(object value, Type type, TextWriter writer)
+		{
+			if (value == null) return;
+			if (type == typeof(string))
+			{
+				writer.Write(value);
+				return;
+			}
+
+			JsonWriter.GetWriteFn(type)(writer, value);
+		}
+
+		public static void SerializeToStream(object value, Type type, Stream stream)
+		{
+			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
+			{
+				JsonWriter.GetWriteFn(type)(writer, value);
+			}
+		}
 	}
 }
