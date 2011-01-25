@@ -97,8 +97,8 @@ namespace ServiceStack.Text
 		public static string EncodeJson(this string value)
 		{
 			return string.Concat
-			(	"\"",
-				value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n","\\n"),
+			("\"",
+				value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n"),
 				"\""
 			);
 		}
@@ -115,7 +115,7 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder();
 
 			var textLength = text.Length;
-			for (var i=0; i < textLength; i++)
+			for (var i = 0; i < textLength; i++)
 			{
 				var c = text.Substring(i, 1);
 				int charCode = text[i];
@@ -145,7 +145,7 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder();
 
 			var textLength = text.Length;
-			for (var i=0; i < textLength; i++)
+			for (var i = 0; i < textLength; i++)
 			{
 				var c = text.Substring(i, 1);
 				if (c == "+")
@@ -176,7 +176,7 @@ namespace ServiceStack.Text
 
 			var sb = new StringBuilder();
 			var textLength = text.Length;
-			for (var i=0; i < textLength; i++)
+			for (var i = 0; i < textLength; i++)
 			{
 				var c = text[i];
 				if (encodeCharMap.Contains(c))
@@ -199,7 +199,7 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder();
 
 			var textLength = text.Length;
-			for (var i=0; i < textLength; i++)
+			for (var i = 0; i < textLength; i++)
 			{
 				var c = text.Substring(i, 1);
 				if (c == "%")
@@ -252,7 +252,7 @@ namespace ServiceStack.Text
 			if (string.IsNullOrEmpty(path))
 				throw new ArgumentNullException("path");
 
-			if (path[path.Length -1] != '/')
+			if (path[path.Length - 1] != '/')
 			{
 				return path + "/";
 			}
@@ -295,8 +295,26 @@ namespace ServiceStack.Text
 			var bytes = new byte[strVal.Length];
 			for (var i = 0; i < strVal.Length; i++)
 				bytes[i] = (byte)strVal[i];
-			
+
 			return bytes;
+		}
+
+		public static string[] SplitFirst(this string strVal, char needle)
+		{
+			if (strVal == null) return new string[0];
+			var pos = strVal.IndexOf(needle);
+			return pos == -1
+				? new[] { strVal }
+				: new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
+		}
+
+		public static string[] SplitFirst(this string strVal, string needle)
+		{
+			if (strVal == null) return new string[0];
+			var pos = strVal.IndexOf(needle);
+			return pos == -1
+				? new[] { strVal }
+				: new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
 		}
 	}
 }

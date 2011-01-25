@@ -111,6 +111,7 @@
     <Compile Include="JsvTests\TypeSerializerToStringDictionaryTests.cs" />
     <Compile Include="QueryStringSerializerTests.cs" />
     <Compile Include="SpecialTypesTests.cs" />
+    <Compile Include="StringExtensionsTests.cs" />
     <Compile Include="Support\BenchmarkTests.cs" />
     <Compile Include="Support\MovieDtos.cs" />
     <Compile Include="UseCases\GitHubRestTests.cs" />
