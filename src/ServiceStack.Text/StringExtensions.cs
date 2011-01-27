@@ -299,7 +299,7 @@ namespace ServiceStack.Text
 			return bytes;
 		}
 
-		public static string[] SplitFirst(this string strVal, char needle)
+		public static string[] SplitOnFirst(this string strVal, char needle)
 		{
 			if (strVal == null) return new string[0];
 			var pos = strVal.IndexOf(needle);
@@ -308,7 +308,7 @@ namespace ServiceStack.Text
 				: new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
 		}
 
-		public static string[] SplitFirst(this string strVal, string needle)
+		public static string[] SplitOnFirst(this string strVal, string needle)
 		{
 			if (strVal == null) return new string[0];
 			var pos = strVal.IndexOf(needle);
