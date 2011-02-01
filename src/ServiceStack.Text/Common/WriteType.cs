@@ -27,8 +27,8 @@ namespace ServiceStack.Text.Common
 		internal static TypePropertyWriter[] PropertyWriters;
 
 		static WriteType()
-		{			
-			CacheFn = Init() ? GetWriteFn() : null;
+		{
+			CacheFn = Init() ? GetWriteFn() : WriteEmptyType;
 		}
 
 		public static WriteObjectDelegate Write
@@ -83,6 +83,11 @@ namespace ServiceStack.Text.Common
 				this.GetterFn = getterFn;
 				this.WriteFn = writeFn;
 			}
+		}
+
+		public static void WriteEmptyType(TextWriter writer, object value)
+		{
+			writer.Write(JsWriter.EmptyMap);
 		}
 
 		public static void WriteProperties(TextWriter writer, object value)

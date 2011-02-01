@@ -88,7 +88,7 @@ namespace ServiceStack.Text
 			// and likely to be just as efficient.
 			using (var tempStream = new MemoryStream())
 			{
-				Copy(input, tempStream, buffer);
+				CopyTo(input, tempStream, buffer);
 				// No need to copy the buffer if it's the right size
 				if (tempStream.Length == tempStream.GetBuffer().Length)
 				{
@@ -102,22 +102,22 @@ namespace ServiceStack.Text
 		/// <summary>
 		/// Copies all the data from one stream into another.
 		/// </summary>
-		public static void Copy(this Stream input, Stream output)
+		public static void CopyTo(this Stream input, Stream output)
 		{
-			Copy(input, output, DefaultBufferSize);
+			CopyTo(input, output, DefaultBufferSize);
 		}
 
 		/// <summary>
 		/// Copies all the data from one stream into another, using a buffer
 		/// of the given size.
 		/// </summary>
-		public static void Copy(this Stream input, Stream output, int bufferSize)
+		public static void CopyTo(this Stream input, Stream output, int bufferSize)
 		{
 			if (bufferSize < 1)
 			{
 				throw new ArgumentOutOfRangeException("bufferSize");
 			}
-			Copy(input, output, new byte[bufferSize]);
+			CopyTo(input, output, new byte[bufferSize]);
 		}
 
 		/// <summary>
@@ -125,7 +125,7 @@ namespace ServiceStack.Text
 		/// buffer for transferring data. Note that the current contents of 
 		/// the buffer is ignored, so the buffer needn't be cleared beforehand.
 		/// </summary>
-		public static void Copy(this Stream input, Stream output, byte[] buffer)
+		public static void CopyTo(this Stream input, Stream output, byte[] buffer)
 		{
 			if (buffer == null)
 			{

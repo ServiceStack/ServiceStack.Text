@@ -31,12 +31,8 @@ namespace ServiceStack.Text.Common
 			var propertyInfos = type.GetProperties();
 			if (propertyInfos.Length == 0)
 			{
-				if (type.IsDto())
-				{
-					var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-					return value => emptyCtorFn();
-				}
-				return null;
+				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+				return value => emptyCtorFn();
 			}
 
 
