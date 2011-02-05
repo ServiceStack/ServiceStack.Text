@@ -40,7 +40,7 @@ namespace ServiceStack.Text
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex);
+				Tracer.Instance.WriteError(ex);
 				throw;
 			}
 		}

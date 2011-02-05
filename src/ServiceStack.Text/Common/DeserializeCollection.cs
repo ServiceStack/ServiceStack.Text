@@ -40,7 +40,7 @@ namespace ServiceStack.Text.Common
 			if (supportedTypeParseMethod != null)
 			{
 				var createCollectionType = type.HasAnyTypeDefinitionsOf(typeof(ICollection<>))
-				                           	? null : type;
+					? null : type;
 
 				return value => ParseCollectionType(value, createCollectionType, elementType, supportedTypeParseMethod);
 			}

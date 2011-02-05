@@ -114,7 +114,7 @@ namespace ServiceStack.Text.Common
 			if (!Serializer.EatMapStartChar(value, ref index))
 			{
 				//Don't throw ex because some KeyValueDataContractDeserializer don't have '{}'
-				Console.WriteLine("WARN: Map definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
+				Tracer.Instance.WriteDebug("WARN: Map definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
 					JsWriter.MapStartChar, createMapType != null ? createMapType.Name : "Dictionary<,>", value.Substring(0, value.Length < 50 ? value.Length : 50));
 			}
 			return index;

@@ -49,10 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyUtils.cs" />
+    <Compile Include="Common\DeserializeSpecializedCollections.cs" />
     <Compile Include="Common\JsReader.cs" />
     <Compile Include="Common\JsState.cs" />
     <Compile Include="CsvSerializer.cs" />
     <Compile Include="CsvWriter.cs" />
+    <Compile Include="ITracer.cs" />
     <Compile Include="JsonObject.cs" />
     <Compile Include="JsonSerializer.Generic.cs" />
     <Compile Include="Jsv\JsvDeserializeType.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Support\AssemblyTypeDefinition.cs" />
     <Compile Include="Support\TypePair.cs" />
+    <Compile Include="Tracer.cs" />
     <Compile Include="TranslateListWithElements.cs" />
     <Compile Include="TypeSerializer.cs" />
     <Compile Include="Common\WriteType.cs" />
@@ -103,9 +106,6 @@
     <Compile Include="TextExtensions.cs" />
     <Compile Include="TypeSerializer.Generic.cs" />
     <Compile Include="XmlSerializer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Build\ilmerge-all.bat" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

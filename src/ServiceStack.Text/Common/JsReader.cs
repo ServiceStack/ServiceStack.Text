@@ -50,6 +50,10 @@ namespace ServiceStack.Text.Common
 				if (type.IsOrHasGenericInterfaceTypeOf(typeof(ICollection<>)))
 					return DeserializeCollection<TSerializer>.GetParseMethod(type);
 
+				if (type.HasAnyTypeDefinitionsOf(typeof(Queue<>))
+					|| type.HasAnyTypeDefinitionsOf(typeof(Stack<>)))
+					return DeserializeSpecializedCollections<T, TSerializer>.Parse;
+
 				if (type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
 					return DeserializeEnumerable<T, TSerializer>.Parse;
 			}

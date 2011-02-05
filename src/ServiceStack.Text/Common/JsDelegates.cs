@@ -29,4 +29,6 @@ namespace ServiceStack.Text.Common
 	public delegate void SetPropertyDelegate(object instance, object propertyValue);
 
 	public delegate object ParseStringDelegate(string stringValue);
+
+	public delegate object ConvertObjectDelegate(object fromObject);
 }

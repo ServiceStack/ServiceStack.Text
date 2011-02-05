@@ -48,7 +48,7 @@ namespace ServiceStack.Text.Json
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex);
+				Tracer.Instance.WriteError(ex);
 				throw;
 			}
 		}

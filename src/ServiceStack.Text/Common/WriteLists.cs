@@ -267,7 +267,7 @@ namespace ServiceStack.Text.Common
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex);
+				Tracer.Instance.WriteError(ex);
 				throw;
 			}
 			writer.Write(JsWriter.ListEndChar);
