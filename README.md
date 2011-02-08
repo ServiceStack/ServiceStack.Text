@@ -14,7 +14,7 @@ For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/
 Based on the [Northwind Benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.100000-times.2010-08-17.html) it's *3.6x* faster than .NET's BCL JsonDataContractSerializer and *3x* faster then the previous fastest JSON serializer benchmarked - [JSON.NET](http://json.codeplex.com/).
 
 ## ServiceStack.CsvSerializer
-As CSV is an important format in many data access and migration scenarios, it became [the latest format included in ServiceStack](https://github.com/mythz/ServiceStack/wiki/ServiceStack-CSV-Format) which allows all your existing web services to take advantage of the new format without config or code-changes. As its built using the same tech that makes the JSON and JSV serializers so fast, we expect it to be the fastest POCO CSV Serializer for .NET.
+As CSV is an important format in many data access and migration scenarios, it became [the latest format included in ServiceStack](https://github.com/ServiceStack/ServiceStack/wiki/ServiceStack-CSV-Format) which allows all your existing web services to take advantage of the new format without config or code-changes. As its built using the same tech that makes the JSON and JSV serializers so fast, we expect it to be the fastest POCO CSV Serializer for .NET.
 
 ## ServiceStack.TypeSerializer and the JSV-format
 Included in this project is `TypeSerializer` - The fastest and most compact text-based serializer for .NET. It's a light-weight compact Text Serializer which can be used to serialize any .NET data type including your own custom POCO's and DataContract's. More info on its JSV Format can be found on the [introductory post](http://www.servicestack.net/mythz_blog/?p=176).
@@ -54,8 +54,8 @@ Another useful library to have in your .NET toolbox is the [T.Dump() Extension M
 
 
 # Download
-### ServiceStack.Text is included with [ServiceStack.zip](https://github.com/mythz/ServiceStack/downloads) 
-### or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/mythz/ServiceStack.Text/downloads). 
+### ServiceStack.Text is included with [ServiceStack.zip](https://github.com/ServiceStack/ServiceStack/downloads) 
+### or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/ServiceStack/ServiceStack.Text/downloads). 
 
 <hr />
 
@@ -81,7 +81,7 @@ These characteristics make it ideal for use anywhere you need to store or transp
  
 As such, it's utilized within ServiceStack's other components:
  - OrmLite - to store complex types on table models as text blobs in a database field and
- - [ServiceStack.Redis](https://github.com/mythz/ServiceStack.Redis) - to store rich POCO data types into the very fast [redis](http://code.google.com/p/redis) instances.
+ - [ServiceStack.Redis](https://github.com/ServiceStack/ServiceStack.Redis) - to store rich POCO data types into the very fast [redis](http://code.google.com/p/redis) instances.
 
 # Simple API
 
@@ -171,6 +171,6 @@ A value with a double-quote is escaped with another double quote e.g:
 
 
 ## Rich support for resilience and schema versioning
-To better illustrate the resilience of `TypeSerializer` and the JSV Format check out a real world example of it when it's used to [Painlessly migrate between old and new types in Redis](https://github.com/mythz/ServiceStack.Redis/wiki/MigrationsUsingSchemalessNoSql). 
+To better illustrate the resilience of `TypeSerializer` and the JSV Format check out a real world example of it when it's used to [Painlessly migrate between old and new types in Redis](https://github.com/ServiceStack/ServiceStack.Redis/wiki/MigrationsUsingSchemalessNoSql). 
 
 Support for dynamic payloads and late-bound objects is explained in the post [Versatility of JSV Late-bound objects](http://www.servicestack.net/mythz_blog/?p=314).
