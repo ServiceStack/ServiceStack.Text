@@ -8,6 +8,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 {
 	[TestFixture]
 	public class JsonDataContractCompatibilityTests
+		: TestBase
 	{
 
 		[Test]

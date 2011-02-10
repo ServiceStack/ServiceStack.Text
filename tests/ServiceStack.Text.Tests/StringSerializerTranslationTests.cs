@@ -1,6 +1,7 @@
 #if !MONO
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Northwind.Common.ComplexModel;
 using Northwind.Common.DataModel;
 using Northwind.Common.ServiceModel;
@@ -12,6 +13,7 @@ namespace ServiceStack.Text.Tests
 {
 	[TestFixture]
 	public class StringSerializerTranslationTests
+		: TestBase
 	{
 		public StringSerializerTranslationTests()
 		{
@@ -57,7 +59,7 @@ namespace ServiceStack.Text.Tests
 			Assert.That(translateToModel["Name"], Is.EqualTo(model.Name));
 			Assert.That(translateToModel["Bool"], Is.EqualTo(model.Bool.ToString()));
 			Assert.That(translateToModel["DateTime"], Is.EqualTo(DateTimeSerializer.ToShortestXsdDateTimeString(model.DateTime)));
-			Assert.That(translateToModel["Double"], Is.EqualTo(model.Double.ToString()));
+			Assert.That(translateToModel["Double"], Is.EqualTo(model.Double.ToString(CultureInfo.InvariantCulture)));
 			Assert.That(translateToModel["Guid"], Is.EqualTo(model.Guid.ToString("N")));
 			Assert.That(translateToModel["LongId"], Is.EqualTo(model.LongId.ToString()));
 		}
@@ -83,7 +85,7 @@ namespace ServiceStack.Text.Tests
 			Assert.That(translateToModel.Name, Is.EqualTo(model["Name"]));
 			Assert.That(translateToModel.Bool.ToString(), Is.EqualTo(model["Bool"]));
 			Assert.That(translateToModel.DateTime, Is.EqualTo(new DateTime(2008, 1, 10)));
-			Assert.That(translateToModel.Double, Is.EqualTo(double.Parse(model["Double"])));
+			Assert.That(translateToModel.Double, Is.EqualTo(double.Parse(model["Double"], CultureInfo.InvariantCulture)));
 			Assert.That(translateToModel.Guid, Is.EqualTo(new Guid("99161EEC-2857-4031-8CED-EAE21F954496")));
 			Assert.That(translateToModel.LongId, Is.EqualTo(long.Parse(model["LongId"])));
 		}
@@ -98,7 +100,7 @@ namespace ServiceStack.Text.Tests
 			Assert.That(translateToModel["Id"], Is.EqualTo(model.Id.ToString()));
 			Assert.That(translateToModel["Bool"], Is.EqualTo(model.Bool.ToString()));
 			Assert.That(translateToModel["DateTime"], Is.EqualTo(DateTimeSerializer.ToShortestXsdDateTimeString(model.DateTime)));
-			Assert.That(translateToModel["Double"], Is.EqualTo(model.Double.ToString()));
+			Assert.That(translateToModel["Double"], Is.EqualTo(model.Double.ToString(CultureInfo.InvariantCulture)));
 			Assert.That(translateToModel["Guid"], Is.EqualTo(model.Guid.ToString("N")));
 			Assert.That(translateToModel["LongId"], Is.EqualTo(model.LongId.ToString()));
 			Assert.That(translateToModel["Name"], Is.EqualTo(model.Name));

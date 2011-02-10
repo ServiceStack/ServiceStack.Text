@@ -8,6 +8,13 @@ namespace ServiceStack.Text.Tests
 {
 	public abstract class TestBase
 	{
+		protected TestBase()
+		{
+			//Uncomment to run tests under a different Culture
+			//System.Threading.Thread.CurrentThread.CurrentCulture =
+			//    System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+		}
+
 		public virtual void Log(string message, params object[] args)
 		{
 #if DEBUG
