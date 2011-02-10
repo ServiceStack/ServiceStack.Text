@@ -10,7 +10,7 @@ namespace ServiceStack.Text.Tests
 	{
 		protected TestBase()
 		{
-			//Uncomment to run tests under a different Culture
+			//Uncomment to run tests under a different Culture 
 			//System.Threading.Thread.CurrentThread.CurrentCulture =
 			//    System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
 		}
