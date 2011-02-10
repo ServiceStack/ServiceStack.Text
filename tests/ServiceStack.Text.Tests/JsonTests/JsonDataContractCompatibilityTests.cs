@@ -35,7 +35,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var ssJson = JsonSerializer.SerializeToString(releaseDate);
 			var bclJson = BclJsonDataContractSerializer.Instance.Parse(releaseDate);
 
-			//Console.WriteLine("Ticks: {0}", releaseDate.Ticks);
+			//Console.WriteLine("Ticks: {0}", releaseDate.Ticks); 
 			//Console.WriteLine("UnixEpoch: {0}", DateTimeExtensions.UnixEpoch);
 			//Console.WriteLine("TicksPerMs: {0}", TimeSpan.TicksPerSecond / 1000);
 			//Console.WriteLine("Ticks - UnixEpoch: {0}", releaseDate.Ticks - DateTimeExtensions.UnixEpoch);
