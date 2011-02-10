@@ -39,12 +39,12 @@ namespace ServiceStack.Text.Tests.Utils
 			var shortDate = new DateTime(1979, 5, 9);
 			const string shortDateString = "1979-05-09";
 
-			var shortDateTime = new DateTime(1979, 5, 9, 0, 0, 1);
+			var shortDateTime = new DateTime(1979, 5, 9, 0, 0, 1, DateTimeKind.Utc);
 			var shortDateTimeString = shortDateTime.Equals(shortDateTime.ToUniversalTime())
               	? "1979-05-09T00:00:01Z"
               	: "1979-05-08T23:00:01Z";
 
-			var longDateTime = new DateTime(1979, 5, 9, 0, 0, 0, 1);
+			var longDateTime = new DateTime(1979, 5, 9, 0, 0, 0, 1, DateTimeKind.Utc);
 			var longDateTimeString = longDateTime.Equals(longDateTime.ToUniversalTime())
          		? "1979-05-09T00:00:00.001Z"
          		: "1979-05-08T23:00:00.001Z";

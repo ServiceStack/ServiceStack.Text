@@ -28,7 +28,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 					Float = i,
 					Double = i,
 					Boolean = i % 2 == 0,
-					DateTime = new DateTime(DateTimeExtensions.UnixEpoch + (i * DateTimeExtensions.TicksPerMs)),
+					DateTime = new DateTime(DateTimeExtensions.UnixEpoch + (i * DateTimeExtensions.TicksPerMs), DateTimeKind.Utc),
 				};
 			}
 		}
