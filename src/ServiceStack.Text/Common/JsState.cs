@@ -10,5 +10,8 @@ namespace ServiceStack.Text.Common
 
 		[ThreadStatic]
 		public static bool IsWritingValue = false;
+
+        [ThreadStatic]
+	    public static bool ConvertObjectTypesIntoStringDictionary = false;
 	}
 }

@@ -26,6 +26,13 @@ namespace ServiceStack.Text.Json
 			}
 		}
 
+        public static bool IsJsonString(string value)
+        {
+            return
+                !string.IsNullOrEmpty(value) &&
+                (value.StartsWith("{") && value.EndsWith("}") && value.Contains(":"));
+        }
+
 		public static void WriteString(TextWriter writer, string value)
 		{
 			if (!HasAnyEscapeChars(value))

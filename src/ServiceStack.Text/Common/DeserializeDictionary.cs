@@ -15,148 +15,167 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-	internal static class DeserializeDictionary<TSerializer>
-		where TSerializer : ITypeSerializer
-	{
-		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+    internal static class DeserializeDictionary<TSerializer>
+        where TSerializer : ITypeSerializer
+    {
+        private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-		const int KeyIndex = 0;
-		const int ValueIndex = 1;
+        const int KeyIndex = 0;
+        const int ValueIndex = 1;
 
-		public static ParseStringDelegate GetParseMethod(Type type)
-		{
-			var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
-			if (mapInterface == null)
-				throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
+        public static ParseStringDelegate GetParseMethod(Type type)
+        {
+            var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
+            if (mapInterface == null)
+                throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
 
-			//optimized access for regularly used types
-			if (type == typeof(Dictionary<string, string>))
-			{
-				return ParseStringDictionary;
-			}
+            //optimized access for regularly used types
+            if (type == typeof(Dictionary<string, string>))
+            {
+                return ParseStringDictionary;
+            }
 
-			var dictionaryArgs =  mapInterface.GetGenericArguments();
+            var dictionaryArgs = mapInterface.GetGenericArguments();
 
-			var keyTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[KeyIndex]);
-			if (keyTypeParseMethod == null) return null;
+            var keyTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[KeyIndex]);
+            if (keyTypeParseMethod == null) return null;
 
-			var valueTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[ValueIndex]);
-			if (valueTypeParseMethod == null) return null;
+            var valueTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[ValueIndex]);
+            if (valueTypeParseMethod == null) return null;
 
-			var createMapType = type.HasAnyTypeDefinitionsOf(typeof(Dictionary<,>), typeof(IDictionary<,>))
-				? null : type;
-			
-			return value => ParseDictionaryType(value, createMapType, dictionaryArgs, keyTypeParseMethod, valueTypeParseMethod);
-		}
+            var createMapType = type.HasAnyTypeDefinitionsOf(typeof(Dictionary<,>), typeof(IDictionary<,>))
+                ? null : type;
 
-		public static Dictionary<string, string> ParseStringDictionary(string value)
-		{
-			var index = VerifyAndGetStartIndex(value, typeof (Dictionary<string, string>));
+            return value => ParseDictionaryType(value, createMapType, dictionaryArgs, keyTypeParseMethod, valueTypeParseMethod);
+        }
 
-			var result = new Dictionary<string, string>();
+        public static Dictionary<string, string> ParseStringDictionary(string value)
+        {
+            var index = VerifyAndGetStartIndex(value, typeof(Dictionary<string, string>));
 
-			if (value == JsWriter.EmptyMap) return result;
+            var result = new Dictionary<string, string>();
 
-			var valueLength = value.Length;
-			while (index < valueLength)
-			{
-				var keyValue = Serializer.EatMapKey(value, ref index);
-				Serializer.EatMapKeySeperator(value, ref index);
-				var elementValue = Serializer.EatValue(value, ref index);
+            if (value == JsWriter.EmptyMap) return result;
 
-				var mapKey = Serializer.ParseString(keyValue);
-				var mapValue = Serializer.ParseString(elementValue);
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementValue = Serializer.EatValue(value, ref index);
 
-				result[mapKey] = mapValue;
+                var mapKey = Serializer.ParseString(keyValue);
+                var mapValue = Serializer.ParseString(elementValue);
 
-				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
-			}
+                result[mapKey] = mapValue;
 
-			return result;
-		}
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
 
-		public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue>(
-			string value, Type createMapType, 
-			ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn)
-		{
-			var index = VerifyAndGetStartIndex(value, createMapType);
+            return result;
+        }
 
-			var to = (createMapType == null)
-	         	? new Dictionary<TKey, TValue>()
-	         	: (IDictionary<TKey, TValue>)ReflectionExtensions.CreateInstance(createMapType);
+        public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue>(string value, Type createMapType, 
+            ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn)
+        {
+            var tryToParseItemsAsDictionaries = 
+                JsState.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
+            var index = VerifyAndGetStartIndex(value, createMapType);
 
-			if (value == JsWriter.EmptyMap) return to;
+            var to = (createMapType == null)
+                ? new Dictionary<TKey, TValue>()
+                : (IDictionary<TKey, TValue>)ReflectionExtensions.CreateInstance(createMapType);
 
-			var valueLength = value.Length;
-			while (index < valueLength)
-			{
-				var keyValue = Serializer.EatMapKey(value, ref index);
-				Serializer.EatMapKeySeperator(value, ref index);
-				var elementValue = Serializer.EatValue(value, ref index);
+            if (value == JsWriter.EmptyMap) return to;
 
-				var mapKey = (TKey)parseKeyFn(keyValue);
-				var mapValue = (TValue)parseValueFn(elementValue);
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementValue = Serializer.EatValue(value, ref index);
+                var mapKey = (TKey)parseKeyFn(keyValue);
+                var mapValue = (TValue)parseValueFn(elementValue);
 
-				to[mapKey] = mapValue;
+                if(tryToParseItemsAsDictionaries)
+                {
+                    var mapValueString = mapValue as string;
+                    var tryParseValueAsDictionary =
+                        !string.IsNullOrEmpty(mapValueString) && JsonUtils.IsJsonString(mapValueString);
 
-				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
-			}
+                    if (tryParseValueAsDictionary)
+                    {
+                        var tmp = ParseDictionary<TKey, TValue>(mapValueString, createMapType, parseKeyFn, parseValueFn);
+                        if (tmp != null && tmp.Count > 0)
+                            to[mapKey] = (TValue)tmp;
+                        else
+                            to[mapKey] = mapValue;
+                    }
+                    else
+                        to[mapKey] = mapValue;
+                }
+                else
+                    to[mapKey] = mapValue;
 
-			return to;
-		}
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
 
-		private static int VerifyAndGetStartIndex(string value, Type createMapType)
-		{
-			var index = 0;
-			if (!Serializer.EatMapStartChar(value, ref index))
-			{
-				//Don't throw ex because some KeyValueDataContractDeserializer don't have '{}'
-				Tracer.Instance.WriteDebug("WARN: Map definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
-					JsWriter.MapStartChar, createMapType != null ? createMapType.Name : "Dictionary<,>", value.Substring(0, value.Length < 50 ? value.Length : 50));
-			}
-			return index;
-		}
+            return to;
+        }
 
-		private static readonly Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache 
-			= new Dictionary<string, ParseDictionaryDelegate>();
+        private static int VerifyAndGetStartIndex(string value, Type createMapType)
+        {
+            var index = 0;
+            if (!Serializer.EatMapStartChar(value, ref index))
+            {
+                //Don't throw ex because some KeyValueDataContractDeserializer don't have '{}'
+                Tracer.Instance.WriteDebug("WARN: Map definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
+                    JsWriter.MapStartChar, createMapType != null ? createMapType.Name : "Dictionary<,>", value.Substring(0, value.Length < 50 ? value.Length : 50));
+            }
+            return index;
+        }
 
-		private delegate object ParseDictionaryDelegate(string value, Type createMapType,
-			ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn);
+        private static readonly Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
+            = new Dictionary<string, ParseDictionaryDelegate>();
 
-		public static object ParseDictionaryType(string value, Type createMapType, Type[] argTypes,
-			ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn)
-		{
-			var mi = typeof(DeserializeDictionary<TSerializer>)
-				.GetMethod("ParseDictionary", BindingFlags.Static | BindingFlags.Public);
+        private delegate object ParseDictionaryDelegate(string value, Type createMapType,
+            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn);
 
-			ParseDictionaryDelegate parseDelegate;
-			var key = GetTypesKey(argTypes);
-			if (!ParseDelegateCache.TryGetValue(key, out parseDelegate))
-			{
-				var genericMi = mi.MakeGenericMethod(argTypes);
-				parseDelegate = (ParseDictionaryDelegate)Delegate.CreateDelegate(
-				                                         	typeof(ParseDictionaryDelegate), genericMi);
+        public static object ParseDictionaryType(string value, Type createMapType, Type[] argTypes,
+            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn)
+        {
+            var mi = typeof(DeserializeDictionary<TSerializer>)
+                .GetMethod("ParseDictionary", BindingFlags.Static | BindingFlags.Public);
 
-				ParseDelegateCache[key] = parseDelegate;
-			}
+            ParseDictionaryDelegate parseDelegate;
+            var key = GetTypesKey(argTypes);
+            if (!ParseDelegateCache.TryGetValue(key, out parseDelegate))
+            {
+                var genericMi = mi.MakeGenericMethod(argTypes);
+                parseDelegate = (ParseDictionaryDelegate)Delegate.CreateDelegate(
+                                                            typeof(ParseDictionaryDelegate), genericMi);
 
-			return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
-		}
+                ParseDelegateCache[key] = parseDelegate;
+            }
 
-		private static string GetTypesKey(params Type[] types)
-		{
-			var sb = new StringBuilder(256);
-			foreach (var type in types)
-			{
-				if (sb.Length > 0)
-					sb.Append(">");
+            return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
+        }
 
-				sb.Append(type.FullName);
-			}
-			return sb.ToString();
-		}
-	}
+        private static string GetTypesKey(params Type[] types)
+        {
+            var sb = new StringBuilder(256);
+            foreach (var type in types)
+            {
+                if (sb.Length > 0)
+                    sb.Append(">");
+
+                sb.Append(type.FullName);
+            }
+            return sb.ToString();
+        }
+    }
 }
