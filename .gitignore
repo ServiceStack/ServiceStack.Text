@@ -1,47 +1,19 @@
-bin/
-obj/
-.idea/
-latest/
-/env-vars.bat
-*.suo
-#ignore thumbnails created by windows
-Thumbs.db
-#Ignore files build by Visual Studio
-*.obj
-*.exe
-*.pdb
-*.user
-*.aps
-*.pch
+# Visual studio stuff
+[Oo]bj/
+[Bb]in/
+[D]ebug/
+[Dd]eploy/
+[Tt]est[Rr]esult/
 *.vspscc
-*_i.c
-*_p.c
-*.ncb
+*.vssscc
 *.suo
-*.tlb
-*.tlh
-*.bak
 *.cache
-*.ilk
-*.log
-[Bb]in
-[Dd]ebug*/
-*.lib
-*.sbr
-*.resharper.user
-obj/
-[Rr]elease*/
-_ReSharper*/
-[Tt]est[Rr]esult*
-App_Data/
+*.csproj.user
+*~
+_ReSharper.*
+*.resharper*
+*.[Rr]e[Ss]harper.user
+*.swp
 
-*.resharper.user
-*.suo
-*.user
-*.suo
-*.user
-*.suo
-*.user
-*.suo
-*.user
-*.suo
+#windows stuff
+Thumbs.db
