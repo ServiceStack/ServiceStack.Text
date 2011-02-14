@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace ServiceStack.Text.Json
@@ -117,6 +118,13 @@ namespace ServiceStack.Text.Json
 
 				intValue >>= 4;
 			}
+		}
+
+		public static bool IsJsString(string value)
+		{
+			return !string.IsNullOrEmpty(value)
+				&& value[0] == '{'
+				&& value[value.Length - 1] == '}';
 		}
 	}
 

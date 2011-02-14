@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -38,7 +39,7 @@ namespace ServiceStack.Text.Common
 				return ParseStringDictionary;
 			}
 
-			var dictionaryArgs =  mapInterface.GetGenericArguments();
+			var dictionaryArgs = mapInterface.GetGenericArguments();
 
 			var keyTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[KeyIndex]);
 			if (keyTypeParseMethod == null) return null;
@@ -48,13 +49,13 @@ namespace ServiceStack.Text.Common
 
 			var createMapType = type.HasAnyTypeDefinitionsOf(typeof(Dictionary<,>), typeof(IDictionary<,>))
 				? null : type;
-			
+
 			return value => ParseDictionaryType(value, createMapType, dictionaryArgs, keyTypeParseMethod, valueTypeParseMethod);
 		}
 
 		public static Dictionary<string, string> ParseStringDictionary(string value)
 		{
-			var index = VerifyAndGetStartIndex(value, typeof (Dictionary<string, string>));
+			var index = VerifyAndGetStartIndex(value, typeof(Dictionary<string, string>));
 
 			var result = new Dictionary<string, string>();
 
@@ -79,14 +80,17 @@ namespace ServiceStack.Text.Common
 		}
 
 		public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue>(
-			string value, Type createMapType, 
+			string value, Type createMapType,
 			ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn)
 		{
+			var tryToParseItemsAsDictionaries =
+				JsConfig.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
+
 			var index = VerifyAndGetStartIndex(value, createMapType);
 
 			var to = (createMapType == null)
-	         	? new Dictionary<TKey, TValue>()
-	         	: (IDictionary<TKey, TValue>)ReflectionExtensions.CreateInstance(createMapType);
+				? new Dictionary<TKey, TValue>()
+				: (IDictionary<TKey, TValue>)ReflectionExtensions.CreateInstance(createMapType);
 
 			if (value == JsWriter.EmptyMap) return to;
 
@@ -100,7 +104,26 @@ namespace ServiceStack.Text.Common
 				var mapKey = (TKey)parseKeyFn(keyValue);
 				var mapValue = (TValue)parseValueFn(elementValue);
 
-				to[mapKey] = mapValue;
+				if (tryToParseItemsAsDictionaries)
+				{
+					var mapValueString = mapValue as string;
+					var tryParseValueAsDictionary = JsonUtils.IsJsString(mapValueString);
+					if (tryParseValueAsDictionary)
+					{
+						var tmpMap = ParseDictionary<TKey, TValue>(mapValueString, createMapType, parseKeyFn, parseValueFn);
+						to[mapKey] = (tmpMap != null && tmpMap.Count > 0)
+							? (TValue)tmpMap
+							: to[mapKey] = mapValue;
+					}
+					else
+					{
+						to[mapKey] = mapValue;
+					}
+				}
+				else
+				{
+					to[mapKey] = mapValue;
+				}
 
 				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
 			}
@@ -120,7 +143,7 @@ namespace ServiceStack.Text.Common
 			return index;
 		}
 
-		private static readonly Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache 
+		private static readonly Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
 			= new Dictionary<string, ParseDictionaryDelegate>();
 
 		private delegate object ParseDictionaryDelegate(string value, Type createMapType,
@@ -138,7 +161,7 @@ namespace ServiceStack.Text.Common
 			{
 				var genericMi = mi.MakeGenericMethod(argTypes);
 				parseDelegate = (ParseDictionaryDelegate)Delegate.CreateDelegate(
-				                                         	typeof(ParseDictionaryDelegate), genericMi);
+					typeof(ParseDictionaryDelegate), genericMi);
 
 				ParseDelegateCache[key] = parseDelegate;
 			}
