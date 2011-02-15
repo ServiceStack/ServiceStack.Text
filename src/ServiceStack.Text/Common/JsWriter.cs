@@ -19,6 +19,8 @@ namespace ServiceStack.Text.Common
 
 		public const char ListStartChar = '[';
 		public const char ListEndChar = ']';
+		public const char ReturnChar = '\r';
+		public const char LineFeedChar = '\n';
 
 		public const char QuoteChar = '"';
 		public const string QuoteString = "\"";
@@ -27,7 +29,7 @@ namespace ServiceStack.Text.Common
 		public const string MapKeySeperatorString = ":";
 
 		public static readonly char[] CsvChars = new[] { ItemSeperator, QuoteChar };
-		public static readonly char[] EscapeChars = new[] { QuoteChar, MapKeySeperator, ItemSeperator, MapStartChar, MapEndChar, ListStartChar, ListEndChar, };
+		public static readonly char[] EscapeChars = new[] { QuoteChar, MapKeySeperator, ItemSeperator, MapStartChar, MapEndChar, ListStartChar, ListEndChar, ReturnChar, LineFeedChar };
 
 		private const int LengthFromLargestChar = '}' + 1;
 		private static readonly bool[] EscapeCharFlags = new bool[LengthFromLargestChar];
