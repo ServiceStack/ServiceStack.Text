@@ -100,6 +100,8 @@
     <Compile Include="BasicStringSerializerTests.cs" />
     <Compile Include="CsvSerializerTests.cs" />
     <Compile Include="CsvStreamTests.cs" />
+    <Compile Include="CsvTests\CustomHeaderTests.cs" />
+    <Compile Include="Support\TableItem.cs" />
     <Compile Include="CsvTests\NewLineTests.cs" />
     <Compile Include="CultureInfoTests.cs" />
     <Compile Include="CustomStructTests.cs" />

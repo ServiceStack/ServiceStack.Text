@@ -6,9 +6,62 @@ using ServiceStack.Text.Reflection;
 
 namespace ServiceStack.Text
 {
+	public static class CsvConfig<T>
+	{
+		private static Dictionary<string, string> customHeadersMap;
+		public static Dictionary<string, string> CustomHeadersMap
+		{
+			get
+			{
+				return customHeadersMap;
+			}
+			set
+			{
+				customHeadersMap = value;
+				if (value == null) return;
+				CsvWriter<T>.ConfigureCustomHeaders(customHeadersMap);
+			}
+		}
+
+		public static object CustomHeaders
+		{
+			set
+			{
+				if (value == null) return;
+				if (value.GetType().IsValueType)
+					throw new ArgumentException("CustomHeaders is a ValueType");
+
+				var propertyInfos = value.GetType().GetProperties();
+				if (propertyInfos.Length == 0) return;
+
+				customHeadersMap = new Dictionary<string, string>();
+				foreach (var pi in propertyInfos)
+				{
+					var getMethod = pi.GetGetMethod();
+					if (getMethod == null) continue;
+
+					var oValue = getMethod.Invoke(value, new object[0]);
+					if (oValue == null) continue;
+					customHeadersMap[pi.Name] = oValue.ToString();
+				}
+				CsvWriter<T>.ConfigureCustomHeaders(customHeadersMap);
+			}
+		}
+
+		public static void Reset()
+		{
+			CsvWriter<T>.Reset();
+		}
+	}
+
+
 	internal class CsvWriter<T>
 	{
 		public const char DelimiterChar = ',';
+
+		public static List<string> Headers { get; set; }
+
+		internal static List<Func<T, object>> PropertyGetters;
 
 		private static readonly WriteObjectDelegate OptimizedWriter;
 
@@ -16,10 +69,15 @@ namespace ServiceStack.Text
 		{
 			if (typeof(T) == typeof(string))
 			{
-				OptimizedWriter = (w, o) => WriteRow(w, (IEnumerable<string>) o);
+				OptimizedWriter = (w, o) => WriteRow(w, (IEnumerable<string>)o);
 				return;
 			}
 
+			Reset();
+		}
+
+		internal static void Reset()
+		{
 			Headers = new List<string>();
 
 			PropertyGetters = new List<Func<T, object>>();
@@ -33,9 +91,25 @@ namespace ServiceStack.Text
 			}
 		}
 
-		public static List<string> Headers { get; set; }
+		internal static void ConfigureCustomHeaders(Dictionary<string, string> customHeadersMap)
+		{
+			Reset();
 
-		internal static readonly List<Func<T, object>> PropertyGetters;
+			for (var i = Headers.Count - 1; i >= 0; i--)
+			{
+				var oldHeader = Headers[i];
+				string newHeaderValue;
+				if (!customHeadersMap.TryGetValue(oldHeader, out newHeaderValue))
+				{
+					Headers.RemoveAt(i);
+					PropertyGetters.RemoveAt(i);
+				}
+				else
+				{
+					Headers[i] = newHeaderValue.EncodeJsv();
+				}
+			}
+		}
 
 		private static List<string> GetSingleRow(IEnumerable<T> records, Type recordType)
 		{
