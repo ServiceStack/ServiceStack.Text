@@ -90,5 +90,32 @@ namespace ServiceStack.Text.Tests.CsvTests
 			));
 		}
 
+		[Test]
+		public void Can_serialize_without_headers()
+		{
+			CsvConfig<TableItem>.OmitHeaders = true;
+
+			CsvConfig<TableItem>.CustomHeadersMap = new Dictionary<string, string> {
+				{"Column1Data", "Column 1"},
+				{"Column2Data", "Column 2"},
+				{"Column3Data", "Column,3"},
+				{"Column4Data", "Column\n4"},
+				{"Column5Data", "Column 5"},
+			};
+			var data = new List<TableItem> {
+				new TableItem { Column1Data = "I", Column2Data = "Like", Column3Data = "To", Column4Data = "Read", Column5Data = "Novels" },
+				new TableItem { Column1Data = "I am", Column2Data = "Very", Column3Data = "Cool", Column4Data = "And", Column5Data = "Awesome" },
+			};
+
+			var csv = CsvSerializer.SerializeToCsv(data);
+
+			Console.WriteLine(csv);
+
+			Assert.That(csv, Is.EqualTo(
+				"I,Like,To,Read,Novels\r\n"
+				+ "I am,Very,Cool,And,Awesome\r\n"
+			));
+		}
+
 	}
 }

@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyUtils.cs" />
+    <Compile Include="CsvConfig.cs" />
     <Compile Include="JsConfig.cs" />
     <Compile Include="Common\DeserializeSpecializedCollections.cs" />
     <Compile Include="Common\JsReader.cs" />
