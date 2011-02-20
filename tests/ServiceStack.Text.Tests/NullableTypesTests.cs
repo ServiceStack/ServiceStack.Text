@@ -5,21 +5,30 @@ namespace ServiceStack.Text.Tests
 {
 	[TestFixture]
 	public class NullableTypesTests
-		: TestBase
 	{
 		[Test]
 		public void Can_Serialize_populated_model_of_NullableTypes()
 		{
 			var model = ModelWithFieldsOfNullableTypes.Create(1);
-			Serialize(model);
+
+			var json = JsonSerializer.SerializeToString(model);
+
+			var fromJson = JsonSerializer.DeserializeFromString<ModelWithFieldsOfNullableTypes>(json);
+
+			ModelWithFieldsOfNullableTypes.AssertIsEqual(model, fromJson);
 		}
 
 		[Test]
 		public void Can_Serialize_empty_model_of_NullableTypes()
 		{
 			var model = new ModelWithFieldsOfNullableTypes();
-			Serialize(model);
-		}
 
+			var json = JsonSerializer.SerializeToString(model);
+
+			var fromJson = JsonSerializer.DeserializeFromString<ModelWithFieldsOfNullableTypes>(json);
+
+			ModelWithFieldsOfNullableTypes.AssertIsEqual(model, fromJson);
+		}
 	}
+
 }
