@@ -70,6 +70,34 @@ namespace ServiceStack.Text.Tests.JsonTests
             public IDictionary<int,int> Dictionary { get; set; }
         }
 
-    
+        [Test]
+        public void Serialize_skips_null_values_by_default()
+        {
+            var o = new {
+                Name = "Brandon",
+                Type = "Programmer",
+                SampleKey = 12,
+                Nothing = (string)null
+            };
+            
+            var s = JsonSerializer.SerializeToString(o);
+            Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12}"));
+        }
+
+        [Test]
+        public void Serialize_can_include_null_values()
+        {
+            var o = new {
+                Name = "Brandon",
+                Type = "Programmer",
+                SampleKey = 12,
+                Nothing = (string)null
+            };
+            
+            JsConfig.WriteNullValues = true;
+            var s = JsonSerializer.SerializeToString(o);
+            JsConfig.WriteNullValues = false;
+            Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}"));
+        }
 	}
 }
