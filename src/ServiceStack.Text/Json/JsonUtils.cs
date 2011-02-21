@@ -31,7 +31,7 @@ namespace ServiceStack.Text.Json
 		{
 			if (value == null)
 			{
-				writer.Write("null");
+                writer.Write(JsonUtils.Null);
 				return;
 			}
 			if (!HasAnyEscapeChars(value))
