@@ -7,6 +7,11 @@ namespace ServiceStack.Text
 	{
 		public static T JsonTo<T>(this Dictionary<string, string> map, string key)
 		{
+			return Get<T>(map, key);
+		}
+
+		public static T Get<T>(this Dictionary<string, string> map, string key)
+		{
 			string strVal;
 			return map.TryGetValue(key, out strVal) ? JsonSerializer.DeserializeFromString<T>(strVal) : default(T);
 		}
@@ -45,10 +50,27 @@ namespace ServiceStack.Text
 		public JsonArrayObjects ArrayObjects(string propertyName)
 		{
 			string strValue;
-			this.TryGetValue(propertyName, out strValue);
-			return strValue == null 
-				? null 
-				: Text.JsonArrayObjects.Parse(strValue);
+			return this.TryGetValue(propertyName, out strValue)
+				? JsonArrayObjects.Parse(strValue)
+				: null;
+		}
+
+		public JsonObject Object(string propertyName)
+		{
+			string strValue;
+			return this.TryGetValue(propertyName, out strValue)
+				? Parse(strValue)
+				: null;
+		}
+
+		public T ConvertTo<T>(Func<JsonObject, T> converFn)
+		{
+			return converFn(this);
+		}
+
+		public Dictionary<string, string> ToDictionary()
+		{
+			return new Dictionary<string, string>(this);
 		}
 	}
 
