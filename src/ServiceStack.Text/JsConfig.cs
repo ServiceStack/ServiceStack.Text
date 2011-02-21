@@ -6,5 +6,8 @@ namespace ServiceStack.Text
 	{
 		[ThreadStatic]
 		public static bool ConvertObjectTypesIntoStringDictionary = false;
+
+        [ThreadStatic]
+        public static bool WriteNullValues = false;
 	}
 }

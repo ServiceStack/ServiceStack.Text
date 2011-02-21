@@ -103,7 +103,7 @@ namespace ServiceStack.Text.Common
 				foreach (var propertyWriter in PropertyWriters)
 				{
 					var propertyValue = propertyWriter.GetterFn((T)value);
-					if (propertyValue == null) continue;
+					if (propertyValue == null && !JsConfig.WriteNullValues) continue;
 
 					if (i++ > 0)
 						writer.Write(JsWriter.ItemSeperator);

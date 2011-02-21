@@ -89,6 +89,10 @@ namespace ServiceStack.Text.Json
 			{
 				WriteString(writer, value.ToString());
 			}
+			else
+			{
+				WriteString(writer, null);
+			}
 		}
 
 		public void WriteException(TextWriter writer, object value)
