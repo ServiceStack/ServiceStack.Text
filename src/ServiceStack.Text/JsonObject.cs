@@ -38,6 +38,20 @@ namespace ServiceStack.Text
 
 			return results;
 		}
+
+		public static T ConvertTo<T>(this JsonObject jsonObject, Func<JsonObject, T> converFn)
+		{
+			return jsonObject == null 
+				? default(T) 
+				: converFn(jsonObject);
+		}
+
+		public static Dictionary<string, string> ToDictionary(this JsonObject jsonObject)
+		{
+			return jsonObject == null 
+				? new Dictionary<string, string>() 
+				: new Dictionary<string, string>(jsonObject);
+		}
 	}
 
 	public class JsonObject : Dictionary<string, string>
@@ -61,16 +75,6 @@ namespace ServiceStack.Text
 			return this.TryGetValue(propertyName, out strValue)
 				? Parse(strValue)
 				: null;
-		}
-
-		public T ConvertTo<T>(Func<JsonObject, T> converFn)
-		{
-			return converFn(this);
-		}
-
-		public Dictionary<string, string> ToDictionary()
-		{
-			return new Dictionary<string, string>(this);
 		}
 	}
 
