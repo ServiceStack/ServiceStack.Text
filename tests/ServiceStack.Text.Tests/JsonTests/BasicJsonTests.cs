@@ -73,7 +73,8 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Serialize_skips_null_values_by_default()
         {
-            var o = new {
+            var o = new NullValueTester
+            {
                 Name = "Brandon",
                 Type = "Programmer",
                 SampleKey = 12,
@@ -87,7 +88,8 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Serialize_can_include_null_values()
         {
-            var o = new {
+            var o = new NullValueTester
+            {
                 Name = "Brandon",
                 Type = "Programmer",
                 SampleKey = 12,
@@ -98,6 +100,71 @@ namespace ServiceStack.Text.Tests.JsonTests
             var s = JsonSerializer.SerializeToString(o);
             JsConfig.WriteNullValues = false;
             Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}"));
+        }
+
+        [Test]
+        public void Deserialize_sets_null_values()
+        {
+            var s = "{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}";
+            var o = JsonSerializer.DeserializeFromString<NullValueTester>(s);
+            Assert.That(o.Name, Is.EqualTo("Brandon"));
+            Assert.That(o.Type, Is.EqualTo("Programmer"));
+            Assert.That(o.SampleKey, Is.EqualTo(12));
+            Assert.That(o.Nothing, Is.Null);
+        }
+
+        [Test]
+        public void Deserialize_ignores_omitted_values()
+        {
+            var s = "{\"Type\":\"Programmer\",\"SampleKey\":2}";
+            var o = JsonSerializer.DeserializeFromString<NullValueTester>(s);
+            Assert.That(o.Name, Is.EqualTo("Miguel"));
+            Assert.That(o.Type, Is.EqualTo("Programmer"));
+            Assert.That(o.SampleKey, Is.EqualTo(2));
+            Assert.That(o.Nothing, Is.EqualTo("zilch"));
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Deserialize_throws_for_null_valuetypes()
+        {
+            var s = "{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":null}";
+            var o = JsonSerializer.DeserializeFromString<NullValueTester>(s);
+        }
+
+        private class NullValueTester
+        {
+            public string Name
+            {
+                get;
+                set;
+            }
+
+            public string Type
+            {
+                get;
+                set;
+            }
+
+            public int SampleKey
+            {
+                get;
+                set;
+            }
+
+            public string Nothing
+            {
+                get;
+                set;
+            }
+
+            public NullValueTester()
+            {
+                Name = "Miguel";
+                Type = "User";
+                SampleKey = 1;
+                Nothing = "zilch";
+            }
         }
 	}
 }
