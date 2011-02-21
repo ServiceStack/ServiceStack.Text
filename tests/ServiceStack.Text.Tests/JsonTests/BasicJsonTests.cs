@@ -93,12 +93,12 @@ namespace ServiceStack.Text.Tests.JsonTests
                 Name = "Brandon",
                 Type = "Programmer",
                 SampleKey = 12,
-                Nothing = (string)null
+                Nothing = null
             };
             
-            JsConfig.WriteNullValues = true;
+            JsConfig.IncludeNullValues = true;
             var s = JsonSerializer.SerializeToString(o);
-            JsConfig.WriteNullValues = false;
+            JsConfig.IncludeNullValues = false;
             Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}"));
         }
 
