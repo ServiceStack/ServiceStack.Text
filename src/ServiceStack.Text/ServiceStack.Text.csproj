@@ -123,6 +123,7 @@
     <Compile Include="Support\TypePair.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="TranslateListWithElements.cs" />
+    <Compile Include="TypeConfig.cs" />
     <Compile Include="TypeSerializer.cs" />
     <Compile Include="Common\WriteType.cs" />
     <Compile Include="ReflectionExtensions.cs" />

@@ -154,7 +154,7 @@ namespace ServiceStack.Text
 			//Look for best candidate property if DTO
 			if (typeof(T).IsDto())
 			{
-				var properties = typeof(T).GetSerializableProperties();
+				var properties = TypeConfig<T>.Properties;
 				foreach (var propertyInfo in properties)
 				{
 					if (propertyInfo.Name == IgnoreResponseStatus) continue;

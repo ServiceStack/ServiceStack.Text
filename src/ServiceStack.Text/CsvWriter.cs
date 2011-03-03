@@ -32,7 +32,7 @@ namespace ServiceStack.Text
 			Headers = new List<string>();
 
 			PropertyGetters = new List<Func<T, object>>();
-			foreach (var propertyInfo in typeof(T).GetSerializableProperties())
+			foreach (var propertyInfo in TypeConfig<T>.Properties)
 			{
 				if (!propertyInfo.CanRead || propertyInfo.GetGetMethod() == null) continue;
 				if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;

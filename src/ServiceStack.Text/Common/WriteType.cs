@@ -45,7 +45,7 @@ namespace ServiceStack.Text.Common
 		{
 			if (!typeof(T).IsClass && !typeof(T).IsInterface) return false;
 
-			var propertyInfos = typeof(T).GetSerializableProperties();
+			var propertyInfos = TypeConfig<T>.Properties;
 			if (propertyInfos.Length == 0)
 			{
 				return typeof(T).IsDto();
