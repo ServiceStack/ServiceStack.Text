@@ -44,7 +44,9 @@ namespace ServiceStack.Text.Tests
 		public void TestFixtureSetUp()
 		{
 			previousCulture = Thread.CurrentThread.CurrentCulture;
-			Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
+			//Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
+			Thread.CurrentThread.CurrentCulture = new CultureInfo("vi-VN");
+			Thread.CurrentThread.CurrentUICulture = new CultureInfo("vi-VN");
 		}
 
 		[TestFixtureTearDown]
@@ -58,6 +60,15 @@ namespace ServiceStack.Text.Tests
 		{
 			var point = new Point { Latitude = -23.5707, Longitude = -46.57239 };
 			SerializeAndCompare(point);
+		}
+
+		[Test]
+		public void Can_deserialize_type_with_Single_in_different_culture()
+		{
+			Single single = (float) 1.123;
+			var txt = TypeSerializer.SerializeToString(single);
+
+			Console.WriteLine(txt);
 		}
 	}
 }

@@ -316,5 +316,35 @@ namespace ServiceStack.Text
 				? new[] { strVal }
 				: new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
 		}
+
+		public static string ToJsv<T>(this T obj)
+		{
+			return TypeSerializer.SerializeToString<T>(obj);
+		}
+
+		public static T FromJsv<T>(this string jsv)
+		{
+			return TypeSerializer.DeserializeFromString<T>(jsv);
+		}
+
+		public static string ToJson<T>(this T obj)
+		{
+			return JsonSerializer.SerializeToString<T>(obj);
+		}
+
+		public static T FromJson<T>(this string json)
+		{
+			return JsonSerializer.DeserializeFromString<T>(json);
+		}
+
+		public static string ToXml<T>(this T obj)
+		{
+			return XmlSerializer.SerializeToString<T>(obj);
+		}
+
+		public static T FromXml<T>(this string json)
+		{
+			return XmlSerializer.DeserializeFromString<T>(json);
+		}
 	}
 }
