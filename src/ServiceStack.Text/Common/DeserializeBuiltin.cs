@@ -28,46 +28,92 @@ namespace ServiceStack.Text.Common
 			get { return CachedParseFn; }
 		}
 
+        private delegate T2 ParseDelegate<T2>(string val);
+
+        private static object ParseNullable<T3>(string val, ParseDelegate<T3> del)
+        {
+            if (val == null)
+                return null;
+            else
+                return (object)del(val);
+        }
+
+        private static object ParseNonNullable<T3>(string val, ParseDelegate<T3> del)
+        {
+            if (val == null)
+                return default(T3);
+            else
+                return (object)del(val);
+        }
+
 		private static ParseStringDelegate GetParseFn()
 		{
 			//Note the generic typeof(T) is faster than using var type = typeof(T)
-			if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
-				return value => bool.Parse(value);
-			if (typeof(T) == typeof(byte) || typeof(T) == typeof(byte?))
-				return value => byte.Parse(value);
-			if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(sbyte?))
-				return value => sbyte.Parse(value);
-			if (typeof(T) == typeof(short) || typeof(T) == typeof(short?))
-				return value => short.Parse(value);
-			if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
-				return value => int.Parse(value);
-			if (typeof(T) == typeof(long) || typeof(T) == typeof(long?))
-				return value => long.Parse(value);
-			if (typeof(T) == typeof(float) || typeof(T) == typeof(float?))
-				return value => float.Parse(value, CultureInfo.InvariantCulture);
-			if (typeof(T) == typeof(double) || typeof(T) == typeof(double?))
-				return value => double.Parse(value, CultureInfo.InvariantCulture);
-			if (typeof(T) == typeof(decimal) || typeof(T) == typeof(decimal?))
-				return value => decimal.Parse(value, CultureInfo.InvariantCulture);
+			if (typeof(T) == typeof(bool))
+				return value => ParseNonNullable(value,bool.Parse);
+            if (typeof(T) == typeof(bool?))
+                return value => ParseNullable(value, bool.Parse);
+			if (typeof(T) == typeof(byte))
+				return value => ParseNonNullable(value,byte.Parse);
+            if (typeof(T) == typeof(byte?))
+                return value => ParseNullable(value, byte.Parse);
+			if (typeof(T) == typeof(sbyte))
+                return value => ParseNonNullable(value,sbyte.Parse);
+            if (typeof(T) == typeof(sbyte?))
+                return value => ParseNullable(value, sbyte.Parse);
+			if (typeof(T) == typeof(short))
+				return value => ParseNonNullable(value,short.Parse);
+            if(typeof(T) == typeof(short?))
+                return value => ParseNullable(value, short.Parse);
+			if (typeof(T) == typeof(int))
+				return value => ParseNonNullable(value,int.Parse);
+            if (typeof(T) == typeof(int?))
+                return value => ParseNullable(value, int.Parse);
+            if (typeof(T) == typeof(long))
+                return value => ParseNonNullable(value, long.Parse);
+            if (typeof(T) == typeof(long?))
+                return value => ParseNullable(value, long.Parse);
+			if (typeof(T) == typeof(float))
+                return value => ParseNonNullable(value, x => float.Parse(x, CultureInfo.InvariantCulture));
+            if (typeof(T) == typeof(float?))
+                return value => ParseNullable(value, x =>  float.Parse(x, CultureInfo.InvariantCulture));
+			if (typeof(T) == typeof(double))
+				return value => ParseNonNullable(value, x => double.Parse(x, CultureInfo.InvariantCulture));
+            if (typeof(T) == typeof(double?))
+                return value => ParseNullable(value, x => double.Parse(x, CultureInfo.InvariantCulture));
+			if (typeof(T) == typeof(decimal))
+                return value => ParseNonNullable(value, x => decimal.Parse(x, CultureInfo.InvariantCulture));
+            if(typeof(T) == typeof(decimal?))
+                return value => ParseNullable(value, x => decimal.Parse(x, CultureInfo.InvariantCulture));
 
-			if (typeof(T) == typeof(Guid) || typeof(T) == typeof(Guid?))
+			if (typeof(T) == typeof(Guid))
 				return value => new Guid(value);
-			if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
+            if (typeof(T) == typeof(Guid?))
+                return value => ParseNullable(value, x => new Guid(x));
+			if (typeof(T) == typeof(DateTime))
 				return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
+            if (typeof(T) == typeof(DateTime?))
+                return value => ParseNullable(value, DateTimeSerializer.ParseShortestXsdDateTime);
 			if (typeof(T) == typeof(TimeSpan) || typeof(T) == typeof(TimeSpan?))
-				return value => TimeSpan.Parse(value);
+				return value => value == null ? TimeSpan.Zero : TimeSpan.Parse(value);
 
 			if (typeof(T) == typeof(char) || typeof(T) == typeof(char?))
 			{
 				char cValue;
 				return value => char.TryParse(value, out cValue) ? cValue : '\0';
 			}
-			if (typeof(T) == typeof(ushort) || typeof(T) == typeof(ushort?))
-				return value => ushort.Parse(value);
-			if (typeof(T) == typeof(uint) || typeof(T) == typeof(uint?))
-				return value => uint.Parse(value);
-			if (typeof(T) == typeof(ulong) || typeof(T) == typeof(ulong?))
-				return value => ulong.Parse(value);
+			if (typeof(T) == typeof(ushort))
+				return value => ParseNonNullable(value,ushort.Parse);
+            if(typeof(T) == typeof(ushort?))
+                return value => ParseNullable(value,ushort.Parse);
+			if (typeof(T) == typeof(uint))
+				return value => ParseNonNullable(value,uint.Parse);
+            if(typeof(T) == typeof(uint?))
+                return value => ParseNullable(value, uint.Parse);
+            if (typeof(T) == typeof(ulong))
+                return value => ParseNonNullable(value, ulong.Parse);
+            if(typeof(T) == typeof(ulong?))
+                return value => ParseNullable(value, ulong.Parse);
 
 			return null;
 		}

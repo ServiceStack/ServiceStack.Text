@@ -99,7 +99,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig.IncludeNullValues = true;
             var s = JsonSerializer.SerializeToString(o);
             JsConfig.IncludeNullValues = false;
-            Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}"));
+            Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"NullableKey\":null,\"Nothing\":null}"));
         }
 
         [Test]
@@ -125,11 +125,21 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Deserialize_throws_for_null_valuetypes()
+        public void Deserialize_sets_default_for_valuetypes()
         {
             var s = "{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":null}";
             var o = JsonSerializer.DeserializeFromString<NullValueTester>(s);
+
+            Assert.That(o.SampleKey, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Deserialize_sets_null_for_nullable_valuetypes()
+        {
+            var s = "{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"NullableKey\":null}";
+            var o = JsonSerializer.DeserializeFromString<NullValueTester>(s);
+
+            Assert.That(o.NullableKey, Is.Null);
         }
 
         private class NullValueTester
@@ -147,6 +157,12 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
 
             public int SampleKey
+            {
+                get;
+                set;
+            }
+
+            public int? NullableKey
             {
                 get;
                 set;
