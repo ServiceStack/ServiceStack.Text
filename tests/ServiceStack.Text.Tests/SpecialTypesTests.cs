@@ -34,5 +34,14 @@ namespace ServiceStack.Text.Tests
 		{
 			Serialize(new JsonEntityWithNoProperties());
 		}
+
+		[Test]
+		public void Can_Serialize_Type_with_ByteArray()
+		{
+			var test = new { Name = "Test", Data = new byte[] { 1, 2, 3, 4, 5 } };
+			var json = JsonSerializer.SerializeToString(test);
+			Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":\"AQIDBAU=\"}"));
+		}
+
 	}
 }

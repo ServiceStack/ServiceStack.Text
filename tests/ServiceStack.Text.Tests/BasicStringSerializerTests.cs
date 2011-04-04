@@ -324,6 +324,15 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
+		public void Can_convert_Byte_array_with_JsonSerializer()
+		{
+			var byteArrayValue = new byte[] { 0, 65, 97, 255, };
+			var stringValue = JsonSerializer.SerializeToString(byteArrayValue);
+			var expectedString = Convert.ToBase64String(byteArrayValue);
+			Assert.That(stringValue, Is.EqualTo('"' + expectedString + '"'));
+		}
+
+		[Test]
 		public void Can_convert_Byte_array()
 		{
 			var byteArrayValue = new byte[] { 0, 65, 97, 255, };

@@ -406,10 +406,10 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteBytes(TextWriter writer, object byteValue)
+		public static void WriteBytes(ITypeSerializer serializer, TextWriter writer, object byteValue)
 		{
 			if (byteValue == null) return;
-			writer.Write(Convert.ToBase64String((byte[])byteValue));
+			serializer.WriteBytes(writer, byteValue);
 		}
 
 		public static void WriteStringArray(ITypeSerializer serializer, TextWriter writer, object oList)
