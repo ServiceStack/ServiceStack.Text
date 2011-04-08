@@ -49,12 +49,7 @@ namespace ServiceStack.Text.Common
 				&& dateTimeStr.Length <= XsdDateTimeFormat.Length)
 				return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Local);
 
-			return new DateTime(
-				int.Parse(dateTimeStr.Substring(0, 4)),
-				int.Parse(dateTimeStr.Substring(5, 2)),
-				int.Parse(dateTimeStr.Substring(8, 2)),
-				0, 0, 0,
-				DateTimeKind.Local);
+			return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
 		}
 
 		public static string ToDateTimeString(DateTime dateTime)

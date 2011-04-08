@@ -74,6 +74,13 @@ namespace ServiceStack.Text.Tests.Utils
 			AssertDateIsEqual(new DateTime(1979, 5, 9, 0, 0, 0, 1));
 			AssertDateIsEqual(new DateTime(2010, 10, 20, 10, 10, 10, 1));
 			AssertDateIsEqual(new DateTime(2010, 11, 22, 11, 11, 11, 1));
+			
+			DateTime shortDate = DateTimeSerializer.ParseShortestXsdDateTime("2011-8-4");
+			Assert.That (shortDate, Is.EqualTo(new DateTime (2011, 8, 4)), "Month and day without leading 0");
+			shortDate = DateTimeSerializer.ParseShortestXsdDateTime("2011-8-05");
+			Assert.That (shortDate, Is.EqualTo(new DateTime (2011, 8, 5)), "Month without leading 0");
+			shortDate = DateTimeSerializer.ParseShortestXsdDateTime("2011-09-4");
+			Assert.That (shortDate, Is.EqualTo(new DateTime (2011, 9, 4)), "Day without leading 0");
 		}
 
 		[Test]
