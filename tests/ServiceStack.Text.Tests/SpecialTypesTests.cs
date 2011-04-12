@@ -43,5 +43,15 @@ namespace ServiceStack.Text.Tests
 			Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":\"AQIDBAU=\"}"));
 		}
 
+		[Test]
+		public void Can_Serialize_ByteArray()
+		{
+			var test = new byte[] { 1, 2, 3, 4, 5 };
+			var json = JsonSerializer.SerializeToString(test);
+			var fromJson = JsonSerializer.DeserializeFromString<byte[]>(json);
+
+			Assert.That(test, Is.EquivalentTo(fromJson));
+		}
+
 	}
 }
