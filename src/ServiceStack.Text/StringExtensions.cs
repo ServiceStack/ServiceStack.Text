@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 namespace ServiceStack.Text
 {
@@ -282,7 +283,7 @@ namespace ServiceStack.Text
 
 		public static byte[] ToUtf8Bytes(this double doubleVal)
 		{
-			return FastToUtf8Bytes(doubleVal.ToString());
+			return FastToUtf8Bytes(doubleVal.ToString(CultureInfo.InvariantCulture.NumberFormat));
 		}
 
 		/// <summary>
