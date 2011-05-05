@@ -139,34 +139,6 @@ namespace ServiceStack.Text.Common
 		}
 	}
 
-	internal static class DeserializeList<TSerializer>
-		where TSerializer : ITypeSerializer
-	{
-		private static readonly Dictionary<Type, ParseStringDelegate> ParseDelegateCache 
-			= new Dictionary<Type, ParseStringDelegate>();
-
-		public static ParseStringDelegate GetParseFn(Type listType)
-		{
-			ParseStringDelegate parseFn;
-			if (!ParseDelegateCache.TryGetValue(listType, out parseFn))
-			{
-				var genericType = typeof(DeserializeList<TSerializer>)
-					.MakeGenericType(listType);
-
-				var mi = genericType.GetMethod("GetParseFn",
-					BindingFlags.Static | BindingFlags.Public);
-
-				var parseFactoryFn = (Func<ParseStringDelegate>)Delegate.CreateDelegate(
-					typeof(Func<ParseStringDelegate>), mi);
-
-				parseFn = parseFactoryFn();
-				ParseDelegateCache[listType] = parseFn;
-			}
-
-			return parseFn;
-		}
-	}
-
 	internal static class DeserializeList<T, TSerializer>
 		where TSerializer : ITypeSerializer
 	{
