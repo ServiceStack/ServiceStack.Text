@@ -107,11 +107,13 @@ namespace ServiceStack.Text.Common
 	{
 		public static Queue<T> ConvertToQueue(object enumerable)
 		{
+			if (enumerable == null) return null;
 			return new Queue<T>((IEnumerable<T>)enumerable);
 		}
 
 		public static Stack<T> ConvertToStack(object enumerable)
 		{
+			if (enumerable == null) return null;
 			return new Stack<T>((IEnumerable<T>)enumerable);
 		}
 	}

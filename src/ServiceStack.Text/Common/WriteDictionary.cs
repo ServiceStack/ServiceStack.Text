@@ -134,6 +134,7 @@ namespace ServiceStack.Text.Common
 			WriteObjectDelegate writeKeyFn,
 			WriteObjectDelegate writeValueFn)
 		{
+			if (writer == null) return; //AOT
 			WriteGenericIDictionary(writer, (IDictionary<TKey, TValue>)oMap, writeKeyFn, writeValueFn);
 		}
 

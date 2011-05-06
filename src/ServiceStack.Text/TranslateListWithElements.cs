@@ -166,6 +166,8 @@ namespace ServiceStack.Text
 		public static object LateBoundTranslateToGenericICollection(
 			object fromList, Type toInstanceOfType)
 		{
+			if (fromList == null) return null; //AOT
+
 			return TranslateToGenericICollection(
 				(ICollection<T>)fromList, toInstanceOfType);
 		}
@@ -201,6 +203,8 @@ namespace ServiceStack.Text
 		public static ICollection<TTo> TranslateToGenericICollection(
 			ICollection<TFrom> fromList, Type toInstanceOfType)
 		{
+			if (fromList == null) return null; //AOT
+
 			var to = (ICollection<TTo>)TranslateListWithElements<TTo>.CreateInstance(toInstanceOfType);
 
 			foreach (var item in fromList)

@@ -119,6 +119,8 @@ namespace ServiceStack.Text
 
 		public static void Write(TextWriter writer, IEnumerable<T> records)
 		{
+			if (records == null) return; //AOT
+
 			if (OptimizedWriter != null)
 			{
 				OptimizedWriter(writer, records);
@@ -166,6 +168,8 @@ namespace ServiceStack.Text
 
 		public static void WriteRow(TextWriter writer, T row)
 		{
+			if (row == null) return; //AOT
+
 			Write(writer, new[] { row });
 		}
 

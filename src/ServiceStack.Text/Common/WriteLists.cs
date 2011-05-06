@@ -232,6 +232,8 @@ namespace ServiceStack.Text.Common
 
 		public static void WriteGenericListValueType(TextWriter writer, List<T> list)
 		{
+			if (list == null) return; //AOT
+
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;
@@ -280,6 +282,8 @@ namespace ServiceStack.Text.Common
 
 		public static void WriteGenericIListValueType(TextWriter writer, IList<T> list)
 		{
+			if (list == null) return; //AOT
+
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;

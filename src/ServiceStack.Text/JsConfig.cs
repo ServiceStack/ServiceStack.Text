@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
@@ -14,23 +15,30 @@ namespace ServiceStack.Text
 		public static bool IncludeNullValues = false;
 
 		/// <summary>
-		/// Registers for AOT.
+		/// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
+		/// Just needs to be called once in a static constructor.
 		/// </summary>
 		public static void RegisterForAot<T>()
 		{
-			JsonAotConfig.Instance.Register<T>();
+			JsonAotConfig.Register<T>();
+		}
+
+		/// <summary>
+		/// AOT Hints for .NET collection element types: Dictionary[TElement,TDto], List[TElement], etc.
+		/// </summary>
+		public static void RegisterElementForAot<T,TElement>()
+		{
+			JsonAotConfig.RegisterElement<T, TElement>();
 		}
 	}
 
 	public class JsonAotConfig
 	{
-		public static JsonAotConfig Instance = new JsonAotConfig();
-
-		public void Register<T>()
+		public static void Register<T>()
 		{
 			var i = 0;
 			DeserializeArrayWithElements<T, JsonTypeSerializer>.ParseGenericArray(null, null);
-			if (DeserializeArray<T, JsonTypeSerializer>.Parse != null) i++;
+			if (DeserializeArray<T[], JsonTypeSerializer>.Parse != null) i++;
 			DeserializeCollection<JsonTypeSerializer>.ParseCollection<T>(null, null, null);
 			DeserializeListWithElements<T, JsonTypeSerializer>.ParseGenericList(null, null, null);
 
@@ -56,17 +64,10 @@ namespace ServiceStack.Text
 			QueryStringWriter<T>.WriteFn();
 
 			TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
-			TranslateListWithConvertibleElements<T, JsonTypeSerializer>.LateBoundTranslateToGenericICollection(null, null);
+			TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
 		}
 
-		private void RegisterForCommonBuiltinTypes<T>()
-		{
-			RegisterElementBuiltinTypes<T, int>();
-			RegisterElementBuiltinTypes<T, string>();
-			RegisterElementBuiltinTypes<T, Guid>();
-		}
-
-		private void RegisterElementBuiltinTypes<T, TElement>()
+		public static void RegisterElement<T, TElement>()
 		{
 			DeserializeDictionary<JsonTypeSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
 			DeserializeDictionary<JsonTypeSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
@@ -74,8 +75,15 @@ namespace ServiceStack.Text
 			ToStringDictionaryMethods<T, TElement, JsonTypeSerializer>.WriteIDictionary(null, null, null, null);
 			ToStringDictionaryMethods<TElement, T, JsonTypeSerializer>.WriteIDictionary(null, null, null, null);
 
-			TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(T));
-			TranslateListWithConvertibleElements<TElement, JsonTypeSerializer>.LateBoundTranslateToGenericICollection(null, typeof(T));
+			TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
+			TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
+		}
+
+		private static void RegisterForCommonBuiltinTypes<T>()
+		{
+			RegisterElement<T, int>();
+			RegisterElement<T, string>();
+			RegisterElement<T, Guid>();
 		}
 	}
 }

@@ -83,6 +83,8 @@ namespace ServiceStack.Text.Common
 			string value, Type createMapType,
 			ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn)
 		{
+			if (value == null) return null;
+
 			var tryToParseItemsAsDictionaries =
 				JsConfig.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
 

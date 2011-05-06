@@ -239,6 +239,8 @@ namespace ServiceStack.Text
 
 		public static void WriteEnumerableProperty(TextWriter writer, object obj)
 		{
+			if (obj == null) return; //AOT
+
 			var enumerableProperty = valueGetter(obj);
 			writeElementFn(writer, enumerableProperty);
 		}
