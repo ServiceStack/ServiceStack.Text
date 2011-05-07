@@ -270,6 +270,10 @@ namespace ServiceStack.Text
 			var emptyCtor = type.GetConstructor(Type.EmptyTypes);
 			if (emptyCtor != null)
 			{
+
+#if NO_REFLECTION_EMIT
+				return () => Activator.CreateInstance(type);
+#else
 				var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes, typeof(ReflectionExtensions).Module, true);
 				var ilgen = dm.GetILGenerator();
 				ilgen.Emit(System.Reflection.Emit.OpCodes.Nop);
@@ -277,6 +281,7 @@ namespace ServiceStack.Text
 				ilgen.Emit(System.Reflection.Emit.OpCodes.Ret);
 
 				return (EmptyCtorDelegate)dm.CreateDelegate(typeof(EmptyCtorDelegate));
+#endif
 			}
 
 #if SILVERLIGHT
