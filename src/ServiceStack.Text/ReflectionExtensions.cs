@@ -271,7 +271,7 @@ namespace ServiceStack.Text
 			if (emptyCtor != null)
 			{
 
-#if NO_REFLECTION_EMIT
+#if MONOTOUCH || SILVERLIGHT
 				return () => Activator.CreateInstance(type);
 #else
 				var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes, typeof(ReflectionExtensions).Module, true);
