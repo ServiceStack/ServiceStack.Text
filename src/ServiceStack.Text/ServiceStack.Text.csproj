@@ -122,6 +122,7 @@
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Support\AssemblyTypeDefinition.cs" />
+    <Compile Include="Support\DoubleConverter.cs" />
     <Compile Include="Support\TypePair.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="TranslateListWithElements.cs" />

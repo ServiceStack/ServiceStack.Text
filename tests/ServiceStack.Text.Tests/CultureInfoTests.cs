@@ -45,8 +45,8 @@ namespace ServiceStack.Text.Tests
 		{
 			previousCulture = Thread.CurrentThread.CurrentCulture;
 			//Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
-			Thread.CurrentThread.CurrentCulture = new CultureInfo("vi-VN");
-			Thread.CurrentThread.CurrentUICulture = new CultureInfo("vi-VN");
+			Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+			Thread.CurrentThread.CurrentUICulture = new CultureInfo("fr-FR");
 		}
 
 		[TestFixtureTearDown]
@@ -70,5 +70,24 @@ namespace ServiceStack.Text.Tests
 
 			Console.WriteLine(txt);
 		}
+
+		[Test]
+		public void Serializes_doubles_using_InvariantCulture()
+		{
+			//Used in RedisClient
+			var doubleUtf8 = 66121.202.ToUtf8Bytes();
+			var doubleStr = doubleUtf8.FromUtf8Bytes();
+			Assert.That(doubleStr, Is.EqualTo("66121.202"));
+		}
+
+		[Test]
+		public void Serializes_long_double_without_E_notation()
+		{
+			//Used in RedisClient
+			var doubleUtf8 = 1234567890123456d.ToUtf8Bytes();
+			var doubleStr = doubleUtf8.FromUtf8Bytes();
+			Assert.That(doubleStr, Is.EqualTo("1234567890123456"));
+		}
+
 	}
 }

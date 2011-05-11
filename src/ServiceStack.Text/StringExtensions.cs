@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Globalization;
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text
 {
@@ -283,7 +284,12 @@ namespace ServiceStack.Text
 
 		public static byte[] ToUtf8Bytes(this double doubleVal)
 		{
-			return FastToUtf8Bytes(doubleVal.ToString(CultureInfo.InvariantCulture.NumberFormat));
+			var doubleStr = doubleVal.ToString(CultureInfo.InvariantCulture.NumberFormat);
+			
+			if (doubleStr.IndexOf('E') != -1 || doubleStr.IndexOf('e') != -1) 
+				doubleStr = DoubleConverter.ToExactString(doubleVal);
+
+			return FastToUtf8Bytes(doubleStr);
 		}
 
 		/// <summary>
