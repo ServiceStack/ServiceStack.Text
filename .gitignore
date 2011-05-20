@@ -10,6 +10,9 @@ Thumbs.db
 *.obj
 *.exe
 *.pdb
+*.pidb
+*.userprefs
+*.test-cache
 *.user
 *.aps
 *.pch
@@ -34,6 +37,7 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 App_Data/
+.DS_Store
 *.resharper.user
 *.suo
 *.user

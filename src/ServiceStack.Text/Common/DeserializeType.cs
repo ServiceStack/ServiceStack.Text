@@ -102,6 +102,10 @@ namespace ServiceStack.Text.Common
 		{
 			var setMethodInfo = propertyInfo.GetSetMethod(true);
 			if (setMethodInfo == null) return null;
+			
+#if SILVERLIGHT || MONOTOUCH
+			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
+#else
 			var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
 			var oValueParam = Expression.Parameter(typeof(object), "oValueParam");
 
@@ -119,6 +123,7 @@ namespace ServiceStack.Text.Common
 				).Compile();
 
 			return propertySetFn;
+#endif			
 		}
 	}
 }

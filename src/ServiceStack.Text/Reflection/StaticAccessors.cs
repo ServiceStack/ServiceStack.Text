@@ -39,11 +39,17 @@ namespace ServiceStack.Text.Reflection
 			//{
 			//    throw new ArgumentException();
 			//}
-
+			
+#if SILVERLIGHT || MONOTOUCH
+			var getMethodInfo = propertyInfo.GetGetMethod();
+			if (getMethodInfo == null) return null;
+			return x => getMethodInfo.Invoke(x, new object[0]);
+#else
 			var instance = Expression.Parameter(propertyInfo.DeclaringType, "i");
 			var property = Expression.Property(instance, propertyInfo);
 			var convert = Expression.TypeAs(property, typeof(object));
 			return Expression.Lambda<Func<T, object>>(convert, instance).Compile();
+#endif
 		}
 
 		public static Action<T, object> GetValueSetter<T>(this PropertyInfo propertyInfo)

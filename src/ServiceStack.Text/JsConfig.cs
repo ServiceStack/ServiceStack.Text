@@ -14,38 +14,125 @@ namespace ServiceStack.Text
 		[ThreadStatic]
 		public static bool IncludeNullValues = false;
 
+#if SILVERLIGHT || MONOTOUCH
 		/// <summary>
 		/// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
 		/// Just needs to be called once in a static constructor.
 		/// </summary>
-		public static void RegisterForAot<T>()
+		public static void InitForAot() {}
+		
+		public static void RegisterForAot()
 		{
-			JsonAotConfig.Register<T>();
+			JsonAotConfig.Register<Poco>();
+			
+			RegisterElement<Poco, string>();
+			
+			RegisterElement<Poco, bool>();
+			RegisterElement<Poco, char>();
+			RegisterElement<Poco, byte>();
+			RegisterElement<Poco, sbyte>();
+			RegisterElement<Poco, short>();
+			RegisterElement<Poco, ushort>();
+			RegisterElement<Poco, int>();
+			RegisterElement<Poco, uint>();
+			RegisterElement<Poco, long>();
+			RegisterElement<Poco, ulong>();
+			RegisterElement<Poco, float>();
+			RegisterElement<Poco, double>();
+			RegisterElement<Poco, decimal>();
+			RegisterElement<Poco, Guid>();
+			RegisterElement<Poco, DateTime>();
+			RegisterElement<Poco, TimeSpan>();
+
+			RegisterElement<Poco, bool?>();
+			RegisterElement<Poco, char?>();
+			RegisterElement<Poco, byte?>();
+			RegisterElement<Poco, sbyte?>();
+			RegisterElement<Poco, short?>();
+			RegisterElement<Poco, ushort?>();
+			RegisterElement<Poco, int?>();
+			RegisterElement<Poco, uint?>();
+			RegisterElement<Poco, long?>();
+			RegisterElement<Poco, ulong?>();
+			RegisterElement<Poco, float?>();
+			RegisterElement<Poco, double?>();
+			RegisterElement<Poco, decimal?>();
+			RegisterElement<Poco, Guid?>();
+			RegisterElement<Poco, DateTime?>();
+			RegisterElement<Poco, TimeSpan?>();
 		}
 
-		/// <summary>
-		/// AOT Hints for .NET collection element types: Dictionary[TElement,TDto], List[TElement], etc.
-		/// </summary>
-		public static void RegisterElementForAot<T,TElement>()
+		static void RegisterQueryStringWriter()
+		{
+			var i = 0;
+			if (QueryStringWriter<Poco>.WriteFn() != null) i++;
+		}
+
+		static void RegisterCsvSerializer()
+		{
+			CsvSerializer<Poco>.WriteFn();
+			CsvSerializer<Poco>.WriteObject(null, null);
+			CsvWriter<Poco>.WriteObject(null, null);
+			CsvWriter<Poco>.WriteObjectRow(null, null);
+		}
+		
+		public static void RegisterElement<T,TElement>()
 		{
 			JsonAotConfig.RegisterElement<T, TElement>();
 		}
+#endif
+		
 	}
 
-	public class JsonAotConfig
+#if SILVERLIGHT || MONOTOUCH
+	internal class Poco
 	{
+		public string Dummy { get; set; }
+	}
+	
+	internal class JsonAotConfig
+	{
+		static JsReader<JsonTypeSerializer> reader;
+		static JsonTypeSerializer serializer;
+		
+		static JsonAotConfig()
+		{
+			serializer = new JsonTypeSerializer();
+			reader = new JsReader<JsonTypeSerializer>();
+		}
+		
+		public static ParseStringDelegate GetParseFn(Type type)
+		{
+			var parseFn = JsonTypeSerializer.Instance.GetParseFn(type);
+			return parseFn;
+		}
+
+		internal static ParseStringDelegate RegisterBuiltin<T>()
+		{
+			var i = 0;
+			if (reader.GetParseFn<T>() != null) i++;
+			if (JsonReader<T>.GetParseFn() != null) i++;
+			if (JsonReader<T>.Parse(null) != null) i++;
+			if (JsonWriter<T>.WriteFn() != null) i++;
+
+			return serializer.GetParseFn<T>();
+		}
+		
 		public static void Register<T>()
 		{
 			var i = 0;
-			DeserializeArrayWithElements<T, JsonTypeSerializer>.ParseGenericArray(null, null);
+			var serializer = JsonTypeSerializer.Instance;
+			if (new List<T>() != null) i++;
+			if (new T[0] != null) i++;
+			if (serializer.GetParseFn<T>() != null) i++;
 			if (DeserializeArray<T[], JsonTypeSerializer>.Parse != null) i++;
+			
+			DeserializeArrayWithElements<T, JsonTypeSerializer>.ParseGenericArray(null, null);
 			DeserializeCollection<JsonTypeSerializer>.ParseCollection<T>(null, null, null);
 			DeserializeListWithElements<T, JsonTypeSerializer>.ParseGenericList(null, null, null);
 
 			SpecializedQueueElements<T>.ConvertToQueue(null);
 			SpecializedQueueElements<T>.ConvertToStack(null);
-
-			RegisterForCommonBuiltinTypes<T>();
 
 			WriteListsOfElements<T, JsonTypeSerializer>.WriteList(null, null);
 			WriteListsOfElements<T, JsonTypeSerializer>.WriteIList(null, null);
@@ -53,15 +140,8 @@ namespace ServiceStack.Text
 			WriteListsOfElements<T, JsonTypeSerializer>.WriteListValueType(null, null);
 			WriteListsOfElements<T, JsonTypeSerializer>.WriteIListValueType(null, null);
 
-			CsvSerializer<T>.WriteFn();
-			CsvSerializer<T>.WriteObject(null, null);
-			CsvWriter<T>.WriteObject(null, null);
-			CsvWriter<T>.WriteObjectRow(null, null);
-
 			JsonReader<T>.Parse(null);
 			JsonWriter<T>.WriteFn();
-
-			QueryStringWriter<T>.WriteFn();
 
 			TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
 			TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
@@ -69,6 +149,7 @@ namespace ServiceStack.Text
 
 		public static void RegisterElement<T, TElement>()
 		{
+			RegisterBuiltin<TElement>();
 			DeserializeDictionary<JsonTypeSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
 			DeserializeDictionary<JsonTypeSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
 
@@ -77,13 +158,8 @@ namespace ServiceStack.Text
 
 			TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
 			TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
-		}
+		}		
+	}	
+#endif
 
-		private static void RegisterForCommonBuiltinTypes<T>()
-		{
-			RegisterElement<T, int>();
-			RegisterElement<T, string>();
-			RegisterElement<T, Guid>();
-		}
-	}
 }
