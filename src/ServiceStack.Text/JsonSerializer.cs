@@ -51,12 +51,18 @@ namespace ServiceStack.Text
 		public static string SerializeToString<T>(T value)
 		{
 			if (value == null) return null;
-			if (typeof(T) == typeof(string)) return '"' + (value as string) + '"';
 
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
-				JsonWriter<T>.WriteObject(writer, value);
+				if (typeof(T) == typeof(string))
+				{
+					JsonUtils.WriteString(writer, value as string);
+				}
+				else
+				{
+					JsonWriter<T>.WriteObject(writer, value);
+				}
 			}
 			return sb.ToString();
 		}
@@ -100,12 +106,18 @@ namespace ServiceStack.Text
 		public static string SerializeToString(object value, Type type)
 		{
 			if (value == null) return null;
-			if (type == typeof(string)) return '"' + (value as string) + '"';
 
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
-				JsonWriter.GetWriteFn(type)(writer, value);
+				if (type == typeof(string))
+				{
+					JsonUtils.WriteString(writer, value as string);
+				}
+				else
+				{
+					JsonWriter.GetWriteFn(type)(writer, value);
+				}
 			}
 			return sb.ToString();
 		}

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using ServiceStack.Client;
 using ServiceStack.ServiceModel.Serialization;
 
@@ -26,6 +27,24 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
+		public void Embedded_Quotes()
+		{
+			string v = @"I have ""embedded quotes"" inside me";
+
+			// serialize to JSON using ServiceStack
+			string jsonString = ServiceStack.Text.JsonSerializer.SerializeToString(v);
+
+			// serialize to JSON using BCL
+			//var bclJsonString = new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(v);
+			var bclJsonString = BclJsonDataContractSerializer.Instance.Parse(v);
+
+			string correctJSON = @"""I have \""embedded quotes\"" inside me"""; // this is what a modern browser will produce with JSON.stringify("This is a string");
+
+			Assert.AreEqual(correctJSON, bclJsonString, "BCL serializes string correctly");
+			Assert.AreEqual(correctJSON, jsonString, "Service Stack serializes string correctly");
+		}
+
+		[Test]
 		public void RoundTripTest()
 		{
 			string json = "\"This is a string\"";
@@ -45,6 +64,6 @@ namespace ServiceStack.Text.Tests
 			Assert.AreEqual(json, bclJson, "BCL round trips correctly");
 			Assert.AreEqual(json, ssJson, "Service Stack round trips correctly");
 		}
-		 
+
 	}
 }

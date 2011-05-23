@@ -26,7 +26,7 @@ namespace ServiceStack.Text.Json
 				EscapeCharFlags[escapeChar] = true;
 			}
 		}
-
+		
 		public static void WriteString(TextWriter writer, string value)
 		{
 			if (value == null)
