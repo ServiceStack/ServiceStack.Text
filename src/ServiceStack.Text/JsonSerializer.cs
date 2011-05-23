@@ -51,7 +51,7 @@ namespace ServiceStack.Text
 		public static string SerializeToString<T>(T value)
 		{
 			if (value == null) return null;
-			if (typeof(T) == typeof(string)) return value as string;
+			if (typeof(T) == typeof(string)) return '"' + (value as string) + '"';
 
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
@@ -100,7 +100,7 @@ namespace ServiceStack.Text
 		public static string SerializeToString(object value, Type type)
 		{
 			if (value == null) return null;
-			if (type == typeof(string)) return value as string;
+			if (type == typeof(string)) return '"' + (value as string) + '"';
 
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
