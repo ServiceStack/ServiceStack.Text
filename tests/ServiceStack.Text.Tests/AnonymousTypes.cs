@@ -11,7 +11,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_serialize_anonymous_types()
 		{
-			Serialize(new { Id = 1, Name = "Name", IntList = new[] { 1, 2, 3 } });
+			Serialize(new { Id = 1, Name = "Name", IntList = new[] { 1, 2, 3 } }, includeXml: false); // xmlserializer cannot serialize anonymous types.
 		}
 
 		[Test]

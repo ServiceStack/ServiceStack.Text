@@ -25,9 +25,9 @@ namespace ServiceStack.Text.Tests
 				Console.WriteLine(message);
 		}
 
-		public T Serialize<T>(T model)
+		public T Serialize<T>(T model, bool includeXml = true)
 		{
-			return Serialize(model, false);
+			return Serialize(model, false, includeXml);
 		}
 
 		public T JsonSerialize<T>(T model)
@@ -35,12 +35,12 @@ namespace ServiceStack.Text.Tests
 			return JsonSerialize(model, false);
 		}
 
-		public T SerializeAndCompare<T>(T model)
+		public T SerializeAndCompare<T>(T model, bool includeXml = true)
 		{
-			return Serialize(model, true);
+			return Serialize(model, true, includeXml);
 		}
 
-		private T Serialize<T>(T model, bool assertEqual)
+		private T Serialize<T>(T model, bool assertEqual, bool includeXml)
 		{
 			var stopwatch = Stopwatch.StartNew();
 			var jsv = TypeSerializer.SerializeToString(model);
@@ -55,6 +55,19 @@ namespace ServiceStack.Text.Tests
 
 			var partialJson = json.Length > 100 ? json.Substring(0, 100) + "..." : json;
 			Console.WriteLine("JSON Time: {0} ticks, Len: {1}: {2}", stopwatch.ElapsedTicks, json.Length, partialJson);
+
+            if (includeXml)
+            {
+                using (var xmlWriter = new System.IO.StringWriter())
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    XmlSerializer.SerializeToWriter((object)model, xmlWriter);
+                    var xml = xmlWriter.ToString();
+                    stopwatch.Stop();
+                    var partialXml = xml.Length > 100 ? xml.Substring(0, 100) + "..." : xml;
+                    Console.WriteLine("XML Time: {0} ticks, Len: {1}: {2}", stopwatch.ElapsedTicks, xml.Length, partialXml);
+                }
+            }
 
 			var fromJsvModel = TypeSerializer.DeserializeFromString<T>(jsv);
 			var fromJsonModel = JsonSerializer.DeserializeFromString<T>(json);
