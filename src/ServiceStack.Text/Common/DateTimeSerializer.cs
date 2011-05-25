@@ -105,8 +105,7 @@ namespace ServiceStack.Text.Common
 				var timeZoneMultiplier = wcfJsonDate.IndexOf('-') == -1 ? 0 : -1;
 				var unixTimeString = wcfJsonDate.Substring(WcfJsonPrefix.Length, timeZonePos - WcfJsonPrefix.Length);
 				var timeZoneString = wcfJsonDate.Substring(timeZonePos + 1, wcfJsonDate.IndexOf(')') - 1 - timeZonePos);
-				var unixTime = double.Parse(unixTimeString);
-				var dateTime = unixTime.FromUnixTimeMs();
+				var dateTime = DateTimeExtensions.FromUnixTimeMs(unixTimeString);
 
 				const string defaultUtcTimeZone = "0000";
 				if (timeZoneString == defaultUtcTimeZone)
@@ -125,7 +124,7 @@ namespace ServiceStack.Text.Common
 					WcfJsonPrefix.Length, wcfJsonDate.IndexOf(')') - WcfJsonPrefix.Length);
 
 				var unixTime = double.Parse(unixTimeString);
-				return unixTime.FromUnixTimeMs();
+                return DateTimeExtensions.FromUnixTimeMs(unixTimeString);
 			}
 		}
 
