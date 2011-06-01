@@ -144,7 +144,7 @@ namespace ServiceStack.Text.Tests.Utils
 
         private void AssertDatesAreEqual(DateTime toDateTime, DateTime dateTime, string which)
         {
-            Assert.That(toDateTime.ToUniversalTime(), Is.EqualTo(dateTime.ToUniversalTime()), which);
+            Assert.That(toDateTime.ToUniversalTime().RoundToMs(), Is.EqualTo(dateTime.ToUniversalTime().RoundToMs()), which);
         }
 	}
 }

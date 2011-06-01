@@ -63,6 +63,11 @@ namespace ServiceStack.Text
 			return double.Parse(msSince1970).FromUnixTimeMs();
 		}
 
+        public static DateTime RoundToMs(this DateTime dateTime)
+        {
+            return new DateTime((dateTime.Ticks / TimeSpan.TicksPerMillisecond) * TimeSpan.TicksPerMillisecond);
+        }
+
 		public static DateTime RoundToSecond(this DateTime dateTime)
 		{
 			return new DateTime(((dateTime.Ticks) / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond);
