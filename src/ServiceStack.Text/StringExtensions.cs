@@ -12,9 +12,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text
@@ -324,6 +326,50 @@ namespace ServiceStack.Text
 				: new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
 		}
 
+		public static string[] SplitOnLast(this string strVal, char needle)
+		{
+			if (strVal == null) return new string[0];
+			var pos = strVal.LastIndexOf(needle);
+			return pos == -1
+				? new[] { strVal }
+				: new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
+		}
+
+		public static string[] SplitOnLast(this string strVal, string needle)
+		{
+			if (strVal == null) return new string[0];
+			var pos = strVal.LastIndexOf(needle);
+			return pos == -1
+				? new[] { strVal }
+				: new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
+		}
+
+		public static string WithoutExtension(this string filePath)
+		{
+			if (string.IsNullOrEmpty(filePath)) return null;
+
+			var extPos = filePath.LastIndexOf('.');
+			if (extPos == -1) return filePath;
+
+			var dirPos = filePath.LastIndexOfAny(DirSeps);
+			return extPos > dirPos ? filePath.Substring(0, extPos) : filePath;
+		}
+
+		private static readonly char DirSep = Path.DirectorySeparatorChar;
+		private static readonly char AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
+		static readonly char[] DirSeps = new[] { '\\', '/' };
+
+		public static string ParentDirectory(this string filePath)
+		{
+			if (string.IsNullOrEmpty(filePath)) return null;
+
+			var dirSep = filePath.IndexOf(DirSep) != -1
+			             ? DirSep
+			             : filePath.IndexOf(AltDirSep) != -1 ? AltDirSep : (char)0;
+
+			return dirSep == 0 ? null : filePath.TrimEnd(dirSep).SplitOnLast(dirSep)[0];
+		}
+
 		public static string ToJsv<T>(this T obj)
 		{
 			return TypeSerializer.SerializeToString<T>(obj);
@@ -352,6 +398,97 @@ namespace ServiceStack.Text
 		public static T FromXml<T>(this string json)
 		{
 			return XmlSerializer.DeserializeFromString<T>(json);
+		}
+
+		public static string FormatWith(this string text, params object[] args)
+		{
+			return string.Format(text, args);
+		}
+
+		public static string Fmt(this string text, params object[] args)
+		{
+			return string.Format(text, args);
+		}
+
+		public static bool StartsWithIgnoreCase(this string text, string startsWith)
+		{
+			return text != null 
+				&& text.StartsWith(startsWith, StringComparison.InvariantCultureIgnoreCase);
+		}
+
+		public static string ReadAllText(this string filePath)
+		{
+			return File.ReadAllText(filePath);
+		}
+
+		public static int IndexOfAny(this string text, params string[] needles)
+		{
+			return IndexOfAny(text, 0, needles);
+		}
+
+		public static int IndexOfAny(this string text, int startIndex, params string[] needles)
+		{
+			if (text == null) return -1;
+
+			var firstPos = -1;
+			foreach (var needle in needles)
+			{
+				var pos = text.IndexOf(needle);
+				if (firstPos == -1 || pos < firstPos) firstPos = pos;
+			}
+			return firstPos;
+		}
+
+		public static string ExtractContents(this string fromText, string startAfter, string endAt)
+		{
+			return ExtractContents(fromText, startAfter, startAfter, endAt);
+		}
+
+		public static string ExtractContents(this string fromText, string uniqueMarker, string startAfter, string endAt)
+		{
+			if (string.IsNullOrEmpty(uniqueMarker))
+				throw new ArgumentNullException("uniqueMarker");
+			if (string.IsNullOrEmpty(startAfter))
+				throw new ArgumentNullException("startAfter");
+			if (string.IsNullOrEmpty(endAt))
+				throw new ArgumentNullException("endAt");
+
+			if (string.IsNullOrEmpty(fromText)) return null;
+
+			var markerPos = fromText.IndexOf(uniqueMarker);
+			if (markerPos == -1) return null;
+
+			var startPos = fromText.IndexOf(startAfter, markerPos);
+			if (startPos == -1) return null;
+			startPos += startAfter.Length;
+
+			var endPos = fromText.IndexOf(endAt, startPos);
+			if (endPos == -1) endPos = fromText.Length;
+
+			return fromText.Substring(startPos, endPos - startPos);
+		}
+
+		static readonly Regex StripHtmlRegEx = new Regex(@"<(.|\n)*?>", RegexOptions.Compiled);
+		public static string StripHtml(this string html)
+		{
+			return string.IsNullOrEmpty(html) ? null : StripHtmlRegEx.Replace(html, "");
+		}
+
+		static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]", RegexOptions.Compiled);
+		static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)", RegexOptions.Compiled);
+		public static string StripMarkdownMarkup(this string markdown)
+		{
+			if (string.IsNullOrEmpty(markdown)) return null;
+			markdown = StripBracketsRegEx.Replace(markdown, "");
+			markdown = StripBracesRegEx.Replace(markdown, "");
+			markdown = markdown
+				.Replace("*", "")
+				.Replace("!", "")
+				.Replace("\r", "")
+				.Replace("\n", "")
+				.Replace("#", "");
+
+			return markdown;
 		}
 	}
 }
