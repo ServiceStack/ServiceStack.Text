@@ -84,10 +84,14 @@ namespace ServiceStack.Text.Json
 					continue;
 				}
 
-				// Default, turn into a \uXXXX sequence
-				IntToHex(value[i], hexSeqBuffer);
-				writer.Write("\\u");
-				writer.Write(hexSeqBuffer);
+				var isValidSequence = value[i] < 0xD800 || value[i] > 0xDFFF;
+				if (isValidSequence)
+				{
+					// Default, turn into a \uXXXX sequence
+					IntToHex(value[i], hexSeqBuffer);
+					writer.Write("\\u");
+					writer.Write(hexSeqBuffer);
+				}
 			}
 
 			writer.Write(QuoteChar);
