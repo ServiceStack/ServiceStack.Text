@@ -108,10 +108,9 @@ namespace ServiceStack.Text
 
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
-			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
-			{
-				JsvWriter<T>.WriteObject(writer, value);
-			}
+			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+			JsvWriter<T>.WriteObject(writer, value);
+			writer.Flush();
 		}
 
 		public static T DeserializeFromStream<T>(Stream stream)

@@ -81,10 +81,9 @@ namespace ServiceStack.Text
 
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
-			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
-			{
-				JsonWriter<T>.WriteObject(writer, value);
-			}
+			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+			JsonWriter<T>.WriteObject(writer, value);
+			writer.Flush();
 		}
 
 		public static T DeserializeFromStream<T>(Stream stream)
@@ -136,10 +135,9 @@ namespace ServiceStack.Text
 
 		public static void SerializeToStream(object value, Type type, Stream stream)
 		{
-			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
-			{
-				JsonWriter.GetWriteFn(type)(writer, value);
-			}
+			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+			JsonWriter.GetWriteFn(type)(writer, value);
+			writer.Flush();
 		}
 	}
 }

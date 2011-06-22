@@ -4,10 +4,17 @@ for twitter updates.
 
 ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
 
- * JSON Serializer
- * CSV Serializer
- * TypeSerializer and the JSV-format
- * T.Dump() Extension Method
+* [JsonSerializer](http://www.servicestack.net/mythz_blog/?p=344)
+* [TypeSerializer (JSV-Format)](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format)
+* CsvSerializer
+* [T.Dump extension method](http://www.servicestack.net/mythz_blog/?p=202)
+* StringExtensions - Xml/Json/Csv/Url encoding, BaseConvert, Rot13, Hex escape, etc.
+* Stream, Reflection, List, DateTime, etc extensions and utils
+
+## NuGet ServiceStack.Text
+
+![Install-Pacakage ServiceStack.Text](http://servicestack.net/img/nuget-servicestack.text.png)
+
 
 ## ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET
 For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/?p=344) I decided to re-use *TypeSerializer's* text processing-core to create ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET.
