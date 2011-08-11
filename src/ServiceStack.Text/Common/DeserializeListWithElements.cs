@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace ServiceStack.Text.Common
@@ -103,7 +104,10 @@ namespace ServiceStack.Text.Common
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 
-			var to = (createListType == null)
+			bool isReadOnly = null == createListType ? false 
+				: createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>);
+
+			var to = (createListType == null || isReadOnly)
 			         	? new List<T>()
 			         	: (IList<T>)ReflectionExtensions.CreateInstance(createListType);
 
@@ -135,7 +139,10 @@ namespace ServiceStack.Text.Common
 
 				}
 			}
-			return to;
+			
+			//TODO: 8-10-2011 -- this CreateInstance call should probably be moved over to ReflectionExtensions, 
+			//but not sure how you'd like to go about caching constructors with parameters -- I would probably build a NewExpression, .Compile to a LambdaExpression and cache
+			return isReadOnly ? (IList<T>)Activator.CreateInstance(createListType, to) : to;
 		}
 	}
 

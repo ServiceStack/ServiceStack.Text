@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Northwind.Common.ComplexModel;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Common.Tests.Models;
-using System.Collections.Generic;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Tests
@@ -386,6 +386,33 @@ namespace ServiceStack.Text.Tests
 			var toHashSet = Serialize(fromHashSet);
 
 			Assert.That(toHashSet.EquivalentTo(fromHashSet), Is.True);
+		}
+
+		[Test]
+		public void Can_convert_string_to_string_ReadOnlyCollection()
+		{
+			var fromCollection = new ReadOnlyCollection<string>(stringValues);
+			var toCollection = Serialize(fromCollection);
+
+			Assert.That(toCollection.EquivalentTo(fromCollection), Is.True);
+		}
+
+		[Test]
+		public void Can_convert_string_to_int_ReadOnlyCollection()
+		{
+			var fromCollection = new ReadOnlyCollection<int>(intValues);
+			var toCollection = Serialize(fromCollection);
+
+			Assert.That(toCollection.EquivalentTo(fromCollection), Is.True);
+		}
+
+		[Test]
+		public void Can_convert_string_to_double_ReadOnlyCollection()
+		{
+			var fromCollection = new ReadOnlyCollection<double>(doubleValues);
+			var toCollection = Serialize(fromCollection);
+
+			Assert.That(toCollection.EquivalentTo(fromCollection), Is.True);
 		}
 
 		public T Serialize<T>(T model)
