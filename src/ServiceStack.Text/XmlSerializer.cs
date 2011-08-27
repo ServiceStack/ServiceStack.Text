@@ -104,13 +104,13 @@ namespace ServiceStack.Text
 			{
 				using (var xw = new XmlTextWriter(writer))
 				{
-					var serializer = new System.Runtime.Serialization.DataContractSerializer(typeof(T));
+					var serializer = new System.Runtime.Serialization.DataContractSerializer(value.GetType());
 					serializer.WriteObject(xw, value);
 				}
 			}
 			catch (Exception ex)
 			{
-				throw new SerializationException(string.Format("Error serializing object of type {0}", typeof(T).FullName), ex);
+                throw new SerializationException(string.Format("Error serializing object of type {0}", value.GetType().FullName), ex);
 			}
 		}
 
