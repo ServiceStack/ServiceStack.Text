@@ -1,12 +1,15 @@
 using System;
 using System.IO;
+#if !XBOX360
 using System.IO.Compression;
+#endif
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 
 namespace ServiceStack.Text
 {
+#if !XBOX
 	public class XmlSerializer
 	{
 		private readonly XmlDictionaryReaderQuotas quotas;
@@ -76,12 +79,7 @@ namespace ServiceStack.Text
 				{
 					using (var xw = new XmlTextWriter(ms, Encoding.UTF8))
 					{
-						if (false)
-						{
-							xw.Formatting = Formatting.Indented;
-						}
-
-						var serializer = new System.Runtime.Serialization.DataContractSerializer(from.GetType());
+						var serializer = new DataContractSerializer(from.GetType());
 						serializer.WriteObject(xw, from);
 						xw.Flush();
 						ms.Seek(0, SeekOrigin.Begin);
@@ -144,4 +142,5 @@ namespace ServiceStack.Text
 			}
 		}		
 	}
+#endif
 }

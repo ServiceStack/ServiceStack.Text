@@ -11,26 +11,68 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text", "Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Tests", "..\tests\ServiceStack.Text.Tests\ServiceStack.Text.Tests.csproj", "{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.XBox360", "ServiceStack.Text\ServiceStack.Text.XBox360.csproj", "{E2B0C358-6CC5-4D15-AD73-41730FBF5530}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Xbox 360 = Debug|Xbox 360
 		MonoTouch|Any CPU = MonoTouch|Any CPU
+		MonoTouch|Mixed Platforms = MonoTouch|Mixed Platforms
+		MonoTouch|Xbox 360 = MonoTouch|Xbox 360
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Xbox 360 = Release|Xbox 360
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.MonoTouch|Any CPU.ActiveCfg = MonoTouch|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.MonoTouch|Any CPU.Build.0 = MonoTouch|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.MonoTouch|Mixed Platforms.ActiveCfg = MonoTouch|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.MonoTouch|Mixed Platforms.Build.0 = MonoTouch|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.MonoTouch|Xbox 360.ActiveCfg = MonoTouch|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Xbox 360.ActiveCfg = Release|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Any CPU.ActiveCfg = MonoTouch|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Mixed Platforms.ActiveCfg = MonoTouch|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Mixed Platforms.Build.0 = MonoTouch|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Xbox 360.ActiveCfg = MonoTouch|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Xbox 360.ActiveCfg = Release|Any CPU
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Debug|Any CPU.ActiveCfg = Debug|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Debug|Mixed Platforms.ActiveCfg = Debug|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Debug|Mixed Platforms.Build.0 = Debug|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Debug|Xbox 360.ActiveCfg = Debug|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Debug|Xbox 360.Build.0 = Debug|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.MonoTouch|Any CPU.ActiveCfg = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.MonoTouch|Mixed Platforms.ActiveCfg = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.MonoTouch|Mixed Platforms.Build.0 = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.MonoTouch|Xbox 360.ActiveCfg = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.MonoTouch|Xbox 360.Build.0 = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Release|Any CPU.ActiveCfg = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Release|Mixed Platforms.ActiveCfg = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Release|Mixed Platforms.Build.0 = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Release|Xbox 360.ActiveCfg = Release|Xbox 360
+		{E2B0C358-6CC5-4D15-AD73-41730FBF5530}.Release|Xbox 360.Build.0 = Release|Xbox 360
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = ServiceStack.Text\ServiceStack.Text.csproj
@@ -41,8 +83,5 @@ Global
 		$0.StandardHeader = $2
 		$2.Text = 
 		$2.IncludeInNewFiles = True
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

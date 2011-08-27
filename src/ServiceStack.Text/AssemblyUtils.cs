@@ -15,6 +15,7 @@ namespace ServiceStack.Text
 		private const string ExeExt = "dll";
 		private const char UriSeperator = '/';
 
+#if !XBOX
 		/// <summary>
 		/// Find the type from the name supplied
 		/// </summary>
@@ -32,7 +33,9 @@ namespace ServiceStack.Text
 				return FindTypeFromLoadedAssemblies(typeDef.TypeName);
 			}
 		}
+#endif
 
+#if !XBOX
 		/// <summary>
 		/// Find type if it exists
 		/// </summary>
@@ -60,7 +63,9 @@ namespace ServiceStack.Text
 			}
 			return assembly != null ? assembly.GetType(typeName) : null;
 		}
+#endif
 
+#if !XBOX
 		public static Type FindTypeFromLoadedAssemblies(string typeName)
 		{
 			foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -73,12 +78,14 @@ namespace ServiceStack.Text
 			}
 			return null;
 		}
+#endif
 
 		private static Assembly LoadAssembly(string assemblyPath)
 		{
 			return Assembly.LoadFrom(assemblyPath);
 		}
 
+#if !XBOX
 		public static string GetAssemblyBinPath(Assembly assembly)
 		{
 			var binPathPos = assembly.CodeBase.LastIndexOf(UriSeperator);
@@ -89,5 +96,6 @@ namespace ServiceStack.Text
 			}
 			return assemblyPath;
 		}
+#endif
 	}
 }

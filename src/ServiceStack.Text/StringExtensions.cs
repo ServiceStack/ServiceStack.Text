@@ -171,6 +171,7 @@ namespace ServiceStack.Text
 			return sb.ToString();
 		}
 
+#if !XBOX
 		public static string HexEscape(this string text, params char[] anyCharOf)
 		{
 			if (string.IsNullOrEmpty(text)) return text;
@@ -194,7 +195,7 @@ namespace ServiceStack.Text
 			}
 			return sb.ToString();
 		}
-
+#endif
 		public static string HexUnescape(this string text, params char[] anyCharOf)
 		{
 			if (string.IsNullOrEmpty(text)) return null;
@@ -390,16 +391,19 @@ namespace ServiceStack.Text
 			return JsonSerializer.DeserializeFromString<T>(json);
 		}
 
+#if !XBOX
 		public static string ToXml<T>(this T obj)
 		{
 			return XmlSerializer.SerializeToString<T>(obj);
 		}
+#endif
 
+#if !XBOX
 		public static T FromXml<T>(this string json)
 		{
 			return XmlSerializer.DeserializeFromString<T>(json);
 		}
-
+#endif
 		public static string FormatWith(this string text, params object[] args)
 		{
 			return string.Format(text, args);
@@ -418,7 +422,15 @@ namespace ServiceStack.Text
 
 		public static string ReadAllText(this string filePath)
 		{
+#if XBOX
+			using( var fileStream = new FileStream( filePath, FileMode.Open, FileAccess.Read ) )
+			{
+				return new StreamReader( fileStream ).ReadToEnd( ) ;
+			}
+#else
 			return File.ReadAllText(filePath);
+#endif
+
 		}
 
 		public static int IndexOfAny(this string text, params string[] needles)
