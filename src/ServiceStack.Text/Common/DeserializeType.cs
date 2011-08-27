@@ -10,12 +10,14 @@
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
 
+#if !XBOX
+using System.Linq.Expressions ;
+#endif
+
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace ServiceStack.Text.Common
 {
@@ -103,7 +105,7 @@ namespace ServiceStack.Text.Common
 			var setMethodInfo = propertyInfo.GetSetMethod(true);
 			if (setMethodInfo == null) return null;
 			
-#if SILVERLIGHT || MONOTOUCH
+#if SILVERLIGHT || MONOTOUCH || XBOX
 			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
 #else
 			var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");

@@ -47,7 +47,7 @@ namespace ServiceStack.Text.Common
 			{
 				parseDelegate = (ParseDelegate)Delegate.CreateDelegate(typeof(ParseDelegate), parseMethodInfo);
 			}
-			catch (ArgumentException bindingException)
+			catch ( ArgumentException )
 			{
 				//Try wrapping strongly-typed return with wrapper fn.
 				var typedParseDelegate = (Func<string,T>)Delegate.CreateDelegate(typeof(Func<string,T>), parseMethodInfo);
