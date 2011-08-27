@@ -271,7 +271,7 @@ namespace ServiceStack.Text
 			if (emptyCtor != null)
 			{
 
-#if MONOTOUCH || SILVERLIGHT
+#if MONOTOUCH || SILVERLIGHT || XBOX
 				return () => Activator.CreateInstance(type);
 #else
 				var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes, typeof(ReflectionExtensions).Module, true);
@@ -284,7 +284,7 @@ namespace ServiceStack.Text
 #endif
 			}
 
-#if SILVERLIGHT
+#if SILVERLIGHT || XBOX
 			return () => Activator.CreateInstance(type);
 #else
 			//Anonymous types don't have empty constructors
@@ -294,15 +294,8 @@ namespace ServiceStack.Text
 
 		public static object CreateInstance(Type type)
 		{
-			try
-			{
-				var ctorFn = GetConstructorMethod(type);
-				return ctorFn();
-			}
-			catch (Exception ex)
-			{
-				throw;
-			}
+			var ctorFn = GetConstructorMethod( type ) ;
+			return ctorFn( ) ;
 		}
 
 		public static PropertyInfo[] GetPublicProperties(this Type type)
