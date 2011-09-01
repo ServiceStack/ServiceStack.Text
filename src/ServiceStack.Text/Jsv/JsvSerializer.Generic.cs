@@ -52,7 +52,7 @@ namespace ServiceStack.Text.Jsv
 
 		public void SerializeToWriter(T value, TextWriter writer)
 		{
-			JsvWriter<T>.WriteObject(writer, value);
+			JsvWriter<T>.WriteObject(writer, value, false);
 		}
 
 		public string SerializeToString(T value)
@@ -63,7 +63,7 @@ namespace ServiceStack.Text.Jsv
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb))
 			{
-				JsvWriter<T>.WriteObject(writer, value);
+				JsvWriter<T>.WriteObject(writer, value, false);
 			}
 			return sb.ToString();
 		}

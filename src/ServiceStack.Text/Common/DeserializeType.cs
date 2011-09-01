@@ -64,40 +64,76 @@ namespace ServiceStack.Text.Common
 					JsWriter.MapStartChar, type.Name, strType.Substring(0, strType.Length < 50 ? strType.Length : 50)));
 
 
-			var instance = ctorFn();
-			string propertyName;
-			ParseStringDelegate parseStringFn;
-			SetPropertyDelegate setterFn;
+			if (strType == JsWriter.EmptyMap)
+			{
+				return ctorFn();
+			}
 
-			if (strType == JsWriter.EmptyMap) return instance;
 			var strTypeLength = strType.Length;
+
+			var propertyNamesAndValues = new Dictionary<string, string>();
 
 			while (index < strTypeLength)
 			{
-				propertyName = Serializer.EatMapKey(strType, ref index);
+				string propertyName = Serializer.EatMapKey(strType, ref index) ;
 
 				Serializer.EatMapKeySeperator(strType, ref index);
 
 				var propertyValueString = Serializer.EatValue(strType, ref index);
 
-				parseStringFnMap.TryGetValue(propertyName, out parseStringFn);
+				propertyNamesAndValues.Add( propertyName, propertyValueString );
+
+				Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
+			}
+
+			object instance ;
+
+			if (propertyNamesAndValues.ContainsKey(@"__type"))
+			{
+				instance = typeFromTypeSpecifiedInText( type, propertyNamesAndValues[@"__type"]);
+			}
+			else
+			{
+				instance = ctorFn( ) ;
+			}
+
+			foreach( var pair in propertyNamesAndValues )
+			{
+				string name = pair.Key ;
+				string value = pair.Value ;
+
+				ParseStringDelegate parseStringFn;
+				parseStringFnMap.TryGetValue(name, out parseStringFn);
 
 				if (parseStringFn != null)
 				{
-					var propertyValue = parseStringFn(propertyValueString);
+					var propertyValue = parseStringFn(value);
 
-					setterMap.TryGetValue(propertyName, out setterFn);
+					SetPropertyDelegate setterFn;
+					setterMap.TryGetValue(name, out setterFn);
 
 					if (setterFn != null)
 					{
 						setterFn(instance, propertyValue);
 					}
 				}
-
-				Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
 			}
 
 			return instance;
+		}
+
+		static object typeFromTypeSpecifiedInText( Type baseType, string value )
+		{
+			int firstColon = value.IndexOf( @":" ) ;
+
+			string className = value.Substring( 0, firstColon ) ;
+			string namespaceName = value.Substring( firstColon + 2 ) ;
+
+			string fullName = @"{0}.{1},{2}".FormatWith( namespaceName, className, baseType.Assembly.FullName) ;
+
+			Type type = Type.GetType( fullName ) ;
+
+			return Activator.CreateInstance( type ) ;
 		}
 
 		public static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)

@@ -82,7 +82,7 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
-				JsvWriter<T>.WriteObject(writer, value);
+				JsvWriter<T>.WriteObject(writer, value,false);
 			}
 			return sb.ToString();
 		}
@@ -96,7 +96,7 @@ namespace ServiceStack.Text
 				return;
 			}
 
-			JsvWriter<T>.WriteObject(writer, value);
+			JsvWriter<T>.WriteObject(writer, value,false);
 		}
 
 		public static T Clone<T>(T value)
@@ -109,7 +109,7 @@ namespace ServiceStack.Text
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsvWriter<T>.WriteObject(writer, value);
+			JsvWriter<T>.WriteObject(writer, value,false);
 			writer.Flush();
 		}
 

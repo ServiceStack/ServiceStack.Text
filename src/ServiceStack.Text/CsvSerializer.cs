@@ -94,7 +94,7 @@ namespace ServiceStack.Text
 			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
 			{
 				var writeFn = GetWriteFn(obj.GetType());
-				writeFn(writer, obj);
+				writeFn(writer, obj, false);
 			}
 		}
 
@@ -108,11 +108,11 @@ namespace ServiceStack.Text
 			return null;
 		}
 
-		public static void WriteLateBoundObject(TextWriter writer, object value)
+		public static void WriteLateBoundObject(TextWriter writer, object value, bool includeType)
 		{
 			if (value == null) return;
 			var writeFn = GetWriteFn(value.GetType());
-			writeFn(writer, value);
+			writeFn(writer, value, includeType);
 		}
 	}
 
@@ -195,14 +195,14 @@ namespace ServiceStack.Text
 				var elementType = bestCandidateEnumerableType.GetGenericArguments()[0];
 				writeElementFn = CreateWriteFn(elementType);
 
-				return WriteEnumerableProperty;
+				return (x,y,z)=>WriteEnumerableProperty(x,y);
 			}
 
 			//If is DTO and has non-enumerable, reference type property serialize that
 			valueGetter = firstCandidate.GetValueGetter(typeof(T));
 			writeElementFn = CreateWriteRowFn(firstCandidate.PropertyType);
 
-			return WriteNonEnumerableType;
+			return (x,y,z)=>WriteNonEnumerableType(x,y);
 		}
 
 		private static WriteObjectDelegate CreateWriteFn(Type elementType)
@@ -227,12 +227,12 @@ namespace ServiceStack.Text
 			return writeFn;
 		}
 
-		public static void WriteEnumerableType(TextWriter writer, object obj)
+		public static void WriteEnumerableType(TextWriter writer, object obj, bool includeType)
 		{
-			writeElementFn(writer, obj);
+			writeElementFn(writer, obj, includeType);
 		}
 
-		public static void WriteSelf(TextWriter writer, object obj)
+		public static void WriteSelf(TextWriter writer, object obj, bool includeType)
 		{
 			CsvWriter<T>.WriteRow(writer, (T)obj);
 		}
@@ -242,13 +242,13 @@ namespace ServiceStack.Text
 			if (obj == null) return; //AOT
 
 			var enumerableProperty = valueGetter(obj);
-			writeElementFn(writer, enumerableProperty);
+			writeElementFn(writer, enumerableProperty, false);
 		}
 
 		public static void WriteNonEnumerableType(TextWriter writer, object obj)
 		{
 			var nonEnumerableType = valueGetter(obj);
-			writeElementFn(writer, nonEnumerableType);
+			writeElementFn(writer, nonEnumerableType, false);
 		}
 
 		static CsvSerializer()
@@ -265,7 +265,7 @@ namespace ServiceStack.Text
 
 		public static void WriteObject(TextWriter writer, object value)
 		{
-			CacheFn(writer, value);
+			CacheFn(writer, value, false);
 		}
 	}
 }

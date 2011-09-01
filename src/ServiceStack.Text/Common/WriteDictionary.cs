@@ -87,7 +87,7 @@ namespace ServiceStack.Text.Common
 			return writeFn.Invoke;
 		}
 
-		public static void WriteIDictionary(TextWriter writer, object oMap)
+		public static void WriteIDictionary(TextWriter writer, object oMap, bool includeType)
 		{
 			WriteObjectDelegate writeKeyFn = null;
 			WriteObjectDelegate writeValueFn = null;
@@ -109,13 +109,13 @@ namespace ServiceStack.Text.Common
 
 				JsState.WritingKeyCount++;
 				JsState.IsWritingValue = false;
-				writeKeyFn(writer, key);
+				writeKeyFn(writer, key, includeType);
 				JsState.WritingKeyCount--;
 
 				writer.Write(JsWriter.MapKeySeperator);
 
 				JsState.IsWritingValue = true;
-				writeValueFn(writer, dictionaryValue ?? JsWriter.MapNullValue);
+				writeValueFn(writer, dictionaryValue ?? JsWriter.MapNullValue, includeType);
 				JsState.IsWritingValue = false;
 			}
 
@@ -153,13 +153,13 @@ namespace ServiceStack.Text.Common
 
 				JsState.WritingKeyCount++;
                 JsState.IsWritingValue = false;
-				writeKeyFn(writer, kvp.Key);
+				writeKeyFn(writer, kvp.Key, false);
 				JsState.WritingKeyCount--;
 
 				writer.Write(JsWriter.MapKeySeperator);
 
 				JsState.IsWritingValue = true;
-				writeValueFn(writer, kvp.Value);
+				writeValueFn(writer, kvp.Value, false);
 				JsState.IsWritingValue = false;
 			}
 

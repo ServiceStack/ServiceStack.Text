@@ -53,11 +53,11 @@ namespace ServiceStack.Text.Jsv
 			}
 		}
 
-		public static void WriteLateBoundObject(TextWriter writer, object value)
+		public static void WriteLateBoundObject(TextWriter writer, object value, bool includeType)
 		{
 			if (value == null) return;
 			var writeFn = GetWriteFn(value.GetType());
-			writeFn(writer, value);
+			writeFn(writer, value,includeType);
 		}
 
 		public static WriteObjectDelegate GetValueTypeToStringMethod(Type type)
@@ -91,9 +91,9 @@ namespace ServiceStack.Text.Jsv
 			}
 		}
 
-		public static void WriteObject(TextWriter writer, object value)
+		public static void WriteObject(TextWriter writer, object value, bool includeType)
 		{
-			CacheFn(writer, value);
+			CacheFn(writer, value,includeType);
 		}
 
 	}
