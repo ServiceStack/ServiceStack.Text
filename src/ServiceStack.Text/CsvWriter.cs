@@ -20,7 +20,7 @@ namespace ServiceStack.Text
 		{
 			if (typeof(T) == typeof(string))
 			{
-				OptimizedWriter = (w, o) => WriteRow(w, (IEnumerable<string>)o);
+				OptimizedWriter = (w, o,y) => WriteRow(w, (IEnumerable<string>)o);
 				return;
 			}
 
@@ -107,12 +107,12 @@ namespace ServiceStack.Text
 			return rows;
 		}
 
-		public static void WriteObject(TextWriter writer, object records)
+		public static void WriteObject(TextWriter writer, object records, bool includeType=false)
 		{
 			Write(writer, (IEnumerable<T>)records);
 		}
 
-		public static void WriteObjectRow(TextWriter writer, object record)
+		public static void WriteObjectRow(TextWriter writer, object record, bool includeType=false)
 		{
 			WriteRow(writer, (T)record);
 		}
@@ -173,7 +173,7 @@ namespace ServiceStack.Text
 			Write(writer, new[] { row });
 		}
 
-		public static void WriteRow(TextWriter writer, IEnumerable<string> row)
+		public static void WriteRow(TextWriter writer, IEnumerable<string> row, bool includeType=false)
 		{
 			var ranOnce = false;
 			foreach (var field in row)

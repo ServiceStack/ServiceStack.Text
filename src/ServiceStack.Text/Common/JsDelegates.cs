@@ -24,7 +24,7 @@ namespace ServiceStack.Text.Common
 
 	internal delegate ParseStringDelegate ParseFactoryDelegate();
 
-	internal delegate void WriteObjectDelegate(TextWriter writer, object obj);
+	internal delegate void WriteObjectDelegate(TextWriter writer, object obj, bool includeType=false);
 
 	public delegate void SetPropertyDelegate(object instance, object propertyValue);
 

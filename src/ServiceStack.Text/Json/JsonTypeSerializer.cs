@@ -69,12 +69,12 @@ namespace ServiceStack.Text.Json
 			}
 		}
 
-		public void WriteString(TextWriter writer, string value)
+		public void WriteString(TextWriter writer, string value, bool includeType=false)
 		{
 			JsonUtils.WriteString(writer, value);
 		}
 
-		public void WriteBuiltIn(TextWriter writer, object value)
+		public void WriteBuiltIn(TextWriter writer, object value, bool includeType=false)
 		{
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 
@@ -83,7 +83,7 @@ namespace ServiceStack.Text.Json
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
-		public void WriteObjectString(TextWriter writer, object value)
+		public void WriteObjectString(TextWriter writer, object value, bool includeType=false)
 		{
 			if (value != null)
 			{
@@ -95,40 +95,40 @@ namespace ServiceStack.Text.Json
 			}
 		}
 
-		public void WriteException(TextWriter writer, object value)
+		public void WriteException(TextWriter writer, object value, bool includeType=false)
 		{
 			WriteString(writer, ((Exception)value).Message);
 		}
 
-		public void WriteDateTime(TextWriter writer, object oDateTime)
+		public void WriteDateTime(TextWriter writer, object oDateTime, bool includeType=false)
 		{
 			WriteRawString(writer, DateTimeSerializer.ToWcfJsonDate((DateTime)oDateTime));
 		}
 
-		public void WriteNullableDateTime(TextWriter writer, object dateTime)
+		public void WriteNullableDateTime(TextWriter writer, object dateTime, bool includeType=false)
 		{
 			if (dateTime == null) return;
 			WriteDateTime(writer, dateTime);
 		}
 
-		public void WriteGuid(TextWriter writer, object oValue)
+		public void WriteGuid(TextWriter writer, object oValue, bool includeType=false)
 		{
 			WriteRawString(writer, ((Guid)oValue).ToString("N"));
 		}
 
-		public void WriteNullableGuid(TextWriter writer, object oValue)
+		public void WriteNullableGuid(TextWriter writer, object oValue, bool includeType=false)
 		{
 			if (oValue == null) return;
 			WriteRawString(writer, ((Guid)oValue).ToString("N"));
 		}
 
-		public void WriteBytes(TextWriter writer, object oByteValue)
+		public void WriteBytes(TextWriter writer, object oByteValue, bool includeType=false)
 		{
 			if (oByteValue == null) return;
 			WriteRawString(writer, Convert.ToBase64String((byte[])oByteValue));
 		}
 
-		public void WriteInteger(TextWriter writer, object integerValue)
+		public void WriteInteger(TextWriter writer, object integerValue, bool includeType=false)
 		{
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 
@@ -140,7 +140,7 @@ namespace ServiceStack.Text.Json
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
-		public void WriteBool(TextWriter writer, object boolValue)
+		public void WriteBool(TextWriter writer, object boolValue, bool includeType=false)
 		{
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 
@@ -152,7 +152,7 @@ namespace ServiceStack.Text.Json
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
-		public void WriteFloat(TextWriter writer, object floatValue)
+		public void WriteFloat(TextWriter writer, object floatValue, bool includeType=false)
 		{
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 
@@ -164,7 +164,7 @@ namespace ServiceStack.Text.Json
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
-		public void WriteDouble(TextWriter writer, object doubleValue)
+		public void WriteDouble(TextWriter writer, object doubleValue, bool includeType=false)
 		{
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 
@@ -176,7 +176,7 @@ namespace ServiceStack.Text.Json
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
-		public void WriteDecimal(TextWriter writer, object decimalValue)
+		public void WriteDecimal(TextWriter writer, object decimalValue, bool includeType=false)
 		{
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 

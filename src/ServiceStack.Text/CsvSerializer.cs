@@ -108,7 +108,7 @@ namespace ServiceStack.Text
 			return null;
 		}
 
-		public static void WriteLateBoundObject(TextWriter writer, object value)
+		public static void WriteLateBoundObject(TextWriter writer, object value, bool includeType=false)
 		{
 			if (value == null) return;
 			var writeFn = GetWriteFn(value.GetType());
@@ -195,14 +195,14 @@ namespace ServiceStack.Text
 				var elementType = bestCandidateEnumerableType.GetGenericArguments()[0];
 				writeElementFn = CreateWriteFn(elementType);
 
-				return WriteEnumerableProperty;
+				return (x,y,z)=>WriteEnumerableProperty(x,y);
 			}
 
 			//If is DTO and has non-enumerable, reference type property serialize that
 			valueGetter = firstCandidate.GetValueGetter(typeof(T));
 			writeElementFn = CreateWriteRowFn(firstCandidate.PropertyType);
 
-			return WriteNonEnumerableType;
+			return (x,y,z)=>WriteNonEnumerableType(x,y);
 		}
 
 		private static WriteObjectDelegate CreateWriteFn(Type elementType)
@@ -227,12 +227,12 @@ namespace ServiceStack.Text
 			return writeFn;
 		}
 
-		public static void WriteEnumerableType(TextWriter writer, object obj)
+		public static void WriteEnumerableType(TextWriter writer, object obj, bool includeType=false)
 		{
 			writeElementFn(writer, obj);
 		}
 
-		public static void WriteSelf(TextWriter writer, object obj)
+		public static void WriteSelf(TextWriter writer, object obj, bool includeType=false)
 		{
 			CsvWriter<T>.WriteRow(writer, (T)obj);
 		}

@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq ;
 using System.Reflection;
 
 namespace ServiceStack.Text.Common
@@ -173,7 +174,7 @@ namespace ServiceStack.Text.Common
 			return writeFn;
 		}
 
-		public static void WriteIEnumerable(TextWriter writer, object oValueCollection)
+		public static void WriteIEnumerable(TextWriter writer, object oValueCollection, bool includeType=false)
 		{
 			WriteObjectDelegate toStringFn = null;
 
@@ -205,9 +206,13 @@ namespace ServiceStack.Text.Common
 			ElementWriteFn = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn<T>();
 		}
 
-		public static void WriteList(TextWriter writer, object oList)
+		public static void WriteList(TextWriter writer, object oList, bool includeType=false)
 		{
-			if (oList == null) return;
+			if (oList == null)
+			{
+				return;
+			}
+			
 			WriteGenericIList(writer, (IList<T>)oList);
 		}
 
@@ -216,16 +221,24 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;
+			
+			bool shouldWriteType = typesInListDiffer(list) ;
+
 			list.ForEach(x =>
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, x);
+				ElementWriteFn(writer, x, shouldWriteType);
 			});
 
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteListValueType(TextWriter writer, object list)
+		static bool typesInListDiffer( IEnumerable<T> list )
+		{
+			return list.Any( l => l.GetType( ) != typeof( T ) ) ;
+		}
+
+		public static void WriteListValueType(TextWriter writer, object list, bool includeType=false)
 		{
 			WriteGenericListValueType(writer, (List<T>)list);
 		}
@@ -246,9 +259,13 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteIList(TextWriter writer, object oList)
+		public static void WriteIList(TextWriter writer, object oList, bool includeType=false)
 		{
-			if (oList == null) return;
+			if (oList == null)
+			{
+				return;
+			}
+			
 			WriteGenericIList(writer, (IList<T>)oList);
 		}
 
@@ -256,16 +273,18 @@ namespace ServiceStack.Text.Common
 		{
 			writer.Write(JsWriter.ListStartChar);
 
+			bool shouldWriteType = typesInListDiffer(list) ;
+
 			var ranOnce = false;
 			var listLength = list.Count;
+
 			try
 			{
 				for (var i = 0; i < listLength; i++)
 				{
 					JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-					ElementWriteFn(writer, list[i]);
+					ElementWriteFn(writer, list[i], shouldWriteType);
 				}
-
 			}
 			catch (Exception ex)
 			{
@@ -275,7 +294,7 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteIListValueType(TextWriter writer, object list)
+		public static void WriteIListValueType(TextWriter writer, object list, bool includeType=false)
 		{
 			WriteGenericIListValueType(writer, (IList<T>)list);
 		}
@@ -297,13 +316,13 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteArray(TextWriter writer, object oArrayValue)
+		public static void WriteArray(TextWriter writer, object oArrayValue, bool includeType=false)
 		{
 			if (oArrayValue == null) return;
 			WriteGenericArray(writer, (T[])oArrayValue);
 		}
 
-		public static void WriteGenericArrayValueType(TextWriter writer, object oArray)
+		public static void WriteGenericArrayValueType(TextWriter writer, object oArray, bool includeType=false)
 		{
 			writer.Write(JsWriter.ListStartChar);
 
@@ -334,9 +353,13 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteEnumerable(TextWriter writer, object oEnumerable)
+		public static void WriteEnumerable(TextWriter writer, object oEnumerable, bool includeType=false)
 		{
-			if (oEnumerable == null) return;
+			if (oEnumerable == null)
+			{
+				return;
+			}
+			
 			WriteGenericEnumerable(writer, (IEnumerable<T>)oEnumerable);
 		}
 
@@ -459,9 +482,9 @@ namespace ServiceStack.Text.Common
 
 			//optimized access for regularly used types
 			if (type == typeof(List<string>))
-				return (w, x) => WriteLists.WriteListString(Serializer, w, x);
+				return (w, x,y) => WriteLists.WriteListString(Serializer, w, x);
 			if (type == typeof(IList<string>))
-				return (w, x) => WriteLists.WriteIListString(Serializer, w, x);
+				return (w, x,y) => WriteLists.WriteIListString(Serializer, w, x);
 
 			if (type == typeof(List<int>))
 				return WriteListsOfElements<int, TSerializer>.WriteListValueType;

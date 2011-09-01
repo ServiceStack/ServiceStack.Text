@@ -178,13 +178,14 @@ namespace ServiceStack.Text.Common
 			if (typeof(T).IsArray)
 			{
 				if (typeof(T) == typeof(byte[]))
-					return (w, x) => WriteLists.WriteBytes(Serializer, w, x);
+					return (w, x,y) => WriteLists.WriteBytes(Serializer, w, x);
 
 				if (typeof(T) == typeof(string[]))
-					return (w, x) => WriteLists.WriteStringArray(Serializer, w, x);
+					return (w, x,y) => WriteLists.WriteStringArray(Serializer, w, x);
 
 				if (typeof(T) == typeof(int[]))
 					return WriteListsOfElements<int, TSerializer>.WriteGenericArrayValueType;
+				
 				if (typeof(T) == typeof(long[]))
 					return WriteListsOfElements<long, TSerializer>.WriteGenericArrayValueType;
 
@@ -196,9 +197,12 @@ namespace ServiceStack.Text.Common
 			if (typeof(T).IsGenericType())
 			{
 				if (typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(IList<>)))
+				{
 					return WriteLists<T, TSerializer>.Write;
+				}
 
 				var mapInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
+				
 				if (mapInterface != null)
 				{
 					var mapTypeArgs = mapInterface.GetGenericArguments();
@@ -208,7 +212,7 @@ namespace ServiceStack.Text.Common
 					var keyWriteFn = Serializer.GetWriteFn(mapTypeArgs[0]);
 					var valueWriteFn = Serializer.GetWriteFn(mapTypeArgs[1]);
 
-					return (w, x) => writeFn(w, x, keyWriteFn, valueWriteFn);
+					return (w, x,y) => writeFn(w, x, keyWriteFn, valueWriteFn);
 				}
 
 				var enumerableInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
@@ -271,7 +275,7 @@ namespace ServiceStack.Text.Common
 			return null;
 		}
 
-		public void WriteType(TextWriter writer, object value)
+		public void WriteType(TextWriter writer, object value, bool includeType=false)
 		{
 			Serializer.WriteRawString(writer, ((Type)value).AssemblyQualifiedName);
 		}

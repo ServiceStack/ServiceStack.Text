@@ -87,7 +87,7 @@ namespace ServiceStack.Text.Common
 			return writeFn.Invoke;
 		}
 
-		public static void WriteIDictionary(TextWriter writer, object oMap)
+		public static void WriteIDictionary(TextWriter writer, object oMap, bool includeType=false)
 		{
 			WriteObjectDelegate writeKeyFn = null;
 			WriteObjectDelegate writeValueFn = null;

@@ -11,20 +11,20 @@ namespace ServiceStack.Text.Common
 		void WriteRawString(TextWriter writer, string value);
 		void WritePropertyName(TextWriter writer, string value);
 
-		void WriteBuiltIn(TextWriter writer, object value);
-		void WriteObjectString(TextWriter writer, object value);
-		void WriteException(TextWriter writer, object value);
-		void WriteString(TextWriter writer, string value);
-		void WriteDateTime(TextWriter writer, object oDateTime);
-		void WriteNullableDateTime(TextWriter writer, object dateTime);
-		void WriteGuid(TextWriter writer, object oValue);
-		void WriteNullableGuid(TextWriter writer, object oValue);
-		void WriteBytes(TextWriter writer, object oByteValue);
-		void WriteInteger(TextWriter writer, object integerValue);
-		void WriteBool(TextWriter writer, object boolValue);
-		void WriteFloat(TextWriter writer, object floatValue);
-		void WriteDouble(TextWriter writer, object doubleValue);
-		void WriteDecimal(TextWriter writer, object decimalValue);
+		void WriteBuiltIn(TextWriter writer, object value, bool includeType=false);
+		void WriteObjectString(TextWriter writer, object value, bool includeType=false);
+		void WriteException(TextWriter writer, object value, bool includeType=false);
+		void WriteString(TextWriter writer, string value, bool includeType=false);
+		void WriteDateTime(TextWriter writer, object oDateTime, bool includeType=false);
+		void WriteNullableDateTime(TextWriter writer, object dateTime, bool includeType=false);
+		void WriteGuid(TextWriter writer, object oValue, bool includeType=false);
+		void WriteNullableGuid(TextWriter writer, object oValue, bool includeType=false);
+		void WriteBytes(TextWriter writer, object oByteValue, bool includeType=false);
+		void WriteInteger(TextWriter writer, object integerValue, bool includeType=false);
+		void WriteBool(TextWriter writer, object boolValue, bool includeType=false);
+		void WriteFloat(TextWriter writer, object floatValue, bool includeType=false);
+		void WriteDouble(TextWriter writer, object doubleValue, bool includeType=false);
+		void WriteDecimal(TextWriter writer, object decimalValue, bool includeType=false);
 
 		//object EncodeMapKey(object value);
 

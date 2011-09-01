@@ -85,17 +85,22 @@ namespace ServiceStack.Text.Common
 			}
 		}
 
-		public static void WriteEmptyType(TextWriter writer, object value)
+		public static void WriteEmptyType(TextWriter writer, object value, bool includeType=false)
 		{
 			writer.Write(JsWriter.EmptyMap);
 		}
 
-		public static void WriteProperties(TextWriter writer, object value)
+		public static void WriteProperties(TextWriter writer, object value, bool includeType=false)
 		{
 			if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0) 
 				writer.Write(JsWriter.QuoteChar);
 
 			writer.Write(JsWriter.MapStartChar);
+
+			if( includeType )
+			{
+				writer.Write( @"{0}__type{0}:{0}{1}:#{2}{0},", JsWriter.QuoteChar,justTheTypeName(value), justTheNamespaceName(value) );
+			}
 
 			if (PropertyWriters != null)
 			{
@@ -123,7 +128,19 @@ namespace ServiceStack.Text.Common
 				writer.Write(JsWriter.QuoteChar);
 		}
 
-		public static void WriteQueryString(TextWriter writer, object value)
+		static string justTheNamespaceName( object value )
+		{
+			Type t = value.GetType( ) ;
+			return t.Namespace ;
+		}
+
+		static string justTheTypeName( object value )
+		{
+			Type t = value.GetType( ) ;
+			return t.Name ;
+		}
+
+		public static void WriteQueryString(TextWriter writer, object value, bool includeType=false)
 		{
 			var i = 0;
 			foreach (var propertyWriter in PropertyWriters)

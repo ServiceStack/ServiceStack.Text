@@ -57,7 +57,7 @@ namespace ServiceStack.Text
 			}
 		}
 
-		public static void WriteLateBoundObject(TextWriter writer, object value)
+		public static void WriteLateBoundObject(TextWriter writer, object value, bool includeType=false)
 		{
 			if (value == null) return;
 			var writeFn = GetWriteFn(value.GetType());
