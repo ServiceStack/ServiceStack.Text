@@ -275,7 +275,7 @@ namespace ServiceStack.Text.Common
 			return null;
 		}
 
-		public void WriteType(TextWriter writer, object value, bool includeType=false)
+		public void WriteType(TextWriter writer, object value, bool includeType)
 		{
 			Serializer.WriteRawString(writer, ((Type)value).AssemblyQualifiedName);
 		}

@@ -174,7 +174,7 @@ namespace ServiceStack.Text.Common
 			return writeFn;
 		}
 
-		public static void WriteIEnumerable(TextWriter writer, object oValueCollection, bool includeType=false)
+		public static void WriteIEnumerable(TextWriter writer, object oValueCollection, bool includeType)
 		{
 			WriteObjectDelegate toStringFn = null;
 
@@ -189,7 +189,7 @@ namespace ServiceStack.Text.Common
 
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
-				toStringFn(writer, valueItem);
+				toStringFn(writer, valueItem, includeType);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -206,7 +206,7 @@ namespace ServiceStack.Text.Common
 			ElementWriteFn = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn<T>();
 		}
 
-		public static void WriteList(TextWriter writer, object oList, bool includeType=false)
+		public static void WriteList(TextWriter writer, object oList, bool includeType)
 		{
 			if (oList == null)
 			{
@@ -238,7 +238,7 @@ namespace ServiceStack.Text.Common
 			return list.Any( l => l.GetType( ) != typeof( T ) ) ;
 		}
 
-		public static void WriteListValueType(TextWriter writer, object list, bool includeType=false)
+		public static void WriteListValueType(TextWriter writer, object list, bool includeType)
 		{
 			WriteGenericListValueType(writer, (List<T>)list);
 		}
@@ -259,7 +259,7 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteIList(TextWriter writer, object oList, bool includeType=false)
+		public static void WriteIList(TextWriter writer, object oList, bool includeType)
 		{
 			if (oList == null)
 			{
@@ -294,7 +294,7 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteIListValueType(TextWriter writer, object list, bool includeType=false)
+		public static void WriteIListValueType(TextWriter writer, object list, bool includeType)
 		{
 			WriteGenericIListValueType(writer, (IList<T>)list);
 		}
@@ -316,13 +316,13 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteArray(TextWriter writer, object oArrayValue, bool includeType=false)
+		public static void WriteArray(TextWriter writer, object oArrayValue, bool includeType)
 		{
 			if (oArrayValue == null) return;
 			WriteGenericArray(writer, (T[])oArrayValue);
 		}
 
-		public static void WriteGenericArrayValueType(TextWriter writer, object oArray, bool includeType=false)
+		public static void WriteGenericArrayValueType(TextWriter writer, object oArray, bool includeType)
 		{
 			writer.Write(JsWriter.ListStartChar);
 
@@ -347,13 +347,13 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < arrayLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, array[i]);
+				ElementWriteFn(writer, array[i], false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteEnumerable(TextWriter writer, object oEnumerable, bool includeType=false)
+		public static void WriteEnumerable(TextWriter writer, object oEnumerable, bool includeType)
 		{
 			if (oEnumerable == null)
 			{
@@ -371,7 +371,7 @@ namespace ServiceStack.Text.Common
 			foreach (var value in enumerable)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, value);
+				ElementWriteFn(writer, value, false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -407,7 +407,7 @@ namespace ServiceStack.Text.Common
 			list.ForEach(x =>
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				serializer.WriteString(writer, x);
+				serializer.WriteString(writer, x, false);
 			});
 
 			writer.Write(JsWriter.ListEndChar);
@@ -427,7 +427,7 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < listLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				serializer.WriteString(writer, list[i]);
+				serializer.WriteString(writer, list[i], false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -449,7 +449,7 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < listLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				serializer.WriteString(writer, list[i]);
+				serializer.WriteString(writer, list[i], false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);

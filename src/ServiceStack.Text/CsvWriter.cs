@@ -20,7 +20,7 @@ namespace ServiceStack.Text
 		{
 			if (typeof(T) == typeof(string))
 			{
-				OptimizedWriter = (w, o,y) => WriteRow(w, (IEnumerable<string>)o);
+				OptimizedWriter = (w, o,y) => WriteRow(w, (IEnumerable<string>)o, false);
 				return;
 			}
 
@@ -107,12 +107,12 @@ namespace ServiceStack.Text
 			return rows;
 		}
 
-		public static void WriteObject(TextWriter writer, object records, bool includeType=false)
+		public static void WriteObject(TextWriter writer, object records, bool includeType)
 		{
 			Write(writer, (IEnumerable<T>)records);
 		}
 
-		public static void WriteObjectRow(TextWriter writer, object record, bool includeType=false)
+		public static void WriteObjectRow(TextWriter writer, object record, bool includeType)
 		{
 			WriteRow(writer, (T)record);
 		}
@@ -123,7 +123,7 @@ namespace ServiceStack.Text
 
 			if (OptimizedWriter != null)
 			{
-				OptimizedWriter(writer, records);
+				OptimizedWriter(writer, records, false);
 				return;
 			}
 
@@ -144,7 +144,7 @@ namespace ServiceStack.Text
 			if (typeof(T).IsValueType || typeof(T) == typeof(string))
 			{
 				var singleRow = GetSingleRow(records, typeof(T));
-				WriteRow(writer, singleRow);
+				WriteRow(writer, singleRow, false);
 				return;
 			}
 
@@ -162,7 +162,7 @@ namespace ServiceStack.Text
 
 					row[i] = strValue;
 				}
-				WriteRow(writer, row);
+				WriteRow(writer, row, false);
 			}
 		}
 
@@ -173,7 +173,7 @@ namespace ServiceStack.Text
 			Write(writer, new[] { row });
 		}
 
-		public static void WriteRow(TextWriter writer, IEnumerable<string> row, bool includeType=false)
+		public static void WriteRow(TextWriter writer, IEnumerable<string> row, bool includeType)
 		{
 			var ranOnce = false;
 			foreach (var field in row)
@@ -201,7 +201,7 @@ namespace ServiceStack.Text
 
 			foreach (var row in rows)
 			{
-				WriteRow(writer, row);
+				WriteRow(writer, row, false);
 			}
 		}
 	}

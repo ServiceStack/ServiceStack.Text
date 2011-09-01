@@ -42,12 +42,12 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(value);
 		}
 
-		public void WriteBuiltIn(TextWriter writer, object value, bool includeType=false)
+		public void WriteBuiltIn(TextWriter writer, object value, bool includeType)
 		{
 			writer.Write(value);
 		}
 
-		public void WriteObjectString(TextWriter writer, object value, bool includeType=false)
+		public void WriteObjectString(TextWriter writer, object value, bool includeType)
 		{
 			if (value != null)
 			{
@@ -55,69 +55,69 @@ namespace ServiceStack.Text.Jsv
 			}
 		}
 
-		public void WriteException(TextWriter writer, object value, bool includeType=false)
+		public void WriteException(TextWriter writer, object value, bool includeType)
 		{
 			writer.Write(((Exception)value).Message.ToCsvField());
 		}
 
-		public void WriteString(TextWriter writer, string value, bool includeType=false)
+		public void WriteString(TextWriter writer, string value, bool includeType)
 		{
 			writer.Write(value.ToCsvField());
 		}
 
-		public void WriteDateTime(TextWriter writer, object oDateTime, bool includeType=false)
+		public void WriteDateTime(TextWriter writer, object oDateTime, bool includeType)
 		{
 			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)oDateTime));
 		}
 
-		public void WriteNullableDateTime(TextWriter writer, object dateTime, bool includeType=false)
+		public void WriteNullableDateTime(TextWriter writer, object dateTime, bool includeType)
 		{
 			if (dateTime == null) return;
 			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)dateTime));
 		}
 
-		public void WriteGuid(TextWriter writer, object oValue, bool includeType=false)
+		public void WriteGuid(TextWriter writer, object oValue, bool includeType)
 		{
 			writer.Write(((Guid)oValue).ToString("N"));
 		}
 
-		public void WriteNullableGuid(TextWriter writer, object oValue, bool includeType=false)
+		public void WriteNullableGuid(TextWriter writer, object oValue, bool includeType)
 		{
 			if (oValue == null) return;
 			writer.Write(((Guid)oValue).ToString("N"));
 		}
 
-		public void WriteBytes(TextWriter writer, object oByteValue, bool includeType=false)
+		public void WriteBytes(TextWriter writer, object oByteValue)
 		{
 			if (oByteValue == null) return;
 			writer.Write(Convert.ToBase64String((byte[])oByteValue));
 		}
 
-		public void WriteInteger(TextWriter writer, object integerValue, bool includeType=false)
+		public void WriteInteger(TextWriter writer, object integerValue, bool includeType)
 		{
 			if (integerValue == null) return;
 			writer.Write(integerValue.ToString());
 		}
 
-		public void WriteBool(TextWriter writer, object boolValue, bool includeType=false)
+		public void WriteBool(TextWriter writer, object boolValue, bool includeType)
 		{
 			if (boolValue == null) return;
 			writer.Write(boolValue.ToString());
 		}
 
-		public void WriteFloat(TextWriter writer, object floatValue, bool includeType=false)
+		public void WriteFloat(TextWriter writer, object floatValue, bool includeType)
 		{
 			if (floatValue == null) return;
 			writer.Write(((float)floatValue).ToString(CultureInfo.InvariantCulture));
 		}
 
-		public void WriteDouble(TextWriter writer, object doubleValue, bool includeType=false)
+		public void WriteDouble(TextWriter writer, object doubleValue, bool includeType)
 		{
 			if (doubleValue == null) return;
 			writer.Write(((double)doubleValue).ToString(CultureInfo.InvariantCulture));
 		}
 
-		public void WriteDecimal(TextWriter writer, object decimalValue, bool includeType=false)
+		public void WriteDecimal(TextWriter writer, object decimalValue, bool includeType)
 		{
 			if (decimalValue == null) return;
 			writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));

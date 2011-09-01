@@ -57,11 +57,11 @@ namespace ServiceStack.Text
 			}
 		}
 
-		public static void WriteLateBoundObject(TextWriter writer, object value, bool includeType=false)
+		public static void WriteLateBoundObject(TextWriter writer, object value, bool includeType)
 		{
 			if (value == null) return;
 			var writeFn = GetWriteFn(value.GetType());
-			writeFn(writer, value);
+			writeFn(writer, value, includeType);
 		}
 
 		internal static WriteObjectDelegate GetValueTypeToStringMethod(Type type)
@@ -74,7 +74,7 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
-				GetWriteFn(value.GetType())(writer, value);
+				GetWriteFn(value.GetType())(writer, value, false);
 			}
 			return sb.ToString();
 		}
@@ -117,7 +117,7 @@ namespace ServiceStack.Text
 
 		public static void WriteObject(TextWriter writer, object value)
 		{
-			CacheFn(writer, value);
+			CacheFn(writer, value, false);
 		}
 	}
 	

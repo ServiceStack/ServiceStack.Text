@@ -85,12 +85,12 @@ namespace ServiceStack.Text.Common
 			}
 		}
 
-		public static void WriteEmptyType(TextWriter writer, object value, bool includeType=false)
+		public static void WriteEmptyType(TextWriter writer, object value, bool includeType)
 		{
 			writer.Write(JsWriter.EmptyMap);
 		}
 
-		public static void WriteProperties(TextWriter writer, object value, bool includeType=false)
+		public static void WriteProperties(TextWriter writer, object value, bool includeType)
 		{
 			if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0) 
 				writer.Write(JsWriter.QuoteChar);
@@ -117,7 +117,7 @@ namespace ServiceStack.Text.Common
 					writer.Write(JsWriter.MapKeySeperator);
 
 					if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = true;
-					propertyWriter.WriteFn(writer, propertyValue);
+					propertyWriter.WriteFn(writer, propertyValue, includeType);
 					if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
 				}
 			}
@@ -140,7 +140,7 @@ namespace ServiceStack.Text.Common
 			return t.Name ;
 		}
 
-		public static void WriteQueryString(TextWriter writer, object value, bool includeType=false)
+		public static void WriteQueryString(TextWriter writer, object value, bool includeType)
 		{
 			var i = 0;
 			foreach (var propertyWriter in PropertyWriters)
@@ -158,7 +158,7 @@ namespace ServiceStack.Text.Common
 
 				Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
 				writer.Write('=');
-				propertyWriter.WriteFn(writer, propertyValue);
+				propertyWriter.WriteFn(writer, propertyValue, includeType);
 			}
 		}
 	}
