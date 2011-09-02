@@ -8,6 +8,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 	public class BasicJsonTests
 		: TestBase
 	{
+
 		public class JsonPrimitives
 		{
 			public int Int { get; set; }
@@ -31,7 +32,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 				};
 			}
 		}
-
+		
 		[Test]
 		public void Can_handle_json_primitives()
 		{

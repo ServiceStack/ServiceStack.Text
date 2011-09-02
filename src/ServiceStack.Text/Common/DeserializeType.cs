@@ -16,7 +16,6 @@ using System.Linq.Expressions ;
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
@@ -28,41 +27,33 @@ namespace ServiceStack.Text.Common
 
 		public static ParseStringDelegate GetParseMethod(Type type)
 		{
-			if (!type.IsClass) return null;
+			if (!type.IsClass) 
+				return null;
 
 			var propertyInfos = type.GetProperties();
+			
 			if (propertyInfos.Length == 0)
 			{
 				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
 				return value => emptyCtorFn();
 			}
 
-
-			var setterMap = new Dictionary<string, SetPropertyDelegate>();
-			var map = new Dictionary<string, ParseStringDelegate>();
-
-			foreach (var propertyInfo in propertyInfos)
-			{
-				map[propertyInfo.Name] = Serializer.GetParseFn(propertyInfo.PropertyType);
-				setterMap[propertyInfo.Name] = GetSetPropertyMethod(type, propertyInfo);
-			}
-
 			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-			return value => StringToType(type, value, ctorFn, setterMap, map);
+			return value => StringToType(type, value, ctorFn, PropertyMapLookup<TSerializer>.PropertyMapFor( type, Serializer ));
 		}
 
 		private static object StringToType(Type type, string strType, 
            EmptyCtorDelegate ctorFn,
-		   IDictionary<string, SetPropertyDelegate> setterMap,
-		   IDictionary<string, ParseStringDelegate> parseStringFnMap)
+			PropertyMap propertyMap )
 		{
 			var index = 0;
 
 			if (!Serializer.EatMapStartChar(strType, ref index))
+			{
 				throw new SerializationException(string.Format(
 					"Type definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
 					JsWriter.MapStartChar, type.Name, strType.Substring(0, strType.Length < 50 ? strType.Length : 50)));
-
+			}
 
 			if (strType == JsWriter.EmptyMap)
 			{
@@ -91,6 +82,7 @@ namespace ServiceStack.Text.Common
 			if (propertyNamesAndValues.ContainsKey(@"__type"))
 			{
 				instance = typeFromTypeSpecifiedInText( type, propertyNamesAndValues[@"__type"]);
+				propertyMap = PropertyMapLookup<TSerializer>.PropertyMapFor( instance.GetType( ), Serializer ) ;
 			}
 			else
 			{
@@ -102,15 +94,13 @@ namespace ServiceStack.Text.Common
 				string name = pair.Key ;
 				string value = pair.Value ;
 
-				ParseStringDelegate parseStringFn;
-				parseStringFnMap.TryGetValue(name, out parseStringFn);
+				ParseStringDelegate parseStringFn = propertyMap.TryGetParserFor( name ) ;
 
 				if (parseStringFn != null)
 				{
 					var propertyValue = parseStringFn(value);
 
-					SetPropertyDelegate setterFn;
-					setterMap.TryGetValue(name, out setterFn);
+					SetPropertyDelegate setterFn = propertyMap.TryGetSetterFor( name ) ;
 
 					if (setterFn != null)
 					{
@@ -132,36 +122,15 @@ namespace ServiceStack.Text.Common
 			string fullName = @"{0}.{1},{2}".FormatWith( namespaceName, className, baseType.Assembly.FullName) ;
 
 			Type type = Type.GetType( fullName ) ;
+			if( type == null )
+			{
+				throw new InvalidOperationException(
+					@"Cannot create a type named '{0}' that derives from '{1}'.  No such type exists".FormatWith(
+						fullName,
+						baseType.Name ) ) ;
+			}
 
 			return Activator.CreateInstance( type ) ;
-		}
-
-		public static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
-		{
-			var setMethodInfo = propertyInfo.GetSetMethod(true);
-			if (setMethodInfo == null) return null;
-			
-#if SILVERLIGHT || MONOTOUCH || XBOX
-			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
-#else
-			var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
-			var oValueParam = Expression.Parameter(typeof(object), "oValueParam");
-
-			var instanceParam = Expression.Convert(oInstanceParam, type);
-			var useType = propertyInfo.PropertyType;
-
-			var valueParam = Expression.Convert(oValueParam, useType);
-			var exprCallPropertySetFn = Expression.Call(instanceParam, setMethodInfo, valueParam);
-
-			var propertySetFn = Expression.Lambda<SetPropertyDelegate>
-				(
-					exprCallPropertySetFn,
-					oInstanceParam,
-					oValueParam
-				).Compile();
-
-			return propertySetFn;
-#endif			
 		}
 	}
 }

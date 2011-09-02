@@ -8,7 +8,7 @@ namespace ServiceStack.Text.Jsv
 	{
 		public static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
 		{
-			return DeserializeType<JsvTypeSerializer>.GetSetPropertyMethod(type, propertyInfo);
+			return ParseUtils.GetSetPropertyMethod(type, propertyInfo);
 		}
 	}
 }

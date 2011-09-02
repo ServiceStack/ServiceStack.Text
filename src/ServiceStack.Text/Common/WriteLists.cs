@@ -227,7 +227,17 @@ namespace ServiceStack.Text.Common
 			list.ForEach(x =>
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, x, shouldWriteType);
+				if( shouldWriteType )
+				{
+					var s = JsWriter.GetTypeSerializer<TSerializer>( ).GetWriteFn(x.GetType(  ) ) ;
+					s( writer, x, true ) ;
+					//ElementWriteFn = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn<T>();
+
+				}
+				else
+				{
+					ElementWriteFn(writer, x, shouldWriteType);
+				}
 			});
 
 			writer.Write(JsWriter.ListEndChar);
@@ -283,7 +293,18 @@ namespace ServiceStack.Text.Common
 				for (var i = 0; i < listLength; i++)
 				{
 					JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-					ElementWriteFn(writer, list[i], shouldWriteType);
+					
+					T thingInList = list[i] ;
+					
+					if (shouldWriteType)
+					{
+						var thingThatWrites = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn(thingInList.GetType(  ));
+						thingThatWrites( writer, thingInList, true ) ;
+					}
+					else
+					{
+						ElementWriteFn(writer, thingInList, false);
+					}
 				}
 			}
 			catch (Exception ex)

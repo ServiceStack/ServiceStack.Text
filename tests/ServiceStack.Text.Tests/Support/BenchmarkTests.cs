@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Common.Tests;
@@ -176,7 +175,6 @@ namespace ServiceStack.Text.Tests.Support
 		public void Test_for_numeric_type()
 		{
 			var value1 = Guid.NewGuid();
-			var value2 = "1.2345";
 			var results = 0;
 
 			CompareMultipleRuns(

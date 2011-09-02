@@ -12,6 +12,12 @@ namespace ServiceStack.Text.Tests.JsonTests
 			get;
 			set;
 		}
+
+		public int Age
+		{
+			get;
+			set ;
+		}
 	}
 
 	public class Dog : Animal
@@ -21,6 +27,12 @@ namespace ServiceStack.Text.Tests.JsonTests
 			get;
 			set;
 		}
+
+		public string Noise
+		{
+			get;
+			set ;
+		}
 	}
 
 	public class Cat : Animal
@@ -29,6 +41,12 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			get;
 			set;
+		}
+
+		public bool IsWild
+		{
+			get;
+			set ;
 		}
 	}
 
@@ -40,11 +58,15 @@ namespace ServiceStack.Text.Tests.JsonTests
 					{
 						new Dog
 							{
-								Name = @"Fido"
+								Name = @"Fido",
+								Noise = @"Bark",
+								Age=1
 							},
 						new Cat
 							{
-								Name = @"Tigger"
+								Name = @"Tigger",
+								IsWild = true,
+								Age=2
 							}
 					};
 		}
@@ -73,11 +95,15 @@ namespace ServiceStack.Text.Tests.JsonTests
 				{
 					new Dog
 						{
-							Name = @"Fido"
+							Name = @"Fido",
+							Noise = @"Bark",
+							Age = 1
 						},
 					new Cat
 						{
-							Name = @"Tigger"
+							Name = @"Tigger",
+							IsWild = true,
+							Age=2
 						}
 				};
 
@@ -88,7 +114,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(
 				asText,
 				Is.EqualTo(
-					"[{\"__type\":\"Dog:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Fido\"},{\"__type\":\"Cat:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Tigger\"}]"));
+					"[{\"__type\":\"Dog:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Fido\",\"Noise\":\"Bark\",\"Age\":1},{\"__type\":\"Cat:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Tigger\",\"IsWild\":true,\"Age\":2}]"));
 		}
 
 		[Test]
@@ -106,7 +132,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(
 				asText,
 				Is.EqualTo(
-					"{\"Animals\":[{\"__type\":\"Dog:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Fido\"},{\"__type\":\"Cat:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Tigger\"}],\"Name\":\"City Zoo\"}"));
+					"{\"Animals\":[{\"__type\":\"Dog:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Fido\",\"Noise\":\"Bark\",\"Age\":1},{\"__type\":\"Cat:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Tigger\",\"IsWild\":true,\"Age\":2}],\"Name\":\"City Zoo\"}" ) ) ;
 		}
 
 		[Test]
@@ -114,15 +140,22 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			var list =
 				JsonSerializer.DeserializeFromString<List<Animal>>(
-					"[{\"__type\":\"Dog:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Fido\"},{\"__type\":\"Cat:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Tigger\"}]");
+					"[{\"__type\":\"Dog:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Fido\",\"Noise\":\"Bark\",\"Age\":1},{\"__type\":\"Cat:#ServiceStack.Text.Tests.JsonTests\",\"Name\":\"Tigger\",\"IsWild\":true,\"Age\":2}]");
 
 			Assert.That(list.Count, Is.EqualTo(2));
 
-			Assert.That(list[0].GetType(), Is.EqualTo(typeof(Dog)));
-			Assert.That(list[1].GetType(), Is.EqualTo(typeof(Cat)));
+			Animal item1 = list[0] ;
+			Assert.That(item1.GetType(), Is.EqualTo(typeof(Dog)));
 
-			Assert.That(list[0].Name, Is.EqualTo(@"Fido"));
-			Assert.That(list[1].Name, Is.EqualTo(@"Tigger"));
+			Assert.That(item1.Name, Is.EqualTo(@"Fido"));
+			Assert.That(item1.Age, Is.EqualTo(1));
+			Assert.That(((Dog)item1).Noise, Is.EqualTo(@"Bark"));
+
+			Animal item2 = list[1] ;
+			Assert.That(item2.GetType(), Is.EqualTo(typeof(Cat)));
+			Assert.That(item2.Name, Is.EqualTo(@"Tigger"));
+			Assert.That(item2.Age, Is.EqualTo(2));
+			Assert.That(((Cat)item2).IsWild, Is.True);
 		}
 
 		[Test]
