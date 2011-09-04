@@ -9,229 +9,62 @@ namespace ServiceStack.Text.Tests.UseCases
 	[TestFixture]
 	public class GMapDirectionsTests
 	{
-		static string json = @"
-{
+		static string json = @"{
    ""routes"" : [
       {
          ""bounds"" : {
             ""northeast"" : {
-               ""lat"" : 41.87811000000001,
-               ""lng"" : -87.62979000000001
+               ""lat"" : 33.375280,
+               ""lng"" : -95.68744000000001
             },
             ""southwest"" : {
-               ""lat"" : 34.052360,
-               ""lng"" : -118.243560
+               ""lat"" : 30.261020,
+               ""lng"" : -97.74461000000001
             }
          },
-         ""copyrights"" : ""Map data ©2011 Europa Technologies, Google"",
+         ""copyrights"" : ""Map data ©2011 Google"",
          ""legs"" : [
             {
                ""distance"" : {
-                  ""text"" : ""583 mi"",
-                  ""value"" : 938998
+                  ""text"" : ""277 mi"",
+                  ""value"" : 446262
                },
                ""duration"" : {
-                  ""text"" : ""9 hours 53 mins"",
-                  ""value"" : 35567
+                  ""text"" : ""4 hours 56 mins"",
+                  ""value"" : 17778
                },
-               ""end_address"" : ""Joplin, MO, USA"",
+               ""end_address"" : ""100-198 E Cooper Ave, Cooper, TX 75432, USA"",
                ""end_location"" : {
-                  ""lat"" : 37.084060,
-                  ""lng"" : -94.51329000000001
+                  ""lat"" : 33.375280,
+                  ""lng"" : -95.68744000000001
                },
-               ""start_address"" : ""Chicago, IL, USA"",
+               ""start_address"" : ""404-408 Colorado St, Austin, TX 78701, USA"",
                ""start_location"" : {
-                  ""lat"" : 41.87811000000001,
-                  ""lng"" : -87.62979000000001
+                  ""lat"" : 30.26712000000001,
+                  ""lng"" : -97.74461000000001
                },
                ""steps"" : [
                   {
                      ""distance"" : {
-                        ""text"" : ""0.2 mi"",
-                        ""value"" : 269
+                        ""text"" : ""25.4 mi"",
+                        ""value"" : 40813
                      },
                      ""duration"" : {
-                        ""text"" : ""1 min"",
-                        ""value"" : 34
+                        ""text"" : ""35 mins"",
+                        ""value"" : 2085
                      },
                      ""end_location"" : {
-                        ""lat"" : 41.87570,
-                        ""lng"" : -87.62969000000001
+                        ""lat"" : 33.3720,
+                        ""lng"" : -95.70700000000001
                      },
-                     ""html_instructions"" : ""Head \u003cb\u003esouth\u003c/b\u003e on \u003cb\u003eS Federal St\u003c/b\u003e toward \u003cb\u003eW Van Buren St\u003c/b\u003e"",
+                     ""html_instructions"" : ""Keep \u003cb\u003eleft\u003c/b\u003e at the fork and merge onto \u003cb\u003eTX-24 N/TX-50 N/Farm to Market Rd 499\u003c/b\u003e\u003cdiv style=\""font-size:0.9em\""\u003eContinue to follow TX-24 N\u003c/div\u003e"",
                      ""polyline"" : {
-                        ""levels"" : ""BB"",
-                        ""points"" : ""eir~FdezuO`NS""
+                        ""levels"" : ""B??@????@?????@???@?????@??????????A??@?????@????@???@?@????@??????A?????@??@???@???@???@???A???@??@?@??@??@??????@?@????B"",
+                        ""points"" : ""_oeiE~_|hQj@oCHkA@uDm@wCq@_BeB_Cg@UKe@qC}AiEiBwBs@wEiAqDmAiC}A_DaCkBmBwCeEmA{BcBqEa`@}qAcDqMgHe[mBcGuBsEqDmFsEiEiQaSoHaJsJeMaHkI}GmHoCmDeg@uh@aG}FeEeDmHwDmEyAmDw@wDi@kCOgMQmDSkGeA{EkBaCuAqDcD{JcMmBwBgB{AoD}BgDuA{E}AkGaDe^qYsE_DqFcC}DgAsN_C}DaAiCeAwCmBcX}S{EgEqLkJcD{BaCeAuBm@cEs@uBSwBE_NGol@?mGMkGg@wo@}HaGa@eGMm_@v@cDDcFGyi@oE_RsAwTmAeQiB{GoAmR}EcIcD_G}CaJyFaHuF_FaFgHiIsDgFcF_IuCwFoEsKiFmQ_U_aAqDyN}EgNsFiM}B_EqBqC}gAqsAmC_E}BeEaEmJ_My^}K}]yOke@yEoOue@wxAw{AstEmIwWy[uqAcEqLkk@qgAyx@o|A_GmLkmB{qDsPc\\"", ""<<=== here"": 0
                      },
                      ""start_location"" : {
-                        ""lat"" : 41.87811000000001,
-                        ""lng"" : -87.62979000000001
-                     },
-                     ""travel_mode"" : ""DRIVING""
-                  },
-                  {
-                     ""distance"" : {
-                        ""text"" : ""0.6 mi"",
-                        ""value"" : 1038
-                     },
-                     ""duration"" : {
-                        ""text"" : ""1 min"",
-                        ""value"" : 88
-                     },
-                     ""end_location"" : {
-                        ""lat"" : 41.875640,
-                        ""lng"" : -87.64223000000001
-                     },
-                     ""html_instructions"" : ""Turn \u003cb\u003eright\u003c/b\u003e onto \u003cb\u003eW Congress Pkwy\u003c/b\u003e"",
-                     ""polyline"" : {
-                        ""levels"" : ""B??B"",
-                        ""points"" : ""czq~FpdzuODbTEtQJpe@""
-                     },
-                     ""start_location"" : {
-                        ""lat"" : 41.87570,
-                        ""lng"" : -87.62969000000001
-                     },
-                     ""travel_mode"" : ""DRIVING""
-                  }
-               ],
-               ""via_waypoint"" : []
-            },
-            {
-               ""distance"" : {
-                  ""text"" : ""217 mi"",
-                  ""value"" : 349335
-               },
-               ""duration"" : {
-                  ""text"" : ""3 hours 30 mins"",
-                  ""value"" : 12603
-               },
-               ""end_address"" : ""Oklahoma City, OK, USA"",
-               ""end_location"" : {
-                  ""lat"" : 35.46756000000001,
-                  ""lng"" : -97.51647000000001
-               },
-               ""start_address"" : ""Joplin, MO, USA"",
-               ""start_location"" : {
-                  ""lat"" : 37.084060,
-                  ""lng"" : -94.51329000000001
-               },
-               ""steps"" : [
-                  {
-                     ""distance"" : {
-                        ""text"" : ""59 ft"",
-                        ""value"" : 18
-                     },
-                     ""duration"" : {
-                        ""text"" : ""1 min"",
-                        ""value"" : 1
-                     },
-                     ""end_location"" : {
-                        ""lat"" : 37.084060,
-                        ""lng"" : -94.513490
-                     },
-                     ""html_instructions"" : ""Head \u003cb\u003ewest\u003c/b\u003e on \u003cb\u003eInterstate 44 Business Loop W\u003c/b\u003e toward \u003cb\u003eS Main St\u003c/b\u003e"",
-                     ""polyline"" : {
-                        ""levels"" : ""BB"",
-                        ""points"" : ""k~iaF`sz_Q?f@""
-                     },
-                     ""start_location"" : {
-                        ""lat"" : 37.084060,
-                        ""lng"" : -94.51329000000001
-                     },
-                     ""travel_mode"" : ""DRIVING""
-                  },
-                  {
-                     ""distance"" : {
-                        ""text"" : ""0.3 mi"",
-                        ""value"" : 485
-                     },
-                     ""duration"" : {
-                        ""text"" : ""2 mins"",
-                        ""value"" : 100
-                     },
-                     ""end_location"" : {
-                        ""lat"" : 35.46756000000001,
-                        ""lng"" : -97.51647000000001
-                     },
-                     ""html_instructions"" : ""Take the 2nd \u003cb\u003eleft\u003c/b\u003e onto \u003cb\u003eN Robinson Ave\u003c/b\u003e\u003cdiv style=\""font-size:0.9em\""\u003eDestination will be on the left\u003c/div\u003e"",
-                     ""polyline"" : {
-                        ""levels"" : ""BB"",
-                        ""points"" : ""obowEbderQfZX""
-                     },
-                     ""start_location"" : {
-                        ""lat"" : 35.471920,
-                        ""lng"" : -97.51634000000003
-                     },
-                     ""travel_mode"" : ""DRIVING""
-                  }
-               ],
-               ""via_waypoint"" : []
-            },
-            {
-               ""distance"" : {
-                  ""text"" : ""1,328 mi"",
-                  ""value"" : 2137116
-               },
-               ""duration"" : {
-                  ""text"" : ""20 hours 43 mins"",
-                  ""value"" : 74552
-               },
-               ""end_address"" : ""Los Angeles, CA, USA"",
-               ""end_location"" : {
-                  ""lat"" : 34.052360,
-                  ""lng"" : -118.243560
-               },
-               ""start_address"" : ""Oklahoma City, OK, USA"",
-               ""start_location"" : {
-                  ""lat"" : 35.46756000000001,
-                  ""lng"" : -97.51647000000001
-               },
-               ""steps"" : [
-                  {
-                     ""distance"" : {
-                        ""text"" : ""0.3 mi"",
-                        ""value"" : 533
-                     },
-                     ""duration"" : {
-                        ""text"" : ""1 min"",
-                        ""value"" : 89
-                     },
-                     ""end_location"" : {
-                        ""lat"" : 35.462780,
-                        ""lng"" : -97.516220
-                     },
-                     ""html_instructions"" : ""Head \u003cb\u003esouth\u003c/b\u003e on \u003cb\u003eN Robinson Ave\u003c/b\u003e toward \u003cb\u003eW Sheridan Ave\u003c/b\u003e"",
-                     ""polyline"" : {
-                        ""levels"" : ""B?B"",
-                        ""points"" : ""ggnwE|derQvSKbHe@""
-                     },
-                     ""start_location"" : {
-                        ""lat"" : 35.46756000000001,
-                        ""lng"" : -97.51647000000001
-                     },
-                     ""travel_mode"" : ""DRIVING""
-                  },
-                  {
-                     ""distance"" : {
-                        ""text"" : ""338 ft"",
-                        ""value"" : 103
-                     },
-                     ""duration"" : {
-                        ""text"" : ""1 min"",
-                        ""value"" : 40
-                     },
-                     ""end_location"" : {
-                        ""lat"" : 34.052360,
-                        ""lng"" : -118.243560
-                     },
-                     ""html_instructions"" : ""Turn \u003cb\u003eleft\u003c/b\u003e onto \u003cb\u003eW 1st St\u003c/b\u003e\u003cdiv style=\""font-size:0.9em\""\u003eDestination will be on the right\u003c/div\u003e"",
-                     ""polyline"" : {
-                        ""levels"" : ""BB"",
-                        ""points"" : ""{}ynEvrupUrBoD""
-                     },
-                     ""start_location"" : {
-                        ""lat"" : 34.05294000000001,
-                        ""lng"" : -118.244440
+                        ""lat"" : 33.128960,
+                        ""lng"" : -95.995040
                      },
                      ""travel_mode"" : ""DRIVING""
                   }
@@ -240,24 +73,36 @@ namespace ServiceStack.Text.Tests.UseCases
             }
          ],
          ""overview_polyline"" : {
-            ""levels"" : ""BBBAAAAABAABAAAAAABBAAABBAAAABBAAABABAAABABBAABAABAAAABABABABBABAABB"",
-            ""points"" : ""eir~FdezuOren@|rfBtc~@tsE`vnApw{A`dw@~w\\buN|pf@f{Y|_Fblh@rxo@b}@xxS~xtAllk@`yaBoJxlcBb~t@zbh@jc|Bx}C`rv@rw|@rlhA~dVzeo@vrSnc}Axf]fjz@xfFbw~@dz{A~d{A|zOxbrBbdUvpo@`cFp~xBc`Hk@nurDznmFfwMbwz@bbl@lq~@loPpxq@bw_@v|{CvzY|}OelMdhaF|n\\~mbDzeVh_Wr|Efc\\x`Ij{kE}mAb~uF{cNd}xBjp]fulBiwJpgg@|kHntyArpb@bijCk_Kv~eGyqTj_|@`uV`k|DcsNdwxAknt@zpq@mmc@lbaCxvHdak@dse@x{p@zpiAp|gEicy@`omFbaEnko@ufQ|ilApqGze~AsyRzrjAb__@ftyBooIhr_BxjmAbwQftNboWzoAlzp@mz`@|}_@fda@jakEitAn{fB_a]lexClshBtmqAdmY_hLxiZd~XtaBndgC""
+            ""levels"" : ""B@@A@@@@@A@@@A@@A@@@A@@A@@A@@A@@A@@@@A@@@A@A@@AA@@@@@A@@A@@@@B@@@A@@@@@@A@@@@A@@AA@A@@@A@AA@@@A@@@@A@@@@@B@@@A@@@@@A@@@@A@@@@@@@A@A@A@@AA@@@@@@@@@@@A@@@@A@@@A@@@@A@@@@@A@@@@@@@@@B"",
+            ""points"" : ""opvwDxvqsQtD}EtPnEvMqu@qmBge@{tEedCoaBkPqViHiuG_oDkd@mMceAmLop@jRiTdAepHcv@mlFbgAemBrs@kvCbc@q{HfD{gCkg@meCf`@kTEcw@cSqy@cx@ajEyzBcdOc{DubDap@ouCkaA}tAiv@emI{xCadFscEomAqZe~AgOyx@mVgj@{f@osB_dCcs@gm@cjEahCasCegAih@ueAqp@y{BepCuoDsxAuvGiXgRurBml@qMqTkMoeAePuSmjOeoEipJ}tEspAw|@sz@eUqfCqpAyr@}w@kVmP_tAmd@}tGwy@orAqc@mdF}~BozKu{FclDqwAg}As_@kdBcy@c`AgFagAoe@ahBgGmsDyoA{_B~Eox@|ZoxAsJgy@Qk{AbBkt@bLupJhOcfFcNgrA{Ts|@}CsbEglAiaD_Xq\\~Ck_O~~Egi@F}tEgkCsxGiEql@oPyrDqaImwC}rFqtBcbFmgBelDgxDsgDieL_qEquSaiCoyAjFikAps@eyC|s@kkAg@wb@iO{rCovBssCcx@q`EopBuVkFuie@tEi\\zEwh@`[cVjFcaBeZejAkLoo@coA_TgGet@~AgdAyn@qQuXmMchAc\\ad@uFsv@e`@i[yTw[iEkWaDulDsQio@zBquCs`@geCokByeFefBopD_pC{cJ{n@s}@gT_g@wcD{gJeh@ihCukAepAgdAyuGye@w`BqaDieEgwAgsC}~@khD{C_aDyd@imBauEglJyqAkxAkfBmwAaiAyoBkqCwaDyjAqmCwLwGylAeSqWoLaW_YqWsz@m_@wYo\\cd@sDqZvNsmAxCojGbOkkAtCmdAac@mTuM_Oq|@{wC_`CahC}}@sOe[q[y~@em@kf@sMe~@op@oqAcBe`AgK{s@f@wdB{Mmm@oRkc@{_@}Vsd@mp@y`C{}AwuBm_Ew|L}a@g_BemFobKyIe`@GapAmHC?{F""
          },
-         ""summary"" : ""I-40 W"",
+         ""summary"" : ""I-35 N"",
          ""warnings"" : [],
-         ""waypoint_order"" : [ 0, 1 ]
+         ""waypoint_order"" : []
       }
    ],
    ""status"" : ""OK""
-}
-";
+}";
+		[Test]
+		public void Can_parse_Routes()
+		{
+			var doc = JsonObject.Parse(json);
+			
+			var routes = doc.ArrayObjects("routes");
+			
+			var route = routes[0];
+			
+			var overview_polyline = route.Object("overview_polyline");
+			
+			Console.WriteLine(overview_polyline.ToJson());
+		}
 
 		[Test]
 		public void Can_parse_GMaps_directions_json ()
 		{
 			var results = JsonObject.Parse(json).ConvertTo(x=> new RouteResult
 			{
-				Status = x.Get("status"),
+				Status = x.Get("status") ?? "(null)",
 				Routes = x.ArrayObjects("routes").ConvertAll(r=>new Route
 				{
 					Overview_Polyline = r.Object("overview_polyline").ConvertTo(p => 
