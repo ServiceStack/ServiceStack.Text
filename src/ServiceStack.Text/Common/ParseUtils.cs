@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions ;
 using System.Reflection;
 
 namespace ServiceStack.Text.Common
@@ -55,6 +56,33 @@ namespace ServiceStack.Text.Common
 		{
 			return Type.GetType(assemblyQualifiedName.FromCsvField());
 		}
-	}
+		
+		public static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
+		{
+			var setMethodInfo = propertyInfo.GetSetMethod(true);
+			if (setMethodInfo == null) return null;
+			
+#if SILVERLIGHT || MONOTOUCH || XBOX
+			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
+#else
+			var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
+			var oValueParam = Expression.Parameter(typeof(object), "oValueParam");
 
+			var instanceParam = Expression.Convert(oInstanceParam, type);
+			var useType = propertyInfo.PropertyType;
+
+			var valueParam = Expression.Convert(oValueParam, useType);
+			var exprCallPropertySetFn = Expression.Call(instanceParam, setMethodInfo, valueParam);
+
+			var propertySetFn = Expression.Lambda<SetPropertyDelegate>
+				(
+					exprCallPropertySetFn,
+					oInstanceParam,
+					oValueParam
+				).Compile();
+
+			return propertySetFn;
+#endif			
+		}
+	}
 }

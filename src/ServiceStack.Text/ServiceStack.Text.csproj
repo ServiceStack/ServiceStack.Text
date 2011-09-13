@@ -79,6 +79,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyUtils.cs" />
+    <Compile Include="Common\PropertyMap.cs" />
+    <Compile Include="Common\PropertyMapLookup.cs" />
     <Compile Include="CsvConfig.cs" />
     <Compile Include="JsConfig.cs" />
     <Compile Include="Common\DeserializeSpecializedCollections.cs" />

@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq ;
 using System.Reflection;
 
 namespace ServiceStack.Text.Common
@@ -173,7 +174,7 @@ namespace ServiceStack.Text.Common
 			return writeFn;
 		}
 
-		public static void WriteIEnumerable(TextWriter writer, object oValueCollection)
+		public static void WriteIEnumerable(TextWriter writer, object oValueCollection, bool includeType)
 		{
 			WriteObjectDelegate toStringFn = null;
 
@@ -188,7 +189,7 @@ namespace ServiceStack.Text.Common
 
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
-				toStringFn(writer, valueItem);
+				toStringFn(writer, valueItem, includeType);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -205,9 +206,13 @@ namespace ServiceStack.Text.Common
 			ElementWriteFn = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn<T>();
 		}
 
-		public static void WriteList(TextWriter writer, object oList)
+		public static void WriteList(TextWriter writer, object oList, bool includeType)
 		{
-			if (oList == null) return;
+			if (oList == null)
+			{
+				return;
+			}
+			
 			WriteGenericIList(writer, (IList<T>)oList);
 		}
 
@@ -216,16 +221,34 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;
+			
+			bool shouldWriteType = typesInListDiffer(list) ;
+
 			list.ForEach(x =>
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, x);
+				if( shouldWriteType )
+				{
+					var s = JsWriter.GetTypeSerializer<TSerializer>( ).GetWriteFn(x.GetType(  ) ) ;
+					s( writer, x, true ) ;
+					//ElementWriteFn = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn<T>();
+
+				}
+				else
+				{
+					ElementWriteFn(writer, x, shouldWriteType);
+				}
 			});
 
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteListValueType(TextWriter writer, object list)
+		static bool typesInListDiffer( IEnumerable<T> list )
+		{
+			return list.Any( l => l.GetType( ) != typeof( T ) ) ;
+		}
+
+		public static void WriteListValueType(TextWriter writer, object list, bool includeType)
 		{
 			WriteGenericListValueType(writer, (List<T>)list);
 		}
@@ -246,9 +269,13 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteIList(TextWriter writer, object oList)
+		public static void WriteIList(TextWriter writer, object oList, bool includeType)
 		{
-			if (oList == null) return;
+			if (oList == null)
+			{
+				return;
+			}
+			
 			WriteGenericIList(writer, (IList<T>)oList);
 		}
 
@@ -256,16 +283,29 @@ namespace ServiceStack.Text.Common
 		{
 			writer.Write(JsWriter.ListStartChar);
 
+			bool shouldWriteType = typesInListDiffer(list) ;
+
 			var ranOnce = false;
 			var listLength = list.Count;
+
 			try
 			{
 				for (var i = 0; i < listLength; i++)
 				{
 					JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-					ElementWriteFn(writer, list[i]);
+					
+					T thingInList = list[i] ;
+					
+					if (shouldWriteType)
+					{
+						var thingThatWrites = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn(thingInList.GetType(  ));
+						thingThatWrites( writer, thingInList, true ) ;
+					}
+					else
+					{
+						ElementWriteFn(writer, thingInList, false);
+					}
 				}
-
 			}
 			catch (Exception ex)
 			{
@@ -275,7 +315,7 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteIListValueType(TextWriter writer, object list)
+		public static void WriteIListValueType(TextWriter writer, object list, bool includeType)
 		{
 			WriteGenericIListValueType(writer, (IList<T>)list);
 		}
@@ -297,13 +337,13 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteArray(TextWriter writer, object oArrayValue)
+		public static void WriteArray(TextWriter writer, object oArrayValue, bool includeType)
 		{
 			if (oArrayValue == null) return;
 			WriteGenericArray(writer, (T[])oArrayValue);
 		}
 
-		public static void WriteGenericArrayValueType(TextWriter writer, object oArray)
+		public static void WriteGenericArrayValueType(TextWriter writer, object oArray, bool includeType)
 		{
 			writer.Write(JsWriter.ListStartChar);
 
@@ -328,15 +368,19 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < arrayLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, array[i]);
+				ElementWriteFn(writer, array[i], false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteEnumerable(TextWriter writer, object oEnumerable)
+		public static void WriteEnumerable(TextWriter writer, object oEnumerable, bool includeType)
 		{
-			if (oEnumerable == null) return;
+			if (oEnumerable == null)
+			{
+				return;
+			}
+			
 			WriteGenericEnumerable(writer, (IEnumerable<T>)oEnumerable);
 		}
 
@@ -348,7 +392,7 @@ namespace ServiceStack.Text.Common
 			foreach (var value in enumerable)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, value);
+				ElementWriteFn(writer, value, false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -384,7 +428,7 @@ namespace ServiceStack.Text.Common
 			list.ForEach(x =>
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				serializer.WriteString(writer, x);
+				serializer.WriteString(writer, x, false);
 			});
 
 			writer.Write(JsWriter.ListEndChar);
@@ -404,7 +448,7 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < listLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				serializer.WriteString(writer, list[i]);
+				serializer.WriteString(writer, list[i], false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -426,7 +470,7 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < listLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				serializer.WriteString(writer, list[i]);
+				serializer.WriteString(writer, list[i], false);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -459,9 +503,9 @@ namespace ServiceStack.Text.Common
 
 			//optimized access for regularly used types
 			if (type == typeof(List<string>))
-				return (w, x) => WriteLists.WriteListString(Serializer, w, x);
+				return (w, x,y) => WriteLists.WriteListString(Serializer, w, x);
 			if (type == typeof(IList<string>))
-				return (w, x) => WriteLists.WriteIListString(Serializer, w, x);
+				return (w, x,y) => WriteLists.WriteIListString(Serializer, w, x);
 
 			if (type == typeof(List<int>))
 				return WriteListsOfElements<int, TSerializer>.WriteListValueType;

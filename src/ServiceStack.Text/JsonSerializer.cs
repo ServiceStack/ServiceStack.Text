@@ -115,7 +115,7 @@ namespace ServiceStack.Text
 				}
 				else
 				{
-					JsonWriter.GetWriteFn(type)(writer, value);
+					JsonWriter.GetWriteFn(type)(writer, value, false);
 				}
 			}
 			return sb.ToString();
@@ -130,13 +130,13 @@ namespace ServiceStack.Text
 				return;
 			}
 
-			JsonWriter.GetWriteFn(type)(writer, value);
+			JsonWriter.GetWriteFn(type)(writer, value, false);
 		}
 
 		public static void SerializeToStream(object value, Type type, Stream stream)
 		{
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsonWriter.GetWriteFn(type)(writer, value);
+			JsonWriter.GetWriteFn(type)(writer, value, false);
 			writer.Flush();
 		}
 	}

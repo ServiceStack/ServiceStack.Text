@@ -102,16 +102,23 @@ namespace ServiceStack.Text.Common
 
 		public static IList<T> ParseGenericList(string value, Type createListType, ParseStringDelegate parseFn)
 		{
-			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
+			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null)
+			{
+				return null;
+			}
 
-			bool isReadOnly = null == createListType ? false 
+			bool isReadOnly = null == createListType 
+				? false 
 				: createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>);
 
 			var to = (createListType == null || isReadOnly)
 			         	? new List<T>()
 			         	: (IList<T>)ReflectionExtensions.CreateInstance(createListType);
 
-			if (value == string.Empty) return to;
+			if (value == string.Empty)
+			{
+				return to;
+			}
 
 			if (!string.IsNullOrEmpty(value))
 			{
@@ -120,8 +127,9 @@ namespace ServiceStack.Text.Common
 					var i = 0;
 					do
 					{
-						var itemValue = Serializer.EatTypeValue(value, ref i);
-						to.Add((T)parseFn(itemValue));
+						var itemValue = Serializer.EatTypeValue( value, ref i ) ;
+						var item = (T) parseFn( itemValue ) ;
+						to.Add( item ) ;
 					} while (++i < value.Length);
 				}
 				else
