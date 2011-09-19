@@ -15,19 +15,17 @@ namespace ServiceStack.Text
         private readonly XmlDictionaryReaderQuotas quotas;
         private static XmlWriterSettings xSettings = new XmlWriterSettings();
 
-        public bool OmitXmlDeclaration = false;
-
         public static XmlSerializer Instance
             = new XmlSerializer(new XmlDictionaryReaderQuotas
             {
                 MaxStringContentLength = 1024 * 1024,
             });
 
-        public XmlSerializer(XmlDictionaryReaderQuotas quotas)
+        public XmlSerializer(XmlDictionaryReaderQuotas quotas, bool omitXmlDeclaration = false)
         {
             this.quotas = quotas;
             xSettings.Encoding = Encoding.UTF8;
-            xSettings.OmitXmlDeclaration = this.OmitXmlDeclaration;
+            xSettings.OmitXmlDeclaration = omitXmlDeclaration;
         }
 
         private static object Deserialize(string xml, Type type, XmlDictionaryReaderQuotas quotas)
