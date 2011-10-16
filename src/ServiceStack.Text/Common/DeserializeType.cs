@@ -57,7 +57,10 @@ namespace ServiceStack.Text.Common
 		   IDictionary<string, ParseStringDelegate> parseStringFnMap)
 		{
 			var index = 0;
-
+				
+			if (strType == null)
+					return null;
+				
 			if (!Serializer.EatMapStartChar(strType, ref index))
 				throw new SerializationException(string.Format(
 					"Type definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
@@ -84,13 +87,20 @@ namespace ServiceStack.Text.Common
 
 				if (parseStringFn != null)
 				{
-					var propertyValue = parseStringFn(propertyValueString);
-
-					setterMap.TryGetValue(propertyName, out setterFn);
-
-					if (setterFn != null)
+					try
 					{
-						setterFn(instance, propertyValue);
+						var propertyValue = parseStringFn(propertyValueString);
+	
+						setterMap.TryGetValue(propertyName, out setterFn);
+	
+						if (setterFn != null)
+						{
+							setterFn(instance, propertyValue);
+						}
+					}
+					catch (Exception)
+					{
+						Console.WriteLine("WARN: failed to set property {0} with: {1}", propertyName, propertyValueString);
 					}
 				}
 

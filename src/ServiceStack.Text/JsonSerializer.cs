@@ -1,3 +1,4 @@
+
 //
 // http://code.google.com/p/servicestack/wiki/TypeSerializer
 // ServiceStack.Text: .NET C# POCO Type Text Serializer.
