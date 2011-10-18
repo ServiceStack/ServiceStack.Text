@@ -48,6 +48,26 @@ namespace ServiceStack.Text
 			return new DateTime(ticks, DateTimeKind.Utc).ToLocalTime();
 		}
 
+		public static DateTime FromUnixTimeMs(this long msSince1970)
+		{
+			var ticks = UnixEpoch + (msSince1970 * TicksPerMs);
+			return new DateTime(ticks, DateTimeKind.Utc).ToLocalTime();
+		}
+
+		public static DateTime FromUnixTimeMs(string msSince1970)
+		{
+			long ms;
+			if (long.TryParse(msSince1970, out ms)) return ms.FromUnixTimeMs();
+
+			// Do we really need to support fractional unix time ms time strings??
+			return double.Parse(msSince1970).FromUnixTimeMs();
+		}
+
+        public static DateTime RoundToMs(this DateTime dateTime)
+        {
+            return new DateTime((dateTime.Ticks / TimeSpan.TicksPerMillisecond) * TimeSpan.TicksPerMillisecond);
+        }
+
 		public static DateTime RoundToSecond(this DateTime dateTime)
 		{
 			return new DateTime(((dateTime.Ticks) / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond);
