@@ -23,7 +23,7 @@ namespace ServiceStack.Text
 				+ (IsMonoTouch ? " MonoTouch" : "");
 		}
 
-		public static decimal ServiceStackVersion = 2.26m;
+		public static decimal ServiceStackVersion = 2.27m;
 
 		public static bool IsUnix { get; set; }
 

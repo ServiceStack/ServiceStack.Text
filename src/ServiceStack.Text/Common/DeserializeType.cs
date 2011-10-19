@@ -30,7 +30,7 @@ namespace ServiceStack.Text.Common
 		{
 			if (!type.IsClass) return null;
 
-			var propertyInfos = type.GetProperties();
+            var propertyInfos = type.GetSerializableProperties();
 			if (propertyInfos.Length == 0)
 			{
 				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
@@ -100,7 +100,7 @@ namespace ServiceStack.Text.Common
 					}
 					catch (Exception)
 					{
-						Console.WriteLine("WARN: failed to set property {0} with: {1}", propertyName, propertyValueString);
+                        Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueString);
 					}
 				}
 

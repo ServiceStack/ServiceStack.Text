@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<package> 
+  <metadata> 
+    <id>ServiceStack.Text</id> 
+    <version>2.27</version> 
+    <authors>Demis Bellot</authors> 
+    <owners>Demis Bellot</owners>
+    <summary>.NET's fastest JSON, JSV and CSV Text Serializers (3x faster than JSON.NET)</summary>
+    <description>
+.NET's fastest JSON, JSV and CSV Text Serializers (3x faster than JSON.NET). 
+
+Small, light, simple and fast.
+    </description> 
+    <projectUrl>https://github.com/ServiceStack/ServiceStack.Text</projectUrl>
+    <licenseUrl>https://github.com/ServiceStack/ServiceStack.Text/blob/master/LICENSE</licenseUrl>
+    <iconUrl>http://www.servicestack.net/logo-32x32.png</iconUrl>
+    <tags>JSON Text Serializer CSV JSV Dump PrettyPrint</tags>
+    <language>en-US</language> 
+  </metadata> 
+</package>
+

@@ -124,14 +124,6 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(o.Nothing, Is.EqualTo("zilch"));
         }
 
-        [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Deserialize_throws_for_null_valuetypes()
-        {
-            var s = "{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":null}";
-            var o = JsonSerializer.DeserializeFromString<NullValueTester>(s);
-        }
-
         private class NullValueTester
         {
             public string Name
