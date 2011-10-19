@@ -339,6 +339,7 @@ namespace ServiceStack.Text
 
 		const string DataContract = "DataContractAttribute";
 		const string DataMember = "DataMemberAttribute";
+		const string IgnoreDataMember = "IgnoreDataMemberAttribute";
 
 		public static PropertyInfo[] GetSerializableProperties(this Type type)
 		{
@@ -353,8 +354,8 @@ namespace ServiceStack.Text
 					attr.GetCustomAttributes(false).Any(x => x.GetType().Name == DataMember))
 					.ToArray();
 			}
-
-			return publicReadableProperties.ToArray();
+			// else return those properties that are not decorated with IgnoreDataMember
+			return publicReadableProperties.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
 		}
 
 		public static bool IsDto(this Type type)
