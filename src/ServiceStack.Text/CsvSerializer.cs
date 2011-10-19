@@ -100,12 +100,12 @@ namespace ServiceStack.Text
 
 		public static T DeserializeFromStream<T>(Stream stream)
 		{
-			return default(T);
+            throw new NotImplementedException();
 		}
 
 		public static object DeserializeFromStream(Type type, Stream stream)
 		{
-			return null;
+            throw new NotImplementedException();
 		}
 
 		public static void WriteLateBoundObject(TextWriter writer, object value)
