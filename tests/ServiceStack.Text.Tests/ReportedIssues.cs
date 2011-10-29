@@ -54,7 +54,7 @@ namespace ServiceStack.Text.Tests
 				SomeObjectList = new object[0]
 			};
 
-			Serialize(obj);
+			Serialize(obj, includeXml: false); // xml cannot serialize Type objects.
 		}
 
 		[Test]
@@ -73,7 +73,7 @@ namespace ServiceStack.Text.Tests
 			var toModel = TypeSerializer.DeserializeFromString<TestObject>(strModel);
 		}
 
-		class Article
+		public class Article
 		{
 			public string title { get; set; }
 			public string url { get; set; }
