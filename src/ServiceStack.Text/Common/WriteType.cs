@@ -116,6 +116,10 @@ namespace ServiceStack.Text.Common
 			{
 				WriteTypeInfo(writer, value);
 			}
+			else if (JsState.IsWritingDynamic)
+			{
+				TypeInfoWriter(writer, value);
+			}
 
 			if (PropertyWriters != null)
 			{

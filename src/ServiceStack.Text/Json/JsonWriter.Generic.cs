@@ -57,7 +57,11 @@ namespace ServiceStack.Text.Json
 		{
 			if (value == null) return;
 			var writeFn = GetWriteFn(value.GetType());
+
+			var prevState = JsState.IsWritingDynamic;
+			JsState.IsWritingDynamic = true;
 			writeFn(writer, value);
+			JsState.IsWritingDynamic = prevState;
 		}
 
 		public static WriteObjectDelegate GetValueTypeToStringMethod(Type type)

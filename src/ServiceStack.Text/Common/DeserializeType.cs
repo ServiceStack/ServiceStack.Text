@@ -95,6 +95,42 @@ namespace ServiceStack.Text.Common
 
 				if (instance == null) instance = ctorFn();
 
+				if (propertyValueString != null 
+				    && propertyValueString.Length >= JsWriter.TypeAttrInObject.Length
+				    && propertyValueString.Substring(0, JsWriter.TypeAttrInObject.Length) == JsWriter.TypeAttrInObject)
+				{
+					var propIndex = JsWriter.TypeAttrInObject.Length;
+					var typeName = Serializer.EatValue(propertyValueString, ref propIndex);
+					typeName = typeName.Substring(1, typeName.Length - 2); //remove quotes
+					var propType = AssemblyUtils.FindType(typeName);
+					if (propType == null)
+					{
+						Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+					}
+					else
+					{
+						try
+						{
+							var parseFn = Serializer.GetParseFn(propType);
+							var propertyValue = parseFn(propertyValueString);
+	
+							setterMap.TryGetValue(propertyName, out setterFn);
+	
+							if (setterFn != null)
+							{
+								setterFn(instance, propertyValue);
+							}
+						}
+						catch (Exception)
+						{
+							Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueString);
+						}
+					}
+
+					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
+					continue;					
+				}
+
 				parseStringFnMap.TryGetValue(propertyName, out parseStringFn);
 
 				if (parseStringFn != null)
