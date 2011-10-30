@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
@@ -8,6 +10,13 @@ namespace ServiceStack.Text
 {
 	public static class JsConfig
 	{
+		static JsConfig()
+		{
+			//In-built defaults
+			JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
+			JsConfig<Color>.DeSerializeFn = Color.FromName;
+		}
+
 		[ThreadStatic]
 		public static bool ConvertObjectTypesIntoStringDictionary = false;
 
@@ -162,4 +171,29 @@ namespace ServiceStack.Text
 	}	
 #endif
 
+	public class JsConfig<T> //where T : struct
+	{
+		/// <summary>
+		/// Define custom serialization fn for BCL Structs
+		/// </summary>
+		public static Func<T, string> SerializeFn;
+
+		/// <summary>
+		/// Define custom deserialization fn for BCL Structs
+		/// </summary>
+		public static Func<string, T> DeSerializeFn;
+
+		public static void WriteFn<TSerializer>(TextWriter writer, object obj)
+		{
+			var serializer = JsWriter.GetTypeSerializer<TSerializer>();
+			serializer.WriteRawString(writer, SerializeFn((T)obj));
+		}
+
+		public static object ParseFn(string str)
+		{
+			return DeSerializeFn(str);
+		}
+	}
+
 }
+

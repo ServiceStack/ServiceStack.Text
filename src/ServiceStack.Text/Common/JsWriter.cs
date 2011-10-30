@@ -43,6 +43,7 @@ namespace ServiceStack.Text.Common
 			{
 				EscapeCharFlags[escapeChar] = true;
 			}
+			var loadConfig = JsConfig.IncludeNullValues;
 		}
 
 		/// <summary>
@@ -169,7 +170,9 @@ namespace ServiceStack.Text.Common
 
 			if (typeof(T).IsValueType)
 			{
-				return GetValueTypeToStringMethod(typeof(T));
+				return JsConfig<T>.SerializeFn != null 
+					? JsConfig<T>.WriteFn<TSerializer> 
+					: GetValueTypeToStringMethod(typeof (T));
 			}
 
 			var specialWriteFn = GetSpecialWriteFn(typeof(T));
