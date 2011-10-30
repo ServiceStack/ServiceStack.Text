@@ -10,6 +10,8 @@ namespace ServiceStack.Text.Common
 {
 	public static class JsWriter
 	{
+		public const string TypeAttr = "__type";
+
 		public const char MapStartChar = '{';
 		public const char MapKeySeperator = ':';
 		public const char ItemSeperator = ',';
@@ -273,7 +275,7 @@ namespace ServiceStack.Text.Common
 
 		public void WriteType(TextWriter writer, object value)
 		{
-			Serializer.WriteRawString(writer, ((Type)value).AssemblyQualifiedName);
+			Serializer.WriteRawString(writer, AssemblyUtils.ToTypeString((Type)value));
 		}
 
 	}

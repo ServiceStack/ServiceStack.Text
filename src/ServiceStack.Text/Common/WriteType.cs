@@ -25,10 +25,25 @@ namespace ServiceStack.Text.Common
 
 		private static readonly WriteObjectDelegate CacheFn;
 		internal static TypePropertyWriter[] PropertyWriters;
-
+		private static WriteObjectDelegate WriteTypeInfo;
+		
 		static WriteType()
 		{
 			CacheFn = Init() ? GetWriteFn() : WriteEmptyType;
+
+			if (typeof(T).IsAbstract)
+			{
+				WriteTypeInfo = TypeInfoWriter;
+			}
+		}
+
+		public static void TypeInfoWriter(TextWriter writer, object obj)
+		{
+			if (obj == null) return;
+
+			writer.Write("\"" + JsWriter.TypeAttr 
+				+ "\":\"" + obj.GetType().ToTypeString() + "\""
+				+ JsWriter.ItemSeperator);
 		}
 
 		public static WriteObjectDelegate Write
@@ -96,6 +111,11 @@ namespace ServiceStack.Text.Common
 				writer.Write(JsWriter.QuoteChar);
 
 			writer.Write(JsWriter.MapStartChar);
+
+			if (WriteTypeInfo != null)
+			{
+				WriteTypeInfo(writer, value);
+			}
 
 			if (PropertyWriters != null)
 			{

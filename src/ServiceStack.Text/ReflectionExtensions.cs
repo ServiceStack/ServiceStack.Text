@@ -265,6 +265,24 @@ namespace ServiceStack.Text
 			}
 		}
 
+		static readonly Dictionary<string, EmptyCtorDelegate> TypeNamesMap = new Dictionary<string, EmptyCtorDelegate>();
+		public static EmptyCtorDelegate GetConstructorMethod(string typeName)
+		{
+			lock (ConstructorMethods)
+			{
+				EmptyCtorDelegate emptyCtorFn;
+				if (!TypeNamesMap.TryGetValue(typeName, out emptyCtorFn))
+				{
+					var type = AssemblyUtils.FindType(typeName);
+					if (type == null) return null;
+
+					emptyCtorFn = GetConstructorMethodToCache(type);
+					TypeNamesMap[typeName] = emptyCtorFn;
+				}
+				return emptyCtorFn;
+			}
+		}
+
 		public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
 		{
 			var emptyCtor = type.GetConstructor(Type.EmptyTypes);
@@ -294,8 +312,14 @@ namespace ServiceStack.Text
 
 		public static object CreateInstance(Type type)
 		{
-			var ctorFn = GetConstructorMethod( type ) ;
-			return ctorFn( ) ;
+			var ctorFn = GetConstructorMethod(type);
+			return ctorFn();
+		}
+
+		public static object CreateInstance(string typeName)
+		{
+			var ctorFn = GetConstructorMethod(typeName);
+			return ctorFn();
 		}
 
 		public static PropertyInfo[] GetPublicProperties(this Type type)

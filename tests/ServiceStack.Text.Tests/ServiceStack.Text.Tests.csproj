@@ -132,6 +132,7 @@
     <Compile Include="CsvSerializerTests.cs" />
     <Compile Include="CsvStreamTests.cs" />
     <Compile Include="CsvTests\CustomHeaderTests.cs" />
+    <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="NullableTypesTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="Support\TableItem.cs" />

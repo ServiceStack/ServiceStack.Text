@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
@@ -66,13 +67,13 @@ namespace ServiceStack.Text.Common
 					"Type definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
 					JsWriter.MapStartChar, type.Name, strType.Substring(0, strType.Length < 50 ? strType.Length : 50)));
 
+			if (strType == JsWriter.EmptyMap) return ctorFn();
 
-			var instance = ctorFn();
+			object instance = null;
 			string propertyName;
 			ParseStringDelegate parseStringFn;
 			SetPropertyDelegate setterFn;
 
-			if (strType == JsWriter.EmptyMap) return instance;
 			var strTypeLength = strType.Length;
 
 			while (index < strTypeLength)
@@ -82,6 +83,17 @@ namespace ServiceStack.Text.Common
 				Serializer.EatMapKeySeperator(strType, ref index);
 
 				var propertyValueString = Serializer.EatValue(strType, ref index);
+
+				if (propertyName == JsWriter.TypeAttr)
+				{
+					instance = ReflectionExtensions.CreateInstance(propertyValueString);
+					if (instance == null)
+						Tracer.Instance.WriteWarning("Could not find type: " + propertyValueString);
+					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
+					continue;
+				}
+
+				if (instance == null) instance = ctorFn();
 
 				parseStringFnMap.TryGetValue(propertyName, out parseStringFn);
 

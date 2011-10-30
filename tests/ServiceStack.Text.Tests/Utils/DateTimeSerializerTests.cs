@@ -67,14 +67,6 @@ namespace ServiceStack.Text.Tests.Utils
 		[Test]
 		public void ParseShortestXsdDateTime_works()
 		{
-			AssertDateIsEqual(DateTime.Now);
-			AssertDateIsEqual(DateTime.UtcNow);
-			AssertDateIsEqual(new DateTime(1979, 5, 9));
-			AssertDateIsEqual(new DateTime(1979, 5, 9, 0, 0, 1));
-			AssertDateIsEqual(new DateTime(1979, 5, 9, 0, 0, 0, 1));
-			AssertDateIsEqual(new DateTime(2010, 10, 20, 10, 10, 10, 1));
-			AssertDateIsEqual(new DateTime(2010, 11, 22, 11, 11, 11, 1));
-			
 			DateTime shortDate = DateTimeSerializer.ParseShortestXsdDateTime("2011-8-4");
 			Assert.That (shortDate, Is.EqualTo(new DateTime (2011, 8, 4)), "Month and day without leading 0");
 			shortDate = DateTimeSerializer.ParseShortestXsdDateTime("2011-8-05");
@@ -90,8 +82,30 @@ namespace ServiceStack.Text.Tests.Utils
 			Assert.That(result, Is.Not.Null);
 		}
 
-		private void AssertDateIsEqual(DateTime dateTime)
+        private static DateTime[] _dateTimeTests = new[] {
+			DateTime.Now,
+			DateTime.UtcNow,
+			new DateTime(1979, 5, 9),
+			new DateTime(1979, 5, 9, 0, 0, 1),
+			new DateTime(1979, 5, 9, 0, 0, 0, 1),
+			new DateTime(2010, 10, 20, 10, 10, 10, 1),
+			new DateTime(2010, 11, 22, 11, 11, 11, 1),
+            new DateTime(622119282055250000)
+        };
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        [TestCase(6)]
+        [TestCase(7)]
+        public void AssertDateIsEqual(int whichDate)
 		{
+            DateTime dateTime = _dateTimeTests[whichDate];
+
 			//Don't test short dates without time to UTC as you lose precision
 			var shortDateStr = dateTime.ToString(DateTimeSerializer.ShortDateTimeFormat);
 			var shortDateTimeStr = dateTime.ToUniversalTime().ToString(DateTimeSerializer.XsdDateTimeFormatSeconds);
@@ -117,24 +131,20 @@ namespace ServiceStack.Text.Tests.Utils
 			Assert.That(longDateTime.ToUniversalTime(), Is.EqualTo(dateTime.ToUniversalTime()));
 
 			var toDateTime = DateTimeSerializer.ParseShortestXsdDateTime(shortestDateStr);
-			AssertDatesAreEqual(toDateTime, dateTime);
+			AssertDatesAreEqual(toDateTime, dateTime, "shortestDate");
 
 			var unixTime = dateTime.ToUnixTimeMs();
 			var fromUnixTime = DateTimeExtensions.FromUnixTimeMs(unixTime);
-			AssertDatesAreEqual(fromUnixTime, dateTime);
+			AssertDatesAreEqual(fromUnixTime, dateTime, "unixTimeMs");
+
+            var wcfDateString = DateTimeSerializer.ToWcfJsonDate(dateTime);
+            var wcfDate = DateTimeSerializer.ParseWcfJsonDate(wcfDateString);
+            AssertDatesAreEqual(wcfDate, dateTime, "wcf date");
 		}
 
-		private void AssertDatesAreEqual(DateTime toDateTime, DateTime dateTime)
-		{
-			try
-			{
-				Assert.That(toDateTime.ToUniversalTime(), Is.EqualTo(dateTime.ToUniversalTime()));
-			}
-			catch (Exception ex)
-			{
-				Log("Trouble with DateTime precisions, trying Assert again with rounding to seconds", ex);
-				Assert.That(toDateTime.ToUniversalTime().RoundToSecond(), Is.EqualTo(dateTime.ToUniversalTime().RoundToSecond()));
-			}
-		}
+        private void AssertDatesAreEqual(DateTime toDateTime, DateTime dateTime, string which)
+        {
+            Assert.That(toDateTime.ToUniversalTime().RoundToMs(), Is.EqualTo(dateTime.ToUniversalTime().RoundToMs()), which);
+        }
 	}
 }
