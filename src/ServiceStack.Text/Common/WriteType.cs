@@ -44,7 +44,6 @@ namespace ServiceStack.Text.Common
 			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
 			Serializer.WriteRawString(writer, obj.GetType().ToTypeString());
-			writer.Write(JsWriter.ItemSeperator);
 		}
 
 		public static WriteObjectDelegate Write
@@ -113,18 +112,20 @@ namespace ServiceStack.Text.Common
 
 			writer.Write(JsWriter.MapStartChar);
 
+            var i = 0;
 			if (WriteTypeInfo != null)
 			{
 				WriteTypeInfo(writer, value);
+			    i++;
 			}
 			else if (JsState.IsWritingDynamic)
 			{
 				TypeInfoWriter(writer, value);
-			}
+                i++;
+            }
 
 			if (PropertyWriters != null)
 			{
-				var i = 0;
 				foreach (var propertyWriter in PropertyWriters)
 				{
 					var propertyValue = propertyWriter.GetterFn((T)value);
