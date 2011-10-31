@@ -27,6 +27,18 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
+		public void Deserializes_string_correctly()
+		{
+			const string original = "This is a string";
+			var json = JsonSerializer.SerializeToString(original);
+			var fromJson = JsonSerializer.DeserializeFromString<string>(json);
+			var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
+
+			Assert.That(fromJson, Is.EqualTo(original));
+			Assert.That(fromJsonType, Is.EqualTo(original));
+		}
+
+		[Test]
 		public void Embedded_Quotes()
 		{
 			string v = @"I have ""embedded quotes"" inside me";

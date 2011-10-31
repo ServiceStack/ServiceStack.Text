@@ -25,7 +25,7 @@ namespace ServiceStack.Text.Tests.Utils
 
 			Console.WriteLine(modelStr);
 
-			Assert.That(modelStr, Is.EqualTo("{\r\n\t\"__type\": \"ServiceStack.Common.Tests.Models.ModelWithIdAndName,\r\n\t ServiceStack.Common.Tests\",\r\n\tId: 1,\r\n\tName: Name\r\n}"));
+			Assert.That(modelStr, Is.EqualTo("{\r\n\t__type: \"ServiceStack.Common.Tests.Models.ModelWithIdAndName,\r\n\t ServiceStack.Common.Tests\",\r\n\tId: 1,\r\n\tName: Name\r\n}"));
 		}
 
 		internal class TestModel

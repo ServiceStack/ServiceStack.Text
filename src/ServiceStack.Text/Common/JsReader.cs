@@ -21,7 +21,7 @@ namespace ServiceStack.Text.Common
 				return Serializer.ParseString;
 
 			if (type == typeof(object))
-				return x => x;
+				return DeserializeType<TSerializer>.ObjectStringToType;
 
 			var specialParseFn = ParseUtils.GetSpecialParseMethod(type);
 			if (specialParseFn != null)

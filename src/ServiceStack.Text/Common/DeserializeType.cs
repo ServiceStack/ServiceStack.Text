@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ServiceStack.Text.Json;
 using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
@@ -26,6 +27,8 @@ namespace ServiceStack.Text.Common
 		where TSerializer : ITypeSerializer
 	{
 		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+
+		private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
 
 		public static ParseStringDelegate GetParseMethod(Type type)
 		{
@@ -50,6 +53,24 @@ namespace ServiceStack.Text.Common
 
 			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
 			return value => StringToType(type, value, ctorFn, setterMap, map);
+		}
+
+		public static object ObjectStringToType(string strType)
+		{
+			if (strType != null
+				&& strType.Length >= TypeAttrInObject.Length
+				&& strType.Substring(1, TypeAttrInObject.Length) == TypeAttrInObject)
+			{
+				var propIndex = TypeAttrInObject.Length;
+				var typeName = Serializer.EatValue(strType, ref propIndex);
+				typeName = Serializer.ParseString(typeName);
+				var propType = AssemblyUtils.FindType(typeName);
+				var parseFn = Serializer.GetParseFn(propType);
+				var propertyValue = parseFn(strType);
+				return propertyValue;
+			}
+
+			return strType;
 		}
 
 		private static object StringToType(Type type, string strType, 
@@ -86,7 +107,8 @@ namespace ServiceStack.Text.Common
 
 				if (propertyName == JsWriter.TypeAttr)
 				{
-					instance = ReflectionExtensions.CreateInstance(propertyValueString);
+					var typeName = Serializer.ParseString(propertyValueString);
+					instance = ReflectionExtensions.CreateInstance(typeName);
 					if (instance == null)
 						Tracer.Instance.WriteWarning("Could not find type: " + propertyValueString);
 					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
@@ -96,12 +118,12 @@ namespace ServiceStack.Text.Common
 				if (instance == null) instance = ctorFn();
 
 				if (propertyValueString != null 
-				    && propertyValueString.Length >= JsWriter.TypeAttrInObject.Length
-				    && propertyValueString.Substring(0, JsWriter.TypeAttrInObject.Length) == JsWriter.TypeAttrInObject)
+				    && propertyValueString.Length >= TypeAttrInObject.Length
+				    && propertyValueString.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
 				{
-					var propIndex = JsWriter.TypeAttrInObject.Length;
+					var propIndex = TypeAttrInObject.Length;
 					var typeName = Serializer.EatValue(propertyValueString, ref propIndex);
-					typeName = typeName.Substring(1, typeName.Length - 2); //remove quotes
+					typeName = Serializer.ParseString(typeName);
 					var propType = AssemblyUtils.FindType(typeName);
 					if (propType == null)
 					{

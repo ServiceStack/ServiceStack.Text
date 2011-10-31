@@ -41,9 +41,10 @@ namespace ServiceStack.Text.Common
 		{
 			if (obj == null) return;
 
-			writer.Write("\"" + JsWriter.TypeAttr 
-				+ "\":\"" + obj.GetType().ToTypeString() + "\""
-				+ JsWriter.ItemSeperator);
+			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
+			writer.Write(JsWriter.MapKeySeperator);
+			Serializer.WriteRawString(writer, obj.GetType().ToTypeString());
+			writer.Write(JsWriter.ItemSeperator);
 		}
 
 		public static WriteObjectDelegate Write

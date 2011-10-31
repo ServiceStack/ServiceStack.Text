@@ -22,6 +22,8 @@ namespace ServiceStack.Text.Jsv
 	{
 		public static ITypeSerializer Instance = new JsvTypeSerializer();
 
+		public string TypeAttrInObject { get { return "{__type:"; } }
+
 		public WriteObjectDelegate GetWriteFn<T>()
 		{
 			return JsvWriter<T>.WriteFn();

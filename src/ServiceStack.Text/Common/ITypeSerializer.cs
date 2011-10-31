@@ -5,6 +5,8 @@ namespace ServiceStack.Text.Common
 {
 	internal interface ITypeSerializer
 	{
+		string TypeAttrInObject { get; }
+
 		WriteObjectDelegate GetWriteFn<T>();
 		WriteObjectDelegate GetWriteFn(Type type);
 

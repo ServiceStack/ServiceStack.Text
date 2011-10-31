@@ -11,7 +11,6 @@ namespace ServiceStack.Text.Common
 	public static class JsWriter
 	{
 		public const string TypeAttr = "__type";
-		public const string TypeAttrInObject = "{\"__type\":";
 
 		public const char MapStartChar = '{';
 		public const char MapKeySeperator = ':';

@@ -13,7 +13,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_serialize_Message()
 		{
-			var message = new Message<string> { Body = "test" };
+			var message = new Message<string> { Id = new Guid(), CreatedDate = new DateTime(), Body = "test" };
 			var messageString = TypeSerializer.SerializeToString(message);
 
 			Assert.That(messageString, Is.EqualTo(
@@ -25,24 +25,12 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_serialize_IMessage()
 		{
-			var message = new Message<string> { Body = "test" };
+			var message = new Message<string> { Id = new Guid(), CreatedDate = new DateTime(), Body = "test" };
 			var messageString = TypeSerializer.SerializeToString((IMessage<string>)message);
 
 			Assert.That(messageString, Is.EqualTo(
-			"{\"__type\":\"ServiceStack.Messaging.Message`1[[System.String, mscorlib]], ServiceStack.Interfaces\","
+			"{__type:\"ServiceStack.Messaging.Message`1[[System.String, mscorlib]], ServiceStack.Interfaces\","
 			 + "Id:00000000000000000000000000000000,CreatedDate:0001-01-01,Priority:0,RetryAttempts:0,Body:test}"));
-		}
-
-		public class DtoWithInterface
-		{
-			public IMessage<string> Results { get; set; }
-		}
-
-		[Test]
-		public void Can_deserialize_interface_into_concrete_type()
-		{
-			var dto = Serialize(new DtoWithInterface { Results = new Message<string>("Body") }, includeXml:false);
-			Assert.That(dto.Results, Is.Not.Null);
 		}
 
 		public class DtoWithObject
@@ -94,6 +82,13 @@ namespace ServiceStack.Text.Tests
 				yield return new TestCaseData(typeof(Zoo),
 					"ServiceStack.Text.Tests.JsonTests.Zoo, ServiceStack.Text.Tests");
 			}
+		}
+
+		[Test]
+		public void Can_deserialize_interface_into_concrete_type()
+		{
+			var dto = Serialize(new MessagingTests.DtoWithInterface { Results = new Message<string>("Body") }, includeXml: false);
+			Assert.That(dto.Results, Is.Not.Null);
 		}
 	}
 }

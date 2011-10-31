@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
-using ServiceStack.Common.Tests;
 
 namespace ServiceStack.Text.Tests
 {
