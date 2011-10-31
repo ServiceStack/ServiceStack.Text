@@ -1,1 +1,1 @@
-nuget pack ..\NuGet\servicestack.text.nuget
+nuget pack ..\NuGet\servicestack.text.nuspec
