@@ -52,6 +52,7 @@ namespace ServiceStack.Text
 		public static string SerializeToString<T>(T value)
 		{
 			if (value == null) return null;
+			if (typeof(T) == typeof(object)) return SerializeToString(value, value.GetType());
 
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
@@ -66,41 +67,6 @@ namespace ServiceStack.Text
 				}
 			}
 			return sb.ToString();
-		}
-
-		public static void SerializeToWriter<T>(T value, TextWriter writer)
-		{
-			if (value == null) return;
-			if (typeof(T) == typeof(string))
-			{
-				writer.Write(value);
-				return;
-			}
-
-			JsonWriter<T>.WriteObject(writer, value);
-		}
-
-		public static void SerializeToStream<T>(T value, Stream stream)
-		{
-			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsonWriter<T>.WriteObject(writer, value);
-			writer.Flush();
-		}
-
-		public static T DeserializeFromStream<T>(Stream stream)
-		{
-			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
-			{
-				return DeserializeFromString<T>(reader.ReadToEnd());
-			}
-		}
-
-		public static object DeserializeFromStream(Type type, Stream stream)
-		{
-			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
-			{
-				return DeserializeFromString(reader.ReadToEnd(), type);
-			}
 		}
 
 		public static string SerializeToString(object value, Type type)
@@ -122,6 +88,23 @@ namespace ServiceStack.Text
 			return sb.ToString();
 		}
 
+		public static void SerializeToWriter<T>(T value, TextWriter writer)
+		{
+			if (value == null) return;
+			if (typeof(T) == typeof(string))
+			{
+				writer.Write(value);
+				return;
+			}
+			if (typeof(T) == typeof(object))
+			{
+				SerializeToWriter(value, value.GetType(), writer);
+				return;
+			}
+
+			JsonWriter<T>.WriteObject(writer, value);
+		}
+
 		public static void SerializeToWriter(object value, Type type, TextWriter writer)
 		{
 			if (value == null) return;
@@ -134,11 +117,40 @@ namespace ServiceStack.Text
 			JsonWriter.GetWriteFn(type)(writer, value);
 		}
 
+		public static void SerializeToStream<T>(T value, Stream stream)
+		{
+			if (typeof(T) == typeof(object))
+			{
+				SerializeToStream(value, value.GetType(), stream);
+				return;
+			}
+
+			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+			JsonWriter<T>.WriteObject(writer, value);
+			writer.Flush();
+		}
+
 		public static void SerializeToStream(object value, Type type, Stream stream)
 		{
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
 			JsonWriter.GetWriteFn(type)(writer, value);
 			writer.Flush();
+		}
+
+		public static T DeserializeFromStream<T>(Stream stream)
+		{
+			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
+			{
+				return DeserializeFromString<T>(reader.ReadToEnd());
+			}
+		}
+
+		public static object DeserializeFromStream(Type type, Stream stream)
+		{
+			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
+			{
+				return DeserializeFromString(reader.ReadToEnd(), type);
+			}
 		}
 	}
 }

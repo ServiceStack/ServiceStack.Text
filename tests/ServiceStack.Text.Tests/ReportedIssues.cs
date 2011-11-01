@@ -189,6 +189,9 @@ namespace ServiceStack.Text.Tests
             var json = GetBook().ToJson();
             Console.WriteLine(json);
             Assert.That(json.IndexOf("__"), Is.EqualTo(-1));
-        }
+
+        	var jsv = GetBook().ToJsv();
+			Assert.That(jsv.IndexOf("__"), Is.EqualTo(-1));
+		}
 	}
 }
