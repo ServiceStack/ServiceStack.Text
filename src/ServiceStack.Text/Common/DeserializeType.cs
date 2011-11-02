@@ -11,15 +11,13 @@
 //
 
 #if !XBOX
-using System.Linq.Expressions ;
+using System.Linq.Expressions;
 #endif
 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
-using ServiceStack.Text.Json;
-using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
@@ -34,7 +32,7 @@ namespace ServiceStack.Text.Common
 		{
 			if (!type.IsClass) return null;
 
-            var propertyInfos = type.GetSerializableProperties();
+			var propertyInfos = type.GetSerializableProperties();
 			if (propertyInfos.Length == 0)
 			{
 				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
@@ -57,15 +55,10 @@ namespace ServiceStack.Text.Common
 
 		public static object ObjectStringToType(string strType)
 		{
-			if (strType != null
-				&& strType.Length >= TypeAttrInObject.Length
-				&& strType.Substring(1, TypeAttrInObject.Length) == TypeAttrInObject)
+			var type = ExtractType(strType);
+			if (type != null)
 			{
-				var propIndex = TypeAttrInObject.Length;
-				var typeName = Serializer.EatValue(strType, ref propIndex);
-				typeName = Serializer.ParseString(typeName);
-				var propType = AssemblyUtils.FindType(typeName);
-				var parseFn = Serializer.GetParseFn(propType);
+				var parseFn = Serializer.GetParseFn(type);
 				var propertyValue = parseFn(strType);
 				return propertyValue;
 			}
@@ -73,16 +66,35 @@ namespace ServiceStack.Text.Common
 			return strType;
 		}
 
-		private static object StringToType(Type type, string strType, 
-           EmptyCtorDelegate ctorFn,
+		public static Type ExtractType(string strType)
+		{
+			if (strType != null
+				&& strType.Length > TypeAttrInObject.Length
+				&& strType.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
+			{
+				var propIndex = TypeAttrInObject.Length;
+				var typeName = Serializer.EatValue(strType, ref propIndex);
+				typeName = Serializer.ParseString(typeName);
+				var type = AssemblyUtils.FindType(typeName);
+
+				if (type == null)
+					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+	
+				return type;
+			}
+			return null;
+		}
+
+		private static object StringToType(Type type, string strType,
+		   EmptyCtorDelegate ctorFn,
 		   IDictionary<string, SetPropertyDelegate> setterMap,
 		   IDictionary<string, ParseStringDelegate> parseStringFnMap)
 		{
 			var index = 0;
-				
+
 			if (strType == null)
-					return null;
-				
+				return null;
+
 			if (!Serializer.EatMapStartChar(strType, ref index))
 				throw new SerializationException(string.Format(
 					"Type definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
@@ -117,40 +129,28 @@ namespace ServiceStack.Text.Common
 
 				if (instance == null) instance = ctorFn();
 
-				if (propertyValueString != null 
-				    && propertyValueString.Length >= TypeAttrInObject.Length
-				    && propertyValueString.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
+				var propType = ExtractType(propertyValueString);
+				if (propType != null)
 				{
-					var propIndex = TypeAttrInObject.Length;
-					var typeName = Serializer.EatValue(propertyValueString, ref propIndex);
-					typeName = Serializer.ParseString(typeName);
-					var propType = AssemblyUtils.FindType(typeName);
-					if (propType == null)
+					try
 					{
-						Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+						var parseFn = Serializer.GetParseFn(propType);
+						var propertyValue = parseFn(propertyValueString);
+
+						setterMap.TryGetValue(propertyName, out setterFn);
+
+						if (setterFn != null)
+						{
+							setterFn(instance, propertyValue);
+						}
 					}
-					else
+					catch (Exception)
 					{
-						try
-						{
-							var parseFn = Serializer.GetParseFn(propType);
-							var propertyValue = parseFn(propertyValueString);
-	
-							setterMap.TryGetValue(propertyName, out setterFn);
-	
-							if (setterFn != null)
-							{
-								setterFn(instance, propertyValue);
-							}
-						}
-						catch (Exception)
-						{
-							Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueString);
-						}
+						Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueString);
 					}
 
 					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-					continue;					
+					continue;
 				}
 
 				parseStringFnMap.TryGetValue(propertyName, out parseStringFn);
@@ -160,9 +160,9 @@ namespace ServiceStack.Text.Common
 					try
 					{
 						var propertyValue = parseStringFn(propertyValueString);
-	
+
 						setterMap.TryGetValue(propertyName, out setterFn);
-	
+
 						if (setterFn != null)
 						{
 							setterFn(instance, propertyValue);
@@ -170,7 +170,7 @@ namespace ServiceStack.Text.Common
 					}
 					catch (Exception)
 					{
-                        Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueString);
+						Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueString);
 					}
 				}
 
@@ -184,7 +184,7 @@ namespace ServiceStack.Text.Common
 		{
 			var setMethodInfo = propertyInfo.GetSetMethod(true);
 			if (setMethodInfo == null) return null;
-			
+
 #if SILVERLIGHT || MONOTOUCH || XBOX
 			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
 #else
@@ -205,7 +205,7 @@ namespace ServiceStack.Text.Common
 				).Compile();
 
 			return propertySetFn;
-#endif			
+#endif
 		}
 	}
 }

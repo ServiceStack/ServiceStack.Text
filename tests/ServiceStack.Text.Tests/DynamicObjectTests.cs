@@ -38,7 +38,7 @@ namespace ServiceStack.Text.Tests
 			Assert.That(fromJson["Url"], Is.EqualTo(map["Url"]));
 			Assert.That(fromJson["Parent Url"], Is.EqualTo(map["Parent Url"]));
 
-			var actualStatus = JsonSerializer.DeserializeFromString<UrlStatus>((string)fromJson["Redirect Chai"]);
+			var actualStatus = (UrlStatus)fromJson["Redirect Chai"];
 			Assert.That(actualStatus.Status, Is.EqualTo(urlStatus.Status));
 			Assert.That(actualStatus.Url, Is.EqualTo(urlStatus.Url));
 
