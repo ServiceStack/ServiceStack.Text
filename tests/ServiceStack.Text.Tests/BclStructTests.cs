@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.Serialization;
 using NUnit.Framework;
+using ServiceStack.Common;
 
 namespace ServiceStack.Text.Tests
 {
@@ -33,5 +36,43 @@ namespace ServiceStack.Text.Tests
 			Assert.That(fromEnums[1], Is.EqualTo(MyEnum.Enum2));
 			Assert.That(fromEnums[2], Is.EqualTo(MyEnum.Enum3));
 		}
+
+        [Flags]
+        public enum ExampleEnum
+        {
+            None = 0,
+            One = 1,
+            Two = 2,
+            Four = 4,
+            Eight = 8
+        }
+
+        public class ExampleType
+        {
+            public ExampleEnum Enum { get; set; }
+            public string EnumValues { get; set; }
+            public string Value { get; set; }
+            public int Foo { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_dto_with_enum_flags()
+        {
+            var serialized = TypeSerializer.SerializeToString(new ExampleType
+            {
+                Value = "test",
+                Enum = ExampleEnum.One | ExampleEnum.Four,
+                EnumValues = (ExampleEnum.One | ExampleEnum.Four).ToDescription(),
+                Foo = 1
+            });
+
+            var deserialized = TypeSerializer.DeserializeFromString<ExampleType>(serialized);
+
+            Console.WriteLine(deserialized.ToJsv());
+
+            Assert.That(deserialized.Enum, Is.EqualTo(ExampleEnum.One | ExampleEnum.Four));
+        }
+
+
 	}
 }

@@ -157,6 +157,11 @@ namespace ServiceStack.Text.Common
 			if (type == typeof(decimal) || type == typeof(decimal?))
 				return Serializer.WriteDecimal;
 
+            if (type.IsEnum || type.UnderlyingSystemType.IsEnum)
+                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
+                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
+                    : Serializer.WriteEnum;
+
 			return Serializer.WriteBuiltIn;
 		}
 

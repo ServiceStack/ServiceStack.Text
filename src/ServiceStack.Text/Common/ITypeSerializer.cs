@@ -26,7 +26,9 @@ namespace ServiceStack.Text.Common
 		void WriteBool(TextWriter writer, object boolValue);
 		void WriteFloat(TextWriter writer, object floatValue);
 		void WriteDouble(TextWriter writer, object doubleValue);
-		void WriteDecimal(TextWriter writer, object decimalValue);
+        void WriteDecimal(TextWriter writer, object decimalValue);
+        void WriteEnum(TextWriter writer, object enumValue);
+        void WriteEnumFlags(TextWriter writer, object enumFlagValue);
 
 		//object EncodeMapKey(object value);
 

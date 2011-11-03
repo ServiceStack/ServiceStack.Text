@@ -190,7 +190,20 @@ namespace ServiceStack.Text.Json
 			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
-		/// <summary>
+        public void WriteEnum(TextWriter writer, object enumValue)
+        {
+            if (enumValue == null) return;
+            WriteRawString(writer, enumValue.ToString());
+        }
+
+        public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+        {
+            if (enumFlagValue == null) return;
+            var intVal = (int)enumFlagValue;
+            writer.Write(intVal);
+        }
+
+	    /// <summary>
 		/// A JSON key needs to be a string with quotes
 		/// </summary>
 		/// <param name="value"></param>
