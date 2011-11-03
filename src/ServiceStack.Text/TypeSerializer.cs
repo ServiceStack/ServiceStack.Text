@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text
@@ -147,7 +146,7 @@ namespace ServiceStack.Text
 		public static void SerializeToStream(object value, Type type, Stream stream)
 		{
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsonWriter.GetWriteFn(type)(writer, value);
+			JsvWriter.GetWriteFn(type)(writer, value);
 			writer.Flush();
 		}
 
