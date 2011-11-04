@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Common;
 

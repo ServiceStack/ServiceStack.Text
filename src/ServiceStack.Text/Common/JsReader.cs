@@ -72,7 +72,7 @@ namespace ServiceStack.Text.Common
 			var stringConstructor = DeserializeTypeUtils.GetParseMethod(type);
 			if (stringConstructor != null) return stringConstructor;
 
-			return null;
+			return DeserializeType<TSerializer>.ParseAbstractType<T>;
 		}
 		
 	}

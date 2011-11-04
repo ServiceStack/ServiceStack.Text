@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.Messaging;
 using ServiceStack.ServiceHost;
+using ServiceStack.ServiceInterface.OAuth;
 using ServiceStack.ServiceInterface.ServiceModel;
 using ServiceStack.Text.Tests.JsonTests;
 
@@ -90,6 +92,56 @@ namespace ServiceStack.Text.Tests
         {
             var dto = Serialize(new MessagingTests.DtoWithInterface { Results = new Message<string>("Body") }, includeXml: false);
             Assert.That(dto.Results, Is.Not.Null);
+        }
+
+        public class UserSession
+        {
+            public UserSession()
+            {
+                this.ProviderOAuthAccess = new Dictionary<string, IOAuthTokens>();
+            }
+
+            public string ReferrerUrl { get; set; }
+
+            public string Id { get; set; }
+
+            public string TwitterUserId { get; set; }
+
+            public string TwitterScreenName { get; set; }
+
+            public string RequestTokenSecret { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+            public DateTime LastModified { get; set; }
+
+            public Dictionary<string, IOAuthTokens> ProviderOAuthAccess { get; set; }
+        }
+
+        [Test]
+        public void Can_Serialize_User_OAuthSession()
+        {
+            var userSession = new UserSession
+            {
+                Id = "1",
+                CreatedAt = DateTime.UtcNow,
+                LastModified = DateTime.UtcNow,
+                ReferrerUrl = "http://referrer.com",
+                ProviderOAuthAccess = new Dictionary<string, IOAuthTokens>
+                {
+                    {"twitter", new OAuthTokens { Provider = "twitter", AccessToken = "TAccessToken", Items = { {"a","1"}, {"b","2"}, }} },
+                    {"facebook", new OAuthTokens { Provider = "facebook", AccessToken = "FAccessToken", Items = { {"a","1"}, {"b","2"}, }} },
+                }
+            };
+
+            var fromDto = Serialize(userSession, includeXml: false);
+            Console.WriteLine(fromDto.Dump());
+
+            Assert.That(fromDto.ProviderOAuthAccess.Count, Is.EqualTo(2));
+            Assert.That(fromDto.ProviderOAuthAccess["twitter"].Provider, Is.EqualTo("twitter"));
+            Assert.That(fromDto.ProviderOAuthAccess["facebook"].Provider, Is.EqualTo("facebook"));
+            Assert.That(fromDto.ProviderOAuthAccess["twitter"].Items.Count, Is.EqualTo(2));
+            Assert.That(fromDto.ProviderOAuthAccess["facebook"].Items.Count, Is.EqualTo(2));
         }
     }
 }

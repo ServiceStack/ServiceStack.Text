@@ -85,6 +85,20 @@ namespace ServiceStack.Text.Common
 			return null;
 		}
 
+        public static object ParseAbstractType<T>(string value)
+        {
+            if (typeof(T).IsAbstract)
+            {
+                if (string.IsNullOrEmpty(value)) return null;
+                var concreteType = ExtractType(value);
+                if (concreteType != null)
+                {
+                    return Serializer.GetParseFn(concreteType)(value);
+                }
+            }
+            return null;
+        }
+
 		private static object StringToType(Type type, string strType,
 		   EmptyCtorDelegate ctorFn,
 		   IDictionary<string, SetPropertyDelegate> setterMap,

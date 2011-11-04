@@ -65,12 +65,6 @@ namespace ServiceStack.Text.Jsv
 			{
 				if (typeof(T).IsInterface)
 				{
-					if (string.IsNullOrEmpty(value)) return null;
-					var concreteType = DeserializeType<JsvTypeSerializer>.ExtractType(value);
-					if (concreteType != null)
-					{
-						return JsvReader.GetParseFn(concreteType)(value);
-					}
 					throw new NotSupportedException("Can not deserialize interface type: "
 						+ typeof(T).Name);
 				}
