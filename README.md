@@ -17,11 +17,21 @@ ServiceStack.Text is an independent, dependency-free assembly that contains all 
 
 Like most of the interfaces in Service Stack, the API is simple and descriptive. In most cases these are the only methods that you would commonly use:
 
-	string TypeSerializer.SerializeToString<T>(T value);
-	void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer);
+    string TypeSerializer.SerializeToString<T>(T value);
+    void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer);
 
-	T TypeSerializer.DeserializeFromString<T>(string value);
-	T TypeSerializer.DeserializeFromReader<T>(TextReader reader);
+    T TypeSerializer.DeserializeFromString<T>(string value);
+    T TypeSerializer.DeserializeFromReader<T>(TextReader reader);
+	
+Extension Methods:
+
+    T FromJson();
+    string ToJson(T);
+
+    T FromJsv();
+    string ToJsv(T);
+    T Dump(string);
+    
 
 Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
 
