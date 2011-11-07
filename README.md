@@ -35,14 +35,14 @@ Extension Methods:
 
 Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
 
-### Parses Dynamic Payloads as well:
+### Supports Dynamic JSON as well
 
-Although usually used to deserialize C#/.NET POCO types, it also includes a flexible API allowing you to deserialize any 
+Although usually used to (de)serialize C#/.NET POCO types, it also includes a flexible API allowing you to deserialize any 
 JSON payload without it's concrete type, see these real-world examples:
 
-  - [Parsing GitHub's JSON response][2]
-  - [Parsing Google Maps JSON Response][3]
-  - [Parsing Centroid][4] 
+  - [Parsing GitHub's JSON response](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/GitHubRestTests.cs)
+  - [Parsing Google Maps JSON Response](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/GMapDirectionsTests.cs)
+  - [Parsing Centroid](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/CentroidTests.cs)
    
 
 ## NuGet ServiceStack.Text
