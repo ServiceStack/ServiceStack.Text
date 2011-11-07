@@ -68,7 +68,7 @@
 				exponent++;
 			}
 
-			/// Construct a new decimal expansion with the mantissa
+			// Construct a new decimal expansion with the mantissa
 			ArbitraryDecimal ad = new ArbitraryDecimal(mantissa);
 
 			// If the exponent is less than 0, we need to repeatedly
