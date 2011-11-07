@@ -2,6 +2,9 @@
 follow [@demisbellot](http://twitter.com/demisbellot) and [@ServiceStack](http://twitter.com/servicestack)
 for twitter updates.
 
+# The home of [.NET's fastest JSON](http://www.servicestack.net/mythz_blog/?p=344), 
+[JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers.
+
 ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
 
 * [JsonSerializer](http://www.servicestack.net/mythz_blog/?p=344)
@@ -10,6 +13,28 @@ ServiceStack.Text is an independent, dependency-free assembly that contains all 
 * [T.Dump extension method](http://www.servicestack.net/mythz_blog/?p=202)
 * StringExtensions - Xml/Json/Csv/Url encoding, BaseConvert, Rot13, Hex escape, etc.
 * Stream, Reflection, List, DateTime, etc extensions and utils
+
+# Simple API
+
+Like most of the interfaces in Service Stack, the API is simple and descriptive. In most cases these are the only methods that you would commonly use:
+
+	string TypeSerializer.SerializeToString<T>(T value);
+	void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer);
+
+	T TypeSerializer.DeserializeFromString<T>(string value);
+	T TypeSerializer.DeserializeFromReader<T>(TextReader reader);
+
+Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
+
+### Parses Dynamic Payloads as well:
+
+Although usually used to deserialize C#/.NET POCO types, it also includes a flexible API allowing you to deserialize any 
+JSON payload without it's concrete type, see these real-world examples:
+
+  - [Parsing GitHub's JSON response][2]
+  - [Parsing Google Maps JSON Response][3]
+  - [Parsing Centroid][4] 
+   
 
 ## NuGet ServiceStack.Text
 
@@ -89,18 +114,6 @@ These characteristics make it ideal for use anywhere you need to store or transp
 As such, it's utilized within ServiceStack's other components:
  - OrmLite - to store complex types on table models as text blobs in a database field and
  - [ServiceStack.Redis](https://github.com/ServiceStack/ServiceStack.Redis) - to store rich POCO data types into the very fast [redis](http://code.google.com/p/redis) instances.
-
-# Simple API
-
-Like most of the interfaces in Service Stack, the API is simple and descriptive. In most cases these are the only methods that you would commonly use:
-
-	string TypeSerializer.SerializeToString<T>(T value);
-	void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer);
-
-	T TypeSerializer.DeserializeFromString<T>(string value);
-	T TypeSerializer.DeserializeFromReader<T>(TextReader reader);
-
-Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
 
 You may also be interested in the very useful [T.Dump() extension method](http://www.servicestack.net/mythz_blog/?p=202) for recursively viewing the contents of any C# POCO Type.
 
