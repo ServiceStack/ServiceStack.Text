@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -149,6 +150,11 @@ namespace ServiceStack.Text.Common
 			var ranOnce = false;
 			foreach (var kvp in map)
 			{
+				bool isNull = (kvp.Value == null);
+
+				if ( isNull && !JsConfig.IncludeNullValues )
+					continue;
+				
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
 				JsState.WritingKeyCount++;
@@ -158,6 +164,12 @@ namespace ServiceStack.Text.Common
 
 				writer.Write(JsWriter.MapKeySeperator);
 
+				if ( isNull )
+				{
+					writer.Write(JsonUtils.Null);
+					continue;
+				}
+				
 				JsState.IsWritingValue = true;
 				writeValueFn(writer, kvp.Value);
 				JsState.IsWritingValue = false;
