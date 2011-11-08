@@ -34,6 +34,28 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 
 		[Test]
+		public void Can_serialise_null_values_from_dictionary_correctly()
+		{
+			JsConfig.IncludeNullValues = true;
+			var dictionary = new Dictionary<string,object> { { "value", null } };
+			var json = JsonSerializer.SerializeToString(dictionary);
+			Log(json);
+
+			Assert.That(json, Is.EqualTo("{\"value\":null}"));
+		}
+
+		[Test]
+		public void Will_ignore_null_values_from_dictionary_correctly()
+		{
+			JsConfig.IncludeNullValues = false;
+			var dictionary = new Dictionary<string,string> { { "value", null } };
+			var json = JsonSerializer.SerializeToString(dictionary);
+			Log(json);
+
+			Assert.That(json, Is.EqualTo("{}"));
+		}
+
+		[Test]
 		public void Can_handle_json_primitives()
 		{
 			var json = JsonSerializer.SerializeToString(JsonPrimitives.Create(1));
