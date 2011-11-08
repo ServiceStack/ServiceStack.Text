@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.Messaging;
 using ServiceStack.ServiceHost;
-using ServiceStack.ServiceInterface.OAuth;
+using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.ServiceInterface.ServiceModel;
 using ServiceStack.Text.Tests.JsonTests;
 
