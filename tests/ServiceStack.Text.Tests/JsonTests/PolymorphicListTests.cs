@@ -1,9 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
+	public interface ICat
+	{
+		string Name { get; set; }
+	}
+
+	public interface IDog
+	{
+		string Name { get; set; }
+	}
+
 	//[KnownType(typeof(Dog))]
 	//[KnownType(typeof(Cat))]
 	public abstract class Animal
@@ -15,7 +26,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 	}
 
-	public class Dog : Animal
+	public class Dog : Animal, IDog
 	{
 		public override string Name
 		{
@@ -24,7 +35,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 	}
 
-	public class Cat : Animal
+	public class Cat : Animal, ICat
 	{
 		public override string Name
 		{
@@ -60,6 +71,13 @@ namespace ServiceStack.Text.Tests.JsonTests
 	[TestFixture]
 	public class PolymorphicListTests : TestBase
 	{
+		[SetUp]
+		public void SetUp()
+		{
+			JsConfig.Reset();
+			JsConfig<ICat>.ExcludeTypeInfo = false;
+		}
+
 		[Test]
 		public void Can_serialise_polymorphic_list()
 		{
@@ -76,7 +94,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(asText,
 				Is.EqualTo(
 					"[{\"__type\":\""
-					+ typeof(Dog).ToTypeString() 
+					+ typeof(Dog).ToTypeString()
 					+ "\",\"Name\":\"Fido\"},{\"__type\":\""
 					+ typeof(Cat).ToTypeString()
 					+ "\",\"Name\":\"Tigger\"}]"));
@@ -109,9 +127,9 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var list =
 				JsonSerializer.DeserializeFromString<List<Animal>>(
 					"[{\"__type\":\""
-					+ typeof(Dog).ToTypeString() 
+					+ typeof(Dog).ToTypeString()
 					+ "\",\"Name\":\"Fido\"},{\"__type\":\""
-					+ typeof(Cat).ToTypeString() 
+					+ typeof(Cat).ToTypeString()
 					+ "\",\"Name\":\"Tigger\"}]");
 
 			Assert.That(list.Count, Is.EqualTo(2));
@@ -129,9 +147,9 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var zoo =
 				JsonSerializer.DeserializeFromString<Zoo>(
 					"{\"Animals\":[{\"__type\":\""
-					+ typeof(Dog).ToTypeString() 
+					+ typeof(Dog).ToTypeString()
 					+ "\",\"Name\":\"Fido\"},{\"__type\":\""
-					+ typeof(Cat).ToTypeString() 
+					+ typeof(Cat).ToTypeString()
 					+ "\",\"Name\":\"Tigger\"}],\"Name\":\"City Zoo\"}");
 
 			Assert.That(zoo.Name, Is.EqualTo(@"City Zoo"));
@@ -144,5 +162,49 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(animals[0].Name, Is.EqualTo(@"Fido"));
 			Assert.That(animals[1].Name, Is.EqualTo(@"Tigger"));
 		}
+
+		public class Pets
+		{
+			public ICat Cat { get; set; }
+			public IDog Dog { get; set; }
+		}
+
+		[Test]
+		public void Can_exclude_specific_TypeInfo()
+		{
+			JsConfig<ICat>.ExcludeTypeInfo = true;
+			var pets = new Pets {
+				Cat = new Cat { Name = "Cat" },
+				Dog = new Dog { Name = "Dog" },
+			};
+
+			Assert.That(pets.ToJson(), Is.EqualTo(
+				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, ServiceStack.Text.Tests"",""Name"":""Dog""}}"));
+		}
+
+		public class PetDog
+		{
+			public IDog Dog { get; set; }
+		}
+
+		public class WeirdCat
+		{
+			public Cat Dog { get; set; }
+		}
+
+		[Test]
+		public void Can_read_as_Cat_from_Dog_with_typeinfo()
+		{
+			var petDog = new PetDog { Dog = new Dog { Name = "Woof!" } };
+			var json = petDog.ToJson();
+
+			Console.WriteLine(json);
+
+			var weirdCat = json.FromJson<WeirdCat>();
+
+			Assert.That(weirdCat.Dog, Is.Not.Null);
+			Assert.That(weirdCat.Dog.Name, Is.EqualTo(petDog.Dog.Name));
+		}
+
 	}
 }

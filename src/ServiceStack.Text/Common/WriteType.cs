@@ -39,11 +39,19 @@ namespace ServiceStack.Text.Common
 
 		public static void TypeInfoWriter(TextWriter writer, object obj)
 		{
-			if (obj == null) return;
+			DidWriteTypeInfo(writer, obj);
+		}
+
+		private static bool DidWriteTypeInfo(TextWriter writer, object obj)
+		{
+			if (obj == null
+			    || JsConfig.ExcludeTypeInfo
+			    || JsConfig<T>.ExcludeTypeInfo) return false;
 
 			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
 			Serializer.WriteRawString(writer, obj.GetType().ToTypeString());
+			return true;
 		}
 
 		public static WriteObjectDelegate Write
@@ -113,16 +121,10 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.MapStartChar);
 
             var i = 0;
-			if (WriteTypeInfo != null)
+			if (WriteTypeInfo != null || JsState.IsWritingDynamic)
 			{
-				WriteTypeInfo(writer, value);
-			    i++;
+				if (DidWriteTypeInfo(writer, value)) i++;
 			}
-			else if (JsState.IsWritingDynamic)
-			{
-				TypeInfoWriter(writer, value);
-                i++;
-            }
 
 			if (PropertyWriters != null)
 			{

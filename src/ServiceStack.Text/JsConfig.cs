@@ -23,6 +23,14 @@ namespace ServiceStack.Text
 		[ThreadStatic]
 		public static bool IncludeNullValues = false;
 
+		[ThreadStatic]
+		public static bool ExcludeTypeInfo = false;
+
+		public static void Reset()
+		{
+			ConvertObjectTypesIntoStringDictionary =  IncludeNullValues = ExcludeTypeInfo = false;
+		}
+
 #if SILVERLIGHT || MONOTOUCH
 		/// <summary>
 		/// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
@@ -172,7 +180,9 @@ namespace ServiceStack.Text
 #endif
 
 	public class JsConfig<T> //where T : struct
-	{
+	{	
+		public static bool ExcludeTypeInfo = false;
+
 		/// <summary>
 		/// Define custom serialization fn for BCL Structs
 		/// </summary>

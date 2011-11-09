@@ -38,8 +38,7 @@ namespace ServiceStack.Text.Common
 				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
 				return value => emptyCtorFn();
 			}
-
-
+			
 			var setterMap = new Dictionary<string, SetPropertyDelegate>();
 			var map = new Dictionary<string, ParseStringDelegate>();
 
@@ -136,7 +135,16 @@ namespace ServiceStack.Text.Common
 					var typeName = Serializer.ParseString(propertyValueString);
 					instance = ReflectionExtensions.CreateInstance(typeName);
 					if (instance == null)
+					{
 						Tracer.Instance.WriteWarning("Could not find type: " + propertyValueString);
+					}
+					else
+					{
+						//If __type info doesn't match, ignore it.
+						if (!type.IsAssignableFrom(instance.GetType()))
+							instance = null;
+					}
+
 					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
 					continue;
 				}
@@ -157,14 +165,14 @@ namespace ServiceStack.Text.Common
 						{
 							setterFn(instance, propertyValue);
 						}
+
+						Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
+						continue;
 					}
 					catch (Exception)
 					{
 						Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueString);
 					}
-
-					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-					continue;
 				}
 
 				parseStringFnMap.TryGetValue(propertyName, out parseStringFn);
