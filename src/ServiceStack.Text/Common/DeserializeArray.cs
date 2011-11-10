@@ -13,13 +13,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 
 namespace ServiceStack.Text.Common
 {
 	internal static class DeserializeArrayWithElements<TSerializer>
 		where TSerializer : ITypeSerializer
 	{
-		private static readonly Dictionary<Type, ParseArrayOfElementsDelegate> ParseDelegateCache 
+		private static Dictionary<Type, ParseArrayOfElementsDelegate> ParseDelegateCache 
 			= new Dictionary<Type, ParseArrayOfElementsDelegate>();
 
 		private delegate object ParseArrayOfElementsDelegate(string value, ParseStringDelegate parseFn);
@@ -27,17 +28,22 @@ namespace ServiceStack.Text.Common
 		public static Func<string, ParseStringDelegate, object> GetParseFn(Type type)
 		{
 			ParseArrayOfElementsDelegate parseFn;
-			if (!ParseDelegateCache.TryGetValue(type, out parseFn))
-			{
-				var genericType = typeof(DeserializeArrayWithElements<,>)
-					.MakeGenericType(type, typeof(TSerializer));
+			if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn.Invoke;
 
-				var mi = genericType.GetMethod("ParseGenericArray",
-					BindingFlags.Public | BindingFlags.Static);
+            var genericType = typeof(DeserializeArrayWithElements<,>).MakeGenericType(type, typeof(TSerializer));
+            var mi = genericType.GetMethod("ParseGenericArray", BindingFlags.Public | BindingFlags.Static);
+            parseFn = (ParseArrayOfElementsDelegate)Delegate.CreateDelegate(typeof(ParseArrayOfElementsDelegate), mi);
 
-				parseFn = (ParseArrayOfElementsDelegate)Delegate.CreateDelegate(typeof(ParseArrayOfElementsDelegate), mi);
-				ParseDelegateCache[type] = parseFn;
-			}
+            Dictionary<Type, ParseArrayOfElementsDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ParseDelegateCache;
+                newCache = new Dictionary<Type, ParseArrayOfElementsDelegate>(ParseDelegateCache);
+                newCache[type] = parseFn;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+
 			return parseFn.Invoke;
 		}
 	}
@@ -90,26 +96,28 @@ namespace ServiceStack.Text.Common
 	internal static class DeserializeArray<TSerializer>
 		where TSerializer : ITypeSerializer
 	{
-		private static readonly Dictionary<Type, ParseStringDelegate> ParseDelegateCache 
-			= new Dictionary<Type, ParseStringDelegate>();
+		private static Dictionary<Type, ParseStringDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringDelegate>();
 
 		public static ParseStringDelegate GetParseFn(Type type)
 		{
 			ParseStringDelegate parseFn;
-			if (!ParseDelegateCache.TryGetValue(type, out parseFn))
-			{
-				var genericType = typeof(DeserializeArray<,>)
-					.MakeGenericType(type, typeof(TSerializer));
+            if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn;
 
-				var mi = genericType.GetMethod("GetParseFn", 
-					BindingFlags.Public | BindingFlags.Static);
+            var genericType = typeof(DeserializeArray<,>).MakeGenericType(type, typeof(TSerializer));
+            var mi = genericType.GetMethod("GetParseFn", BindingFlags.Public | BindingFlags.Static);
+            var parseFactoryFn = (Func<ParseStringDelegate>)Delegate.CreateDelegate(
+                typeof(Func<ParseStringDelegate>), mi);
+            parseFn = parseFactoryFn();
+            
+            Dictionary<Type, ParseStringDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ParseDelegateCache;
+                newCache = new Dictionary<Type, ParseStringDelegate>(ParseDelegateCache);
+                newCache[type] = parseFn;
 
-				var parseFactoryFn = (Func<ParseStringDelegate>)Delegate.CreateDelegate(
-					typeof(Func<ParseStringDelegate>), mi);
-
-				parseFn = parseFactoryFn();
-				ParseDelegateCache[type] = parseFn;
-			}
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
 
 			return parseFn;
 		}

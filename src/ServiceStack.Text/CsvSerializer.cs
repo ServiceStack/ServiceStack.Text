@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 using ServiceStack.Text.Reflection;
@@ -14,29 +15,32 @@ namespace ServiceStack.Text
 	{
 		private static readonly UTF8Encoding UTF8EncodingWithoutBom = new UTF8Encoding(false);
 
-		private static readonly Dictionary<Type, WriteObjectDelegate> WriteFnCache =
-			new Dictionary<Type, WriteObjectDelegate>();
+		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
 
 		internal static WriteObjectDelegate GetWriteFn(Type type)
 		{
 			try
 			{
 				WriteObjectDelegate writeFn;
-				lock (WriteFnCache)
-				{
-					if (!WriteFnCache.TryGetValue(type, out writeFn))
-					{
-						var genericType = typeof(CsvSerializer<>).MakeGenericType(type);
-						var mi = genericType.GetMethod("WriteFn",
-							BindingFlags.Public | BindingFlags.Static);
+                if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
 
-						var writeFactoryFn = (Func<WriteObjectDelegate>)Delegate.CreateDelegate(
-							typeof(Func<WriteObjectDelegate>), mi);
-						writeFn = writeFactoryFn();
-						WriteFnCache.Add(type, writeFn);
-					}
-				}
-				return writeFn;
+                var genericType = typeof(CsvSerializer<>).MakeGenericType(type);
+                var mi = genericType.GetMethod("WriteFn", BindingFlags.Public | BindingFlags.Static);
+                var writeFactoryFn = (Func<WriteObjectDelegate>)Delegate.CreateDelegate(
+                    typeof(Func<WriteObjectDelegate>), mi);
+                writeFn = writeFactoryFn();
+
+                Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+                do
+                {
+                    snapshot = WriteFnCache;
+                    newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
+                    newCache[type] = writeFn;
+
+                } while (!ReferenceEquals(
+                    Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+                
+                return writeFn;
 			}
 			catch (Exception ex)
 			{
@@ -221,8 +225,7 @@ namespace ServiceStack.Text
 			var mi = genericType.GetMethod(methodName, 
 				BindingFlags.Static | BindingFlags.Public);
 
-			var writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-				typeof(WriteObjectDelegate), mi);
+			var writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
 
 			return writeFn;
 		}

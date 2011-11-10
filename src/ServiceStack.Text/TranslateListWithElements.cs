@@ -14,62 +14,65 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
 {
 	public static class TranslateListWithElements
 	{
-		private static readonly Dictionary<Type, Func<object, Type, object>> TranslateICollectionCache 
-			= new Dictionary<Type, Func<object, Type, object>>();
+        private static Dictionary<Type, ConvertInstanceDelegate> TranslateICollectionCache
+            = new Dictionary<Type, ConvertInstanceDelegate>();
 
 		public static object TranslateToGenericICollectionCache(object from, Type toInstanceOfType, Type elementType)
 		{
-			Func<object, Type, object> translateToFn;
-			lock (TranslateICollectionCache)
-			{
-				if (!TranslateICollectionCache.TryGetValue(toInstanceOfType, out translateToFn))
-				{
-					var genericType = typeof(TranslateListWithElements<>).MakeGenericType(elementType);
+            ConvertInstanceDelegate translateToFn;
+            if (TranslateICollectionCache.TryGetValue(toInstanceOfType, out translateToFn))
+                return translateToFn(from, toInstanceOfType);
 
-					var mi = genericType.GetMethod("LateBoundTranslateToGenericICollection",
-						BindingFlags.Static | BindingFlags.Public);
+            var genericType = typeof(TranslateListWithElements<>).MakeGenericType(elementType);
+            var mi = genericType.GetMethod("LateBoundTranslateToGenericICollection", BindingFlags.Static | BindingFlags.Public);
+            translateToFn = (ConvertInstanceDelegate)Delegate.CreateDelegate(typeof(ConvertInstanceDelegate), mi);
 
-					translateToFn = (Func<object, Type, object>)Delegate.CreateDelegate(typeof(Func<object, Type, object>), mi);
+            Dictionary<Type, ConvertInstanceDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = TranslateICollectionCache;
+                newCache = new Dictionary<Type, ConvertInstanceDelegate>(TranslateICollectionCache);
+                newCache[elementType] = translateToFn;
 
-					TranslateICollectionCache[elementType] = translateToFn;
-				}
-			}
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref TranslateICollectionCache, newCache, snapshot), snapshot));
 
 			return translateToFn(from, toInstanceOfType);
 		}
 
-		private static readonly Dictionary<ConvertibleTypeKey, Func<object, Type, object>> TranslateConvertibleICollectionCache 
-			= new Dictionary<ConvertibleTypeKey, Func<object, Type, object>>();
+        private static Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate> TranslateConvertibleICollectionCache
+            = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>();
 
 		public static object TranslateToConvertibleGenericICollectionCache(
 			object from, Type toInstanceOfType, Type fromElementType)
 		{
 			var typeKey = new ConvertibleTypeKey(toInstanceOfType, fromElementType);
-			Func<object, Type, object> translateToFn;
-			lock (TranslateICollectionCache)
-			{
-				if (!TranslateConvertibleICollectionCache.TryGetValue(typeKey, out translateToFn))
-				{
-					var toElementType = toInstanceOfType.GetGenericType().GetGenericArguments()[0];
-					var genericType = typeof(TranslateListWithConvertibleElements<,>)
-						.MakeGenericType(fromElementType, toElementType);
+            ConvertInstanceDelegate translateToFn;
+            if (TranslateConvertibleICollectionCache.TryGetValue(typeKey, out translateToFn)) return translateToFn(from, toInstanceOfType);
 
-					var mi = genericType.GetMethod("LateBoundTranslateToGenericICollection",
-						BindingFlags.Static | BindingFlags.Public);
+            var toElementType = toInstanceOfType.GetGenericType().GetGenericArguments()[0];
+            var genericType = typeof(TranslateListWithConvertibleElements<,>).MakeGenericType(fromElementType, toElementType);
+            var mi = genericType.GetMethod("LateBoundTranslateToGenericICollection", BindingFlags.Static | BindingFlags.Public);
+            translateToFn = (ConvertInstanceDelegate)Delegate.CreateDelegate(typeof(ConvertInstanceDelegate), mi);
 
-					translateToFn = (Func<object, Type, object>)
-						Delegate.CreateDelegate(typeof(Func<object, Type, object>), mi);
+            Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = TranslateConvertibleICollectionCache;
+                newCache = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>(TranslateConvertibleICollectionCache);
+                newCache[typeKey] = translateToFn;
 
-					TranslateConvertibleICollectionCache[typeKey] = translateToFn;
-				}
-			}
-
-			return translateToFn(from, toInstanceOfType);
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref TranslateConvertibleICollectionCache, newCache, snapshot), snapshot));
+            
+            return translateToFn(from, toInstanceOfType);
 		}
 
 		public static object TryTranslateToGenericICollection(Type fromPropertyType, Type toPropertyType, object fromValue)
@@ -225,8 +228,7 @@ namespace ServiceStack.Text
 			{
 				return x => TypeSerializer.DeserializeFromString<TTo>((string)(object)x);
 			}
-			return x => TypeSerializer.DeserializeFromString<TTo>(
-							TypeSerializer.SerializeToString(x));
+			return x => TypeSerializer.DeserializeFromString<TTo>(TypeSerializer.SerializeToString(x));
 		}
 	}
 }

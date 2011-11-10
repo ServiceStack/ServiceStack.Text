@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace ServiceStack.Text.Common
 {
@@ -64,27 +65,30 @@ namespace ServiceStack.Text.Common
 			}
 		}
 
-		static readonly Dictionary<MapKey, WriteMapDelegate>
-			CacheFns = new Dictionary<MapKey, WriteMapDelegate>();
+		static Dictionary<MapKey, WriteMapDelegate> CacheFns = new Dictionary<MapKey, WriteMapDelegate>();
 
 		public static Action<TextWriter, object, WriteObjectDelegate, WriteObjectDelegate>
 			GetWriteGenericDictionary(Type keyType, Type valueType)
 		{
 			WriteMapDelegate writeFn;
-			lock (CacheFns)
-			{
-				var mapKey = new MapKey(keyType, valueType);
-				if (!CacheFns.TryGetValue(mapKey, out writeFn))
-				{
-					var genericType = typeof(ToStringDictionaryMethods<,,>)
-						.MakeGenericType(keyType, valueType, typeof(TSerializer));
+            var mapKey = new MapKey(keyType, valueType);
+            if (CacheFns.TryGetValue(mapKey, out writeFn)) return writeFn.Invoke;
 
-					var mi = genericType.GetMethod("WriteIDictionary", BindingFlags.Static | BindingFlags.Public);
-					writeFn = (WriteMapDelegate)Delegate.CreateDelegate(typeof(WriteMapDelegate), mi);
-					CacheFns.Add(mapKey, writeFn);
-				}
-			}
-			return writeFn.Invoke;
+            var genericType = typeof(ToStringDictionaryMethods<,,>).MakeGenericType(keyType, valueType, typeof(TSerializer));
+            var mi = genericType.GetMethod("WriteIDictionary", BindingFlags.Static | BindingFlags.Public);
+            writeFn = (WriteMapDelegate)Delegate.CreateDelegate(typeof(WriteMapDelegate), mi);
+
+            Dictionary<MapKey, WriteMapDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = CacheFns;
+                newCache = new Dictionary<MapKey, WriteMapDelegate>(CacheFns);
+                newCache[mapKey] = writeFn;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref CacheFns, newCache, snapshot), snapshot));
+            
+            return writeFn.Invoke;
 		}
 
 		public static void WriteIDictionary(TextWriter writer, object oMap)
@@ -126,8 +130,6 @@ namespace ServiceStack.Text.Common
 	internal static class ToStringDictionaryMethods<TKey, TValue, TSerializer>
 		where TSerializer : ITypeSerializer
 	{
-		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
-
 		public static void WriteIDictionary(
 			TextWriter writer,
 			object oMap,

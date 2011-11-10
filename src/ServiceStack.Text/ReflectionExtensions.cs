@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading;
 using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text
@@ -24,24 +25,28 @@ namespace ServiceStack.Text
 
 	public static class ReflectionExtensions
 	{
-		private static readonly Dictionary<Type, object> DefaultValueTypes
-			= new Dictionary<Type, object>();
+		private static Dictionary<Type, object> DefaultValueTypes = new Dictionary<Type, object>();
 
 		public static object GetDefaultValue(Type type)
 		{
 			if (!type.IsValueType) return null;
 
 			object defaultValue;
-			lock (DefaultValueTypes)
-			{
-				if (!DefaultValueTypes.TryGetValue(type, out defaultValue))
-				{
-					defaultValue = Activator.CreateInstance(type);
-					DefaultValueTypes[type] = defaultValue;
-				}
-			}
+            if (DefaultValueTypes.TryGetValue(type, out defaultValue)) return defaultValue;
 
-			return defaultValue;
+            defaultValue = Activator.CreateInstance(type);
+
+            Dictionary<Type, object> snapshot, newCache;
+            do
+            {
+                snapshot = DefaultValueTypes;
+                newCache = new Dictionary<Type, object>(DefaultValueTypes);
+                newCache[type] = defaultValue;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref DefaultValueTypes, newCache, snapshot), snapshot));
+            
+            return defaultValue;
 		}
 
 		public static bool IsInstanceOf(this Type type, Type thisOrBaseType)
@@ -250,38 +255,49 @@ namespace ServiceStack.Text
 			return true;
 		}
 
-		static readonly Dictionary<Type, EmptyCtorDelegate> ConstructorMethods = new Dictionary<Type, EmptyCtorDelegate>();
+		static Dictionary<Type, EmptyCtorDelegate> ConstructorMethods = new Dictionary<Type, EmptyCtorDelegate>();
 		public static EmptyCtorDelegate GetConstructorMethod(Type type)
 		{
-			lock (ConstructorMethods)
-			{
-				EmptyCtorDelegate emptyCtorFn;
-				if (!ConstructorMethods.TryGetValue(type, out emptyCtorFn))
-				{
-					emptyCtorFn = GetConstructorMethodToCache(type);
-					ConstructorMethods[type] = emptyCtorFn;
-				}
-				return emptyCtorFn;
-			}
-		}
+            EmptyCtorDelegate emptyCtorFn;
+            if (ConstructorMethods.TryGetValue(type, out emptyCtorFn)) return emptyCtorFn;
 
-		static readonly Dictionary<string, EmptyCtorDelegate> TypeNamesMap = new Dictionary<string, EmptyCtorDelegate>();
+            emptyCtorFn = GetConstructorMethodToCache(type);
+
+            Dictionary<Type, EmptyCtorDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ConstructorMethods;
+                newCache = new Dictionary<Type, EmptyCtorDelegate>(ConstructorMethods);
+                newCache[type] = emptyCtorFn;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ConstructorMethods, newCache, snapshot), snapshot));
+
+            return emptyCtorFn;
+        }
+
+		static Dictionary<string, EmptyCtorDelegate> TypeNamesMap = new Dictionary<string, EmptyCtorDelegate>();
 		public static EmptyCtorDelegate GetConstructorMethod(string typeName)
 		{
-			lock (ConstructorMethods)
-			{
-				EmptyCtorDelegate emptyCtorFn;
-				if (!TypeNamesMap.TryGetValue(typeName, out emptyCtorFn))
-				{
-					var type = AssemblyUtils.FindType(typeName);
-					if (type == null) return null;
+            EmptyCtorDelegate emptyCtorFn;
+            if (TypeNamesMap.TryGetValue(typeName, out emptyCtorFn)) return emptyCtorFn;
 
-					emptyCtorFn = GetConstructorMethodToCache(type);
-					TypeNamesMap[typeName] = emptyCtorFn;
-				}
-				return emptyCtorFn;
-			}
-		}
+            var type = AssemblyUtils.FindType(typeName);
+            if (type == null) return null;
+            emptyCtorFn = GetConstructorMethodToCache(type);
+
+            Dictionary<string, EmptyCtorDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = TypeNamesMap;
+                newCache = new Dictionary<string, EmptyCtorDelegate>(TypeNamesMap);
+                newCache[typeName] = emptyCtorFn;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref TypeNamesMap, newCache, snapshot), snapshot));
+
+            return emptyCtorFn;
+        }
 
 		public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
 		{

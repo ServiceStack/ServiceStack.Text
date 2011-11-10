@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Threading;
 
 namespace ServiceStack.Text.Common
 {
@@ -22,28 +23,31 @@ namespace ServiceStack.Text.Common
 	{
 		internal static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-		private static readonly Dictionary<Type, ParseListDelegate> ParseDelegateCache 
+		private static Dictionary<Type, ParseListDelegate> ParseDelegateCache 
 			= new Dictionary<Type, ParseListDelegate>();
 
 		private delegate object ParseListDelegate(string value, Type createListType, ParseStringDelegate parseFn);
 
 		public static Func<string, Type, ParseStringDelegate, object> GetListTypeParseFn(
-			Type createListType, Type elementType,
-			ParseStringDelegate parseFn)
+			Type createListType, Type elementType, ParseStringDelegate parseFn)
 		{
 			ParseListDelegate parseDelegate;
-			if (!ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
-			{
-				var genericType = typeof(DeserializeListWithElements<,>)
-					.MakeGenericType(elementType, typeof(TSerializer));
+			if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
+                return parseDelegate.Invoke;
 
-				var mi = genericType.GetMethod("ParseGenericList",
-					BindingFlags.Static | BindingFlags.Public);
+            var genericType = typeof(DeserializeListWithElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var mi = genericType.GetMethod("ParseGenericList", BindingFlags.Static | BindingFlags.Public);
+            parseDelegate = (ParseListDelegate)Delegate.CreateDelegate(typeof(ParseListDelegate), mi);
 
-				parseDelegate = (ParseListDelegate)Delegate.CreateDelegate(typeof(ParseListDelegate), mi);
+            Dictionary<Type, ParseListDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ParseDelegateCache;
+                newCache = new Dictionary<Type, ParseListDelegate>(ParseDelegateCache);
+                newCache[elementType] = parseDelegate;
 
-				ParseDelegateCache[elementType] = parseDelegate;
-			}
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
 
 			return parseDelegate.Invoke;
 		}
@@ -104,12 +108,12 @@ namespace ServiceStack.Text.Common
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 
-			bool isReadOnly = null == createListType ? false 
-				: createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>);
+            var isReadOnly = createListType != null 
+                && (createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
 			var to = (createListType == null || isReadOnly)
-			         	? new List<T>()
-			         	: (IList<T>)ReflectionExtensions.CreateInstance(createListType);
+			    ? new List<T>()
+			    : (IList<T>)ReflectionExtensions.CreateInstance(createListType);
 
 			if (value == string.Empty) return to;
 

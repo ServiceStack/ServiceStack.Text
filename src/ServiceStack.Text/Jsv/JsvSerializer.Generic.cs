@@ -14,33 +14,35 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Jsv
 {
 	public class JsvSerializer<T>
 	{
-		readonly Dictionary<Type, ParseStringDelegate> DeserializerCache = 
-			new Dictionary<Type, ParseStringDelegate>();
+		Dictionary<Type, ParseStringDelegate> DeserializerCache = new Dictionary<Type, ParseStringDelegate>();
 
 		public T DeserializeFromString(string value, Type type)
 		{
 			ParseStringDelegate parseFn;
-			lock (DeserializerCache)
-			{
-				if (!DeserializerCache.TryGetValue(type, out parseFn))
-				{
-					var genericType = typeof(T).MakeGenericType(type);
-					var mi = genericType.GetMethod(
-						"DeserializeFromString", new[] { typeof(string) });
-					
-					parseFn = (ParseStringDelegate)Delegate.CreateDelegate(
-						typeof(ParseStringDelegate), mi);
+            if (DeserializerCache.TryGetValue(type, out parseFn)) return (T)parseFn(value);
 
-					DeserializerCache.Add(type, parseFn);
-				}
-			}
-			return (T)parseFn(value);
+            var genericType = typeof(T).MakeGenericType(type);
+            var mi = genericType.GetMethod("DeserializeFromString", new[] { typeof(string) });
+            parseFn = (ParseStringDelegate)Delegate.CreateDelegate(typeof(ParseStringDelegate), mi);
+
+            Dictionary<Type, ParseStringDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = DeserializerCache;
+                newCache = new Dictionary<Type, ParseStringDelegate>(DeserializerCache);
+                newCache[type] = parseFn;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref DeserializerCache, newCache, snapshot), snapshot));
+            
+            return (T)parseFn(value);
 		}
 
 		public T DeserializeFromString(string value)

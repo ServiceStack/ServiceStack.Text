@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Jsv
@@ -21,27 +22,30 @@ namespace ServiceStack.Text.Jsv
 	{ 
 		internal static readonly JsReader<JsvTypeSerializer> Instance = new JsReader<JsvTypeSerializer>();
 
-		private static readonly Dictionary<Type, ParseFactoryDelegate> ParseFnCache =
-			new Dictionary<Type, ParseFactoryDelegate>();
+        private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
 		public static ParseStringDelegate GetParseFn(Type type)
 		{
 			ParseFactoryDelegate parseFactoryFn;
-			lock (ParseFnCache)
-			{
-				if (!ParseFnCache.TryGetValue(type, out parseFactoryFn))
-				{
-					var genericType = typeof(JsvReader<>).MakeGenericType(type);
-					var mi = genericType.GetMethod("GetParseFn",
-						BindingFlags.Public | BindingFlags.Static);
+            ParseFnCache.TryGetValue(type, out parseFactoryFn);
 
-					parseFactoryFn = (ParseFactoryDelegate)Delegate.CreateDelegate(
-						typeof(ParseFactoryDelegate), mi);
+            if (parseFactoryFn != null) return parseFactoryFn();
 
-					ParseFnCache.Add(type, parseFactoryFn);					
-				}
-			}
-			return parseFactoryFn();
+            var genericType = typeof(JsvReader<>).MakeGenericType(type);
+            var mi = genericType.GetMethod("GetParseFn", BindingFlags.Public | BindingFlags.Static);
+            parseFactoryFn = (ParseFactoryDelegate)Delegate.CreateDelegate(typeof(ParseFactoryDelegate), mi);
+
+            Dictionary<Type, ParseFactoryDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ParseFnCache;
+                newCache = new Dictionary<Type, ParseFactoryDelegate>(ParseFnCache);
+                newCache[type] = parseFactoryFn;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ParseFnCache, newCache, snapshot), snapshot));
+            
+            return parseFactoryFn();
 		}
 	}
 

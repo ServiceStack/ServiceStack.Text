@@ -27,7 +27,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(jsonModel, Is.EqualTo(bclJsonModel));
 		}
 
-		[Test]
+		[Test, Ignore("Known descrepancy, Leave UTC DateTimes without TZ Info")]
 		public void Can_serialize_WcfJsonDate()
 		{
 			//1994/11/24

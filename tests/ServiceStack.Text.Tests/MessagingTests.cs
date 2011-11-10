@@ -15,7 +15,7 @@ namespace ServiceStack.Text.Tests
 		public void Can_serialize_IMessage_into_typed_Message()
 		{
 			var dto = new Incr { Value = 1 };
-			IMessage iMsg = Message.Create(dto);
+            IMessage iMsg = MessageFactory.Create(dto);
 			var json = iMsg.ToJson();
 			var typedMessage = json.FromJson<Message<Incr>>();
 
@@ -26,7 +26,7 @@ namespace ServiceStack.Text.Tests
 		public void Can_serialize_object_IMessage_into_typed_Message()
 		{
 			var dto = new Incr { Value = 1 };
-			var iMsg = Message.Create(dto);
+			var iMsg = MessageFactory.Create(dto);
 			var json = ((object)iMsg).ToJson();
 			var typedMessage = json.FromJson<Message<Incr>>();
 
@@ -37,7 +37,7 @@ namespace ServiceStack.Text.Tests
 		public void Can_serialize_IMessage_ToBytes_into_typed_Message()
 		{
 			var dto = new Incr { Value = 1 };
-			var iMsg = Message.Create(dto);
+            var iMsg = MessageFactory.Create(dto);
 			var bytes = iMsg.ToBytes();
 			var typedMessage = bytes.ToMessage<Incr>();
 

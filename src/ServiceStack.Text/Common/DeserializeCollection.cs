@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 
 namespace ServiceStack.Text.Common
 {
@@ -88,26 +89,32 @@ namespace ServiceStack.Text.Common
 			return collection;
 		}
 
-		private static readonly Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache 
+		private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache 
 			= new Dictionary<Type, ParseCollectionDelegate>();
 
 		private delegate object ParseCollectionDelegate(string value, Type createType, ParseStringDelegate parseFn);
 
 		public static object ParseCollectionType(string value, Type createType, Type elementType, ParseStringDelegate parseFn)
 		{
-			var mi = typeof(DeserializeCollection<TSerializer>)
-				.GetMethod("ParseCollection", BindingFlags.Static | BindingFlags.Public);
-
 			ParseCollectionDelegate parseDelegate;
+			if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
+                return parseDelegate(value, createType, parseFn);
 
-			if (!ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
-			{
-				var genericMi = mi.MakeGenericMethod(new[] { elementType });
-				parseDelegate = (ParseCollectionDelegate) Delegate.CreateDelegate(typeof(ParseCollectionDelegate), genericMi);
-				ParseDelegateCache[elementType] = parseDelegate;
-			}
+            var mi = typeof(DeserializeCollection<TSerializer>).GetMethod("ParseCollection", BindingFlags.Static | BindingFlags.Public);
+            var genericMi = mi.MakeGenericMethod(new[] { elementType });
+            parseDelegate = (ParseCollectionDelegate)Delegate.CreateDelegate(typeof(ParseCollectionDelegate), genericMi);
 
-			return parseDelegate(value, createType, parseFn);
+            Dictionary<Type, ParseCollectionDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ParseDelegateCache;
+                newCache = new Dictionary<Type, ParseCollectionDelegate>(ParseDelegateCache);
+                newCache[elementType] = parseDelegate;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+            
+            return parseDelegate(value, createType, parseFn);
 		}
 	}
 }

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
@@ -145,7 +146,7 @@ namespace ServiceStack.Text.Common
 			return index;
 		}
 
-		private static readonly Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
+		private static Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
 			= new Dictionary<string, ParseDictionaryDelegate>();
 
 		private delegate object ParseDictionaryDelegate(string value, Type createMapType,
@@ -154,19 +155,25 @@ namespace ServiceStack.Text.Common
 		public static object ParseDictionaryType(string value, Type createMapType, Type[] argTypes,
 			ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn)
 		{
-			var mi = typeof(DeserializeDictionary<TSerializer>)
-				.GetMethod("ParseDictionary", BindingFlags.Static | BindingFlags.Public);
 
 			ParseDictionaryDelegate parseDelegate;
 			var key = GetTypesKey(argTypes);
-			if (!ParseDelegateCache.TryGetValue(key, out parseDelegate))
-			{
-				var genericMi = mi.MakeGenericMethod(argTypes);
-				parseDelegate = (ParseDictionaryDelegate)Delegate.CreateDelegate(
-					typeof(ParseDictionaryDelegate), genericMi);
+			if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
+                return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-				ParseDelegateCache[key] = parseDelegate;
-			}
+            var mi = typeof(DeserializeDictionary<TSerializer>).GetMethod("ParseDictionary", BindingFlags.Static | BindingFlags.Public);
+            var genericMi = mi.MakeGenericMethod(argTypes);
+            parseDelegate = (ParseDictionaryDelegate)Delegate.CreateDelegate(typeof(ParseDictionaryDelegate), genericMi);
+
+            Dictionary<string, ParseDictionaryDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ParseDelegateCache;
+                newCache = new Dictionary<string, ParseDictionaryDelegate>(ParseDelegateCache);
+                newCache[key] = parseDelegate;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
 
 			return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 		}

@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace ServiceStack.Text.Common
 {
@@ -23,152 +24,148 @@ namespace ServiceStack.Text.Common
 	{
 		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-		static readonly Dictionary<Type, WriteObjectDelegate>
-			ListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		static Dictionary<Type, WriteObjectDelegate> ListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
 
 		public static WriteObjectDelegate GetListWriteFn(Type elementType)
 		{
 			WriteObjectDelegate writeFn;
-			lock (ListCacheFns)
-			{
-				if (!ListCacheFns.TryGetValue(elementType, out writeFn))
-				{
-					var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            if (ListCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
-					var mi = genericType.GetMethod("WriteList", BindingFlags.Static | BindingFlags.Public);
+            var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var mi = genericType.GetMethod("WriteList", BindingFlags.Static | BindingFlags.Public);
+            writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
 
-					writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-															typeof(WriteObjectDelegate), mi);
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ListCacheFns;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(ListCacheFns);
+                newCache[elementType] = writeFn;
 
-					ListCacheFns.Add(elementType, writeFn);
-				}
-			}
-			return writeFn;
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ListCacheFns, newCache, snapshot), snapshot));
+            
+            return writeFn;
 		}
 
 
-		static readonly Dictionary<Type, WriteObjectDelegate>
-			IListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		static Dictionary<Type, WriteObjectDelegate> IListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
 
 		public static WriteObjectDelegate GetIListWriteFn(Type elementType)
 		{
 			WriteObjectDelegate writeFn;
+            if (IListCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
-			lock (IListCacheFns)
-			{
-				if (!IListCacheFns.TryGetValue(elementType, out writeFn))
-				{
-					var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var mi = genericType.GetMethod("WriteIList", BindingFlags.Static | BindingFlags.Public);
+            writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
 
-					var mi = genericType.GetMethod("WriteIList", BindingFlags.Static | BindingFlags.Public);
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = IListCacheFns;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(IListCacheFns);
+                newCache[elementType] = writeFn;
 
-					writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-															typeof(WriteObjectDelegate), mi);
-
-					IListCacheFns.Add(elementType, writeFn);
-				}
-			}
-			return writeFn;
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref IListCacheFns, newCache, snapshot), snapshot));
+            
+            return writeFn;
 		}
 
-		static readonly Dictionary<Type, WriteObjectDelegate>
-			CacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		static Dictionary<Type, WriteObjectDelegate> CacheFns = new Dictionary<Type, WriteObjectDelegate>();
 
 		public static WriteObjectDelegate GetGenericWriteArray(Type elementType)
 		{
 			WriteObjectDelegate writeFn;
+            if (CacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
-			lock (CacheFns)
-			{
-				if (!CacheFns.TryGetValue(elementType, out writeFn))
-				{
-					var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var mi = genericType.GetMethod("WriteArray", BindingFlags.Static | BindingFlags.Public);
+            writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
 
-					var mi = genericType.GetMethod("WriteArray", BindingFlags.Static | BindingFlags.Public);
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = CacheFns;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(CacheFns);
+                newCache[elementType] = writeFn;
 
-					writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-						typeof(WriteObjectDelegate), mi);
-
-					CacheFns.Add(elementType, writeFn);
-				}
-			}
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref CacheFns, newCache, snapshot), snapshot));
 
 			return writeFn;
 		}
 
-		static readonly Dictionary<Type, WriteObjectDelegate>
-			EnumerableCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		static Dictionary<Type, WriteObjectDelegate> EnumerableCacheFns = new Dictionary<Type, WriteObjectDelegate>();
 
 		public static WriteObjectDelegate GetGenericWriteEnumerable(Type elementType)
 		{
 			WriteObjectDelegate writeFn;
+            if (EnumerableCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
-			lock (EnumerableCacheFns)
-			{
-				if (!EnumerableCacheFns.TryGetValue(elementType, out writeFn))
-				{
-					var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var mi = genericType.GetMethod("WriteEnumerable", BindingFlags.Static | BindingFlags.Public);
+            writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
 
-					var mi = genericType.GetMethod("WriteEnumerable", BindingFlags.Static | BindingFlags.Public);
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = EnumerableCacheFns;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(EnumerableCacheFns);
+                newCache[elementType] = writeFn;
 
-					writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-						typeof(WriteObjectDelegate), mi);
-
-					EnumerableCacheFns.Add(elementType, writeFn);
-				}
-			}
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref EnumerableCacheFns, newCache, snapshot), snapshot));
 
 			return writeFn;
 		}
 
-		static readonly Dictionary<Type, WriteObjectDelegate>
-			ListValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		static Dictionary<Type, WriteObjectDelegate> ListValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
 
 		public static WriteObjectDelegate GetWriteListValueType(Type elementType)
 		{
 			WriteObjectDelegate writeFn;
+            if (ListValueTypeCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
-			lock (ListValueTypeCacheFns)
-			{
-				if (!ListValueTypeCacheFns.TryGetValue(elementType, out writeFn))
-				{
-					var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var mi = genericType.GetMethod("WriteListValueType", BindingFlags.Static | BindingFlags.Public);
+            writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
 
-					var mi = genericType.GetMethod("WriteListValueType",
-												   BindingFlags.Static | BindingFlags.Public);
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ListValueTypeCacheFns;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(ListValueTypeCacheFns);
+                newCache[elementType] = writeFn;
 
-					writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-						typeof(WriteObjectDelegate), mi);
-
-					ListValueTypeCacheFns.Add(elementType, writeFn);
-				}
-			}
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ListValueTypeCacheFns, newCache, snapshot), snapshot));
 
 			return writeFn;
 		}
 
-		static readonly Dictionary<Type, WriteObjectDelegate>
-			IListValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		static Dictionary<Type, WriteObjectDelegate> IListValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
 
 		public static WriteObjectDelegate GetWriteIListValueType(Type elementType)
 		{
 			WriteObjectDelegate writeFn;
 
-			lock (IListValueTypeCacheFns)
-			{
-				if (!IListValueTypeCacheFns.TryGetValue(elementType, out writeFn))
-				{
-					var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            if (IListValueTypeCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
-					var mi = genericType.GetMethod("WriteIListValueType",
-						BindingFlags.Static | BindingFlags.Public);
+            var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+            var mi = genericType.GetMethod("WriteIListValueType", BindingFlags.Static | BindingFlags.Public);
+            writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
 
-					writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(
-															typeof(WriteObjectDelegate), mi);
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = IListValueTypeCacheFns;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(IListValueTypeCacheFns);
+                newCache[elementType] = writeFn;
 
-					IListValueTypeCacheFns.Add(elementType, writeFn);
-				}
-			}
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref IListValueTypeCacheFns, newCache, snapshot), snapshot));
 
 			return writeFn;
 		}
@@ -473,7 +470,6 @@ namespace ServiceStack.Text.Common
 			if (type == typeof(IList<long>))
 				return WriteListsOfElements<long, TSerializer>.WriteIListValueType;
 
-
 			var elementType = listInterface.GetGenericArguments()[0];
 
 			var isGenericList = typeof(T).IsGenericType
@@ -489,8 +485,8 @@ namespace ServiceStack.Text.Common
 			}
 
 			return isGenericList
-					? WriteListsOfElements<TSerializer>.GetListWriteFn(elementType)
-					: WriteListsOfElements<TSerializer>.GetIListWriteFn(elementType);
+				? WriteListsOfElements<TSerializer>.GetListWriteFn(elementType)
+				: WriteListsOfElements<TSerializer>.GetIListWriteFn(elementType);
 		}
 
 	}

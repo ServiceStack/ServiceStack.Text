@@ -16,6 +16,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 
@@ -25,30 +26,32 @@ namespace ServiceStack.Text
 	{
 		internal static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
 
-		private static readonly Dictionary<Type, WriteObjectDelegate> WriteFnCache =
-			new Dictionary<Type, WriteObjectDelegate>();
+		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
 
 		internal static WriteObjectDelegate GetWriteFn(Type type)
 		{
 			try
 			{
 				WriteObjectDelegate writeFn;
-				lock (WriteFnCache)
-				{
-					if (!WriteFnCache.TryGetValue(type, out writeFn))
-					{
-						var genericType = typeof(QueryStringWriter<>).MakeGenericType(type);
-						var mi = genericType.GetMethod("WriteFn",
-							BindingFlags.NonPublic | BindingFlags.Static);
+                if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
 
-						var writeFactoryFn = (Func<WriteObjectDelegate>)Delegate.CreateDelegate(
-							typeof(Func<WriteObjectDelegate>), mi);
+                var genericType = typeof(QueryStringWriter<>).MakeGenericType(type);
+                var mi = genericType.GetMethod("WriteFn", BindingFlags.NonPublic | BindingFlags.Static);
+                var writeFactoryFn = (Func<WriteObjectDelegate>)Delegate.CreateDelegate(
+                    typeof(Func<WriteObjectDelegate>), mi);
+                writeFn = writeFactoryFn();
 
-						writeFn = writeFactoryFn();
-						WriteFnCache.Add(type, writeFn);
-					}
-				}
-				return writeFn;
+                Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+                do
+                {
+                    snapshot = WriteFnCache;
+                    newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
+                    newCache[type] = writeFn;
+
+                } while (!ReferenceEquals(
+                    Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+                
+                return writeFn;
 			}
 			catch (Exception ex)
 			{
