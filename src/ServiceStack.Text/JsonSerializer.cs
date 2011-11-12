@@ -119,6 +119,7 @@ namespace ServiceStack.Text
 
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
+			if (value == null) return;
 			if (typeof(T) == typeof(object))
 			{
 				SerializeToStream(value, value.GetType(), stream);

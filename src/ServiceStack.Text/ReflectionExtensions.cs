@@ -32,21 +32,21 @@ namespace ServiceStack.Text
 			if (!type.IsValueType) return null;
 
 			object defaultValue;
-            if (DefaultValueTypes.TryGetValue(type, out defaultValue)) return defaultValue;
+			if (DefaultValueTypes.TryGetValue(type, out defaultValue)) return defaultValue;
 
-            defaultValue = Activator.CreateInstance(type);
+			defaultValue = Activator.CreateInstance(type);
 
-            Dictionary<Type, object> snapshot, newCache;
-            do
-            {
-                snapshot = DefaultValueTypes;
-                newCache = new Dictionary<Type, object>(DefaultValueTypes);
-                newCache[type] = defaultValue;
+			Dictionary<Type, object> snapshot, newCache;
+			do
+			{
+				snapshot = DefaultValueTypes;
+				newCache = new Dictionary<Type, object>(DefaultValueTypes);
+				newCache[type] = defaultValue;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref DefaultValueTypes, newCache, snapshot), snapshot));
-            
-            return defaultValue;
+			} while (!ReferenceEquals(
+				Interlocked.CompareExchange(ref DefaultValueTypes, newCache, snapshot), snapshot));
+
+			return defaultValue;
 		}
 
 		public static bool IsInstanceOf(this Type type, Type thisOrBaseType)
@@ -152,14 +152,14 @@ namespace ServiceStack.Text
 		{
 			if (!type.IsValueType) return false;
 			var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
-			return underlyingType == typeof (byte)
-		       || underlyingType == typeof (sbyte)
-		       || underlyingType == typeof (short)
-		       || underlyingType == typeof (ushort)
-		       || underlyingType == typeof (int)
-		       || underlyingType == typeof (uint)
-		       || underlyingType == typeof (long)
-		       || underlyingType == typeof (ulong);
+			return underlyingType == typeof(byte)
+			   || underlyingType == typeof(sbyte)
+			   || underlyingType == typeof(short)
+			   || underlyingType == typeof(ushort)
+			   || underlyingType == typeof(int)
+			   || underlyingType == typeof(uint)
+			   || underlyingType == typeof(long)
+			   || underlyingType == typeof(ulong);
 		}
 
 		public static bool IsRealNumberType(this Type type)
@@ -258,46 +258,46 @@ namespace ServiceStack.Text
 		static Dictionary<Type, EmptyCtorDelegate> ConstructorMethods = new Dictionary<Type, EmptyCtorDelegate>();
 		public static EmptyCtorDelegate GetConstructorMethod(Type type)
 		{
-            EmptyCtorDelegate emptyCtorFn;
-            if (ConstructorMethods.TryGetValue(type, out emptyCtorFn)) return emptyCtorFn;
+			EmptyCtorDelegate emptyCtorFn;
+			if (ConstructorMethods.TryGetValue(type, out emptyCtorFn)) return emptyCtorFn;
 
-            emptyCtorFn = GetConstructorMethodToCache(type);
+			emptyCtorFn = GetConstructorMethodToCache(type);
 
-            Dictionary<Type, EmptyCtorDelegate> snapshot, newCache;
-            do
-            {
-                snapshot = ConstructorMethods;
-                newCache = new Dictionary<Type, EmptyCtorDelegate>(ConstructorMethods);
-                newCache[type] = emptyCtorFn;
+			Dictionary<Type, EmptyCtorDelegate> snapshot, newCache;
+			do
+			{
+				snapshot = ConstructorMethods;
+				newCache = new Dictionary<Type, EmptyCtorDelegate>(ConstructorMethods);
+				newCache[type] = emptyCtorFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref ConstructorMethods, newCache, snapshot), snapshot));
+			} while (!ReferenceEquals(
+				Interlocked.CompareExchange(ref ConstructorMethods, newCache, snapshot), snapshot));
 
-            return emptyCtorFn;
-        }
+			return emptyCtorFn;
+		}
 
 		static Dictionary<string, EmptyCtorDelegate> TypeNamesMap = new Dictionary<string, EmptyCtorDelegate>();
 		public static EmptyCtorDelegate GetConstructorMethod(string typeName)
 		{
-            EmptyCtorDelegate emptyCtorFn;
-            if (TypeNamesMap.TryGetValue(typeName, out emptyCtorFn)) return emptyCtorFn;
+			EmptyCtorDelegate emptyCtorFn;
+			if (TypeNamesMap.TryGetValue(typeName, out emptyCtorFn)) return emptyCtorFn;
 
-            var type = AssemblyUtils.FindType(typeName);
-            if (type == null) return null;
-            emptyCtorFn = GetConstructorMethodToCache(type);
+			var type = AssemblyUtils.FindType(typeName);
+			if (type == null) return null;
+			emptyCtorFn = GetConstructorMethodToCache(type);
 
-            Dictionary<string, EmptyCtorDelegate> snapshot, newCache;
-            do
-            {
-                snapshot = TypeNamesMap;
-                newCache = new Dictionary<string, EmptyCtorDelegate>(TypeNamesMap);
-                newCache[typeName] = emptyCtorFn;
+			Dictionary<string, EmptyCtorDelegate> snapshot, newCache;
+			do
+			{
+				snapshot = TypeNamesMap;
+				newCache = new Dictionary<string, EmptyCtorDelegate>(TypeNamesMap);
+				newCache[typeName] = emptyCtorFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref TypeNamesMap, newCache, snapshot), snapshot));
+			} while (!ReferenceEquals(
+				Interlocked.CompareExchange(ref TypeNamesMap, newCache, snapshot), snapshot));
 
-            return emptyCtorFn;
-        }
+			return emptyCtorFn;
+		}
 
 		public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
 		{
@@ -324,6 +324,20 @@ namespace ServiceStack.Text
 			//Anonymous types don't have empty constructors
 			return () => FormatterServices.GetUninitializedObject(type);
 #endif
+		}
+
+		private static class TypeMeta<T>
+		{
+			public static readonly EmptyCtorDelegate EmptyCtorFn;
+			static TypeMeta()
+			{
+				EmptyCtorFn = GetConstructorMethodToCache(typeof(T));
+			}
+		}
+
+		public static object CreateInstance<T>()
+		{
+			return TypeMeta<T>.EmptyCtorFn();
 		}
 
 		public static object CreateInstance(Type type)

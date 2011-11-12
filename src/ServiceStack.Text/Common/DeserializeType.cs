@@ -94,6 +94,8 @@ namespace ServiceStack.Text.Common
                 {
                     return Serializer.GetParseFn(concreteType)(value);
                 }
+            	Tracer.Instance.WriteWarning(
+					"Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
             }
             return null;
         }
