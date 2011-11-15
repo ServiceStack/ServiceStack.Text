@@ -2,7 +2,7 @@
 <package> 
   <metadata> 
     <id>ServiceStack.Text</id> 
-    <version>3.0.0</version> 
+    <version>3.0.4</version> 
     <authors>Demis Bellot</authors> 
     <owners>Demis Bellot</owners>
     <summary>.NET's fastest JSON, JSV and CSV Text Serializers (3x faster than JSON.NET)</summary>

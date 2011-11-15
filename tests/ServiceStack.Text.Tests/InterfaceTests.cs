@@ -188,5 +188,36 @@ namespace ServiceStack.Text.Tests
 			Assert.That(userSession.ToJsv().IndexOf("__type") == -1, Is.True);
 		}
 
+        public class AggregateEvents
+        {
+            public Guid Id { get; set; }
+            public List<DomainEvent> Events { get; set; }
+        }
+
+        public abstract class DomainEvent { }
+
+        public class UserRegisteredEvent : DomainEvent
+        {
+            public Guid UserId { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class UserPromotedEvent : DomainEvent
+        {
+            public Guid UserId { get; set; }
+            public string NewRole { get; set; }
+        }
+
+
+        [Test]
+        public void Can_deserialize_DomainEvent_into_Concrete_Type()
+        {
+            var userId = Guid.NewGuid();
+            var dto = (DomainEvent)new UserPromotedEvent { UserId = userId };
+            var json = dto.ToJson();
+            var userPromoEvent = (UserPromotedEvent)json.FromJson<DomainEvent>();
+            Assert.That(userPromoEvent.UserId, Is.EqualTo(userId));
+        }
+
 	}
 }

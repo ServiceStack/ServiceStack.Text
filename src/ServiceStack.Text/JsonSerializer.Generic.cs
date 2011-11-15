@@ -13,6 +13,7 @@
 using System;
 using System.IO;
 using System.Text;
+using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text
@@ -44,6 +45,13 @@ namespace ServiceStack.Text
 		{
 			if (value == null) return null;
 			if (typeof(T) == typeof(string)) return value as string;
+            if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
+            {
+                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
+                var result = JsonSerializer.SerializeToString(value, value.GetType());
+                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+                return result;
+            }
 
 			var sb = new StringBuilder(4096);
 			using (var writer = new StringWriter(sb))
@@ -61,8 +69,15 @@ namespace ServiceStack.Text
 				writer.Write(value);
 				return;
 			}
-
-			JsonWriter<T>.WriteObject(writer, value);
+            if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
+            {
+                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
+                JsonSerializer.SerializeToWriter(value, value.GetType(), writer);
+                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+                return;
+            }
+           
+            JsonWriter<T>.WriteObject(writer, value);
 		}
 	}
 }

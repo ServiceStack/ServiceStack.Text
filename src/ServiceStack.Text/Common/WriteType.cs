@@ -18,6 +18,14 @@ using ServiceStack.Text.Reflection ;
 
 namespace ServiceStack.Text.Common
 {
+    //internal static class WriteType
+    //{
+    //    private static WriteObjectDelegate GetWriteFn(Type type)
+    //    {
+    //        return WriteProperties;
+    //    }
+    //}
+
 	internal static class WriteType<T, TSerializer>
 		where TSerializer : ITypeSerializer
 	{

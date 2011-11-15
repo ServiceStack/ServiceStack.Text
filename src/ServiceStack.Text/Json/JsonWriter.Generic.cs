@@ -88,7 +88,7 @@ namespace ServiceStack.Text.Json
 
 		static JsonWriter()
 		{
-		    CacheFn = typeof(T) == typeof(object) 
+            CacheFn = typeof(T) == typeof(object) 
                 ? JsonWriter.WriteLateBoundObject 
                 : JsonWriter.Instance.GetWriteFn<T>();
 		}

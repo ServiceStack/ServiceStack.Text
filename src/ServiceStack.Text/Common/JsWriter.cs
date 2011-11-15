@@ -253,12 +253,12 @@ namespace ServiceStack.Text.Common
 
 			if (typeof(T).IsClass || typeof(T).IsInterface)
 			{
-				var typeToStringMethod = WriteType<T, TSerializer>.Write;
-				if (typeToStringMethod != null)
-				{
-					return typeToStringMethod;
-				}
-			}
+                var typeToStringMethod = WriteType<T, TSerializer>.Write;
+                if (typeToStringMethod != null)
+                {
+                    return typeToStringMethod;
+                }
+            }
 
 			return Serializer.WriteBuiltIn;
 		}

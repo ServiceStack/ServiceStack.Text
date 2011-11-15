@@ -30,7 +30,7 @@ namespace ServiceStack.Text.Common
 
 		public static ParseStringDelegate GetParseMethod(Type type)
 		{
-			if (!type.IsClass) return null;
+			if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
 			var propertyInfos = type.GetSerializableProperties();
 			if (propertyInfos.Length == 0)
