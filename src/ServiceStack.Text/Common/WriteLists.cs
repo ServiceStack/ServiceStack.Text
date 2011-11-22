@@ -237,7 +237,7 @@ namespace ServiceStack.Text.Common
 			list.ForEach(x =>
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				writer.Write(x);
+				ElementWriteFn(writer, x);
 			});
 
 			writer.Write(JsWriter.ListEndChar);
@@ -288,7 +288,7 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < listLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				writer.Write(list[i]);
+				ElementWriteFn(writer, list[i]);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -310,7 +310,7 @@ namespace ServiceStack.Text.Common
 			for (var i = 0; i < arrayLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				writer.Write(array[i]);
+				ElementWriteFn(writer, array[i]);
 			}
 
 			writer.Write(JsWriter.ListEndChar);
@@ -359,7 +359,7 @@ namespace ServiceStack.Text.Common
 			foreach (var value in enumerable)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				writer.Write(value);
+				ElementWriteFn(writer, value);
 			}
 
 			writer.Write(JsWriter.ListEndChar);

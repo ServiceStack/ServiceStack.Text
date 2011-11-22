@@ -10,4 +10,4 @@ COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.Redis\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.Examples\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.RedisWebServices\lib
 
-COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\NuGet\lib\net35
+COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\NuGet\lib

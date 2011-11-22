@@ -417,10 +417,15 @@ namespace ServiceStack.Text.Tests
 
 		public T Serialize<T>(T model)
 		{
-			var strModel = TypeSerializer.SerializeToString(model);
-			Console.WriteLine("Len: " + strModel.Length + ", " + strModel);
-			var toModel = TypeSerializer.DeserializeFromString<T>(strModel);
-			return toModel;
+			var jsvModel = TypeSerializer.SerializeToString(model);
+			Console.WriteLine("Len: " + jsvModel.Length + ", " + jsvModel);
+			var fromJsvModel = TypeSerializer.DeserializeFromString<T>(jsvModel);
+
+			var jsonModel = JsonSerializer.SerializeToString(model);
+			Console.WriteLine("Len: " + jsonModel.Length + ", " + jsonModel);
+			var fromJsonModel = JsonSerializer.DeserializeFromString<T>(jsonModel);
+
+			return fromJsonModel;
 		}
 
 		[Test]
@@ -484,8 +489,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_convert_ModelWithMapAndList_with_ListChar()
 		{
-			var model = new ModelWithMapAndList<ModelWithIdAndName>
-			{
+			var model = new ModelWithMapAndList<ModelWithIdAndName> {
 				Id = 1,
 				Name = "in [ valid",
 				List = new List<ModelWithIdAndName> {
@@ -509,8 +513,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_convert_Field_Map_or_List_with_invalid_chars()
 		{
-			var instance = new ModelWithMapAndList<string>
-			{
+			var instance = new ModelWithMapAndList<string> {
 				Id = 1,
 				Name = fieldWithInvalidChars,
 				List = new List<string> { fieldWithInvalidChars, fieldWithInvalidChars },
@@ -527,8 +530,7 @@ namespace ServiceStack.Text.Tests
 			{
 				var singleInvalidChar = string.Format("a {0} b", invalidChar);
 
-				var instance = new ModelWithMapAndList<string>
-				{
+				var instance = new ModelWithMapAndList<string> {
 					Id = 1,
 					Name = singleInvalidChar,
 					List = new List<string> { singleInvalidChar, singleInvalidChar },
@@ -555,6 +557,20 @@ namespace ServiceStack.Text.Tests
 			var toModel = Serialize(model);
 
 			Assert.That(model.Equals(toModel), Is.True);
+		}
+
+		[Test]
+		public void Can_convert_List_Guid()
+		{
+			var model = new List<Guid> {
+				Guid.NewGuid(),
+				Guid.NewGuid(),
+				Guid.NewGuid(),
+			};
+
+			var toModel = Serialize(model);
+
+			Assert.That(toModel, Is.EquivalentTo(model));
 		}
 
 	}
