@@ -77,7 +77,7 @@ namespace ServiceStack.Text.Common
 			if (!typeof(T).IsClass && !typeof(T).IsInterface) return false;
 
 			var propertyInfos = TypeConfig<T>.Properties;
-			if (propertyInfos.Length == 0)
+			if (propertyInfos.Length == 0 && !JsState.IsWritingDynamic)
 			{
 				return typeof(T).IsDto();
 			}

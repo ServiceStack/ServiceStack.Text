@@ -8,21 +8,34 @@ namespace ServiceStack.Text.Tests
 		public int Value { get; set; }
 	}
 
+    public class Ping {}
+
 	[TestFixture]
 	public class MessagingTests : TestBase
 	{
-		[Test]
-		public void Can_serialize_IMessage_into_typed_Message()
-		{
-			var dto = new Incr { Value = 1 };
+        [Test]
+        public void Can_serialize_IMessage_into_typed_Message()
+        {
+            var dto = new Incr { Value = 1 };
             IMessage iMsg = MessageFactory.Create(dto);
-			var json = iMsg.ToJson();
-			var typedMessage = json.FromJson<Message<Incr>>();
+            var json = iMsg.ToJson();
+            var typedMessage = json.FromJson<Message<Incr>>();
 
-			Assert.That(typedMessage.GetBody().Value, Is.EqualTo(dto.Value));
-		}
+            Assert.That(typedMessage.GetBody().Value, Is.EqualTo(dto.Value));
+        }
 
-		[Test]
+        [Test]
+        public void Can_serialize_IMessage_into_typed_Message_Ping()
+        {
+            var dto = new Ping();
+            IMessage iMsg = MessageFactory.Create(dto);
+            var json = iMsg.ToJson();
+            var typedMessage = json.FromJson<Message<Ping>>();
+
+            Assert.That(typedMessage.GetBody(), Is.Not.Null);
+        }
+
+        [Test]
 		public void Can_serialize_object_IMessage_into_typed_Message()
 		{
 			var dto = new Incr { Value = 1 };
