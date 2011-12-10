@@ -135,6 +135,25 @@ namespace ServiceStack.Text.Json
 				&& value[0] == '{'
 				&& value[value.Length - 1] == '}';
 		}
+		
+		private static readonly int LowerCaseOffset = 'a' - 'A';
+		public static string MemberNameToCamelCase(string value)
+		{
+			if(string.IsNullOrEmpty(value)) return value;
+			var sb = new System.Text.StringBuilder();
+			var firstChar = value[0];
+			if(firstChar >= 'A' && firstChar <= 'Z')
+			{
+				firstChar = (char)((int)firstChar + LowerCaseOffset);
+			}
+			else
+			{
+				return value;
+			}
+			sb.Append(firstChar);
+			sb.Append(value.Substring(1, value.Length - 1));
+			return sb.ToString();
+		}
 	}
 
 }

@@ -13,8 +13,9 @@
 using System;
 using System.IO;
 using ServiceStack.Text.Json;
-using ServiceStack.Text.Reflection ;
-
+using ServiceStack.Text.Reflection;
+using System.Linq;
+using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
 {
@@ -86,13 +87,35 @@ namespace ServiceStack.Text.Common
 
 			PropertyWriters = new TypePropertyWriter[propertyNamesLength];
 
+			// NOTE: very limited support for DataContractSerialization (DCS)
+			//	NOT supporting Serializable
+			//	support for DCS is intended for (re)Name of properties and Ignore by NOT having a DataMember present
+			bool isDcsContract = typeof(T).GetCustomAttributes(typeof(DataContractAttribute), false).Any();
 			for (var i = 0; i < propertyNamesLength; i++)
 			{
 				var propertyInfo = propertyInfos[i];
 
+				string propertyName;
+				if(isDcsContract)
+				{
+					var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+					if (dcsDataMember == null)
+					{
+						continue;
+					}
+					
+					propertyName = dcsDataMember.Name ?? propertyInfo.Name;
+				}
+				else
+				{
+					propertyName = propertyInfo.Name;
+				}
+				var propertyNameCLSFriendly = JsonUtils.MemberNameToCamelCase(propertyInfo.Name);
+				
 				PropertyWriters[i] = new TypePropertyWriter
 				(
-					propertyInfo.Name,
+					propertyName,
+					propertyNameCLSFriendly,
 					propertyInfo.GetValueGetter<T>(),
 					Serializer.GetWriteFn(propertyInfo.PropertyType)
 				);
@@ -103,14 +126,25 @@ namespace ServiceStack.Text.Common
 
 		internal struct TypePropertyWriter
 		{
-			internal readonly string PropertyName;
+			internal string PropertyName
+			{
+				get
+				{
+					return (JsConfig.EmitCamelCaseNames)
+						? _propertyNameCLSFriendly
+						: _propertyName;
+				}
+			}
+			internal readonly string _propertyName;
+			internal readonly string _propertyNameCLSFriendly;
 			internal readonly Func<T, object> GetterFn;
 			internal readonly WriteObjectDelegate WriteFn;
 
-			public TypePropertyWriter(string propertyName,
+			public TypePropertyWriter(string propertyName, string propertyNameCLSFriendly,
 				Func<T, object> getterFn, WriteObjectDelegate writeFn)
 			{
-				this.PropertyName = propertyName;
+				this._propertyName = propertyName;
+				this._propertyNameCLSFriendly = propertyNameCLSFriendly;
 				this.GetterFn = getterFn;
 				this.WriteFn = writeFn;
 			}

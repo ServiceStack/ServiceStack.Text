@@ -25,6 +25,14 @@ namespace ServiceStack.Text
 
 		[ThreadStatic]
 		public static bool ExcludeTypeInfo = false;
+		
+		/// <summary>
+		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
+		/// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
+		/// to support user-friendly serialized formats, ie emitting camelCasing for JSON
+		/// and parsing member names and enum values in a case-insensitive manner.
+		[ThreadStatic]
+		public static bool EmitCamelCaseNames = false;
 
 		public static void Reset()
 		{
@@ -182,6 +190,13 @@ namespace ServiceStack.Text
 	public class JsConfig<T> //where T : struct
 	{	
 		public static bool ExcludeTypeInfo = false;
+		/// <summary>
+		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
+		/// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
+		/// to support user-friendly serialized formats, ie emitting camelCasing for JSON
+		/// and parsing member names and enum values in a case-insensitive manner.
+		/// </summary>
+		public static bool EmitCamelCaseNames = false;
 
 		/// <summary>
 		/// Define custom serialization fn for BCL Structs
