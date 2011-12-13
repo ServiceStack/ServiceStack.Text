@@ -87,11 +87,9 @@ namespace ServiceStack.Text
                         serializer.WriteObject(xw, from);
                         xw.Flush();
                         ms.Seek(0, SeekOrigin.Begin);
-                        using (var reader = new StreamReader(ms))
-                        {
-                            return reader.ReadToEnd();
-                        }
-                    }
+                    	var reader = new StreamReader(ms);
+						return reader.ReadToEnd();
+					}
                 }
             }
             catch (Exception ex)
