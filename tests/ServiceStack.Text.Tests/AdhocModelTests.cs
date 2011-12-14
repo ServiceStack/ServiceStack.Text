@@ -94,12 +94,12 @@ namespace ServiceStack.Text.Tests
                 };
             }
 
-			public bool Equals(FlowPostTransient other)
-			{
-				if (ReferenceEquals(null, other)) return false;
-				if (ReferenceEquals(this, other)) return true;
-				return other.Id == Id && Equals(other.Urn, Urn) && other.UserId.Equals(UserId) && other.DateAdded.RoundToMs().Equals(DateAdded.RoundToMs()) && other.DateModified.RoundToMs().Equals(DateModified.RoundToMs()) && other.TargetUserId.Equals(TargetUserId) && other.ForwardedPostId.Equals(ForwardedPostId) && other.OriginUserId.Equals(OriginUserId) && Equals(other.OriginUserName, OriginUserName) && other.SourceUserId.Equals(SourceUserId) && Equals(other.SourceUserName, SourceUserName) && Equals(other.SubjectUrn, SubjectUrn) && Equals(other.ContentUrn, ContentUrn) && TrackUrns.EquivalentTo(other.TrackUrns) && Equals(other.Caption, Caption) && other.CaptionUserId.Equals(CaptionUserId) && Equals(other.CaptionSourceName, CaptionSourceName) && Equals(other.ForwardedPostUrn, ForwardedPostUrn) && Equals(other.PostType, PostType) && other.OnBehalfOfUserId.Equals(OnBehalfOfUserId);
-			}
+            public bool Equals(FlowPostTransient other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return other.Id == Id && Equals(other.Urn, Urn) && other.UserId.Equals(UserId) && other.DateAdded.RoundToMs().Equals(DateAdded.RoundToMs()) && other.DateModified.RoundToMs().Equals(DateModified.RoundToMs()) && other.TargetUserId.Equals(TargetUserId) && other.ForwardedPostId.Equals(ForwardedPostId) && other.OriginUserId.Equals(OriginUserId) && Equals(other.OriginUserName, OriginUserName) && other.SourceUserId.Equals(SourceUserId) && Equals(other.SourceUserName, SourceUserName) && Equals(other.SubjectUrn, SubjectUrn) && Equals(other.ContentUrn, ContentUrn) && TrackUrns.EquivalentTo(other.TrackUrns) && Equals(other.Caption, Caption) && other.CaptionUserId.Equals(CaptionUserId) && Equals(other.CaptionSourceName, CaptionSourceName) && Equals(other.ForwardedPostUrn, ForwardedPostUrn) && Equals(other.PostType, PostType) && other.OnBehalfOfUserId.Equals(OnBehalfOfUserId);
+            }
 
             public override bool Equals(object obj)
             {
@@ -170,8 +170,8 @@ namespace ServiceStack.Text.Tests
             var jsonDate = JsonSerializer.SerializeToString(now);
             var fromJsonDate = JsonSerializer.DeserializeFromString<DateTime>(jsonDate);
 
-			Assert.That(fromJsonDate.RoundToMs(), Is.EqualTo(now.RoundToMs()));
-		}
+            Assert.That(fromJsonDate.RoundToMs(), Is.EqualTo(now.RoundToMs()));
+        }
 
         [Test]
         public void Can_Serialize_multiple_FlowPostTransient()
@@ -201,8 +201,8 @@ namespace ServiceStack.Text.Tests
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                if (obj.GetType() != typeof (TestObject)) return false;
-                return Equals((TestObject) obj);
+                if (obj.GetType() != typeof(TestObject)) return false;
+                return Equals((TestObject)obj);
             }
 
             public override int GetHashCode()
@@ -268,5 +268,45 @@ namespace ServiceStack.Text.Tests
             };
             SerializeAndCompare(dto);
         }
+        
+        public interface IParent
+        {
+            int Id { get; set; }
+            string ParentName { get; set; }
+        }
+
+        public class Parent : IParent
+        {
+            public int Id { get; set; }
+            public string ParentName { get; set; }
+            public Child Child { get; set; }
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public string ChildName { get; set; }
+            public IParent Parent { get; set; }
+        }
+
+        [Test]
+        public void Can_Serailize_Cyclical_Dependency_via_interface()
+        {
+            var dto = new Parent
+            {
+                Id = 1,
+                ParentName = "Parent",
+                Child = new Child { Id = 2, ChildName = "Child" }
+            };
+            dto.Child.Parent = dto;
+
+            var fromDto = Serialize(dto, includeXml:false);
+
+            var parent = (Parent)fromDto.Child.Parent;
+            Assert.That(parent.Id, Is.EqualTo(dto.Id));
+            Assert.That(parent.ParentName, Is.EqualTo(dto.ParentName));
+        }
+
+
     }
 }
