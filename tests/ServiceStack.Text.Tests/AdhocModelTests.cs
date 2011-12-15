@@ -307,6 +307,5 @@ namespace ServiceStack.Text.Tests
             Assert.That(parent.ParentName, Is.EqualTo(dto.ParentName));
         }
 
-
     }
 }
