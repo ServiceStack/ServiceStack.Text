@@ -45,6 +45,19 @@ namespace ServiceStack.Text.Common
 			var loadConfig = JsConfig.IncludeNullValues;
 		}
 
+		public static void WriteDynamic(Action callback)
+		{
+			JsState.IsWritingDynamic = true;
+			try
+			{
+				callback();
+			}
+			finally
+			{
+				JsState.IsWritingDynamic = false;
+			}
+		}
+
 		/// <summary>
 		/// micro optimizations: using flags instead of value.IndexOfAny(EscapeChars)
 		/// </summary>
