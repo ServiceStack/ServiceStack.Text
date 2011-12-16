@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+#if !MONOTOUCH
 using System.Drawing;
+#endif
 using System.IO;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -13,8 +15,10 @@ namespace ServiceStack.Text
 		static JsConfig()
 		{
 			//In-built defaults
+#if !MONOTOUCH
 			JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
 			JsConfig<Color>.DeSerializeFn = Color.FromName;
+#endif
 		}
 
 		[ThreadStatic]
