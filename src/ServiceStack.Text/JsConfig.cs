@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -12,9 +11,12 @@ namespace ServiceStack.Text
 	{
 		static JsConfig()
 		{
+			//Remove reference to System.Drawing when making MonoTouch builds
+#if !MONOTOUCH
 			//In-built defaults
-			JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
-			JsConfig<Color>.DeSerializeFn = Color.FromName;
+			JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
+			JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
+#endif
 		}
 
 		[ThreadStatic]
@@ -77,6 +79,9 @@ namespace ServiceStack.Text
 			RegisterElement<Poco, Guid?>();
 			RegisterElement<Poco, DateTime?>();
 			RegisterElement<Poco, TimeSpan?>();
+
+			RegisterQueryStringWriter();
+			RegisterCsvSerializer();
 		}
 
 		static void RegisterQueryStringWriter()
@@ -162,6 +167,8 @@ namespace ServiceStack.Text
 
 			TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
 			TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
+
+			QueryStringWriter<T>.WriteObject(null, null);
 		}
 
 		public static void RegisterElement<T, TElement>()
