@@ -11,12 +11,9 @@ namespace ServiceStack.Text
 	{
 		static JsConfig()
 		{
-			//Remove reference to System.Drawing when making MonoTouch builds
-#if !MONOTOUCH
-			//In-built defaults
-			JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
-			JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
-#endif
+			//In-built default serialization, to Deserialize Color struct do:
+			//JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
+			//JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
 		}
 
 		[ThreadStatic]
@@ -55,6 +52,7 @@ namespace ServiceStack.Text
 		public static void Reset()
 		{
 			ConvertObjectTypesIntoStringDictionary =  IncludeNullValues = ExcludeTypeInfo = false;
+			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 		}
 
 #if SILVERLIGHT || MONOTOUCH

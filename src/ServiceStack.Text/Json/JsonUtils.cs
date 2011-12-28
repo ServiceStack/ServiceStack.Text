@@ -135,6 +135,7 @@ namespace ServiceStack.Text.Json
 				&& value[0] == '{'
 				&& value[value.Length - 1] == '}';
 		}
+
 	}
 
 }

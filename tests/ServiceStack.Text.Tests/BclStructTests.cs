@@ -7,6 +7,12 @@ namespace ServiceStack.Text.Tests
 {
 	public class BclStructTests : TestBase
 	{
+		static BclStructTests()
+		{
+			JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
+			JsConfig<Color>.DeSerializeFn = Color.FromName;
+		}
+
 		[Test]
 		public void Can_serialize_Color()
 		{
