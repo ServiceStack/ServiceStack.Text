@@ -25,14 +25,29 @@ namespace ServiceStack.Text
 
 		[ThreadStatic]
 		public static bool ExcludeTypeInfo = false;
-		
-		/// <summary>
+
+        /// <summary>
 		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
 		/// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
 		/// to support user-friendly serialized formats, ie emitting camelCasing for JSON
 		/// and parsing member names and enum values in a case-insensitive manner.
-		[ThreadStatic]
-		public static bool EmitCamelCaseNames = false;
+        /// </summary>
+        public static bool EmitCamelCaseNames
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return _tsEmitCamelCaseNames ?? _sEmitCamelCaseNames ?? false;
+            }
+            set
+            {
+                if (!_tsEmitCamelCaseNames.HasValue) _tsEmitCamelCaseNames = value;
+                if (!_sEmitCamelCaseNames.HasValue) _sEmitCamelCaseNames = value;
+            }
+        }
+        [ThreadStatic]
+        private static bool? _tsEmitCamelCaseNames;
+        private static bool? _sEmitCamelCaseNames;
 
 		public static void Reset()
 		{
