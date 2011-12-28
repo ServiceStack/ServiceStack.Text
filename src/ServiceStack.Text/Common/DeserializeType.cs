@@ -25,9 +25,10 @@ namespace ServiceStack.Text.Common
 		where TSerializer : ITypeSerializer
 	{
 		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+		private static IEqualityComparer<string> PropertyNameComparer = StringComparer.Create(System.Globalization.CultureInfo.InvariantCulture, true);
 
 		private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
-
+		
 		public static ParseStringDelegate GetParseMethod(Type type)
 		{
 			if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
@@ -39,8 +40,8 @@ namespace ServiceStack.Text.Common
 				return value => emptyCtorFn();
 			}
 			
-			var setterMap = new Dictionary<string, SetPropertyDelegate>();
-			var map = new Dictionary<string, ParseStringDelegate>();
+			var setterMap = new Dictionary<string, SetPropertyDelegate>(PropertyNameComparer);
+			var map = new Dictionary<string, ParseStringDelegate>(PropertyNameComparer);
 
 			foreach (var propertyInfo in propertyInfos)
 			{
