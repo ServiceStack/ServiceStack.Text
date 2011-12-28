@@ -513,5 +513,18 @@ namespace ServiceStack.Text
 
 			return markdown;
 		}
+
+		private const int LowerCaseOffset = 'a' - 'A';
+		public static string ToCamelCase(this string value)
+		{
+			if (string.IsNullOrEmpty(value)) return value;
+
+			var firstChar = value[0];
+			if (firstChar < 'A' || firstChar > 'Z')
+				return value;
+
+			return (char)(firstChar + LowerCaseOffset) + value.Substring(1);
+		}
+
 	}
 }

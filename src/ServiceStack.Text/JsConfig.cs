@@ -39,17 +39,18 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return _tsEmitCamelCaseNames ?? _sEmitCamelCaseNames ?? false;
+                return tsEmitCamelCaseNames ?? sEmitCamelCaseNames ?? false;
             }
             set
             {
-                if (!_tsEmitCamelCaseNames.HasValue) _tsEmitCamelCaseNames = value;
-                if (!_sEmitCamelCaseNames.HasValue) _sEmitCamelCaseNames = value;
+                if (!tsEmitCamelCaseNames.HasValue) tsEmitCamelCaseNames = value;
+                if (!sEmitCamelCaseNames.HasValue) sEmitCamelCaseNames = value;
             }
         }
+
         [ThreadStatic]
-        private static bool? _tsEmitCamelCaseNames;
-        private static bool? _sEmitCamelCaseNames;
+        private static bool? tsEmitCamelCaseNames;
+        private static bool? sEmitCamelCaseNames;
 
 		public static void Reset()
 		{
