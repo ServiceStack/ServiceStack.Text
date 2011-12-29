@@ -87,20 +87,21 @@ namespace ServiceStack.Text.Common
 			{
 				var propertyInfo = propertyInfos[i];
 
-				string propertyName;
+				string propertyName, propertyNameCLSFriendly;
+
 				if (isDataContract)
 				{
 					var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
 					if (dcsDataMember == null) continue;
 
 					propertyName = dcsDataMember.Name ?? propertyInfo.Name;
+					propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
 				}
 				else
 				{
 					propertyName = propertyInfo.Name;
+					propertyNameCLSFriendly = propertyName.ToCamelCase();
 				}
-
-				var propertyNameCLSFriendly = propertyInfo.Name.ToCamelCase();
 
 				PropertyWriters[i] = new TypePropertyWriter
 				(

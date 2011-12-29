@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
 
@@ -38,5 +39,27 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(json, Is.EqualTo(
 				"{\"id\":0,\"imdbId\":\"tt0111161\",\"title\":\"The Shawshank Redemption\",\"rating\":9.2,\"director\":\"Frank Darabont\",\"releaseDate\":\"\\/Date(792997200000+0000)\\/\",\"tagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"genres\":[\"Crime\",\"Drama\"]}"));
 		}
+
+		[DataContract]
+		class Person
+		{
+			[DataMember(Name = "MyID")]
+			public int Id { get; set; }
+			[DataMember]
+			public string Name { get; set; }
+		}
+
+		[Test]
+		public void Can_override_name()
+		{
+			var person = new Person {
+				Id = 123,
+				Name = "Abc"
+			};
+
+			Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,name:Abc}"));
+			Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"name\":\"Abc\"}"));
+		}
+
 	}
 }
