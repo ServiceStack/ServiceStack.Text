@@ -15,7 +15,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			JsConfig.EmitCamelCaseNames = true;
 		}
 
-		[SetUp]
+		[TearDown]
 		public void TearDown()
 		{
 			JsConfig.Reset();
