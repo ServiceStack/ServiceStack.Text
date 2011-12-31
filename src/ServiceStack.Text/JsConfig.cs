@@ -210,7 +210,11 @@ namespace ServiceStack.Text
 
 	public class JsConfig<T> //where T : struct
 	{	
+		/// <summary>
+		/// Never emit type info for this type
+		/// </summary>
 		public static bool ExcludeTypeInfo = false;
+		
 		/// <summary>
 		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
 		/// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
@@ -228,6 +232,11 @@ namespace ServiceStack.Text
 		/// Define custom deserialization fn for BCL Structs
 		/// </summary>
 		public static Func<string, T> DeSerializeFn;
+
+		/// <summary>
+		/// Exclude specific properties of this type from being serialized
+		/// </summary>
+		public static string[] ExcludePropertyNames;
 
 		public static void WriteFn<TSerializer>(TextWriter writer, object obj)
 		{

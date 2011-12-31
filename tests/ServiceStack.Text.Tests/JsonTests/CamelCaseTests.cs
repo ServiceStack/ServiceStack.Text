@@ -7,7 +7,7 @@ using ServiceStack.Text.Tests.Support;
 namespace ServiceStack.Text.Tests.JsonTests
 {
 	[TestFixture]
-	public class CamelCaseTests
+	public class CamelCaseTests : TestBase
 	{
 		[SetUp]
 		public void SetUp()
@@ -25,6 +25,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		public void Does_serialize_To_CamelCase()
 		{
 			var dto = new Movie {
+				Id = 1,
 				ImdbId = "tt0111161",
 				Title = "The Shawshank Redemption",
 				Rating = 9.2m,
@@ -37,7 +38,9 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var json = dto.ToJson();
 
 			Assert.That(json, Is.EqualTo(
-				"{\"id\":0,\"imdbId\":\"tt0111161\",\"title\":\"The Shawshank Redemption\",\"rating\":9.2,\"director\":\"Frank Darabont\",\"releaseDate\":\"\\/Date(792997200000+0000)\\/\",\"tagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"genres\":[\"Crime\",\"Drama\"]}"));
+				"{\"id\":1,\"imdbId\":\"tt0111161\",\"title\":\"The Shawshank Redemption\",\"rating\":9.2,\"director\":\"Frank Darabont\",\"releaseDate\":\"\\/Date(792997200000+0000)\\/\",\"tagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"genres\":[\"Crime\",\"Drama\"]}"));
+
+			Serialize(dto);
 		}
 
 		[DataContract]
