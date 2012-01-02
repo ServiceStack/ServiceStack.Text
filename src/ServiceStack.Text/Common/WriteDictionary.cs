@@ -155,8 +155,12 @@ namespace ServiceStack.Text.Common
 
 				JsState.WritingKeyCount++;
                 JsState.IsWritingValue = false;
+                if (typeof(TKey) != typeof(string))
+                    JsState.IsWritingKey = true;
 				writeKeyFn(writer, kvp.Key);
-				JsState.WritingKeyCount--;
+                if (typeof(TKey) != typeof(string))
+                    JsState.IsWritingKey = false;
+                JsState.WritingKeyCount--;
 
 				writer.Write(JsWriter.MapKeySeperator);
 

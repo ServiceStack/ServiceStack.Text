@@ -38,7 +38,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var json = dto.ToJson();
 
 			Assert.That(json, Is.EqualTo(
-				"{\"id\":1,\"imdbId\":\"tt0111161\",\"title\":\"The Shawshank Redemption\",\"rating\":9.2,\"director\":\"Frank Darabont\",\"releaseDate\":\"\\/Date(792997200000+0000)\\/\",\"tagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"genres\":[\"Crime\",\"Drama\"]}"));
+                "{\"id\":1,\"imdbId\":\"tt0111161\",\"title\":\"The Shawshank Redemption\",\"rating\":9.2,\"director\":\"Frank Darabont\",\"releaseDate\":\"\\/Date(792975600000+0000)\\/\",\"tagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"genres\":[\"Crime\",\"Drama\"]}"));
 
 			Serialize(dto);
 		}

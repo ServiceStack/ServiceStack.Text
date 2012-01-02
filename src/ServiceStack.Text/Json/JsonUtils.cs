@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Json
 {
@@ -36,9 +37,15 @@ namespace ServiceStack.Text.Json
 			}
 			if (!HasAnyEscapeChars(value))
 			{
-				writer.Write(QuoteChar);
-				writer.Write(value);
-				writer.Write(QuoteChar);
+                if (JsState.WritingKeyCount > 0 && JsState.IsWritingKey)
+                    writer.Write(EscapeChar);
+                writer.Write(QuoteChar);
+				
+                writer.Write(value);
+
+                if (JsState.WritingKeyCount > 0 && JsState.IsWritingKey)
+                    writer.Write(EscapeChar); 
+                writer.Write(QuoteChar);
 				return;
 			}
 
