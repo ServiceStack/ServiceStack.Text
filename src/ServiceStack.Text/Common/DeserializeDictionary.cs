@@ -100,8 +100,12 @@ namespace ServiceStack.Text.Common
 			var valueLength = value.Length;
 			while (index < valueLength)
 			{
+                if (typeof(TSerializer) == typeof(JsonTypeSerializer))
+                    JsState.IsWritingKey = true;
 				var keyValue = Serializer.EatMapKey(value, ref index);
-				Serializer.EatMapKeySeperator(value, ref index);
+                if (typeof(TSerializer) == typeof(JsonTypeSerializer))
+                    JsState.IsWritingKey = false;
+                Serializer.EatMapKeySeperator(value, ref index);
 				var elementValue = Serializer.EatValue(value, ref index);
 
 				var mapKey = (TKey)parseKeyFn(keyValue);

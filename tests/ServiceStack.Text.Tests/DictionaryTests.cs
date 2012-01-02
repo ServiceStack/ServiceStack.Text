@@ -74,6 +74,34 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(map);
 		}
+
+
+        [Test]
+        public void Can_serialize_two_level_dictionary_with_custom_class_key()
+        {
+            var map = new Dictionary<CustomKey, Dictionary<string, int>>
+          		{
+					{new CustomKey { Id = 42, IsRoot = true, Name = "key1" }, new Dictionary<string, int>
+			         	{
+							{"One", 1}, {"Two", 2}, {"Three", 3}, 
+			         	}
+					},
+					{new CustomKey { Id = 21, IsRoot = true, Name = "key2" }, new Dictionary<string, int>
+			         	{
+							{"Four", 4}, {"Five", 5}, {"Six", 6}, 
+			         	}
+					},
+          		};
+
+            Serialize(map);
+        }
+
+        public class CustomKey
+        {
+            public string Name { get; set; }
+            public int Id { get; set; }
+            public bool IsRoot { get; set; }
+        }
 		
 	}
 }
