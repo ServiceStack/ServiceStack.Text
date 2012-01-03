@@ -123,7 +123,6 @@ namespace ServiceStack.Text.Common
 				var unixTimeString = wcfJsonDate.Substring(
 					WcfJsonPrefix.Length, wcfJsonDate.IndexOf(')') - WcfJsonPrefix.Length);
 
-				var unixTime = double.Parse(unixTimeString);
                 return DateTimeExtensions.FromUnixTimeMs(unixTimeString);
 			}
 		}
