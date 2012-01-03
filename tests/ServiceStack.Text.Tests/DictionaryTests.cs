@@ -96,12 +96,36 @@ namespace ServiceStack.Text.Tests
             Serialize(map);
         }
 
+        [Test]
+        public void Can_serialize_two_level_dictionary_with_custom_class_key2()
+        {
+            var map = new Dictionary<CustomKey, CustomValue>
+          		{
+					{
+                        new CustomKey { Id = 42, IsRoot = true, Name = "key1" },
+                        new CustomValue { SortOrder = 0, Title = "dede" }
+					},
+					{
+                        new CustomKey { Id = 21, IsRoot = true, Name = "key2" }, 
+                        new CustomValue { SortOrder = 1, Title = null, Parent = new CustomValue{} }
+					},
+          		};
+
+            Serialize(map);
+        }
+
         public class CustomKey
         {
             public string Name { get; set; }
             public int Id { get; set; }
             public bool IsRoot { get; set; }
         }
-		
+
+        public class CustomValue
+        {
+            public int SortOrder { get; set; }
+            public string Title { get; set; }
+            public CustomValue Parent { get; set; }
+        }
 	}
 }
