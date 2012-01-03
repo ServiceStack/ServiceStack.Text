@@ -140,6 +140,7 @@
     <Compile Include="AotTests.cs" />
     <Compile Include="BasicStringSerializerTests.cs" />
     <Compile Include="BclStructTests.cs" />
+    <Compile Include="JsonTests\CamelCaseTests.cs" />
     <Compile Include="CsvSerializerTests.cs" />
     <Compile Include="CsvStreamTests.cs" />
     <Compile Include="CsvTests\CustomHeaderTests.cs" />

@@ -14,7 +14,7 @@ namespace ServiceStack.Text.Common
 
 			if (type.IsEnum)
 			{
-				return x => Enum.Parse(type, x, false);
+				return x => Enum.Parse(type, x, true);
 			}
 
 			if (type == typeof(string))
@@ -28,7 +28,7 @@ namespace ServiceStack.Text.Common
 				return specialParseFn;
 
 			if (type.IsEnum)
-				return x => Enum.Parse(type, x, false);
+				return x => Enum.Parse(type, x, true);
 
 			if (type.IsArray)
 			{

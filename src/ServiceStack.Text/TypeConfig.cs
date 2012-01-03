@@ -9,7 +9,9 @@ namespace ServiceStack.Text
 
 		static TypeConfig()
 		{
-			Properties = typeof(T).GetSerializableProperties();
+			var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? new string[0];
+			Properties = typeof(T).GetSerializableProperties()
+				.Where(x => !excludedProperties.Contains(x.Name)).ToArray();
 		}
 	}
 }

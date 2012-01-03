@@ -137,6 +137,6 @@ namespace ServiceStack.Text.Tests
             var xml = orderModel.ToXml();
             var fromXml = xml.FromXml<OrderModel>();
             Assert.That(fromXml.OrderType, Is.EqualTo(orderModel.OrderType));
-        }
+       }
     }
 }

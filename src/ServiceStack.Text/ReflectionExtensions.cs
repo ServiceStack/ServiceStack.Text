@@ -340,7 +340,7 @@ namespace ServiceStack.Text
 			return TypeMeta<T>.EmptyCtorFn();
 		}
 
-		public static object CreateInstance(Type type)
+		public static object CreateInstance(this Type type)
 		{
 			var ctorFn = GetConstructorMethod(type);
 			return ctorFn();

@@ -120,6 +120,7 @@ namespace ServiceStack.Text
 
 		public static void WriteObject(TextWriter writer, object value)
 		{
+			if (writer == null) return;
 			CacheFn(writer, value);
 		}
 	}

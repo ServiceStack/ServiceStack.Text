@@ -26,12 +26,12 @@ namespace ServiceStack.Text.Json
 				EscapeCharFlags[escapeChar] = true;
 			}
 		}
-		
+
 		public static void WriteString(TextWriter writer, string value)
 		{
 			if (value == null)
 			{
-                writer.Write(JsonUtils.Null);
+				writer.Write(JsonUtils.Null);
 				return;
 			}
 			if (!HasAnyEscapeChars(value))
@@ -135,6 +135,7 @@ namespace ServiceStack.Text.Json
 				&& value[0] == '{'
 				&& value[value.Length - 1] == '}';
 		}
+
 	}
 
 }

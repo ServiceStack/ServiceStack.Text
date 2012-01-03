@@ -46,6 +46,7 @@ Global
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Any CPU.ActiveCfg = MonoTouch|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Any CPU.Build.0 = MonoTouch|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Mixed Platforms.ActiveCfg = MonoTouch|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Mixed Platforms.Build.0 = MonoTouch|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.MonoTouch|Xbox 360.ActiveCfg = MonoTouch|Any CPU

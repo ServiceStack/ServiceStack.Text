@@ -76,7 +76,7 @@ namespace ServiceStack.Text
 
 					if (divide >= to)
 					{
-						number[newlen++] = (int)(divide / to);
+						number[newlen++] = divide / to;
 						divide = divide % to;
 					}
 					else if (newlen > 0)
@@ -128,8 +128,7 @@ namespace ServiceStack.Text
 					charCode >= 65 && charCode <= 90		// A-Z
 					|| charCode >= 97 && charCode <= 122    // a-z
 					|| charCode >= 48 && charCode <= 57		// 0-9
-					|| charCode == 45						// - 
-					|| charCode == 46						// .
+					|| charCode >= 44 && charCode <= 46		// ,-.
 					)
 				{
 					sb.Append(c);
@@ -262,6 +261,18 @@ namespace ServiceStack.Text
 				return path + "/";
 			}
 			return path;
+		}
+
+		public static string AppendUrlPaths(this string uri, params string[] uriComponents)
+		{
+			var sb = new StringBuilder(uri.WithTrailingSlash());
+			var i = 0;
+			foreach (var uriComponent in uriComponents)
+			{
+				if (i++ > 0) sb.Append('/');
+				sb.Append(uriComponent.UrlEncode());
+			}
+			return sb.ToString();
 		}
 
 		public static string FromUtf8Bytes(this byte[] bytes)
@@ -502,5 +513,18 @@ namespace ServiceStack.Text
 
 			return markdown;
 		}
+
+		private const int LowerCaseOffset = 'a' - 'A';
+		public static string ToCamelCase(this string value)
+		{
+			if (string.IsNullOrEmpty(value)) return value;
+
+			var firstChar = value[0];
+			if (firstChar < 'A' || firstChar > 'Z')
+				return value;
+
+			return (char)(firstChar + LowerCaseOffset) + value.Substring(1);
+		}
+
 	}
 }

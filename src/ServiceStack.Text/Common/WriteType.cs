@@ -13,19 +13,12 @@
 using System;
 using System.IO;
 using ServiceStack.Text.Json;
-using ServiceStack.Text.Reflection ;
-
+using ServiceStack.Text.Reflection;
+using System.Linq;
+using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
 {
-    //internal static class WriteType
-    //{
-    //    private static WriteObjectDelegate GetWriteFn(Type type)
-    //    {
-    //        return WriteProperties;
-    //    }
-    //}
-
 	internal static class WriteType<T, TSerializer>
 		where TSerializer : ITypeSerializer
 	{
@@ -34,7 +27,7 @@ namespace ServiceStack.Text.Common
 		private static readonly WriteObjectDelegate CacheFn;
 		internal static TypePropertyWriter[] PropertyWriters;
 		private static WriteObjectDelegate WriteTypeInfo;
-		
+
 		static WriteType()
 		{
 			CacheFn = Init() ? GetWriteFn() : WriteEmptyType;
@@ -53,8 +46,8 @@ namespace ServiceStack.Text.Common
 		private static bool DidWriteTypeInfo(TextWriter writer, object obj)
 		{
 			if (obj == null
-			    || JsConfig.ExcludeTypeInfo
-			    || JsConfig<T>.ExcludeTypeInfo) return false;
+				|| JsConfig.ExcludeTypeInfo
+				|| JsConfig<T>.ExcludeTypeInfo) return false;
 
 			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
@@ -86,13 +79,34 @@ namespace ServiceStack.Text.Common
 
 			PropertyWriters = new TypePropertyWriter[propertyNamesLength];
 
+			// NOTE: very limited support for DataContractSerialization (DCS)
+			//	NOT supporting Serializable
+			//	support for DCS is intended for (re)Name of properties and Ignore by NOT having a DataMember present
+			var isDataContract = typeof(T).GetCustomAttributes(typeof(DataContractAttribute), false).Any();
 			for (var i = 0; i < propertyNamesLength; i++)
 			{
 				var propertyInfo = propertyInfos[i];
 
+				string propertyName, propertyNameCLSFriendly;
+
+				if (isDataContract)
+				{
+					var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+					if (dcsDataMember == null) continue;
+
+					propertyName = dcsDataMember.Name ?? propertyInfo.Name;
+					propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
+				}
+				else
+				{
+					propertyName = propertyInfo.Name;
+					propertyNameCLSFriendly = propertyName.ToCamelCase();
+				}
+
 				PropertyWriters[i] = new TypePropertyWriter
 				(
-					propertyInfo.Name,
+					propertyName,
+					propertyNameCLSFriendly,
 					propertyInfo.GetValueGetter<T>(),
 					Serializer.GetWriteFn(propertyInfo.PropertyType)
 				);
@@ -103,14 +117,25 @@ namespace ServiceStack.Text.Common
 
 		internal struct TypePropertyWriter
 		{
-			internal readonly string PropertyName;
+			internal string PropertyName
+			{
+				get
+				{
+					return (JsConfig.EmitCamelCaseNames)
+						? propertyNameCLSFriendly
+						: propertyName;
+				}
+			}
+			internal readonly string propertyName;
+			internal readonly string propertyNameCLSFriendly;
 			internal readonly Func<T, object> GetterFn;
 			internal readonly WriteObjectDelegate WriteFn;
 
-			public TypePropertyWriter(string propertyName,
+			public TypePropertyWriter(string propertyName, string propertyNameCLSFriendly,
 				Func<T, object> getterFn, WriteObjectDelegate writeFn)
 			{
-				this.PropertyName = propertyName;
+				this.propertyName = propertyName;
+				this.propertyNameCLSFriendly = propertyNameCLSFriendly;
 				this.GetterFn = getterFn;
 				this.WriteFn = writeFn;
 			}
@@ -123,12 +148,12 @@ namespace ServiceStack.Text.Common
 
 		public static void WriteProperties(TextWriter writer, object value)
 		{
-			if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0) 
+			if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0)
 				writer.Write(JsWriter.QuoteChar);
 
 			writer.Write(JsWriter.MapStartChar);
 
-            var i = 0;
+			var i = 0;
 			if (WriteTypeInfo != null || JsState.IsWritingDynamic)
 			{
 				if (DidWriteTypeInfo(writer, value)) i++;

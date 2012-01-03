@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Common.Tests.Models;
 
@@ -158,5 +159,26 @@ namespace ServiceStack.Text.Tests.JsonTests
                 Nothing = "zilch";
             }
         }
+		
+		[DataContract]
+		class Person
+		{
+			[DataMember(Name = "MyID")]
+			public int Id { get; set; }
+			[DataMember]
+			public string Name { get; set; }
+		}
+
+		[Test]
+		public void Can_override_name()
+		{
+			var person = new Person {
+				Id = 123,
+				Name = "Abc"
+			};
+
+			Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,Name:Abc}"));
+			Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"Name\":\"Abc\"}"));
+		}
 	}
 }

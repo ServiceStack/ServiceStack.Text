@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -12,9 +11,9 @@ namespace ServiceStack.Text
 	{
 		static JsConfig()
 		{
-			//In-built defaults
-			JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
-			JsConfig<Color>.DeSerializeFn = Color.FromName;
+			//In-built default serialization, to Deserialize Color struct do:
+			//JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
+			//JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
 		}
 
 		[ThreadStatic]
@@ -26,9 +25,34 @@ namespace ServiceStack.Text
 		[ThreadStatic]
 		public static bool ExcludeTypeInfo = false;
 
+        /// <summary>
+		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
+		/// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
+		/// to support user-friendly serialized formats, ie emitting camelCasing for JSON
+		/// and parsing member names and enum values in a case-insensitive manner.
+        /// </summary>
+        public static bool EmitCamelCaseNames
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return tsEmitCamelCaseNames ?? sEmitCamelCaseNames ?? false;
+            }
+            set
+            {
+                if (!tsEmitCamelCaseNames.HasValue) tsEmitCamelCaseNames = value;
+                if (!sEmitCamelCaseNames.HasValue) sEmitCamelCaseNames = value;
+            }
+        }
+
+        [ThreadStatic]
+        private static bool? tsEmitCamelCaseNames;
+        private static bool? sEmitCamelCaseNames;
+
 		public static void Reset()
 		{
 			ConvertObjectTypesIntoStringDictionary =  IncludeNullValues = ExcludeTypeInfo = false;
+			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 		}
 
 #if SILVERLIGHT || MONOTOUCH
@@ -77,6 +101,9 @@ namespace ServiceStack.Text
 			RegisterElement<Poco, Guid?>();
 			RegisterElement<Poco, DateTime?>();
 			RegisterElement<Poco, TimeSpan?>();
+
+			RegisterQueryStringWriter();
+			RegisterCsvSerializer();
 		}
 
 		static void RegisterQueryStringWriter()
@@ -162,6 +189,8 @@ namespace ServiceStack.Text
 
 			TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
 			TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
+
+			QueryStringWriter<T>.WriteObject(null, null);
 		}
 
 		public static void RegisterElement<T, TElement>()
@@ -181,7 +210,18 @@ namespace ServiceStack.Text
 
 	public class JsConfig<T> //where T : struct
 	{	
+		/// <summary>
+		/// Never emit type info for this type
+		/// </summary>
 		public static bool ExcludeTypeInfo = false;
+		
+		/// <summary>
+		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
+		/// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
+		/// to support user-friendly serialized formats, ie emitting camelCasing for JSON
+		/// and parsing member names and enum values in a case-insensitive manner.
+		/// </summary>
+		public static bool EmitCamelCaseNames = false;
 
 		/// <summary>
 		/// Define custom serialization fn for BCL Structs
@@ -192,6 +232,11 @@ namespace ServiceStack.Text
 		/// Define custom deserialization fn for BCL Structs
 		/// </summary>
 		public static Func<string, T> DeSerializeFn;
+
+		/// <summary>
+		/// Exclude specific properties of this type from being serialized
+		/// </summary>
+		public static string[] ExcludePropertyNames;
 
 		public static void WriteFn<TSerializer>(TextWriter writer, object obj)
 		{
