@@ -3,42 +3,42 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
-	[TestFixture]
-	public class DictionaryTests
-		: TestBase
-	{
+    [TestFixture]
+    public class DictionaryTests
+        : TestBase
+    {
 
-		[Test]
-		public void Can_serialize_one_level_dictionary()
-		{
-			var map = new Dictionary<string, int>
+        [Test]
+        public void Can_serialize_one_level_dictionary()
+        {
+            var map = new Dictionary<string, int>
           	{
 				{"One", 1}, {"Two", 2}, {"Three", 3}, 
           	};
 
-			Serialize(map);
-		}
+            Serialize(map);
+        }
 
-		[Test]
-		public void Can_serialize_empty_map()
-		{
-			var emptyMap = new Dictionary<string, int>();
+        [Test]
+        public void Can_serialize_empty_map()
+        {
+            var emptyMap = new Dictionary<string, int>();
 
-			Serialize(emptyMap);
-		}
+            Serialize(emptyMap);
+        }
 
-		[Test]
-		public void Can_serialize_empty_string_map()
-		{
-			var emptyMap = new Dictionary<string, string>();
+        [Test]
+        public void Can_serialize_empty_string_map()
+        {
+            var emptyMap = new Dictionary<string, string>();
 
-			Serialize(emptyMap);
-		}
+            Serialize(emptyMap);
+        }
 
-		[Test]
-		public void Can_serialize_two_level_dictionary()
-		{
-			var map = new Dictionary<string, Dictionary<string, int>>
+        [Test]
+        public void Can_serialize_two_level_dictionary()
+        {
+            var map = new Dictionary<string, Dictionary<string, int>>
           		{
 					{"map1", new Dictionary<string, int>
 			         	{
@@ -52,13 +52,13 @@ namespace ServiceStack.Text.Tests
 					},
           		};
 
-			Serialize(map);
-		}
+            Serialize(map);
+        }
 
-		[Test]
-		public void Can_serialize_two_level_dictionary_with_int_key()
-		{
-			var map = new Dictionary<int, Dictionary<string, int>>
+        [Test]
+        public void Can_serialize_two_level_dictionary_with_int_key()
+        {
+            var map = new Dictionary<int, Dictionary<string, int>>
           		{
 					{1, new Dictionary<string, int>
 			         	{
@@ -72,8 +72,8 @@ namespace ServiceStack.Text.Tests
 					},
           		};
 
-			Serialize(map);
-		}
+            Serialize(map);
+        }
 
 
         [Test]
@@ -127,5 +127,6 @@ namespace ServiceStack.Text.Tests
             public string Title { get; set; }
             public CustomValue Parent { get; set; }
         }
-	}
+
+    }
 }
