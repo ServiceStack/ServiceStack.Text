@@ -148,6 +148,7 @@
     <Compile Include="MessagingTests.cs" />
     <Compile Include="NullableTypesTests.cs" />
     <Compile Include="StringTests.cs" />
+    <Compile Include="StructTests.cs" />
     <Compile Include="Support\TableItem.cs" />
     <Compile Include="CsvTests\NewLineTests.cs" />
     <Compile Include="CultureInfoTests.cs" />

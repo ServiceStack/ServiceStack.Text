@@ -108,7 +108,8 @@ namespace ServiceStack.Text.Common
 					propertyName,
 					propertyNameCLSFriendly,
 					propertyInfo.GetValueGetter<T>(),
-					Serializer.GetWriteFn(propertyInfo.PropertyType)
+					Serializer.GetWriteFn(propertyInfo.PropertyType),
+                    ReflectionExtensions.GetDefaultValue(propertyInfo.PropertyType)
 				);
 			}
 
@@ -129,15 +130,17 @@ namespace ServiceStack.Text.Common
 			internal readonly string propertyName;
 			internal readonly string propertyNameCLSFriendly;
 			internal readonly Func<T, object> GetterFn;
-			internal readonly WriteObjectDelegate WriteFn;
+            internal readonly WriteObjectDelegate WriteFn;
+            internal readonly object DefaultValue;
 
 			public TypePropertyWriter(string propertyName, string propertyNameCLSFriendly,
-				Func<T, object> getterFn, WriteObjectDelegate writeFn)
+				Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue)
 			{
 				this.propertyName = propertyName;
 				this.propertyNameCLSFriendly = propertyNameCLSFriendly;
 				this.GetterFn = getterFn;
 				this.WriteFn = writeFn;
+			    this.DefaultValue = defaultValue;
 			}
 		}
 
@@ -164,7 +167,9 @@ namespace ServiceStack.Text.Common
 				foreach (var propertyWriter in PropertyWriters)
 				{
 					var propertyValue = propertyWriter.GetterFn((T)value);
-					if (propertyValue == null && !JsConfig.IncludeNullValues) continue;
+
+                    if ((propertyValue == null || (propertyWriter.DefaultValue != null && propertyValue.Equals(propertyWriter.DefaultValue))) 
+                        && !JsConfig.IncludeNullValues) continue;
 
 					if (i++ > 0)
 						writer.Write(JsWriter.ItemSeperator);

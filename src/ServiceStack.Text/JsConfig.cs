@@ -170,6 +170,10 @@ namespace ServiceStack.Text
 			if (new T[0] != null) i++;
 			if (serializer.GetParseFn<T>() != null) i++;
 			if (DeserializeArray<T[], JsonTypeSerializer>.Parse != null) i++;
+
+            JsConfig<T>.ExcludeTypeInfo = false;
+            //JsConfig<T>.SerializeFn = arg => "";
+            //JsConfig<T>.DeSerializeFn = arg => default(T);
 			
 			DeserializeArrayWithElements<T, JsonTypeSerializer>.ParseGenericArray(null, null);
 			DeserializeCollection<JsonTypeSerializer>.ParseCollection<T>(null, null, null);
