@@ -103,13 +103,18 @@ namespace ServiceStack.Text.Common
 					propertyNameCLSFriendly = propertyName.ToCamelCase();
 				}
 
+			    var propertyType = propertyInfo.PropertyType;
+			    var suppressDefaultValue = propertyType.IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
+			        ? ReflectionExtensions.GetDefaultValue(propertyType)
+			        : null;
+
 				PropertyWriters[i] = new TypePropertyWriter
 				(
 					propertyName,
 					propertyNameCLSFriendly,
 					propertyInfo.GetValueGetter<T>(),
-					Serializer.GetWriteFn(propertyInfo.PropertyType),
-                    ReflectionExtensions.GetDefaultValue(propertyInfo.PropertyType)
+                    Serializer.GetWriteFn(propertyType),
+                    suppressDefaultValue
 				);
 			}
 
@@ -168,7 +173,7 @@ namespace ServiceStack.Text.Common
 				{
 					var propertyValue = propertyWriter.GetterFn((T)value);
 
-                    if ((propertyValue == null || (propertyWriter.DefaultValue != null && propertyValue.Equals(propertyWriter.DefaultValue))) 
+                    if ((propertyValue == null || (propertyWriter.DefaultValue != null && propertyWriter.DefaultValue.Equals(propertyValue))) 
                         && !JsConfig.IncludeNullValues) continue;
 
 					if (i++ > 0)

@@ -52,6 +52,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Test_structs()
         {
+            JsConfig<Text>.SerializeFn = text => text.ToString();
+
             var dto = new Foo { Content1 = "My content", Name = "My name" };
 
             var json = JsonSerializer.SerializeToString(dto, dto.GetType());
