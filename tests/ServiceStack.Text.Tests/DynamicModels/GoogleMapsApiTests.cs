@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.DynamicModels
 {
     public class GoogleMapsApiTests
     {
-        private const string Json =
+        private const string JsonDto =
             @"{
    ""results"" : [
       {
@@ -359,7 +356,7 @@ namespace ServiceStack.Text.Tests.DynamicModels
         public void Can_parse_GMaps_api()
         {
             //short for JsonSerializer.DeserializeFromString<GeoLocationResults>(Json)
-            var geoApiResponse = Json.FromJson<GeoLocationResponse>();
+            var geoApiResponse = JsonDto.FromJson<GeoLocationResponse>();
             Console.WriteLine(geoApiResponse.Dump());
         }
     }
