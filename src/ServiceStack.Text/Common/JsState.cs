@@ -7,7 +7,11 @@ namespace ServiceStack.Text.Common
 		//Exposing field for perf
 		[ThreadStatic] internal static int WritingKeyCount = 0;
 
-		[ThreadStatic] internal static bool IsWritingValue = false;
+        [ThreadStatic]
+        internal static bool IsWritingValue = false;
+        
+        [ThreadStatic]
+        internal static bool IsWritingKey = false;
 
 		[ThreadStatic] internal static bool IsWritingDynamic = false;
 	}

@@ -79,24 +79,43 @@ namespace ServiceStack.Text.Json
 	/// <typeparam name="T"></typeparam>
 	internal static class JsonWriter<T>
 	{
-		private static readonly WriteObjectDelegate CacheFn;
+        private static Object cacheLock = new Object();
+        private static WriteObjectDelegate _cacheFn = null;
 
-		public static WriteObjectDelegate WriteFn()
-		{
-			return CacheFn;
-		}
+        private static WriteObjectDelegate CacheFn
+        {
+            get
+            {
+                if (_cacheFn == null)
+                {
+                    lock (cacheLock)
+                    {
+                        if (_cacheFn == null)
+                        {
+                            _cacheFn = typeof(T) == typeof(object)
+                                ? JsonWriter.WriteLateBoundObject
+                                : JsonWriter.Instance.GetWriteFn<T>();
+                        }
+                    }
+                }
+                return _cacheFn;
+            }
+        }
 
-		static JsonWriter()
-		{
-            CacheFn = typeof(T) == typeof(object) 
-                ? JsonWriter.WriteLateBoundObject 
-                : JsonWriter.Instance.GetWriteFn<T>();
-		}
 
-	    public static void WriteObject(TextWriter writer, object value)
-		{
-			CacheFn(writer, value);
-		}
+        public static WriteObjectDelegate WriteFn()
+        {
+            return CacheFn;
+        }
+
+        static JsonWriter()
+        {
+        }
+
+        public static void WriteObject(TextWriter writer, object value)
+        {
+            CacheFn(writer, value);
+        }
 	}
 
 }

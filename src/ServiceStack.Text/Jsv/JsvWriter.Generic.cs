@@ -79,24 +79,42 @@ namespace ServiceStack.Text.Jsv
 	/// <typeparam name="T"></typeparam>
 	internal static class JsvWriter<T>
 	{
-		private static readonly WriteObjectDelegate CacheFn;
+        private static WriteObjectDelegate _cacheFn = null;
+        private static Object cacheLock = new Object();
 
-		public static WriteObjectDelegate WriteFn()
-		{
-			return CacheFn;
-		}
+        private static WriteObjectDelegate CacheFn
+        {
+            get
+            {
+                if (_cacheFn == null)
+                {
+                    lock (cacheLock)
+                    {
+                        if (_cacheFn == null)
+                        {
+                            _cacheFn = typeof(T) == typeof(object)
+                                ? JsvWriter.WriteLateBoundObject
+                                : JsvWriter.Instance.GetWriteFn<T>();
+                        }
+                    }
+                }
+                return _cacheFn;
+            }
+        }
 
-		static JsvWriter()
-		{
-		    CacheFn = typeof(T) == typeof(object) 
-                ? JsvWriter.WriteLateBoundObject 
-                : JsvWriter.Instance.GetWriteFn<T>();
-		}
 
-	    public static void WriteObject(TextWriter writer, object value)
-		{
-			CacheFn(writer, value);
-		}
+        public static WriteObjectDelegate WriteFn()
+        {
+            return CacheFn;
+        }
 
+        static JsvWriter()
+        {
+        }
+
+        public static void WriteObject(TextWriter writer, object value)
+        {
+            CacheFn(writer, value);
+        }
 	}
 }
