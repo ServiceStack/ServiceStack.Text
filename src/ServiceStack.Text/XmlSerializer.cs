@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-#if !XBOX360
+#if !XBOX360 && !SILVERLIGHT
 using System.IO.Compression;
 #endif
 using System.Runtime.Serialization;
@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace ServiceStack.Text
 {
-#if !XBOX
+#if !XBOX && !SILVERLIGHT
     public class XmlSerializer
     {
         private readonly XmlDictionaryReaderQuotas quotas;
