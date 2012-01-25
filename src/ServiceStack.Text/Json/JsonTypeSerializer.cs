@@ -345,7 +345,7 @@ namespace ServiceStack.Text.Json
 		{
 			var jsonLength = json.Length;
 
-			EatWhitespace(json, ref index);
+			for (; index < json.Length; index++) { var ch = json[index]; if (ch >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[ch]) break; } //Whitespace inline
 
 			if (json[index] == JsonUtils.QuoteChar)
 			{
@@ -470,7 +470,7 @@ namespace ServiceStack.Text.Json
 
 		public bool EatMapStartChar(string value, ref int i)
 		{
-			EatWhitespace(value, ref i);
+			for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
 			return value[i++] == JsWriter.MapStartChar;
 		}
 
@@ -481,15 +481,14 @@ namespace ServiceStack.Text.Json
 
 		public bool EatMapKeySeperator(string value, ref int i)
 		{
-			EatWhitespace(value, ref i);
+			for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
 			if (value.Length == i) return false;
 			return value[i++] == JsWriter.MapKeySeperator;
 		}
 
 		public bool EatItemSeperatorOrMapEndChar(string value, ref int i)
 		{
-			//for (var c=0; i < value.Length; c = value[++i]) if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; //Whitespace inline
-			EatWhitespace(value, ref i);
+			for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
 
 			if (i == value.Length) return false;
 
@@ -500,7 +499,7 @@ namespace ServiceStack.Text.Json
 
 			if (success)
 			{
-				EatWhitespace(value, ref i);
+				for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
 			}
 
 			return success;
@@ -511,7 +510,7 @@ namespace ServiceStack.Text.Json
 			var valueLength = value.Length;
 			if (i == valueLength) return null;
 
-			EatWhitespace(value, ref i);
+			for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
 
 			var tokenStartPos = i;
 			var valueChar = value[i];

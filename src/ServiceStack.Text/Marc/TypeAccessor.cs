@@ -5,17 +5,11 @@ using System.Reflection.Emit;
 using System.Threading;
 //using System.Dynamic;
 
-// Awesome stuff from @marcgravell as usual
+//Not using it here, but @marcgravell's stuff is too good not to include
 // http://code.google.com/p/fast-member/ Apache License 2.0
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX
 namespace FastMember
 {
-//
-//#if SILVERLIGHT | MONOTOUCH | XBOX
-
-	//public class TypeAccessor {}	
-
-//#else
-
     /// <summary>
     /// Provides by-name member-access to objects of a given type
     /// </summary>
@@ -307,8 +301,8 @@ namespace FastMember
             get; set;
         }
     }
-
-//#endif
-
 }
+
+#endif
+
 

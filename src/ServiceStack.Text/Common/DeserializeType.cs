@@ -27,7 +27,7 @@ namespace ServiceStack.Text.Common
 		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
 		private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
-		
+
 		public static ParseStringDelegate GetParseMethod(Type type)
 		{
 			if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
@@ -47,9 +47,10 @@ namespace ServiceStack.Text.Common
 			}
 
 			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+
 			return value => StringToType(type, value, ctorFn, map);
 		}
-		
+
 		public static object ObjectStringToType(string strType)
 		{
 			var type = ExtractType(strType);
@@ -76,27 +77,27 @@ namespace ServiceStack.Text.Common
 
 				if (type == null)
 					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
-	
+
 				return type;
 			}
 			return null;
 		}
 
-        public static object ParseAbstractType<T>(string value)
-        {
-            if (typeof(T).IsAbstract)
-            {
-                if (string.IsNullOrEmpty(value)) return null;
-                var concreteType = ExtractType(value);
-                if (concreteType != null)
-                {
-                    return Serializer.GetParseFn(concreteType)(value);
-                }
-            	Tracer.Instance.WriteWarning(
+		public static object ParseAbstractType<T>(string value)
+		{
+			if (typeof(T).IsAbstract)
+			{
+				if (string.IsNullOrEmpty(value)) return null;
+				var concreteType = ExtractType(value);
+				if (concreteType != null)
+				{
+					return Serializer.GetParseFn(concreteType)(value);
+				}
+				Tracer.Instance.WriteWarning(
 					"Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
-            }
-            return null;
-        }
+			}
+			return null;
+		}
 
 		private static object StringToType(Type type, string strType,
 		   EmptyCtorDelegate ctorFn,
@@ -166,7 +167,7 @@ namespace ServiceStack.Text.Common
 
 						continue;
 					}
-					catch (Exception)
+					catch
 					{
 						Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
 					}
@@ -183,7 +184,7 @@ namespace ServiceStack.Text.Common
 							typeAccessor.SetProperty(instance, propertyValue);
 						}
 					}
-					catch (Exception)
+					catch
 					{
 						Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
 					}
