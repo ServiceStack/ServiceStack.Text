@@ -45,6 +45,11 @@ namespace ServiceStack.Text.Json
 			return JsonWriter.GetWriteFn(type);
 		}
 
+		public TypeInfo GetTypeInfo(Type type)
+		{
+			return JsonWriter.GetTypeInfo(type);
+		}
+
 		/// <summary>
 		/// Shortcut escape when we're sure value doesn't contain any escaped chars
 		/// </summary>
@@ -87,14 +92,7 @@ namespace ServiceStack.Text.Json
 
 		public void WriteObjectString(TextWriter writer, object value)
 		{
-			if (value != null)
-			{
-				WriteString(writer, value.ToString());
-			}
-			else
-			{
-				WriteString(writer, null);
-			}
+			JsonUtils.WriteString(writer, value != null ? value.ToString() : null);
 		}
 
 		public void WriteException(TextWriter writer, object value)
@@ -130,64 +128,158 @@ namespace ServiceStack.Text.Json
 			WriteRawString(writer, Convert.ToBase64String((byte[])oByteValue));
 		}
 
-		public void WriteInteger(TextWriter writer, object integerValue)
+		public void WriteChar(TextWriter writer, object charValue)
 		{
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
-
-			if (integerValue == null)
-				writer.Write(JsonUtils.Null);
+			if (charValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
 			else
-				writer.Write(integerValue.ToString());
+				writer.Write((char)charValue);
+		}
 
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
+		public void WriteByte(TextWriter writer, object byteValue)
+		{
+			if (byteValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
+			else
+				writer.Write((byte)byteValue);
+		}
+
+		public void WriteInt16(TextWriter writer, object intValue)
+		{
+			if (intValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
+			else
+				writer.Write((short)intValue);
+		}
+
+		public void WriteUInt16(TextWriter writer, object intValue)
+		{
+			if (intValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
+			else
+				writer.Write((ushort)intValue);
+		}
+
+		public void WriteInt32(TextWriter writer, object intValue)
+		{
+			if (intValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
+			else
+				writer.Write((int)intValue);
+		}
+
+		public void WriteUInt32(TextWriter writer, object uintValue)
+		{
+			if (uintValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
+			else
+				writer.Write((uint)uintValue);
+		}
+
+		public void WriteInt64(TextWriter writer, object integerValue)
+		{
+			if (integerValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
+			else
+				writer.Write((long)integerValue);
+		}
+
+		public void WriteUInt64(TextWriter writer, object ulongValue)
+		{
+			if (ulongValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
+			else
+				writer.Write((ulong)ulongValue);
 		}
 
 		public void WriteBool(TextWriter writer, object boolValue)
 		{
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
-
 			if (boolValue == null)
-				writer.Write(JsonUtils.Null);
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
 			else
 				writer.Write(((bool)boolValue) ? JsonUtils.True : JsonUtils.False);
-
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
 		public void WriteFloat(TextWriter writer, object floatValue)
 		{
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
-
 			if (floatValue == null)
-				writer.Write(JsonUtils.Null);
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
+			}
 			else
 				writer.Write(((float)floatValue).ToString(CultureInfo.InvariantCulture));
-
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
 		public void WriteDouble(TextWriter writer, object doubleValue)
 		{
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
-
 			if (doubleValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 				writer.Write(JsonUtils.Null);
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
+			}
 			else
 				writer.Write(((double)doubleValue).ToString(CultureInfo.InvariantCulture));
-
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
 		public void WriteDecimal(TextWriter writer, object decimalValue)
 		{
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
-
 			if (decimalValue == null)
+			{
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 				writer.Write(JsonUtils.Null);
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
+			}
 			else
 				writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));
-
-			if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 		}
 
         public void WriteEnum(TextWriter writer, object enumValue)
@@ -212,21 +304,11 @@ namespace ServiceStack.Text.Json
 		{
 			var type = value.GetType();
 			//TODO: might need to optimize this
-			if (type == typeof(bool) || type.IsNumericType())
+			//if (type == typeof(bool) || type.IsNumericType())
+			if (JsonWriter.GetTypeInfo(type).EncodeMapKey)
 			{
-				return '"' + value.ToString() + '"';
-			}
-			if (!type.IsValueType)
-			{
-/*
-				if (!JsonUtils.HasAnyEscapeChars(value))
-				{
-					writer.Write(QuoteChar);
-					writer.Write(value);
-					writer.Write(QuoteChar);
-					return;
-				}
-*/
+				return new StringBuilder(JsonUtils.QuoteChar).Append(value).Append(JsonUtils.QuoteChar).ToString();
+				//return '"' + value.ToString() + '"';
 			}
 			return value;
 		}
@@ -406,6 +488,7 @@ namespace ServiceStack.Text.Json
 
 		public bool EatItemSeperatorOrMapEndChar(string value, ref int i)
 		{
+			//for (var c=0; i < value.Length; c = value[++i]) if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; //Whitespace inline
 			EatWhitespace(value, ref i);
 
 			if (i == value.Length) return false;
@@ -432,67 +515,61 @@ namespace ServiceStack.Text.Json
 
 			var tokenStartPos = i;
 			var valueChar = value[i];
-
-			//If we are at the end, return.
-			if (valueChar == JsWriter.ItemSeperator
-				|| valueChar == JsWriter.MapEndChar)
-			{
-				return null;
-			}
-
-			//Is List, i.e. [...]
 			var withinQuotes = false;
-			if (valueChar == JsWriter.ListStartChar)
+			var endsToEat = 1;
+
+			switch (valueChar)
 			{
-				var endsToEat = 1;
-				while (++i < valueLength && endsToEat > 0)
-				{
-					valueChar = value[i];
+				//If we are at the end, return.
+				case JsWriter.ItemSeperator:
+				case JsWriter.MapEndChar:
+					return null;
 
-					if (valueChar == JsWriter.QuoteChar
-						&& value[i - 1] != JsonUtils.EscapeChar)
-						withinQuotes = !withinQuotes;
+				//Is Within Quotes, i.e. "..."
+				case JsWriter.QuoteChar:
+					return ParseJsonString(value, ref i);
 
-					if (withinQuotes)
-						continue;
+				//Is Type/Map, i.e. {...}
+				case JsWriter.MapStartChar:
+					while (++i < valueLength && endsToEat > 0)
+					{
+						valueChar = value[i];
 
-					if (valueChar == JsWriter.ListStartChar)
-						endsToEat++;
+						if (valueChar == JsWriter.QuoteChar
+							&& value[i - 1] != JsonUtils.EscapeChar)
+							withinQuotes = !withinQuotes;
 
-					if (valueChar == JsWriter.ListEndChar)
-						endsToEat--;
-				}
-				return value.Substring(tokenStartPos, i - tokenStartPos);
-			}
+						if (withinQuotes)
+							continue;
 
-			//Is Type/Map, i.e. {...}
-			if (valueChar == JsWriter.MapStartChar)
-			{
-				var endsToEat = 1;
-				while (++i < valueLength && endsToEat > 0)
-				{
-					valueChar = value[i];
+						if (valueChar == JsWriter.MapStartChar)
+							endsToEat++;
 
-					if (valueChar == JsWriter.QuoteChar
-						&& value[i - 1] != JsonUtils.EscapeChar)
-						withinQuotes = !withinQuotes;
+						if (valueChar == JsWriter.MapEndChar)
+							endsToEat--;
+					}
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 
-					if (withinQuotes)
-						continue;
+				//Is List, i.e. [...]
+				case JsWriter.ListStartChar:
+					while (++i < valueLength && endsToEat > 0)
+					{
+						valueChar = value[i];
 
-					if (valueChar == JsWriter.MapStartChar)
-						endsToEat++;
+						if (valueChar == JsWriter.QuoteChar
+							&& value[i - 1] != JsonUtils.EscapeChar)
+							withinQuotes = !withinQuotes;
 
-					if (valueChar == JsWriter.MapEndChar)
-						endsToEat--;
-				}
-				return value.Substring(tokenStartPos, i - tokenStartPos);
-			}
+						if (withinQuotes)
+							continue;
 
-			//Is Within Quotes, i.e. "..."
-			if (valueChar == JsWriter.QuoteChar)
-			{
-				return ParseJsonString(value, ref i);
+						if (valueChar == JsWriter.ListStartChar)
+							endsToEat++;
+
+						if (valueChar == JsWriter.ListEndChar)
+							endsToEat--;
+					}
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 			}
 
 			//Is Value

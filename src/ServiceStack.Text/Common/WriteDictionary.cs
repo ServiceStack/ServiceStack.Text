@@ -97,6 +97,7 @@ namespace ServiceStack.Text.Common
 			WriteObjectDelegate writeValueFn = null;
 
 			writer.Write(JsWriter.MapStartChar);
+			var encodeMapKey = false;
 
 			var map = (IDictionary)oMap;
 			var ranOnce = false;
@@ -104,7 +105,11 @@ namespace ServiceStack.Text.Common
 			{
 				var dictionaryValue = map[key];
 				if (writeKeyFn == null)
-					writeKeyFn = Serializer.GetWriteFn(key.GetType());
+				{
+					var keyType = key.GetType();
+					writeKeyFn = Serializer.GetWriteFn(keyType);
+					encodeMapKey = Serializer.GetTypeInfo(keyType).EncodeMapKey;
+				}
 
 				if (writeValueFn == null)
 					writeValueFn = Serializer.GetWriteFn(dictionaryValue.GetType());
@@ -113,7 +118,19 @@ namespace ServiceStack.Text.Common
 
 				JsState.WritingKeyCount++;
 				JsState.IsWritingValue = false;
-				writeKeyFn(writer, key);
+
+				if (encodeMapKey)
+				{
+					JsState.IsWritingValue = true; //prevent ""null""
+					writer.Write(JsWriter.QuoteChar);
+					writeKeyFn(writer, key);
+					writer.Write(JsWriter.QuoteChar);
+				}
+				else
+				{
+					writeKeyFn(writer, key);
+				}
+
 				JsState.WritingKeyCount--;
 
 				writer.Write(JsWriter.MapKeySeperator);
@@ -130,6 +147,8 @@ namespace ServiceStack.Text.Common
 	internal static class ToStringDictionaryMethods<TKey, TValue, TSerializer>
 		where TSerializer : ITypeSerializer
 	{
+		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+
 		public static void WriteIDictionary(
 			TextWriter writer,
 			object oMap,
@@ -148,6 +167,8 @@ namespace ServiceStack.Text.Common
 		{
 			writer.Write(JsWriter.MapStartChar);
 
+			var encodeMapKey = Serializer.GetTypeInfo(typeof(TKey)).EncodeMapKey;
+
 			var ranOnce = false;
 			foreach (var kvp in map)
 			{
@@ -155,7 +176,19 @@ namespace ServiceStack.Text.Common
 
 				JsState.WritingKeyCount++;
                 JsState.IsWritingValue = false;
-				writeKeyFn(writer, kvp.Key);
+
+				if (encodeMapKey)
+				{
+					JsState.IsWritingValue = true; //prevent ""null""
+					writer.Write(JsWriter.QuoteChar);
+					writeKeyFn(writer, kvp.Key);
+					writer.Write(JsWriter.QuoteChar);
+				}
+				else
+				{
+					writeKeyFn(writer, kvp.Key);
+				}
+				
 				JsState.WritingKeyCount--;
 
 				writer.Write(JsWriter.MapKeySeperator);

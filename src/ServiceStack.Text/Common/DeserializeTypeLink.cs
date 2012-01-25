@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
@@ -25,6 +26,7 @@ namespace ServiceStack.Text.Common
 		where TSerializer : ITypeSerializer
 	{
 		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+		//private static IEqualityComparer<string> PropertyNameComparer = StringComparer.Create(System.Globalization.CultureInfo.InvariantCulture, true);
 
 		private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
 		
@@ -38,16 +40,27 @@ namespace ServiceStack.Text.Common
 				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
 				return value => emptyCtorFn();
 			}
-
-			var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
-
+			
+			//var setterMap = new Dictionary<string, SetPropertyDelegate>(StringComparer.OrdinalIgnoreCase);
+			//var map = new Dictionary<string, ParseStringDelegate>(StringComparer.OrdinalIgnoreCase);
+			Link<string, ParseStringDelegate> byNameParseCache = null;
+			Link<string, SetPropertyDelegate> byNameWriteCache = null;
 			foreach (var propertyInfo in propertyInfos)
 			{
-				map[propertyInfo.Name] = TypeAccessor.Create(Serializer, type, propertyInfo);
+				var keyInterned = string.Intern(propertyInfo.Name.ToUpperInvariant());
+
+				var parseFn = Serializer.GetParseFn(propertyInfo.PropertyType);
+				Link<string, ParseStringDelegate>.TryAdd(ref byNameParseCache, keyInterned, ref parseFn);
+
+				var writeFn = GetSetPropertyMethod(type, propertyInfo);
+				Link<string, SetPropertyDelegate>.TryAdd(ref byNameWriteCache, keyInterned, ref writeFn);
+
+				//map[propertyInfo.Name] = Serializer.GetParseFn(propertyInfo.PropertyType);
+				//setterMap[propertyInfo.Name] = GetSetPropertyMethod(type, propertyInfo);
 			}
 
 			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-			return value => StringToType(type, value, ctorFn, map);
+			return value => StringToType(type, value, ctorFn, byNameWriteCache, byNameParseCache);
 		}
 		
 		public static object ObjectStringToType(string strType)
@@ -100,7 +113,8 @@ namespace ServiceStack.Text.Common
 
 		private static object StringToType(Type type, string strType,
 		   EmptyCtorDelegate ctorFn,
-		   Dictionary<string, TypeAccessor> typeAccessorMap)
+		   Link<string, SetPropertyDelegate> setterMap,
+		   Link<string, ParseStringDelegate> parseStringFnMap)
 		{
 			var index = 0;
 
@@ -115,24 +129,28 @@ namespace ServiceStack.Text.Common
 			if (strType == JsWriter.EmptyMap) return ctorFn();
 
 			object instance = null;
+			string propertyName;
+
+			ParseStringDelegate parseStringFn = null;
+			SetPropertyDelegate setterFn = null;
 
 			var strTypeLength = strType.Length;
+
 			while (index < strTypeLength)
 			{
-				var propertyName = Serializer.EatMapKey(strType, ref index);
+				propertyName = string.Intern(Serializer.EatMapKey(strType, ref index).ToUpperInvariant());
 
 				Serializer.EatMapKeySeperator(strType, ref index);
 
-				var propertyValueStr = Serializer.EatValue(strType, ref index);
-				var possibleTypeInfo = propertyValueStr != null && propertyValueStr.Length > 1 && propertyValueStr[0] == '_';
+				var propertyValueString = Serializer.EatValue(strType, ref index);
 
-				if (possibleTypeInfo && propertyName == JsWriter.TypeAttr)
+				if (propertyName == JsWriter.TypeAttr)
 				{
-					var typeName = Serializer.ParseString(propertyValueStr);
+					var typeName = Serializer.ParseString(propertyValueString);
 					instance = ReflectionExtensions.CreateInstance(typeName);
 					if (instance == null)
 					{
-						Tracer.Instance.WriteWarning("Could not find type: " + propertyValueStr);
+						Tracer.Instance.WriteWarning("Could not find type: " + propertyValueString);
 					}
 					else
 					{
@@ -147,45 +165,51 @@ namespace ServiceStack.Text.Common
 
 				if (instance == null) instance = ctorFn();
 
-				TypeAccessor typeAccessor;
-				typeAccessorMap.TryGetValue(propertyName, out typeAccessor);
-
-				var propType = possibleTypeInfo ? ExtractType(propertyValueStr) : null;
+				var propType = ExtractType(propertyValueString);
 				if (propType != null)
 				{
 					try
 					{
-						if (typeAccessor != null)
+						var parseFn = Serializer.GetParseFn(propType);
+						var propertyValue = parseFn(propertyValueString);
+
+						//setterMap.TryGetValue(propertyName, out setterFn);
+						Link<string, SetPropertyDelegate>.TryGet(setterMap, propertyName, out setterFn);
+
+						if (setterFn != null)
 						{
-							var parseFn = Serializer.GetParseFn(propType);
-							var propertyValue = parseFn(propertyValueStr);
-							typeAccessor.SetProperty(instance, propertyValue);
+							setterFn(instance, propertyValue);
 						}
 
 						Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-
 						continue;
 					}
 					catch (Exception)
 					{
-						Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
+						Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueString);
 					}
 				}
 
-				if (typeAccessor != null && typeAccessor.GetProperty != null)
+				//parseStringFnMap.TryGetValue(propertyName, out parseStringFn);
+				Link<string, ParseStringDelegate>.TryGet(parseStringFnMap, propertyName, out parseStringFn);
+
+				if (parseStringFn != null)
 				{
 					try
 					{
-						var propertyValue = typeAccessor.GetProperty(propertyValueStr);
+						var propertyValue = parseStringFn(propertyValueString);
 
-						if (typeAccessor.SetProperty != null)
+						Link<string, SetPropertyDelegate>.TryGet(setterMap, propertyName, out setterFn);
+						//setterMap.TryGetValue(propertyName, out setterFn);
+
+						if (setterFn != null)
 						{
-							typeAccessor.SetProperty(instance, propertyValue);
+							setterFn(instance, propertyValue);
 						}
 					}
 					catch (Exception)
 					{
-						Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
+						Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueString);
 					}
 				}
 
@@ -195,21 +219,7 @@ namespace ServiceStack.Text.Common
 			return instance;
 		}
 
-		internal class TypeAccessor
-		{
-			internal ParseStringDelegate GetProperty;
-			internal SetPropertyDelegate SetProperty;
-
-			public static TypeAccessor Create(ITypeSerializer serializer, Type type, PropertyInfo propertyInfo)
-			{
-				return new TypeAccessor {
-					GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
-					SetProperty = GetSetPropertyMethod(type, propertyInfo),
-				};
-			}
-		}
-
-		internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
+		public static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
 		{
 			var setMethodInfo = propertyInfo.GetSetMethod(true);
 			if (setMethodInfo == null) return null;

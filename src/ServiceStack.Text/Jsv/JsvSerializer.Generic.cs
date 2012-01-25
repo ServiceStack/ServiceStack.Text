@@ -62,7 +62,7 @@ namespace ServiceStack.Text.Jsv
 			if (value == null) return null;
 			if (value is string) return value as string;
 
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb))
 			{
 				JsvWriter<T>.WriteObject(writer, value);

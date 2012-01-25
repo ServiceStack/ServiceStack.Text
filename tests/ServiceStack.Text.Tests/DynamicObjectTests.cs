@@ -17,11 +17,10 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Dictionary_Object_UrlStatus()
 		{
-			var urlStatus = new UrlStatus
-        	{
-        		Status = 301,
-        		Url = "http://www.ehow.com/how_5615409_create-pdfs-using-bean.html",
-        	};
+			var urlStatus = new UrlStatus {
+				Status = 301,
+				Url = "http://www.ehow.com/how_5615409_create-pdfs-using-bean.html",
+			};
 
 			var map = new Dictionary<string, object>
           	{
@@ -43,6 +42,27 @@ namespace ServiceStack.Text.Tests
 			Assert.That(actualStatus.Url, Is.EqualTo(urlStatus.Url));
 
 			Console.WriteLine("JSON: " + json);
+		}
+
+		public class PocoWithKvp
+		{
+			public KeyValuePair<string, string>[] Values { get; set; }
+		}
+
+		[Test]
+		public void Can_Serailize_KVP_array()
+		{
+			var kvpArray = new[] {
+				new KeyValuePair<string, string>("Key", "Foo"),
+				new KeyValuePair<string, string>("Value", "Bar"),
+			};
+			var dto = new PocoWithKvp {
+				Values = kvpArray
+			};
+
+			Console.WriteLine(dto.ToJson());
+
+			Serialize(dto, includeXml: false);
 		}
 
 	}

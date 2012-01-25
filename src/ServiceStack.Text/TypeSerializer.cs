@@ -87,7 +87,7 @@ namespace ServiceStack.Text
                 return result;
             }
 
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
 				JsvWriter<T>.WriteObject(writer, value);
@@ -100,7 +100,7 @@ namespace ServiceStack.Text
 			if (value == null) return null;
 			if (type == typeof(string)) return value as string;
 
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
 				JsvWriter.GetWriteFn(type)(writer, value);

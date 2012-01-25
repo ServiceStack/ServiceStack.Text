@@ -14,10 +14,11 @@ using System;
 using System.Globalization;
 using System.IO;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Jsv
 {
-	internal class JsvTypeSerializer 
+	internal class JsvTypeSerializer
 		: ITypeSerializer
 	{
 		public static ITypeSerializer Instance = new JsvTypeSerializer();
@@ -32,6 +33,13 @@ namespace ServiceStack.Text.Jsv
 		public WriteObjectDelegate GetWriteFn(Type type)
 		{
 			return JsvWriter.GetWriteFn(type);
+		}
+
+		static readonly TypeInfo DefaultTypeInfo = new TypeInfo { EncodeMapKey = false };
+
+		public TypeInfo GetTypeInfo(Type type)
+		{
+			return DefaultTypeInfo;
 		}
 
 		public void WriteRawString(TextWriter writer, string value)
@@ -95,16 +103,58 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(Convert.ToBase64String((byte[])oByteValue));
 		}
 
-		public void WriteInteger(TextWriter writer, object integerValue)
+		public void WriteChar(TextWriter writer, object charValue)
 		{
-			if (integerValue == null) return;
-			writer.Write(integerValue.ToString());
+			if (charValue == null) return;
+			writer.Write((char)charValue);
+		}
+
+		public void WriteByte(TextWriter writer, object byteValue)
+		{
+			if (byteValue == null) return;
+			writer.Write((byte)byteValue);
+		}
+
+		public void WriteInt16(TextWriter writer, object intValue)
+		{
+			if (intValue == null) return;
+			writer.Write((short)intValue);
+		}
+
+		public void WriteUInt16(TextWriter writer, object intValue)
+		{
+			if (intValue == null) return;
+			writer.Write((ushort)intValue);
+		}
+
+		public void WriteInt32(TextWriter writer, object intValue)
+		{
+			if (intValue == null) return;
+			writer.Write((int)intValue);
+		}
+
+		public void WriteUInt32(TextWriter writer, object uintValue)
+		{
+			if (uintValue == null) return;
+			writer.Write((uint)uintValue);
+		}
+
+		public void WriteUInt64(TextWriter writer, object ulongValue)
+		{
+			if (ulongValue == null) return;
+			writer.Write((ulong)ulongValue);
+		}
+
+		public void WriteInt64(TextWriter writer, object longValue)
+		{
+			if (longValue == null) return;
+			writer.Write((long)longValue);
 		}
 
 		public void WriteBool(TextWriter writer, object boolValue)
 		{
 			if (boolValue == null) return;
-			writer.Write(boolValue.ToString());
+			writer.Write((bool)boolValue);
 		}
 
 		public void WriteFloat(TextWriter writer, object floatValue)
@@ -125,20 +175,20 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));
 		}
 
-	    public void WriteEnum(TextWriter writer, object enumValue)
-	    {
-            if (enumValue == null) return;
-            writer.Write(enumValue.ToString());
-        }
+		public void WriteEnum(TextWriter writer, object enumValue)
+		{
+			if (enumValue == null) return;
+			writer.Write(enumValue.ToString());
+		}
 
-	    public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
-	    {
-            if (enumFlagValue == null) return;
-	        var intVal = (int)enumFlagValue;
-            writer.Write(intVal);
-	    }
+		public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+		{
+			if (enumFlagValue == null) return;
+			var intVal = (int)enumFlagValue;
+			writer.Write(intVal);
+		}
 
-	    public object EncodeMapKey(object value)
+		public object EncodeMapKey(object value)
 		{
 			return value;
 		}

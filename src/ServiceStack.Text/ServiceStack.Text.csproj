@@ -77,6 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyUtils.cs" />
+    <Compile Include="Common\DeserializeType.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="CsvConfig.cs" />
     <Compile Include="JsConfig.cs" />
     <Compile Include="Common\DeserializeSpecializedCollections.cs" />
@@ -115,7 +118,6 @@
     <Compile Include="Common\ParseUtils.cs" />
     <Compile Include="Common\StaticParseMethod.cs" />
     <Compile Include="Common\DeserializeTypeUtils.cs" />
-    <Compile Include="Common\DeserializeType.cs" />
     <Compile Include="Common\JsDelegates.cs" />
     <Compile Include="ListExtensions.cs" />
     <Compile Include="MapExtensions.cs" />
@@ -127,8 +129,11 @@
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Support\AssemblyTypeDefinition.cs" />
+    <Compile Include="Support\CallSiteCache.cs" />
     <Compile Include="Support\DoubleConverter.cs" />
     <Compile Include="Support\Link.cs" />
+    <Compile Include="Support\ObjectAccessor.cs" />
+    <Compile Include="Support\TypeAccessor.cs" />
     <Compile Include="Support\TypePair.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="TranslateListWithElements.cs" />
