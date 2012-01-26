@@ -12,7 +12,6 @@
 
 #if !XBOX
 using System.Linq;
-using System.Linq.Expressions;
 #endif
 
 using System;
@@ -140,7 +139,7 @@ namespace ServiceStack.Text.Common
 			};
 		}
 
-		internal static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+		private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
 		{
 			if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
 
@@ -148,10 +147,11 @@ namespace ServiceStack.Text.Common
 
 			if (!propertyInfo.CanWrite)
 			{
+				//TODO: What string comparison is used in SST?
 				var fieldName = string.Format("<{0}>i__Field", propertyInfo.Name);
 				fieldInfo = typeConfig.Type
 					.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField)
-					.SingleOrDefault(f => f.FieldType == propertyInfo.PropertyType && f.Name == fieldName); //TODO: What string comparison is used
+					.SingleOrDefault(f => f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName); 
 
 				if (fieldInfo == null)
 					return null;
@@ -160,11 +160,9 @@ namespace ServiceStack.Text.Common
 #if SILVERLIGHT || MONOTOUCH || XBOX
 			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
 #else
-
 			return propertyInfo.CanWrite 
 				? CreateIlPropertySetter(propertyInfo) 
 				: CreateIlFieldSetter(fieldInfo);
-
 #endif
 		}
 
@@ -235,29 +233,12 @@ namespace ServiceStack.Text.Common
 
 		internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
 		{
-			var setMethodInfo = propertyInfo.GetSetMethod(true);
-			if (setMethodInfo == null) return null;
+			if (!propertyInfo.CanWrite) return null;
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
 			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
 #else
-			var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
-			var oValueParam = Expression.Parameter(typeof(object), "oValueParam");
-
-			var instanceParam = Expression.Convert(oInstanceParam, type);
-			var useType = propertyInfo.PropertyType;
-
-			var valueParam = Expression.Convert(oValueParam, useType);
-			var exprCallPropertySetFn = Expression.Call(instanceParam, setMethodInfo, valueParam);
-
-			var propertySetFn = Expression.Lambda<SetPropertyDelegate>
-				(
-					exprCallPropertySetFn,
-					oInstanceParam,
-					oValueParam
-				).Compile();
-
-			return propertySetFn;
+			return CreateIlPropertySetter(propertyInfo);
 #endif
 		}
 	}
