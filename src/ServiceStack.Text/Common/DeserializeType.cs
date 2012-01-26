@@ -11,12 +11,14 @@
 //
 
 #if !XBOX
+using System.Linq;
 using System.Linq.Expressions;
 #endif
 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace ServiceStack.Text.Common
 {
@@ -27,8 +29,10 @@ namespace ServiceStack.Text.Common
 
 		private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
 
-		public static ParseStringDelegate GetParseMethod(Type type)
+		public static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
 		{
+			var type = typeConfig.Type;
+
 			if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
 			var propertyInfos = type.GetSerializableProperties();
@@ -42,7 +46,7 @@ namespace ServiceStack.Text.Common
 
 			foreach (var propertyInfo in propertyInfos)
 			{
-				map[propertyInfo.Name] = TypeAccessor.Create(Serializer, type, propertyInfo);
+				map[propertyInfo.Name] = TypeAccessor.Create(Serializer, typeConfig, propertyInfo);
 			}
 
 			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
@@ -128,12 +132,105 @@ namespace ServiceStack.Text.Common
 			return null;
 		}
 
-		public static TypeAccessor Create(ITypeSerializer serializer, Type type, PropertyInfo propertyInfo)
+		public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, PropertyInfo propertyInfo)
 		{
 			return new TypeAccessor {
 				GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
-				SetProperty = GetSetPropertyMethod(type, propertyInfo),
+				SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
 			};
+		}
+
+		internal static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+		{
+			if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
+
+			FieldInfo fieldInfo = null;
+
+			if (!propertyInfo.CanWrite)
+			{
+				var fieldName = string.Format("<{0}>i__Field", propertyInfo.Name);
+				fieldInfo = typeConfig.Type
+					.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField)
+					.SingleOrDefault(f => f.FieldType == propertyInfo.PropertyType && f.Name == fieldName); //TODO: What string comparison is used
+
+				if (fieldInfo == null)
+					return null;
+			}
+
+#if SILVERLIGHT || MONOTOUCH || XBOX
+			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
+#else
+
+			return propertyInfo.CanWrite 
+				? CreateIlPropertySetter(propertyInfo) 
+				: CreateIlFieldSetter(fieldInfo);
+
+#endif
+		}
+
+		private static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
+		{
+			var propSetMethod = propertyInfo.GetSetMethod(true);
+			if (propSetMethod == null)
+				return null;
+
+			var setter = CreateDynamicSetMethod(propertyInfo);
+
+			var generator = setter.GetILGenerator();
+			generator.Emit(OpCodes.Ldarg_0);
+			generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
+			generator.Emit(OpCodes.Ldarg_1);
+
+			generator.Emit(propertyInfo.PropertyType.IsClass
+				? OpCodes.Castclass
+				: OpCodes.Unbox_Any,
+				propertyInfo.PropertyType);
+
+			generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
+			generator.Emit(OpCodes.Ret);
+
+			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+		}
+
+		private static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
+		{
+			var setter = CreateDynamicSetMethod(fieldInfo);
+
+			var generator = setter.GetILGenerator();
+			generator.Emit(OpCodes.Ldarg_0);
+			generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
+			generator.Emit(OpCodes.Ldarg_1);
+
+			generator.Emit(fieldInfo.FieldType.IsClass
+				? OpCodes.Castclass
+				: OpCodes.Unbox_Any,
+				fieldInfo.FieldType);
+
+			generator.Emit(OpCodes.Stfld, fieldInfo);
+			generator.Emit(OpCodes.Ret);
+
+			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+		}
+
+		private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
+		{
+			var args = new[] { typeof(object), typeof(object) };
+			var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
+			var returnType = typeof(void);
+
+			return !memberInfo.DeclaringType.IsInterface
+					   ? new DynamicMethod(
+							 name,
+							 returnType,
+							 args,
+							 memberInfo.DeclaringType,
+							 true)
+					   : new DynamicMethod(
+							 name,
+							 returnType,
+							 args,
+							 memberInfo.Module,
+							 true);
 		}
 
 		internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
