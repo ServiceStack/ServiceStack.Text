@@ -102,7 +102,12 @@ namespace ServiceStack.Text.Json
 
 		public void WriteDateTime(TextWriter writer, object oDateTime)
 		{
-			WriteRawString(writer, DateTimeSerializer.ToWcfJsonDate((DateTime)oDateTime));
+			//WriteRawString(writer, DateTimeSerializer.ToWcfJsonDate((DateTime)oDateTime));
+			writer.Write(JsWriter.QuoteChar);
+			writer.Write("\\/Date(");
+			writer.Write((((DateTime)oDateTime).ToUniversalTime().Ticks - DateTimeExtensions.UnixEpoch) / DateTimeExtensions.TicksPerMs);
+			writer.Write("+0000)\\/");
+			writer.Write(JsWriter.QuoteChar);
 		}
 
 		public void WriteNullableDateTime(TextWriter writer, object dateTime)
@@ -262,9 +267,10 @@ namespace ServiceStack.Text.Json
 		{
 			if (doubleValue == null)
 			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
-				writer.Write(JsonUtils.Null);
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
 			}
 			else
 				writer.Write(((double)doubleValue).ToString(CultureInfo.InvariantCulture));
@@ -274,9 +280,10 @@ namespace ServiceStack.Text.Json
 		{
 			if (decimalValue == null)
 			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
-				writer.Write(JsonUtils.Null);
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
+				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
+					writer.Write(JsonUtils.QuotedNull);
+				else
+					writer.Write(JsonUtils.Null);
 			}
 			else
 				writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));
@@ -294,25 +301,7 @@ namespace ServiceStack.Text.Json
             var intVal = (int)enumFlagValue;
             writer.Write(intVal);
         }
-
-	    /// <summary>
-		/// A JSON key needs to be a string with quotes
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public object EncodeMapKey(object value)
-		{
-			var type = value.GetType();
-			//TODO: might need to optimize this
-			//if (type == typeof(bool) || type.IsNumericType())
-			if (JsonWriter.GetTypeInfo(type).EncodeMapKey)
-			{
-				return new StringBuilder(JsonUtils.QuoteChar).Append(value).Append(JsonUtils.QuoteChar).ToString();
-				//return '"' + value.ToString() + '"';
-			}
-			return value;
-		}
-
+		
 		public ParseStringDelegate GetParseFn<T>()
 		{
 			return JsonReader.Instance.GetParseFn<T>();
@@ -334,14 +323,12 @@ namespace ServiceStack.Text.Json
 
 		public string ParseString(string value)
 		{
-			if (String.IsNullOrEmpty(value)) return value;
-
-			return ParseRawString(value);
+			return string.IsNullOrEmpty(value) ? value : ParseRawString(value);
 		}
 
 		static readonly char[] IsSafeJsonChars = new[] { JsonUtils.QuoteChar, JsonUtils.EscapeChar };
 
-		private static string ParseJsonString(string json, ref int index)
+		internal static string ParseJsonString(string json, ref int index)
 		{
 			var jsonLength = json.Length;
 

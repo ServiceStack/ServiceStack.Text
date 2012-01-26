@@ -77,9 +77,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyUtils.cs" />
+    <Compile Include="Common\DeserializeTypeRefJsv.cs" />
     <Compile Include="Common\DeserializeType.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\DeserializeTypeRef.cs" />
+    <Compile Include="Common\DeserializeTypeRefJson.cs" />
     <Compile Include="CsvConfig.cs" />
     <Compile Include="JsConfig.cs" />
     <Compile Include="Common\DeserializeSpecializedCollections.cs" />
