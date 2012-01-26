@@ -139,7 +139,7 @@ namespace ServiceStack.Text.Common
 		internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
 		{
 			var setMethodInfo = propertyInfo.GetSetMethod(true);
-			if (setMethodInfo == null) return null;
+			if (setMethodInfo == null || setMethodInfo.GetParameters().Length > 1) return null;            
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
 			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
