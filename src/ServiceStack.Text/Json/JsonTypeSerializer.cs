@@ -136,91 +136,56 @@ namespace ServiceStack.Text.Json
 		public void WriteChar(TextWriter writer, object charValue)
 		{
 			if (charValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write((char)charValue);
 		}
 
 		public void WriteByte(TextWriter writer, object byteValue)
 		{
 			if (byteValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write((byte)byteValue);
 		}
 
 		public void WriteInt16(TextWriter writer, object intValue)
 		{
 			if (intValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write((short)intValue);
 		}
 
 		public void WriteUInt16(TextWriter writer, object intValue)
 		{
 			if (intValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write((ushort)intValue);
 		}
 
 		public void WriteInt32(TextWriter writer, object intValue)
 		{
 			if (intValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write((int)intValue);
 		}
 
 		public void WriteUInt32(TextWriter writer, object uintValue)
 		{
 			if (uintValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write((uint)uintValue);
 		}
 
 		public void WriteInt64(TextWriter writer, object integerValue)
 		{
 			if (integerValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write((long)integerValue);
 		}
 
@@ -228,11 +193,8 @@ namespace ServiceStack.Text.Json
 		{
 			if (ulongValue == null)
 			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
+                writer.Write(JsonUtils.Null);
+            }
 			else
 				writer.Write((ulong)ulongValue);
 		}
@@ -240,52 +202,32 @@ namespace ServiceStack.Text.Json
 		public void WriteBool(TextWriter writer, object boolValue)
 		{
 			if (boolValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write(((bool)boolValue) ? JsonUtils.True : JsonUtils.False);
 		}
 
 		public void WriteFloat(TextWriter writer, object floatValue)
 		{
 			if (floatValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write(((float)floatValue).ToString(CultureInfo.InvariantCulture));
 		}
 
 		public void WriteDouble(TextWriter writer, object doubleValue)
 		{
 			if (doubleValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write(((double)doubleValue).ToString(CultureInfo.InvariantCulture));
 		}
 
 		public void WriteDecimal(TextWriter writer, object decimalValue)
 		{
 			if (decimalValue == null)
-			{
-				if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue)
-					writer.Write(JsonUtils.QuotedNull);
-				else
-					writer.Write(JsonUtils.Null);
-			}
-			else
+                writer.Write(JsonUtils.Null);
+            else
 				writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));
 		}
 

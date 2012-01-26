@@ -8,7 +8,6 @@ namespace ServiceStack.Text.Json
 		public const char EscapeChar = '\\';
 		public const char QuoteChar = '"';
 		public const string Null = "null";
-		public const string QuotedNull = "\"null\"";
 		public const string True = "true";
 		public const string False = "false";
 
