@@ -83,6 +83,15 @@
     <Compile Include="..\ServiceStack.Text\Common\DeserializeType.cs">
       <Link>Common\DeserializeType.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\Common\DeserializeTypeRef.cs">
+      <Link>Common\DeserializeTypeRef.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\Common\DeserializeTypeRefJson.cs">
+      <Link>Common\DeserializeTypeRefJson.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\Common\DeserializeTypeRefJsv.cs">
+      <Link>Common\DeserializeTypeRefJsv.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\Common\DeserializeTypeUtils.cs">
       <Link>Common\DeserializeTypeUtils.cs</Link>
     </Compile>
@@ -194,6 +203,15 @@
     <Compile Include="..\ServiceStack.Text\MapExtensions.cs">
       <Link>MapExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\Marc\Link.cs">
+      <Link>Marc\Link.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\Marc\ObjectAccessor.cs">
+      <Link>Marc\ObjectAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\Marc\TypeAccessor.cs">
+      <Link>Marc\TypeAccessor.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\QueryStringSerializer.cs">
       <Link>QueryStringSerializer.cs</Link>
     </Compile>
@@ -214,9 +232,6 @@
     </Compile>
     <Compile Include="..\ServiceStack.Text\Support\DoubleConverter.cs">
       <Link>Support\DoubleConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\ServiceStack.Text\Support\Link.cs">
-      <Link>Support\Link.cs</Link>
     </Compile>
     <Compile Include="..\ServiceStack.Text\Support\TypePair.cs">
       <Link>Support\TypePair.cs</Link>
@@ -256,7 +271,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkReference="579b3fdb-cdad-44e1-8417-885c38e49a0e" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="579b3fdb-cdad-44e1-8417-885c38e49a0e" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
