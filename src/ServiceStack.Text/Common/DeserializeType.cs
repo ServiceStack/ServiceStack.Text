@@ -10,14 +10,14 @@
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
 
-#if !XBOX
+#if !XBOX && !MONOTOUCH && !SILVERLIGHT
 using System.Linq;
+using System.Reflection.Emit;
 #endif
 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
 
 namespace ServiceStack.Text.Common
 {
@@ -144,27 +144,39 @@ namespace ServiceStack.Text.Common
 			if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
 
 			FieldInfo fieldInfo = null;
-
 			if (!propertyInfo.CanWrite)
 			{
 				//TODO: What string comparison is used in SST?
 				var fieldName = string.Format("<{0}>i__Field", propertyInfo.Name);
-				fieldInfo = typeConfig.Type
-					.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField)
-					.SingleOrDefault(f => f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName); 
+				var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
+				foreach (var f in fieldInfos)
+				{
+					if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
+					{
+						fieldInfo = f;
+						break;
+					}
+				}
 
-				if (fieldInfo == null)
-					return null;
+				if (fieldInfo == null) return null;
 			}
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
-			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
+			if (propertyInfo.CanWrite)
+			{
+				var setMethodInfo = propertyInfo.GetSetMethod(true);
+				return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+			}
+			if (fieldInfo == null) return null;
+			return (instance, value) => fieldInfo.SetValue(instance, value);
 #else
 			return propertyInfo.CanWrite 
 				? CreateIlPropertySetter(propertyInfo) 
 				: CreateIlFieldSetter(fieldInfo);
 #endif
 		}
+
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX
 
 		private static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
 		{
@@ -217,26 +229,18 @@ namespace ServiceStack.Text.Common
 			var returnType = typeof(void);
 
 			return !memberInfo.DeclaringType.IsInterface
-					   ? new DynamicMethod(
-							 name,
-							 returnType,
-							 args,
-							 memberInfo.DeclaringType,
-							 true)
-					   : new DynamicMethod(
-							 name,
-							 returnType,
-							 args,
-							 memberInfo.Module,
-							 true);
+				? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
+				: new DynamicMethod(name, returnType, args, memberInfo.Module, true);
 		}
+#endif
 
 		internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
 		{
 			if (!propertyInfo.CanWrite) return null;
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
-			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
+			var setMethodInfo = propertyInfo.GetSetMethod(true);
+			return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
 #else
 			return CreateIlPropertySetter(propertyInfo);
 #endif

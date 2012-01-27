@@ -21,15 +21,6 @@ namespace ServiceStack.Text.Tests.JsvTests
             Assert.AreEqual("test", test.TestProperty);
         }
 
-        [Test]
-        public void Get_null_for_dictionary_item_method()
-        {
-            Type type = typeof(Dictionary<string,string>);
-            PropertyInfo propertyInfo = type.GetProperty("Item");
-            SetPropertyDelegate setMethod = JsvDeserializeType.GetSetPropertyMethod(type, propertyInfo);
-            Assert.IsNull(setMethod);
-        }
-
         private class Test
         {
             public string TestProperty { get; set; }

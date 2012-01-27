@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.ServiceInterface.ServiceModel;
-using ServiceStack.ServiceModel.Serialization;
 
 namespace ServiceStack.Text.Tests
 {
