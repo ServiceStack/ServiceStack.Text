@@ -65,7 +65,7 @@ namespace ServiceStack.Text.Common
 			if (staticParseMethod != null)
 				return value => staticParseMethod(Serializer.ParseRawString(value));
 
-			var typeConstructor = DeserializeType<TSerializer>.GetParseMethod(type);
+			var typeConstructor = DeserializeType<TSerializer>.GetParseMethod(TypeConfig<T>.GetState());
 			if (typeConstructor != null)
 				return typeConstructor;
 

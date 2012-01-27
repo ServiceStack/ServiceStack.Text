@@ -150,26 +150,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\tests\protobuf-net.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\tests\ServiceStack.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\tests\ServiceStack.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Interfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\tests\ServiceStack.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Messaging.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\tests\ServiceStack.Messaging.Tests.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.ServiceModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\tests\ServiceStack.ServiceModel.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdhocModelTests.cs" />
@@ -178,6 +158,7 @@
     <Compile Include="BasicStringSerializerTests.cs" />
     <Compile Include="BclStructTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
+    <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
     <Compile Include="JsonTests\CamelCaseTests.cs" />
     <Compile Include="CsvSerializerTests.cs" />
     <Compile Include="CsvStreamTests.cs" />
