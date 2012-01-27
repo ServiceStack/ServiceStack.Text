@@ -74,7 +74,7 @@ namespace ServiceStack.Text
 
 		public static string SerializeToString<T>(T value)
 		{
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
 				GetWriteFn(value.GetType())(writer, value);

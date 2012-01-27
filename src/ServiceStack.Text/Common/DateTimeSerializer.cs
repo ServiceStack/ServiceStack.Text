@@ -94,7 +94,6 @@ namespace ServiceStack.Text.Common
 		/// <returns></returns>
 		public static DateTime ParseWcfJsonDate(string wcfJsonDate)
 		{
-
 			if (wcfJsonDate[0] == JsonUtils.EscapeChar)
 			{
 				wcfJsonDate = wcfJsonDate.Substring(1);

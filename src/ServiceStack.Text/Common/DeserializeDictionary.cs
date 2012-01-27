@@ -110,7 +110,7 @@ namespace ServiceStack.Text.Common
 				if (tryToParseItemsAsDictionaries)
 				{
 					var mapValueString = mapValue as string;
-					var tryParseValueAsDictionary = JsonUtils.IsJsString(mapValueString);
+					var tryParseValueAsDictionary = JsonUtils.IsJsObject(mapValueString);
 					if (tryParseValueAsDictionary)
 					{
 						var tmpMap = ParseDictionary<TKey, TValue>(mapValueString, createMapType, parseKeyFn, parseValueFn);

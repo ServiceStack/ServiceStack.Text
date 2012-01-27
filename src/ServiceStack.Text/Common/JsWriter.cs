@@ -136,15 +136,24 @@ namespace ServiceStack.Text.Common
 
         public WriteObjectDelegate GetValueTypeToStringMethod(Type type)
         {
-            if (type == typeof(byte) || type == typeof(byte?)
-                || type == typeof(short) || type == typeof(short?)
-                || type == typeof(ushort) || type == typeof(ushort?)
-                || type == typeof(int) || type == typeof(int?)
-                || type == typeof(uint) || type == typeof(uint?)
-                || type == typeof(long) || type == typeof(long?)
-                || type == typeof(ulong) || type == typeof(ulong?)
-                )
-                return Serializer.WriteInteger;
+			if (type == typeof(char) || type == typeof(char?))
+				return Serializer.WriteChar;
+			if (type == typeof(int) || type == typeof(int?))
+				return Serializer.WriteInt32;
+			if (type == typeof(long) || type == typeof(long?))
+				return Serializer.WriteInt64;
+			if (type == typeof(ulong) || type == typeof(ulong?))
+				return Serializer.WriteUInt64;
+			if (type == typeof(uint) || type == typeof(uint?))
+				return Serializer.WriteUInt32;
+
+			if (type == typeof(byte) || type == typeof(byte?))
+				return Serializer.WriteByte;
+
+			if (type == typeof(short) || type == typeof(short?))
+				return Serializer.WriteInt16;
+            if (type == typeof(ushort) || type == typeof(ushort?))
+				return Serializer.WriteUInt16;
 
             if (type == typeof(bool) || type == typeof(bool?))
                 return Serializer.WriteBool;

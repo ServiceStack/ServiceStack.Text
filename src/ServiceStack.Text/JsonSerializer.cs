@@ -61,7 +61,7 @@ namespace ServiceStack.Text
                 return result;
             }
 
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
 				if (typeof(T) == typeof(string))
@@ -80,7 +80,7 @@ namespace ServiceStack.Text
 		{
 			if (value == null) return null;
 
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
 				if (type == typeof(string))

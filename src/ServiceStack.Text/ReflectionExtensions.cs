@@ -178,6 +178,8 @@ namespace ServiceStack.Text
 				if (t.IsGenericType && t.GetGenericTypeDefinition() == genericInterfaceType) return t;
 			}
 
+			if (!type.IsGenericType) return null;
+
 			var genericType = type.GetGenericType();
 			return genericType.GetGenericTypeDefinition() == genericInterfaceType
 					? genericType

@@ -129,7 +129,7 @@ namespace ServiceStack.Text.Json
 			}
 		}
 
-		public static bool IsJsString(string value)
+		public static bool IsJsObject(string value)
 		{
 			return !string.IsNullOrEmpty(value)
 				&& value[0] == '{'

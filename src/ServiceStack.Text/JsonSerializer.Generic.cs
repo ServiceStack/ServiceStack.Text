@@ -53,7 +53,7 @@ namespace ServiceStack.Text
                 return result;
             }
 
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb))
 			{
 				JsonWriter<T>.WriteObject(writer, value);

@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -97,14 +98,23 @@ namespace ServiceStack.Text.Common
 			WriteObjectDelegate writeValueFn = null;
 
 			writer.Write(JsWriter.MapStartChar);
+			var encodeMapKey = false;
 
 			var map = (IDictionary)oMap;
 			var ranOnce = false;
 			foreach (var key in map.Keys)
 			{
 				var dictionaryValue = map[key];
+
+                var isNull = (dictionaryValue == null);
+                if (isNull && !JsConfig.IncludeNullValues) continue;
+
 				if (writeKeyFn == null)
-					writeKeyFn = Serializer.GetWriteFn(key.GetType());
+				{
+					var keyType = key.GetType();
+					writeKeyFn = Serializer.GetWriteFn(keyType);
+					encodeMapKey = Serializer.GetTypeInfo(keyType).EncodeMapKey;
+				}
 
 				if (writeValueFn == null)
 					writeValueFn = Serializer.GetWriteFn(dictionaryValue.GetType());
@@ -113,14 +123,33 @@ namespace ServiceStack.Text.Common
 
 				JsState.WritingKeyCount++;
 				JsState.IsWritingValue = false;
-				writeKeyFn(writer, key);
+
+				if (encodeMapKey)
+				{
+					JsState.IsWritingValue = true; //prevent ""null""
+					writer.Write(JsWriter.QuoteChar);
+					writeKeyFn(writer, key);
+					writer.Write(JsWriter.QuoteChar);
+				}
+				else
+				{
+					writeKeyFn(writer, key);
+				}
+
 				JsState.WritingKeyCount--;
 
 				writer.Write(JsWriter.MapKeySeperator);
 
-				JsState.IsWritingValue = true;
-				writeValueFn(writer, dictionaryValue ?? JsWriter.MapNullValue);
-				JsState.IsWritingValue = false;
+                if (isNull)
+                {
+                    writer.Write(JsonUtils.Null);
+                }
+                else
+                {
+                    JsState.IsWritingValue = true;
+                    writeValueFn(writer, dictionaryValue);
+                    JsState.IsWritingValue = false;
+                }
 			}
 
 			writer.Write(JsWriter.MapEndChar);
@@ -130,6 +159,8 @@ namespace ServiceStack.Text.Common
 	internal static class ToStringDictionaryMethods<TKey, TValue, TSerializer>
 		where TSerializer : ITypeSerializer
 	{
+		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+
 		public static void WriteIDictionary(
 			TextWriter writer,
 			object oMap,
@@ -148,21 +179,45 @@ namespace ServiceStack.Text.Common
 		{
 			writer.Write(JsWriter.MapStartChar);
 
+			var encodeMapKey = Serializer.GetTypeInfo(typeof(TKey)).EncodeMapKey;
+
 			var ranOnce = false;
 			foreach (var kvp in map)
 			{
+                var isNull = (kvp.Value == null);
+                if (isNull && !JsConfig.IncludeNullValues) continue;
+
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
 				JsState.WritingKeyCount++;
                 JsState.IsWritingValue = false;
-				writeKeyFn(writer, kvp.Key);
+
+				if (encodeMapKey)
+				{
+					JsState.IsWritingValue = true; //prevent ""null""
+					writer.Write(JsWriter.QuoteChar);
+					writeKeyFn(writer, kvp.Key);
+					writer.Write(JsWriter.QuoteChar);
+				}
+				else
+				{
+					writeKeyFn(writer, kvp.Key);
+				}
+				
 				JsState.WritingKeyCount--;
 
 				writer.Write(JsWriter.MapKeySeperator);
 
-				JsState.IsWritingValue = true;
-				writeValueFn(writer, kvp.Value);
-				JsState.IsWritingValue = false;
+                if (isNull)
+                {
+                    writer.Write(JsonUtils.Null);
+                }
+                else
+                {
+                    JsState.IsWritingValue = true;
+                    writeValueFn(writer, kvp.Value);
+                    JsState.IsWritingValue = false;
+                }
 			}
 
 			writer.Write(JsWriter.MapEndChar);

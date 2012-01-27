@@ -10,14 +10,14 @@
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
 
-#if !XBOX
-using System.Linq.Expressions;
+#if !XBOX && !MONOTOUCH && !SILVERLIGHT
+using System.Linq;
+using System.Reflection.Emit;
 #endif
 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
 {
@@ -25,12 +25,13 @@ namespace ServiceStack.Text.Common
 		where TSerializer : ITypeSerializer
 	{
 		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
-		private static IEqualityComparer<string> PropertyNameComparer = StringComparer.Create(System.Globalization.CultureInfo.InvariantCulture, true);
 
 		private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
-		
-		public static ParseStringDelegate GetParseMethod(Type type)
+
+		public static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
 		{
+			var type = typeConfig.Type;
+
 			if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
 			var propertyInfos = type.GetSerializableProperties();
@@ -39,18 +40,19 @@ namespace ServiceStack.Text.Common
 				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
 				return value => emptyCtorFn();
 			}
-			
-			var setterMap = new Dictionary<string, SetPropertyDelegate>(PropertyNameComparer);
-			var map = new Dictionary<string, ParseStringDelegate>(PropertyNameComparer);
+
+			var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
 
 			foreach (var propertyInfo in propertyInfos)
 			{
-				map[propertyInfo.Name] = Serializer.GetParseFn(propertyInfo.PropertyType);
-				setterMap[propertyInfo.Name] = GetSetPropertyMethod(type, propertyInfo);
+				map[propertyInfo.Name] = TypeAccessor.Create(Serializer, typeConfig, propertyInfo);
 			}
 
 			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-			return value => StringToType(type, value, ctorFn, setterMap, map);
+
+			return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
+				? (ParseStringDelegate) (value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
+				: value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
 		}
 
 		public static object ObjectStringToType(string strType)
@@ -79,157 +81,168 @@ namespace ServiceStack.Text.Common
 
 				if (type == null)
 					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
-	
+
 				return type;
 			}
 			return null;
 		}
 
-        public static object ParseAbstractType<T>(string value)
-        {
-            if (typeof(T).IsAbstract)
-            {
-                if (string.IsNullOrEmpty(value)) return null;
-                var concreteType = ExtractType(value);
-                if (concreteType != null)
-                {
-                    return Serializer.GetParseFn(concreteType)(value);
-                }
-            	Tracer.Instance.WriteWarning(
-					"Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
-            }
-            return null;
-        }
-
-		private static object StringToType(Type type, string strType,
-		   EmptyCtorDelegate ctorFn,
-		   IDictionary<string, SetPropertyDelegate> setterMap,
-		   IDictionary<string, ParseStringDelegate> parseStringFnMap)
+		public static object ParseAbstractType<T>(string value)
 		{
-			var index = 0;
-
-			if (strType == null)
-				return null;
-
-			if (!Serializer.EatMapStartChar(strType, ref index))
-				throw new SerializationException(string.Format(
-					"Type definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
-					JsWriter.MapStartChar, type.Name, strType.Substring(0, strType.Length < 50 ? strType.Length : 50)));
-
-			if (strType == JsWriter.EmptyMap) return ctorFn();
-
-			object instance = null;
-			string propertyName;
-			ParseStringDelegate parseStringFn;
-			SetPropertyDelegate setterFn;
-
-			var strTypeLength = strType.Length;
-
-			while (index < strTypeLength)
+			if (typeof(T).IsAbstract)
 			{
-				propertyName = Serializer.EatMapKey(strType, ref index);
-
-				Serializer.EatMapKeySeperator(strType, ref index);
-
-				var propertyValueString = Serializer.EatValue(strType, ref index);
-
-				if (propertyName == JsWriter.TypeAttr)
+				if (string.IsNullOrEmpty(value)) return null;
+				var concreteType = ExtractType(value);
+				if (concreteType != null)
 				{
-					var typeName = Serializer.ParseString(propertyValueString);
-					instance = ReflectionExtensions.CreateInstance(typeName);
-					if (instance == null)
-					{
-						Tracer.Instance.WriteWarning("Could not find type: " + propertyValueString);
-					}
-					else
-					{
-						//If __type info doesn't match, ignore it.
-						if (!type.IsAssignableFrom(instance.GetType()))
-							instance = null;
-					}
-
-					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-					continue;
+					return Serializer.GetParseFn(concreteType)(value);
 				}
-
-				if (instance == null) instance = ctorFn();
-
-				var propType = ExtractType(propertyValueString);
-				if (propType != null)
-				{
-					try
-					{
-						var parseFn = Serializer.GetParseFn(propType);
-						var propertyValue = parseFn(propertyValueString);
-
-						setterMap.TryGetValue(propertyName, out setterFn);
-
-						if (setterFn != null)
-						{
-							setterFn(instance, propertyValue);
-						}
-
-						Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-						continue;
-					}
-					catch (Exception)
-					{
-						Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueString);
-					}
-				}
-
-				parseStringFnMap.TryGetValue(propertyName, out parseStringFn);
-
-				if (parseStringFn != null)
-				{
-					try
-					{
-						var propertyValue = parseStringFn(propertyValueString);
-
-						setterMap.TryGetValue(propertyName, out setterFn);
-
-						if (setterFn != null)
-						{
-							setterFn(instance, propertyValue);
-						}
-					}
-					catch (Exception)
-					{
-						Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueString);
-					}
-				}
-
-				Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
+				Tracer.Instance.WriteWarning(
+					"Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
 			}
-
-			return instance;
+			return null;
 		}
 
-		public static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
+	}
+
+	internal class TypeAccessor
+	{
+		internal ParseStringDelegate GetProperty;
+		internal SetPropertyDelegate SetProperty;
+
+		public static Type ExtractType(ITypeSerializer Serializer, string strType)
 		{
-			var setMethodInfo = propertyInfo.GetSetMethod(true);
-			if (setMethodInfo == null) return null;
+			var TypeAttrInObject = Serializer.TypeAttrInObject;
+
+			if (strType != null
+				&& strType.Length > TypeAttrInObject.Length
+				&& strType.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
+			{
+				var propIndex = TypeAttrInObject.Length;
+				var typeName = Serializer.EatValue(strType, ref propIndex);
+				typeName = Serializer.ParseString(typeName);
+				var type = AssemblyUtils.FindType(typeName);
+
+				if (type == null)
+					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+
+				return type;
+			}
+			return null;
+		}
+
+		public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, PropertyInfo propertyInfo)
+		{
+			return new TypeAccessor {
+				GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
+				SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
+			};
+		}
+
+		private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+		{
+			if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
+
+			FieldInfo fieldInfo = null;
+			if (!propertyInfo.CanWrite)
+			{
+				//TODO: What string comparison is used in SST?
+				var fieldName = string.Format("<{0}>i__Field", propertyInfo.Name);
+				var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
+				foreach (var f in fieldInfos)
+				{
+					if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
+					{
+						fieldInfo = f;
+						break;
+					}
+				}
+
+				if (fieldInfo == null) return null;
+			}
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
-			return (instance, value) => setMethodInfo.Invoke(instance, new[] {value});
+			if (propertyInfo.CanWrite)
+			{
+				var setMethodInfo = propertyInfo.GetSetMethod(true);
+				return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+			}
+			if (fieldInfo == null) return null;
+			return (instance, value) => fieldInfo.SetValue(instance, value);
 #else
-			var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
-			var oValueParam = Expression.Parameter(typeof(object), "oValueParam");
+			return propertyInfo.CanWrite 
+				? CreateIlPropertySetter(propertyInfo) 
+				: CreateIlFieldSetter(fieldInfo);
+#endif
+		}
 
-			var instanceParam = Expression.Convert(oInstanceParam, type);
-			var useType = propertyInfo.PropertyType;
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX
 
-			var valueParam = Expression.Convert(oValueParam, useType);
-			var exprCallPropertySetFn = Expression.Call(instanceParam, setMethodInfo, valueParam);
+		private static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
+		{
+			var propSetMethod = propertyInfo.GetSetMethod(true);
+			if (propSetMethod == null)
+				return null;
 
-			var propertySetFn = Expression.Lambda<SetPropertyDelegate>
-				(
-					exprCallPropertySetFn,
-					oInstanceParam,
-					oValueParam
-				).Compile();
+			var setter = CreateDynamicSetMethod(propertyInfo);
 
-			return propertySetFn;
+			var generator = setter.GetILGenerator();
+			generator.Emit(OpCodes.Ldarg_0);
+			generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
+			generator.Emit(OpCodes.Ldarg_1);
+
+			generator.Emit(propertyInfo.PropertyType.IsClass
+				? OpCodes.Castclass
+				: OpCodes.Unbox_Any,
+				propertyInfo.PropertyType);
+
+			generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
+			generator.Emit(OpCodes.Ret);
+
+			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+		}
+
+		private static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
+		{
+			var setter = CreateDynamicSetMethod(fieldInfo);
+
+			var generator = setter.GetILGenerator();
+			generator.Emit(OpCodes.Ldarg_0);
+			generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
+			generator.Emit(OpCodes.Ldarg_1);
+
+			generator.Emit(fieldInfo.FieldType.IsClass
+				? OpCodes.Castclass
+				: OpCodes.Unbox_Any,
+				fieldInfo.FieldType);
+
+			generator.Emit(OpCodes.Stfld, fieldInfo);
+			generator.Emit(OpCodes.Ret);
+
+			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+		}
+
+		private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
+		{
+			var args = new[] { typeof(object), typeof(object) };
+			var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
+			var returnType = typeof(void);
+
+			return !memberInfo.DeclaringType.IsInterface
+				? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
+				: new DynamicMethod(name, returnType, args, memberInfo.Module, true);
+		}
+#endif
+
+		internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
+		{
+			if (!propertyInfo.CanWrite) return null;
+
+#if SILVERLIGHT || MONOTOUCH || XBOX
+			var setMethodInfo = propertyInfo.GetSetMethod(true);
+			return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+#else
+			return CreateIlPropertySetter(propertyInfo);
 #endif
 		}
 	}

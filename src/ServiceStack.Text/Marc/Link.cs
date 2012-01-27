@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 
-namespace ServiceStack.Text.Support
+//Not using it here, but @marcgravell's stuff is too good not to include
+namespace ServiceStack.Text.Marc
 {
 	/// <summary>
 	/// Pretty Thread-Safe cache class from:

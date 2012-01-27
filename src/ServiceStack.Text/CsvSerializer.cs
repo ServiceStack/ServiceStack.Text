@@ -64,7 +64,7 @@ namespace ServiceStack.Text
 			if (value == null) return null;
 			if (typeof(T) == typeof(string)) return value as string;
 
-			var sb = new StringBuilder(4096);
+			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
 				CsvSerializer<T>.WriteObject(writer, value);

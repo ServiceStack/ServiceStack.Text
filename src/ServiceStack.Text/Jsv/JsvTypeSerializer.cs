@@ -14,10 +14,11 @@ using System;
 using System.Globalization;
 using System.IO;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Jsv
 {
-	internal class JsvTypeSerializer 
+	internal class JsvTypeSerializer
 		: ITypeSerializer
 	{
 		public static ITypeSerializer Instance = new JsvTypeSerializer();
@@ -32,6 +33,13 @@ namespace ServiceStack.Text.Jsv
 		public WriteObjectDelegate GetWriteFn(Type type)
 		{
 			return JsvWriter.GetWriteFn(type);
+		}
+
+		static readonly TypeInfo DefaultTypeInfo = new TypeInfo { EncodeMapKey = false };
+
+		public TypeInfo GetTypeInfo(Type type)
+		{
+			return DefaultTypeInfo;
 		}
 
 		public void WriteRawString(TextWriter writer, string value)
@@ -95,16 +103,58 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(Convert.ToBase64String((byte[])oByteValue));
 		}
 
-		public void WriteInteger(TextWriter writer, object integerValue)
+		public void WriteChar(TextWriter writer, object charValue)
 		{
-			if (integerValue == null) return;
-			writer.Write(integerValue.ToString());
+			if (charValue == null) return;
+			writer.Write((char)charValue);
+		}
+
+		public void WriteByte(TextWriter writer, object byteValue)
+		{
+			if (byteValue == null) return;
+			writer.Write((byte)byteValue);
+		}
+
+		public void WriteInt16(TextWriter writer, object intValue)
+		{
+			if (intValue == null) return;
+			writer.Write((short)intValue);
+		}
+
+		public void WriteUInt16(TextWriter writer, object intValue)
+		{
+			if (intValue == null) return;
+			writer.Write((ushort)intValue);
+		}
+
+		public void WriteInt32(TextWriter writer, object intValue)
+		{
+			if (intValue == null) return;
+			writer.Write((int)intValue);
+		}
+
+		public void WriteUInt32(TextWriter writer, object uintValue)
+		{
+			if (uintValue == null) return;
+			writer.Write((uint)uintValue);
+		}
+
+		public void WriteUInt64(TextWriter writer, object ulongValue)
+		{
+			if (ulongValue == null) return;
+			writer.Write((ulong)ulongValue);
+		}
+
+		public void WriteInt64(TextWriter writer, object longValue)
+		{
+			if (longValue == null) return;
+			writer.Write((long)longValue);
 		}
 
 		public void WriteBool(TextWriter writer, object boolValue)
 		{
 			if (boolValue == null) return;
-			writer.Write(boolValue.ToString());
+			writer.Write((bool)boolValue);
 		}
 
 		public void WriteFloat(TextWriter writer, object floatValue)
@@ -125,20 +175,20 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));
 		}
 
-	    public void WriteEnum(TextWriter writer, object enumValue)
-	    {
-            if (enumValue == null) return;
-            writer.Write(enumValue.ToString());
-        }
+		public void WriteEnum(TextWriter writer, object enumValue)
+		{
+			if (enumValue == null) return;
+			writer.Write(enumValue.ToString());
+		}
 
-	    public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
-	    {
-            if (enumFlagValue == null) return;
-	        var intVal = (int)enumFlagValue;
-            writer.Write(intVal);
-	    }
+		public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+		{
+			if (enumFlagValue == null) return;
+			var intVal = (int)enumFlagValue;
+			writer.Write(intVal);
+		}
 
-	    public object EncodeMapKey(object value)
+		public object EncodeMapKey(object value)
 		{
 			return value;
 		}
@@ -182,45 +232,45 @@ namespace ServiceStack.Text.Jsv
 			var valueLength = value.Length;
 
 			var valueChar = value[tokenStartPos];
-			if (valueChar == JsWriter.QuoteChar)
+
+			switch (valueChar)
 			{
-				while (++i < valueLength)
-				{
-					valueChar = value[i];
+				case JsWriter.QuoteChar:
+					while (++i < valueLength)
+					{
+						valueChar = value[i];
 
-					if (valueChar != JsWriter.QuoteChar) continue;
+						if (valueChar != JsWriter.QuoteChar) continue;
 
-					var isLiteralQuote = i + 1 < valueLength && value[i + 1] == JsWriter.QuoteChar;
+						var isLiteralQuote = i + 1 < valueLength && value[i + 1] == JsWriter.QuoteChar;
 
-					i++; //skip quote
-					if (!isLiteralQuote)
-						break;
-				}
-				return value.Substring(tokenStartPos, i - tokenStartPos);
-			}
+						i++; //skip quote
+						if (!isLiteralQuote)
+							break;
+					}
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 
-			//Is Type/Map, i.e. {...}
-			if (valueChar == JsWriter.MapStartChar)
-			{
-				var endsToEat = 1;
-				var withinQuotes = false;
-				while (++i < valueLength && endsToEat > 0)
-				{
-					valueChar = value[i];
+				//Is Type/Map, i.e. {...}
+				case JsWriter.MapStartChar:
+					var endsToEat = 1;
+					var withinQuotes = false;
+					while (++i < valueLength && endsToEat > 0)
+					{
+						valueChar = value[i];
 
-					if (valueChar == JsWriter.QuoteChar)
-						withinQuotes = !withinQuotes;
+						if (valueChar == JsWriter.QuoteChar)
+							withinQuotes = !withinQuotes;
 
-					if (withinQuotes)
-						continue;
+						if (withinQuotes)
+							continue;
 
-					if (valueChar == JsWriter.MapStartChar)
-						endsToEat++;
+						if (valueChar == JsWriter.MapStartChar)
+							endsToEat++;
 
-					if (valueChar == JsWriter.MapEndChar)
-						endsToEat--;
-				}
-				return value.Substring(tokenStartPos, i - tokenStartPos);
+						if (valueChar == JsWriter.MapEndChar)
+							endsToEat--;
+					}
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 			}
 
 			while (value[++i] != JsWriter.MapKeySeperator) { }
@@ -249,78 +299,71 @@ namespace ServiceStack.Text.Jsv
 			if (i == valueLength) return null;
 
 			var valueChar = value[i];
-
-			//If we are at the end, return.
-			if (valueChar == JsWriter.ItemSeperator
-				|| valueChar == JsWriter.MapEndChar)
-			{
-				return null;
-			}
-
-			//Is List, i.e. [...]
 			var withinQuotes = false;
-			if (valueChar == JsWriter.ListStartChar)
+			var endsToEat = 1;
+
+			switch (valueChar)
 			{
-				var endsToEat = 1;
-				while (++i < valueLength && endsToEat > 0)
-				{
-					valueChar = value[i];
+				//If we are at the end, return.
+				case JsWriter.ItemSeperator:
+				case JsWriter.MapEndChar:
+					return null;
 
-					if (valueChar == JsWriter.QuoteChar)
-						withinQuotes = !withinQuotes;
+				//Is Within Quotes, i.e. "..."
+				case JsWriter.QuoteChar:
+					while (++i < valueLength)
+					{
+						valueChar = value[i];
 
-					if (withinQuotes)
-						continue;
+						if (valueChar != JsWriter.QuoteChar) continue;
 
-					if (valueChar == JsWriter.ListStartChar)
-						endsToEat++;
+						var isLiteralQuote = i + 1 < valueLength && value[i + 1] == JsWriter.QuoteChar;
 
-					if (valueChar == JsWriter.ListEndChar)
-						endsToEat--;
-				}
-				return value.Substring(tokenStartPos, i - tokenStartPos);
-			}
+						i++; //skip quote
+						if (!isLiteralQuote)
+							break;
+					}
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 
-			//Is Type/Map, i.e. {...}
-			if (valueChar == JsWriter.MapStartChar)
-			{
-				var endsToEat = 1;
-				while (++i < valueLength && endsToEat > 0)
-				{
-					valueChar = value[i];
+				//Is Type/Map, i.e. {...}
+				case JsWriter.MapStartChar:
+					while (++i < valueLength && endsToEat > 0)
+					{
+						valueChar = value[i];
 
-					if (valueChar == JsWriter.QuoteChar)
-						withinQuotes = !withinQuotes;
+						if (valueChar == JsWriter.QuoteChar)
+							withinQuotes = !withinQuotes;
 
-					if (withinQuotes)
-						continue;
+						if (withinQuotes)
+							continue;
 
-					if (valueChar == JsWriter.MapStartChar)
-						endsToEat++;
+						if (valueChar == JsWriter.MapStartChar)
+							endsToEat++;
 
-					if (valueChar == JsWriter.MapEndChar)
-						endsToEat--;
-				}
-				return value.Substring(tokenStartPos, i - tokenStartPos);
-			}
+						if (valueChar == JsWriter.MapEndChar)
+							endsToEat--;
+					}
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 
+				//Is List, i.e. [...]
+				case JsWriter.ListStartChar:
+					while (++i < valueLength && endsToEat > 0)
+					{
+						valueChar = value[i];
 
-			//Is Within Quotes, i.e. "..."
-			if (valueChar == JsWriter.QuoteChar)
-			{
-				while (++i < valueLength)
-				{
-					valueChar = value[i];
+						if (valueChar == JsWriter.QuoteChar)
+							withinQuotes = !withinQuotes;
 
-					if (valueChar != JsWriter.QuoteChar) continue;
+						if (withinQuotes)
+							continue;
 
-					var isLiteralQuote = i + 1 < valueLength && value[i + 1] == JsWriter.QuoteChar;
+						if (valueChar == JsWriter.ListStartChar)
+							endsToEat++;
 
-					i++; //skip quote
-					if (!isLiteralQuote)
-						break;
-				}
-				return value.Substring(tokenStartPos, i - tokenStartPos);
+						if (valueChar == JsWriter.ListEndChar)
+							endsToEat--;
+					}
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 			}
 
 			//Is Value

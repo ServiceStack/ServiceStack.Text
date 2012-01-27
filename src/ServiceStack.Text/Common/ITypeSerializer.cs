@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -9,6 +10,7 @@ namespace ServiceStack.Text.Common
 
 		WriteObjectDelegate GetWriteFn<T>();
 		WriteObjectDelegate GetWriteFn(Type type);
+		TypeInfo GetTypeInfo(Type type);
 
 		void WriteRawString(TextWriter writer, string value);
 		void WritePropertyName(TextWriter writer, string value);
@@ -22,7 +24,14 @@ namespace ServiceStack.Text.Common
 		void WriteGuid(TextWriter writer, object oValue);
 		void WriteNullableGuid(TextWriter writer, object oValue);
 		void WriteBytes(TextWriter writer, object oByteValue);
-		void WriteInteger(TextWriter writer, object integerValue);
+		void WriteChar(TextWriter writer, object charValue);
+		void WriteByte(TextWriter writer, object byteValue);
+		void WriteInt16(TextWriter writer, object intValue);
+		void WriteUInt16(TextWriter writer, object intValue);
+		void WriteInt32(TextWriter writer, object intValue);
+		void WriteUInt32(TextWriter writer, object uintValue);
+		void WriteInt64(TextWriter writer, object longValue);
+		void WriteUInt64(TextWriter writer, object ulongValue);
 		void WriteBool(TextWriter writer, object boolValue);
 		void WriteFloat(TextWriter writer, object floatValue);
 		void WriteDouble(TextWriter writer, object doubleValue);

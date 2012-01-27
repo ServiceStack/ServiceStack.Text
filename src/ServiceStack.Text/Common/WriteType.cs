@@ -169,12 +169,15 @@ namespace ServiceStack.Text.Common
 
 			if (PropertyWriters != null)
 			{
-				foreach (var propertyWriter in PropertyWriters)
+				var len = PropertyWriters.Length;
+				for (int index = 0; index < len; index++)
 				{
-					var propertyValue = propertyWriter.GetterFn((T)value);
+					var propertyWriter = PropertyWriters[index];
+					var propertyValue = propertyWriter.GetterFn((T) value);
 
-                    if ((propertyValue == null || (propertyWriter.DefaultValue != null && propertyWriter.DefaultValue.Equals(propertyValue))) 
-                        && !JsConfig.IncludeNullValues) continue;
+					if ((propertyValue == null
+					     || (propertyWriter.DefaultValue != null && propertyWriter.DefaultValue.Equals(propertyValue)))
+					    && !JsConfig.IncludeNullValues) continue;
 
 					if (i++ > 0)
 						writer.Write(JsWriter.ItemSeperator);
@@ -182,9 +185,9 @@ namespace ServiceStack.Text.Common
 					Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
 					writer.Write(JsWriter.MapKeySeperator);
 
-					if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = true;
+					if (typeof (TSerializer) == typeof (JsonTypeSerializer)) JsState.IsWritingValue = true;
 					propertyWriter.WriteFn(writer, propertyValue);
-					if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
+					if (typeof (TSerializer) == typeof (JsonTypeSerializer)) JsState.IsWritingValue = false;
 				}
 			}
 

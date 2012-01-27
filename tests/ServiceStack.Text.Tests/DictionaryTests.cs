@@ -145,6 +145,34 @@ namespace ServiceStack.Text.Tests
             Assert.AreEqual(false, mixedType.c);
         }
 
+        [Test]
+        public void Can_serialise_null_values_from_dictionary_correctly()
+        {
+            JsConfig.IncludeNullValues = true;
+            var dictionary = new Dictionary<string, object> { { "value", null } };
+
+            Serialize(dictionary, includeXml: false);
+
+            var json = JsonSerializer.SerializeToString(dictionary);
+            Log(json);
+
+            Assert.That(json, Is.EqualTo("{\"value\":null}"));
+        }
+
+        [Test]
+        public void Will_ignore_null_values_from_dictionary_correctly()
+        {
+            JsConfig.IncludeNullValues = false;
+            var dictionary = new Dictionary<string, string> { { "value", null } };
+
+            Serialize(dictionary, includeXml: false);
+
+            var json = JsonSerializer.SerializeToString(dictionary);
+            Log(json);
+
+            Assert.That(json, Is.EqualTo("{}"));
+        }
+
     }
 
 }
