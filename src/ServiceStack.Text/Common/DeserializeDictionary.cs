@@ -69,8 +69,8 @@ namespace ServiceStack.Text.Common
 				Serializer.EatMapKeySeperator(value, ref index);
 				var elementValue = Serializer.EatValue(value, ref index);
 
-				var mapKey = Serializer.ParseString(keyValue);
-				var mapValue = Serializer.ParseString(elementValue);
+				var mapKey = keyValue;
+				var mapValue = elementValue;
 
 				result[mapKey] = mapValue;
 

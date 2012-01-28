@@ -43,6 +43,11 @@ namespace ServiceStack.Text.Common
 				return GetGenericStackParseFn();
 			}
 
+			if (typeof(T).HasAnyTypeDefinitionsOf(typeof(ICollection<>)))
+			{
+				return GetGenericCollectionParseFn();
+			}
+
 			return null;
 		}
 
@@ -101,6 +106,22 @@ namespace ServiceStack.Text.Common
 
 			return x => convertToQueue(parseFn(x));
 		}
+
+		internal static ParseStringDelegate GetGenericCollectionParseFn()
+		{
+			var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
+			var elementType = enumerableInterface.GetGenericArguments()[0];
+
+			var genericType = typeof(SpecializedCollectionElements<,>).MakeGenericType(typeof(T), elementType);
+
+			var mi = genericType.GetMethod("Convert", BindingFlags.Static | BindingFlags.Public);
+
+			var convertToCollection = (ConvertObjectDelegate)Delegate.CreateDelegate(typeof(ConvertObjectDelegate), mi);
+
+			var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseFn();
+
+			return x => convertToCollection(parseFn(x));
+		}
 	}
 
 	internal class SpecializedQueueElements<T>
@@ -118,4 +139,17 @@ namespace ServiceStack.Text.Common
 		}
 	}
 
+	internal class SpecializedCollectionElements<TCollection, T>
+	{
+		public static object Convert(object enumerable)
+		{
+			var to = (ICollection<T>)typeof(TCollection).CreateInstance();
+			var from = (IEnumerable<T>) enumerable;
+			foreach (var item in from)
+			{
+				to.Add(item);
+			}
+			return to;
+		}
+	}
 }

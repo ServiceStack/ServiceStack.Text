@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Runtime.Serialization;
+using System.Threading;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Text.Jsv;
@@ -319,6 +321,149 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(dto.ToJson(), Is.EqualTo("{\"Key\":\"Value\"}"));
 			Assert.That(dto.ToJsv(), Is.EqualTo("{Key:Value}"));
+		}
+
+		public class HasIndex
+		{
+			public int Id { get; set; }
+
+			public int this[int id]
+			{
+				get { return Id; }
+				set { Id = value; }
+			}
+		}
+
+		[Test]
+		public void Can_serialize_type_with_indexer()
+		{
+			var dto = new HasIndex { Id = 1 };
+			Serialize(dto);
+		}
+
+		public struct Size
+		{
+			public Size(string value)
+			{
+				var parts = value.Split(',');
+				this.Width = parts[0];
+				this.Height = parts[1];
+			}
+
+			public Size(string width, string height)
+			{
+				Width = width;
+				Height = height;
+			}
+
+			public string Width;
+			public string Height;
+
+			public override string ToString()
+			{
+				return this.Width + "," + this.Height;
+			}
+		}
+
+		[Test]
+		public void Can_serialize_struct_in_list()
+		{
+			var structs = new[] {
+				new Size("10px", "10px"),
+				new Size("20px", "20px"),
+			};
+
+			Serialize(structs);
+		}
+
+		[Test]
+		public void Can_serialize_list_of_bools()
+		{
+			Serialize(new List<bool> { true, false, true });
+			Serialize(new[] { true, false, true });
+		}
+
+		public class PolarValues
+		{
+			public int Int { get; set; }
+			public long Long { get; set; }
+			public float Float { get; set; }
+			public double Double { get; set; }
+			public decimal Decimal { get; set; }
+
+			public bool Equals(PolarValues other)
+			{
+				if (ReferenceEquals(null, other)) return false;
+				if (ReferenceEquals(this, other)) return true;
+				return other.Int == Int 
+					&& other.Long == Long 
+					&& other.Float.Equals(Float) 
+					&& other.Double.Equals(Double) 
+					&& other.Decimal == Decimal;
+			}
+
+			public override bool Equals(object obj)
+			{
+				if (ReferenceEquals(null, obj)) return false;
+				if (ReferenceEquals(this, obj)) return true;
+				if (obj.GetType() != typeof (PolarValues)) return false;
+				return Equals((PolarValues) obj);
+			}
+
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					int result = Int;
+					result = (result*397) ^ Long.GetHashCode();
+					result = (result*397) ^ Float.GetHashCode();
+					result = (result*397) ^ Double.GetHashCode();
+					result = (result*397) ^ Decimal.GetHashCode();
+					return result;
+				}
+			}
+		}
+
+		[Test]
+		public void Can_serialize_max_values()
+		{
+			var dto = new PolarValues {
+				Int = int.MaxValue,
+				Long = long.MaxValue,
+				Float = float.MaxValue,
+				Double = double.MaxValue,
+				Decimal = decimal.MaxValue,
+			};
+			var to = Serialize(dto);
+			Assert.That(to, Is.EqualTo(dto));
+		}
+
+		[Test]
+		public void Can_serialize_max_values_less_1()
+		{
+			var dto = new PolarValues {
+				Int = int.MaxValue - 1,
+				Long = long.MaxValue - 1,
+				Float = float.MaxValue - 1,
+				Double = double.MaxValue - 1,
+				Decimal = decimal.MaxValue - 1,
+			};
+			var to = Serialize(dto);
+			Assert.That(to, Is.EqualTo(dto));
+		}
+
+		[Test]
+		public void Can_serialize_min_values()
+		{
+			var dto = new PolarValues {
+				Int = int.MinValue,
+				Long = long.MinValue,
+				Float = float.MinValue,
+				Double = double.MinValue,
+				Decimal = decimal.MinValue,
+			};
+			var to = Serialize(dto);
+			Assert.That(to, Is.EqualTo(dto));
 		}
 	}
 }

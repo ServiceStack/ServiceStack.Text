@@ -93,7 +93,7 @@ namespace ServiceStack.Text.Tests
 				}
 			}
 
-			return fromJsvModel;
+			return fromJsonModel;
 		}
 
 		private T JsonSerialize<T>(T model, bool assertEqual)

@@ -73,7 +73,9 @@ namespace ServiceStack.Text.Common
 		{
 			if (ofCollectionType == null) return new List<T>(withItems);
 
-			var genericTypeDefinition = ofCollectionType.GetGenericTypeDefinition();
+			var genericTypeDefinition = ofCollectionType.IsGenericType()
+				? ofCollectionType.GetGenericTypeDefinition()
+				: null;
 #if !XBOX
 			if (genericTypeDefinition == typeof(HashSet<T>))
 				return new HashSet<T>(withItems);
@@ -81,7 +83,7 @@ namespace ServiceStack.Text.Common
 			if (genericTypeDefinition == typeof(LinkedList<T>))
 				return new LinkedList<T>(withItems);
 
-			var collection = (ICollection<T>)ReflectionExtensions.CreateInstance(ofCollectionType);
+			var collection = (ICollection<T>)ofCollectionType.CreateInstance();
 			foreach (var item in withItems)
 			{
 				collection.Add(item);

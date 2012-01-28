@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using NUnit.Framework;
@@ -74,6 +75,88 @@ namespace ServiceStack.Text.Tests
 		{
 			var dto = new EmptyDataContract();
 			Serialize(dto);
+		}
+
+
+		[CollectionDataContract]
+		public class MyCollection : ICollection<MyType>
+		{
+			List<MyType> _internal = new List<MyType>{ new MyType()};
+
+			public IEnumerator<MyType> GetEnumerator()
+			{
+				return _internal.GetEnumerator();
+			}
+
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				return _internal.GetEnumerator();
+			}
+
+			public void Add(MyType item)
+			{
+				_internal.Add(item);
+			}
+
+			public void Clear()
+			{
+				_internal.Clear();
+			}
+
+			public bool Contains(MyType item)
+			{
+				return _internal.Contains(item);
+			}
+
+			public void CopyTo(MyType[] array, int arrayIndex)
+			{
+				_internal.CopyTo(array, arrayIndex);
+			}
+
+			public bool Remove(MyType item)
+			{
+				return _internal.Remove(item);
+			}
+
+			public int Count
+			{
+				get { return _internal.Count; }
+			}
+
+			public bool IsReadOnly
+			{
+				get { return false; }
+			}
+		}
+
+		[DataContract]
+		public class MyType { }
+
+
+		[Test]
+		public void Can_Serialize_MyCollection()
+		{
+			var dto = new MyCollection();
+			Serialize(dto);
+		}
+
+		[DataContract]
+		public class PersonRecord
+		{
+			public int Id { get; set; }
+			public string Name { get; set; }
+		}
+
+		[Test] //https://github.com/ServiceStack/ServiceStack.Text/issues/46
+		public void Replicate_serialization_bug()
+		{
+			var p = new PersonRecord { Id = 27, Name = "John" };
+
+			// Fails at this point, with a "Cannot access a closed Stream." exception.
+			// Am I doing something wrong? 
+			string output = XmlSerializer.SerializeToString(p);
+
+			Console.WriteLine(output);
 		}
 
 	}

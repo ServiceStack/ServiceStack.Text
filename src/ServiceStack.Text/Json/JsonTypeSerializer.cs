@@ -212,15 +212,27 @@ namespace ServiceStack.Text.Json
 			if (floatValue == null)
                 writer.Write(JsonUtils.Null);
             else
-				writer.Write(((float)floatValue).ToString(CultureInfo.InvariantCulture));
+			{
+				var floatVal = (float) floatValue;
+				if (Equals(floatVal, float.MaxValue) || Equals(floatVal, float.MinValue))
+					writer.Write(floatVal.ToString("r", CultureInfo.InvariantCulture));
+				else
+					writer.Write(floatVal.ToString(CultureInfo.InvariantCulture));
+			}
 		}
 
 		public void WriteDouble(TextWriter writer, object doubleValue)
 		{
 			if (doubleValue == null)
                 writer.Write(JsonUtils.Null);
-            else
-				writer.Write(((double)doubleValue).ToString(CultureInfo.InvariantCulture));
+			else
+			{
+				var doubleVal = (double)doubleValue;
+				if (Equals(doubleVal, double.MaxValue) || Equals(doubleVal, double.MinValue))
+					writer.Write(doubleVal.ToString("r", CultureInfo.InvariantCulture));
+				else
+					writer.Write(doubleVal.ToString(CultureInfo.InvariantCulture));
+			}
 		}
 
 		public void WriteDecimal(TextWriter writer, object decimalValue)

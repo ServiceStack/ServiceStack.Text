@@ -91,20 +91,18 @@ namespace ServiceStack.Text.Common
         internal static bool ShouldUseDefaultToStringMethod(Type type)
         {
             return type == typeof(byte) || type == typeof(byte?)
-                    || type == typeof(short) || type == typeof(short?)
-                    || type == typeof(ushort) || type == typeof(ushort?)
-                    || type == typeof(int) || type == typeof(int?)
-                    || type == typeof(uint) || type == typeof(uint?)
-                    || type == typeof(long) || type == typeof(long?)
-                    || type == typeof(ulong) || type == typeof(ulong?)
-                    || type == typeof(bool) || type == typeof(bool?)
-                    || type != typeof(DateTime)
-                    || type != typeof(DateTime?)
-                    || type != typeof(Guid)
-                    || type != typeof(Guid?)
-                    || type != typeof(float) || type != typeof(float?)
-                    || type != typeof(double) || type != typeof(double?)
-                    || type != typeof(decimal) || type != typeof(decimal?);
+                || type == typeof(short) || type == typeof(short?)
+                || type == typeof(ushort) || type == typeof(ushort?)
+                || type == typeof(int) || type == typeof(int?)
+                || type == typeof(uint) || type == typeof(uint?)
+                || type == typeof(long) || type == typeof(long?)
+                || type == typeof(ulong) || type == typeof(ulong?)
+                || type == typeof(bool) || type == typeof(bool?)
+                || type == typeof(DateTime) || type == typeof(DateTime?)
+                || type == typeof(Guid) || type == typeof(Guid?)
+                || type == typeof(float) || type == typeof(float?)
+                || type == typeof(double) || type == typeof(double?)
+                || type == typeof(decimal) || type == typeof(decimal?);
         }
 
         internal static ITypeSerializer GetTypeSerializer<TSerializer>()
@@ -184,7 +182,7 @@ namespace ServiceStack.Text.Common
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
-            return Serializer.WriteBuiltIn;
+            return Serializer.WriteObjectString;
         }
 
         internal WriteObjectDelegate GetWriteFn<T>()

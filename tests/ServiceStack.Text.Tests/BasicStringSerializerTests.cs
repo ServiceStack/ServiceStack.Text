@@ -285,6 +285,8 @@ namespace ServiceStack.Text.Tests
 			var expectedString = "{One:\"\"\"1st\",Two:\"2:nd\",Three:\"3r,d\",Four:four%}";
 			var stringValue = TypeSerializer.SerializeToString(stringDictionary);
 			Assert.That(stringValue, Is.EqualTo(expectedString));
+
+			Serialize(stringDictionary);
 		}
 
 		[Test]
@@ -297,6 +299,8 @@ namespace ServiceStack.Text.Tests
 			const string mapValues = "{One:\"\"\"1st\",Two:2:nd,Three:\"3r,d\"}";
 			var parsedDictionary = TypeSerializer.DeserializeFromString(mapValues, stringDictionary.GetType());
 			Assert.That(parsedDictionary, Is.EquivalentTo(stringDictionary));
+
+			Serialize(stringDictionary);
 		}
 
 		[Test]
@@ -321,6 +325,8 @@ namespace ServiceStack.Text.Tests
 			const string listValues = "[\"\"\"1st\",2:nd,\"3r,d\",four%]";
 			var parsedList = TypeSerializer.DeserializeFromString(listValues, stringList.GetType());
 			Assert.That(parsedList, Is.EquivalentTo(stringList));
+			
+			Serialize(stringList);
 		}
 
 		[Test]

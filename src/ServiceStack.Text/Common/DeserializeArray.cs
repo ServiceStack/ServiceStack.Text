@@ -83,7 +83,7 @@ namespace ServiceStack.Text.Common
 				while (i < valueLength)
 				{
 					var elementValue = Serializer.EatValue(value, ref i);
-					var listValue = Serializer.ParseString(elementValue);
+					var listValue = elementValue;
 					to.Add((T)elementParseFn(listValue));
 					Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
 				}

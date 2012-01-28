@@ -53,9 +53,12 @@ namespace ServiceStack.Text.Tests
 		public override string ToString()
 		{
 			return string.Format("{0}:{1}:{2}:{3}:{4}:{5}",
-								 this.UserId.ToString("n"),
-								 TimesRecommended, TimesPurchased, TimesRecommended, TimesPreviewed,
-								 GetWeightedValue());
+				this.UserId.ToString("n"),
+				TimesRecommended, 
+				TimesPurchased, 
+				TimesRecommended, 
+				TimesPreviewed,
+				GetWeightedValue());
 		}
 	}
 
@@ -80,7 +83,7 @@ namespace ServiceStack.Text.Tests
 			var userStat = new UserStat();
 			var dtoStr = TypeSerializer.SerializeToString(userStat);
 
-			Assert.That(dtoStr, Is.EqualTo("00000000000000000000000000000000:0:0:0:0:0"));
+			Assert.That(dtoStr, Is.EqualTo("\"00000000000000000000000000000000:0:0:0:0:0\""));
 
 			SerializeAndCompare(userStat);
 		}
@@ -92,7 +95,7 @@ namespace ServiceStack.Text.Tests
 			var userStat = CreateUserStat(userId, 1);
 			var dtoStr = TypeSerializer.SerializeToString(userStat);
 
-			Assert.That(dtoStr, Is.EqualTo("96d7a49f7a0f46918661217995c5e4cc:1:1:1:1:16"));
+			Assert.That(dtoStr, Is.EqualTo("\"96d7a49f7a0f46918661217995c5e4cc:1:1:1:1:16\""));
 
 			SerializeAndCompare(userStat);
 		}
@@ -112,7 +115,7 @@ namespace ServiceStack.Text.Tests
 			var dtoStr = TypeSerializer.SerializeToString(userStats);
 
 			Assert.That(dtoStr, Is.EqualTo(
-				"[6203a3af17384cdfa3ad0f578ad198f0:0:0:0:0:0,c7c87df54821400db9f7d8eee23c5842:1:1:1:1:16,33eb45d421a041cca07d43bfab4b3e92:2:2:2:2:32,ed041f82572a41cb90d3e227786be9eb:3:3:3:3:48,d703f00c613a44a9ac2bc46ed0f23d3c:4:4:4:4:64]"));
+				"[\"6203a3af17384cdfa3ad0f578ad198f0:0:0:0:0:0\",\"c7c87df54821400db9f7d8eee23c5842:1:1:1:1:16\",\"33eb45d421a041cca07d43bfab4b3e92:2:2:2:2:32\",\"ed041f82572a41cb90d3e227786be9eb:3:3:3:3:48\",\"d703f00c613a44a9ac2bc46ed0f23d3c:4:4:4:4:64\"]"));
 
 			SerializeAndCompare(userStats);
 		}

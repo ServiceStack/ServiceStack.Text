@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace ServiceStack.Text.Common
@@ -42,7 +43,8 @@ namespace ServiceStack.Text.Common
 			if (JsConfig<T>.SerializeFn != null)
 				return value => JsConfig<T>.ParseFn(Serializer.ParseRawString(value));
 
-			if (type.IsGenericType())
+			if (type.IsGenericType() 
+				|| type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
 			{
 				if (type.IsOrHasGenericInterfaceTypeOf(typeof(IList<>)))
 					return DeserializeList<T, TSerializer>.Parse;
@@ -59,6 +61,27 @@ namespace ServiceStack.Text.Common
 
 				if (type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
 					return DeserializeEnumerable<T, TSerializer>.Parse;
+			}
+
+			var isCollection = typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(ICollection));
+			if (isCollection)
+			{
+				var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))
+					|| typeof(T).HasInterface(typeof(IDictionary));
+				if (isDictionary)
+				{
+					return DeserializeDictionary<TSerializer>.GetParseMethod(type);
+				}
+
+				return DeserializeEnumerable<T, TSerializer>.Parse;
+			}
+
+			var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
+				|| typeof(T).HasInterface(typeof(IEnumerable));
+
+			if (isEnumerable)
+			{
+				return DeserializeSpecializedCollections<T, TSerializer>.Parse;
 			}
 
 			var staticParseMethod = StaticParseMethod<T>.Parse;

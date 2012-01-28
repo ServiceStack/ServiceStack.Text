@@ -76,7 +76,6 @@ namespace ServiceStack.Text.Common
 			{
 				var propIndex = TypeAttrInObject.Length;
 				var typeName = Serializer.EatValue(strType, ref propIndex);
-				typeName = Serializer.ParseString(typeName);
 				var type = AssemblyUtils.FindType(typeName);
 
 				if (type == null)
@@ -120,7 +119,6 @@ namespace ServiceStack.Text.Common
 			{
 				var propIndex = TypeAttrInObject.Length;
 				var typeName = Serializer.EatValue(strType, ref propIndex);
-				typeName = Serializer.ParseString(typeName);
 				var type = AssemblyUtils.FindType(typeName);
 
 				if (type == null)

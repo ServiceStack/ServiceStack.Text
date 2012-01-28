@@ -54,7 +54,7 @@ namespace ServiceStack.Text.Common
 				parseDelegate = x => typedParseDelegate(x);
 			}
 			if (parseDelegate != null)
-				return value => parseDelegate(value);
+				return value => parseDelegate(value.FromCsvField());
 
 			return null;
 		}

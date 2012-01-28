@@ -160,13 +160,21 @@ namespace ServiceStack.Text.Jsv
 		public void WriteFloat(TextWriter writer, object floatValue)
 		{
 			if (floatValue == null) return;
-			writer.Write(((float)floatValue).ToString(CultureInfo.InvariantCulture));
+			var floatVal = (float)floatValue;
+			if (Equals(floatVal, float.MaxValue) || Equals(floatVal, float.MinValue))
+				writer.Write(floatVal.ToString("r", CultureInfo.InvariantCulture));
+			else
+				writer.Write(floatVal.ToString(CultureInfo.InvariantCulture));
 		}
 
 		public void WriteDouble(TextWriter writer, object doubleValue)
 		{
 			if (doubleValue == null) return;
-			writer.Write(((double)doubleValue).ToString(CultureInfo.InvariantCulture));
+			var doubleVal = (double)doubleValue;
+			if (Equals(doubleVal, double.MaxValue) || Equals(doubleVal, double.MinValue))
+				writer.Write(doubleVal.ToString("r", CultureInfo.InvariantCulture));
+			else
+				writer.Write(doubleVal.ToString(CultureInfo.InvariantCulture));
 		}
 
 		public void WriteDecimal(TextWriter writer, object decimalValue)
@@ -323,7 +331,7 @@ namespace ServiceStack.Text.Jsv
 						if (!isLiteralQuote)
 							break;
 					}
-					return value.Substring(tokenStartPos, i - tokenStartPos);
+					return value.Substring(tokenStartPos, i - tokenStartPos).FromCsvField();
 
 				//Is Type/Map, i.e. {...}
 				case JsWriter.MapStartChar:

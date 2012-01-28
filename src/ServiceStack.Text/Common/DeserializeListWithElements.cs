@@ -76,7 +76,7 @@ namespace ServiceStack.Text.Common
 			while (i < valueLength)
 			{
 				var elementValue = Serializer.EatValue(value, ref i);
-				var listValue = Serializer.ParseString(elementValue);
+				var listValue = elementValue;
 				to.Add(listValue);
 				Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
 			}
@@ -104,7 +104,7 @@ namespace ServiceStack.Text.Common
 	{
 		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-		public static IList<T> ParseGenericList(string value, Type createListType, ParseStringDelegate parseFn)
+		public static ICollection<T> ParseGenericList(string value, Type createListType, ParseStringDelegate parseFn)
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 
@@ -113,7 +113,7 @@ namespace ServiceStack.Text.Common
 
 			var to = (createListType == null || isReadOnly)
 			    ? new List<T>()
-			    : (IList<T>)ReflectionExtensions.CreateInstance(createListType);
+			    : (ICollection<T>)createListType.CreateInstance();
 
 			if (value == string.Empty) return to;
 
@@ -136,7 +136,7 @@ namespace ServiceStack.Text.Common
 					while (i < valueLength)
 					{
 						var elementValue = Serializer.EatValue(value, ref i);
-						var listValue = Serializer.ParseString(elementValue);
+						var listValue = elementValue;
 						to.Add((T)parseFn(listValue));
 						Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
 					}
@@ -146,7 +146,7 @@ namespace ServiceStack.Text.Common
 			
 			//TODO: 8-10-2011 -- this CreateInstance call should probably be moved over to ReflectionExtensions, 
 			//but not sure how you'd like to go about caching constructors with parameters -- I would probably build a NewExpression, .Compile to a LambdaExpression and cache
-			return isReadOnly ? (IList<T>)Activator.CreateInstance(createListType, to) : to;
+			return isReadOnly ? (ICollection<T>)Activator.CreateInstance(createListType, to) : to;
 		}
 	}
 
@@ -228,7 +228,7 @@ namespace ServiceStack.Text.Common
 			var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseFn(elementType);
 			if (supportedTypeParseMethod != null)
 			{
-				const Type createListTypeWithNull = null;
+				const Type createListTypeWithNull = null; //Use conversions outside this class. see: Queue
 
 				var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseFn(
 					createListTypeWithNull, elementType, supportedTypeParseMethod);
