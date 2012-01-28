@@ -9,19 +9,20 @@ using System.Xml;
 
 namespace ServiceStack.Text
 {
-#if !XBOX && !SILVERLIGHT
+#if !XBOX 
     public class XmlSerializer
     {
         private readonly XmlDictionaryReaderQuotas quotas;
         private static readonly XmlWriterSettings XSettings = new XmlWriterSettings();
 
         public static XmlSerializer Instance
-            = new XmlSerializer(new XmlDictionaryReaderQuotas
-            {
-                MaxStringContentLength = 1024 * 1024,
-            });
+            = new XmlSerializer(
+#if !SILVERLIGHT
+                new XmlDictionaryReaderQuotas { MaxStringContentLength = 1024 * 1024, }
+#endif
+        );
 
-        public XmlSerializer(XmlDictionaryReaderQuotas quotas, bool omitXmlDeclaration = false)
+        public XmlSerializer(XmlDictionaryReaderQuotas quotas=null, bool omitXmlDeclaration = false)
         {
             this.quotas = quotas;
             XSettings.Encoding = Encoding.UTF8;
@@ -102,7 +103,11 @@ namespace ServiceStack.Text
 		{
 			try
 			{
+#if !SILVERLIGHT
 				using (var xw = new XmlTextWriter(writer))
+#else
+                using (var xw = XmlWriter.Create(writer))
+#endif
 				{
 					var serializer = new DataContractSerializer(value.GetType());
 					serializer.WriteObject(xw, value);
@@ -114,6 +119,21 @@ namespace ServiceStack.Text
 			}
 		}
 
+        public static void SerializeToStream(object obj, Stream stream)
+        {
+#if !SILVERLIGHT
+            using (var xw = new XmlTextWriter(stream, Encoding.UTF8))
+#else
+            using (var xw = XmlWriter.Create(stream))
+#endif
+            {
+                var serializer = new DataContractSerializer(obj.GetType());
+                serializer.WriteObject(xw, obj);
+            }
+        }
+
+
+#if !SILVERLIGHT
         public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
         {
             using (var deflateStream = new DeflateStream(stream, CompressionMode.Compress))
@@ -122,15 +142,6 @@ namespace ServiceStack.Text
                 var serializer = new DataContractSerializer(from.GetType());
                 serializer.WriteObject(xw, from);
                 xw.Flush();
-            }
-        }
-
-        public static void SerializeToStream(object obj, Stream stream)
-        {
-            using (var xw = new XmlTextWriter(stream, Encoding.UTF8))
-            {
-                var serializer = new DataContractSerializer(obj.GetType());
-                serializer.WriteObject(xw, obj);
             }
         }
 
@@ -143,6 +154,8 @@ namespace ServiceStack.Text
                 return ms.ToArray();
             }
         }
+#endif
+
     }
 #endif
 }
