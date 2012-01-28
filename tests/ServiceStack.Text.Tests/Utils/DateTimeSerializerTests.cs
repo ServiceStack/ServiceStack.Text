@@ -82,6 +82,18 @@ namespace ServiceStack.Text.Tests.Utils
 			Assert.That(result, Is.Not.Null);
 		}
 
+		[Test, Ignore("Don't pre-serialize into Utc")]
+		public void UtcDateTime_Is_Deserialized_As_Kind_Utc()
+		{
+			//Serializing UTC
+			var utcNow = new DateTime(2012, 1, 8, 12, 17, 1, 538, DateTimeKind.Utc);
+			Assert.That(utcNow.Kind, Is.EqualTo(DateTimeKind.Utc));
+			var serialized = JsonSerializer.SerializeToString(utcNow);
+			//Deserializing UTC?
+			var deserialized = JsonSerializer.DeserializeFromString<DateTime>(serialized);
+			Assert.That(deserialized.Kind, Is.EqualTo(DateTimeKind.Utc)); //fails -> is DateTimeKind.Local
+		}
+
         private static DateTime[] _dateTimeTests = new[] {
 			DateTime.Now,
 			DateTime.UtcNow,
