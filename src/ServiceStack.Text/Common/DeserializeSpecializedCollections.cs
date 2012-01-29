@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace ServiceStack.Text.Common
@@ -43,12 +45,7 @@ namespace ServiceStack.Text.Common
 				return GetGenericStackParseFn();
 			}
 
-			if (typeof(T).HasAnyTypeDefinitionsOf(typeof(ICollection<>)))
-			{
-				return GetGenericCollectionParseFn();
-			}
-
-			return null;
+			return GetGenericEnumerableParseFn();
 		}
 
 		public static Queue<string> ParseStringQueue(string value)
@@ -107,20 +104,21 @@ namespace ServiceStack.Text.Common
 			return x => convertToQueue(parseFn(x));
 		}
 
-		internal static ParseStringDelegate GetGenericCollectionParseFn()
+		public static ParseStringDelegate GetGenericEnumerableParseFn()
 		{
 			var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
 			var elementType = enumerableInterface.GetGenericArguments()[0];
 
-			var genericType = typeof(SpecializedCollectionElements<,>).MakeGenericType(typeof(T), elementType);
+			var genericType = typeof(SpecializedEnumerableElements<,>).MakeGenericType(typeof(T), elementType);
 
-			var mi = genericType.GetMethod("Convert", BindingFlags.Static | BindingFlags.Public);
+			var fi = genericType.GetField("ConvertFn", BindingFlags.Static | BindingFlags.Public);
 
-			var convertToCollection = (ConvertObjectDelegate)Delegate.CreateDelegate(typeof(ConvertObjectDelegate), mi);
+			var convertFn = fi.GetValue(null) as ConvertObjectDelegate;
+			if (convertFn == null) return null;
 
 			var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseFn();
 
-			return x => convertToCollection(parseFn(x));
+			return x => convertFn(parseFn(x));
 		}
 	}
 
@@ -139,12 +137,43 @@ namespace ServiceStack.Text.Common
 		}
 	}
 
-	internal class SpecializedCollectionElements<TCollection, T>
+	internal class SpecializedEnumerableElements<TCollection, T>
 	{
+		public static ConvertObjectDelegate ConvertFn;
+
+		static SpecializedEnumerableElements()
+		{
+			foreach (var ctorInfo in typeof(TCollection).GetConstructors())
+			{
+				var ctorParams = ctorInfo.GetParameters();
+				if (ctorParams.Length != 1) continue;
+				var ctorParam = ctorParams[0];
+				if (typeof(IEnumerable).IsAssignableFrom(ctorParam.ParameterType)
+					|| ctorParam.ParameterType.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
+				{
+					ConvertFn = fromObject => {
+						var to = Activator.CreateInstance(typeof(TCollection), fromObject);
+						return to;
+					};
+					return;
+				}
+			}
+
+			if (typeof(TCollection).IsOrHasGenericInterfaceTypeOf(typeof(ICollection<>)))
+			{
+				ConvertFn = ConvertFromCollection;
+			}
+		}
+
 		public static object Convert(object enumerable)
 		{
+			return ConvertFn(enumerable);
+		}
+
+		public static object ConvertFromCollection(object enumerable)
+		{
 			var to = (ICollection<T>)typeof(TCollection).CreateInstance();
-			var from = (IEnumerable<T>) enumerable;
+			var from = (IEnumerable<T>)enumerable;
 			foreach (var item in from)
 			{
 				to.Add(item);

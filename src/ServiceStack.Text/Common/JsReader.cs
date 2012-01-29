@@ -43,8 +43,7 @@ namespace ServiceStack.Text.Common
 			if (JsConfig<T>.SerializeFn != null)
 				return value => JsConfig<T>.ParseFn(Serializer.ParseRawString(value));
 
-			if (type.IsGenericType() 
-				|| type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
+			if (type.IsGenericType())
 			{
 				if (type.IsOrHasGenericInterfaceTypeOf(typeof(IList<>)))
 					return DeserializeList<T, TSerializer>.Parse;
@@ -81,7 +80,8 @@ namespace ServiceStack.Text.Common
 
 			if (isEnumerable)
 			{
-				return DeserializeSpecializedCollections<T, TSerializer>.Parse;
+				var parseFn = DeserializeSpecializedCollections<T, TSerializer>.Parse;
+				if (parseFn != null) return parseFn;
 			}
 
 			var staticParseMethod = StaticParseMethod<T>.Parse;
