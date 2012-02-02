@@ -259,8 +259,9 @@ namespace ServiceStack.Text
 
         public static void WriteFn<TSerializer>(TextWriter writer, object obj)
         {
-            var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-            serializer.WriteRawString(writer, SerializeFn((T)obj));
+            JsonUtils.WriteString(writer, SerializeFn((T)obj));
+            //var serializer = JsWriter.GetTypeSerializer<TSerializer>();
+            //serializer.WriteRawString(writer, SerializeFn((T)obj));
         }
 
         public static object ParseFn(string str)

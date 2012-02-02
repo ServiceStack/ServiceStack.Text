@@ -60,11 +60,21 @@ namespace ServiceStack.Text.Tests
 			var json = JsonSerializer.SerializeToString(dto, dto.GetType());
 
 			Assert.That(json, Is.EqualTo("{\"Name\":\"My name\",\"Content1\":\"My content\"}"));
-
-			//var c = JsonSerializer.DeserializeFromString<Foo>(json);
-			//Console.WriteLine(c.Name);
-			//Console.WriteLine(c.Content1);
-			//Console.WriteLine(c.Content2);
 		}
+
+        [Test]
+        public void Test_structs_with_double_quotes()
+        {
+            var dto = new Foo { Content1 = "My \"quoted\" content", Name = "My \"quoted\" name" };
+            
+            JsConfig<Text>.SerializeFn = text => text.ToString();
+            JsConfig<Text>.DeSerializeFn = v => new Text(v);
+
+            var json = JsonSerializer.SerializeToString(dto, dto.GetType());
+            Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));
+            
+            var foo = JsonSerializer.DeserializeFromString<Foo>(json);
+            Assert.That(foo.Content1, Is.EqualTo(dto.Content1));
+        }
 	}
 }
