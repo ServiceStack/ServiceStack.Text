@@ -60,7 +60,7 @@ namespace ServiceStack.Text.Json
 		
 		public static ParseStringDelegate GetParseFn()
 		{
-			return ReadFn;
+			return ReadFn ?? Parse;
 		}
 
 		public static object Parse(string value)

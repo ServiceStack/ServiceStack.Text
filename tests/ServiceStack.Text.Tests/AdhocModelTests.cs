@@ -395,10 +395,10 @@ namespace ServiceStack.Text.Tests
 			{
 				if (ReferenceEquals(null, other)) return false;
 				if (ReferenceEquals(this, other)) return true;
-				return other.Int == Int 
-					&& other.Long == Long 
-					&& other.Float.Equals(Float) 
-					&& other.Double.Equals(Double) 
+				return other.Int == Int
+					&& other.Long == Long
+					&& other.Float.Equals(Float)
+					&& other.Double.Equals(Double)
 					&& other.Decimal == Decimal;
 			}
 
@@ -406,8 +406,8 @@ namespace ServiceStack.Text.Tests
 			{
 				if (ReferenceEquals(null, obj)) return false;
 				if (ReferenceEquals(this, obj)) return true;
-				if (obj.GetType() != typeof (PolarValues)) return false;
-				return Equals((PolarValues) obj);
+				if (obj.GetType() != typeof(PolarValues)) return false;
+				return Equals((PolarValues)obj);
 			}
 
 			public override int GetHashCode()
@@ -415,10 +415,10 @@ namespace ServiceStack.Text.Tests
 				unchecked
 				{
 					int result = Int;
-					result = (result*397) ^ Long.GetHashCode();
-					result = (result*397) ^ Float.GetHashCode();
-					result = (result*397) ^ Double.GetHashCode();
-					result = (result*397) ^ Decimal.GetHashCode();
+					result = (result * 397) ^ Long.GetHashCode();
+					result = (result * 397) ^ Float.GetHashCode();
+					result = (result * 397) ^ Double.GetHashCode();
+					result = (result * 397) ^ Decimal.GetHashCode();
 					return result;
 				}
 			}
@@ -465,5 +465,27 @@ namespace ServiceStack.Text.Tests
 			var to = Serialize(dto);
 			Assert.That(to, Is.EqualTo(dto));
 		}
+
+		public class TestClass
+		{
+			public string Description { get; set; }
+			public TestClass Inner { get; set; }
+		}
+
+		[Test]
+		public void Can_serialize_1_level_cyclical_dto()
+		{
+			var dto = new TestClass {
+				Description = "desc",
+				Inner = new TestClass { Description = "inner" }
+			};
+
+			var from = Serialize(dto, includeXml:false);
+
+			Assert.That(from.Description, Is.EqualTo(dto.Description));
+			Assert.That(from.Inner.Description, Is.EqualTo(dto.Inner.Description));
+			Console.WriteLine(from.Dump());
+		}
+
 	}
 }

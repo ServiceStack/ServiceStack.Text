@@ -7,7 +7,8 @@ using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text
 {
-    public static class JsConfig
+    public static class 
+		JsConfig
     {
         static JsConfig()
         {
@@ -259,9 +260,8 @@ namespace ServiceStack.Text
 
         public static void WriteFn<TSerializer>(TextWriter writer, object obj)
         {
-            JsonUtils.WriteString(writer, SerializeFn((T)obj));
-            //var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-            //serializer.WriteRawString(writer, SerializeFn((T)obj));
+            var serializer = JsWriter.GetTypeSerializer<TSerializer>();
+            serializer.WriteString(writer, SerializeFn((T)obj));
         }
 
         public static object ParseFn(string str)

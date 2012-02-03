@@ -12,6 +12,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Reflection;
 using System.Linq;
@@ -65,9 +66,13 @@ namespace ServiceStack.Text.Common
 			return WriteProperties;
 		}
 
+		private static int Nested;
+
 		private static bool Init()
 		{
 			if (!typeof(T).IsClass && !typeof(T).IsInterface) return false;
+
+			Interlocked.Increment(ref Nested);
 
 			var propertyInfos = TypeConfig<T>.Properties;
 			if (propertyInfos.Length == 0 && !JsState.IsWritingDynamic)
@@ -187,7 +192,7 @@ namespace ServiceStack.Text.Common
 
 					if (typeof (TSerializer) == typeof (JsonTypeSerializer)) JsState.IsWritingValue = true;
 					propertyWriter.WriteFn(writer, propertyValue);
-					if (typeof (TSerializer) == typeof (JsonTypeSerializer)) JsState.IsWritingValue = false;
+					if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
 				}
 			}
 

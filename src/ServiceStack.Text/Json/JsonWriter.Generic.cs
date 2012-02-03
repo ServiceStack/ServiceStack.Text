@@ -122,7 +122,7 @@ namespace ServiceStack.Text.Json
 
 		public static WriteObjectDelegate WriteFn()
 		{
-			return CacheFn;
+			return CacheFn ?? WriteObject;
 		}
 
 		public static TypeInfo GetTypeInfo()

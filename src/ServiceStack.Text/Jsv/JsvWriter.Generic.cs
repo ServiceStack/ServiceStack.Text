@@ -83,7 +83,7 @@ namespace ServiceStack.Text.Jsv
 
 		public static WriteObjectDelegate WriteFn()
 		{
-			return CacheFn;
+			return CacheFn ?? WriteObject;
 		}
 
 		static JsvWriter()
