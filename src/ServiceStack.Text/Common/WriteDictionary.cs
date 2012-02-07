@@ -177,6 +177,11 @@ namespace ServiceStack.Text.Common
 			WriteObjectDelegate writeKeyFn,
 			WriteObjectDelegate writeValueFn)
 		{
+		    if (map == null)
+		    {
+		        writer.Write(JsonUtils.Null);
+                return;
+		    }
 			writer.Write(JsWriter.MapStartChar);
 
 			var encodeMapKey = Serializer.GetTypeInfo(typeof(TKey)).EncodeMapKey;
