@@ -14,7 +14,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_a_movie()
 		{
-			const string clientJson = "{\"Id\":\"tt0110912\",\"Title\":\"Pulp Fiction\",\"Rating\":\"8.9\",\"Director\":\"Quentin Tarantino\",\"ReleaseDate\":\"/Date(785635200000+0000)/\",\"TagLine\":\"Girls like me don't make invitations like this to just anyone!\",\"Genres\":[\"Crime\",\"Drama\",\"Thriller\"]}";
+			const string clientJson = "{\"Id\":\"tt0110912\",\"Title\":\"Pulp Fiction\",\"Rating\":\"8.9\",\"Director\":\"Quentin Tarantino\",\"ReleaseDate\":\"/Date(785635200000)/\",\"TagLine\":\"Girls like me don't make invitations like this to just anyone!\",\"Genres\":[\"Crime\",\"Drama\",\"Thriller\"]}";
 			var jsonModel = JsonSerializer.DeserializeFromString<Movie>(clientJson);
 			var bclJsonModel = BclJsonDataContractDeserializer.Instance.Parse<Movie>(clientJson);
 
@@ -25,33 +25,6 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Console.WriteLine("CLIENT {0}\nSS {1}\nBCL {2}", clientJson, ssJson, wcfJson);
 
 			Assert.That(jsonModel, Is.EqualTo(bclJsonModel));
-		}
-
-		[Test, Ignore("Known descrepancy, Leave UTC DateTimes without TZ Info")]
-		public void Can_serialize_WcfJsonDate()
-		{
-			//1994/11/24
-			var releaseDate = new DateTime(1994, 11, 24);
-			var ssJson = JsonSerializer.SerializeToString(releaseDate);
-			var bclJson = BclJsonDataContractSerializer.Instance.Parse(releaseDate);
-
-			//Console.WriteLine("Ticks: {0}", releaseDate.Ticks); 
-			//Console.WriteLine("UnixEpoch: {0}", DateTimeExtensions.UnixEpoch);
-			//Console.WriteLine("TicksPerMs: {0}", TimeSpan.TicksPerSecond / 1000);
-			//Console.WriteLine("Ticks - UnixEpoch: {0}", releaseDate.Ticks - DateTimeExtensions.UnixEpoch);
-			//Console.WriteLine("{0} == {1}", ssJson, bclJson);
-
-			Assert.That(ssJson, Is.EqualTo(bclJson));
-		}
-
-		[Test]
-		public void Can_deserialize_json_date()
-		{
-			var releaseDate = new DateTime(1994, 11, 24);
-			var ssJson = JsonSerializer.SerializeToString(releaseDate);
-			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(ssJson);
-
-			Assert.That(fromJson, Is.EqualTo(releaseDate));
 		}
 
 		[Test]
