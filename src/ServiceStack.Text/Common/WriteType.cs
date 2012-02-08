@@ -66,13 +66,9 @@ namespace ServiceStack.Text.Common
 			return WriteProperties;
 		}
 
-		private static int Nested;
-
 		private static bool Init()
 		{
 			if (!typeof(T).IsClass && !typeof(T).IsInterface) return false;
-
-			Interlocked.Increment(ref Nested);
 
 			var propertyInfos = TypeConfig<T>.Properties;
 			if (propertyInfos.Length == 0 && !JsState.IsWritingDynamic)
@@ -178,7 +174,9 @@ namespace ServiceStack.Text.Common
 				for (int index = 0; index < len; index++)
 				{
 					var propertyWriter = PropertyWriters[index];
-					var propertyValue = propertyWriter.GetterFn((T) value);
+					var propertyValue = value != null 
+						? propertyWriter.GetterFn((T)value)
+						: null;
 
 					if ((propertyValue == null
 					     || (propertyWriter.DefaultValue != null && propertyWriter.DefaultValue.Equals(propertyValue)))

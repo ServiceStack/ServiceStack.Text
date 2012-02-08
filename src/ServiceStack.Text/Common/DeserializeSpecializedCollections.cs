@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 
@@ -45,6 +46,11 @@ namespace ServiceStack.Text.Common
 				return GetGenericStackParseFn();
 			}
 
+			if (typeof(T) == typeof(StringCollection))
+			{
+				return ParseStringCollection<TSerializer>;
+			}
+
 			return GetGenericEnumerableParseFn();
 		}
 
@@ -58,6 +64,24 @@ namespace ServiceStack.Text.Common
 		{
 			var parse = (IEnumerable<int>)DeserializeList<List<int>, TSerializer>.Parse(value);
 			return new Queue<int>(parse);
+		}
+
+		public static StringCollection ParseStringCollection<TSerializer>(string value) where TSerializer : ITypeSerializer
+		{
+			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
+			return value == String.Empty
+			       ? new StringCollection()
+			       : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
+		}
+
+		public static StringCollection ToStringCollection(List<string> items)
+		{
+			var to = new StringCollection();
+			foreach (var item in items)
+			{
+				to.Add(item);
+			}
+			return to;
 		}
 
 		internal static ParseStringDelegate GetGenericQueueParseFn()

@@ -133,7 +133,7 @@ namespace ServiceStack.Text.Json
 			if (charValue == null)
 				writer.Write(JsonUtils.Null);
 			else
-				writer.Write((char)charValue);
+				WriteRawString(writer, ((char)charValue).ToString(CultureInfo.InvariantCulture));
 		}
 
 		public void WriteByte(TextWriter writer, object byteValue)
