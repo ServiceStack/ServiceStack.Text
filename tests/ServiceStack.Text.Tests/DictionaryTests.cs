@@ -189,6 +189,15 @@ namespace ServiceStack.Text.Tests
 			Serialize(foo);
 		}
 
+        [Test]
+        public void Can_serialise_null_values_from_nested_dictionary_correctly()
+        {
+            JsConfig.IncludeNullValues = true;
+            var foo = new FooSlash();
+            var json = JsonSerializer.SerializeToString(foo);
+            Assert.That(json, Is.EqualTo("{\"Nested\":null,\"Bar\":null}"));
+        }
+
 		[Test]
 		public void Can_serialize_Dictionary_with_quotes()
 		{
