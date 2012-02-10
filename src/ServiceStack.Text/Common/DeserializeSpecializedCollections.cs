@@ -46,10 +46,12 @@ namespace ServiceStack.Text.Common
 				return GetGenericStackParseFn();
 			}
 
+#if !SILVERLIGHT
 			if (typeof(T) == typeof(StringCollection))
 			{
 				return ParseStringCollection<TSerializer>;
 			}
+#endif
 
 			return GetGenericEnumerableParseFn();
 		}
@@ -66,6 +68,7 @@ namespace ServiceStack.Text.Common
 			return new Queue<int>(parse);
 		}
 
+#if !SILVERLIGHT
 		public static StringCollection ParseStringCollection<TSerializer>(string value) where TSerializer : ITypeSerializer
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
@@ -83,6 +86,7 @@ namespace ServiceStack.Text.Common
 			}
 			return to;
 		}
+#endif
 
 		internal static ParseStringDelegate GetGenericQueueParseFn()
 		{
