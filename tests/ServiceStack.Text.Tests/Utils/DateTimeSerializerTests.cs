@@ -40,12 +40,12 @@ namespace ServiceStack.Text.Tests.Utils
 			const string shortDateString = "1979-05-09";
 
 			var shortDateTime = new DateTime(1979, 5, 9, 0, 0, 1, DateTimeKind.Utc);
-			var shortDateTimeString = shortDateTime.Equals(shortDateTime.ToUniversalTime())
+			var shortDateTimeString = shortDateTime.Equals(TimeZoneInfo.ConvertTimeToUtc(shortDateTime))
               	? "1979-05-09T00:00:01Z"
               	: "1979-05-08T23:00:01Z";
 
 			var longDateTime = new DateTime(1979, 5, 9, 0, 0, 0, 1, DateTimeKind.Utc);
-			var longDateTimeString = longDateTime.Equals(longDateTime.ToUniversalTime())
+			var longDateTimeString = longDateTime.Equals(TimeZoneInfo.ConvertTimeToUtc(longDateTime))
          		? "1979-05-09T00:00:00.001Z"
          		: "1979-05-08T23:00:00.001Z";
 
@@ -58,7 +58,7 @@ namespace ServiceStack.Text.Tests.Utils
 		public void Utc_Local_Equals()
 		{
 			var now = DateTime.Now;
-			var utcNow = now.ToUniversalTime();
+			var utcNow = TimeZoneInfo.ConvertTimeToUtc(now);
 
 			Assert.That(now.Ticks, Is.EqualTo(utcNow.Ticks), "Ticks are different");
 			Assert.That(now, Is.EqualTo(utcNow), "DateTimes are different");
@@ -98,6 +98,7 @@ namespace ServiceStack.Text.Tests.Utils
 			DateTime.Now,
 			DateTime.UtcNow,
 			new DateTime(1979, 5, 9),
+			new DateTime(1972,3,24),
 			new DateTime(1979, 5, 9, 0, 0, 1),
 			new DateTime(1979, 5, 9, 0, 0, 0, 1),
 			new DateTime(2010, 10, 20, 10, 10, 10, 1),
@@ -113,15 +114,16 @@ namespace ServiceStack.Text.Tests.Utils
         [TestCase(4)]
         [TestCase(5)]
         [TestCase(6)]
-        [TestCase(7)]
+		[TestCase(7)]
+		[TestCase(8)]
         public void AssertDateIsEqual(int whichDate)
 		{
             DateTime dateTime = _dateTimeTests[whichDate];
 
 			//Don't test short dates without time to UTC as you lose precision
 			var shortDateStr = dateTime.ToString(DateTimeSerializer.ShortDateTimeFormat);
-			var shortDateTimeStr = dateTime.ToUniversalTime().ToString(DateTimeSerializer.XsdDateTimeFormatSeconds);
-			var longDateTimeStr = dateTime.ToUniversalTime().ToString(DateTimeSerializer.XsdDateTimeFormat);
+			var shortDateTimeStr = TimeZoneInfo.ConvertTimeToUtc(dateTime).ToString(DateTimeSerializer.XsdDateTimeFormatSeconds);
+			var longDateTimeStr = DateTimeSerializer.ToXsdDateTimeString(dateTime);
 			var shortestDateStr = DateTimeSerializer.ToShortestXsdDateTimeString(dateTime);
 
 			Log("{0} | {1} | {2}  [{3}]",
@@ -133,14 +135,14 @@ namespace ServiceStack.Text.Tests.Utils
 
 			Assert.That(shortDate, Is.EqualTo(dateTime.Date));
 
-			var shortDateTimeUtc = shortDateTime.ToUniversalTime();
+			var shortDateTimeUtc = TimeZoneInfo.ConvertTimeToUtc(shortDateTime);
 			Assert.That(shortDateTimeUtc, Is.EqualTo(
 				new DateTime(
 					shortDateTimeUtc.Year, shortDateTimeUtc.Month, shortDateTimeUtc.Day,
 					shortDateTimeUtc.Hour, shortDateTimeUtc.Minute, shortDateTimeUtc.Second,
 					shortDateTimeUtc.Millisecond, DateTimeKind.Utc)));
-			
-			Assert.That(longDateTime.ToUniversalTime(), Is.EqualTo(dateTime.ToUniversalTime()));
+
+			Assert.That(TimeZoneInfo.ConvertTimeToUtc(longDateTime), Is.EqualTo(TimeZoneInfo.ConvertTimeToUtc(dateTime)));
 
 			var toDateTime = DateTimeSerializer.ParseShortestXsdDateTime(shortestDateStr);
 			AssertDatesAreEqual(toDateTime, dateTime, "shortestDate");
@@ -156,7 +158,7 @@ namespace ServiceStack.Text.Tests.Utils
 
         private void AssertDatesAreEqual(DateTime toDateTime, DateTime dateTime, string which)
         {
-            Assert.That(toDateTime.ToUniversalTime().RoundToMs(), Is.EqualTo(dateTime.ToUniversalTime().RoundToMs()), which);
+			Assert.That(TimeZoneInfo.ConvertTimeToUtc(toDateTime).RoundToMs(), Is.EqualTo(TimeZoneInfo.ConvertTimeToUtc(dateTime).RoundToMs()), which);
         }
 	}
 }

@@ -26,7 +26,7 @@ namespace ServiceStack.Text
 
 		public static long ToUnixTime(this DateTime dateTime)
 		{
-			return (dateTime.ToUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerSecond;
+			return (TimeZoneInfo.ConvertTimeToUtc(dateTime).Ticks - UnixEpoch) / TimeSpan.TicksPerSecond;
 		}
 
 		public static DateTime FromUnixTime(this double unixTime)
@@ -36,7 +36,7 @@ namespace ServiceStack.Text
 
 		public static long ToUnixTimeMs(this DateTime dateTime)
 		{
-			return (dateTime.ToUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
+			return (TimeZoneInfo.ConvertTimeToUtc(dateTime).Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
 		}
 
 		public static DateTime FromUnixTimeMs(this double msSince1970)
@@ -99,7 +99,7 @@ namespace ServiceStack.Text
 
 		public static bool IsEqualToTheSecond(this DateTime dateTime, DateTime otherDateTime)
 		{
-			return dateTime.ToUniversalTime().RoundToSecond().Equals(otherDateTime.ToUniversalTime().RoundToSecond());
+			return TimeZoneInfo.ConvertTimeToUtc(dateTime).RoundToSecond().Equals(TimeZoneInfo.ConvertTimeToUtc(otherDateTime).RoundToSecond());
 		}
 
 		public static string ToTimeOffsetString(this TimeSpan offset, bool includeColon = false)
