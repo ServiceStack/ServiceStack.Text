@@ -213,11 +213,12 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;
-			list.ForEach(x =>
+			var listLength = list.Count;
+			for (var i = 0; i < listLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, x);
-			});
+				ElementWriteFn(writer, list[i]);
+			}
 
 			writer.Write(JsWriter.ListEndChar);
 		}
@@ -234,11 +235,12 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;
-			list.ForEach(x =>
+			var listLength = list.Count;
+			for (var i = 0; i < listLength; i++)
 			{
 				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, x);
-			});
+				ElementWriteFn(writer, list[i]);
+			}
 
 			writer.Write(JsWriter.ListEndChar);
 		}
