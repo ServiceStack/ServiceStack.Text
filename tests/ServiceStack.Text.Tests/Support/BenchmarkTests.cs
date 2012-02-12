@@ -173,6 +173,7 @@ namespace ServiceStack.Text.Tests.Support
 		{
 			List<Cat> list = 20.Times(x => new Cat { Name = "Cat" });
 			var results = 0;
+			var listLength = list.Count;
 
 			CompareMultipleRuns(
 				"With foreach",
@@ -184,7 +185,7 @@ namespace ServiceStack.Text.Tests.Support
 				},
 				"With for",
 				() => {
-					for (var i = 0; i < list.Count; i++)
+					for (var i = 0; i < listLength; i++)
 					{
 						var cat = list[i];
 						results++;
@@ -199,7 +200,7 @@ namespace ServiceStack.Text.Tests.Support
 		{
 			IList<Cat> list = 20.Times(x => new Cat { Name = "Cat" });
 			var results = 0;
-
+			var listLength = list.Count;
 			CompareMultipleRuns(
 				"With foreach",
 				() => {
@@ -210,7 +211,7 @@ namespace ServiceStack.Text.Tests.Support
 				},
 				"With for",
 				() => {
-					for (var i = 0; i < list.Count; i++)
+					for (var i = 0; i < listLength; i++)
 					{
 						var cat = list[i];
 						results++;
@@ -220,11 +221,6 @@ namespace ServiceStack.Text.Tests.Support
 			Console.WriteLine(results);
 		}
 
-		[Test]
-		public void A()
-		{
-
-		}
 
 	}
 }
