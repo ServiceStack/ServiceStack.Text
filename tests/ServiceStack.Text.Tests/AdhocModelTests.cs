@@ -289,7 +289,7 @@ namespace ServiceStack.Text.Tests
 			public IParent Parent { get; set; }
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void Can_Serailize_Cyclical_Dependency_via_interface()
 		{
 			var dto = new Parent {

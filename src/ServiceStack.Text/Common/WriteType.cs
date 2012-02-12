@@ -36,7 +36,10 @@ namespace ServiceStack.Text.Common
 			if (typeof(T).IsAbstract)
 			{
 				WriteTypeInfo = TypeInfoWriter;
-				CacheFn = WriteAbstractProperties;
+				if (!typeof(T).IsInterface)
+				{
+					CacheFn = WriteAbstractProperties;
+				}
 			}
 		}
 
@@ -163,7 +166,14 @@ namespace ServiceStack.Text.Common
 				writer.Write(JsWriter.EmptyMap);
 				return;
 			}
-			var writeFn = Serializer.GetWriteFn(value.GetType());			
+			var valueType = value.GetType();
+			if (valueType.IsAbstract)
+			{
+				WriteProperties(writer, value);
+				return;
+			}
+
+			var writeFn = Serializer.GetWriteFn(valueType);			
 			if (!JsConfig<T>.ExcludeTypeInfo) JsState.IsWritingDynamic = true;
 			writeFn(writer, value);
 			if (!JsConfig<T>.ExcludeTypeInfo) JsState.IsWritingDynamic = false;
