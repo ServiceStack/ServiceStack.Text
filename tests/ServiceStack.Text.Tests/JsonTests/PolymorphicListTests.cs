@@ -28,20 +28,16 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 	public class Dog : Animal, IDog
 	{
-		public override string Name
-		{
-			get;
-			set;
-		}
+		public override string Name { get; set; }
+
+		public string DogBark { get; set; }
 	}
 
 	public class Cat : Animal, ICat
 	{
-		public override string Name
-		{
-			get;
-			set;
-		}
+		public override string Name { get; set; }
+
+		public string CatMeow { get; set; }
 	}
 
 	public class Zoo
@@ -50,8 +46,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			Animals = new List<Animal>
 			{
-				new Dog { Name = @"Fido" },
-				new Cat { Name = @"Tigger" }
+				new Dog { Name = @"Fido", DogBark = "woof" },
+				new Cat { Name = @"Tigger", CatMeow = "meow" },
 			};
 		}
 
@@ -83,8 +79,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			var list = new List<Animal>
 			{
-				new Dog { Name = @"Fido" },
-				new Cat { Name = @"Tigger"}
+				new Dog { Name = @"Fido", DogBark = "woof" },
+				new Cat { Name = @"Tigger", CatMeow = "meow" },
 			};
 
 			var asText = JsonSerializer.SerializeToString(list);
@@ -95,9 +91,9 @@ namespace ServiceStack.Text.Tests.JsonTests
 				Is.EqualTo(
 					"[{\"__type\":\""
 					+ typeof(Dog).ToTypeString()
-					+ "\",\"Name\":\"Fido\"},{\"__type\":\""
+					+ "\",\"Name\":\"Fido\",\"DogBark\":\"woof\"},{\"__type\":\""
 					+ typeof(Cat).ToTypeString()
-					+ "\",\"Name\":\"Tigger\"}]"));
+					+ "\",\"Name\":\"Tigger\",\"CatMeow\":\"meow\"}]"));
 		}
 
 		[Test]
@@ -116,9 +112,9 @@ namespace ServiceStack.Text.Tests.JsonTests
 				Is.EqualTo(
 					"{\"Animals\":[{\"__type\":\""
 					+ typeof(Dog).ToTypeString()
-					+ "\",\"Name\":\"Fido\"},{\"__type\":\""
+					+ "\",\"Name\":\"Fido\",\"DogBark\":\"woof\"},{\"__type\":\""
 					+ typeof(Cat).ToTypeString()
-					+ "\",\"Name\":\"Tigger\"}],\"Name\":\"City Zoo\"}"));
+					+ "\",\"Name\":\"Tigger\",\"CatMeow\":\"meow\"}],\"Name\":\"City Zoo\"}"));
 		}
 
 		[Test]

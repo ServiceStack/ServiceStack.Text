@@ -36,6 +36,7 @@ namespace ServiceStack.Text.Common
 			if (typeof(T).IsAbstract)
 			{
 				WriteTypeInfo = TypeInfoWriter;
+				CacheFn = WriteAbstractProperties;
 			}
 		}
 
@@ -155,6 +156,19 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.EmptyMap);
 		}
 
+		public static void WriteAbstractProperties(TextWriter writer, object value)
+		{
+			if (value == null)
+			{
+				writer.Write(JsWriter.EmptyMap);
+				return;
+			}
+			var writeFn = Serializer.GetWriteFn(value.GetType());			
+			if (!JsConfig<T>.ExcludeTypeInfo) JsState.IsWritingDynamic = true;
+			writeFn(writer, value);
+			if (!JsConfig<T>.ExcludeTypeInfo) JsState.IsWritingDynamic = false;
+		}
+		 
 		public static void WriteProperties(TextWriter writer, object value)
 		{
 			if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0)
