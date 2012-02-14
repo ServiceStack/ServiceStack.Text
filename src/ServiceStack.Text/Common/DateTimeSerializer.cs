@@ -56,7 +56,7 @@ namespace ServiceStack.Text.Common
 
 		public static string ToDateTimeString(DateTime dateTime)
 		{
-			return TimeZoneInfo.ConvertTimeToUtc(dateTime).ToString(XsdDateTimeFormat);
+			return dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormat);
 		}
 
 		public static DateTime ParseDateTime(string dateTimeStr)
@@ -66,7 +66,7 @@ namespace ServiceStack.Text.Common
 
 		public static string ToXsdDateTimeString(DateTime dateTime)
 		{
-			return XmlConvert.ToString(TimeZoneInfo.ConvertTimeToUtc(dateTime), XmlDateTimeSerializationMode.Utc);
+			return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);
 		}
 
 		public static DateTime ParseXsdDateTime(string dateTimeStr)
@@ -82,7 +82,7 @@ namespace ServiceStack.Text.Common
 				return dateTime.ToString(ShortDateTimeFormat);
 
 			if (timeOfDay.Milliseconds == 0)
-				return TimeZoneInfo.ConvertTimeToUtc(dateTime).ToString(XsdDateTimeFormatSeconds);
+				return dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
 
 			return ToXsdDateTimeString(dateTime);
 		}
