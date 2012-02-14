@@ -26,7 +26,7 @@ namespace ServiceStack.Text
 
 		public static long ToUnixTime(this DateTime dateTime)
 		{
-			return (TimeZoneInfo.ConvertTimeToUtc(dateTime).Ticks - UnixEpoch) / TimeSpan.TicksPerSecond;
+			return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerSecond;
 		}
 
 		public static DateTime FromUnixTime(this double unixTime)
@@ -36,7 +36,7 @@ namespace ServiceStack.Text
 
 		public static long ToUnixTimeMs(this DateTime dateTime)
 		{
-			return (TimeZoneInfo.ConvertTimeToUtc(dateTime).Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
+			return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
 		}
 
 		public static DateTime FromUnixTimeMs(this double msSince1970)
@@ -99,7 +99,7 @@ namespace ServiceStack.Text
 
 		public static bool IsEqualToTheSecond(this DateTime dateTime, DateTime otherDateTime)
 		{
-			return TimeZoneInfo.ConvertTimeToUtc(dateTime).RoundToSecond().Equals(TimeZoneInfo.ConvertTimeToUtc(otherDateTime).RoundToSecond());
+			return dateTime.ToStableUniversalTime().RoundToSecond().Equals(otherDateTime.ToStableUniversalTime().RoundToSecond());
 		}
 
 		public static string ToTimeOffsetString(this TimeSpan offset, bool includeColon = false)
@@ -119,6 +119,18 @@ namespace ServiceStack.Text
 			offsetString = offsetString.TrimStart('+');
 
 			return TimeSpan.Parse(offsetString);
+		}
+
+		public static DateTime ToStableUniversalTime(this DateTime dateTime)
+		{
+#if SILVERLIGHT
+			// Silverlight 3, 4 and 5 all work ok with DateTime.ToUniversalTime, but have no TimeZoneInfo.ConverTimeToUtc implementation.
+			return dateTime.ToUniversalTime();
+#else
+			// .Net 2.0 - 3.5 has an issue with DateTime.ToUniversalTime, but works ok with TimeZoneInfo.ConvertTimeToUtc.
+			// .Net 4.0+ does this under the hood anyway.
+			return TimeZoneInfo.ConvertTimeToUtc(dateTime);
+#endif
 		}
 	}
 }
