@@ -76,7 +76,12 @@ namespace ServiceStack.Text
 #if !XBOX
         public static Type FindTypeFromLoadedAssemblies(string typeName)
         {
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+#if SILVERLIGHT4
+        	var assemblies = ((dynamic) AppDomain.CurrentDomain).GetAssemblies() as Assembly[];
+#else
+			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+#endif
+        	foreach (var assembly in assemblies)
             {
                 var type = assembly.GetType(typeName);
                 if (type != null)
