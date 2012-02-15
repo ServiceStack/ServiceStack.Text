@@ -159,5 +159,48 @@ namespace ServiceStack.Text.Tests
 			Console.WriteLine(output);
 		}
 
+		[DataContract]
+		public class ClassOne
+		{
+			[DataMember]
+			public int Id { get; set; }
+
+			[DataMember(Name = "listClassTwo")]
+			public List<ClassTwo> List { get; set; }
+
+			public ClassOne()
+			{
+				List = new List<ClassTwo>();
+			}
+		}
+
+		[DataContract]
+		public class ClassTwo
+		{
+			[DataMember]
+			public string Name { get; set; }
+		}
+		
+		[Test]
+		public void deserialize_from_string_with_the_dataMember_name()
+		{
+			const string jsonList =
+                "{\"Id\":1,\"listClassTwo\":[{\"Name\":\"Name One\"},{\"Name\":\"Name Two\"}]}";
+
+			var classOne = JsonSerializer.DeserializeFromString<ClassOne>(jsonList);
+
+			Assert.AreEqual(1, classOne.Id);
+			Assert.AreEqual(2, classOne.List.Count);
+		}
+
+		[Test]
+		public void serialize()
+		{
+			var classOne= new ClassOne {
+				Id = 1,
+				List = new List<ClassTwo> { new ClassTwo { Name = "Name One" }, new ClassTwo { Name = "Name Two" } }
+			};
+			Console.WriteLine(JsonSerializer.SerializeToString(classOne));
+		}
 	}
 }

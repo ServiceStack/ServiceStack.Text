@@ -18,6 +18,7 @@ using System.Reflection.Emit;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
 {
@@ -43,15 +44,26 @@ namespace ServiceStack.Text.Common
 
 			var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
 
+			var isDataContract = type.GetCustomAttributes(typeof(DataContractAttribute), false).Any();
+
 			foreach (var propertyInfo in propertyInfos)
 			{
-				map[propertyInfo.Name] = TypeAccessor.Create(Serializer, typeConfig, propertyInfo);
+				var propertyName = propertyInfo.Name;
+				if (isDataContract)
+				{
+					var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+					if (dcsDataMember != null && dcsDataMember.Name != null)
+					{
+						propertyName = dcsDataMember.Name;
+					}
+				}
+				map[propertyName] = TypeAccessor.Create(Serializer, typeConfig, propertyInfo);
 			}
 
 			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
 
 			return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-				? (ParseStringDelegate) (value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
+				? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
 				: value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
 		}
 
@@ -168,8 +180,8 @@ namespace ServiceStack.Text.Common
 			if (fieldInfo == null) return null;
 			return (instance, value) => fieldInfo.SetValue(instance, value);
 #else
-			return propertyInfo.CanWrite 
-				? CreateIlPropertySetter(propertyInfo) 
+			return propertyInfo.CanWrite
+				? CreateIlPropertySetter(propertyInfo)
 				: CreateIlFieldSetter(fieldInfo);
 #endif
 		}
