@@ -107,8 +107,10 @@ namespace ServiceStack.Text.Json
 
 		public void WriteNullableDateTime(TextWriter writer, object dateTime)
 		{
-			if (dateTime == null) return;
-			WriteDateTime(writer, dateTime);
+			if (dateTime == null)
+				writer.Write( JsonUtils.Null );
+			else
+				WriteDateTime(writer, dateTime);
 		}
 
 		public void WriteGuid(TextWriter writer, object oValue)
