@@ -99,7 +99,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			JsConfig.IncludeNullValues = true;
 			var s = JsonSerializer.SerializeToString(o);
-			JsConfig.IncludeNullValues = false;
+			JsConfig.Reset();
 			Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}"));
 		}
 

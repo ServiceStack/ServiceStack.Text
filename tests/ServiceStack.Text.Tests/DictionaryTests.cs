@@ -157,6 +157,7 @@ namespace ServiceStack.Text.Tests
 			Log(json);
 
 			Assert.That(json, Is.EqualTo("{\"value\":null}"));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -171,6 +172,7 @@ namespace ServiceStack.Text.Tests
 			Log(json);
 
 			Assert.That(json, Is.EqualTo("{}"));
+			JsConfig.Reset();
 		}
 
 		public class FooSlash
@@ -196,7 +198,8 @@ namespace ServiceStack.Text.Tests
             var foo = new FooSlash();
             var json = JsonSerializer.SerializeToString(foo);
             Assert.That(json, Is.EqualTo("{\"Nested\":null,\"Bar\":null}"));
-        }
+			JsConfig.Reset();
+		}
 
 		[Test]
 		public void Can_serialize_Dictionary_with_quotes()

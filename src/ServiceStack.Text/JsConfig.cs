@@ -16,18 +16,71 @@ namespace ServiceStack.Text
 			//JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
 			//JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
 		}
+		
+		[ThreadStatic]
+		private static bool? tsConvertObjectTypesIntoStringDictionary;
+		private static bool? sConvertObjectTypesIntoStringDictionary;
+		public static bool ConvertObjectTypesIntoStringDictionary
+		{
+			get
+			{
+				return tsConvertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary ?? false;
+			}
+			set
+			{
+				if (!tsConvertObjectTypesIntoStringDictionary.HasValue) tsConvertObjectTypesIntoStringDictionary = value;
+				if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
+			}
+		}
 
 		[ThreadStatic]
-		public static bool ConvertObjectTypesIntoStringDictionary = false;
+		private static bool? tsIncludeNullValues;
+		private static bool? sIncludeNullValues;
+		public static bool IncludeNullValues
+		{
+			get
+			{
+				return tsIncludeNullValues ?? sIncludeNullValues ?? false;
+			}
+			set
+			{
+				if (!tsIncludeNullValues.HasValue) tsIncludeNullValues = value;
+				if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
+			}
+		}
 
 		[ThreadStatic]
-		public static bool IncludeNullValues = false;
+		private static bool? tsExcludeTypeInfo;
+		private static bool? sExcludeTypeInfo;
+		public static bool ExcludeTypeInfo
+		{
+			get
+			{
+				return tsExcludeTypeInfo ?? sExcludeTypeInfo ?? false;
+			}
+			set
+			{
+				if (!tsExcludeTypeInfo.HasValue) tsExcludeTypeInfo = value;
+				if (!sExcludeTypeInfo.HasValue) sExcludeTypeInfo = value;
+			}
+		}
 
 		[ThreadStatic]
-		public static bool ExcludeTypeInfo = false;
+		private static JsonDateHandler? tsDateHandler;
+		private static JsonDateHandler? sDateHandler;
+		public static JsonDateHandler DateHandler
+		{
+			get
+			{
+				return tsDateHandler ?? sDateHandler ?? JsonDateHandler.TimestampOffset;
+			}
+			set
+			{
+				if (!tsDateHandler.HasValue) tsDateHandler = value;
+				if (!sDateHandler.HasValue) sDateHandler = value;
+			}
+		}
 
-		[ThreadStatic]
-		public static JsonDateHandler DateHandler = JsonDateHandler.TimestampOffset;
 
 		/// <summary>
 		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
@@ -35,6 +88,9 @@ namespace ServiceStack.Text
 		/// to support user-friendly serialized formats, ie emitting camelCasing for JSON
 		/// and parsing member names and enum values in a case-insensitive manner.
 		/// </summary>
+		[ThreadStatic]
+		private static bool? tsEmitCamelCaseNames;
+		private static bool? sEmitCamelCaseNames;
 		public static bool EmitCamelCaseNames
 		{
 			// obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
@@ -49,16 +105,15 @@ namespace ServiceStack.Text
 			}
 		}
 
-		[ThreadStatic]
-		private static bool? tsEmitCamelCaseNames;
-		private static bool? sEmitCamelCaseNames;
-
 		internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
 		public static void Reset()
 		{
-			ConvertObjectTypesIntoStringDictionary = IncludeNullValues = ExcludeTypeInfo = false;
+			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
+			tsIncludeNullValues = sIncludeNullValues = null;
+			tsExcludeTypeInfo = sExcludeTypeInfo = null;
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
+			tsDateHandler = sDateHandler = null;
 			HasSerializeFn = new HashSet<Type>();
 		}
 

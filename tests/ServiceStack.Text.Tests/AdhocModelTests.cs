@@ -531,7 +531,7 @@ namespace ServiceStack.Text.Tests
 			ServiceStack.Text.JsConfig.IncludeNullValues = true;
 			var json = ServiceStack.Text.JsonSerializer.SerializeToString(t);
 			Assert.That(json, Is.EqualTo("{\"Name\":\"MyName\",\"Number\":null,\"Data\":[5,null,\"text\"]}"));
-			ServiceStack.Text.JsConfig.IncludeNullValues = false;
+			JsConfig.Reset();
 		}
 
 		class A

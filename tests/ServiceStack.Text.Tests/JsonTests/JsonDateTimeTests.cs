@@ -16,6 +16,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(@"""\/Date(785635200000)\/"""));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -31,6 +32,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var offset = offsetSpan.ToTimeOffsetString();
 
 			Assert.That(ssJson, Is.EqualTo(@"""\/Date(" + ticks + offset + @")\/"""));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -47,6 +49,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var ssJson2 = JsonSerializer.SerializeToString(dateTime2);
 
 			Assert.That(ssJson1, Is.EqualTo(ssJson2));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -60,6 +63,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc);
 			Assert.That(fromJson, Is.EqualTo(dateTime));
 			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -73,6 +77,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			Assert.That(fromJson, Is.EqualTo(dateTime));
 			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -86,6 +91,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			Assert.That(fromJson, Is.EqualTo(dateTime));
 			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+			JsConfig.Reset();
 		}
 
 		#endregion
@@ -101,6 +107,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(bclJson));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -113,6 +120,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(bclJson));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -125,6 +133,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(bclJson));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -139,6 +148,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Assert.That(fromJson, Is.EqualTo(fromBclJson));
 			Assert.That(fromJson.Kind, Is.EqualTo(fromBclJson.Kind));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -153,6 +163,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Assert.That(fromJson, Is.EqualTo(fromBclJson));
 			Assert.That(fromJson.Kind, Is.EqualTo(fromBclJson.Kind));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -167,6 +178,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Assert.That(fromJson, Is.EqualTo(fromBclJson));
 			Assert.That(fromJson.Kind, Is.EqualTo(fromBclJson.Kind));
+			JsConfig.Reset();
 		}
 		#endregion
 
@@ -180,6 +192,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000Z)\/"""));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -194,6 +207,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var offset = offsetSpan.ToTimeOffsetString(true);
 
 			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000" + offset + @")\/"""));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -205,6 +219,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000)\/"""));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -218,6 +233,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
 			Assert.That(fromJson, Is.EqualTo(dateTime));
 			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -231,6 +247,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
 			Assert.That(fromJson, Is.EqualTo(dateTime));
 			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -247,6 +264,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Assert.That(fromJson, Is.EqualTo(dateTime));
 			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+			JsConfig.Reset();
 		}
 
 		#endregion
