@@ -144,51 +144,6 @@ namespace ServiceStack.Text.Tests
 			Assert.That(fromDto.ProviderOAuthAccess["facebook"].Items.Count, Is.EqualTo(2));
 		}
 
-		[Test]
-		public void Can_Serialize_User_OAuthSession_list()
-		{
-			var userSession = new OAuthUserSession {
-				Id = "1",
-				CreatedAt = DateTime.UtcNow,
-				LastModified = DateTime.UtcNow,
-				ReferrerUrl = "http://referrer.com",
-				ProviderOAuthAccess = new List<IOAuthTokens>
-                {
-                    new OAuthTokens { Provider = "twitter", AccessToken = "TAccessToken", Items = { {"a","1"}, {"b","2"}, }},
-                    new OAuthTokens { Provider = "facebook", AccessToken = "FAccessToken", Items = { {"a","1"}, {"b","2"}, }},
-                }
-			};
-
-			var fromDto = Serialize(userSession, includeXml: false);
-			Console.WriteLine(fromDto.Dump());
-
-			Assert.That(fromDto.ProviderOAuthAccess.Count, Is.EqualTo(2));
-			Assert.That(fromDto.ProviderOAuthAccess[0].Provider, Is.EqualTo("twitter"));
-			Assert.That(fromDto.ProviderOAuthAccess[1].Provider, Is.EqualTo("facebook"));
-			Assert.That(fromDto.ProviderOAuthAccess[0].Items.Count, Is.EqualTo(2));
-			Assert.That(fromDto.ProviderOAuthAccess[1].Items.Count, Is.EqualTo(2));
-		}
-
-		[Test]
-		public void Doesnt_serialize_TypeInfo_when_set()
-		{
-			JsConfig.ExcludeTypeInfo = true;
-			var userSession = new OAuthUserSession {
-				Id = "1",
-				CreatedAt = DateTime.UtcNow,
-				LastModified = DateTime.UtcNow,
-				ReferrerUrl = "http://referrer.com",
-				ProviderOAuthAccess = new List<IOAuthTokens>
-                {
-                    new OAuthTokens { Provider = "twitter", AccessToken = "TAccessToken", Items = { {"a","1"}, {"b","2"}, }},
-                    new OAuthTokens { Provider = "facebook", AccessToken = "FAccessToken", Items = { {"a","1"}, {"b","2"}, }},
-                }
-			};
-
-			Assert.That(userSession.ToJson().IndexOf("__type") == -1, Is.True);
-			Assert.That(userSession.ToJsv().IndexOf("__type") == -1, Is.True);
-		}
-
 		public class AggregateEvents
 		{
 			public Guid Id { get; set; }
