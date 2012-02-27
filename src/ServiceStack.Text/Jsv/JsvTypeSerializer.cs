@@ -196,6 +196,11 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(intVal);
 		}
 
+		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
+		{
+			WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
+		}
+
 		public object EncodeMapKey(object value)
 		{
 			return value;

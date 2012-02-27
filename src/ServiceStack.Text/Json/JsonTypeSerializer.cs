@@ -251,6 +251,11 @@ namespace ServiceStack.Text.Json
 			writer.Write(intVal);
 		}
 
+		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
+		{
+			WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
+		}
+
 		public ParseStringDelegate GetParseFn<T>()
 		{
 			return JsonReader.Instance.GetParseFn<T>();
