@@ -142,7 +142,7 @@ namespace ServiceStack.Text.Common
 			}
 
 			var timestamp = dateTime.ToUnixTimeMs();
-			var offset = dateTime.Kind == DateTimeKind.Utc
+			var offset = dateTime.Kind == DateTimeKind.Utc || dateTime.Kind == DateTimeKind.Unspecified
 							? string.Empty
 							: TimeZoneInfo.Local.GetUtcOffset(dateTime).ToTimeOffsetString();
 			return EscapedWcfJsonPrefix + timestamp + offset + EscapedWcfJsonSuffix;
