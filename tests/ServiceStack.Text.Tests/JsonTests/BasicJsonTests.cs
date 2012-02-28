@@ -79,7 +79,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 				Name = "Brandon",
 				Type = "Programmer",
 				SampleKey = 12,
-				Nothing = (string)null
+				Nothing = (string)null,
+				NullableDateTime = null
 			};
 
 			var s = JsonSerializer.SerializeToString(o);
@@ -94,13 +95,14 @@ namespace ServiceStack.Text.Tests.JsonTests
 				Name = "Brandon",
 				Type = "Programmer",
 				SampleKey = 12,
-				Nothing = null
+				Nothing = null,
+				NullableDateTime = null
 			};
 
 			JsConfig.IncludeNullValues = true;
 			var s = JsonSerializer.SerializeToString(o);
 			JsConfig.Reset();
-			Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}"));
+			Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null,\"NullableDateTime\":null}"));
 		}
 
 		[Test]
@@ -151,12 +153,15 @@ namespace ServiceStack.Text.Tests.JsonTests
 				set;
 			}
 
+			public DateTime? NullableDateTime { get; set; }
+
 			public NullValueTester()
 			{
 				Name = "Miguel";
 				Type = "User";
 				SampleKey = 1;
 				Nothing = "zilch";
+				NullableDateTime = new DateTime(2012, 01, 01);
 			}
 		}
 
