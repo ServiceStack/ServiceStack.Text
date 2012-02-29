@@ -255,7 +255,9 @@ namespace ServiceStack.Text.Json
 
 		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
 		{
+#if !MONOTOUCH
 			WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
+#endif
 		}
 
 		public ParseStringDelegate GetParseFn<T>()
