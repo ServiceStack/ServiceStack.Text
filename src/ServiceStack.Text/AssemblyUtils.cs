@@ -28,9 +28,10 @@ namespace ServiceStack.Text
         /// <returns></returns>
         public static Type FindType(string typeName)
         {
+#if !SILVERLIGHT
             var type = Type.GetType(typeName);
             if (type != null) return type;
-
+#endif
             var typeDef = new AssemblyTypeDefinition(typeName);
             if (!String.IsNullOrEmpty(typeDef.AssemblyName))
             {
