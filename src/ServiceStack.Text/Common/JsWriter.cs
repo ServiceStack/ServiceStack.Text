@@ -129,7 +129,7 @@ namespace ServiceStack.Text.Common
         		{ typeof(Uri), Serializer.WriteObjectString },
         		{ typeof(Type), WriteType },
         		{ typeof(Exception), Serializer.WriteException },
-#if !MONOTOUCH
+#if !MONOTOUCH && !SILVERLIGHT
                 { typeof(System.Data.Linq.Binary), Serializer.WriteLinqBinary },
 #endif
         	};
