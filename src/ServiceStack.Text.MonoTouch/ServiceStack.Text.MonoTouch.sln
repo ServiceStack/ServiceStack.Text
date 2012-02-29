@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.MonoTouch", "ServiceStack.Text.MonoTouch.csproj", "{9A3F2C71-F6BE-491F-86F7-01708C2263BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A3F2C71-F6BE-491F-86F7-01708C2263BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A3F2C71-F6BE-491F-86F7-01708C2263BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A3F2C71-F6BE-491F-86F7-01708C2263BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A3F2C71-F6BE-491F-86F7-01708C2263BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
