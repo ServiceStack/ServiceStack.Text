@@ -11,7 +11,6 @@
 //
 
 #if !XBOX && !MONOTOUCH && !SILVERLIGHT
-using System.Linq;
 using System.Reflection.Emit;
 #endif
 
@@ -19,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Linq;
 
 namespace ServiceStack.Text.Common
 {
