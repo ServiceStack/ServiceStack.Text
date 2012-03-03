@@ -255,7 +255,7 @@ namespace ServiceStack.Text.Json
 
 		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
 		{
-#if !MONOTOUCH
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX
 			WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
 #endif
 		}
