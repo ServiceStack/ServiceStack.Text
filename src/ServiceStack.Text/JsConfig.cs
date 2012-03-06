@@ -105,6 +105,29 @@ namespace ServiceStack.Text
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a value indicating if the framework should throw serialization exceptions
+		/// or continue regardless of deserialization errors. If <see langword="true"/>  the framework
+		/// will throw; otherwise, it will parse as many fields as possible. The default is <see langword="false"/>.
+		/// </summary>
+		[ThreadStatic]
+		private static bool? tsThrowOnDeserializationError;
+		private static bool? sThrowOnDeserializationError;
+		public static bool ThrowOnDeserializationError
+		{
+			// obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+			get
+			{
+				return tsThrowOnDeserializationError ?? sThrowOnDeserializationError ?? false;
+			}
+			set
+			{
+				bool theValue = value;
+				if (!tsThrowOnDeserializationError.HasValue) tsThrowOnDeserializationError = value;
+				if (!sThrowOnDeserializationError.HasValue) sThrowOnDeserializationError = value;
+			}
+		}
+
 		internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
 		public static void Reset()
@@ -114,6 +137,7 @@ namespace ServiceStack.Text
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 			tsDateHandler = sDateHandler = null;
+			tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
 			HasSerializeFn = new HashSet<Type>();
 		}
 

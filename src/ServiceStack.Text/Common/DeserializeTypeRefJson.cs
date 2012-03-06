@@ -93,7 +93,8 @@ namespace ServiceStack.Text.Common
 					}
 					catch
 					{
-						Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
+						if (JsConfig.ThrowOnDeserializationError) throw;
+						else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
 					}
 				}
 
@@ -106,7 +107,8 @@ namespace ServiceStack.Text.Common
 					}
 					catch
 					{
-						Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
+						if (JsConfig.ThrowOnDeserializationError) throw;
+						else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
 					}
 				}
 
