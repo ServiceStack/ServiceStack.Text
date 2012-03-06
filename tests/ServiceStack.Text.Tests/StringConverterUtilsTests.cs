@@ -25,7 +25,7 @@ namespace ServiceStack.ServiceModel.Tests
 				return GetEnumerator();
 			}
 
-			public static StringEnumerable Parse(string value)
+			public static StringEnumerable ParseJsv(string value)
 			{
 				return new StringEnumerable {
 					Items = value.To<List<string>>()
@@ -82,7 +82,7 @@ namespace ServiceStack.ServiceModel.Tests
 		[Test]
 		public void Create_from_StringEnumerable()
 		{
-			var value = StringEnumerable.Parse("d,e,f");
+			var value = StringEnumerable.ParseJsv("d,e,f");
 			var convertedValue = TypeSerializer.SerializeToString(value);
 			var result = TypeSerializer.DeserializeFromString<StringEnumerable>(convertedValue);
 			Assert.That(result, Is.EquivalentTo(value.Items));
