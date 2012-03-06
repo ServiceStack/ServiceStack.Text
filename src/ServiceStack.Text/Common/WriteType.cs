@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using ServiceStack.Text.Json;
@@ -108,10 +109,11 @@ namespace ServiceStack.Text.Common
 					propertyNameCLSFriendly = propertyName.ToCamelCase();
 				}
 
-			    var propertyType = propertyInfo.PropertyType;
-			    var suppressDefaultValue = propertyType.IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
-			        ? ReflectionExtensions.GetDefaultValue(propertyType)
-			        : null;
+                var propertyType = propertyInfo.PropertyType;
+                var defaultValueAttibute = propertyInfo.GetCustomAttributes(typeof(DefaultValueAttribute), false).FirstOrDefault() as DefaultValueAttribute;
+                var suppressDefaultValue = propertyType.IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
+                    ? ReflectionExtensions.GetDefaultValue(propertyType)
+                    : defaultValueAttibute != null ? defaultValueAttibute.Value : null;
 
 				PropertyWriters[i] = new TypePropertyWriter
 				(
