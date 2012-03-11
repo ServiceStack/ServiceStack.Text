@@ -78,18 +78,18 @@
             <param name="value">The value.</param>
             <returns></returns>
         </member>
-        <member name="M:ServiceStack.Text.JsConfig.InitForAot">
-            <summary>
-            Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
-            Just needs to be called once in a static constructor.
-            </summary>
-        </member>
-        <member name="P:ServiceStack.Text.JsConfig.EmitCamelCaseNames">
+        <member name="F:ServiceStack.Text.JsConfig.tsEmitCamelCaseNames">
             <summary>
             <see langword="true"/> if the <see cref="T:ServiceStack.Text.Common.ITypeSerializer"/> is configured
             to take advantage of <see cref="T:System.CLSCompliantAttribute"/> specification,
             to support user-friendly serialized formats, ie emitting camelCasing for JSON
             and parsing member names and enum values in a case-insensitive manner.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Text.JsConfig.InitForAot">
+            <summary>
+            Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
+            Just needs to be called once in a static constructor.
             </summary>
         </member>
         <member name="F:ServiceStack.Text.JsConfig`1.ExcludeTypeInfo">
