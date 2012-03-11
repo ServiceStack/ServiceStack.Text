@@ -138,7 +138,7 @@ namespace ServiceStack.Text.Common
 		{
 			if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
 			{
-				return EscapedWcfJsonPrefix + dateTime.ToString("o", CultureInfo.InvariantCulture) + EscapedWcfJsonSuffix;
+			    return dateTime.ToString("o", CultureInfo.InvariantCulture);
 			}
 
 			var timestamp = dateTime.ToUnixTimeMs();

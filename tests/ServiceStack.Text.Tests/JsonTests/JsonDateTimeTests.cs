@@ -191,7 +191,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
-			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000Z)\/"""));
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000Z"""));
 			JsConfig.Reset();
 		}
 
@@ -206,7 +206,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var offsetSpan = TimeZoneInfo.Local.GetUtcOffset(dateTime);
 			var offset = offsetSpan.ToTimeOffsetString(true);
 
-			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000" + offset + @")\/"""));
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000" + offset + @""""));
 			JsConfig.Reset();
 		}
 
@@ -218,7 +218,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
-			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000)\/"""));
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000"""));
 			JsConfig.Reset();
 		}
 
@@ -227,7 +227,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.DateHandler = JsonDateHandler.ISO8601;
 
-			const string json = @"""\/Date(1994-11-24T12:34:56Z)\/""";
+			const string json = @"""1994-11-24T12:34:56Z""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
@@ -241,7 +241,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.DateHandler = JsonDateHandler.ISO8601;
 
-			const string json = @"""\/Date(1994-11-24T12:34:56)\/""";
+			const string json = @"""1994-11-24T12:34:56""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
@@ -258,7 +258,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Local);
 			var offset = TimeZoneInfo.Local.GetUtcOffset(dateTime).ToTimeOffsetString(true);
 
-			var json = @"""\/Date(1994-11-24T12:34:56" + offset + @")\/""";
+			var json = @"""1994-11-24T12:34:56" + offset + @"""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
 
