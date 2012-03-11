@@ -113,6 +113,19 @@ namespace ServiceStack.Text.Json
 				WriteDateTime(writer, dateTime);
 		}
 
+		public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
+		{
+			WriteRawString(writer, DateTimeSerializer.ToWcfJsonDateTimeOffset((DateTimeOffset)oDateTimeOffset));
+		}
+
+		public void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
+		{
+			if (dateTimeOffset == null)
+				writer.Write(JsonUtils.Null);
+			else
+				WriteDateTimeOffset(writer, dateTimeOffset);
+		}
+
 		public void WriteGuid(TextWriter writer, object oValue)
 		{
 			WriteRawString(writer, ((Guid)oValue).ToString("N"));

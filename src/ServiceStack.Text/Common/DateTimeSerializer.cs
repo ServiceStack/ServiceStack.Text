@@ -64,6 +64,15 @@ namespace ServiceStack.Text.Common
 			return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormat, null);
 		}
 
+		public static DateTimeOffset ParseDateTimeOffset(string dateTimeOffsetStr)
+		{
+			// assume utc when no offset specified
+			if (dateTimeOffsetStr.LastIndexOfAny(TimeZoneChars) < 10 && !dateTimeOffsetStr.EndsWith("Z"))
+				dateTimeOffsetStr += "Z";
+
+			return DateTimeOffset.Parse(dateTimeOffsetStr);
+		}
+
 		public static string ToXsdDateTimeString(DateTime dateTime)
 		{
 			return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);
@@ -138,13 +147,28 @@ namespace ServiceStack.Text.Common
 		{
 			if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
 			{
-				return EscapedWcfJsonPrefix + dateTime.ToString("o", CultureInfo.InvariantCulture) + EscapedWcfJsonSuffix;
+			    return dateTime.ToString("o", CultureInfo.InvariantCulture);
 			}
 
 			var timestamp = dateTime.ToUnixTimeMs();
 			var offset = dateTime.Kind == DateTimeKind.Utc
 				? string.Empty
 				: TimeZoneInfo.Local.GetUtcOffset(dateTime).ToTimeOffsetString();
+
+			return EscapedWcfJsonPrefix + timestamp + offset + EscapedWcfJsonSuffix;
+		}
+
+		public static string ToWcfJsonDateTimeOffset(DateTimeOffset dateTimeOffset)
+		{
+			if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
+			{
+				return dateTimeOffset.ToString("o", CultureInfo.InvariantCulture);
+			}
+
+			var timestamp = dateTimeOffset.DateTime.ToUnixTimeMs();
+			var offset = dateTimeOffset.Offset == TimeSpan.Zero
+				? string.Empty
+				: dateTimeOffset.Offset.ToTimeOffsetString();
 
 			return EscapedWcfJsonPrefix + timestamp + offset + EscapedWcfJsonSuffix;
 		}
