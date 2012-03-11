@@ -86,6 +86,17 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)dateTime));
 		}
 
+		public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
+		{
+			writer.Write(((DateTimeOffset) oDateTimeOffset).ToString("o"));
+		}
+
+		public void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
+		{
+			if (dateTimeOffset == null) return;
+			this.WriteDateTimeOffset(writer, dateTimeOffset);
+		}
+
 		public void WriteGuid(TextWriter writer, object oValue)
 		{
 			writer.Write(((Guid)oValue).ToString("N"));
