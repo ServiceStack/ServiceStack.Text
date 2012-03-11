@@ -213,7 +213,14 @@ namespace ServiceStack.Text.Common
 					writer.Write(JsWriter.MapKeySeperator);
 
 					if (typeof (TSerializer) == typeof (JsonTypeSerializer)) JsState.IsWritingValue = true;
-					propertyWriter.WriteFn(writer, propertyValue);
+					if (propertyValue == null)
+					{
+						writer.Write(JsonUtils.Null);
+					}
+					else
+					{
+						propertyWriter.WriteFn(writer, propertyValue);
+					}
 					if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
 				}
 			}
