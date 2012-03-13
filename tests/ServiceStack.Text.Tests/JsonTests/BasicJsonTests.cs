@@ -96,14 +96,14 @@ namespace ServiceStack.Text.Tests.JsonTests
 				Type = "Programmer",
 				SampleKey = 12,
 				Nothing = null,
+				NullClass = null,
 				NullableDateTime = null,
-				NullClass = null
 			};
 
 			JsConfig.IncludeNullValues = true;
 			var s = JsonSerializer.SerializeToString(o);
 			JsConfig.Reset();
-			Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null,\"NullableDateTime\":null,\"NullClass\":null}"));
+			Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null,\"NullClass\":null,\"NullableDateTime\":null}"));
 		}
 
 		private class NullClass

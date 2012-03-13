@@ -192,5 +192,19 @@ namespace ServiceStack.Text.Tests
         	var jsv = GetBook().ToJsv();
 			Assert.That(jsv.IndexOf("__"), Is.EqualTo(-1));
 		}
+
+		public class TextTags
+		{
+			public string Text { get; set; }
+			public string[] Tags { get; set; }
+		}
+
+		[Test]
+		public void Can_serialize_sweedish_chars()
+		{
+			var dto = new TextTags { Text = "Olle är en ÖL ål", Tags = new[] { "öl", "ål", "mål" } };
+			Serialize(dto);
+		}
+
 	}
 }
