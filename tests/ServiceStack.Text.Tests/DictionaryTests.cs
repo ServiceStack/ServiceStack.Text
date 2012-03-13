@@ -157,6 +157,7 @@ namespace ServiceStack.Text.Tests
 			Log(json);
 
 			Assert.That(json, Is.EqualTo("{\"value\":null}"));
+			JsConfig.Reset();
 		}
 
 		[Test]
@@ -171,6 +172,7 @@ namespace ServiceStack.Text.Tests
 			Log(json);
 
 			Assert.That(json, Is.EqualTo("{}"));
+			JsConfig.Reset();
 		}
 
 		public class FooSlash
@@ -187,6 +189,16 @@ namespace ServiceStack.Text.Tests
 				Bar = "BarValue"
 			};
 			Serialize(foo);
+		}
+
+        [Test]
+        public void Can_serialise_null_values_from_nested_dictionary_correctly()
+        {
+            JsConfig.IncludeNullValues = true;
+            var foo = new FooSlash();
+            var json = JsonSerializer.SerializeToString(foo);
+            Assert.That(json, Is.EqualTo("{\"Nested\":null,\"Bar\":null}"));
+			JsConfig.Reset();
 		}
 
 		[Test]

@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Reflection;
 using System.Threading;
 
@@ -165,10 +166,10 @@ namespace ServiceStack.Text.Common
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 			return value == string.Empty
-			       	? new string[0]
-			       	: DeserializeListWithElements<TSerializer>.ParseStringList(value).ToArray();
+					? new string[0]
+					: DeserializeListWithElements<TSerializer>.ParseStringList(value).ToArray();
 		}
-
+		
 		public static byte[] ParseByteArray(string value)
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;

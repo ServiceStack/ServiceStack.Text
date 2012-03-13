@@ -487,5 +487,78 @@ namespace ServiceStack.Text.Tests
 			Console.WriteLine(from.Dump());
 		}
 
+		public enum EnumValues
+		{
+			Enum1,
+			Enum2,
+			Enum3,
+		}
+
+		[Test]
+		public void Can_Deserialize()
+		{
+			var items = TypeSerializer.DeserializeFromString<List<string>>(
+				"/CustomPath35/api,/CustomPath40/api,/RootPath35,/RootPath40,:82,:83,:5001/api,:5002/api,:5003,:5004");
+
+			Console.WriteLine(items.Dump());
+		}
+
+		[Test]
+		public void Can_Serialize_Array_of_enums()
+		{
+			var enumArr = new[] { EnumValues.Enum1, EnumValues.Enum2, EnumValues.Enum3, };
+			var json = JsonSerializer.SerializeToString(enumArr);
+			Assert.That(json, Is.EqualTo("[\"Enum1\",\"Enum2\",\"Enum3\"]"));
+		}
+
+		[Test]
+		public void Can_Serialize_Array_of_chars()
+		{
+			var enumArr = new[] { 'A', 'B', 'C', };
+			var json = JsonSerializer.SerializeToString(enumArr);
+			Assert.That(json, Is.EqualTo("[\"A\",\"B\",\"C\"]"));
+		}
+
+		[Test]
+		public void Can_Serialize_Array_with_nulls()
+		{
+			var t = new {
+				Name = "MyName",
+				Number = (int?)null,
+				Data = new object[] { 5, null, "text" }
+			};
+
+			ServiceStack.Text.JsConfig.IncludeNullValues = true;
+			var json = ServiceStack.Text.JsonSerializer.SerializeToString(t);
+			Assert.That(json, Is.EqualTo("{\"Name\":\"MyName\",\"Number\":null,\"Data\":[5,null,\"text\"]}"));
+			JsConfig.Reset();
+		}
+
+		class A
+		{
+			public string Value { get; set; }
+		}
+
+		[Test]
+		public void DumpFail()
+		{
+			var arrayOfA = new[] { new A { Value = "a" }, null, new A { Value = "b" } };
+			Console.WriteLine(arrayOfA.Dump());
+		}
+
+		[Test]
+		public void Deserialize_array_with_null_elements()
+		{
+			var json = "[{\"Value\": \"a\"},null,{\"Value\": \"b\"}]";
+			var o = JsonSerializer.DeserializeFromString<A[]>(json);
+		}
+
+		[Test]
+		public void Can_serialize_StringCollection()
+		{
+			var sc = new StringCollection {"one", "two", "three"};
+			var from = Serialize(sc, includeXml:false);
+			Console.WriteLine(from.Dump());
+		}
 	}
 }

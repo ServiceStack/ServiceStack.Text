@@ -21,6 +21,8 @@ namespace ServiceStack.Text.Common
 		void WriteString(TextWriter writer, string value);
 		void WriteDateTime(TextWriter writer, object oDateTime);
 		void WriteNullableDateTime(TextWriter writer, object dateTime);
+		void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset);
+		void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset);
 		void WriteGuid(TextWriter writer, object oValue);
 		void WriteNullableGuid(TextWriter writer, object oValue);
 		void WriteBytes(TextWriter writer, object oByteValue);
@@ -38,6 +40,7 @@ namespace ServiceStack.Text.Common
         void WriteDecimal(TextWriter writer, object decimalValue);
         void WriteEnum(TextWriter writer, object enumValue);
         void WriteEnumFlags(TextWriter writer, object enumFlagValue);
+		void WriteLinqBinary(TextWriter writer, object linqBinaryValue);
 
 		//object EncodeMapKey(object value);
 

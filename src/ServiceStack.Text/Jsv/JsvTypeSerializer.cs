@@ -86,6 +86,17 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)dateTime));
 		}
 
+		public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
+		{
+			writer.Write(((DateTimeOffset) oDateTimeOffset).ToString("o"));
+		}
+
+		public void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
+		{
+			if (dateTimeOffset == null) return;
+			this.WriteDateTimeOffset(writer, dateTimeOffset);
+		}
+
 		public void WriteGuid(TextWriter writer, object oValue)
 		{
 			writer.Write(((Guid)oValue).ToString("N"));
@@ -194,6 +205,13 @@ namespace ServiceStack.Text.Jsv
 			if (enumFlagValue == null) return;
 			var intVal = (int)enumFlagValue;
 			writer.Write(intVal);
+		}
+
+		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
+		{
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX
+			WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
+#endif
 		}
 
 		public object EncodeMapKey(object value)

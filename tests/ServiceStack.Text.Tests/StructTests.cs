@@ -62,19 +62,52 @@ namespace ServiceStack.Text.Tests
 			Assert.That(json, Is.EqualTo("{\"Name\":\"My name\",\"Content1\":\"My content\"}"));
 		}
 
-        [Test]
-        public void Test_structs_with_double_quotes()
-        {
-            var dto = new Foo { Content1 = "My \"quoted\" content", Name = "My \"quoted\" name" };
-            
-            JsConfig<Text>.SerializeFn = text => text.ToString();
-            JsConfig<Text>.DeSerializeFn = v => new Text(v);
+		[Test]
+		public void Test_structs_with_double_quotes()
+		{
+			var dto = new Foo { Content1 = "My \"quoted\" content", Name = "My \"quoted\" name" };
 
-            var json = JsonSerializer.SerializeToString(dto, dto.GetType());
-            Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));
-            
-            var foo = JsonSerializer.DeserializeFromString<Foo>(json);
-            Assert.That(foo.Content1, Is.EqualTo(dto.Content1));
-        }
+			JsConfig<Text>.SerializeFn = text => text.ToString();
+			JsConfig<Text>.DeSerializeFn = v => new Text(v);
+
+			var json = JsonSerializer.SerializeToString(dto, dto.GetType());
+			Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));
+
+			var foo = JsonSerializer.DeserializeFromString<Foo>(json);
+			Assert.That(foo.Content1, Is.EqualTo(dto.Content1));
+		}
+
+		public enum PersonStatus
+		{
+			None,
+			ActiveAgent,
+			InactiveAgent
+		}
+
+		public class Person
+		{
+			//A bunch of other properties
+			public PersonStatus Status { get; set; }
+		}
+
+
+		[Test]
+		public void Test_enum_overloads()
+		{
+			JsConfig.EmitCamelCaseNames = true;
+			JsConfig.IncludeNullValues = true;
+			JsConfig<PersonStatus>.SerializeFn = text => text.ToString().ToCamelCase();
+
+			var dto = new Person { Status = PersonStatus.ActiveAgent };
+
+			var json = JsonSerializer.SerializeToString(dto);
+
+			Assert.That(json, Is.EqualTo("{\"status\":\"activeAgent\"}"));
+
+			Console.WriteLine(json);
+
+			JsConfig.Reset();
+		}
+
 	}
 }

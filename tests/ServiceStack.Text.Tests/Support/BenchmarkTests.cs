@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Common.Tests;
+using ServiceStack.Text.Tests.JsonTests;
 
 namespace ServiceStack.Text.Tests.Support
 {
@@ -21,8 +23,7 @@ namespace ServiceStack.Text.Tests.Support
 
 			CompareMultipleRuns(
 				"As char array",
-				() =>
-				{
+				() => {
 					var asChars = testString.ToCharArray();
 					for (var i = 0; i < stringSampleSize; i++)
 					{
@@ -30,8 +31,7 @@ namespace ServiceStack.Text.Tests.Support
 					}
 				},
 				"As string",
-				() =>
-				{
+				() => {
 					for (var i = 0; i < stringSampleSize; i++)
 					{
 						copyTo[i] = testString[i];
@@ -83,8 +83,7 @@ namespace ServiceStack.Text.Tests.Support
 
 			CompareMultipleRuns(
 				"With bool flags",
-				() =>
-				{
+				() => {
 					for (var i = 0; i < len; i++)
 					{
 						var c = value[i];
@@ -94,8 +93,7 @@ namespace ServiceStack.Text.Tests.Support
 					}
 				},
 				"With IndexOfAny",
-				() =>
-				{
+				() => {
 					hasEscapeChars = value.IndexOfAny(EscapeChars) != -1;
 				});
 
@@ -104,7 +102,7 @@ namespace ServiceStack.Text.Tests.Support
 
 		public class RuntimeType<T>
 		{
-			private static Type type = typeof (T);
+			private static Type type = typeof(T);
 
 			internal static bool TestVarType()
 			{
@@ -153,16 +151,14 @@ namespace ServiceStack.Text.Tests.Support
 
 			CompareMultipleRuns(
 				"With var type",
-				() =>
-				{
+				() => {
 					if (RuntimeType<BenchmarkTests>.TestVarType())
 					{
 						matchingTypesCount++;
 					}
 				},
 				"With generic type",
-				() =>
-				{
+				() => {
 					if (RuntimeType<BenchmarkTests>.TestGenericType())
 					{
 						matchingTypesCount++;
@@ -173,33 +169,58 @@ namespace ServiceStack.Text.Tests.Support
 		}
 
 		[Test]
-		public void Test_for_numeric_type()
+		public void Test_for_list_enumeration()
 		{
-			var value1 = Guid.NewGuid();
-			var value2 = "1.2345";
+			List<Cat> list = 20.Times(x => new Cat { Name = "Cat" });
 			var results = 0;
+			var listLength = list.Count;
 
 			CompareMultipleRuns(
-				"With Type Checking",
-				() =>
-				{
-					if (value1.GetType().IsNumericType())
+				"With foreach",
+				() => {
+					foreach (var cat in list)
 					{
 						results++;
 					}
 				},
-				"With Double Parsing",
-				() =>
-				{
-					int d;
-					if (int.TryParse(value1.ToString(), out d))
+				"With for",
+				() => {
+					for (var i = 0; i < listLength; i++)
 					{
+						var cat = list[i];
 						results++;
 					}
 				});
 
 			Console.WriteLine(results);
 		}
+
+		[Test]
+		public void Test_for_Ilist_enumeration()
+		{
+			IList<Cat> list = 20.Times(x => new Cat { Name = "Cat" });
+			var results = 0;
+			var listLength = list.Count;
+			CompareMultipleRuns(
+				"With foreach",
+				() => {
+					foreach (var cat in list)
+					{
+						results++;
+					}
+				},
+				"With for",
+				() => {
+					for (var i = 0; i < listLength; i++)
+					{
+						var cat = list[i];
+						results++;
+					}
+				});
+
+			Console.WriteLine(results);
+		}
+
 
 	}
 }

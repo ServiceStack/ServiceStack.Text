@@ -84,9 +84,18 @@ namespace ServiceStack.Text.Common
 				if (parseFn != null) return parseFn;
 			}
 
-			var staticParseMethod = StaticParseMethod<T>.Parse;
-			if (staticParseMethod != null)
-				return value => staticParseMethod(Serializer.ParseRawString(value));
+			if (type.IsValueType) 
+			{
+				var staticParseMethod = StaticParseMethod<T>.Parse;
+				if (staticParseMethod != null)
+					return value => staticParseMethod(Serializer.ParseRawString(value));
+			}
+			else
+			{
+				var staticParseMethod = StaticParseRefTypeMethod<TSerializer, T>.Parse;
+				if (staticParseMethod != null)
+					return value => staticParseMethod(Serializer.ParseRawString(value));
+			}
 
 			var typeConstructor = DeserializeType<TSerializer>.GetParseMethod(TypeConfig<T>.GetState());
 			if (typeConstructor != null)

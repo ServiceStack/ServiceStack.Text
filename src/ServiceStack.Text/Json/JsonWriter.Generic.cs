@@ -91,7 +91,14 @@ namespace ServiceStack.Text.Json
 
 		public static void WriteLateBoundObject(TextWriter writer, object value)
 		{
-			if (value == null) return;
+			if (value == null)
+			{
+				if (JsConfig.IncludeNullValues)
+				{
+					writer.Write(JsonUtils.Null);
+				}
+				return;
+			}
 			var writeFn = GetWriteFn(value.GetType());
 
 			var prevState = JsState.IsWritingDynamic;
