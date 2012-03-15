@@ -31,7 +31,15 @@ namespace ServiceStack.Text.Common
 		public const string WcfJsonPrefix = "/Date(";
 		public const char WcfJsonSuffix = ')';
 
-		public static DateTime ParseShortestXsdDateTime(string dateTimeStr)
+        public static DateTime? ParseShortestNullableXsdDateTime(string dateTimeStr)
+        {
+            if (dateTimeStr == null)
+                return null;
+
+            return ParseShortestXsdDateTime(dateTimeStr);
+        }
+
+	    public static DateTime ParseShortestXsdDateTime(string dateTimeStr)
 		{
 			if (string.IsNullOrEmpty(dateTimeStr))
 				return DateTime.MinValue;
