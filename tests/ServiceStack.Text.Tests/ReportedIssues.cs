@@ -206,5 +206,31 @@ namespace ServiceStack.Text.Tests
 			Serialize(dto);
 		}
 
+        [Test]
+        public void Objects_Do_Not_Survive_RoundTrips_Via_StringStringDictionary_Due_To_DoubleQuoted_Properties()
+        {
+            var book = new Book();
+            book.Id = 1234;
+            book.Title = "ServiceStack in Action";
+            book.CategoryId = 16;
+            book.Description = "Manning eBooks";
+
+
+            var json = book.ToJson();
+            Console.WriteLine("Book to Json: " + json);
+
+            var dictionary = json.To<Dictionary<string, string>>();
+            Console.WriteLine("Json to Dictionary: " + dictionary.Dump());
+
+            var fromDictionary = dictionary.ToJson();
+            Console.WriteLine("Json from Dictionary: " + fromDictionary);
+
+            var fromJsonViaDictionary = fromDictionary.To<Book>();
+
+            Assert.AreEqual(book.Description, fromJsonViaDictionary.Description);
+            Assert.AreEqual(book.Id, fromJsonViaDictionary.Id);
+            Assert.AreEqual(book.Title, fromJsonViaDictionary.Title);
+            Assert.AreEqual(book.CategoryId, fromJsonViaDictionary.CategoryId);
+        }
 	}
 }
