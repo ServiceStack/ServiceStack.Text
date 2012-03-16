@@ -34,6 +34,61 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 		}
 
+        public class NullableValueTypes
+        {
+            public int? Int { get; set; }
+            public long? Long { get; set; }
+            public decimal? Decimal { get; set; }
+            public double? Double { get; set; }
+            public bool? Boolean { get; set; }
+            public DateTime? DateTime { get; set; }
+        }
+
+	    [Test]
+	    public void Can_parse_json_with_nullable_valuetypes()
+	    {
+	        var json = "{}";
+
+            var item = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
+
+            Assert.That(item.Int, Is.Null, "int");
+            Assert.That(item.Long, Is.Null, "long");
+            Assert.That(item.Decimal, Is.Null, "decimal");
+            Assert.That(item.Double, Is.Null, "double");
+            Assert.That(item.Boolean, Is.Null, "boolean");
+            Assert.That(item.DateTime, Is.Null, "datetime");
+	    }
+
+        [Test]
+        public void Can_parse_json_with_nullable_valuetypes_that_has_included_null_values()
+        {
+            var json = "{\"Int\":null,\"Long\":null,\"Decimal\":null,\"Double\":null,\"Boolean\":null,\"DateTime\":null}";
+
+            var item = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
+
+            Assert.That(item.Int, Is.Null, "int");
+            Assert.That(item.Long, Is.Null, "long");
+            Assert.That(item.Decimal, Is.Null, "decimal");
+            Assert.That(item.Double, Is.Null, "double");
+            Assert.That(item.Boolean, Is.Null, "boolean");
+            Assert.That(item.DateTime, Is.Null, "datetime");
+        }
+
+        [Test]
+        public void Can_parse_json_with_nullable_valuetypes_that_has_no_value_specified()
+        {
+            var json = "{\"Int\":,\"Long\":,\"Decimal\":,\"Double\":,\"Boolean\":,\"DateTime\":}";
+
+            var item = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
+
+            Assert.That(item.Int, Is.Null, "int");
+            Assert.That(item.Long, Is.Null, "long");
+            Assert.That(item.Decimal, Is.Null, "decimal");
+            Assert.That(item.Double, Is.Null, "double");
+            Assert.That(item.Boolean, Is.Null, "boolean");
+            Assert.That(item.DateTime, Is.Null, "datetime");
+        }
+
 		[Test]
 		public void Can_handle_json_primitives()
 		{
