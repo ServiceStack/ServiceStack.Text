@@ -219,13 +219,13 @@ namespace ServiceStack.Text.Tests
             var json = book.ToJson();
             Console.WriteLine("Book to Json: " + json);
 
-            var dictionary = json.To<Dictionary<string, string>>();
+            var dictionary = json.FromJson<Dictionary<string, string>>();
             Console.WriteLine("Json to Dictionary: " + dictionary.Dump());
 
             var fromDictionary = dictionary.ToJson();
             Console.WriteLine("Json from Dictionary: " + fromDictionary);
 
-            var fromJsonViaDictionary = fromDictionary.To<Book>();
+			var fromJsonViaDictionary = fromDictionary.FromJson<Book>();
 
             Assert.AreEqual(book.Description, fromJsonViaDictionary.Description);
             Assert.AreEqual(book.Id, fromJsonViaDictionary.Id);
