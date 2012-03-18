@@ -93,7 +93,7 @@ namespace ServiceStack.Text.Common
 
 			var to = (createMapType == null)
 				? new Dictionary<TKey, TValue>()
-				: (IDictionary<TKey, TValue>)ReflectionExtensions.CreateInstance(createMapType);
+				: (IDictionary<TKey, TValue>)createMapType.CreateInstance();
 
 			if (value == JsWriter.EmptyMap) return to;
 

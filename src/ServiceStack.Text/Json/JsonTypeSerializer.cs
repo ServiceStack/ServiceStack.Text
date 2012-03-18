@@ -492,8 +492,13 @@ namespace ServiceStack.Text.Json
 					{
 						valueChar = value[i];
 
-						if (valueChar == JsWriter.QuoteChar
-							&& value[i - 1] != JsonUtils.EscapeChar)
+						if (valueChar == JsonUtils.EscapeChar)
+						{
+							i++;
+							continue;
+						}
+
+						if (valueChar == JsWriter.QuoteChar)
 							withinQuotes = !withinQuotes;
 
 						if (withinQuotes)
@@ -513,8 +518,13 @@ namespace ServiceStack.Text.Json
 					{
 						valueChar = value[i];
 
-						if (valueChar == JsWriter.QuoteChar
-							&& value[i - 1] != JsonUtils.EscapeChar)
+						if (valueChar == JsonUtils.EscapeChar)
+						{
+							i++;
+							continue;
+						}
+
+						if (valueChar == JsWriter.QuoteChar)
 							withinQuotes = !withinQuotes;
 
 						if (withinQuotes)

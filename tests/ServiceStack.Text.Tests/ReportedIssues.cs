@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.ServiceInterface.ServiceModel;
@@ -232,5 +233,26 @@ namespace ServiceStack.Text.Tests
             Assert.AreEqual(book.Title, fromJsonViaDictionary.Title);
             Assert.AreEqual(book.CategoryId, fromJsonViaDictionary.CategoryId);
         }
+
+		public class Test
+		{
+			public IDictionary<string, string> Items { get; set; }
+			public string TestString { get; set; }
+		}
+
+		[Test]
+		public void Does_Trailing_Backslashes()
+		{
+			var test = new Test {
+				TestString = "Test",
+				Items = new Dictionary<string, string> { { "foo", "bar\\" } }
+			};
+
+			var serialized = JsonSerializer.SerializeToString(test);
+			Console.WriteLine(serialized);
+			var deserialized = JsonSerializer.DeserializeFromString<Test>(serialized);
+
+			Assert.That(deserialized.TestString, Is.EqualTo("Test")); // deserialized.TestString is NULL
+		}
 	}
 }
