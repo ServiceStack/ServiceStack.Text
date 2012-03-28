@@ -28,7 +28,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsConvertObjectTypesIntoStringDictionary.HasValue) tsConvertObjectTypesIntoStringDictionary = value;
+				tsConvertObjectTypesIntoStringDictionary = value;
 				if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
 			}
 		}
@@ -44,7 +44,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsIncludeNullValues.HasValue) tsIncludeNullValues = value;
+				tsIncludeNullValues = value;
 				if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
 			}
 		}
@@ -60,7 +60,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsExcludeTypeInfo.HasValue) tsExcludeTypeInfo = value;
+				tsExcludeTypeInfo = value;
 				if (!sExcludeTypeInfo.HasValue) sExcludeTypeInfo = value;
 			}
 		}
@@ -76,7 +76,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsDateHandler.HasValue) tsDateHandler = value;
+				tsDateHandler = value;
 				if (!sDateHandler.HasValue) sDateHandler = value;
 			}
 		}
@@ -100,7 +100,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsEmitCamelCaseNames.HasValue) tsEmitCamelCaseNames = value;
+				tsEmitCamelCaseNames = value;
 				if (!sEmitCamelCaseNames.HasValue) sEmitCamelCaseNames = value;
 			}
 		}
@@ -122,8 +122,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				bool theValue = value;
-				if (!tsThrowOnDeserializationError.HasValue) tsThrowOnDeserializationError = value;
+				tsThrowOnDeserializationError = value;
 				if (!sThrowOnDeserializationError.HasValue) sThrowOnDeserializationError = value;
 			}
 		}
