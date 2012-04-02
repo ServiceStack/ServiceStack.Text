@@ -15,8 +15,9 @@ namespace ServiceStack.Text
 			//In-built default serialization, to Deserialize Color struct do:
 			//JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
 			//JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
+            Reset();
 		}
-		
+        
 		[ThreadStatic]
 		private static bool? tsConvertObjectTypesIntoStringDictionary;
 		private static bool? sConvertObjectTypesIntoStringDictionary;
@@ -128,9 +129,16 @@ namespace ServiceStack.Text
 			}
 		}
 
-		internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
+        internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
-		public static void Reset()
+        internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
+
+        internal static bool TreatAsRefType(Type valueType)
+        {
+            return TreatValueAsRefTypes.Contains(valueType.IsGenericType ? valueType.GetGenericTypeDefinition() : valueType);
+        }
+
+	    public static void Reset()
 		{
 			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
 			tsIncludeNullValues = sIncludeNullValues = null;
@@ -138,7 +146,10 @@ namespace ServiceStack.Text
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 			tsDateHandler = sDateHandler = null;
 			tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
-			HasSerializeFn = new HashSet<Type>();
+            HasSerializeFn = new HashSet<Type>();
+            TreatValueAsRefTypes = new HashSet<Type> {
+                typeof(KeyValuePair<,>)
+            };
 		}
 
 #if SILVERLIGHT || MONOTOUCH
@@ -329,6 +340,21 @@ namespace ServiceStack.Text
 					JsConfig.HasSerializeFn.Remove(typeof(T));
 			}
 		}
+
+        /// <summary>
+        /// Opt-in flag to set some Value Types to be treated as a Ref Type
+        /// </summary>
+        public bool TreatValueAsRefTypes
+	    {
+	        get { return JsConfig.TreatValueAsRefTypes.Contains(typeof (T)); }
+	        set
+	        {
+                if (value)
+	                JsConfig.TreatValueAsRefTypes.Add(typeof(T));
+                else
+                    JsConfig.TreatValueAsRefTypes.Remove(typeof(T));
+            }
+	    }
 
 		/// <summary>
 		/// Define custom deserialization fn for BCL Structs
