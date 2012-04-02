@@ -1,15 +1,17 @@
-using System;
-using System.IO;
-#if !XBOX360 && !SILVERLIGHT
+
+#if !XBOX360 && !SILVERLIGHT && !WINDOWS_PHONE
 using System.IO.Compression;
 #endif
+
+using System;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 
 namespace ServiceStack.Text
 {
-#if !XBOX 
+#if !XBOX
     public class XmlSerializer
     {
         private readonly XmlDictionaryReaderQuotas quotas;
@@ -17,10 +19,10 @@ namespace ServiceStack.Text
 
         public static XmlSerializer Instance
             = new XmlSerializer(
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !WINDOWS_PHONE
                 new XmlDictionaryReaderQuotas { MaxStringContentLength = 1024 * 1024, }
 #endif
-        );
+);
 
         public XmlSerializer(XmlDictionaryReaderQuotas quotas=null, bool omitXmlDeclaration = false)
         {
@@ -33,13 +35,20 @@ namespace ServiceStack.Text
         {
             try
             {
+#if WINDOWS_PHONE
+                using (var reader = XmlDictionaryReader.Create(xml))
+                {
+                    var serializer = new DataContractSerializer(type);
+                    return serializer.ReadObject(reader);
+                }
+#else
                 var bytes = Encoding.UTF8.GetBytes(xml);
-
                 using (var reader = XmlDictionaryReader.CreateTextReader(bytes, quotas))
                 {
                     var serializer = new DataContractSerializer(type);
                     return serializer.ReadObject(reader);
                 }
+#endif
             }
             catch (Exception ex)
             {
@@ -88,9 +97,9 @@ namespace ServiceStack.Text
                         serializer.WriteObject(xw, from);
                         xw.Flush();
                         ms.Seek(0, SeekOrigin.Begin);
-                    	var reader = new StreamReader(ms);
-						return reader.ReadToEnd();
-					}
+                        var reader = new StreamReader(ms);
+                        return reader.ReadToEnd();
+                    }
                 }
             }
             catch (Exception ex)
@@ -99,25 +108,25 @@ namespace ServiceStack.Text
             }
         }
 
-		public static void SerializeToWriter<T>(T value, TextWriter writer)
-		{
-			try
-			{
+        public static void SerializeToWriter<T>(T value, TextWriter writer)
+        {
+            try
+            {
 #if !SILVERLIGHT
 				using (var xw = new XmlTextWriter(writer))
 #else
                 using (var xw = XmlWriter.Create(writer))
 #endif
-				{
-					var serializer = new DataContractSerializer(value.GetType());
-					serializer.WriteObject(xw, value);
-				}
-			}
-			catch (Exception ex)
-			{
+                {
+                    var serializer = new DataContractSerializer(value.GetType());
+                    serializer.WriteObject(xw, value);
+                }
+            }
+            catch (Exception ex)
+            {
                 throw new SerializationException(string.Format("Error serializing object of type {0}", value.GetType().FullName), ex);
-			}
-		}
+            }
+        }
 
         public static void SerializeToStream(object obj, Stream stream)
         {
