@@ -82,7 +82,7 @@ namespace ServiceStack.Text.Common
             {
                 var fromJson = new DateTimeOffset(ParseWcfJsonDate(dateTimeOffsetStr));
                 // shifty Daylight Savings Time
-                var shift = TimeZoneInfo.Local.BaseUtcOffset - TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+                var shift = TimeZoneInfo.Local.BaseUtcOffset - TimeZoneInfo.Local.GetUtcOffset(SystemTime.Now);
                 fromJson = new DateTimeOffset(fromJson.DateTime + shift, fromJson.Offset - shift);
                 return fromJson;
             }
