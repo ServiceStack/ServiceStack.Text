@@ -168,6 +168,7 @@
     <Compile Include="Env.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HashSet.cs" />
     <Compile Include="ITracer.cs">
       <SubType>Code</SubType>
     </Compile>
