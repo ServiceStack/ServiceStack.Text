@@ -201,6 +201,7 @@
     <Compile Include="Support\MovieDtos.cs" />
     <Compile Include="UseCases\CentroidTests.cs" />
     <Compile Include="UseCases\GitHubRestTests.cs" />
+    <Compile Include="UseCases\GithubV3ApiTests.cs" />
     <Compile Include="Utils\DateTimeSerializerTests.cs" />
     <Compile Include="DdnContentIngestTests.cs" />
     <Compile Include="Support\DdnDtos.cs" />
