@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using ServiceStack.Common;
 
 namespace ServiceStack.Text.Tests.UseCases
 {
@@ -38,7 +37,7 @@ namespace ServiceStack.Text.Tests.UseCases
 
 		public T GetJson<T>(string route, params object[] routeArgs)
 		{
-			return GithubApiBaseUrl.CombineWith(route.Fmt(routeArgs))
+			return GithubApiBaseUrl.AppendPath(route.Fmt(routeArgs))
 				.GetJsonFromUrl()
 				.FromJson<T>();
 		}
