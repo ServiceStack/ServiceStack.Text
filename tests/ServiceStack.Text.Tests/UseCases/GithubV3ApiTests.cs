@@ -43,47 +43,47 @@ namespace ServiceStack.Text.Tests.UseCases
 
 		public List<GithubRepo> GetUserRepos(string githubUsername)
 		{
-			return GetJson<List<GithubRepo>>("users/{0}/repos".Fmt(githubUsername));
+			return GetJson<List<GithubRepo>>("users/{0}/repos", githubUsername);
 		}
 
 		public List<GithubRepo> GetOrgRepos(string githubOrgName)
 		{
-			return GetJson<List<GithubRepo>>("orgs/{0}/repos".Fmt(githubOrgName));
+			return GetJson<List<GithubRepo>>("orgs/{0}/repos", githubOrgName);
 		}
 
 		public GithubRepo GetUserRepo(string githubUsername, string projectName)
 		{
-			return GetJson<GithubRepo>("repos/{0}/{1}".Fmt(githubUsername, projectName));
+			return GetJson<GithubRepo>("repos/{0}/{1}", githubUsername, projectName);
 		}
 
 		public List<GithubUser> GetUserRepoContributors(string githubUsername, string projectName)
 		{
-			return GetJson<List<GithubUser>>("repos/{0}/{1}/contributors".Fmt(githubUsername, projectName));
+			return GetJson<List<GithubUser>>("repos/{0}/{1}/contributors", githubUsername, projectName);
 		}
 
 		public List<GithubUser> GetUserRepoWatchers(string githubUsername, string projectName)
 		{
-			return GetJson<List<GithubUser>>("repos/{0}/{1}/watchers".Fmt(githubUsername, projectName));
+			return GetJson<List<GithubUser>>("repos/{0}/{1}/watchers", githubUsername, projectName);
 		}
 
 		public List<GithubRepo> GetReposUserIsWatching(string githubUsername)
 		{
-			return GetJson<List<GithubRepo>>("users/{0}/watched".Fmt(githubUsername));
+			return GetJson<List<GithubRepo>>("users/{0}/watched", githubUsername);
 		}
 
 		public List<GithubOrg> GetUserOrgs(string githubUsername)
 		{
-			return GetJson<List<GithubOrg>>("users/{0}/orgs".Fmt(githubUsername));
+			return GetJson<List<GithubOrg>>("users/{0}/orgs", githubUsername);
 		}
 
 		public List<GithubUser> GetUserFollowers(string githubUsername)
 		{
-			return GetJson<List<GithubUser>>("users/{0}/followers".Fmt(githubUsername));
+			return GetJson<List<GithubUser>>("users/{0}/followers", githubUsername);
 		}
 
 		public List<GithubUser> GetOrgMembers(string githubOrgName)
 		{
-			return GetJson<List<GithubUser>>("orgs/{0}/members".Fmt(githubOrgName));
+			return GetJson<List<GithubUser>>("orgs/{0}/members", githubOrgName);
 		}
 
 		public List<GithubRepo> GetAllUserAndOrgsReposFor(string githubUsername)
