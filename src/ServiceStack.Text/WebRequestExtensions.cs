@@ -5,7 +5,7 @@ namespace ServiceStack.Text
 {
     public static class WebRequestExtensions
     {
-        public static string DownloadJsonFromUrl(this string url)
+        public static string GetJsonFromUrl(this string url)
         {
             return url.DownloadUrl("application/json");
         }

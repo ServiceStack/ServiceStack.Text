@@ -28,28 +28,28 @@ namespace ServiceStack.Text.Tests.UseCases
         public List<GithubRepo> GetUserRepos(string githubUsername)
         {
             return GithubApiBaseUrl.CombineWith("users/{0}/repos".Fmt(githubUsername))
-                .DownloadJsonFromUrl()
+                .GetJsonFromUrl()
                 .FromJson<List<GithubRepo>>();
         }
 
         public List<GithubRepo> GetOrgRepos(string githubUsername)
         {
             return GithubApiBaseUrl.CombineWith("orgs/{0}/repos".Fmt(githubUsername))
-                .DownloadJsonFromUrl()
+                .GetJsonFromUrl()
                 .FromJson<List<GithubRepo>>();
         }
 
         public GithubRepo GetUserRepo(string githubUsername, string projectName)
         {
             return GithubApiBaseUrl.CombineWith("users/{0}/repos".Fmt(githubUsername))
-                .DownloadJsonFromUrl()
+                .GetJsonFromUrl()
                 .FromJson<GithubRepo>();
         }
 
         public List<GithubOrg> GetUserOrgs(string githubUsername)
         {
             return GithubApiBaseUrl.CombineWith("users/{0}/orgs".Fmt(githubUsername))
-                .DownloadJsonFromUrl()
+                .GetJsonFromUrl()
                 .FromJson<List<GithubOrg>>();
         }
 
