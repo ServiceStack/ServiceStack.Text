@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading;
 using ServiceStack.Text.Support;
 #if WINDOWS_PHONE
@@ -314,13 +315,13 @@ namespace ServiceStack.Text
 #elif WINDOWS_PHONE
                 return Expression.Lambda<EmptyCtorDelegate>(Expression.New(type)).Compile();
 #else
-				var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes, typeof(ReflectionExtensions).Module, true);
-				var ilgen = dm.GetILGenerator();
-				ilgen.Emit(System.Reflection.Emit.OpCodes.Nop);
-				ilgen.Emit(System.Reflection.Emit.OpCodes.Newobj, emptyCtor);
-				ilgen.Emit(System.Reflection.Emit.OpCodes.Ret);
+                var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes, typeof(ReflectionExtensions).Module, true);
+                var ilgen = dm.GetILGenerator();
+                ilgen.Emit(System.Reflection.Emit.OpCodes.Nop);
+                ilgen.Emit(System.Reflection.Emit.OpCodes.Newobj, emptyCtor);
+                ilgen.Emit(System.Reflection.Emit.OpCodes.Ret);
 
-				return (EmptyCtorDelegate)dm.CreateDelegate(typeof(EmptyCtorDelegate));
+                return (EmptyCtorDelegate)dm.CreateDelegate(typeof(EmptyCtorDelegate));
 #endif
             }
 
@@ -330,7 +331,7 @@ namespace ServiceStack.Text
             return Expression.Lambda<EmptyCtorDelegate>(Expression.New(type)).Compile();
 #else
             //Anonymous types don't have empty constructors
-			return () => FormatterServices.GetUninitializedObject(type);
+            return () => FormatterServices.GetUninitializedObject(type);
 #endif
         }
 
