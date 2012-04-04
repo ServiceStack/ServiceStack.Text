@@ -7,10 +7,10 @@ namespace ServiceStack.Text
     {
         public static string GetJsonFromUrl(this string url)
         {
-            return url.DownloadUrl("application/json");
+            return url.GetStringFromUrl("application/json");
         }
 
-        public static string DownloadUrl(this string url, string acceptContentType)
+        public static string GetStringFromUrl(this string url, string acceptContentType)
         {
             var webReq = (HttpWebRequest)WebRequest.Create(url);
             webReq.Accept = acceptContentType;

@@ -6,6 +6,10 @@ using ServiceStack.Common;
 
 namespace ServiceStack.Text.Tests.UseCases
 {
+	/// <summary>
+	/// Stand-alone C# client for the Github v3 API
+	/// Uses only ServiceStack.Text (+NUnit for tests)
+	/// </summary>
     [TestFixture]
     public class GithubV3ApiGatewayTests
     {
@@ -14,55 +18,85 @@ namespace ServiceStack.Text.Tests.UseCases
         {
             var client = new GithubV3ApiGateway();
 
-            Console.WriteLine("\n-- GetUserRepos(mythz): \n" + client.GetUserRepos("mythz").Dump());
-            Console.WriteLine("\n-- GetOrgRepos(ServiceStack): \n" + client.GetOrgRepos("ServiceStack").Dump());
-            Console.WriteLine("\n-- GetUserRepo(ServiceStack,ServiceStack.Text): \n" + client.GetUserRepo("ServiceStack", "ServiceStack.Text").Dump());
-            Console.WriteLine("\n-- GetAllUserAndOrgsRepos(mythz): \n" + client.GetAllUserAndOrgsRepos("mythz").Dump());
+			Console.WriteLine("\n-- GetUserRepos(mythz): \n" + client.GetUserRepos("mythz").Dump());
+			Console.WriteLine("\n-- GetOrgRepos(ServiceStack): \n" + client.GetOrgRepos("ServiceStack").Dump());
+			Console.WriteLine("\n-- GetUserRepo(ServiceStack,ServiceStack.Text): \n" + client.GetUserRepo("mythz", "jquip").Dump());
+			Console.WriteLine("\n-- GetUserRepoContributors(ServiceStack,ServiceStack.Text): \n" + client.GetUserRepoContributors("ServiceStack", "ServiceStack.Text").Dump());
+			Console.WriteLine("\n-- GetUserRepoWatchers(ServiceStack,ServiceStack.Text): \n" + client.GetUserRepoWatchers("ServiceStack", "ServiceStack.Text").Dump());
+			Console.WriteLine("\n-- GetReposUserIsWatching(mythz): \n" + client.GetReposUserIsWatching("mythz").Dump());
+			Console.WriteLine("\n-- GetUserOrgs(mythz): \n" + client.GetUserOrgs("mythz").Dump());
+			Console.WriteLine("\n-- GetUserFollowers(mythz): \n" + client.GetUserFollowers("mythz").Dump());
+			Console.WriteLine("\n-- GetOrgMembers(ServiceStack): \n" + client.GetOrgMembers("ServiceStack").Dump());
+			Console.WriteLine("\n-- GetAllUserAndOrgsReposFor(mythz): \n" + client.GetAllUserAndOrgsReposFor("mythz").Dump());
         }
     }
+		
 
     public class GithubV3ApiGateway
     {
         public const string GithubApiBaseUrl = "https://api.github.com/";
 
+		public T GetJson<T>(string route, params object[] routeArgs)
+		{
+			return GithubApiBaseUrl.CombineWith(route.Fmt(routeArgs))
+				.GetJsonFromUrl()
+				.FromJson<T>();
+		}
+
         public List<GithubRepo> GetUserRepos(string githubUsername)
         {
-            return GithubApiBaseUrl.CombineWith("users/{0}/repos".Fmt(githubUsername))
-                .GetJsonFromUrl()
-                .FromJson<List<GithubRepo>>();
+			return GetJson<List<GithubRepo>>("users/{0}/repos".Fmt(githubUsername));
         }
 
-        public List<GithubRepo> GetOrgRepos(string githubUsername)
+        public List<GithubRepo> GetOrgRepos(string githubOrgName)
         {
-            return GithubApiBaseUrl.CombineWith("orgs/{0}/repos".Fmt(githubUsername))
-                .GetJsonFromUrl()
-                .FromJson<List<GithubRepo>>();
+			return GetJson<List<GithubRepo>>("orgs/{0}/repos".Fmt(githubOrgName));
         }
 
-        public GithubRepo GetUserRepo(string githubUsername, string projectName)
+		public GithubRepo GetUserRepo(string githubUsername, string projectName)
+		{
+			return GetJson<GithubRepo>("repos/{0}/{1}".Fmt(githubUsername, projectName));
+		}
+
+		public List<GithubUser> GetUserRepoContributors(string githubUsername, string projectName)
+		{
+			return GetJson<List<GithubUser>>("repos/{0}/{1}/contributors".Fmt(githubUsername, projectName));
+		}
+
+		public List<GithubUser> GetUserRepoWatchers(string githubUsername, string projectName)
+		{
+			return GetJson<List<GithubUser>>("repos/{0}/{1}/watchers".Fmt(githubUsername, projectName));
+		}
+
+        public List<GithubRepo> GetReposUserIsWatching(string githubUsername)
         {
-            return GithubApiBaseUrl.CombineWith("users/{0}/repos".Fmt(githubUsername))
-                .GetJsonFromUrl()
-                .FromJson<GithubRepo>();
+			return GetJson<List<GithubRepo>>("users/{0}/watched".Fmt(githubUsername));
         }
 
         public List<GithubOrg> GetUserOrgs(string githubUsername)
         {
-            return GithubApiBaseUrl.CombineWith("users/{0}/orgs".Fmt(githubUsername))
-                .GetJsonFromUrl()
-                .FromJson<List<GithubOrg>>();
+			return GetJson<List<GithubOrg>>("users/{0}/orgs".Fmt(githubUsername));
         }
 
-        public List<GithubRepo> GetAllUserAndOrgsRepos(string githubUsername)
+		public List<GithubUser> GetUserFollowers(string githubUsername)
+		{
+			return GetJson<List<GithubUser>>("users/{0}/followers".Fmt(githubUsername));
+		}
+
+		public List<GithubUser> GetOrgMembers(string githubOrgName)
+		{
+			return GetJson<List<GithubUser>>("orgs/{0}/members".Fmt(githubOrgName));
+		}
+		
+        public List<GithubRepo> GetAllUserAndOrgsReposFor(string githubUsername)
         {
             var map = new Dictionary<int, GithubRepo>();
             GetUserRepos(githubUsername).ForEach(x => map[x.Id] = x);
-
             GetUserOrgs(githubUsername).ForEach(org =>
                 GetOrgRepos(org.Login)
                     .ForEach(repo => map[repo.Id] = repo));
 
-            return map.Values.ToList();
+			return map.Values.ToList();
         }
     }
 
