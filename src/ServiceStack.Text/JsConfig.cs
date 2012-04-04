@@ -4,6 +4,9 @@ using System.IO;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
+#if WINDOWS_PHONE
+using ServiceStack.Text.WP;
+#endif
 
 namespace ServiceStack.Text
 {

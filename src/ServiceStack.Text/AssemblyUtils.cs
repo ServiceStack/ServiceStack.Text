@@ -1,10 +1,9 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 #if SILVERLIGHT
-using System.Windows;
+
 #endif
 using ServiceStack.Common.Support;
 
@@ -80,9 +79,9 @@ namespace ServiceStack.Text
 #if SILVERLIGHT4
         	var assemblies = ((dynamic) AppDomain.CurrentDomain).GetAssemblies() as Assembly[];
 #else
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 #endif
-        	foreach (var assembly in assemblies)
+            foreach (var assembly in assemblies)
             {
                 var type = assembly.GetType(typeName);
                 if (type != null)
@@ -99,9 +98,14 @@ private static Assembly LoadAssembly(string assemblyPath)
 		{
 			return Assembly.LoadFrom(assemblyPath);
 		}
+#elif WINDOWS_PHONE
+        private static Assembly LoadAssembly(string assemblyPath)
+        {
+            return Assembly.LoadFrom(assemblyPath);
+        }
 #else
         private static Assembly LoadAssembly(string assemblyPath)
-        {            
+        {
             var sri = Application.GetResourceStream(new Uri(assemblyPath, UriKind.Relative));
             var myPart = new AssemblyPart();
             var assembly = myPart.Load(sri.Stream);
@@ -112,8 +116,14 @@ private static Assembly LoadAssembly(string assemblyPath)
 #if !XBOX
         public static string GetAssemblyBinPath(Assembly assembly)
         {
-            var binPathPos = assembly.CodeBase.LastIndexOf(UriSeperator);
-            var assemblyPath = assembly.CodeBase.Substring(0, binPathPos + 1);
+#if WINDOWS_PHONE
+            var codeBase = assembly.GetName().CodeBase;
+#else
+            var codeBase = assembly.CodeBase;
+#endif
+
+            var binPathPos = codeBase.LastIndexOf(UriSeperator);
+            var assemblyPath = codeBase.Substring(0, binPathPos + 1);
             if (assemblyPath.StartsWith(FileUri))
             {
                 assemblyPath = assemblyPath.Remove(0, FileUri.Length);
