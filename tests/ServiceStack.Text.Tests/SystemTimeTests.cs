@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void When_set_SystemTimeResolver_Then_should_get_correct_SystemTime_UtcNow()
 		{
-			var dateTime = new DateTime(2011, 1, 1, 0, 0, 0);
+			var dateTime = new DateTime(2011, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 			SystemTime.UtcDateTimeResolver = () => dateTime;
 			Assert.AreEqual(dateTime.ToUniversalTime(), SystemTime.UtcNow);
 		}
@@ -17,7 +17,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void When_set_UtcDateTimeResolver_Then_should_get_correct_SystemTime_Now()
 		{
-			var dateTime = new DateTime(2011, 1, 1, 0, 0, 0);
+            var dateTime = new DateTime(2011, 1, 1, 0, 0, 0, DateTimeKind.Local);
 			SystemTime.UtcDateTimeResolver = () => dateTime;
 			Assert.AreEqual(dateTime, SystemTime.Now);
 		}

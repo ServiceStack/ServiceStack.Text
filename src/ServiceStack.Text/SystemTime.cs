@@ -33,7 +33,7 @@ namespace ServiceStack.Text
 			get
 			{
 				var temp = UtcDateTimeResolver;
-				return temp == null ? DateTime.Now : temp();
+				return temp == null ? DateTime.UtcNow : temp();
 			}
 		}
 	}
