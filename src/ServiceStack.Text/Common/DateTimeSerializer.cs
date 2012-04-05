@@ -80,11 +80,7 @@ namespace ServiceStack.Text.Common
             // format: prefer TimestampOffset, DCJSCompatible
             if (dateTimeOffsetStr.StartsWith(EscapedWcfJsonPrefix))
             {
-                var fromJson = new DateTimeOffset(ParseWcfJsonDate(dateTimeOffsetStr));
-                // shifty Daylight Savings Time
-                var shift = TimeZoneInfo.Local.BaseUtcOffset - TimeZoneInfo.Local.GetUtcOffset(SystemTime.Now);
-                fromJson = new DateTimeOffset(fromJson.DateTime + shift, fromJson.Offset - shift);
-                return fromJson;
+                return ParseWcfJsonDateOffset(dateTimeOffsetStr);
             }
 
             // format: next preference ISO8601
@@ -120,6 +116,51 @@ namespace ServiceStack.Text.Common
 
 
 		static readonly char[] TimeZoneChars = new[] { '+', '-' };
+
+		/// <summary>
+		/// WCF Json format: /Date(unixts+0000)/
+		/// </summary>
+		/// <param name="wcfJsonDate"></param>
+		/// <returns></returns>
+		public static DateTimeOffset ParseWcfJsonDateOffset(string wcfJsonDate)
+		{
+			if (wcfJsonDate[0] == '\\')
+			{
+				wcfJsonDate = wcfJsonDate.Substring(1);
+			}
+
+			var suffixPos = wcfJsonDate.IndexOf(WcfJsonSuffix);
+			var timeString = (suffixPos < 0) ? wcfJsonDate : wcfJsonDate.Substring(WcfJsonPrefix.Length, suffixPos - WcfJsonPrefix.Length);
+
+			// for interop, do not assume format based on config
+			if (!wcfJsonDate.StartsWith(WcfJsonPrefix))
+			{
+				return DateTimeOffset.Parse(timeString, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+			}
+
+			var timeZonePos = timeString.LastIndexOfAny(TimeZoneChars);
+			var timeZone = timeZonePos <= 0 ? string.Empty : timeString.Substring(timeZonePos);
+			var unixTimeString = timeString.Substring(0, timeString.Length - timeZone.Length);
+
+			var unixTime = long.Parse(unixTimeString);
+
+			if (timeZone == string.Empty)
+			{
+				// when no timezone offset is supplied, then treat the time as UTC
+				return unixTime.FromUnixTimeMs();
+			}
+
+			if (JsConfig.DateHandler == JsonDateHandler.DCJSCompatible)
+			{
+				// DCJS ignores the offset and considers it local time if any offset exists
+				// REVIEW: DCJS shoves offset in a separate field 'offsetMinutes', we have the offset in the format, so shouldn't we use it?
+				return unixTime.FromUnixTimeMs().ToLocalTime();
+			}
+
+			var offset = timeZone.FromTimeOffsetString();
+			var date = unixTime.FromUnixTimeMs().ToLocalTime();
+			return new DateTimeOffset(date.Ticks, offset);
+		}
 
 		/// <summary>
 		/// WCF Json format: /Date(unixts+0000)/
