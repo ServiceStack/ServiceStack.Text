@@ -11,13 +11,17 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Globalization;
+using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using ServiceStack.Text.Support;
+using System.Collections.Generic;
+#if WINDOWS_PHONE
+using System.IO.IsolatedStorage;
+using ServiceStack.Text.WP;
+
+#endif
 
 namespace ServiceStack.Text
 {
@@ -443,6 +447,15 @@ namespace ServiceStack.Text
 			{
 				return new StreamReader( fileStream ).ReadToEnd( ) ;
 			}
+
+#elif WINDOWS_PHONE
+            using (var isoStore = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                using (var fileStream = isoStore.OpenFile(filePath, FileMode.Open))
+                {
+                    return new StreamReader(fileStream).ReadToEnd();
+                }
+            }
 #else
             return File.ReadAllText(filePath);
 #endif

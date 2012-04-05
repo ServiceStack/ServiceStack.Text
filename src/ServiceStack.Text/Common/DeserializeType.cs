@@ -16,175 +16,176 @@ using System.Reflection.Emit;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Linq;
 
 namespace ServiceStack.Text.Common
 {
-	internal static class DeserializeType<TSerializer>
-		where TSerializer : ITypeSerializer
-	{
-		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+    internal static class DeserializeType<TSerializer>
+        where TSerializer : ITypeSerializer
+    {
+        private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-		private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
+        private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
 
-		public static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
-		{
-			var type = typeConfig.Type;
+        public static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
+        {
+            var type = typeConfig.Type;
 
-			if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
+            if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
-			var propertyInfos = type.GetSerializableProperties();
-			if (propertyInfos.Length == 0)
-			{
-				var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-				return value => emptyCtorFn();
-			}
+            var propertyInfos = type.GetSerializableProperties();
+            if (propertyInfos.Length == 0)
+            {
+                var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+                return value => emptyCtorFn();
+            }
 
-			var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
+            var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
 
-			var isDataContract = type.GetCustomAttributes(typeof(DataContractAttribute), false).Any();
+            var isDataContract = type.GetCustomAttributes(typeof(DataContractAttribute), false).Any();
 
-			foreach (var propertyInfo in propertyInfos)
-			{
-				var propertyName = propertyInfo.Name;
-				if (isDataContract)
-				{
-					var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
-					if (dcsDataMember != null && dcsDataMember.Name != null)
-					{
-						propertyName = dcsDataMember.Name;
-					}
-				}
-				map[propertyName] = TypeAccessor.Create(Serializer, typeConfig, propertyInfo);
-			}
+            foreach (var propertyInfo in propertyInfos)
+            {
+                var propertyName = propertyInfo.Name;
+                if (isDataContract)
+                {
+                    var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+                    if (dcsDataMember != null && dcsDataMember.Name != null)
+                    {
+                        propertyName = dcsDataMember.Name;
+                    }
+                }
+                map[propertyName] = TypeAccessor.Create(Serializer, typeConfig, propertyInfo);
+            }
 
-			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+            var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
 
-			return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
+            return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
 				? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
 				: value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
-		}
+        }
 
-		public static object ObjectStringToType(string strType)
-		{
-			var type = ExtractType(strType);
-			if (type != null)
-			{
-				var parseFn = Serializer.GetParseFn(type);
-				var propertyValue = parseFn(strType);
-				return propertyValue;
-			}
+        public static object ObjectStringToType(string strType)
+        {
+            var type = ExtractType(strType);
+            if (type != null)
+            {
+                var parseFn = Serializer.GetParseFn(type);
+                var propertyValue = parseFn(strType);
+                return propertyValue;
+            }
 
-			return strType;
-		}
+            return strType;
+        }
 
-		public static Type ExtractType(string strType)
-		{
-			if (strType != null
+        public static Type ExtractType(string strType)
+        {
+            if (strType != null
 				&& strType.Length > TypeAttrInObject.Length
 				&& strType.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
-			{
-				var propIndex = TypeAttrInObject.Length;
-				var typeName = Serializer.EatValue(strType, ref propIndex);
-				var type = AssemblyUtils.FindType(typeName);
+            {
+                var propIndex = TypeAttrInObject.Length;
+                var typeName = Serializer.EatValue(strType, ref propIndex);
+                var type = AssemblyUtils.FindType(typeName);
 
-				if (type == null)
-					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+                if (type == null)
+                    Tracer.Instance.WriteWarning("Could not find type: " + typeName);
 
-				return type;
-			}
-			return null;
-		}
+                return type;
+            }
+            return null;
+        }
 
-		public static object ParseAbstractType<T>(string value)
-		{
-			if (typeof(T).IsAbstract)
-			{
-				if (string.IsNullOrEmpty(value)) return null;
-				var concreteType = ExtractType(value);
-				if (concreteType != null)
-				{
-					return Serializer.GetParseFn(concreteType)(value);
-				}
-				Tracer.Instance.WriteWarning(
-					"Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
-			}
-			return null;
-		}
+        public static object ParseAbstractType<T>(string value)
+        {
+            if (typeof(T).IsAbstract)
+            {
+                if (string.IsNullOrEmpty(value)) return null;
+                var concreteType = ExtractType(value);
+                if (concreteType != null)
+                {
+                    return Serializer.GetParseFn(concreteType)(value);
+                }
+                Tracer.Instance.WriteWarning(
+                    "Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
+            }
+            return null;
+        }
 
-	}
+    }
 
-	internal class TypeAccessor
-	{
-		internal ParseStringDelegate GetProperty;
-		internal SetPropertyDelegate SetProperty;
+    internal class TypeAccessor
+    {
+        internal ParseStringDelegate GetProperty;
+        internal SetPropertyDelegate SetProperty;
 
-		public static Type ExtractType(ITypeSerializer Serializer, string strType)
-		{
-			var TypeAttrInObject = Serializer.TypeAttrInObject;
+        public static Type ExtractType(ITypeSerializer Serializer, string strType)
+        {
+            var TypeAttrInObject = Serializer.TypeAttrInObject;
 
-			if (strType != null
+            if (strType != null
 				&& strType.Length > TypeAttrInObject.Length
 				&& strType.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
-			{
-				var propIndex = TypeAttrInObject.Length;
-				var typeName = Serializer.EatValue(strType, ref propIndex);
-				var type = AssemblyUtils.FindType(typeName);
+            {
+                var propIndex = TypeAttrInObject.Length;
+                var typeName = Serializer.EatValue(strType, ref propIndex);
+                var type = AssemblyUtils.FindType(typeName);
 
-				if (type == null)
-					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+                if (type == null)
+                    Tracer.Instance.WriteWarning("Could not find type: " + typeName);
 
-				return type;
-			}
-			return null;
-		}
+                return type;
+            }
+            return null;
+        }
 
-		public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, PropertyInfo propertyInfo)
-		{
-			return new TypeAccessor {
-				GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
-				SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
-			};
-		}
+        public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, PropertyInfo propertyInfo)
+        {
+            return new TypeAccessor
+            {
+                GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
+                SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
+            };
+        }
 
-		private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
-		{
-			if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
+        private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+        {
+            if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
 
-			FieldInfo fieldInfo = null;
-			if (!propertyInfo.CanWrite)
-			{
-				//TODO: What string comparison is used in SST?
-				var fieldName = string.Format("<{0}>i__Field", propertyInfo.Name);
-				var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
-				foreach (var f in fieldInfos)
-				{
-					if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
-					{
-						fieldInfo = f;
-						break;
-					}
-				}
+            FieldInfo fieldInfo = null;
+            if (!propertyInfo.CanWrite)
+            {
+                //TODO: What string comparison is used in SST?
+                var fieldName = string.Format("<{0}>i__Field", propertyInfo.Name);
+                var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
+                foreach (var f in fieldInfos)
+                {
+                    if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
+                    {
+                        fieldInfo = f;
+                        break;
+                    }
+                }
 
-				if (fieldInfo == null) return null;
-			}
+                if (fieldInfo == null) return null;
+            }
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
-			if (propertyInfo.CanWrite)
-			{
-				var setMethodInfo = propertyInfo.GetSetMethod(true);
-				return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
-			}
-			if (fieldInfo == null) return null;
-			return (instance, value) => fieldInfo.SetValue(instance, value);
+            if (propertyInfo.CanWrite)
+            {
+                var setMethodInfo = propertyInfo.GetSetMethod(true);
+                return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+            }
+            if (fieldInfo == null) return null;
+            return (instance, value) => fieldInfo.SetValue(instance, value);
 #else
 			return propertyInfo.CanWrite
 				? CreateIlPropertySetter(propertyInfo)
 				: CreateIlFieldSetter(fieldInfo);
 #endif
-		}
+        }
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
 
@@ -244,16 +245,16 @@ namespace ServiceStack.Text.Common
 		}
 #endif
 
-		internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
-		{
-			if (!propertyInfo.CanWrite) return null;
+        internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
+        {
+            if (!propertyInfo.CanWrite) return null;
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
-			var setMethodInfo = propertyInfo.GetSetMethod(true);
-			return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+            var setMethodInfo = propertyInfo.GetSetMethod(true);
+            return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
 #else
 			return CreateIlPropertySetter(propertyInfo);
 #endif
-		}
-	}
+        }
+    }
 }
