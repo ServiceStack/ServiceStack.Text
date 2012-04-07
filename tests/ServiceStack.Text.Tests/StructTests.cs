@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -109,5 +110,39 @@ namespace ServiceStack.Text.Tests
 			JsConfig.Reset();
 		}
 
-	}
+        
+        public class TestDictionary
+        {
+            public Dictionary<string, string> Dictionary { get; set; }
+            public List<KeyValuePair<string, string>> KvpList { get; set; }
+            public IEnumerable<KeyValuePair<string, string>> KvpEnumerable { get; set; }
+        }
+
+        public class Pair
+        {
+            public string Key { get; set; }
+            public string Value { get; set; }
+        }
+
+        [Test]
+        public void Serializes_ListOfKvp_AsPocoList()
+        {
+            var map = new Dictionary<string, string> { { "foo", "bar" }, { "x", "y" } };
+
+            var dto = new TestDictionary
+            {
+                Dictionary = map,
+                KvpList = map.ToList(),
+                KvpEnumerable = map,
+            };
+
+            var json = dto.ToJson();
+
+            Console.WriteLine(json);
+
+            Assert.That(json, Is.EqualTo("{\"Dictionary\":{\"foo\":\"bar\",\"x\":\"y\"},"
+                + "\"KvpList\":[{\"Key\":\"foo\",\"Value\":\"bar\"},{\"Key\":\"x\",\"Value\":\"y\"}],"
+                + "\"KvpEnumerable\":[{\"Key\":\"foo\",\"Value\":\"bar\"},{\"Key\":\"x\",\"Value\":\"y\"}]}"));
+        }
+    }
 }

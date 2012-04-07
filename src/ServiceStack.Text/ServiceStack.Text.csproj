@@ -257,6 +257,7 @@
     <Compile Include="Support\TypePair.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SystemTime.cs" />
     <Compile Include="TextExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -275,6 +276,7 @@
     <Compile Include="TypeSerializer.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WebRequestExtensions.cs" />
     <Compile Include="XmlSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -334,5 +334,49 @@ namespace ServiceStack.Text.Tests.JsonTests
 			JsConfig.Reset();
 		}
 		#endregion
-	}
+
+        #region InteropTests
+
+        [Test]
+        public void Can_serialize_TimestampOffset_deserialize_ISO8601()
+        {
+            var dateTimeOffset = new DateTimeOffset(1997, 11, 24, 12, 34, 56, TimeSpan.FromHours(-10));
+
+            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            var json = ServiceStack.Text.Common.DateTimeSerializer.ToWcfJsonDateTimeOffset(dateTimeOffset);
+
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
+
+            Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_serialize_ISO8601_deserialize_DCJSCompatible()
+        {
+            var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.FromHours(-10));
+
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            var json = ServiceStack.Text.Common.DateTimeSerializer.ToWcfJsonDateTimeOffset(dateTimeOffset);
+
+            JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+            var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
+
+            // NOTE: DJCS goes to local, so botches offset
+            Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_deserialize_null()
+        {
+            const string json = (string)null;
+            var expected = default(DateTimeOffset);
+            var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
+            Assert.That(fromJson, Is.EqualTo(expected));
+        }
+
+        #endregion
+    }
 }

@@ -267,6 +267,11 @@ namespace ServiceStack.Text
             return path;
         }
 
+        public static string AppendPath(this string uri, params string[] uriComponents)
+        {
+        	return AppendUrlPaths(uri, uriComponents);
+        }
+
         public static string AppendUrlPaths(this string uri, params string[] uriComponents)
         {
             var sb = new StringBuilder(uri.WithTrailingSlash());
