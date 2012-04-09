@@ -14,7 +14,16 @@ namespace ServiceStack.Text.Tests.Utils
 			var model = new ModelWithIdAndName { Id = 1, Name = "Name" };
 			var modelStr = model.Dump();
 
-			Assert.That(modelStr, Is.EqualTo("{\r\n\tId: 1,\r\n\tName: Name\r\n}"));
+			Assert.That(modelStr, 
+			            Is.EqualTo(
+							"{"
+							+ Environment.NewLine
+							+ "\tId: 1,"
+							+ Environment.NewLine
+							+ "\tName: Name"
+							+ Environment.NewLine
+							+ "}"
+						));
 		}
 
 		[Test]
@@ -25,7 +34,16 @@ namespace ServiceStack.Text.Tests.Utils
 
 			Console.WriteLine(modelStr);
 
-			Assert.That(modelStr, Is.EqualTo("{\r\n\tId: 1,\r\n\tName: Name\r\n}"));
+			Assert.That(modelStr, 
+			            Is.EqualTo(
+							"{"
+							+ Environment.NewLine
+			           		+ "\tId: 1,"
+							+ Environment.NewLine
+							+"\tName: Name"
+							+ Environment.NewLine
+							+ "}"
+						));
 		}
 
 		internal class TestModel

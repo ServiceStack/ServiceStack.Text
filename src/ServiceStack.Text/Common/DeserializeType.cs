@@ -158,7 +158,7 @@ namespace ServiceStack.Text.Common
             if (!propertyInfo.CanWrite)
             {
                 //TODO: What string comparison is used in SST?
-                var fieldName = string.Format("<{0}>i__Field", propertyInfo.Name);
+                var fieldName = string.Format("<{0}>", propertyInfo.Name);
                 var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
                 foreach (var f in fieldInfos)
                 {

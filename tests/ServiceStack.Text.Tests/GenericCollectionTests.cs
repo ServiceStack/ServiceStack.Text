@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -21,7 +22,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(queue);
 
-			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("one,two,three\r\n"));
+			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("one,two,three" + Environment.NewLine));
 		}
 
 		[Test]
@@ -35,7 +36,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(queue);
 
-			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("1,2,3\r\n"));
+			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("1,2,3" + Environment.NewLine));
 		}
 
 		[Test]
@@ -50,7 +51,16 @@ namespace ServiceStack.Text.Tests
 			Serialize(queue);
 
 			Assert.That(CsvSerializer.SerializeToString(queue), 
-				Is.EqualTo("Id,Name\r\n1,Name1\r\n2,Name2\r\n3,Name3\r\n"));
+				Is.EqualTo(
+					"Id,Name"
+					+ Environment.NewLine
+					+ "1,Name1"
+					+ Environment.NewLine
+					+ "2,Name2"
+					+ Environment.NewLine
+					+ "3,Name3"
+					+ Environment.NewLine
+				));
 		}
 
 		[Test]
@@ -64,7 +74,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(stack);
 
-			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("three,two,one\r\n"));
+			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("three,two,one" + Environment.NewLine));
 		}
 
 		[Test]
@@ -78,7 +88,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(stack);
 
-			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("3,2,1\r\n"));
+			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("3,2,1" + Environment.NewLine));
 		}
 
 		[Test]
@@ -93,7 +103,16 @@ namespace ServiceStack.Text.Tests
 			Serialize(stack);
 
 			Assert.That(CsvSerializer.SerializeToString(stack),
-				Is.EqualTo("Id,Name\r\n3,Name3\r\n2,Name2\r\n1,Name1\r\n"));
+				Is.EqualTo(
+					"Id,Name"
+					+ Environment.NewLine
+					+ "3,Name3"
+					+ Environment.NewLine
+					+ "2,Name2"
+					+ Environment.NewLine
+					+ "1,Name1"
+					+ Environment.NewLine
+				));
 		}
 	}
 
