@@ -254,5 +254,24 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(deserialized.TestString, Is.EqualTo("Test")); // deserialized.TestString is NULL
 		}
+        [Test]
+        public void Deserialize_Correctly_When_Last_Item_Is_Null_in_array()
+        {
+            var arrayOfInt = new int?[2] {1, null };
+            var serialized = TypeSerializer.SerializeToString(arrayOfInt);
+            Console.WriteLine(serialized);
+            var deserialized = TypeSerializer.DeserializeFromString<int?[]>(serialized);
+            Assert.That(deserialized, Is.EqualTo(arrayOfInt));
+        }
+
+        [Test]
+        public void Deserialize_Correctly_When_Last_Item_Is_Null_in_list()
+        {
+            var arrayOfInt = new List<int?> { 1, null };
+            var serialized = TypeSerializer.SerializeToString(arrayOfInt);
+            Console.WriteLine(serialized);
+            var deserialized = TypeSerializer.DeserializeFromString<List<int?>>(serialized);
+            Assert.That(deserialized, Is.EqualTo(arrayOfInt));
+        }
 	}
 }

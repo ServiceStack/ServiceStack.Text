@@ -239,6 +239,9 @@
     <Compile Include="..\ServiceStack.Text\Support\TypePair.cs">
       <Link>Support\TypePair.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\SystemTime.cs">
+      <Link>SystemTime.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\TextExtensions.cs">
       <Link>TextExtensions.cs</Link>
     </Compile>
