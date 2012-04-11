@@ -138,7 +138,13 @@ namespace ServiceStack.Text.Common
 						var elementValue = Serializer.EatValue(value, ref i);
 						var listValue = elementValue;
 						to.Add((T)parseFn(listValue));
-						Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
+                        if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
+                        && i == valueLength)
+                        {
+                            // If we ate a separator and we are at the end of the value, 
+                            // it means the last element is empty => add default
+                            to.Add(default(T));
+                        }
 					}
 
 				}
