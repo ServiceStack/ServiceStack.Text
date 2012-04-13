@@ -6,12 +6,12 @@ namespace ServiceStack.Text
 {
     public static class WebRequestExtensions
     {
-        public static string GetJsonFromUrl(this string url)
+        public static string GetJsonFromUrl(this string url, Action<HttpWebResponse> responseFilter = null)
         {
-            return url.GetStringFromUrl("application/json");
+            return url.GetStringFromUrl("application/json", responseFilter);
         }
 
-        public static string GetStringFromUrl(this string url, string acceptContentType="*/*")
+        public static string GetStringFromUrl(this string url, string acceptContentType = "*/*", Action<HttpWebResponse> responseFilter = null)
         {
             var webReq = (HttpWebRequest)WebRequest.Create(url);
             webReq.Accept = acceptContentType;
@@ -19,6 +19,10 @@ namespace ServiceStack.Text
             using (var stream = webRes.GetResponseStream())
             using (var reader = new StreamReader(stream))
             {
+                if (responseFilter != null)
+                {
+                    responseFilter((HttpWebResponse)webRes);
+                }
                 return reader.ReadToEnd();
             }
         }
@@ -37,7 +41,7 @@ namespace ServiceStack.Text
                 {
                     var httpRes = webRes as HttpWebResponse;
                     return httpRes != null ? httpRes.StatusCode : (HttpStatusCode?)null;
-                }    
+                }
             }
             catch (Exception ex)
             {
@@ -54,7 +58,7 @@ namespace ServiceStack.Text
         {
             if (webEx == null) return null;
             var httpRes = webEx.Response as HttpWebResponse;
-            return httpRes != null ? httpRes.StatusCode : (HttpStatusCode?) null;
+            return httpRes != null ? httpRes.StatusCode : (HttpStatusCode?)null;
         }
 
         public static bool HasStatus(this WebException webEx, HttpStatusCode statusCode)
