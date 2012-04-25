@@ -96,10 +96,32 @@ namespace ServiceStack.Text.Common
 			return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);
 		}
 
+        public static string ToXsdTimeSpanString(TimeSpan timeSpan)
+        {
+            return XmlConvert.ToString(timeSpan);
+        }
+
+        public static string ToXsdTimeSpanString(TimeSpan? timeSpan)
+        {
+            return (timeSpan != null) ? XmlConvert.ToString(timeSpan.Value) : null;
+        }
+
 		public static DateTime ParseXsdDateTime(string dateTimeStr)
 		{
 			return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc);
 		}
+
+        public static TimeSpan ParseXsdTimeSpan(string dateTimeStr)
+        {
+            return XmlConvert.ToTimeSpan(dateTimeStr);
+        }
+
+        public static TimeSpan? ParseXsdNullableTimeSpan(string dateTimeStr)
+        {
+            return String.IsNullOrEmpty(dateTimeStr) ? 
+                null :
+                new TimeSpan?(XmlConvert.ToTimeSpan(dateTimeStr));
+        }
 
 		public static string ToShortestXsdDateTimeString(DateTime dateTime)
 		{
