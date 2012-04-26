@@ -23,6 +23,8 @@ namespace ServiceStack.Text.Common
 		void WriteNullableDateTime(TextWriter writer, object dateTime);
 		void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset);
 		void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset);
+        void WriteTimeSpan(TextWriter writer, object dateTimeOffset);
+        void WriteNullableTimeSpan(TextWriter writer, object dateTimeOffset);
 		void WriteGuid(TextWriter writer, object oValue);
 		void WriteNullableGuid(TextWriter writer, object oValue);
 		void WriteBytes(TextWriter writer, object oByteValue);

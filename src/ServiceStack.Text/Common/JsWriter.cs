@@ -171,6 +171,12 @@ namespace ServiceStack.Text.Common
 			if (type == typeof(DateTimeOffset?))
 				return Serializer.WriteNullableDateTimeOffset;
 
+            if (type == typeof(TimeSpan))
+                return Serializer.WriteTimeSpan;
+
+            if (type == typeof(TimeSpan?))
+                return Serializer.WriteNullableTimeSpan;
+
             if (type == typeof(Guid))
                 return Serializer.WriteGuid;
 

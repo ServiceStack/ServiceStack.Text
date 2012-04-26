@@ -58,8 +58,10 @@ namespace ServiceStack.Text.Common
                 return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
 			if (typeof(T) == typeof(DateTimeOffset) || typeof(T) == typeof(DateTimeOffset?))
 				return value => DateTimeSerializer.ParseDateTimeOffset(value);
-			if (typeof(T) == typeof(TimeSpan))
-				return value => TimeSpan.Parse(value);
+            if (typeof(T) == typeof(TimeSpan))
+                return value => DateTimeSerializer.ParseXsdTimeSpan(value);
+			if (typeof(T) == typeof(TimeSpan?))
+                return value => DateTimeSerializer.ParseXsdNullableTimeSpan(value);
 #if !MONOTOUCH && !SILVERLIGHT && !XBOX
 			if (typeof(T) == typeof(System.Data.Linq.Binary))
 				return value => new System.Data.Linq.Binary(Convert.FromBase64String(value));
