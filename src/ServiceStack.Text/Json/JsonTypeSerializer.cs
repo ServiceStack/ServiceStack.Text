@@ -126,6 +126,17 @@ namespace ServiceStack.Text.Json
 				WriteDateTimeOffset(writer, dateTimeOffset);
 		}
 
+        public void WriteTimeSpan(TextWriter writer, object oTimeSpan)
+        {
+            writer.Write(DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan));
+        }
+
+        public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
+        {
+            if (oTimeSpan == null) return;
+            writer.Write(DateTimeSerializer.ToXsdTimeSpanString((TimeSpan?)oTimeSpan));
+        }
+
 		public void WriteGuid(TextWriter writer, object oValue)
 		{
 			WriteRawString(writer, ((Guid)oValue).ToString("N"));

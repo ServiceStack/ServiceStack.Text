@@ -21,6 +21,12 @@ namespace ServiceStack.Text.Tests.Utils
 			Log("\n");
 		}
 
+        public void PrintFormats(TimeSpan timeSpan)
+        {
+            Log("DateTimeSerializer.ToXsdTimeSpanString(timeSpan): " + DateTimeSerializer.ToXsdTimeSpanString(timeSpan));
+            Log("\n");
+        }
+
 		[Test]
 		public void PrintDate()
 		{
@@ -32,6 +38,15 @@ namespace ServiceStack.Text.Tests.Utils
 			PrintFormats(new DateTime(2010, 10, 20, 10, 10, 10, 1));
 			PrintFormats(new DateTime(2010, 11, 22, 11, 11, 11, 1));
 		}
+
+        [Test]
+        public void PrintTimeSpan()
+        {
+            PrintFormats(new TimeSpan());
+            PrintFormats(new TimeSpan(1));
+            PrintFormats(new TimeSpan(1, 2, 3));
+            PrintFormats(new TimeSpan(1, 2, 3, 4));
+        }
 
 		[Test]
 		public void ToShortestXsdDateTimeString_works()
