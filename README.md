@@ -4,7 +4,7 @@ for twitter updates.
 
 # The Home of [.NET's fastest JSON](http://www.servicestack.net/mythz_blog/?p=344), [JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers.
 
-ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
+ServiceStack.Text is an **independent, dependency-free** serialization library that contains all of ServiceStack's text processing functionality, including:
 
 * [JsonSerializer](http://www.servicestack.net/mythz_blog/?p=344)
 * [TypeSerializer (JSV-Format)](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format)
