@@ -111,14 +111,28 @@ namespace ServiceStack.Text.Common
 			return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc);
 		}
 
+        public static TimeSpan ParseTimeSpan(string dateTimeStr)
+        {
+            return dateTimeStr.StartsWith("P") || dateTimeStr.StartsWith("-P")
+                ? ParseXsdTimeSpan(dateTimeStr)
+                : TimeSpan.Parse(dateTimeStr);
+        }
+
         public static TimeSpan ParseXsdTimeSpan(string dateTimeStr)
         {
             return XmlConvert.ToTimeSpan(dateTimeStr);
         }
 
+        public static TimeSpan? ParseNullableTimeSpan(string dateTimeStr)
+        {
+            return string.IsNullOrEmpty(dateTimeStr) 
+                ? (TimeSpan?) null 
+                : ParseTimeSpan(dateTimeStr);
+        }
+
         public static TimeSpan? ParseXsdNullableTimeSpan(string dateTimeStr)
         {
-            return String.IsNullOrEmpty(dateTimeStr) ? 
+            return String.IsNullOrEmpty(dateTimeStr) ?
                 null :
                 new TimeSpan?(XmlConvert.ToTimeSpan(dateTimeStr));
         }
