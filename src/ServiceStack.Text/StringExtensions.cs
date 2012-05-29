@@ -411,14 +411,14 @@ namespace ServiceStack.Text
             return JsonSerializer.DeserializeFromString<T>(json);
         }
 
-#if !XBOX && !SILVERLIGHT
+#if !XBOX && !SILVERLIGHT && !MONOTOUCH
 		public static string ToXml<T>(this T obj)
 		{
 			return XmlSerializer.SerializeToString<T>(obj);
 		}
 #endif
 
-#if !XBOX && !SILVERLIGHT
+#if !XBOX && !SILVERLIGHT && !MONOTOUCH
         public static T FromXml<T>(this string json)
 		{
 			return XmlSerializer.DeserializeFromString<T>(json);

@@ -1,5 +1,5 @@
 
-#if !XBOX360 && !SILVERLIGHT && !WINDOWS_PHONE
+#if !XBOX360 && !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH
 using System.IO.Compression;
 #endif
 
@@ -19,7 +19,7 @@ namespace ServiceStack.Text
 
         public static XmlSerializer Instance
             = new XmlSerializer(
-#if !SILVERLIGHT && !WINDOWS_PHONE
+#if !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH
                 new XmlDictionaryReaderQuotas { MaxStringContentLength = 1024 * 1024, }
 #endif
 );
@@ -142,7 +142,7 @@ namespace ServiceStack.Text
         }
 
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !MONOTOUCH
         public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
         {
             using (var deflateStream = new DeflateStream(stream, CompressionMode.Compress))

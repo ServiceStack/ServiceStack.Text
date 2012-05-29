@@ -154,13 +154,15 @@ namespace ServiceStack.Text
             };
 		}
 
-#if SILVERLIGHT || MONOTOUCH
+#if MONOTOUCH
         /// <summary>
         /// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
         /// Just needs to be called once in a static constructor.
         /// </summary>
-        public static void InitForAot() { }
+        [MonoTouch.Foundation.Preserve]
+		public static void InitForAot() { }
 
+        [MonoTouch.Foundation.Preserve]
         public static void RegisterForAot()
         {
             JsonAotConfig.Register<Poco>();
@@ -205,12 +207,14 @@ namespace ServiceStack.Text
             RegisterCsvSerializer();
         }
 
+        [MonoTouch.Foundation.Preserve]
         static void RegisterQueryStringWriter()
         {
             var i = 0;
             if (QueryStringWriter<Poco>.WriteFn() != null) i++;
         }
 
+        [MonoTouch.Foundation.Preserve]
         static void RegisterCsvSerializer()
         {
             CsvSerializer<Poco>.WriteFn();
@@ -219,6 +223,7 @@ namespace ServiceStack.Text
             CsvWriter<Poco>.WriteObjectRow(null, null);
         }
 
+        [MonoTouch.Foundation.Preserve]
         public static void RegisterElement<T, TElement>()
         {
             JsonAotConfig.RegisterElement<T, TElement>();
@@ -227,12 +232,14 @@ namespace ServiceStack.Text
 
 	}
 
-#if SILVERLIGHT || MONOTOUCH
+#if MONOTOUCH
+    [MonoTouch.Foundation.Preserve(AllMembers=true)]
     internal class Poco
     {
         public string Dummy { get; set; }
     }
 
+    [MonoTouch.Foundation.Preserve(AllMembers=true)]
     internal class JsonAotConfig
     {
         static JsReader<JsonTypeSerializer> reader;
