@@ -15,6 +15,8 @@ namespace ServiceStack.Text
         {
             var webReq = (HttpWebRequest)WebRequest.Create(url);
             webReq.Accept = acceptContentType;
+            webReq.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip,deflate");
+            webReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             using (var webRes = webReq.GetResponse())
             using (var stream = webRes.GetResponseStream())
             using (var reader = new StreamReader(stream))
