@@ -78,6 +78,23 @@ namespace ServiceStack.Text.Tests
 			Assert.AreEqual(json, ssJson, "Service Stack round trips correctly");
 		}
 
+	    public class Poco
+        {
+            public string Name { get; set; }
+        }
+
+	    [Test]
+	    public void Starting_with_quotes_inside_POCOs()
+	    {
+	        var dto = new Poco {Name = "\"starting with\" POCO"};
+
+	        var json = dto.ToJson();
+
+	        var fromDto = json.FromJson<Poco>();
+
+            Assert.That(fromDto.Name, Is.EqualTo(dto.Name));
+	    }
+
 		Movie dto = new Movie {
 			ImdbId = "tt0111161",
 			Title = "The Shawshank Redemption",
