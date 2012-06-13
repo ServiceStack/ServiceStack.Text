@@ -214,8 +214,24 @@ namespace ServiceStack.Text.Jsv
 		public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
 		{
 			if (enumFlagValue == null) return;
-			var intVal = (int)enumFlagValue;
-			writer.Write(intVal);
+
+            var typeCode = Type.GetTypeCode(Enum.GetUnderlyingType(enumFlagValue.GetType()));
+
+            switch (typeCode)
+            {                
+                case TypeCode.UInt32:
+                    writer.Write((uint)enumFlagValue);
+                    break;
+                case TypeCode.Int64:
+                    writer.Write((long)enumFlagValue);
+                    break;
+                case TypeCode.UInt64:
+                    writer.Write((ulong)enumFlagValue);
+                    break;
+                default:
+                    writer.Write((int)enumFlagValue);
+                    break;
+            }
 		}
 
 		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
