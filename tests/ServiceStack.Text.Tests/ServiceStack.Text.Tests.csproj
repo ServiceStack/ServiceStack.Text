@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServiceStack.Text.Tests</RootNamespace>
     <AssemblyName>ServiceStack.Text.Tests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -31,6 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -99,6 +100,7 @@
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="ServiceStack">
       <HintPath>..\..\lib\tests\ServiceStack.dll</HintPath>
     </Reference>
@@ -168,6 +170,9 @@
     <Compile Include="BclStructTests.cs" />
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
+    <Compile Include="DynamicTests\When_using_dynamic_xml.cs" />
+    <Compile Include="DynamicTests\When_using_dynamic_namevaluecollection.cs" />
+    <Compile Include="DynamicTests\When_using_dynamic_json.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
     <Compile Include="JsonTests\CamelCaseTests.cs" />
     <Compile Include="CsvSerializerTests.cs" />
@@ -251,6 +256,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\ServiceStack.Text.Dynamic\ServiceStack.Text.Dynamic.csproj">
+      <Project>{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}</Project>
+      <Name>ServiceStack.Text.Dynamic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj">
       <Project>{579B3FDB-CDAD-44E1-8417-885C38E49A0E}</Project>
       <Name>ServiceStack.Text</Name>

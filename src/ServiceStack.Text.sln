@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text", "Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Tests", "..\tests\ServiceStack.Text.Tests\ServiceStack.Text.Tests.csproj", "{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Dynamic", "ServiceStack.Text.Dynamic\ServiceStack.Text.Dynamic.csproj", "{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,24 @@ Global
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.ActiveCfg = Release|x86
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.Build.0 = Release|x86
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Xbox 360.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.MonoTouch|Any CPU.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.MonoTouch|Any CPU.Build.0 = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.MonoTouch|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.MonoTouch|Mixed Platforms.Build.0 = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.MonoTouch|x86.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.MonoTouch|Xbox 360.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Release|x86.ActiveCfg = Release|Any CPU
+		{92A9551A-FF8C-4710-9DE4-2F6DFC68C311}.Release|Xbox 360.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
