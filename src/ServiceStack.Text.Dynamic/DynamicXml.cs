@@ -25,16 +25,15 @@ namespace ServiceStack.Text.Dynamic
             if (xElement.Elements().All(x => x.Name.LocalName != binder.Name) && binder.Name != xElement.Name.LocalName)
                 return false;
 
-            if (binder.Name == xElement.Name.LocalName)
-                result = this;
-            else
+            var xElements = xElement.Elements().Where(x => x.Name.LocalName == binder.Name);
+            if (xElements.Count() == 1)
+                result = new DynamicXml(xElements.First());
+            else if (!xElements.Any() && binder.Name == xElement.Name.LocalName)
             {
-                var xElements = xElement.Elements().Where(x => x.Name.LocalName == binder.Name);
-                if (xElements.Count() == 1)
-                    result = new DynamicXml(xElements.First());
-                else
-                    result = xElements.Select(x => new DynamicXml(x)).ToArray();
+                result = this;
             }
+            else
+                result = xElements.Select(x => new DynamicXml(x)).ToArray();
             return true;
         }
 

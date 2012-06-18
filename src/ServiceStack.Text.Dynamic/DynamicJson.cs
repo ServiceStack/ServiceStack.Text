@@ -18,7 +18,7 @@ namespace ServiceStack.Text.Dynamic
         {
             this.jsonObject = jsonObject;
         }
-
+        
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             result = null;

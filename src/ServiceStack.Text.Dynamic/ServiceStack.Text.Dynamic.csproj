@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DynamicDictionary.cs" />
+    <Compile Include="DynamicExtensions.cs" />
     <Compile Include="DynamicJson.cs" />
     <Compile Include="DynamicNameValueCollection.cs" />
     <Compile Include="DynamicXml.cs" />
