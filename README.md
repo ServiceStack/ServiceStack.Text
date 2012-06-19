@@ -168,7 +168,7 @@ All other scalar values are stored as strings that are surrounded with double qu
 
 ### C# Structs and Value Types
 
-Because a C# struct is a value type whose public properties are normally just convenience properties around a single scalar value, they are ignored instead the **TStruct.ToString()** method is used to serialize and either the **static TStruct.Parse()** method or **new TStruct(string)** constructor will be used to deserialize the value type if it exists.
+Because a C# struct is a value type whose public properties are normally just convenience properties around a single scalar value, they are ignored instead the **TStruct.ToString()** method is used to serialize and either the **static TStruct.ParseJson()**/**static TStruct.ParseJsv()** methods or **new TStruct(string)** constructor will be used to deserialize the value type if it exists.
 
 ### array type
 
@@ -217,7 +217,7 @@ You could use a struct and reduce it to just:
 
 	"20x10" 
 
-By overriding **ToString()** and providing a static **Size Parse()** method:
+By overriding **ToString()** and providing a static **Size ParseJson()** method:
 
 	public struct Size
 	{
@@ -229,7 +229,7 @@ By overriding **ToString()** and providing a static **Size Parse()** method:
 			return Width + "x" + Height;
 		}
 
-		public static Size Parse(string json)
+		public static Size ParseJson(string json)
 		{
 			var size = json.Split('x');
 			return new Size { 
