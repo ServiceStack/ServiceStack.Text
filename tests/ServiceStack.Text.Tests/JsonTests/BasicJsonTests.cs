@@ -249,5 +249,28 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,Name:Abc}"));
 			Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"Name\":\"Abc\"}"));
 		}
+
+        [Flags]
+        public enum ExampleEnum : ulong
+        {
+            None = 0,
+            One = 1,
+            Two = 2,
+            Four = 4,
+            Eight = 8
+        }
+
+        [Test]
+        public void Can_serialize_unsigned_flags_enum()
+        {
+            var anon = new
+            {
+                EnumProp1 = ExampleEnum.One | ExampleEnum.Two,
+                EnumProp2 = ExampleEnum.Eight,
+            };
+
+            Assert.That(TypeSerializer.SerializeToString(anon), Is.EqualTo("{EnumProp1:3,EnumProp2:8}"));
+            Assert.That(JsonSerializer.SerializeToString(anon), Is.EqualTo("{\"EnumProp1\":3,\"EnumProp2\":8}"));
+        }
 	}
 }
