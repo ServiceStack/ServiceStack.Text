@@ -115,7 +115,42 @@ namespace ServiceStack.Text.Common
 
             throw new NotSupportedException(typeof(TSerializer).Name);
         }
-    }
+		
+        public static void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+        {
+            if (enumFlagValue == null) return;
+
+            var typeCode = Type.GetTypeCode(Enum.GetUnderlyingType(enumFlagValue.GetType()));
+
+            switch (typeCode)
+            {
+                case TypeCode.Byte:
+                    writer.Write((byte)enumFlagValue);
+                    break;
+                case TypeCode.Int16:
+                    writer.Write((short)enumFlagValue);
+                    break;
+				case TypeCode.UInt16:
+                    writer.Write((ushort)enumFlagValue);
+                    break;
+                case TypeCode.Int32:
+                    writer.Write((int)enumFlagValue);
+                    break;
+                case TypeCode.UInt32:
+                    writer.Write((uint)enumFlagValue);
+                    break;
+                case TypeCode.Int64:
+                    writer.Write((long)enumFlagValue);
+                    break;
+                case TypeCode.UInt64:
+                    writer.Write((ulong)enumFlagValue);
+                    break;
+                default:
+                    writer.Write((int)enumFlagValue);
+                    break;
+            }
+        }
+	}
 
     internal class JsWriter<TSerializer>
         where TSerializer : ITypeSerializer
