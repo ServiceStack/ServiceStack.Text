@@ -64,7 +64,30 @@ namespace ServiceStack.Text.Tests.DynamicModels
 	[TestFixture]
 	public class DynamicMessageTests
 	{
-		[Test]
+        [Test]
+        public void Object_Set_To_Object_Test()
+        {
+            var original = new DynamicMessage
+            {
+                Id = Guid.NewGuid(),
+                Priority = 3,
+                ReplyTo = "http://path/to/reply.svc",
+                RetryAttempts = 1,
+                Type = typeof(MessageBody),
+                Body = new Object()
+            };
+
+            var jsv = TypeSerializer.SerializeToString(original);
+            var json = JsonSerializer.SerializeToString(original);
+            var jsvDynamicType = TypeSerializer.DeserializeFromString<DynamicMessage>(jsv);
+            var jsonDynamicType = JsonSerializer.DeserializeFromString<DynamicMessage>(json);
+
+            AssertHeadersAreEqual(jsvDynamicType, original);
+            AssertHeadersAreEqual(jsonDynamicType, original);
+            AssertHeadersAreEqual(jsvDynamicType, jsonDynamicType);
+        }
+        
+        [Test]
 		public void Can_deserialize_between_dynamic_generic_and_strict_messages()
 		{
 			var original = new DynamicMessage
