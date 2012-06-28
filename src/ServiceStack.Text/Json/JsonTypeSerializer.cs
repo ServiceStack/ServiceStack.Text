@@ -272,9 +272,7 @@ namespace ServiceStack.Text.Json
 
         public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
-            if (enumFlagValue == null) return;
-            var intVal = (int)enumFlagValue;
-            writer.Write(intVal);
+			JsWriter.WriteEnumFlags(writer, enumFlagValue);
         }
 
         public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)

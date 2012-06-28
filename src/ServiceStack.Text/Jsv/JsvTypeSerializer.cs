@@ -211,12 +211,10 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(enumValue.ToString());
 		}
 
-		public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
-		{
-			if (enumFlagValue == null) return;
-			var intVal = (int)enumFlagValue;
-			writer.Write(intVal);
-		}
+        public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+        {
+			JsWriter.WriteEnumFlags(writer, enumFlagValue);
+        }
 
 		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
 		{
