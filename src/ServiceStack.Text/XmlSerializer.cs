@@ -27,7 +27,7 @@ namespace ServiceStack.Text
         public XmlSerializer(XmlDictionaryReaderQuotas quotas=null, bool omitXmlDeclaration = false)
         {
             this.quotas = quotas;
-            XSettings.Encoding = Encoding.UTF8;
+            XSettings.Encoding = new UTF8Encoding(false);
             XSettings.OmitXmlDeclaration = omitXmlDeclaration;
         }
 
