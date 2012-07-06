@@ -122,26 +122,24 @@ namespace ServiceStack.Text
 
             var sb = new StringBuilder();
 
-            var textLength = text.Length;
-            for (var i = 0; i < textLength; i++)
+            foreach (var charCode in Encoding.UTF8.GetBytes(text))
             {
-                var c = text.Substring(i, 1);
-                int charCode = text[i];
 
                 if (
-                    charCode >= 65 && charCode <= 90		// A-Z
+                    charCode >= 65 && charCode <= 90        // A-Z
                     || charCode >= 97 && charCode <= 122    // a-z
-                    || charCode >= 48 && charCode <= 57		// 0-9
-                    || charCode >= 44 && charCode <= 46		// ,-.
+                    || charCode >= 48 && charCode <= 57     // 0-9
+                    || charCode >= 44 && charCode <= 46     // ,-.
                     )
                 {
-                    sb.Append(c);
+                    sb.Append((char)charCode);
                 }
                 else
                 {
                     sb.Append('%' + charCode.ToString("x"));
                 }
             }
+
             return sb.ToString();
         }
 
@@ -149,29 +147,28 @@ namespace ServiceStack.Text
         {
             if (string.IsNullOrEmpty(text)) return null;
 
-            var sb = new StringBuilder();
+            var bytes = new List<byte>();
 
             var textLength = text.Length;
             for (var i = 0; i < textLength; i++)
             {
-                var c = text.Substring(i, 1);
-                if (c == "+")
+                var c = text[i];
+                if (c == '+')
                 {
-                    sb.Append(" ");
+                    bytes.Add(32);
                 }
-                else if (c == "%")
+                else if (c == '%')
                 {
-                    var hexNo = Convert.ToInt32(text.Substring(i + 1, 2), 16);
-                    sb.Append((char)hexNo);
+                    var hexNo = Convert.ToByte(text.Substring(i + 1, 2), 16);
+                    bytes.Add(hexNo);
                     i += 2;
                 }
                 else
                 {
-                    sb.Append(c);
+                    bytes.Add((byte)c);
                 }
             }
-
-            return sb.ToString();
+            return Encoding.UTF8.GetString(bytes.ToArray());
         }
 
 #if !XBOX
