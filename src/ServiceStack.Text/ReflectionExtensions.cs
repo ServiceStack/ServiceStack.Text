@@ -29,7 +29,7 @@ namespace ServiceStack.Text
     {
         private static Dictionary<Type, object> DefaultValueTypes = new Dictionary<Type, object>();
 
-        public static object GetDefaultValue(Type type)
+        public static object GetDefaultValue(this Type type)
         {
             if (!type.IsValueType) return null;
 
