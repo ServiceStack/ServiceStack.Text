@@ -218,7 +218,7 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
         {
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !DROID
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID
 			WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
 #endif
         }
