@@ -207,6 +207,29 @@ namespace ServiceStack.Text
             RegisterCsvSerializer();
         }
 
+		[MonoTouch.Foundation.Preserve]
+		public static bool RegisterTypeForAot<T>()
+		{
+			bool ret = false;
+			try
+			{
+				JsonAotConfig.Register<T>();
+
+				int i = 0;
+				if(JsvWriter<T>.WriteFn() != null && JsvReader<T>.GetParseFn() != null) i++;
+				if(JsonWriter<T>.WriteFn() != null && JsonReader<T>.GetParseFn() != null) i++;
+				if(QueryStringWriter<Poco>.WriteFn() != null) i++;
+
+				CsvSerializer<T>.WriteFn();
+	            CsvSerializer<T>.WriteObject(null, null);
+	            CsvWriter<T>.WriteObject(null, null);
+	            CsvWriter<T>.WriteObjectRow(null, null);
+				ret = true;
+			}catch(Exception){}
+
+			return ret;
+		}
+
         [MonoTouch.Foundation.Preserve]
         static void RegisterQueryStringWriter()
         {
