@@ -278,6 +278,14 @@ Which serializes the Point into a compact JSON array:
 
 	new Point { X = 1, Y = 2 }.ToJson() // = [1,2]
 
+### Custom Serialization Routines
+
+If you can't change the definition of a ValueType (e.g. because its in the BCL), you can assign a custom serialization /
+deserialization routine to use instead. E.g. here's how you can add support for `System.Drawing.Color`:
+
+    JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
+    JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
+
 ## Custom Deserialization
 
 Because the same wire format shared between Dictionaries, POCOs and anonymous types, in most cases what you serialize with one type can be deserialized with another, i.e. an Anonymous type can be deserialized back into a Dictionary<string,string> which can be deserialized into a strong-typed POCO and vice-versa.

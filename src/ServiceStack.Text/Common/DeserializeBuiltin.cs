@@ -62,7 +62,7 @@ namespace ServiceStack.Text.Common
                 return value => DateTimeSerializer.ParseTimeSpan(value);
 			if (typeof(T) == typeof(TimeSpan?))
                 return value => DateTimeSerializer.ParseNullableTimeSpan(value);
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX && !ANDROID
 			if (typeof(T) == typeof(System.Data.Linq.Binary))
 				return value => new System.Data.Linq.Binary(Convert.FromBase64String(value));
 #endif				
