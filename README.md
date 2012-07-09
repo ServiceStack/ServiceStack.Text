@@ -283,7 +283,7 @@ Which serializes the Point into a compact JSON array:
 If you can't change the definition of a ValueType (e.g. because its in the BCL), you can assign a custom serialization /
 deserialization routine to use instead. E.g. here's how you can add support for `System.Drawing.Color`:
 
-    JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
+    JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
     JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
 
 ## Custom Deserialization
