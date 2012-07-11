@@ -196,15 +196,24 @@ namespace ServiceStack.Text
 			var map = DeserializeFromString<Dictionary<string, string>>(jsv);
 			return map;
 		}
-		
-		/// <summary>
-		/// Recursively prints the contents of any POCO object in a human-friendly, readable format
-		/// </summary>
-		/// <returns></returns>
-		public static string Dump<T>(this T instance)
-		{
-			return SerializeAndFormat(instance);
-		}
+
+        /// <summary>
+        /// Recursively prints the contents of any POCO object in a human-friendly, readable format
+        /// </summary>
+        /// <returns></returns>
+        public static string Dump<T>(this T instance)
+        {
+            return SerializeAndFormat(instance);
+        }
+
+        /// <summary>
+        /// Dump to Console.WriteLine
+        /// </summary>
+        /// <returns></returns>
+        public static void DumpToConsole<T>(this T instance)
+        {
+            Console.WriteLine(SerializeAndFormat(instance));
+        }
 
 		public static string SerializeAndFormat<T>(this T instance)
 		{
