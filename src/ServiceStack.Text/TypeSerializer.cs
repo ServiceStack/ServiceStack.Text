@@ -207,12 +207,19 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
-        /// Dump to Console.WriteLine
+        /// Print Dump to Console.WriteLine
         /// </summary>
-        /// <returns></returns>
-        public static void DumpToConsole<T>(this T instance)
+        public static void PrintDump<T>(this T instance)
         {
             Console.WriteLine(SerializeAndFormat(instance));
+        }
+
+        /// <summary>
+        /// Print string.Format to Console.WriteLine
+        /// </summary>
+        public static void Print(this string text, params object[] args)
+        {
+            Console.WriteLine(text, args);
         }
 
 		public static string SerializeAndFormat<T>(this T instance)
