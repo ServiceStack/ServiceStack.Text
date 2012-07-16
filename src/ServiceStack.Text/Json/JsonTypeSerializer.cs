@@ -337,6 +337,13 @@ namespace ServiceStack.Text.Json
                 escapeCount = 0;
             }
 
+            // dump escape characters not followed by another character
+            while (escapeCount > 0)
+            {
+                builder.Append(JsonUtils.EscapeChar);
+                escapeCount = Math.Max(escapeCount - 2, 0);
+            }
+
             return builder.ToString();
         }
 

@@ -75,6 +75,30 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromJsonType, Is.EqualTo(original));
         }
 
+        [Test]
+        public void Deserializes_string_containing_single_backslash()
+        {
+            const string original = @"\";
+            var json = JsonSerializer.SerializeToString(original);
+            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
+            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
+
+            Assert.That(fromJson, Is.EqualTo(original));
+            Assert.That(fromJsonType, Is.EqualTo(original));
+        }
+
+        [Test]
+        public void Deserializes_string_ending_with_backslash()
+        {
+            const string original = @"This string ends with a backslash\";
+            var json = JsonSerializer.SerializeToString(original);
+            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
+            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
+
+            Assert.That(fromJson, Is.EqualTo(original));
+            Assert.That(fromJsonType, Is.EqualTo(original));
+        }
+
 		[Test]
 		public void Embedded_Quotes()
 		{
