@@ -296,9 +296,48 @@ namespace ServiceStack.Text.Json
         {
             if (String.IsNullOrEmpty(value)) return value;
 
-            return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
-                ? value.Substring(1, value.Length - 2)
-                : value;
+            int startIndex = 0;
+            int stopIndex = value.Length - 1;
+            StringBuilder builder = new StringBuilder(value.Length);
+
+            if (value[startIndex] == JsonUtils.QuoteChar && value[stopIndex] == JsonUtils.QuoteChar)
+            {
+                startIndex += 1;
+                stopIndex -= 1;
+            }
+
+            int escapeCount = 0;
+            char lastChar = '\0';
+            for (int i = startIndex; i <= stopIndex; i++)
+            {
+                char c = value[i];
+
+                if (c == JsonUtils.EscapeChar)
+                {
+                    escapeCount += 1;
+                    lastChar = c;
+                    continue;
+                }
+                else if (c == JsonUtils.QuoteChar && lastChar == JsonUtils.EscapeChar)
+                {
+                    escapeCount -= 1;
+                }
+
+                // dump tracked escape characters
+                while (escapeCount > 0)
+                {
+                    builder.Append(JsonUtils.EscapeChar);
+                    escapeCount = Math.Max(escapeCount - 2, 0);
+                }
+
+                // dump current
+                builder.Append(c);
+
+                lastChar = c;
+                escapeCount = 0;
+            }
+
+            return builder.ToString();
         }
 
         public string ParseString(string value)
