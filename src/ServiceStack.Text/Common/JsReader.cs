@@ -40,7 +40,7 @@ namespace ServiceStack.Text.Common
 			if (builtInMethod != null)
 				return value => builtInMethod(Serializer.ParseRawString(value));
 
-			if (JsConfig<T>.SerializeFn != null)
+			if (JsConfig<T>.DeSerializeFn != null)
 				return value => JsConfig<T>.ParseFn(Serializer.ParseRawString(value));
 
 			if (type.IsGenericType())
