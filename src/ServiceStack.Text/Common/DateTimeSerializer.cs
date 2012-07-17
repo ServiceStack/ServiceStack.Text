@@ -78,7 +78,8 @@ namespace ServiceStack.Text.Common
 
             // for interop, do not assume format based on config
             // format: prefer TimestampOffset, DCJSCompatible
-            if (dateTimeOffsetStr.StartsWith(EscapedWcfJsonPrefix))
+            if (dateTimeOffsetStr.StartsWith(EscapedWcfJsonPrefix) ||
+                dateTimeOffsetStr.StartsWith(WcfJsonPrefix))
             {
                 return ParseWcfJsonDateOffset(dateTimeOffsetStr);
             }
