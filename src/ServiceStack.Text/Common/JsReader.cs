@@ -19,7 +19,7 @@ namespace ServiceStack.Text.Common
 			}
 
 			if (type == typeof(string))
-				return Serializer.ParseString;
+				return Serializer.UnescapeString;
 
 			if (type == typeof(object))
 				return DeserializeType<TSerializer>.ObjectStringToType;
@@ -38,10 +38,10 @@ namespace ServiceStack.Text.Common
 
 			var builtInMethod = DeserializeBuiltin<T>.Parse;
 			if (builtInMethod != null)
-				return value => builtInMethod(Serializer.ParseRawString(value));
+				return value => builtInMethod(Serializer.UnescapeSafeString(value));
 
 			if (JsConfig<T>.DeSerializeFn != null)
-				return value => JsConfig<T>.ParseFn(Serializer.ParseRawString(value));
+                return value => JsConfig<T>.ParseFn(Serializer.UnescapeString(value));
 
 			if (type.IsGenericType())
 			{
@@ -88,13 +88,13 @@ namespace ServiceStack.Text.Common
 			{
 				var staticParseMethod = StaticParseMethod<T>.Parse;
 				if (staticParseMethod != null)
-					return value => staticParseMethod(Serializer.ParseRawString(value));
+					return value => staticParseMethod(Serializer.UnescapeSafeString(value));
 			}
 			else
 			{
 				var staticParseMethod = StaticParseRefTypeMethod<TSerializer, T>.Parse;
 				if (staticParseMethod != null)
-					return value => staticParseMethod(Serializer.ParseRawString(value));
+					return value => staticParseMethod(Serializer.UnescapeSafeString(value));
 			}
 
 			var typeConstructor = DeserializeType<TSerializer>.GetParseMethod(TypeConfig<T>.GetState());

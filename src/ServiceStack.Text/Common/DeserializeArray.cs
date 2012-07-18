@@ -12,7 +12,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Reflection;
 using System.Threading;
 
@@ -179,7 +178,7 @@ namespace ServiceStack.Text.Common
 		public static byte[] ParseByteArray(string value)
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
-			if ((value = Serializer.ParseRawString(value)) == null) return null;
+			if ((value = Serializer.UnescapeSafeString(value)) == null) return null;
 			return value == string.Empty
 			       	? new byte[0]
 			       	: Convert.FromBase64String(value);

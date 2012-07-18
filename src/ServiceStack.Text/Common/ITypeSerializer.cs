@@ -50,8 +50,10 @@ namespace ServiceStack.Text.Common
 		ParseStringDelegate GetParseFn(Type type);
 
 		string ParseRawString(string value);
-		string ParseString(string value);
-		string EatTypeValue(string value, ref int i);
+        string ParseString(string value);
+        string UnescapeString(string value);
+        string UnescapeSafeString(string value);
+        string EatTypeValue(string value, ref int i);
 		bool EatMapStartChar(string value, ref int i);
 		string EatMapKey(string value, ref int i);
 		bool EatMapKeySeperator(string value, ref int i);

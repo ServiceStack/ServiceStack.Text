@@ -329,7 +329,9 @@ namespace ServiceStack.Text.Tests
 			var expectedString = "[\"\"\"1st\",\"2:nd\",\"3r,d\",four%]";
 			var stringValue = TypeSerializer.SerializeToString(stringList);
 			Assert.That(stringValue, Is.EqualTo(expectedString));
-		}
+
+            Serialize(stringList);
+        }
 
 		[Test]
 		public void Can_parse_string_list_with_special_chars_as_object()

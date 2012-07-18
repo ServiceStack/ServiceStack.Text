@@ -76,7 +76,7 @@ namespace ServiceStack.Text.Common
 			while (i < valueLength)
 			{
 				var elementValue = Serializer.EatValue(value, ref i);
-				var listValue = elementValue;
+                var listValue = Serializer.UnescapeString(elementValue);
 				to.Add(listValue);
 				Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
 			}

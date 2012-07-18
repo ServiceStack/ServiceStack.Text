@@ -75,7 +75,8 @@ namespace ServiceStack.Text.Tests
 			Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));
 
 			var foo = JsonSerializer.DeserializeFromString<Foo>(json);
-			Assert.That(foo.Content1, Is.EqualTo(dto.Content1));
+            Assert.That(foo.Name, Is.EqualTo(dto.Name));
+            Assert.That(foo.Content1, Is.EqualTo(dto.Content1));
 		}
 
 		public enum PersonStatus

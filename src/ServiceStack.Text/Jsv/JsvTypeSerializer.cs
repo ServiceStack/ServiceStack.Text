@@ -238,6 +238,11 @@ namespace ServiceStack.Text.Jsv
 			return JsvReader.GetParseFn(type);
 		}
 
+        public string UnescapeSafeString(string value)
+        {
+            return value.FromCsvField();
+        }
+
 		public string ParseRawString(string value)
 		{
 			return value;
@@ -248,7 +253,12 @@ namespace ServiceStack.Text.Jsv
 			return value.FromCsvField();
 		}
 
-		public string EatTypeValue(string value, ref int i)
+	    public string UnescapeString(string value)
+	    {
+            return value.FromCsvField();
+        }
+
+	    public string EatTypeValue(string value, ref int i)
 		{
 			return EatValue(value, ref i);
 		}
@@ -358,7 +368,7 @@ namespace ServiceStack.Text.Jsv
 						if (!isLiteralQuote)
 							break;
 					}
-					return value.Substring(tokenStartPos, i - tokenStartPos).FromCsvField();
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 
 				//Is Type/Map, i.e. {...}
 				case JsWriter.MapStartChar:

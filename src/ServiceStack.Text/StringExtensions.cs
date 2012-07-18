@@ -550,5 +550,20 @@ namespace ServiceStack.Text
             return (char)(firstChar + LowerCaseOffset) + value.Substring(1);
         }
 
+        public static string SafeSubstring(this string value, int length)
+        {
+            return string.IsNullOrEmpty(value) 
+                ? string.Empty 
+                : value.Substring(Math.Min(length, value.Length));
+        }
+
+        public static string SafeSubstring(this string value, int startIndex, int length)
+        {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+            if (value.Length >= (startIndex + length))
+                return value.Substring(startIndex, length);
+
+            return value.Length > startIndex ? value.Substring(startIndex) : string.Empty;
+        }
     }
 }

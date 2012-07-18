@@ -88,7 +88,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 
 			public int Id { get; set; }
-			public List<string> StringList { get; set; }
+            public List<string> StringList { get; set; }
+            public string[] StringArray { get; set; }
 
 			public bool Equals(ModelWithList other)
 			{
@@ -114,29 +115,49 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 		}
 
-		[Test]
-		public void Can_serialize_Model_with_array()
-		{
-			var model = new ModelWithList
-			{
-				Id = 1,
-				StringList = { "One", "Two", "Three" }
-			};
+        [Test]
+        public void Can_serialize_Model_with_array()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringArray = new[]{ "One", "Two", "Three" }
+            };
 
-			SerializeAndCompare(model);
-		}
+            SerializeAndCompare(model);
+        }
 
-		[Test]
-		public void Can_serialize_Model_with_array_of_escape_chars()
-		{
-			var model = new ModelWithList
-			{
-				Id = 1,
-				StringList = { @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """, @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """ }
-			};
+        [Test]
+        public void Can_serialize_Model_with_list()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringList = { "One", "Two", "Three" }
+            };
 
-			SerializeAndCompare(model);
-		}
+            SerializeAndCompare(model);
+        }
+
+        [Test]
+        public void Can_serialize_Model_with_array_of_escape_chars()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringArray = new[]{ @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """, @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """ }
+            };
+
+            SerializeAndCompare(model);
+        }
+
+        [Test]
+        public void Can_serialize_Model_with_list_of_escape_chars()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringList = { @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """, @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """ }
+            };
+
+            SerializeAndCompare(model);
+        }
 
 		[Test]
 		public void Can_deserialize_json_list_with_whitespace()

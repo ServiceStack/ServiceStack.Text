@@ -294,50 +294,13 @@ namespace ServiceStack.Text.Json
 
         public string ParseRawString(string value)
         {
-            if (string.IsNullOrEmpty(value) || value.IndexOf(JsonUtils.EscapeChar) == -1) return value;
+            return value;
+            
+            //if (string.IsNullOrEmpty(value)) return value;
 
-            var stopIndex = value.Length - 1;
-            var sb = new StringBuilder(value.Length);
-
-            int escapeCount = 0;
-            char lastChar = '\0';
-            for (int i = 0; i <= stopIndex; i++)
-            {
-                char c = value[i];
-
-                if (c == JsonUtils.EscapeChar)
-                {
-                    escapeCount += 1;
-                    lastChar = c;
-                    continue;
-                }
-                if (c == JsonUtils.QuoteChar && lastChar == JsonUtils.EscapeChar)
-                {
-                    escapeCount -= 1;
-                }
-
-                // dump tracked escape characters
-                while (escapeCount > 0)
-                {
-                    sb.Append(JsonUtils.EscapeChar);
-                    escapeCount = Math.Max(escapeCount - 2, 0);
-                }
-
-                // dump current
-                sb.Append(c);
-
-                lastChar = c;
-                escapeCount = 0;
-            }
-
-            // dump escape characters not followed by another character
-            while (escapeCount > 0)
-            {
-                sb.Append(JsonUtils.EscapeChar);
-                escapeCount = Math.Max(escapeCount - 2, 0);
-            }
-
-            return sb.ToString();
+            //return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
+            //    ? value.Substring(1, value.Length - 2)
+            //    : value;
         }
 
         public string ParseString(string value)
@@ -345,14 +308,61 @@ namespace ServiceStack.Text.Json
             return string.IsNullOrEmpty(value) ? value : ParseRawString(value);
         }
 
+        internal static string ParseString(string json, ref int index)
+        {
+            var jsonLength = json.Length;
+            if (json[index] != JsonUtils.QuoteChar)
+                throw new Exception("Invalid unquoted string starting with: " + json.SafeSubstring(50));
+
+            char c;
+            var startIndex = ++index;
+            do
+            {
+                c = json[index];
+                if (c == JsonUtils.QuoteChar) break;
+                if (c != JsonUtils.EscapeChar) continue;
+                c = json[index++];
+                if (c == 'u')
+                {
+                    index += 4;
+                }
+            } while (index++ < jsonLength);
+            index++;
+            return json.Substring(startIndex, Math.Min(index, jsonLength) - startIndex - 1);
+        }
+
+        public string UnescapeString(string value)
+        {
+            var i = 0;
+            return UnEscapeJsonString(value, ref i);
+        }
+
+        public string UnescapeSafeString(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
+                ? value.Substring(1, value.Length - 2)
+                : value;
+
+            //if (value[0] != JsonUtils.QuoteChar)
+            //    throw new Exception("Invalid unquoted string starting with: " + value.SafeSubstring(50));
+
+            //return value.Substring(1, value.Length - 2);
+        }
+
         static readonly char[] IsSafeJsonChars = new[] { JsonUtils.QuoteChar, JsonUtils.EscapeChar };
 
         internal static string ParseJsonString(string json, ref int index)
         {
-            var jsonLength = json.Length;
-
             for (; index < json.Length; index++) { var ch = json[index]; if (ch >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[ch]) break; } //Whitespace inline
 
+            return UnEscapeJsonString(json, ref index);
+        }
+
+        private static string UnEscapeJsonString(string json, ref int index)
+        {
+            if (string.IsNullOrEmpty(json)) return json;
+            var jsonLength = json.Length;
             if (json[index] == JsonUtils.QuoteChar)
             {
                 index++;
@@ -378,9 +388,8 @@ namespace ServiceStack.Text.Json
                 c = json[index++];
                 if (c == JsonUtils.QuoteChar) break;
 
-                if (c == '\\')
+                if (c == JsonUtils.EscapeChar)
                 {
-
                     if (index == jsonLength)
                     {
                         break;
@@ -418,7 +427,7 @@ namespace ServiceStack.Text.Json
                             {
                                 var unicodeString = json.Substring(index, 4);
                                 var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
-                                sb.Append(ConvertFromUtf32((int)unicodeIntVal));
+                                sb.Append(ConvertFromUtf32((int) unicodeIntVal));
                                 index += 4;
                             }
                             else
@@ -532,7 +541,7 @@ namespace ServiceStack.Text.Json
 
                 //Is Within Quotes, i.e. "..."
                 case JsWriter.QuoteChar:
-                    return ParseJsonString(value, ref i);
+                    return ParseString(value, ref i);
 
                 //Is Type/Map, i.e. {...}
                 case JsWriter.MapStartChar:

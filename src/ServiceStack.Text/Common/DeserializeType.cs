@@ -87,7 +87,7 @@ namespace ServiceStack.Text.Common
 				&& strType.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
             {
                 var propIndex = TypeAttrInObject.Length;
-                var typeName = Serializer.EatValue(strType, ref propIndex);
+                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
                 var type = AssemblyUtils.FindType(typeName);
 
                 if (type == null)
