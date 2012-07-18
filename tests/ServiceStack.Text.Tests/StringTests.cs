@@ -39,66 +39,6 @@ namespace ServiceStack.Text.Tests
 			Assert.That(fromJsonType, Is.EqualTo(original));
 		}
 
-        [Test]
-        public void Deserializes_string_containing_single_backslash_correctly()
-        {
-            const string original = @"This is a string \containing a backslash";
-            var json = JsonSerializer.SerializeToString(original);
-            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
-            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
-
-            Assert.That(fromJson, Is.EqualTo(original));
-            Assert.That(fromJsonType, Is.EqualTo(original));
-        }
-
-        [Test]
-        public void Deserializes_string_containing_multiple_backslash_correctly()
-        {
-            const string original = @"This is a st\ri\ng \\\containing \\multiple \\\\\\\\\\\\\\\\\\ backslashes";
-            var json = JsonSerializer.SerializeToString(original);
-            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
-            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
-
-            Assert.That(fromJson, Is.EqualTo(original));
-            Assert.That(fromJsonType, Is.EqualTo(original));
-        }
-
-        [Test]
-        public void Deserializes_string_containing_backslash_and_quotes_correctly()
-        {
-            const string original = @"\\\\\This is a\\ \""string\\"" \\\\\containing \\\""backslashes\\\\\\"" \\and quotes";
-            var json = JsonSerializer.SerializeToString(original);
-            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
-            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
-
-            Assert.That(fromJson, Is.EqualTo(original));
-            Assert.That(fromJsonType, Is.EqualTo(original));
-        }
-
-        [Test]
-        public void Deserializes_string_containing_single_backslash()
-        {
-            const string original = @"\";
-            var json = JsonSerializer.SerializeToString(original);
-            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
-            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
-
-            Assert.That(fromJson, Is.EqualTo(original));
-            Assert.That(fromJsonType, Is.EqualTo(original));
-        }
-
-        [Test]
-        public void Deserializes_string_ending_with_backslash()
-        {
-            const string original = @"This string ends with a backslash\";
-            var json = JsonSerializer.SerializeToString(original);
-            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
-            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
-
-            Assert.That(fromJson, Is.EqualTo(original));
-            Assert.That(fromJsonType, Is.EqualTo(original));
-        }
-
 		[Test]
 		public void Embedded_Quotes()
 		{
@@ -138,9 +78,43 @@ namespace ServiceStack.Text.Tests
 			Assert.AreEqual(json, ssJson, "Service Stack round trips correctly");
 		}
 
+        [Test]
+        public void Deserializes_string_with_quotes_correctly()
+        {
+            const string original = "\"This is a string surrounded with quotes\"";
+            var json = JsonSerializer.SerializeToString(original);
+            var bclJson = BclJsonDataContractSerializer.Instance.Parse(original);
+            Assert.That(json, Is.EqualTo(bclJson));
+
+            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
+            var fromJsonBcl = BclJsonDataContractDeserializer.Instance.Parse<string>(json);
+            Assert.That(fromJson, Is.EqualTo(fromJsonBcl));
+
+            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
+
+            "{0}||{1}".Print(json, fromJson);
+
+            Assert.That(fromJson, Is.EqualTo(original));
+            Assert.That(fromJsonType, Is.EqualTo(original));
+        }
+
 	    public class Poco
         {
             public string Name { get; set; }
+        }
+
+        [Test]
+        public void Deserializes_Poco_with_string_with_quotes_correctly()
+        {
+            var original = new Poco {Name = "\"This is a string surrounded with quotes\""};
+            var json = JsonSerializer.SerializeToString(original);
+            var fromJson = JsonSerializer.DeserializeFromString<Poco>(json);
+            var fromJsonType = (Poco)JsonSerializer.DeserializeFromString(json, typeof(Poco));
+
+            "{0}||{1}".Print(json, fromJson);
+
+            Assert.That(fromJson.Name, Is.EqualTo(original.Name));
+            Assert.That(fromJsonType.Name, Is.EqualTo(original.Name));
         }
 
 	    [Test]

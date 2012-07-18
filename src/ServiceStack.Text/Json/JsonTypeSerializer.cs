@@ -294,21 +294,14 @@ namespace ServiceStack.Text.Json
 
         public string ParseRawString(string value)
         {
-            if (String.IsNullOrEmpty(value)) return value;
+            if (string.IsNullOrEmpty(value) || value.IndexOf(JsonUtils.EscapeChar) == -1) return value;
 
-            int startIndex = 0;
-            int stopIndex = value.Length - 1;
-            StringBuilder builder = new StringBuilder(value.Length);
-
-            if (value[startIndex] == JsonUtils.QuoteChar && value[stopIndex] == JsonUtils.QuoteChar)
-            {
-                startIndex += 1;
-                stopIndex -= 1;
-            }
+            var stopIndex = value.Length - 1;
+            var sb = new StringBuilder(value.Length);
 
             int escapeCount = 0;
             char lastChar = '\0';
-            for (int i = startIndex; i <= stopIndex; i++)
+            for (int i = 0; i <= stopIndex; i++)
             {
                 char c = value[i];
 
@@ -318,7 +311,7 @@ namespace ServiceStack.Text.Json
                     lastChar = c;
                     continue;
                 }
-                else if (c == JsonUtils.QuoteChar && lastChar == JsonUtils.EscapeChar)
+                if (c == JsonUtils.QuoteChar && lastChar == JsonUtils.EscapeChar)
                 {
                     escapeCount -= 1;
                 }
@@ -326,12 +319,12 @@ namespace ServiceStack.Text.Json
                 // dump tracked escape characters
                 while (escapeCount > 0)
                 {
-                    builder.Append(JsonUtils.EscapeChar);
+                    sb.Append(JsonUtils.EscapeChar);
                     escapeCount = Math.Max(escapeCount - 2, 0);
                 }
 
                 // dump current
-                builder.Append(c);
+                sb.Append(c);
 
                 lastChar = c;
                 escapeCount = 0;
@@ -340,11 +333,11 @@ namespace ServiceStack.Text.Json
             // dump escape characters not followed by another character
             while (escapeCount > 0)
             {
-                builder.Append(JsonUtils.EscapeChar);
+                sb.Append(JsonUtils.EscapeChar);
                 escapeCount = Math.Max(escapeCount - 2, 0);
             }
 
-            return builder.ToString();
+            return sb.ToString();
         }
 
         public string ParseString(string value)
