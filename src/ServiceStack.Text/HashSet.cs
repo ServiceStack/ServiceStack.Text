@@ -1,6 +1,6 @@
 ﻿//
-// http://code.google.com/p/servicestack/wiki/TypeSerializer
-// ServiceStack.Text: .NET C# POCO Type Text Serializer.
+// https://github.com/ServiceStack/ServiceStack.Text
+// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
