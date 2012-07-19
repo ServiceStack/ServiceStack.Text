@@ -1,10 +1,6 @@
 ﻿namespace ServiceStack.Text.Tests
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     using NUnit.Framework;
 
     public class EntityWithDateTimeOffsetTests
@@ -12,7 +8,7 @@
         [Test]
         public void CanSerializableDateTimeOffsetField()
         {
-            var model = new SampleModel() { Id = 1, Date = new DateTimeOffset(2012, 6, 27, 11, 26, 04, 524, TimeSpan.FromHours(7)) };
+            var model = new SampleModel { Id = 1, Date = new DateTimeOffset(2012, 6, 27, 11, 26, 04, 524, TimeSpan.FromHours(7)) };
 
             var s = JsonSerializer.SerializeToString(model);
 
