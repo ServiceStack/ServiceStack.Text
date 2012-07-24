@@ -37,6 +37,7 @@ namespace ServiceStack.Text.Tests
             JsConfig.IncludeNullValues = true;
             string json = new Object[] { 1, 2, 3, null, 5 }.ToJson();  // [1,2,3,,5]  - Should be [1,2,3,null,5]
             Assert.That(json, Is.EqualTo("[1,2,3,null,5]"));
+            JsConfig.IncludeNullValues = false;
         }
     }
 

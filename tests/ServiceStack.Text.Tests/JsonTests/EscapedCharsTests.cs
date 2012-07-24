@@ -71,12 +71,15 @@ namespace ServiceStack.Text.Tests.JsonTests
 	    [Test]
 	    public void Can_deserialize_inner_whitespace()
 	    {
-	        var dto = new Program {Inner = new[] {new Inner {Int = 0}}};
+            var fromJson = JsonSerializer.DeserializeFromString<Program>("{\"Inner\":[{\"Int\":0} , {\"Int\":1}\r\n]}");
+            Assert.That(fromJson.Inner.Length, Is.EqualTo(2));
+            Assert.That(fromJson.Inner[0].Int, Is.EqualTo(0));
+            Assert.That(fromJson.Inner[1].Int, Is.EqualTo(1));
+            
+            var dto = new Program { Inner = new[] { new Inner { Int = 0 } } };
 	        Serialize(dto);
             var json = JsonSerializer.SerializeToString(dto);
             Assert.That(json, Is.EqualTo(@"{""Inner"":[{""Int"":0}]}"));
-            var fromJson = JsonSerializer.DeserializeFromString<Program>(@"{""Inner"":[{""Int"":0}]}");
-            Assert.That(fromJson.Inner[0].Int, Is.EqualTo(0));
         }
 
 		[Test]

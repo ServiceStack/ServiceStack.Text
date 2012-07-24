@@ -59,8 +59,15 @@ namespace ServiceStack.Text.Common
 				&& dateTimeStr.Length <= XsdDateTimeFormat.Length)
 				return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Local);
 
-			return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
-		}
+            try
+            {
+                return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
+            }
+            catch (Exception ex)
+            {                
+                throw;
+            }
+        }
 
 		public static string ToDateTimeString(DateTime dateTime)
 		{
