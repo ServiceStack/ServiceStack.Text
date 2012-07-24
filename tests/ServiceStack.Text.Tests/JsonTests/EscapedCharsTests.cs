@@ -58,6 +58,27 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(fromJson, Is.EqualTo(model));
 		}
 
+        public class Inner
+        {
+            public int Int { get; set; }
+        }
+        
+        public class Program
+        {
+            public Inner[] Inner { get; set; }
+        }
+
+	    [Test]
+	    public void Can_deserialize_inner_whitespace()
+	    {
+	        var dto = new Program {Inner = new[] {new Inner {Int = 0}}};
+	        Serialize(dto);
+            var json = JsonSerializer.SerializeToString(dto);
+            Assert.That(json, Is.EqualTo(@"{""Inner"":[{""Int"":0}]}"));
+            var fromJson = JsonSerializer.DeserializeFromString<Program>(@"{""Inner"":[{""Int"":0}]}");
+            Assert.That(fromJson.Inner[0].Int, Is.EqualTo(0));
+        }
+
 		[Test]
 		public void Can_deserialize_nested_json_with_whitespace()
 		{
