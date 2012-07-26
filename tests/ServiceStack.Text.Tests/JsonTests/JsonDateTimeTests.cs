@@ -7,6 +7,19 @@ namespace ServiceStack.Text.Tests.JsonTests
 	public class JsonDateTimeTests
 	{
 		#region TimestampOffset Tests
+        [Test]
+        public void When_using_TimestampOffset_and_serializing_as_Utc_It_should_deserialize_as_Utc()
+        {
+            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
+            var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
+
+            var deserializedDate = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
+            Assert.AreEqual(initialDate, deserializedDate);
+        }
+
 		[Test]
 		public void Can_serialize_json_date_timestampOffset_utc()
 		{
@@ -183,6 +196,19 @@ namespace ServiceStack.Text.Tests.JsonTests
 		#endregion
 
 		#region ISO-8601 Tests
+        [Test]
+        public void When_using_ISO8601_and_serializing_as_Utc_It_should_deserialize_as_Utc()
+        {
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
+            var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
+
+            var deserializedDate = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
+            Assert.AreEqual(initialDate, deserializedDate);
+        }
+
 		[Test]
 		public void Can_serialize_json_date_iso8601_utc()
 		{
