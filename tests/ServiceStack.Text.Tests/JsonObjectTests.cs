@@ -6,7 +6,7 @@ namespace ServiceStack.Text.Tests
     public class JsonObjectTests
     {
         private const string JsonCentroid = @"{""place"":{ ""woeid"":12345, ""placeTypeName"":""St\\ate"" } }";
-        
+
         [Test]
         public void Can_dynamically_parse_JSON_with_escape_chars()
         {
@@ -15,6 +15,13 @@ namespace ServiceStack.Text.Tests
 
             placeTypeName = JsonObject.Parse(JsonCentroid).Object("place").Get<string>("placeTypeName");
             Assert.That(placeTypeName, Is.EqualTo("St\\ate"));
+        }
+
+        [Test]
+        public void Then_should_parse_escaped_json()
+        {
+            var json = "\"obj\":\"{\\\"key\\\":\\\"value\\\"}";
+            Assert.DoesNotThrow(() => JsonObject.Parse(json));
         }
     }
 }
