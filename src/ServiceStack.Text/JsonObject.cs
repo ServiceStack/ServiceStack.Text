@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text
 {
@@ -19,7 +20,7 @@ namespace ServiceStack.Text
 		public static string Get(this Dictionary<string, string> map, string key)
 		{
 			string strVal;
-			return map.TryGetValue(key, out strVal) ? strVal : null;
+            return map.TryGetValue(key, out strVal) ? JsonTypeSerializer.Instance.UnescapeString(strVal) : null;
 		}
 
 		public static JsonArrayObjects ArrayObjects(this string json, string propertyName)
