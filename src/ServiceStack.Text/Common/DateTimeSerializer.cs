@@ -55,9 +55,15 @@ namespace ServiceStack.Text.Common
 				return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null,
 										   DateTimeStyles.AdjustToUniversal);
 
-			if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
-				&& dateTimeStr.Length <= XsdDateTimeFormat.Length)
-				return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Local);
+            if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
+                && dateTimeStr.Length <= XsdDateTimeFormat.Length)
+            {
+                var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
+                    ? XmlDateTimeSerializationMode.Local
+                    : XmlDateTimeSerializationMode.RoundtripKind;
+
+                return XmlConvert.ToDateTime(dateTimeStr, dateTimeType);
+            }
 
             return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
         }
