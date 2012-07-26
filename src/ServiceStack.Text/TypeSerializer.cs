@@ -219,7 +219,10 @@ namespace ServiceStack.Text
         /// </summary>
         public static void Print(this string text, params object[] args)
         {
-            Console.WriteLine(text, args);
+            if (args.Length > 0)
+                Console.WriteLine(text, args);
+            else
+                Console.WriteLine(text);
         }
 
 		public static string SerializeAndFormat<T>(this T instance)
