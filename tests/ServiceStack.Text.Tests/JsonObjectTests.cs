@@ -16,12 +16,5 @@ namespace ServiceStack.Text.Tests
             placeTypeName = JsonObject.Parse(JsonCentroid).Object("place").Get<string>("placeTypeName");
             Assert.That(placeTypeName, Is.EqualTo("St\\ate"));
         }
-
-        [Test]
-        public void Then_should_parse_escaped_json()
-        {
-            var json = "\"obj\":\"{\\\"key\\\":\\\"value\\\"}";
-            Assert.DoesNotThrow(() => JsonObject.Parse(json));
-        }
     }
 }
