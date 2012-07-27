@@ -16,5 +16,20 @@ namespace ServiceStack.Text.Tests
             placeTypeName = JsonObject.Parse(JsonCentroid).Object("place").Get<string>("placeTypeName");
             Assert.That(placeTypeName, Is.EqualTo("St\\ate"));
         }
+
+        [Test]
+        public void Does_escape_string_access()
+        {
+            string test = "\"quoted string\"";
+            var json = JsonSerializer.SerializeToString(new { a = test });
+            var jsonObject = JsonObject.Parse(json);
+
+            var actual = jsonObject["a"];
+            Assert.That(actual, Is.EqualTo(test));
+            Assert.That(jsonObject.Get("a"), Is.EqualTo(test));
+            Assert.That(jsonObject.Get<string>("a"), Is.EqualTo(test));
+
+            Assert.That(jsonObject.GetUnescaped("a"), Is.EqualTo(test.Replace("\"","\\\"")));
+        }
     }
 }

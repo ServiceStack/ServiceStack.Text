@@ -57,6 +57,12 @@ namespace ServiceStack.Text
 
 	public class JsonObject : Dictionary<string, string>
 	{
+        public string this[string key]
+        {
+            get { return this.Get(key); }
+            set { base[key] = value; }
+        }
+
 		public static JsonObject Parse(string json)
 		{
 			return JsonSerializer.DeserializeFromString<JsonObject>(json);
@@ -77,6 +83,11 @@ namespace ServiceStack.Text
 				? Parse(strValue)
 				: null;
 		}
+
+	    public string GetUnescaped(string key)
+	    {
+	        return base[key];
+	    }
 	}
 
 	public class JsonArrayObjects : List<JsonObject>

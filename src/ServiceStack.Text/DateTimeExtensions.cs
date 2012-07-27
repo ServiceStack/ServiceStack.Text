@@ -133,6 +133,16 @@ namespace ServiceStack.Text
 #endif
 		}
 
+        public static string FmtSortableDate(this DateTime from)
+        {
+            return from.ToString("yyyy-MM-dd");
+        }
+
+        public static string FmtSortableDateTime(this DateTime from)
+        {
+            return from.ToString("u");
+        }
+
         public static DateTime LastMonday(this DateTime from)
         {
             var modayOfWeekBefore = from.Date.AddDays(-(int)from.DayOfWeek - 6);
