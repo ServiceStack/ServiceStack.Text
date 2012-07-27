@@ -66,6 +66,22 @@ namespace ServiceStack.Text
 		}
 
 		[ThreadStatic]
+		private static bool? tsForceTypeInfo;
+		private static bool? sForceTypeInfo;
+		public static bool ForceTypeInfo
+		{
+			get
+			{
+				return tsForceTypeInfo ?? sForceTypeInfo ?? false;
+			}
+			set
+			{
+				if (!tsForceTypeInfo.HasValue) tsForceTypeInfo = value;
+				if (!sForceTypeInfo.HasValue) sForceTypeInfo = value;
+			}
+		}
+
+		[ThreadStatic]
 		private static JsonDateHandler? tsDateHandler;
 		private static JsonDateHandler? sDateHandler;
 		public static JsonDateHandler DateHandler
@@ -276,6 +292,11 @@ namespace ServiceStack.Text
 
 	public class JsConfig<T> //where T : struct
 	{
+		/// <summary>
+		/// Always emit type info for this type.  Takes precedence over ExcludeTypeInfo
+		/// </summary>
+		public static bool ForceTypeInfo = false;
+
 		/// <summary>
 		/// Never emit type info for this type
 		/// </summary>

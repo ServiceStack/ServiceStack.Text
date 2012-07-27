@@ -28,15 +28,28 @@ namespace ServiceStack.Text.Common
 		private static readonly WriteObjectDelegate CacheFn;
 		internal static TypePropertyWriter[] PropertyWriters;
 		private static WriteObjectDelegate WriteTypeInfo;
+		
+		private static bool IsForced
+		{
+			get { return (JsConfig.ForceTypeInfo || JsConfig<T>.ForceTypeInfo); }
+		}
+		private static bool IsExcluded
+		{
+			get { return (JsConfig.ExcludeTypeInfo || JsConfig<T>.ExcludeTypeInfo); }
+		}
 
 		static WriteType()
 		{
 			CacheFn = Init() ? GetWriteFn() : WriteEmptyType;
 
-			if (typeof(T).IsAbstract)
+			if (IsForced)
 			{
 				WriteTypeInfo = TypeInfoWriter;
-				if (!typeof(T).IsInterface)
+			}
+			if (typeof (T).IsAbstract)
+			{
+				WriteTypeInfo = TypeInfoWriter;
+				if (!typeof (T).IsInterface)
 				{
 					CacheFn = WriteAbstractProperties;
 				}
@@ -50,9 +63,9 @@ namespace ServiceStack.Text.Common
 
 		private static bool DidWriteTypeInfo(TextWriter writer, object obj)
 		{
-			if (obj == null
-				|| JsConfig.ExcludeTypeInfo
-				|| JsConfig<T>.ExcludeTypeInfo) return false;
+			if (obj == null) return false;
+
+			if (IsExcluded && !IsForced) return false;
 
 			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
