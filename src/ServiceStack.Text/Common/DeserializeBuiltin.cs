@@ -1,11 +1,11 @@
 //
-// http://code.google.com/p/servicestack/wiki/TypeSerializer
-// ServiceStack.Text: .NET C# POCO Type Text Serializer.
+// https://github.com/ServiceStack/ServiceStack.Text
+// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2011 Liquidbit Ltd.
+// Copyright 2012 ServiceStack Ltd.
 //
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
@@ -52,11 +52,20 @@ namespace ServiceStack.Text.Common
 
 			if (typeof(T) == typeof(Guid))
 				return value => new Guid(value);
-			if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
-				return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
-			if (typeof(T) == typeof(TimeSpan))
-				return value => TimeSpan.Parse(value);
-				
+			if (typeof(T) == typeof(DateTime?))
+				return value => DateTimeSerializer.ParseShortestNullableXsdDateTime(value);
+            if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
+                return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
+			if (typeof(T) == typeof(DateTimeOffset) || typeof(T) == typeof(DateTimeOffset?))
+				return value => DateTimeSerializer.ParseDateTimeOffset(value);
+            if (typeof(T) == typeof(TimeSpan))
+                return value => DateTimeSerializer.ParseTimeSpan(value);
+			if (typeof(T) == typeof(TimeSpan?))
+                return value => DateTimeSerializer.ParseNullableTimeSpan(value);
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX && !ANDROID
+			if (typeof(T) == typeof(System.Data.Linq.Binary))
+				return value => new System.Data.Linq.Binary(Convert.FromBase64String(value));
+#endif				
 			if (typeof(T) == typeof(char))
 			{
 				char cValue;

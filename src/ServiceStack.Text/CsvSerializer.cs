@@ -86,21 +86,19 @@ namespace ServiceStack.Text
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
 			if (value == null) return;
-			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
-			{
-				CsvSerializer<T>.WriteObject(writer, value);
-			}
+		    var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+			CsvSerializer<T>.WriteObject(writer, value);
+            writer.Flush();
 		}
 
 		public static void SerializeToStream(object obj, Stream stream)
 		{
 			if (obj == null) return;
-			using (var writer = new StreamWriter(stream, UTF8EncodingWithoutBom))
-			{
-				var writeFn = GetWriteFn(obj.GetType());
-				writeFn(writer, obj);
-			}
-		}
+		    var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+            var writeFn = GetWriteFn(obj.GetType());
+            writeFn(writer, obj);
+            writer.Flush();
+        }
 
 		public static T DeserializeFromStream<T>(Stream stream)
 		{

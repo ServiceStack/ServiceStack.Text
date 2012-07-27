@@ -168,6 +168,8 @@
     <Compile Include="BclStructTests.cs" />
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
+    <Compile Include="EntityWithDateTimeOffsetTests.cs" />
+    <Compile Include="JsonObjectTests.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
     <Compile Include="JsonTests\CamelCaseTests.cs" />
     <Compile Include="CsvSerializerTests.cs" />
@@ -175,6 +177,7 @@
     <Compile Include="CsvTests\CustomHeaderTests.cs" />
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
+    <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />
     <Compile Include="MessagingTests.cs" />
     <Compile Include="NullableTypesTests.cs" />
@@ -198,8 +201,10 @@
     <Compile Include="StringExtensionsTests.cs" />
     <Compile Include="Support\BenchmarkTests.cs" />
     <Compile Include="Support\MovieDtos.cs" />
+    <Compile Include="SystemTimeTests.cs" />
     <Compile Include="UseCases\CentroidTests.cs" />
     <Compile Include="UseCases\GitHubRestTests.cs" />
+    <Compile Include="UseCases\GithubV3ApiTests.cs" />
     <Compile Include="Utils\DateTimeSerializerTests.cs" />
     <Compile Include="DdnContentIngestTests.cs" />
     <Compile Include="Support\DdnDtos.cs" />

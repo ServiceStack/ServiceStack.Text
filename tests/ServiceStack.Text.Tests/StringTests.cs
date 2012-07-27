@@ -78,6 +78,57 @@ namespace ServiceStack.Text.Tests
 			Assert.AreEqual(json, ssJson, "Service Stack round trips correctly");
 		}
 
+        [Test]
+        public void Deserializes_string_with_quotes_correctly()
+        {
+            const string original = "\"This is a string surrounded with quotes\"";
+            var json = JsonSerializer.SerializeToString(original);
+            var bclJson = BclJsonDataContractSerializer.Instance.Parse(original);
+            Assert.That(json, Is.EqualTo(bclJson));
+
+            var fromJson = JsonSerializer.DeserializeFromString<string>(json);
+            var fromJsonBcl = BclJsonDataContractDeserializer.Instance.Parse<string>(json);
+            Assert.That(fromJson, Is.EqualTo(fromJsonBcl));
+
+            var fromJsonType = JsonSerializer.DeserializeFromString(json, typeof(string));
+
+            "{0}||{1}".Print(json, fromJson);
+
+            Assert.That(fromJson, Is.EqualTo(original));
+            Assert.That(fromJsonType, Is.EqualTo(original));
+        }
+
+	    public class Poco
+        {
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Deserializes_Poco_with_string_with_quotes_correctly()
+        {
+            var original = new Poco {Name = "\"This is a string surrounded with quotes\""};
+            var json = JsonSerializer.SerializeToString(original);
+            var fromJson = JsonSerializer.DeserializeFromString<Poco>(json);
+            var fromJsonType = (Poco)JsonSerializer.DeserializeFromString(json, typeof(Poco));
+
+            "{0}||{1}".Print(json, fromJson);
+
+            Assert.That(fromJson.Name, Is.EqualTo(original.Name));
+            Assert.That(fromJsonType.Name, Is.EqualTo(original.Name));
+        }
+
+	    [Test]
+	    public void Starting_with_quotes_inside_POCOs()
+	    {
+	        var dto = new Poco {Name = "\"starting with\" POCO"};
+
+	        var json = dto.ToJson();
+
+	        var fromDto = json.FromJson<Poco>();
+
+            Assert.That(fromDto.Name, Is.EqualTo(dto.Name));
+	    }
+
 		Movie dto = new Movie {
 			ImdbId = "tt0111161",
 			Title = "The Shawshank Redemption",

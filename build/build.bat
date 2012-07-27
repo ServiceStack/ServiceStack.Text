@@ -7,6 +7,7 @@ COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack\release\latest\
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.Contrib\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.Redis\lib
+COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.OrmLite\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.Examples\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.RedisWebServices\lib
 

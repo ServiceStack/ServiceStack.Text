@@ -66,6 +66,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -167,6 +168,7 @@
     <Compile Include="Env.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HashSet.cs" />
     <Compile Include="ITracer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -255,6 +257,7 @@
     <Compile Include="Support\TypePair.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SystemTime.cs" />
     <Compile Include="TextExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -273,6 +276,7 @@
     <Compile Include="TypeSerializer.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WebRequestExtensions.cs" />
     <Compile Include="XmlSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

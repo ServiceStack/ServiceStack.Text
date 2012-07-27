@@ -36,6 +36,13 @@ namespace ServiceStack.Text.Tests
 			EnumValue2,
 		}
 
+        [Flags]
+        public enum UnsignedFlags : uint
+        {
+            EnumValue1 = 0,
+            EnumValue2 = 1,
+        }
+
 		public class TestClass
 		{
 			[Required]
@@ -150,6 +157,15 @@ namespace ServiceStack.Text.Tests
 			var stringValue = TypeSerializer.SerializeToString(enumValue);
 			Assert.That(stringValue, Is.Null);
 		}
+
+        [Test]
+        public void Can_convert_unsigned_flags_enum()
+        {
+            var enumValue = UnsignedFlags.EnumValue1;
+            var stringValue = TypeSerializer.SerializeToString(enumValue);
+            var expectedString = UnsignedFlags.EnumValue1.ToString("D");
+            Assert.That(stringValue, Is.EqualTo(expectedString));
+        }
 
 		[Test]
 		public void Can_convert_Guid()
@@ -313,7 +329,9 @@ namespace ServiceStack.Text.Tests
 			var expectedString = "[\"\"\"1st\",\"2:nd\",\"3r,d\",four%]";
 			var stringValue = TypeSerializer.SerializeToString(stringList);
 			Assert.That(stringValue, Is.EqualTo(expectedString));
-		}
+
+            Serialize(stringList);
+        }
 
 		[Test]
 		public void Can_parse_string_list_with_special_chars_as_object()

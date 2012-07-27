@@ -1,18 +1,17 @@
 //
-// http://code.google.com/p/servicestack/wiki/TypeSerializer
-// ServiceStack.Text: .NET C# POCO Type Text Serializer.
+// https://github.com/ServiceStack/ServiceStack.Text
+// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2011 Liquidbit Ltd.
+// Copyright 2012 ServiceStack Ltd.
 //
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Reflection;
 using System.Threading;
 
@@ -65,8 +64,9 @@ namespace ServiceStack.Text.Common
 				var i = 0;
 				do
 				{
-					itemValues.Add(Serializer.EatTypeValue(value, ref i));
-				} while (++i < value.Length);
+				    itemValues.Add(Serializer.EatTypeValue(value, ref i));
+				    Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
+				} while (i < value.Length);
 
 				var results = new T[itemValues.Count];
 				for (var j=0; j < itemValues.Count; j++)
@@ -86,7 +86,13 @@ namespace ServiceStack.Text.Common
 					var elementValue = Serializer.EatValue(value, ref i);
 					var listValue = elementValue;
 					to.Add((T)elementParseFn(listValue));
-					Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
+					if(Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
+                        && i == valueLength)
+					{
+                        // If we ate a separator and we are at the end of the value, 
+                        // it means the last element is empty => add default
+                        to.Add(default(T));
+					}
 				}
 
 				return to.ToArray();
@@ -173,7 +179,7 @@ namespace ServiceStack.Text.Common
 		public static byte[] ParseByteArray(string value)
 		{
 			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
-			if ((value = Serializer.ParseRawString(value)) == null) return null;
+			if ((value = Serializer.UnescapeSafeString(value)) == null) return null;
 			return value == string.Empty
 			       	? new byte[0]
 			       	: Convert.FromBase64String(value);

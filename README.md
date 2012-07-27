@@ -4,7 +4,7 @@ for twitter updates.
 
 # The Home of [.NET's fastest JSON](http://www.servicestack.net/mythz_blog/?p=344), [JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers.
 
-ServiceStack.Text is an independent, dependency-free assembly that contains all of ServiceStack's text processing functionality, including:
+ServiceStack.Text is an **independent, dependency-free** serialization library that contains all of ServiceStack's text processing functionality, including:
 
 * [JsonSerializer](http://www.servicestack.net/mythz_blog/?p=344)
 * [TypeSerializer (JSV-Format)](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format)
@@ -168,7 +168,7 @@ All other scalar values are stored as strings that are surrounded with double qu
 
 ### C# Structs and Value Types
 
-Because a C# struct is a value type whose public properties are normally just convenience properties around a single scalar value, they are ignored instead the **TStruct.ToString()** method is used to serialize and either the **static TStruct.Parse()** method or **new TStruct(string)** constructor will be used to deserialize the value type if it exists.
+Because a C# struct is a value type whose public properties are normally just convenience properties around a single scalar value, they are ignored instead the **TStruct.ToString()** method is used to serialize and either the **static TStruct.ParseJson()**/**static TStruct.ParseJsv()** methods or **new TStruct(string)** constructor will be used to deserialize the value type if it exists.
 
 ### array type
 
@@ -217,7 +217,7 @@ You could use a struct and reduce it to just:
 
 	"20x10" 
 
-By overriding **ToString()** and providing a static **Size Parse()** method:
+By overriding **ToString()** and providing a static **Size ParseJson()** method:
 
 	public struct Size
 	{
@@ -229,7 +229,7 @@ By overriding **ToString()** and providing a static **Size Parse()** method:
 			return Width + "x" + Height;
 		}
 
-		public static Size Parse(string json)
+		public static Size ParseJson(string json)
 		{
 			var size = json.Split('x');
 			return new Size { 
@@ -277,6 +277,14 @@ In addition to using a Struct you can optionally use a custom C# IEnumerable typ
 Which serializes the Point into a compact JSON array:
 
 	new Point { X = 1, Y = 2 }.ToJson() // = [1,2]
+
+### Custom Serialization Routines
+
+If you can't change the definition of a ValueType (e.g. because its in the BCL), you can assign a custom serialization /
+deserialization routine to use instead. E.g. here's how you can add support for `System.Drawing.Color`:
+
+    JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
+    JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
 
 ## Custom Deserialization
 

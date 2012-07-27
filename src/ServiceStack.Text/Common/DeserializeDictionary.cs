@@ -1,11 +1,11 @@
 //
-// http://code.google.com/p/servicestack/wiki/TypeSerializer
-// ServiceStack.Text: .NET C# POCO Type Text Serializer.
+// https://github.com/ServiceStack/ServiceStack.Text
+// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2011 Liquidbit Ltd.
+// Copyright 2012 ServiceStack Ltd.
 //
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
@@ -13,7 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using ServiceStack.Text.Json;
@@ -35,12 +34,16 @@ namespace ServiceStack.Text.Common
 				throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
 
 			//optimized access for regularly used types
-			if (type == typeof(Dictionary<string, string>))
-			{
-				return ParseStringDictionary;
-			}
+            if (type == typeof(Dictionary<string, string>))
+            {
+                return ParseStringDictionary;
+            }
+            if (type == typeof(JsonObject))
+            {
+                return ParseJsonObject;
+            }
 
-			var dictionaryArgs = mapInterface.GetGenericArguments();
+            var dictionaryArgs = mapInterface.GetGenericArguments();
 
 			var keyTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[KeyIndex]);
 			if (keyTypeParseMethod == null) return null;
@@ -54,31 +57,57 @@ namespace ServiceStack.Text.Common
 			return value => ParseDictionaryType(value, createMapType, dictionaryArgs, keyTypeParseMethod, valueTypeParseMethod);
 		}
 
-		public static Dictionary<string, string> ParseStringDictionary(string value)
-		{
-			var index = VerifyAndGetStartIndex(value, typeof(Dictionary<string, string>));
+        public static JsonObject ParseJsonObject(string value)
+        {
+            var index = VerifyAndGetStartIndex(value, typeof(JsonObject));
 
-			var result = new Dictionary<string, string>();
+            var result = new JsonObject();
 
-			if (value == JsWriter.EmptyMap) return result;
+            if (value == JsWriter.EmptyMap) return result;
 
-			var valueLength = value.Length;
-			while (index < valueLength)
-			{
-				var keyValue = Serializer.EatMapKey(value, ref index);
-				Serializer.EatMapKeySeperator(value, ref index);
-				var elementValue = Serializer.EatValue(value, ref index);
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementValue = Serializer.EatValue(value, ref index);
 
-				var mapKey = keyValue;
-				var mapValue = elementValue;
+                var mapKey = keyValue;
+                var mapValue = elementValue;
 
-				result[mapKey] = mapValue;
+                result[mapKey] = mapValue;
 
-				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
-			}
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
 
-			return result;
-		}
+            return result;
+        }
+
+        public static Dictionary<string, string> ParseStringDictionary(string value)
+        {
+            var index = VerifyAndGetStartIndex(value, typeof(Dictionary<string, string>));
+
+            var result = new Dictionary<string, string>();
+
+            if (value == JsWriter.EmptyMap) return result;
+
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementValue = Serializer.EatValue(value, ref index);
+
+                var mapKey = keyValue;
+                var mapValue = Serializer.UnescapeString(elementValue);
+
+                result[mapKey] = mapValue;
+
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
+
+            return result;
+        }
 
 		public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue>(
 			string value, Type createMapType,
@@ -93,7 +122,7 @@ namespace ServiceStack.Text.Common
 
 			var to = (createMapType == null)
 				? new Dictionary<TKey, TValue>()
-				: (IDictionary<TKey, TValue>)ReflectionExtensions.CreateInstance(createMapType);
+				: (IDictionary<TKey, TValue>)createMapType.CreateInstance();
 
 			if (value == JsWriter.EmptyMap) return to;
 

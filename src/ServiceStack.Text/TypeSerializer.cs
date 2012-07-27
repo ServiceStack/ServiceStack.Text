@@ -1,11 +1,11 @@
 //
-// http://code.google.com/p/servicestack/wiki/TypeSerializer
-// ServiceStack.Text: .NET C# POCO Type Text Serializer.
+// https://github.com/ServiceStack/ServiceStack.Text
+// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2011 Liquidbit Ltd.
+// Copyright 2012 ServiceStack Ltd.
 //
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
@@ -196,15 +196,34 @@ namespace ServiceStack.Text
 			var map = DeserializeFromString<Dictionary<string, string>>(jsv);
 			return map;
 		}
-		
-		/// <summary>
-		/// Recursively prints the contents of any POCO object in a human-friendly, readable format
-		/// </summary>
-		/// <returns></returns>
-		public static string Dump<T>(this T instance)
-		{
-			return SerializeAndFormat(instance);
-		}
+
+        /// <summary>
+        /// Recursively prints the contents of any POCO object in a human-friendly, readable format
+        /// </summary>
+        /// <returns></returns>
+        public static string Dump<T>(this T instance)
+        {
+            return SerializeAndFormat(instance);
+        }
+
+        /// <summary>
+        /// Print Dump to Console.WriteLine
+        /// </summary>
+        public static void PrintDump<T>(this T instance)
+        {
+            Console.WriteLine(SerializeAndFormat(instance));
+        }
+
+        /// <summary>
+        /// Print string.Format to Console.WriteLine
+        /// </summary>
+        public static void Print(this string text, params object[] args)
+        {
+            if (args.Length > 0)
+                Console.WriteLine(text, args);
+            else
+                Console.WriteLine(text);
+        }
 
 		public static string SerializeAndFormat<T>(this T instance)
 		{

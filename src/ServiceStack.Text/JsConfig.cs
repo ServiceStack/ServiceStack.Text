@@ -4,6 +4,9 @@ using System.IO;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
+#if WINDOWS_PHONE
+using ServiceStack.Text.WP;
+#endif
 
 namespace ServiceStack.Text
 {
@@ -15,8 +18,9 @@ namespace ServiceStack.Text
 			//In-built default serialization, to Deserialize Color struct do:
 			//JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
 			//JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
+            Reset();
 		}
-		
+        
 		[ThreadStatic]
 		private static bool? tsConvertObjectTypesIntoStringDictionary;
 		private static bool? sConvertObjectTypesIntoStringDictionary;
@@ -28,7 +32,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsConvertObjectTypesIntoStringDictionary.HasValue) tsConvertObjectTypesIntoStringDictionary = value;
+				tsConvertObjectTypesIntoStringDictionary = value;
 				if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
 			}
 		}
@@ -44,7 +48,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsIncludeNullValues.HasValue) tsIncludeNullValues = value;
+				tsIncludeNullValues = value;
 				if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
 			}
 		}
@@ -60,7 +64,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsExcludeTypeInfo.HasValue) tsExcludeTypeInfo = value;
+				tsExcludeTypeInfo = value;
 				if (!sExcludeTypeInfo.HasValue) sExcludeTypeInfo = value;
 			}
 		}
@@ -92,7 +96,7 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsDateHandler.HasValue) tsDateHandler = value;
+				tsDateHandler = value;
 				if (!sDateHandler.HasValue) sDateHandler = value;
 			}
 		}
@@ -116,30 +120,66 @@ namespace ServiceStack.Text
 			}
 			set
 			{
-				if (!tsEmitCamelCaseNames.HasValue) tsEmitCamelCaseNames = value;
+				tsEmitCamelCaseNames = value;
 				if (!sEmitCamelCaseNames.HasValue) sEmitCamelCaseNames = value;
 			}
 		}
 
-		internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
+		/// <summary>
+		/// Gets or sets a value indicating if the framework should throw serialization exceptions
+		/// or continue regardless of deserialization errors. If <see langword="true"/>  the framework
+		/// will throw; otherwise, it will parse as many fields as possible. The default is <see langword="false"/>.
+		/// </summary>
+		[ThreadStatic]
+		private static bool? tsThrowOnDeserializationError;
+		private static bool? sThrowOnDeserializationError;
+		public static bool ThrowOnDeserializationError
+		{
+			// obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+			get
+			{
+				return tsThrowOnDeserializationError ?? sThrowOnDeserializationError ?? false;
+			}
+			set
+			{
+				tsThrowOnDeserializationError = value;
+				if (!sThrowOnDeserializationError.HasValue) sThrowOnDeserializationError = value;
+			}
+		}
 
-		public static void Reset()
+        internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
+
+        internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
+
+        internal static bool TreatAsRefType(Type valueType)
+        {
+            return TreatValueAsRefTypes.Contains(valueType.IsGenericType ? valueType.GetGenericTypeDefinition() : valueType);
+        }
+
+	    public static void Reset()
 		{
 			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
 			tsIncludeNullValues = sIncludeNullValues = null;
+			tsForceTypeInfo = sForceTypeInfo = null;
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 			tsDateHandler = sDateHandler = null;
-			HasSerializeFn = new HashSet<Type>();
+			tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
+            HasSerializeFn = new HashSet<Type>();
+            TreatValueAsRefTypes = new HashSet<Type> {
+                typeof(KeyValuePair<,>)
+            };
 		}
 
-#if SILVERLIGHT || MONOTOUCH
+#if MONOTOUCH
         /// <summary>
         /// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
         /// Just needs to be called once in a static constructor.
         /// </summary>
-        public static void InitForAot() { }
+        [MonoTouch.Foundation.Preserve]
+		public static void InitForAot() { }
 
+        [MonoTouch.Foundation.Preserve]
         public static void RegisterForAot()
         {
             JsonAotConfig.Register<Poco>();
@@ -184,12 +224,37 @@ namespace ServiceStack.Text
             RegisterCsvSerializer();
         }
 
+		[MonoTouch.Foundation.Preserve]
+		public static bool RegisterTypeForAot<T>()
+		{
+			bool ret = false;
+			try
+			{
+				JsonAotConfig.Register<T>();
+
+				int i = 0;
+				if(JsvWriter<T>.WriteFn() != null && JsvReader<T>.GetParseFn() != null) i++;
+				if(JsonWriter<T>.WriteFn() != null && JsonReader<T>.GetParseFn() != null) i++;
+				if(QueryStringWriter<Poco>.WriteFn() != null) i++;
+
+				CsvSerializer<T>.WriteFn();
+	            CsvSerializer<T>.WriteObject(null, null);
+	            CsvWriter<T>.WriteObject(null, null);
+	            CsvWriter<T>.WriteObjectRow(null, null);
+				ret = true;
+			}catch(Exception){}
+
+			return ret;
+		}
+
+        [MonoTouch.Foundation.Preserve]
         static void RegisterQueryStringWriter()
         {
             var i = 0;
             if (QueryStringWriter<Poco>.WriteFn() != null) i++;
         }
 
+        [MonoTouch.Foundation.Preserve]
         static void RegisterCsvSerializer()
         {
             CsvSerializer<Poco>.WriteFn();
@@ -198,6 +263,7 @@ namespace ServiceStack.Text
             CsvWriter<Poco>.WriteObjectRow(null, null);
         }
 
+        [MonoTouch.Foundation.Preserve]
         public static void RegisterElement<T, TElement>()
         {
             JsonAotConfig.RegisterElement<T, TElement>();
@@ -206,21 +272,25 @@ namespace ServiceStack.Text
 
 	}
 
-#if SILVERLIGHT || MONOTOUCH
+#if MONOTOUCH
+    [MonoTouch.Foundation.Preserve(AllMembers=true)]
     internal class Poco
     {
         public string Dummy { get; set; }
     }
 
+    [MonoTouch.Foundation.Preserve(AllMembers=true)]
     internal class JsonAotConfig
     {
         static JsReader<JsonTypeSerializer> reader;
+        static JsWriter<JsonTypeSerializer> writer;
         static JsonTypeSerializer serializer;
 
         static JsonAotConfig()
         {
             serializer = new JsonTypeSerializer();
             reader = new JsReader<JsonTypeSerializer>();
+            writer = new JsWriter<JsonTypeSerializer>();
         }
 
         public static ParseStringDelegate GetParseFn(Type type)
@@ -275,6 +345,7 @@ namespace ServiceStack.Text
             QueryStringWriter<T>.WriteObject(null, null);
         }
 
+        // Edited to fix issues with null List<Guid> properties in response objects
         public static void RegisterElement<T, TElement>()
         {
             RegisterBuiltin<TElement>();
@@ -284,13 +355,22 @@ namespace ServiceStack.Text
             ToStringDictionaryMethods<T, TElement, JsonTypeSerializer>.WriteIDictionary(null, null, null, null);
             ToStringDictionaryMethods<TElement, T, JsonTypeSerializer>.WriteIDictionary(null, null, null, null);
 
+            // Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
+            // No idea why this is happening because there is no visible exception raised.  Suspect MonoTouch is swallowing an AOT exception somewhere.
+            DeserializeArrayWithElements<TElement, JsonTypeSerializer>.ParseGenericArray(null, null);
+            DeserializeListWithElements<TElement, JsonTypeSerializer>.ParseGenericList(null, null, null);
+
+            // Cannot use the line below for some unknown reason - when trying to compile to run on device, mtouch bombs during native code compile.
+            // Something about this line or its inner workings is offensive to mtouch. Luckily this was not needed for my List<Guide> issue.
+            // DeserializeCollection<JsonTypeSerializer>.ParseCollection<TElement>(null, null, null);
+
             TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
             TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
         }
     }
 #endif
 
-	public class JsConfig<T> //where T : struct
+    public class JsConfig<T> //where T : struct
 	{
 		/// <summary>
 		/// Always emit type info for this type.  Takes precedence over ExcludeTypeInfo
@@ -327,6 +407,21 @@ namespace ServiceStack.Text
 			}
 		}
 
+        /// <summary>
+        /// Opt-in flag to set some Value Types to be treated as a Ref Type
+        /// </summary>
+        public bool TreatValueAsRefTypes
+	    {
+	        get { return JsConfig.TreatValueAsRefTypes.Contains(typeof (T)); }
+	        set
+	        {
+                if (value)
+	                JsConfig.TreatValueAsRefTypes.Add(typeof(T));
+                else
+                    JsConfig.TreatValueAsRefTypes.Remove(typeof(T));
+            }
+	    }
+
 		/// <summary>
 		/// Define custom deserialization fn for BCL Structs
 		/// </summary>
@@ -356,4 +451,3 @@ namespace ServiceStack.Text
 		ISO8601
 	}
 }
-

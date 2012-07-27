@@ -34,6 +34,61 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 		}
 
+        public class NullableValueTypes
+        {
+            public int? Int { get; set; }
+            public long? Long { get; set; }
+            public decimal? Decimal { get; set; }
+            public double? Double { get; set; }
+            public bool? Boolean { get; set; }
+            public DateTime? DateTime { get; set; }
+        }
+
+	    [Test]
+	    public void Can_parse_json_with_nullable_valuetypes()
+	    {
+	        var json = "{}";
+
+            var item = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
+
+            Assert.That(item.Int, Is.Null, "int");
+            Assert.That(item.Long, Is.Null, "long");
+            Assert.That(item.Decimal, Is.Null, "decimal");
+            Assert.That(item.Double, Is.Null, "double");
+            Assert.That(item.Boolean, Is.Null, "boolean");
+            Assert.That(item.DateTime, Is.Null, "datetime");
+	    }
+
+        [Test]
+        public void Can_parse_json_with_nullable_valuetypes_that_has_included_null_values()
+        {
+            var json = "{\"Int\":null,\"Long\":null,\"Decimal\":null,\"Double\":null,\"Boolean\":null,\"DateTime\":null}";
+
+            var item = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
+
+            Assert.That(item.Int, Is.Null, "int");
+            Assert.That(item.Long, Is.Null, "long");
+            Assert.That(item.Decimal, Is.Null, "decimal");
+            Assert.That(item.Double, Is.Null, "double");
+            Assert.That(item.Boolean, Is.Null, "boolean");
+            Assert.That(item.DateTime, Is.Null, "datetime");
+        }
+
+        [Test]
+        public void Can_parse_json_with_nullable_valuetypes_that_has_no_value_specified()
+        {
+            var json = "{\"Int\":,\"Long\":,\"Decimal\":,\"Double\":,\"Boolean\":,\"DateTime\":}";
+
+            var item = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
+
+            Assert.That(item.Int, Is.Null, "int");
+            Assert.That(item.Long, Is.Null, "long");
+            Assert.That(item.Decimal, Is.Null, "decimal");
+            Assert.That(item.Double, Is.Null, "double");
+            Assert.That(item.Boolean, Is.Null, "boolean");
+            Assert.That(item.DateTime, Is.Null, "datetime");
+        }
+
 		[Test]
 		public void Can_handle_json_primitives()
 		{
@@ -79,7 +134,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 				Name = "Brandon",
 				Type = "Programmer",
 				SampleKey = 12,
-				Nothing = (string)null
+				Nothing = (string)null,
+				NullableDateTime = null
 			};
 
 			var s = JsonSerializer.SerializeToString(o);
@@ -94,13 +150,20 @@ namespace ServiceStack.Text.Tests.JsonTests
 				Name = "Brandon",
 				Type = "Programmer",
 				SampleKey = 12,
-				Nothing = null
+				Nothing = null,
+				NullClass = null,
+				NullableDateTime = null,
 			};
 
 			JsConfig.IncludeNullValues = true;
 			var s = JsonSerializer.SerializeToString(o);
 			JsConfig.Reset();
-			Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null}"));
+			Assert.That(s, Is.EqualTo("{\"Name\":\"Brandon\",\"Type\":\"Programmer\",\"SampleKey\":12,\"Nothing\":null,\"NullClass\":null,\"NullableDateTime\":null}"));
+		}
+
+		private class NullClass
+		{
+
 		}
 
 		[Test]
@@ -151,12 +214,17 @@ namespace ServiceStack.Text.Tests.JsonTests
 				set;
 			}
 
+			public NullClass NullClass { get; set; }
+
+			public DateTime? NullableDateTime { get; set; }
+
 			public NullValueTester()
 			{
 				Name = "Miguel";
 				Type = "User";
 				SampleKey = 1;
 				Nothing = "zilch";
+				NullableDateTime = new DateTime(2012, 01, 01);
 			}
 		}
 
@@ -181,5 +249,28 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,Name:Abc}"));
 			Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"Name\":\"Abc\"}"));
 		}
+
+        [Flags]
+        public enum ExampleEnum : ulong
+        {
+            None = 0,
+            One = 1,
+            Two = 2,
+            Four = 4,
+            Eight = 8
+        }
+
+        [Test]
+        public void Can_serialize_unsigned_flags_enum()
+        {
+            var anon = new
+            {
+                EnumProp1 = ExampleEnum.One | ExampleEnum.Two,
+                EnumProp2 = ExampleEnum.Eight,
+            };
+
+            Assert.That(TypeSerializer.SerializeToString(anon), Is.EqualTo("{EnumProp1:3,EnumProp2:8}"));
+            Assert.That(JsonSerializer.SerializeToString(anon), Is.EqualTo("{\"EnumProp1\":3,\"EnumProp2\":8}"));
+        }
 	}
 }

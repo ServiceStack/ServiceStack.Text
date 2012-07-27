@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using NUnit.Framework;
 
@@ -108,5 +108,34 @@ namespace ServiceStack.Text.Tests
 			Assert.That(extract, Is.EqualTo("Contents"));
 		}
 
+        [Test]
+        public void Can_Url_Encode_String()
+        {
+            var text = "This string & has % unsafe ? characters for )_(*&^%$$^$@# a query string";
+
+            var encoded = text.UrlEncode();
+
+            Assert.That(encoded, 
+                Is.EqualTo("This%20string%20%26%20has%20%25%20unsafe%20%3f%20characters%20for%20%29%5f%28%2a%26%5e%25%24%24%5e%24%40%23%20a%20query%20string"));
+
+            var decoded = encoded.UrlDecode();
+
+            Assert.That(decoded, Is.EqualTo(text));
+        }
+
+        [Test]
+        public void Can_Url_Encode_Unicode_String()
+        {
+            var text = "This string & has % 权뜑簒㮐ᾟ䗚璥趮⚦䭌䳅浝䕌ਥ⤧笫 characters";
+
+            var encoded = text.UrlEncode();
+
+            Assert.That(encoded, Is.EqualTo("This%20string%20%26%20has%20%25%20%e6%9d%83%eb%9c%91%e7%b0%92%e3%ae%90%e1%be%9f" +
+                "%e4%97%9a%e7%92%a5%e8%b6%ae%e2%9a%a6%e4%ad%8c%e4%b3%85%e6%b5%9d%e4%95%8c%e0%a8%a5%e2%a4%a7%e7%ac%ab%20characters"));
+
+            var decoded = encoded.UrlDecode();
+
+            Assert.That(decoded, Is.EqualTo(text));
+        }
 	}
 }

@@ -63,7 +63,7 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
-		public void Can_deserialize_interface_into_concrete_type1239200013()
+		public void Can_deserialize_interface_into_concrete_type()
 		{
 			var dto = Serialize(new DtoWithInterface { Results = new Message<string>("Body") }, includeXml: false);
 			Assert.That(dto.Results, Is.Not.Null);

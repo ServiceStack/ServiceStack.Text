@@ -21,6 +21,10 @@ namespace ServiceStack.Text.Common
 		void WriteString(TextWriter writer, string value);
 		void WriteDateTime(TextWriter writer, object oDateTime);
 		void WriteNullableDateTime(TextWriter writer, object dateTime);
+		void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset);
+		void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset);
+        void WriteTimeSpan(TextWriter writer, object dateTimeOffset);
+        void WriteNullableTimeSpan(TextWriter writer, object dateTimeOffset);
 		void WriteGuid(TextWriter writer, object oValue);
 		void WriteNullableGuid(TextWriter writer, object oValue);
 		void WriteBytes(TextWriter writer, object oByteValue);
@@ -38,6 +42,7 @@ namespace ServiceStack.Text.Common
         void WriteDecimal(TextWriter writer, object decimalValue);
         void WriteEnum(TextWriter writer, object enumValue);
         void WriteEnumFlags(TextWriter writer, object enumFlagValue);
+		void WriteLinqBinary(TextWriter writer, object linqBinaryValue);
 
 		//object EncodeMapKey(object value);
 
@@ -45,8 +50,10 @@ namespace ServiceStack.Text.Common
 		ParseStringDelegate GetParseFn(Type type);
 
 		string ParseRawString(string value);
-		string ParseString(string value);
-		string EatTypeValue(string value, ref int i);
+        string ParseString(string value);
+        string UnescapeString(string value);
+        string UnescapeSafeString(string value);
+        string EatTypeValue(string value, ref int i);
 		bool EatMapStartChar(string value, ref int i);
 		string EatMapKey(string value, ref int i);
 		bool EatMapKeySeperator(string value, ref int i);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.ServiceInterface.ServiceModel;
@@ -192,5 +193,85 @@ namespace ServiceStack.Text.Tests
         	var jsv = GetBook().ToJsv();
 			Assert.That(jsv.IndexOf("__"), Is.EqualTo(-1));
 		}
+
+		public class TextTags
+		{
+			public string Text { get; set; }
+			public string[] Tags { get; set; }
+		}
+
+		[Test]
+		public void Can_serialize_sweedish_chars()
+		{
+			var dto = new TextTags { Text = "Olle är en ÖL ål", Tags = new[] { "öl", "ål", "mål" } };
+			Serialize(dto);
+		}
+
+        [Test]
+        public void Objects_Do_Not_Survive_RoundTrips_Via_StringStringDictionary_Due_To_DoubleQuoted_Properties()
+        {
+            var book = new Book();
+            book.Id = 1234;
+            book.Title = "ServiceStack in Action";
+            book.CategoryId = 16;
+            book.Description = "Manning eBooks";
+
+
+            var json = book.ToJson();
+            Console.WriteLine("Book to Json: " + json);
+
+            var dictionary = json.FromJson<Dictionary<string, string>>();
+            Console.WriteLine("Json to Dictionary: " + dictionary.Dump());
+
+            var fromDictionary = dictionary.ToJson();
+            Console.WriteLine("Json from Dictionary: " + fromDictionary);
+
+			var fromJsonViaDictionary = fromDictionary.FromJson<Book>();
+
+            Assert.AreEqual(book.Description, fromJsonViaDictionary.Description);
+            Assert.AreEqual(book.Id, fromJsonViaDictionary.Id);
+            Assert.AreEqual(book.Title, fromJsonViaDictionary.Title);
+            Assert.AreEqual(book.CategoryId, fromJsonViaDictionary.CategoryId);
+        }
+
+		public class Test
+		{
+			public IDictionary<string, string> Items { get; set; }
+			public string TestString { get; set; }
+		}
+
+		[Test]
+		public void Does_Trailing_Backslashes()
+		{
+			var test = new Test {
+				TestString = "Test",
+				Items = new Dictionary<string, string> { { "foo", "bar\\" } }
+			};
+
+			var serialized = JsonSerializer.SerializeToString(test);
+			Console.WriteLine(serialized);
+			var deserialized = JsonSerializer.DeserializeFromString<Test>(serialized);
+
+			Assert.That(deserialized.TestString, Is.EqualTo("Test")); // deserialized.TestString is NULL
+		}
+        [Test]
+        public void Deserialize_Correctly_When_Last_Item_Is_Null_in_array()
+        {
+            var arrayOfInt = new int?[2] {1, null };
+            var serialized = TypeSerializer.SerializeToString(arrayOfInt);
+            Console.WriteLine(serialized);
+            var deserialized = TypeSerializer.DeserializeFromString<int?[]>(serialized);
+            Assert.That(deserialized, Is.EqualTo(arrayOfInt));
+        }
+
+        [Test]
+        public void Deserialize_Correctly_When_Last_Item_Is_Null_in_list()
+        {
+            var arrayOfInt = new List<int?> { 1, null };
+            var serialized = TypeSerializer.SerializeToString(arrayOfInt);
+            Console.WriteLine(serialized);
+            var deserialized = TypeSerializer.DeserializeFromString<List<int?>>(serialized);
+            Assert.That(deserialized, Is.EqualTo(arrayOfInt));
+        }
 	}
 }

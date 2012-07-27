@@ -7,6 +7,19 @@ namespace ServiceStack.Text.Tests.JsonTests
 	public class JsonDateTimeTests
 	{
 		#region TimestampOffset Tests
+        [Test]
+        public void When_using_TimestampOffset_and_serializing_as_Utc_It_should_deserialize_as_Utc()
+        {
+            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
+            var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
+
+            var deserializedDate = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
+            Assert.AreEqual(initialDate, deserializedDate);
+        }
+
 		[Test]
 		public void Can_serialize_json_date_timestampOffset_utc()
 		{
@@ -183,6 +196,19 @@ namespace ServiceStack.Text.Tests.JsonTests
 		#endregion
 
 		#region ISO-8601 Tests
+        [Test]
+        public void When_using_ISO8601_and_serializing_as_Utc_It_should_deserialize_as_Utc()
+        {
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
+            var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
+
+            var deserializedDate = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
+            Assert.AreEqual(initialDate, deserializedDate);
+        }
+
 		[Test]
 		public void Can_serialize_json_date_iso8601_utc()
 		{
@@ -191,7 +217,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
-			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000Z)\/"""));
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000Z"""));
 			JsConfig.Reset();
 		}
 
@@ -206,7 +232,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var offsetSpan = TimeZoneInfo.Local.GetUtcOffset(dateTime);
 			var offset = offsetSpan.ToTimeOffsetString(true);
 
-			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000" + offset + @")\/"""));
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000" + offset + @""""));
 			JsConfig.Reset();
 		}
 
@@ -218,7 +244,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
-			Assert.That(ssJson, Is.EqualTo(@"""\/Date(1994-11-24T12:34:56.0000000)\/"""));
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000"""));
 			JsConfig.Reset();
 		}
 
@@ -227,7 +253,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.DateHandler = JsonDateHandler.ISO8601;
 
-			const string json = @"""\/Date(1994-11-24T12:34:56Z)\/""";
+			const string json = @"""1994-11-24T12:34:56Z""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
@@ -241,7 +267,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.DateHandler = JsonDateHandler.ISO8601;
 
-			const string json = @"""\/Date(1994-11-24T12:34:56)\/""";
+			const string json = @"""1994-11-24T12:34:56""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
@@ -258,7 +284,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Local);
 			var offset = TimeZoneInfo.Local.GetUtcOffset(dateTime).ToTimeOffsetString(true);
 
-			var json = @"""\/Date(1994-11-24T12:34:56" + offset + @")\/""";
+			var json = @"""1994-11-24T12:34:56" + offset + @"""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
 
@@ -268,5 +294,115 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 
 		#endregion
-	}
+
+		#region ISO-8601 TimeStampOffset Tests
+		[Test]
+		public void Can_serialize_json_datetimeoffset_iso8601_utc()
+		{
+			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+
+			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.Zero);
+			var ssJson = JsonSerializer.SerializeToString(dateTimeOffset);
+
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000+00:00"""));
+			JsConfig.Reset();
+		}
+
+		[Test]
+		public void Can_serialize_json_datetimeoffset_iso8601_specified()
+		{
+			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+
+			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.FromHours(-7));
+			var ssJson = JsonSerializer.SerializeToString(dateTimeOffset);
+
+			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000-07:00"""));
+			JsConfig.Reset();
+		}
+
+		[Test]
+		public void Can_deserialize_json_datetimeoffset_iso8601_withZOffset_asUtc()
+		{
+			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+
+			const string json = @"""1994-11-24T12:34:56Z""";
+			var fromJson = JsonSerializer.DeserializeFromString<DateTimeOffset>(json);
+
+			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.Zero);
+			Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
+			JsConfig.Reset();
+		}
+
+		[Test]
+		public void Can_deserialize_json_datetimeoffset_iso8601_withoutOffset_asUtc()
+		{
+			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+
+			const string json = @"""1994-11-24T12:34:56""";
+			var fromJson = JsonSerializer.DeserializeFromString<DateTimeOffset>(json);
+
+			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.Zero);
+			Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
+			JsConfig.Reset();
+		}
+
+		[Test]
+		public void Can_deserialize_json_datetimeoffset_iso8601_withOffset_asSpecified()
+		{
+			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+
+			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.FromHours(-7));
+
+			const string json = @"""1994-11-24T12:34:56-07:00""";
+			var fromJson = JsonSerializer.DeserializeFromString<DateTimeOffset>(json);
+
+			Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
+			JsConfig.Reset();
+		}
+		#endregion
+
+        #region InteropTests
+
+        [Test]
+        public void Can_serialize_TimestampOffset_deserialize_ISO8601()
+        {
+            var dateTimeOffset = new DateTimeOffset(1997, 11, 24, 12, 34, 56, TimeSpan.FromHours(-10));
+
+            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            var json = ServiceStack.Text.Common.DateTimeSerializer.ToWcfJsonDateTimeOffset(dateTimeOffset);
+
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
+
+            Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_serialize_ISO8601_deserialize_DCJSCompatible()
+        {
+            var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.FromHours(-10));
+
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            var json = ServiceStack.Text.Common.DateTimeSerializer.ToWcfJsonDateTimeOffset(dateTimeOffset);
+
+            JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+            var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
+
+            // NOTE: DJCS goes to local, so botches offset
+            Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_deserialize_null()
+        {
+            const string json = (string)null;
+            var expected = default(DateTimeOffset);
+            var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
+            Assert.That(fromJson, Is.EqualTo(expected));
+        }
+
+        #endregion
+    }
 }

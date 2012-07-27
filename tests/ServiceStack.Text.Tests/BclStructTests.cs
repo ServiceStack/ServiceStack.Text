@@ -76,7 +76,5 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(deserialized.Enum, Is.EqualTo(ExampleEnum.One | ExampleEnum.Four));
         }
-
-
 	}
 }

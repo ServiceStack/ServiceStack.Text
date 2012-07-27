@@ -1,11 +1,11 @@
 //
-// http://code.google.com/p/servicestack/wiki/TypeSerializer
-// ServiceStack.Text: .NET C# POCO Type Text Serializer.
+// https://github.com/ServiceStack/ServiceStack.Text
+// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2011 Liquidbit Ltd.
+// Copyright 2012 ServiceStack Ltd.
 //
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
@@ -85,6 +85,28 @@ namespace ServiceStack.Text.Jsv
 			if (dateTime == null) return;
 			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)dateTime));
 		}
+
+		public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
+		{
+			writer.Write(((DateTimeOffset) oDateTimeOffset).ToString("o"));
+		}
+
+		public void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
+		{
+			if (dateTimeOffset == null) return;
+			this.WriteDateTimeOffset(writer, dateTimeOffset);
+		}
+
+        public void WriteTimeSpan(TextWriter writer, object oTimeSpan)
+        {
+            writer.Write(DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan));
+        }
+
+        public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
+        {
+            if (oTimeSpan == null) return;
+            writer.Write(DateTimeSerializer.ToXsdTimeSpanString((TimeSpan?)oTimeSpan));
+        }
 
 		public void WriteGuid(TextWriter writer, object oValue)
 		{
@@ -189,12 +211,17 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(enumValue.ToString());
 		}
 
-		public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
-		{
-			if (enumFlagValue == null) return;
-			var intVal = (int)enumFlagValue;
-			writer.Write(intVal);
-		}
+        public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+        {
+			JsWriter.WriteEnumFlags(writer, enumFlagValue);
+        }
+
+		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
+        {
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID
+			WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
+#endif
+        }
 
 		public object EncodeMapKey(object value)
 		{
@@ -211,6 +238,11 @@ namespace ServiceStack.Text.Jsv
 			return JsvReader.GetParseFn(type);
 		}
 
+        public string UnescapeSafeString(string value)
+        {
+            return value.FromCsvField();
+        }
+
 		public string ParseRawString(string value)
 		{
 			return value;
@@ -221,7 +253,12 @@ namespace ServiceStack.Text.Jsv
 			return value.FromCsvField();
 		}
 
-		public string EatTypeValue(string value, ref int i)
+	    public string UnescapeString(string value)
+	    {
+            return value.FromCsvField();
+        }
+
+	    public string EatTypeValue(string value, ref int i)
 		{
 			return EatValue(value, ref i);
 		}
@@ -331,7 +368,7 @@ namespace ServiceStack.Text.Jsv
 						if (!isLiteralQuote)
 							break;
 					}
-					return value.Substring(tokenStartPos, i - tokenStartPos).FromCsvField();
+					return value.Substring(tokenStartPos, i - tokenStartPos);
 
 				//Is Type/Map, i.e. {...}
 				case JsWriter.MapStartChar:

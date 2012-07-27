@@ -1,11 +1,11 @@
 ﻿//
-// http://code.google.com/p/servicestack/wiki/TypeSerializer
-// ServiceStack.Text: .NET C# POCO Type Text Serializer.
+// https://github.com/ServiceStack/ServiceStack.Text
+// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2011 Liquidbit Ltd.
+// Copyright 2012 ServiceStack Ltd.
 //
 // Licensed under the same terms of ServiceStack: new BSD license.
 //
@@ -85,7 +85,7 @@ namespace ServiceStack.Text.Common
 
 		private static bool Init()
 		{
-			if (!typeof(T).IsClass && !typeof(T).IsInterface) return false;
+			if (!typeof(T).IsClass && !typeof(T).IsInterface && !JsConfig.TreatAsRefType(typeof(T))) return false;
 
 			var propertyInfos = TypeConfig<T>.Properties;
 			if (propertyInfos.Length == 0 && !JsState.IsWritingDynamic)
@@ -226,7 +226,14 @@ namespace ServiceStack.Text.Common
 					writer.Write(JsWriter.MapKeySeperator);
 
 					if (typeof (TSerializer) == typeof (JsonTypeSerializer)) JsState.IsWritingValue = true;
-					propertyWriter.WriteFn(writer, propertyValue);
+					if (propertyValue == null)
+					{
+						writer.Write(JsonUtils.Null);
+					}
+					else
+					{
+						propertyWriter.WriteFn(writer, propertyValue);
+					}
 					if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
 				}
 			}

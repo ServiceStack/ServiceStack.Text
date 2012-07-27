@@ -115,7 +115,42 @@ namespace ServiceStack.Text.Common
 
             throw new NotSupportedException(typeof(TSerializer).Name);
         }
-    }
+		
+        public static void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+        {
+            if (enumFlagValue == null) return;
+
+            var typeCode = Type.GetTypeCode(Enum.GetUnderlyingType(enumFlagValue.GetType()));
+
+            switch (typeCode)
+            {
+                case TypeCode.Byte:
+                    writer.Write((byte)enumFlagValue);
+                    break;
+                case TypeCode.Int16:
+                    writer.Write((short)enumFlagValue);
+                    break;
+				case TypeCode.UInt16:
+                    writer.Write((ushort)enumFlagValue);
+                    break;
+                case TypeCode.Int32:
+                    writer.Write((int)enumFlagValue);
+                    break;
+                case TypeCode.UInt32:
+                    writer.Write((uint)enumFlagValue);
+                    break;
+                case TypeCode.Int64:
+                    writer.Write((long)enumFlagValue);
+                    break;
+                case TypeCode.UInt64:
+                    writer.Write((ulong)enumFlagValue);
+                    break;
+                default:
+                    writer.Write((int)enumFlagValue);
+                    break;
+            }
+        }
+	}
 
     internal class JsWriter<TSerializer>
         where TSerializer : ITypeSerializer
@@ -129,6 +164,9 @@ namespace ServiceStack.Text.Common
         		{ typeof(Uri), Serializer.WriteObjectString },
         		{ typeof(Type), WriteType },
         		{ typeof(Exception), Serializer.WriteException },
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID
+                { typeof(System.Data.Linq.Binary), Serializer.WriteLinqBinary },
+#endif
         	};
         }
 
@@ -162,6 +200,18 @@ namespace ServiceStack.Text.Common
             if (type == typeof(DateTime?))
                 return Serializer.WriteNullableDateTime;
 
+			if (type == typeof(DateTimeOffset))
+				return Serializer.WriteDateTimeOffset;
+
+			if (type == typeof(DateTimeOffset?))
+				return Serializer.WriteNullableDateTimeOffset;
+
+            if (type == typeof(TimeSpan))
+                return Serializer.WriteTimeSpan;
+
+            if (type == typeof(TimeSpan?))
+                return Serializer.WriteNullableTimeSpan;
+
             if (type == typeof(Guid))
                 return Serializer.WriteGuid;
 
@@ -192,7 +242,8 @@ namespace ServiceStack.Text.Common
                 return Serializer.WriteObjectString;
             }
 
-            if (typeof(T).IsValueType)
+            if ((typeof(T).IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
+                JsConfig<T>.SerializeFn != null)
             {
                 return JsConfig<T>.SerializeFn != null
                     ? JsConfig<T>.WriteFn<TSerializer>
@@ -271,7 +322,7 @@ namespace ServiceStack.Text.Common
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
             }
 
-            if (typeof(T).IsClass || typeof(T).IsInterface)
+            if (typeof(T).IsClass || typeof(T).IsInterface || JsConfig.TreatAsRefType(typeof(T)))
             {
                 var typeToStringMethod = WriteType<T, TSerializer>.Write;
                 if (typeToStringMethod != null)

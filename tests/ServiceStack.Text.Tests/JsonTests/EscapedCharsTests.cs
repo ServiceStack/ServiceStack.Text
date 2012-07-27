@@ -58,6 +58,30 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(fromJson, Is.EqualTo(model));
 		}
 
+        public class Inner
+        {
+            public int Int { get; set; }
+        }
+        
+        public class Program
+        {
+            public Inner[] Inner { get; set; }
+        }
+
+	    [Test]
+	    public void Can_deserialize_inner_whitespace()
+	    {
+            var fromJson = JsonSerializer.DeserializeFromString<Program>("{\"Inner\":[{\"Int\":0} , {\"Int\":1}\r\n]}");
+            Assert.That(fromJson.Inner.Length, Is.EqualTo(2));
+            Assert.That(fromJson.Inner[0].Int, Is.EqualTo(0));
+            Assert.That(fromJson.Inner[1].Int, Is.EqualTo(1));
+            
+            var dto = new Program { Inner = new[] { new Inner { Int = 0 } } };
+	        Serialize(dto);
+            var json = JsonSerializer.SerializeToString(dto);
+            Assert.That(json, Is.EqualTo(@"{""Inner"":[{""Int"":0}]}"));
+        }
+
 		[Test]
 		public void Can_deserialize_nested_json_with_whitespace()
 		{
@@ -88,7 +112,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 
 			public int Id { get; set; }
-			public List<string> StringList { get; set; }
+            public List<string> StringList { get; set; }
+            public string[] StringArray { get; set; }
 
 			public bool Equals(ModelWithList other)
 			{
@@ -114,29 +139,49 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 		}
 
-		[Test]
-		public void Can_serialize_Model_with_array()
-		{
-			var model = new ModelWithList
-			{
-				Id = 1,
-				StringList = { "One", "Two", "Three" }
-			};
+        [Test]
+        public void Can_serialize_Model_with_array()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringArray = new[]{ "One", "Two", "Three" }
+            };
 
-			SerializeAndCompare(model);
-		}
+            SerializeAndCompare(model);
+        }
 
-		[Test]
-		public void Can_serialize_Model_with_array_of_escape_chars()
-		{
-			var model = new ModelWithList
-			{
-				Id = 1,
-				StringList = { @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """, @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """ }
-			};
+        [Test]
+        public void Can_serialize_Model_with_list()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringList = { "One", "Two", "Three" }
+            };
 
-			SerializeAndCompare(model);
-		}
+            SerializeAndCompare(model);
+        }
+
+        [Test]
+        public void Can_serialize_Model_with_array_of_escape_chars()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringArray = new[]{ @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """, @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """ }
+            };
+
+            SerializeAndCompare(model);
+        }
+
+        [Test]
+        public void Can_serialize_Model_with_list_of_escape_chars()
+        {
+            var model = new ModelWithList {
+                Id = 1,
+                StringList = { @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """, @"1 \ 2 \r 3 \n 4 \b 5 \f 6 """ }
+            };
+
+            SerializeAndCompare(model);
+        }
 
 		[Test]
 		public void Can_deserialize_json_list_with_whitespace()
