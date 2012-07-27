@@ -12,7 +12,7 @@
 
             var s = JsonSerializer.SerializeToString(model);
 
-            var afterModel = JsonSerializer.DeserializeFromString<SampleModel>("{\"Id\":1,\"Date\":\"\\/Date(1340771164524+0700)\\/\"}");
+            var afterModel = JsonSerializer.DeserializeFromString<SampleModel>(s);
 
             Assert.AreEqual(model.Date, afterModel.Date);
         }
