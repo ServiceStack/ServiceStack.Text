@@ -135,7 +135,7 @@ namespace ServiceStack.Text
 
         public static DateTime LastMonday(this DateTime from)
         {
-            var modayOfWeekBefore = from.AddDays(-(int)from.DayOfWeek - 6);
+            var modayOfWeekBefore = from.Date.AddDays(-(int)from.DayOfWeek - 6);
             return modayOfWeekBefore;
         }
 
