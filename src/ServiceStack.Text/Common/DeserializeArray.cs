@@ -64,8 +64,9 @@ namespace ServiceStack.Text.Common
 				var i = 0;
 				do
 				{
-					itemValues.Add(Serializer.EatTypeValue(value, ref i));
-				} while (++i < value.Length);
+				    itemValues.Add(Serializer.EatTypeValue(value, ref i));
+				    Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
+				} while (i < value.Length);
 
 				var results = new T[itemValues.Count];
 				for (var j=0; j < itemValues.Count; j++)
