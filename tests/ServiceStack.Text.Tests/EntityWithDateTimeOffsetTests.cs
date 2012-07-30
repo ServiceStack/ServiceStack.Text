@@ -8,13 +8,16 @@
         [Test]
         public void CanSerializableDateTimeOffsetField()
         {
-            var model = new SampleModel { Id = 1, Date = new DateTimeOffset(2012, 6, 27, 11, 26, 04, 524, TimeSpan.FromHours(7)) };
+            var expectedModel = new SampleModel { Id = 1, Date = new DateTimeOffset(2012, 6, 27, 11, 26, 04, 524, TimeSpan.FromHours(7)) };
 
-            var s = JsonSerializer.SerializeToString(model);
+            var serializeModel = JsonSerializer.SerializeToString(expectedModel);
 
-            var afterModel = JsonSerializer.DeserializeFromString<SampleModel>("{\"Id\":1,\"Date\":\"\\/Date(1340771164524+0700)\\/\"}");
+            Assert.AreEqual("{\"Id\":1,\"Date\":\"\\/Date(1340771164524+0700)\\/\"}", serializeModel);
 
-            Assert.AreEqual(model.Date, afterModel.Date);
+            var deserializeModel = JsonSerializer.DeserializeFromString<SampleModel>(serializeModel);
+
+            Assert.AreEqual(expectedModel.Id, deserializeModel.Id);
+            Assert.AreEqual(expectedModel.Date, deserializeModel.Date);
         }
 
         public class SampleModel
