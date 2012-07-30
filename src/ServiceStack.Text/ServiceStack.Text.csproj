@@ -165,6 +165,7 @@
     <Compile Include="DateTimeExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DeserializationException.cs" />
     <Compile Include="Env.cs">
       <SubType>Code</SubType>
     </Compile>
