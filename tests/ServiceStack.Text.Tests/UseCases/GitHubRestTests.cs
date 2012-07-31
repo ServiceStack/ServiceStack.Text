@@ -103,8 +103,8 @@ namespace ServiceStack.Text.Tests.UseCases
 		public void Can_Parse_Discussion_using_only_NET_collection_classes()
 		{
 			var jsonObj = JsonSerializer.DeserializeFromString<List<JsonObject>>(JsonGitResponse);
-            var jsonPulls = JsonSerializer.DeserializeFromString<List<JsonObject>>(jsonObj[0]["pulls"]);
-            var discussions = JsonSerializer.DeserializeFromString<List<JsonObject>>(jsonPulls[0]["discussion"])
+            var jsonPulls = JsonSerializer.DeserializeFromString<List<JsonObject>>(jsonObj[0].Child("pulls"));
+            var discussions = JsonSerializer.DeserializeFromString<List<JsonObject>>(jsonPulls[0].Child("discussion"))
 				.ConvertAll(x => new Discussion
 				{
 					Type = x.Get("type"),
