@@ -271,7 +271,7 @@ namespace ServiceStack.Text.Common
 				return dateTimeOffset.ToString("o", CultureInfo.InvariantCulture);
 			}
 
-			var timestamp = dateTimeOffset.DateTime.ToUnixTimeMs();
+			var timestamp = dateTimeOffset.Ticks.ToUnixTimeMs();
 			var offset = dateTimeOffset.Offset == TimeSpan.Zero
 				? string.Empty
 				: dateTimeOffset.Offset.ToTimeOffsetString();
