@@ -9,26 +9,26 @@ namespace ServiceStack.Text.Tests.JsonTests
 	[TestFixture]
 	public class ThrowOnDeserializeErrorTest
 	{
+        [Test]
+        [ExpectedException(typeof(DeserializationException), ExpectedMessage = "Failed to set property 'idBadProt' with 'abc'")]
+        public void Throws_on_protected_setter()
+        {
+            JsConfig.Reset();
+            JsConfig.ThrowOnDeserializationError = true;
+
+            string json = @"{""idBadProt"":""abc"", ""idGood"":""2"" }";
+            JsonSerializer.DeserializeFromString(json, typeof(TestDto));
+        }
 
 		[Test]
-		public void TestThrows()
+        [ExpectedException(typeof(DeserializationException), ExpectedMessage = "Failed to set property 'idBad' with 'abc'")]
+		public void Throws_on_incorrect_type()
 		{
 			JsConfig.Reset();
 			JsConfig.ThrowOnDeserializationError = true;
 
 			string json = @"{""idBad"":""abc"", ""idGood"":""2"" }";
-
-			bool threw = false;
-			try
-			{
-				JsonSerializer.DeserializeFromString(json, typeof(TestDto));
-			}
-			catch (Exception)
-			{
-				threw = true;
-			}
-
-			Assert.IsTrue(threw, "Should have thrown");
+    		JsonSerializer.DeserializeFromString(json, typeof(TestDto));
 		}
 
 		[Test]
@@ -54,10 +54,12 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[DataContract]
 		class TestDto
 		{
-			[DataMember(Name = "idGood")]
+            [DataMember(Name = "idBadProt")]
+            public int protId { get; protected set; }
+            [DataMember(Name = "idGood")]
 			public int IdGood { get; set; }
 			[DataMember(Name = "idBad")]
 			public int IdBad { get; set; }
-		}
+        }
 	}
 }

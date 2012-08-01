@@ -109,8 +109,24 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 		#endregion
 
-		#region DCJS Compatibility Tests
-		[Test]
+        #region TimeSpan Tests
+        [Test]
+        public void JsonSerializerReturnsTimeSpanAsString()
+        {
+            Assert.AreEqual("\"PT0S\"", JsonSerializer.SerializeToString(new TimeSpan()));
+            Assert.AreEqual("\"PT0.0000001S\"", JsonSerializer.SerializeToString(new TimeSpan(1)));
+        }
+
+        [Test]
+        public void JsonDeserializerReturnsTimeSpanFromString()
+        {
+            Assert.AreEqual(TimeSpan.Zero, JsonSerializer.DeserializeFromString<TimeSpan>("\"PT0S\""));
+            Assert.AreEqual(new TimeSpan(1), JsonSerializer.DeserializeFromString<TimeSpan>("\"PT0.0000001S\""));
+        }
+        #endregion
+
+        #region DCJS Compatibility Tests
+        [Test]
 		public void Can_serialize_json_date_dcjsCompatible_utc()
 		{
 			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
