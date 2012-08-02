@@ -23,7 +23,12 @@ namespace ServiceStack.Text.Jsv
 	{
 		public static ITypeSerializer Instance = new JsvTypeSerializer();
 
-		public string TypeAttrInObject { get { return "{__type:"; } }
+	    public bool IncludeNullValues
+	    {
+            get { return false; } //Doesn't support null values, treated as "null" string literal
+	    }
+
+	    public string TypeAttrInObject { get { return "{__type:"; } }
 
 		public WriteObjectDelegate GetWriteFn<T>()
 		{
