@@ -128,13 +128,13 @@ namespace ServiceStack.Text.Json
 
         public void WriteTimeSpan(TextWriter writer, object oTimeSpan)
         {
-            WriteRawString(writer, DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan));            
+            WriteRawString(writer, DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan));
         }
 
         public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
         {
             if (oTimeSpan == null) return;
-            WriteRawString(writer, DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan));
+            WriteRawString(writer, DateTimeSerializer.ToXsdTimeSpanString((TimeSpan?)oTimeSpan));
         }
 
         public void WriteGuid(TextWriter writer, object oValue)

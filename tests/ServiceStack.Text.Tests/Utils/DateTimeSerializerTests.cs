@@ -69,6 +69,20 @@ namespace ServiceStack.Text.Tests.Utils
 			Assert.That(longDateTimeString, Is.EqualTo(DateTimeSerializer.ToShortestXsdDateTimeString(longDateTime)));
 		}
 
+        [Test]
+        public void CanDeserializeDateTimeOffsetWithTimeSpanIsZero()
+        {
+            var expectedValue = new DateTimeOffset(2012, 6, 27, 11, 26, 04, 524, TimeSpan.Zero);
+
+            var s = DateTimeSerializer.ToWcfJsonDateTimeOffset(expectedValue);
+
+            Assert.AreEqual("\\/Date(1340796364524)\\/", s);
+
+            var afterValue = DateTimeSerializer.ParseWcfJsonDateOffset(s);
+
+            Assert.AreEqual(expectedValue, afterValue);
+        }
+
 		[Test][Ignore]
 		public void Utc_Local_Equals()
 		{
