@@ -42,5 +42,13 @@ namespace ServiceStack.Text.Tests
             Assert.That(QueryStringSerializer.SerializeToString(new D { A = "崑⨹堡ꁀᢖ㤹ì㭡줪銬", B = null }),
                 Is.EqualTo("A=%e5%b4%91%e2%a8%b9%e5%a0%a1%ea%81%80%e1%a2%96%e3%a4%b9%c3%ac%e3%ad%a1%ec%a4%aa%e9%8a%ac"));
         }
-	}
+
+        class Empty {}
+
+        [Test]
+        public void Can_serialize_empty_object()
+        {
+            Assert.That(QueryStringSerializer.SerializeToString(new Empty()), Is.Empty);
+        }
+    }
 }
