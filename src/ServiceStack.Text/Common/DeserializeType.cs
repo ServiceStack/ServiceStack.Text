@@ -77,7 +77,7 @@ namespace ServiceStack.Text.Common
                 return propertyValue;
             }
 
-            return strType;
+            return Serializer.UnescapeString(strType);
         }
 
         public static Type ExtractType(string strType)

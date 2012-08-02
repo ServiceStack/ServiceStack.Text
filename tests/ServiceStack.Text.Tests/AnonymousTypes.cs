@@ -26,6 +26,25 @@ namespace ServiceStack.Text.Tests
 
 			Console.WriteLine("MAP: " + map.Dump());
 		}
+
+        public class TestObj
+        {
+            public string Title1 { get; set; }
+            public object Title2 { get; set; }
+        }
+
+        [Test]
+        public void Escapes_string_in_object_correctly()
+        {
+            const string expectedValue = @"a\nb";
+            string json = string.Format(@"{{""Title1"":""{0}"",""Title2"":""{0}""}}", expectedValue);
+
+            var value = JsonSerializer.DeserializeFromString<TestObj>(json);
+
+            value.PrintDump();
+
+            Assert.That(value.Title1, Is.EqualTo(value.Title2.ToString()));
+        }
 	}
 
 }
