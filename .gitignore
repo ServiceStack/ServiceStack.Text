@@ -41,3 +41,5 @@ App_Data/
 *.resharper.user
 *.suo
 *.user
+NuGet/
+build/
