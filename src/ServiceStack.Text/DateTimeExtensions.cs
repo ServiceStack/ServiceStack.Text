@@ -39,6 +39,11 @@ namespace ServiceStack.Text
 			return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
 		}
 
+        public static long ToUnixTimeMs(this long ticks)
+        {
+            return (ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
+        }
+
 		public static DateTime FromUnixTimeMs(this double msSince1970)
 		{
 			return UnixEpochDateTimeUtc + TimeSpan.FromMilliseconds(msSince1970);
