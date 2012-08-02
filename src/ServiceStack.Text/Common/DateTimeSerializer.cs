@@ -201,7 +201,7 @@ namespace ServiceStack.Text.Common
 			}
 
 			var offset = timeZone.FromTimeOffsetString();
-			var date = unixTime.FromUnixTimeMs().ToLocalTime();
+			var date = unixTime.FromUnixTimeMs();
 			return new DateTimeOffset(date.Ticks, offset);
 		}
 

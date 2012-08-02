@@ -75,14 +75,13 @@ namespace ServiceStack.Text.Common
 			if (!typeof(T).IsClass && !typeof(T).IsInterface && !JsConfig.TreatAsRefType(typeof(T))) return false;
 
 			var propertyInfos = TypeConfig<T>.Properties;
-			if (propertyInfos.Length == 0 && !JsState.IsWritingDynamic)
+            var propertyNamesLength = propertyInfos.Length;
+            PropertyWriters = new TypePropertyWriter[propertyNamesLength];
+
+            if (propertyNamesLength == 0 && !JsState.IsWritingDynamic)
 			{
 				return typeof(T).IsDto();
 			}
-
-			var propertyNamesLength = propertyInfos.Length;
-
-			PropertyWriters = new TypePropertyWriter[propertyNamesLength];
 
 			// NOTE: very limited support for DataContractSerialization (DCS)
 			//	NOT supporting Serializable

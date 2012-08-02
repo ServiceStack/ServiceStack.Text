@@ -168,7 +168,7 @@
     <Compile Include="BclStructTests.cs" />
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
-    <Compile Include="EntityWithDateTimeOffsetTests.cs" />
+    <Compile Include="DateTimeOffsetAndTimeSpanTests.cs" />
     <Compile Include="JsonObjectTests.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
     <Compile Include="JsonTests\CamelCaseTests.cs" />
