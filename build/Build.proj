@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <BuildSolutionDir>$(MSBuildProjectDirectory)/..</BuildSolutionDir>
+    <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
   </PropertyGroup>
 
   <PropertyGroup>
