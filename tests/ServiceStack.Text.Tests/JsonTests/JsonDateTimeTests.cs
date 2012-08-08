@@ -6,12 +6,12 @@ namespace ServiceStack.Text.Tests.JsonTests
 {
 	public class JsonDateTimeTests
 	{
-	    private string _localTimzoneOffset;
+	    private string _localTimezoneOffset;
 
         [SetUp]
         public void SetUp()
         {
-            _localTimzoneOffset = TimeZoneInfo.Local.BaseUtcOffset.Hours.ToString("00") + TimeZoneInfo.Local.BaseUtcOffset.Minutes.ToString("00");
+            _localTimezoneOffset = TimeZoneInfo.Local.BaseUtcOffset.Hours.ToString("00") + TimeZoneInfo.Local.BaseUtcOffset.Minutes.ToString("00");
 
         }
 
@@ -155,7 +155,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
-		    var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimzoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
+		    var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimezoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
@@ -168,7 +168,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
-            var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimzoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
+            var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimezoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
             Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
 		}

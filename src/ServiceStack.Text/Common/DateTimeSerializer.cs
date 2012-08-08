@@ -95,11 +95,13 @@ namespace ServiceStack.Text.Common
             if (dateTimeOffsetStr.LastIndexOfAny(TimeZoneChars) < 10)
             {
                 if (!dateTimeOffsetStr.EndsWith("Z")) dateTimeOffsetStr += "Z";
-                // Used for Mono support, otherwise a local time is used
-                return DateTimeOffset.Parse(dateTimeOffsetStr, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+#if __MonoCS__
+                // Without that Mono uses a Local timezone))
+                dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00"; 
+#endif
             }
 
-		    return DateTimeOffset.Parse(dateTimeOffsetStr);
+            return DateTimeOffset.Parse(dateTimeOffsetStr, CultureInfo.InvariantCulture);
 		}
 
 		public static string ToXsdDateTimeString(DateTime dateTime)
