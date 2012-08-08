@@ -23,6 +23,11 @@ namespace ServiceStack.Text.Json
     {
         public static ITypeSerializer Instance = new JsonTypeSerializer();
 
+        public bool IncludeNullValues
+        {
+            get { return JsConfig.IncludeNullValues; }
+        }
+
         public string TypeAttrInObject { get { return "{\"__type\":"; } }
 
         public static readonly bool[] WhiteSpaceFlags = new bool[(int)' ' + 1];

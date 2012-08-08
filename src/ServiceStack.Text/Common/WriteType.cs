@@ -203,7 +203,7 @@ namespace ServiceStack.Text.Common
 
 					if ((propertyValue == null
 					     || (propertyWriter.DefaultValue != null && propertyWriter.DefaultValue.Equals(propertyValue)))
-					    && !JsConfig.IncludeNullValues) continue;
+                        && !Serializer.IncludeNullValues) continue;
 
 					if (i++ > 0)
 						writer.Write(JsWriter.ItemSeperator);

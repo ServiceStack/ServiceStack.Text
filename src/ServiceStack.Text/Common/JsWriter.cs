@@ -42,7 +42,7 @@ namespace ServiceStack.Text.Common
             {
                 EscapeCharFlags[escapeChar] = true;
             }
-            var loadConfig = JsConfig.IncludeNullValues;
+            var loadConfig = JsConfig.EmitCamelCaseNames; //force load
         }
 
         public static void WriteDynamic(Action callback)

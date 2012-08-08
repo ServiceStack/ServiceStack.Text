@@ -117,6 +117,32 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromJson.tag_name, Is.EqualTo("null"));
         }
 
+        [Test]
+        public void Deserialize_WithNullCollection_CollectionIsNull()
+        {
+            JsConfig.IncludeNullValues = true;
+            
+            var item = new Foo { Strings = null };
+            var json = JsonSerializer.SerializeToString(item);
+            var result = JsonSerializer.DeserializeFromString<Foo>(json);
+            Assert.IsNull(result.Strings);
+
+            var jsv = TypeSerializer.SerializeToString(item);
+            result = TypeSerializer.DeserializeFromString<Foo>(jsv);
+            Assert.IsEmpty(result.Strings); //JSV doesn't support setting null values explicitly
+
+            JsConfig.IncludeNullValues = false;
+        }
+
+        public class Foo
+        {
+            public Foo()
+            {
+                Strings = new List<string>();
+            }
+            public List<string> Strings { get; set; }
+        }
+
     }
 
 }
