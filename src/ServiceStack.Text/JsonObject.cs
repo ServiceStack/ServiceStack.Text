@@ -66,7 +66,7 @@ namespace ServiceStack.Text
         /// <summary>
         /// Get JSON string value
         /// </summary>
-        public string this[string key]
+        public new string this[string key]
         {
             get { return this.Get(key); }
             set { base[key] = value; }

@@ -69,9 +69,9 @@ namespace ServiceStack.Text.Common
 		}
 
 #if !SILVERLIGHT
-		public static StringCollection ParseStringCollection<TSerializer>(string value) where TSerializer : ITypeSerializer
+        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer
 		{
-			if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
+            if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
 			return value == String.Empty
 			       ? new StringCollection()
 			       : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
