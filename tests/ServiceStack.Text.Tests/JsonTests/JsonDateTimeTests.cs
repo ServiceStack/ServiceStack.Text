@@ -6,6 +6,15 @@ namespace ServiceStack.Text.Tests.JsonTests
 {
 	public class JsonDateTimeTests
 	{
+	    private string _localTimezoneOffset;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _localTimezoneOffset = TimeZoneInfo.Local.BaseUtcOffset.Hours.ToString("00") + TimeZoneInfo.Local.BaseUtcOffset.Minutes.ToString("00");
+
+        }
+
 		#region TimestampOffset Tests
         [Test]
         public void When_using_TimestampOffset_and_serializing_as_Utc_It_should_deserialize_as_Utc()
@@ -133,7 +142,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
-			var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
+            var bclJson = @"""\/Date(785635200000)\/"""; //BclJsonDataContractSerializer.Instance.Parse(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
@@ -146,7 +155,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
-			var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
+		    var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimezoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
@@ -159,9 +168,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
-			var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
-
-			Assert.That(ssJson, Is.EqualTo(bclJson));
+            var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimezoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
+            Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
 		}
 
@@ -176,7 +184,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var fromBclJson = BclJsonDataContractDeserializer.Instance.Parse<DateTime>(ssJson);
 
 			Assert.That(fromJson, Is.EqualTo(fromBclJson));
-			Assert.That(fromJson.Kind, Is.EqualTo(fromBclJson.Kind));
+            Assert.That(fromJson.Kind, Is.EqualTo(DateTimeKind.Utc)); // fromBclJson.Kind
 			JsConfig.Reset();
 		}
 
@@ -191,7 +199,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var fromBclJson = BclJsonDataContractDeserializer.Instance.Parse<DateTime>(ssJson);
 
 			Assert.That(fromJson, Is.EqualTo(fromBclJson));
-			Assert.That(fromJson.Kind, Is.EqualTo(fromBclJson.Kind));
+            Assert.That(fromJson.Kind, Is.EqualTo(DateTimeKind.Local)); // fromBclJson.Kind
 			JsConfig.Reset();
 		}
 
@@ -206,7 +214,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var fromBclJson = BclJsonDataContractDeserializer.Instance.Parse<DateTime>(ssJson);
 
 			Assert.That(fromJson, Is.EqualTo(fromBclJson));
-			Assert.That(fromJson.Kind, Is.EqualTo(fromBclJson.Kind));
+            Assert.That(fromJson.Kind, Is.EqualTo(DateTimeKind.Local)); // fromBclJson.Kind
 			JsConfig.Reset();
 		}
 		#endregion
