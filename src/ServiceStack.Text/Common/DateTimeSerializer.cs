@@ -92,10 +92,14 @@ namespace ServiceStack.Text.Common
 
             // format: next preference ISO8601
 			// assume utc when no offset specified
-			if (dateTimeOffsetStr.LastIndexOfAny(TimeZoneChars) < 10 && !dateTimeOffsetStr.EndsWith("Z"))
-				dateTimeOffsetStr += "Z";
+            if (dateTimeOffsetStr.LastIndexOfAny(TimeZoneChars) < 10 && !dateTimeOffsetStr.EndsWith("Z"))
+            {
+                dateTimeOffsetStr += "Z";
+                // Used for Mono support, otherwise a local time is used
+                return DateTimeOffset.Parse(dateTimeOffsetStr, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+            }
 
-			return DateTimeOffset.Parse(dateTimeOffsetStr);
+		    return DateTimeOffset.Parse(dateTimeOffsetStr);
 		}
 
 		public static string ToXsdDateTimeString(DateTime dateTime)
