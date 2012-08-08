@@ -92,10 +92,16 @@ namespace ServiceStack.Text.Common
 
             // format: next preference ISO8601
 			// assume utc when no offset specified
-			if (dateTimeOffsetStr.LastIndexOfAny(TimeZoneChars) < 10 && !dateTimeOffsetStr.EndsWith("Z"))
-				dateTimeOffsetStr += "Z";
+            if (dateTimeOffsetStr.LastIndexOfAny(TimeZoneChars) < 10)
+            {
+                if (!dateTimeOffsetStr.EndsWith("Z")) dateTimeOffsetStr += "Z";
+#if __MonoCS__
+                // Without that Mono uses a Local timezone))
+                dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00"; 
+#endif
+            }
 
-			return DateTimeOffset.Parse(dateTimeOffsetStr);
+            return DateTimeOffset.Parse(dateTimeOffsetStr, CultureInfo.InvariantCulture);
 		}
 
 		public static string ToXsdDateTimeString(DateTime dateTime)
@@ -105,12 +111,17 @@ namespace ServiceStack.Text.Common
 
         public static string ToXsdTimeSpanString(TimeSpan timeSpan)
         {
-            return XmlConvert.ToString(timeSpan);
+            var r = XmlConvert.ToString(timeSpan);
+#if __MonoCS__
+            // Mono returns DT even if time is 00:00:00
+            if (r.EndsWith("DT")) return r.Substring(0, r.Length - 1);
+#endif
+            return r;
         }
 
         public static string ToXsdTimeSpanString(TimeSpan? timeSpan)
         {
-            return (timeSpan != null) ? XmlConvert.ToString(timeSpan.Value) : null;
+            return (timeSpan != null) ? ToXsdTimeSpanString(timeSpan.Value) : null;
         }
 
 		public static DateTime ParseXsdDateTime(string dateTimeStr)
