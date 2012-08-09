@@ -396,8 +396,9 @@ namespace ServiceStack.Text
                 return propertyInfos.ToArray();
             }
 
-            return type.GetProperties(BindingFlags.FlattenHierarchy
-				| BindingFlags.Public | BindingFlags.Instance);
+            return type.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
+                .Where(t => t.GetIndexParameters().Length == 0) // ignore indexed properties
+                .ToArray();
         }
 
         const string DataContract = "DataContractAttribute";
