@@ -335,8 +335,6 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
-        [Ignore("Mono throws An exception was thrown by the type initializer for ServiceStack.Text.Jsv.JsvReader`1 ----> System.InvalidProgramException : Invalid IL code in (wrapper dynamic-method) ServiceStack.Text.Tests.AdhocModelTests/HasIndex:_SetItem_ (object,object): IL_000c: callvirt  0x00000005")]
-		///TODO: reproduce it as simple test and send a patch to Mono team
         public void Can_serialize_type_with_indexer()
 		{
 			var dto = new HasIndex { Id = 1 };
