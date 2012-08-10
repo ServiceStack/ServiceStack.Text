@@ -85,6 +85,8 @@ namespace ServiceStack.Text
 			}
 		}
 
+        public static JsonTimeSpanHandler TimeSpanHandler { get; set; }
+
 
 		/// <summary>
 		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
@@ -253,7 +255,8 @@ namespace ServiceStack.Text
         }
 #endif
 
-	}
+
+    }
 
 #if MONOTOUCH
     [MonoTouch.Foundation.Preserve(AllMembers=true)]
@@ -428,5 +431,11 @@ namespace ServiceStack.Text
 		DCJSCompatible,
 		ISO8601
 	}
+
+    public enum JsonTimeSpanHandler
+    {
+        DurationFormat,
+        StandardFormat
+    }
 }
 
