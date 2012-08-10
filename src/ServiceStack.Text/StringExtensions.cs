@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -18,7 +19,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using ServiceStack.Text.Support;
-using System.Collections.Generic;
 #if WINDOWS_PHONE
 using System.IO.IsolatedStorage;
 using ServiceStack.Text.WP;
@@ -138,7 +138,7 @@ namespace ServiceStack.Text
                 }
                 else
                 {
-                    sb.Append('%' + charCode.ToString("x"));
+                    sb.Append('%' + charCode.ToString("x2"));
                 }
             }
 

@@ -50,5 +50,17 @@ namespace ServiceStack.Text.Tests
         {
             Assert.That(QueryStringSerializer.SerializeToString(new Empty()), Is.Empty);
         }
+
+	    [Test]
+	    public void Can_serialize_newline()
+	    {
+            Assert.That(QueryStringSerializer.SerializeToString(new {newline = "\r\n"}), Is.EqualTo("newline=%0d%0a"));
+	    }
+
+	    [Test]
+	    public void Can_serialize_tab()
+	    {
+            Assert.That(QueryStringSerializer.SerializeToString(new { tab = "\t" }), Is.EqualTo("tab=%09"));
+	    }
     }
 }
