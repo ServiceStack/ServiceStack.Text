@@ -335,7 +335,7 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
-		public void Can_serialize_type_with_indexer()
+        public void Can_serialize_type_with_indexer()
 		{
 			var dto = new HasIndex { Id = 1 };
 			Serialize(dto);
