@@ -29,7 +29,7 @@ namespace ServiceStack.Text
             return map.TryGetValue(key, out strVal) ? JsonTypeSerializer.Instance.UnescapeString(strVal) : null;
 		}
 
-		public static JsonArrayObjects ArrayObjects(this string json, string propertyName)
+		public static JsonArrayObjects ArrayObjects(this string json)
 		{
 			return Text.JsonArrayObjects.Parse(json);
 		}
