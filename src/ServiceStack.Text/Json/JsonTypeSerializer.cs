@@ -133,7 +133,10 @@ namespace ServiceStack.Text.Json
 
         public void WriteTimeSpan(TextWriter writer, object oTimeSpan)
         {
-            WriteRawString(writer, DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan));
+            var stringValue = JsConfig.TimeSpanHandler == JsonTimeSpanHandler.StandardFormat
+                ? oTimeSpan.ToString()
+                : DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan);
+            WriteRawString(writer, stringValue);
         }
 
         public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
