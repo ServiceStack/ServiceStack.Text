@@ -85,6 +85,10 @@ namespace ServiceStack.Text
 			}
 		}
 
+        /// <summary>
+        /// Sets which format to use when serializing TimeSpans
+        /// </summary>
+        public static JsonTimeSpanHandler TimeSpanHandler { get; set; }
 
 		/// <summary>
 		/// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
@@ -428,5 +432,17 @@ namespace ServiceStack.Text
 		DCJSCompatible,
 		ISO8601
 	}
+
+    public enum JsonTimeSpanHandler
+    {
+        /// <summary>
+        /// Uses the xsd format like PT15H10M20S
+        /// </summary>
+        DurationFormat,
+        /// <summary>
+        /// Uses the standard .net ToString method of the TimeSpan class
+        /// </summary>
+        StandardFormat
+    }
 }
 
