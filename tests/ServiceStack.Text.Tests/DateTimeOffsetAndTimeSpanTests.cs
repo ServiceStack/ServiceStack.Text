@@ -57,6 +57,20 @@ namespace ServiceStack.Text.Tests
             Serialize(model);
         }
 
+        [Test]
+        public void Can_serialize_TimeSpan_field_with_StandardTimeSpanFormat()
+        {
+            var period = TimeSpan.FromSeconds(70);
+
+            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.StandardFormat;
+
+            var model = new SampleModel { Id = 1, TimeSpan = period };
+            var json = JsonSerializer.SerializeToString(model);
+            Assert.That(json, Is.StringContaining("\"TimeSpan\":\"00:01:10\""));
+
+            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.DurationFormat; //Revert so no other tests are affected
+        }
+
         public class SampleModel
         {
             public int Id { get; set; }
