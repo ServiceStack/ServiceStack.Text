@@ -20,6 +20,10 @@
     <!--<Copy SourceFiles="Test/ci.app.config" DestinationFiles="Test/app.config" />-->
   </Target>
 
+  <Target Name="UnitTests" DependsOnTargets="$(DoBuildSolutionsDependsOn)">
+      <Exec Command="$(BuildSolutionDir)/lib/tests/nunit-console-x86.exe $(BuildSolutionDir)/tests/ServiceStack.Text.Tests/bin/x86/Debug/ServiceStack.Text.Tests.dll"/>
+  </Target>
+
   <Target Name="BuildSolutions">
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
    Properties="Configuration=$(Configuration)" />
