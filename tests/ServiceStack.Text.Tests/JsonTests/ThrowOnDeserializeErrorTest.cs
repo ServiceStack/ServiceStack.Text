@@ -10,7 +10,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 	public class ThrowOnDeserializeErrorTest
 	{
         [Test]
-        [ExpectedException(typeof(DeserializationException), ExpectedMessage = "Failed to set property 'idBadProt' with 'abc'")]
+        [ExpectedException(typeof(SerializationException), ExpectedMessage = "Failed to set property 'idBadProt' with 'abc'")]
         public void Throws_on_protected_setter()
         {
             JsConfig.Reset();
@@ -21,7 +21,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
 		[Test]
-        [ExpectedException(typeof(DeserializationException), ExpectedMessage = "Failed to set property 'idBad' with 'abc'")]
+        [ExpectedException(typeof(SerializationException), ExpectedMessage = "Failed to set property 'idBad' with 'abc'")]
 		public void Throws_on_incorrect_type()
 		{
 			JsConfig.Reset();
