@@ -155,7 +155,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
-		    var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimezoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
+            var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
 
 			Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
@@ -168,7 +168,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
-            var bclJson = String.Format(@"""\/Date(785628000000+{0})\/""", _localTimezoneOffset); //BclJsonDataContractSerializer.Instance.Parse(dateTime);
+            var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
+
             Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
 		}
