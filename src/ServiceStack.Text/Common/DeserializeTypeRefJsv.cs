@@ -84,7 +84,7 @@ namespace ServiceStack.Text.Common
 					}
 					catch(Exception e)
 					{
-                        if (JsConfig.ThrowOnDeserializationError) throw new DeserializationException(String.Format("Failed to set dynamic property '{0}' with '{1}'", propertyName, propertyValueStr), e);
+                        if (JsConfig.ThrowOnDeserializationError) throw new SerializationException(String.Format("Failed to set dynamic property '{0}' with '{1}'", propertyName, propertyValueStr), e);
 						else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
 					}
 				}
@@ -98,7 +98,7 @@ namespace ServiceStack.Text.Common
 					}
 					catch(Exception e)
 					{
-                        if (JsConfig.ThrowOnDeserializationError) throw new DeserializationException(String.Format("Failed to set property '{0}' with '{1}'", propertyName, propertyValueStr), e);
+                        if (JsConfig.ThrowOnDeserializationError) throw new SerializationException(String.Format("Failed to set property '{0}' with '{1}'", propertyName, propertyValueStr), e);
                         else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
 					}
 				}
