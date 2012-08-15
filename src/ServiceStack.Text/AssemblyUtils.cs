@@ -106,8 +106,8 @@ private static Assembly LoadAssembly(string assemblyPath)
 #else
         private static Assembly LoadAssembly(string assemblyPath)
         {
-            var sri = Application.GetResourceStream(new Uri(assemblyPath, UriKind.Relative));
-            var myPart = new AssemblyPart();
+            var sri = System.Windows.Application.GetResourceStream(new Uri(assemblyPath, UriKind.Relative));
+            var myPart = new System.Windows.AssemblyPart();
             var assembly = myPart.Load(sri.Stream);
             return assembly;
         }

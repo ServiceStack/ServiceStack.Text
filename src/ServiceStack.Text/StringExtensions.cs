@@ -170,7 +170,12 @@ namespace ServiceStack.Text
                     bytes.Add((byte)c);
                 }
             }
+#if SILVERLIGHT
+            byte[] byteArray = bytes.ToArray();
+            return Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
+#else
             return Encoding.UTF8.GetString(bytes.ToArray());
+#endif
         }
 
 #if !XBOX
