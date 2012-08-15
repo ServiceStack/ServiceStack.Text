@@ -315,7 +315,11 @@ namespace ServiceStack.Text
 #elif WINDOWS_PHONE
                 return Expression.Lambda<EmptyCtorDelegate>(Expression.New(type)).Compile();
 #else
+#if SILVERLIGHT
+                var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes);
+#else
                 var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes, typeof(ReflectionExtensions).Module, true);
+#endif
                 var ilgen = dm.GetILGenerator();
                 ilgen.Emit(System.Reflection.Emit.OpCodes.Nop);
                 ilgen.Emit(System.Reflection.Emit.OpCodes.Newobj, emptyCtor);
