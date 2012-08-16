@@ -85,6 +85,18 @@ namespace ServiceStack.Text.Tests
             JsConfig.TimeSpanHandler = JsonTimeSpanHandler.DurationFormat; //Revert so no other tests are affected
         }
 
+        [Test]
+        public void Can_serialize_NullTimeSpan_field_with_StandardTimeSpanFormat()
+        {
+            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.StandardFormat;
+
+            var model = new NullableSampleModel { Id = 1 };
+            var json = JsonSerializer.SerializeToString(model);
+            Assert.That(json, Is.Not.StringContaining("\"TimeSpan\""));
+
+            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.DurationFormat; //Revert so no other tests are affected
+        }
+
         public class SampleModel
         {
             public int Id { get; set; }
