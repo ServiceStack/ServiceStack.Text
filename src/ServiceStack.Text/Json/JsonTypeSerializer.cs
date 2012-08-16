@@ -141,8 +141,9 @@ namespace ServiceStack.Text.Json
 
         public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
         {
+
             if (oTimeSpan == null) return;
-            WriteRawString(writer, DateTimeSerializer.ToXsdTimeSpanString((TimeSpan?)oTimeSpan));
+            WriteTimeSpan(writer, ((TimeSpan?)oTimeSpan).Value);
         }
 
         public void WriteGuid(TextWriter writer, object oValue)
