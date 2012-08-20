@@ -148,6 +148,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			JsConfig.Reset();
 		}
 
+#if !__MonoCS__
 		[Test]
 		public void Can_serialize_json_date_dcjsCompatible_local()
 		{
@@ -173,6 +174,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(ssJson, Is.EqualTo(bclJson));
 			JsConfig.Reset();
 		}
+#endif
 
 		[Test]
 		public void Can_deserialize_json_date_dcjsCompatible_utc()
