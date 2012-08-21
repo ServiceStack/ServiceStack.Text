@@ -12,7 +12,6 @@
 
 using System;
 using System.IO;
-using System.Threading;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Reflection;
 using System.Linq;
@@ -27,7 +26,7 @@ namespace ServiceStack.Text.Common
 
 		private static readonly WriteObjectDelegate CacheFn;
 		internal static TypePropertyWriter[] PropertyWriters;
-		private static WriteObjectDelegate WriteTypeInfo;
+		private static readonly WriteObjectDelegate WriteTypeInfo;
 
 		static WriteType()
 		{
@@ -45,10 +44,21 @@ namespace ServiceStack.Text.Common
 
 		public static void TypeInfoWriter(TextWriter writer, object obj)
 		{
-			DidWriteTypeInfo(writer, obj);
+			TryWriteTypeInfo(writer, obj);
 		}
 
-		private static bool DidWriteTypeInfo(TextWriter writer, object obj)
+		private static bool ShouldSkipType () { return JsConfig.ExcludeTypeInfo || JsConfig<T>.ExcludeTypeInfo; }
+
+		private static bool WriteSelfType (TextWriter writer) {
+			if (ShouldSkipType()) return false;
+
+			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
+			writer.Write(JsWriter.MapKeySeperator);
+			Serializer.WriteRawString(writer, typeof(T).ToTypeString());
+			return true;
+		}
+
+		private static bool TryWriteTypeInfo(TextWriter writer, object obj)
 		{
 			if (obj == null
 				|| JsConfig.ExcludeTypeInfo
@@ -109,7 +119,7 @@ namespace ServiceStack.Text.Common
 
 			    var propertyType = propertyInfo.PropertyType;
 			    var suppressDefaultValue = propertyType.IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
-			        ? ReflectionExtensions.GetDefaultValue(propertyType)
+			        ? propertyType.GetDefaultValue()
 			        : null;
 
 				PropertyWriters[i] = new TypePropertyWriter
@@ -188,7 +198,8 @@ namespace ServiceStack.Text.Common
 			var i = 0;
 			if (WriteTypeInfo != null || JsState.IsWritingDynamic)
 			{
-				if (DidWriteTypeInfo(writer, value)) i++;
+				if (value is T) { WriteSelfType(writer); i++; }
+				else if (TryWriteTypeInfo(writer, value)) i++;
 			}
 
 			if (PropertyWriters != null)
