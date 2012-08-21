@@ -30,14 +30,14 @@ namespace ServiceStack.Text.Json
 
         public string TypeAttrInObject { get { return "{\"__type\":"; } }
 
-        public static readonly bool[] WhiteSpaceFlags = new bool[(int)' ' + 1];
+        public static readonly bool[] WhiteSpaceFlags = new bool[' ' + 1];
 
         static JsonTypeSerializer()
         {
-            WhiteSpaceFlags[(int)' '] = true;
-            WhiteSpaceFlags[(int)'\t'] = true;
-            WhiteSpaceFlags[(int)'\r'] = true;
-            WhiteSpaceFlags[(int)'\n'] = true;
+            WhiteSpaceFlags[' '] = true;
+            WhiteSpaceFlags['\t'] = true;
+            WhiteSpaceFlags['\r'] = true;
+            WhiteSpaceFlags['\n'] = true;
         }
 
         public WriteObjectDelegate GetWriteFn<T>()
@@ -304,12 +304,6 @@ namespace ServiceStack.Text.Json
         public string ParseRawString(string value)
         {
             return value;
-            
-            //if (string.IsNullOrEmpty(value)) return value;
-
-            //return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
-            //    ? value.Substring(1, value.Length - 2)
-            //    : value;
         }
 
         public string ParseString(string value)
@@ -323,11 +317,10 @@ namespace ServiceStack.Text.Json
             if (json[index] != JsonUtils.QuoteChar)
                 throw new Exception("Invalid unquoted string starting with: " + json.SafeSubstring(50));
 
-            char c;
-            var startIndex = ++index;
+        	var startIndex = ++index;
             do
             {
-                c = json[index];
+                char c = json[index];
                 if (c == JsonUtils.QuoteChar) break;
                 if (c != JsonUtils.EscapeChar) continue;
                 c = json[index++];
@@ -388,13 +381,12 @@ namespace ServiceStack.Text.Json
             }
 
             var sb = new StringBuilder(jsonLength);
-            char c;
 
-            while (true)
+        	while (true)
             {
                 if (index == jsonLength) break;
 
-                c = json[index++];
+                char c = json[index++];
                 if (c == JsonUtils.QuoteChar) break;
 
                 if (c == JsonUtils.EscapeChar)
@@ -473,20 +465,7 @@ namespace ServiceStack.Text.Json
                                 (char) (utf32 % 0x0400 + 0xDC00)});
         }
 
-        private static void EatWhitespace(string json, ref int index)
-        {
-            int c;
-            for (; index < json.Length; index++)
-            {
-                c = json[index];
-                if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c])
-                {
-                    break;
-                }
-            }
-        }
-
-        public string EatTypeValue(string value, ref int i)
+    	public string EatTypeValue(string value, ref int i)
         {
             return EatValue(value, ref i);
         }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Common.Tests;
@@ -65,7 +64,6 @@ namespace ServiceStack.Text.Tests.Support
 		[Test]
 		public void PrintEscapeChars()
 		{
-			//EscapeChars.ToList().OrderBy(x => (int)x).ForEach(x => Console.WriteLine(x + ": " + (int)x));
 			JsvEscapeChars.ToList().OrderBy(x => (int)x).ForEach(x => Console.WriteLine(x + ": " + (int)x));
 		}
 

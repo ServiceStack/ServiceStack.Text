@@ -290,7 +290,7 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
-		public void Can_Serailize_Cyclical_Dependency_via_interface()
+		public void Can_Serialize_Cyclical_Dependency_via_interface()
 		{
 			var dto = new Parent {
 				Id = 1,

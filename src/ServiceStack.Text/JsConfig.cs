@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ServiceStack.Text.Common;
-using ServiceStack.Text.Json;
-using ServiceStack.Text.Jsv;
 #if WINDOWS_PHONE
 using ServiceStack.Text.WP;
 #endif
@@ -139,7 +137,26 @@ namespace ServiceStack.Text
 
         internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
-        internal static bool TreatAsRefType(Type valueType)
+		[ThreadStatic]
+		private static bool? tsPreferInterfaces;
+		private static bool? sPreferInterfaces;
+		/// <summary>
+		/// If set to true, Interface types will be prefered over concrete types when serializing.
+		/// </summary>
+		public static bool PreferInterfaces
+		{
+			get
+			{
+				return tsPreferInterfaces ?? sPreferInterfaces ?? false;
+			}
+			set
+			{
+				tsPreferInterfaces = value;
+				if (!sPreferInterfaces.HasValue) sPreferInterfaces = value;
+			}
+		}
+
+		internal static bool TreatAsRefType(Type valueType)
         {
             return TreatValueAsRefTypes.Contains(valueType.IsGenericType ? valueType.GetGenericTypeDefinition() : valueType);
         }
@@ -151,6 +168,7 @@ namespace ServiceStack.Text
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 			tsDateHandler = sDateHandler = null;
+			tsPreferInterfaces = sPreferInterfaces = null;
 			tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> {
@@ -357,7 +375,7 @@ namespace ServiceStack.Text
     }
 #endif
 
-    public class JsConfig<T> //where T : struct
+    public class JsConfig<T> 
 	{
 		/// <summary>
 		/// Never emit type info for this type

@@ -175,6 +175,7 @@
     <Compile Include="CsvSerializerTests.cs" />
     <Compile Include="CsvStreamTests.cs" />
     <Compile Include="CsvTests\CustomHeaderTests.cs" />
+    <Compile Include="JsonTests\ContractByInterfaceTests.cs" />
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
