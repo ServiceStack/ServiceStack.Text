@@ -9,6 +9,14 @@ namespace ServiceStack.Text.Tests.JsonTests {
 	[TestFixture]
 	public class ContractByInterfaceTests {
 		[Test]
+		public void Prefer_interfaces_should_work_on_top_level_object_using_extension_method () {
+			JsConfig.PreferInterfaces = true;
+			var json = new Concrete("boo", 1).ToJson();
+
+			Assert.That(json, Is.StringContaining("\"ServiceStack.Text.Tests.JsonTests.IContract, ServiceStack.Text.Tests\""));
+		}
+
+		[Test]
 		public void Should_be_able_to_serialise_based_on_an_interface () {
 			JsConfig.PreferInterfaces = true;
 			IContract myConcrete = new Concrete("boo", 1);
@@ -31,10 +39,11 @@ namespace ServiceStack.Text.Tests.JsonTests {
 		[Test]
 		public void Should_be_able_to_deserialise_based_on_an_interface_with_no_concrete () {
 			JsConfig.PreferInterfaces = true;
-			var json = JsonSerializer.SerializeToString(new Concrete("boo", 42), typeof(IContract));
+			var json = new Concrete("boo", 42).ToJson();
+
+			// break the typing so we have to use the dynamic implementation
 			json = json.Replace("ServiceStack.Text.Tests.JsonTests.IContract", "ServiceStack.Text.Tests.JsonTests.IIdenticalContract");
 
-			Console.WriteLine(json);
 			var result = JsonSerializer.DeserializeFromString<IIdenticalContract>(json);
 
 			Assert.That(result.StringValue, Is.EqualTo("boo"));
@@ -42,7 +51,7 @@ namespace ServiceStack.Text.Tests.JsonTests {
 		}
 	}
 
-	public class Concrete : IContract {
+	class Concrete : IContract {
 		public Concrete(string boo, int i) {
 			StringValue = boo;
 			ChildProp = new ConcreteChild { IntValue = i };
@@ -51,14 +60,13 @@ namespace ServiceStack.Text.Tests.JsonTests {
 		public string StringValue { get; set; }
 		public IChildInterface ChildProp { get; set; }
 	}
-	public class ConcreteChild : IChildInterface {
+	class ConcreteChild : IChildInterface {
 		public int IntValue { get; set; }
 	}
 
 	public interface IChildInterface {
 		int IntValue { get; set; }
 	}
-
 	public interface IContract {
 		string StringValue { get; set; }
 		IChildInterface ChildProp { get; set; }

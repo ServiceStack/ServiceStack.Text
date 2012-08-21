@@ -405,12 +405,13 @@ namespace ServiceStack.Text
             return TypeSerializer.DeserializeFromString<T>(jsv);
         }
 
-        public static string ToJson<T>(this T obj)
-        {
-            return JsonSerializer.SerializeToString(obj);
+        public static string ToJson<T>(this T obj) {
+        	return JsConfig.PreferInterfaces
+				? JsonSerializer.SerializeToString(obj, AssemblyUtils.MainInterface<T>())
+				: JsonSerializer.SerializeToString(obj);
         }
 
-        public static T FromJson<T>(this string json)
+    	public static T FromJson<T>(this string json)
         {
             return JsonSerializer.DeserializeFromString<T>(json);
         }
