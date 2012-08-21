@@ -62,7 +62,7 @@ namespace ServiceStack.Text.Tests
 			public IMessage<string> Results { get; set; }
 		}
 
-		[Test, Ignore("I broke this")]
+		[Test]
 		public void Can_deserialize_interface_into_concrete_type()
 		{
 			var dto = Serialize(new DtoWithInterface { Results = new Message<string>("Body") }, includeXml: false);

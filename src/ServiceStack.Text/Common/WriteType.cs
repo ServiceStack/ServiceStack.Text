@@ -60,9 +60,7 @@ namespace ServiceStack.Text.Common
 
 		private static bool TryWriteTypeInfo(TextWriter writer, object obj)
 		{
-			if (obj == null
-				|| JsConfig.ExcludeTypeInfo
-				|| JsConfig<T>.ExcludeTypeInfo) return false;
+			if (obj == null || ShouldSkipType()) return false;
 
 			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
@@ -198,7 +196,7 @@ namespace ServiceStack.Text.Common
 			var i = 0;
 			if (WriteTypeInfo != null || JsState.IsWritingDynamic)
 			{
-				if (value is T && TryWriteSelfType(writer)) i++;
+				if (JsConfig.PreferInterfaces && TryWriteSelfType(writer)) i++;
 				else if (TryWriteTypeInfo(writer, value)) i++;
 			}
 

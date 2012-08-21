@@ -397,7 +397,7 @@ namespace ServiceStack.Text
 
         public static string ToJsv<T>(this T obj)
         {
-            return TypeSerializer.SerializeToString<T>(obj);
+            return TypeSerializer.SerializeToString(obj);
         }
 
         public static T FromJsv<T>(this string jsv)
@@ -407,7 +407,7 @@ namespace ServiceStack.Text
 
         public static string ToJson<T>(this T obj)
         {
-            return JsonSerializer.SerializeToString<T>(obj);
+            return JsonSerializer.SerializeToString(obj);
         }
 
         public static T FromJson<T>(this string json)
@@ -418,7 +418,7 @@ namespace ServiceStack.Text
 #if !XBOX && !SILVERLIGHT && !MONOTOUCH
         public static string ToXml<T>(this T obj)
         {
-            return XmlSerializer.SerializeToString<T>(obj);
+            return XmlSerializer.SerializeToString(obj);
         }
 #endif
 

@@ -85,7 +85,7 @@ namespace ServiceStack.Text.Tests
 			}
 		}
 
-		[Test, Ignore("I broke this")]
+		[Test]
 		public void Can_deserialize_interface_into_concrete_type()
 		{
 			var dto = Serialize(new MessagingTests.DtoWithInterface { Results = new Message<string>("Body") }, includeXml: false);
@@ -116,7 +116,7 @@ namespace ServiceStack.Text.Tests
 			public Dictionary<string, IOAuthTokens> ProviderOAuthAccess { get; set; }
 		}
 
-		[Test, Ignore("I broke this")]
+		[Test]
 		public void Can_Serialize_User_OAuthSession_map()
 		{
 			var userSession = new UserSession {
@@ -141,7 +141,7 @@ namespace ServiceStack.Text.Tests
 			Assert.That(fromDto.ProviderOAuthAccess["facebook"].Items.Count, Is.EqualTo(2));
 		}
 
-		[Test, Ignore("I broke this")]
+		[Test]
 		public void Can_Serialize_User_OAuthSession_list()
 		{
 			var userSession = new OAuthUserSession {

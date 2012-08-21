@@ -12,7 +12,7 @@ namespace ServiceStack.Text.Tests.UseCases
 	[TestFixture]
 	public class GithubV3ApiGatewayTests
 	{
-		[Test]
+		[Test, Ignore("Locks out")]
 		public void DO_ALL_THE_THINGS()
 		{
 			var client = new GithubV3ApiGateway();
