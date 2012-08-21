@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Common
 
 		private static bool ShouldSkipType () { return JsConfig.ExcludeTypeInfo || JsConfig<T>.ExcludeTypeInfo; }
 
-		private static bool WriteSelfType (TextWriter writer) {
+		private static bool TryWriteSelfType (TextWriter writer) {
 			if (ShouldSkipType()) return false;
 
 			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
@@ -198,7 +198,7 @@ namespace ServiceStack.Text.Common
 			var i = 0;
 			if (WriteTypeInfo != null || JsState.IsWritingDynamic)
 			{
-				if (value is T) { WriteSelfType(writer); i++; }
+				if (value is T && TryWriteSelfType(writer)) i++;
 				else if (TryWriteTypeInfo(writer, value)) i++;
 			}
 
