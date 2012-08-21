@@ -28,8 +28,8 @@ namespace ServiceStack.Text.Tests.JsonTests {
 			Assert.That(json, Is.StringContaining("\"ServiceStack.Text.Tests.JsonTests.Concrete, ServiceStack.Text.Tests\""));
 		}
 		
-		[Test, Ignore("Not yet implemented")]
-		public void Should_be_able_to_deserialise_based_on_an_interface () {
+		[Test]
+		public void Should_be_able_to_deserialise_based_on_an_interface_with_no_concrete () {
 			JsConfig.PreferInterfaces = true;
 			var json = JsonSerializer.SerializeToString(new Concrete("boo"), typeof(IContract));
 			json = json.Replace("ServiceStack.Text.Tests.JsonTests.IContract", "ServiceStack.Text.Tests.JsonTests.IIdenticalContract");

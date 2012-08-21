@@ -90,8 +90,14 @@ namespace ServiceStack.Text.Common
                 var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
                 var type = AssemblyUtils.FindType(typeName);
 
-                if (type == null)
-                    Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+				if (type == null) {
+					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+					return null;
+				}
+
+				if (type.IsInterface || type.IsAbstract) {
+					return DynamicProxy.GetInstanceFor(type).GetType();
+				}
 
                 return type;
             }

@@ -304,12 +304,6 @@ namespace ServiceStack.Text.Json
         public string ParseRawString(string value)
         {
             return value;
-            
-            //if (string.IsNullOrEmpty(value)) return value;
-
-            //return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
-            //    ? value.Substring(1, value.Length - 2)
-            //    : value;
         }
 
         public string ParseString(string value)
