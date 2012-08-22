@@ -1,12 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Messaging;
-using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface.Auth;
-using ServiceStack.ServiceInterface.ServiceModel;
 using ServiceStack.Text.Tests.JsonTests;
 
 namespace ServiceStack.Text.Tests

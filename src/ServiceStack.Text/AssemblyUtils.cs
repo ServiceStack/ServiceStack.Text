@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 #if SILVERLIGHT
@@ -44,6 +45,21 @@ namespace ServiceStack.Text
 #endif
 
 #if !XBOX
+
+		
+		/// <summary>
+		/// The top-most interface of the given type, if any.
+		/// </summary>
+    	public static Type MainInterface<T>() {
+			var t = typeof(T);
+    		if (t.BaseType == typeof(object)) {
+				// on Windows, this can be just "t.GetInterfaces()" but Mono doesn't return in order.
+				var interfaceType = t.GetInterfaces().FirstOrDefault(i => !t.GetInterfaces().Any(i2 => i2.GetInterfaces().Contains(i)));
+				return interfaceType;
+			}
+			return t; // not safe to use interface, as it might be a superclass's one.
+		}
+
         /// <summary>
         /// Find type if it exists
         /// </summary>

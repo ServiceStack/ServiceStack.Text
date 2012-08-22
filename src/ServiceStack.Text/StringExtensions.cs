@@ -397,7 +397,7 @@ namespace ServiceStack.Text
 
         public static string ToJsv<T>(this T obj)
         {
-            return TypeSerializer.SerializeToString<T>(obj);
+            return TypeSerializer.SerializeToString(obj);
         }
 
         public static T FromJsv<T>(this string jsv)
@@ -405,12 +405,13 @@ namespace ServiceStack.Text
             return TypeSerializer.DeserializeFromString<T>(jsv);
         }
 
-        public static string ToJson<T>(this T obj)
-        {
-            return JsonSerializer.SerializeToString<T>(obj);
+        public static string ToJson<T>(this T obj) {
+        	return JsConfig.PreferInterfaces
+				? JsonSerializer.SerializeToString(obj, AssemblyUtils.MainInterface<T>())
+				: JsonSerializer.SerializeToString(obj);
         }
 
-        public static T FromJson<T>(this string json)
+    	public static T FromJson<T>(this string json)
         {
             return JsonSerializer.DeserializeFromString<T>(json);
         }
@@ -418,7 +419,7 @@ namespace ServiceStack.Text
 #if !XBOX && !SILVERLIGHT && !MONOTOUCH
         public static string ToXml<T>(this T obj)
         {
-            return XmlSerializer.SerializeToString<T>(obj);
+            return XmlSerializer.SerializeToString(obj);
         }
 #endif
 
