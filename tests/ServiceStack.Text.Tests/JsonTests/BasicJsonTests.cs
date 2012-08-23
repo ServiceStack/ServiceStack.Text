@@ -188,6 +188,14 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(o.Nothing, Is.EqualTo("zilch"));
 		}
 
+		[Test]
+		public void Deserialize_ignores_leading_comma()
+		{
+			var s = "[,{\"Type\":\"Programmer\",\"SampleKey\":1},{\"Type\":\"Programmer\",\"SampleKey\":2}]";
+			var o = JsonSerializer.DeserializeFromString<NullValueTester[]>(s);
+			Assert.That(o.Length, Is.EqualTo(2));
+		}
+
 		private class NullValueTester
 		{
 			public string Name
