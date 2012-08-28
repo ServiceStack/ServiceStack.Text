@@ -422,6 +422,31 @@ namespace ServiceStack.Text
             }
 	    }
 
+        /// <summary>
+        /// Whether there is a fn (raw or otherwise)
+        /// </summary>
+        public static bool HasSerializeFn
+        {
+            get { return serializeFn != null || rawSerializeFn != null; }
+        }
+
+        /// <summary>
+        /// Define custom raw serialization fn
+        /// </summary>
+        private static Func<T, string> rawSerializeFn;
+        public static Func<T, string> RawSerializeFn
+        {
+            get { return rawSerializeFn; }
+            set
+            {
+                rawSerializeFn = value;
+                if (value != null)
+                    JsConfig.HasSerializeFn.Add(typeof(T));
+                else
+                    JsConfig.HasSerializeFn.Remove(typeof(T));
+            }
+        }
+
 		/// <summary>
 		/// Define custom deserialization fn for BCL Structs
 		/// </summary>
@@ -434,8 +459,12 @@ namespace ServiceStack.Text
 
 		public static void WriteFn<TSerializer>(TextWriter writer, object obj)
 		{
-			var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-			serializer.WriteString(writer, SerializeFn((T)obj));
+            if (RawSerializeFn != null) {
+                writer.Write(RawSerializeFn((T)obj));
+            } else {
+                var serializer = JsWriter.GetTypeSerializer<TSerializer>();
+                serializer.WriteRawString(writer, SerializeFn((T)obj));
+            }
 		}
 
 		public static object ParseFn(string str)
