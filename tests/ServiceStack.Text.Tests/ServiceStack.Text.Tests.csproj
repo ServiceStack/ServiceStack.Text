@@ -176,6 +176,7 @@
     <Compile Include="CsvStreamTests.cs" />
     <Compile Include="CsvTests\CustomHeaderTests.cs" />
     <Compile Include="JsonTests\ContractByInterfaceTests.cs" />
+    <Compile Include="JsonTests\EdgeCasePropertyTypesTests.cs" />
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
@@ -235,6 +236,7 @@
     <Compile Include="StringSerializerTranslationTests.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TypeConverterTests.cs" />
+    <Compile Include="XmlSerializerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

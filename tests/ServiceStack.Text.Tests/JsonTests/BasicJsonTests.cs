@@ -74,6 +74,16 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(item.DateTime, Is.Null, "datetime");
         }
 
+		[Test]
+		public void Can_parse_json_with_nulls_or_empty_string_in_nullables()
+		{
+			const string json = "{\"Int\":null,\"Boolean\":\"\"}";
+			var value = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
+
+			Assert.That(value.Int, Is.EqualTo(null));
+			Assert.That(value.Boolean, Is.EqualTo(null));
+		}
+
         [Test]
         public void Can_parse_json_with_nullable_valuetypes_that_has_no_value_specified()
         {
