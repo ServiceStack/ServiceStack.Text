@@ -86,6 +86,34 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromJson.Items[0].tag_name, Is.EqualTo("null"));
         }
 
+        public class EntityForOverridingDeserialization
+        {
+            public int? IntValue { get; set; }
+            public bool? BoolValue { get; set; }
+            public long? LongValue { get; set; }
+            public Guid? GuidValue { get; set; }
+        }
+
+        [Test]
+		public void Test_override_DeserializeFn()
+		{
+            JsConfig<bool?>.DeSerializeFn = value => string.IsNullOrEmpty(value) ? (bool?)null : bool.Parse(value);
+			JsConfig<int?>.DeSerializeFn = value => string.IsNullOrEmpty(value) ? (int?)null : int.Parse(value);
+			JsConfig<long?>.DeSerializeFn = value => string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+			JsConfig<Guid?>.DeSerializeFn = value => string.IsNullOrEmpty(value) ? (Guid?)null : new Guid(value);				
+
+            try {
+                var json = "{\"intValue\":1,\"boolValue\":\"\",\"longValue\":null}";
+                var fromJson = json.FromJson<EntityForOverridingDeserialization>();
+                Assert.That(fromJson.IntValue, Is.EqualTo(1));
+                Assert.That(fromJson.BoolValue, Is.Null);
+                Assert.That(fromJson.LongValue, Is.Null);
+                Assert.That(fromJson.GuidValue, Is.Null);
+            } finally {
+                JsConfig.Reset();
+            }
+		}
+
         [Test]
         public void Can_handle_null_in_Answer()
         {
@@ -142,7 +170,6 @@ namespace ServiceStack.Text.Tests
             }
             public List<string> Strings { get; set; }
         }
-
     }
 
 }
