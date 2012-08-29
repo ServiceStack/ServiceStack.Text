@@ -6,6 +6,35 @@ using ServiceStack.Text.Reflection;
 
 namespace ServiceStack.Text
 {
+    internal class CsvDictionaryWriter
+    {
+		public static void WriteRow(TextWriter writer, IEnumerable<string> row)
+		{
+			var ranOnce = false;
+			foreach (var field in row)
+			{
+				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+
+				writer.Write(field.ToCsvField());
+			}
+			writer.WriteLine();
+		}
+
+		public static void Write(TextWriter writer, IEnumerable<Dictionary<string, string>> records)
+		{
+			if (records == null) return; //AOT
+
+		    var requireHeaders = !CsvConfig<Dictionary<string, string>>.OmitHeaders;
+			foreach (var record in records) {
+                if (requireHeaders) {
+                    WriteRow(writer, record.Keys);
+                    requireHeaders = false;
+                }
+                WriteRow(writer, record.Values);
+			}
+		}
+    }
+
 	internal class CsvWriter<T>
 	{
 		public const char DelimiterChar = ',';
@@ -120,6 +149,11 @@ namespace ServiceStack.Text
 		public static void Write(TextWriter writer, IEnumerable<T> records)
 		{
 			if (records == null) return; //AOT
+
+            if (typeof (T) == typeof(Dictionary<string, string>)) {
+                CsvDictionaryWriter.Write(writer, (IEnumerable<Dictionary<string, string>>)records);
+                return;
+            }
 
 			if (OptimizedWriter != null)
 			{
