@@ -254,7 +254,7 @@ namespace ServiceStack.Text.Common
 
         internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
         {
-            if (!propertyInfo.CanWrite) return null;
+            if (!propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Any()) return null;
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
             var setMethodInfo = propertyInfo.GetSetMethod(true);
