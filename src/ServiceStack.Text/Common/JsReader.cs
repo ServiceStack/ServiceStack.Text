@@ -13,6 +13,9 @@ namespace ServiceStack.Text.Common
 		{
 			var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
+			if (JsConfig<T>.DeSerializeFn != null)
+                return value => JsConfig<T>.ParseFn(Serializer.UnescapeString(value));
+
 			if (type.IsEnum)
 			{
 				return x => Enum.Parse(type, x, true);
@@ -39,9 +42,6 @@ namespace ServiceStack.Text.Common
 			var builtInMethod = DeserializeBuiltin<T>.Parse;
 			if (builtInMethod != null)
 				return value => builtInMethod(Serializer.UnescapeSafeString(value));
-
-			if (JsConfig<T>.DeSerializeFn != null)
-                return value => JsConfig<T>.ParseFn(Serializer.UnescapeString(value));
 
 			if (type.IsGenericType())
 			{

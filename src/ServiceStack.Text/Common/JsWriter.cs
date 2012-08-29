@@ -243,7 +243,7 @@ namespace ServiceStack.Text.Common
             }
 
             if ((typeof(T).IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
-                JsConfig<T>.SerializeFn != null)
+                JsConfig<T>.HasSerializeFn)
             {
                 return JsConfig<T>.SerializeFn != null
                     ? JsConfig<T>.WriteFn<TSerializer>
