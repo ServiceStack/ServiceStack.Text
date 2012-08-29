@@ -8,6 +8,13 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class NullableTypesTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            JsConfig.Reset();
+        }
+
+
         [Test]
         public void Can_Serialize_populated_model_of_NullableTypes()
         {
