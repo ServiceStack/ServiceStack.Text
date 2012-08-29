@@ -13,26 +13,65 @@ ServiceStack.Text is an **independent, dependency-free** serialization library t
 * StringExtensions - Xml/Json/Csv/Url encoding, BaseConvert, Rot13, Hex escape, etc.
 * Stream, Reflection, List, DateTime, etc extensions and utils
 
+Supports custom builds for: .NET 3.5+, Mono, MonoTouch/MonoDroid, Silverlight 4/5, XBOX, Windows Phone 7
+
+All in a single **144kb** dependency-free ServiceStack.Text.dll
+
 # Simple API
 
 Like most of the interfaces in Service Stack, the API is simple and descriptive. In most cases these are the only methods that you would commonly use:
 
-    string TypeSerializer.SerializeToString<T>(T value);
-    void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer);
+    string TypeSerializer.SerializeToString<T>(T value)
+    void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer)
 
-    T TypeSerializer.DeserializeFromString<T>(string value);
-    T TypeSerializer.DeserializeFromReader<T>(TextReader reader);
-	
-Extension Methods:
-
-    T FromJson();
-    string ToJson(T);
-
-    T FromJsv();
-    string ToJsv(T);
-    T Dump(string);
+    T TypeSerializer.DeserializeFromString<T>(string value)
+    T TypeSerializer.DeserializeFromReader<T>(TextReader reader)
     
+    //Dynamic JSON parsing
+    JsonObject.Parse()
+    JsonArrayObjects.Parse()
+	
+### Extension Methods
 
+    T FromJson()
+    string ToJson(T)
+
+    T FromJsv()
+    string ToJsv(T)
+    
+Dump / Diagnostic Extensions:
+
+    T Dump()
+    T Print()
+    T PrintDump()
+    string Fmt(args)
+    
+URL Extensions:
+
+    string GetStringFromUrl()
+    string GetJsonFromUrl()
+    string GetResponseStatus()
+    string UrlEncode() / UrlDecode()
+    string HexEscape() / HexUnescape()
+    string UrlFormat() / AppendPath() / AppendPaths() / WithTrailingSlash()    
+    string WithoutExtension() / ParentDirectory() / ReadAllText()
+    
+Stream Extensions:
+
+    Stream WriteTo(Stream) / CopyTo()
+    StreamReader ReadLines()
+    Stream ReadFully() / ReadExactly()
+    
+String Utils:
+
+    string SplitOnFirst() / SplitOnLast()
+    string IndexOfAny()
+    string StripHtml() / ToCamelCase()
+    string SafeSubstring()
+    string ToUtf8Bytes() / FromUtf8Bytes()
+    
+and many more Reflection, List, Dictionary, DateTime extensions...    
+    
 Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
 
 ### Supports Dynamic JSON as well
