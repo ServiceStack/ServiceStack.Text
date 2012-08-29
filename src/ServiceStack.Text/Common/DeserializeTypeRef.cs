@@ -13,6 +13,21 @@ namespace ServiceStack.Text.Common
 			JsWriter.MapStartChar, type.Name, strType.Substring(0, strType.Length < 50 ? strType.Length : 50)));
 		}
 
+	    internal static SerializationException GetSerializationException(string propertyName, string propertyValueString, Type propertyType, Exception e)
+	    {
+	        var serializationException = new SerializationException(String.Format("Failed to set property '{0}' with '{1}'", propertyName, propertyValueString), e);
+	        if (propertyName != null) {
+	            serializationException.Data.Add("propertyName", propertyName);
+	        }
+	        if (propertyValueString != null) {
+	            serializationException.Data.Add("propertyValueString", propertyValueString);
+	        }
+	        if (propertyType != null) {
+	            serializationException.Data.Add("propertyType", propertyType);
+	        }
+	        return serializationException;
+	    }
+
 		/* The old Reference generic implementation
 		internal static object StringToType(
 			ITypeSerializer Serializer, 

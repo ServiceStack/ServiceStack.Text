@@ -126,6 +126,7 @@ namespace ServiceStack.Text.Common
     {
         internal ParseStringDelegate GetProperty;
         internal SetPropertyDelegate SetProperty;
+        internal Type PropertyType;
 
         public static Type ExtractType(ITypeSerializer Serializer, string strType)
         {
@@ -151,6 +152,7 @@ namespace ServiceStack.Text.Common
         {
             return new TypeAccessor
             {
+                PropertyType = propertyInfo.PropertyType,
                 GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
                 SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
             };
