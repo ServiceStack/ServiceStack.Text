@@ -4,6 +4,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{F7FB50ED-EAFF-4839-935A-5BB4A4158245}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\build.bat = ..\build\build.bat
+		..\build.cmd = ..\build.cmd
 		..\build\NuGetPack.cmd = ..\build\NuGetPack.cmd
 		..\NuGet\servicestack.text.nuspec = ..\NuGet\servicestack.text.nuspec
 	EndProjectSection

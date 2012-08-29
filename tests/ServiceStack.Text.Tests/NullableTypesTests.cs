@@ -35,10 +35,11 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Serialize_array_with_null_should_always_produce_Valid_JSON()
         {
+            var hold = JsConfig.IncludeNullValues;
             JsConfig.IncludeNullValues = true;
             string json = new Object[] { 1, 2, 3, null, 5 }.ToJson();  // [1,2,3,,5]  - Should be [1,2,3,null,5]
             Assert.That(json, Is.EqualTo("[1,2,3,null,5]"));
-            JsConfig.IncludeNullValues = false;
+            JsConfig.IncludeNullValues = hold;
         }
 
         public class Answer

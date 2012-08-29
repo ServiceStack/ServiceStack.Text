@@ -463,7 +463,7 @@ namespace ServiceStack.Text
                 writer.Write(RawSerializeFn((T)obj));
             } else {
                 var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-                serializer.WriteRawString(writer, SerializeFn((T)obj));
+                serializer.WriteString(writer, SerializeFn((T)obj));
             }
 		}
 
