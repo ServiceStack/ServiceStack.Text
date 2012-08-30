@@ -27,7 +27,10 @@ Like most of the interfaces in Service Stack, the API is simple and descriptive.
     T TypeSerializer.DeserializeFromString<T>(string value)
     T TypeSerializer.DeserializeFromReader<T>(TextReader reader)
     
-    //Dynamic JSON parsing
+Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
+    
+### Dynamic JSON parsing API
+
     JsonObject.Parse()
     JsonArrayObjects.Parse()
 	
@@ -70,9 +73,7 @@ String Utils:
     string SafeSubstring()
     string ToUtf8Bytes() / FromUtf8Bytes()
     
-and many more Reflection, List, Dictionary, DateTime extensions...    
-    
-Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
+and many more String, Reflection, List, Dictionary, DateTime extensions...    
 
 ### Supports Dynamic JSON as well
 
