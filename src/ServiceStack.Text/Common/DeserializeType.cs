@@ -27,8 +27,6 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        private static readonly string TypeAttrInObject = Serializer.TypeAttrInObject;
-
         public static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
         {
             var type = typeConfig.Type;
@@ -82,13 +80,15 @@ namespace ServiceStack.Text.Common
 
         public static Type ExtractType(string strType)
         {
+            var typeAttrInObject = Serializer.TypeAttrInObject;
             if (strType != null
-				&& strType.Length > TypeAttrInObject.Length
-				&& strType.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
+				&& strType.Length > typeAttrInObject.Length
+				&& strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
-                var propIndex = TypeAttrInObject.Length;
+                var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
-                var type = AssemblyUtils.FindType(typeName);
+
+                var type = JsConfig.TypeFinder.Invoke(typeName);
 
 				if (type == null) {
 					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
@@ -130,15 +130,15 @@ namespace ServiceStack.Text.Common
 
         public static Type ExtractType(ITypeSerializer Serializer, string strType)
         {
-            var TypeAttrInObject = Serializer.TypeAttrInObject;
+            var typeAttrInObject = Serializer.TypeAttrInObject;
 
             if (strType != null
-				&& strType.Length > TypeAttrInObject.Length
-				&& strType.Substring(0, TypeAttrInObject.Length) == TypeAttrInObject)
+				&& strType.Length > typeAttrInObject.Length
+				&& strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
-                var propIndex = TypeAttrInObject.Length;
+                var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.EatValue(strType, ref propIndex);
-                var type = AssemblyUtils.FindType(typeName);
+                var type = JsConfig.TypeFinder.Invoke(typeName);
 
                 if (type == null)
                     Tracer.Instance.WriteWarning("Could not find type: " + typeName);

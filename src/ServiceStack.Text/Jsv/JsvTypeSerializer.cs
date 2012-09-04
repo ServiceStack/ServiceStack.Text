@@ -28,7 +28,7 @@ namespace ServiceStack.Text.Jsv
             get { return false; } //Doesn't support null values, treated as "null" string literal
 	    }
 
-	    public string TypeAttrInObject { get { return "{__type:"; } }
+	    public string TypeAttrInObject { get { return string.Format("{{{0}:", JsConfig.TypeAttr); } }
 
 		public WriteObjectDelegate GetWriteFn<T>()
 		{

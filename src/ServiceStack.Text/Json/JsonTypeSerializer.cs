@@ -28,7 +28,7 @@ namespace ServiceStack.Text.Json
             get { return JsConfig.IncludeNullValues; }
         }
 
-        public string TypeAttrInObject { get { return "{\"__type\":"; } }
+        public string TypeAttrInObject { get { return string.Format("{{\"{0}\":", JsConfig.TypeAttr); } }
 
         public static readonly bool[] WhiteSpaceFlags = new bool[' ' + 1];
 

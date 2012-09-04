@@ -68,6 +68,38 @@ namespace ServiceStack.Text
 		}
 
 		[ThreadStatic]
+		private static string tsTypeAttr;
+		private static string sTypeAttr;
+		public static string TypeAttr
+		{
+			get
+			{
+				return tsTypeAttr ?? sTypeAttr ?? JsWriter.TypeAttr;
+			}
+			set
+			{
+				tsTypeAttr = value;
+				if (sTypeAttr == null) sTypeAttr = value;
+			}
+		}
+
+		[ThreadStatic]
+		private static Func<string, Type> tsTypeFinder;
+		private static Func<string, Type> sTypeFinder;
+		public static Func<string, Type> TypeFinder
+		{
+			get
+			{
+				return tsTypeFinder ?? sTypeFinder ?? AssemblyUtils.FindType;
+			}
+			set
+			{
+				tsTypeFinder = value;
+				if (sTypeFinder == null) sTypeFinder = value;
+			}
+		}
+
+		[ThreadStatic]
 		private static JsonDateHandler? tsDateHandler;
 		private static JsonDateHandler? sDateHandler;
 		public static JsonDateHandler DateHandler
@@ -169,7 +201,9 @@ namespace ServiceStack.Text
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 			tsDateHandler = sDateHandler = null;
 			tsPreferInterfaces = sPreferInterfaces = null;
-			tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
+            tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
+            tsTypeAttr = sTypeAttr = null;
+            tsTypeFinder = sTypeFinder = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> {
                 typeof(KeyValuePair<,>)
