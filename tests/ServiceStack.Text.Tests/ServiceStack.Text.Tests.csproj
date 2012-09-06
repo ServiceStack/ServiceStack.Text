@@ -172,6 +172,7 @@
     <Compile Include="DateTimeOffsetAndTimeSpanTests.cs" />
     <Compile Include="JsonObjectTests.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
+    <Compile Include="JsonTests\CustomSerializerTests.cs" />
     <Compile Include="JsonTests\CamelCaseTests.cs" />
     <Compile Include="CsvSerializerTests.cs" />
     <Compile Include="CsvStreamTests.cs" />
