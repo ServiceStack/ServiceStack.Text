@@ -80,6 +80,42 @@ namespace ServiceStack.Text
 			{
 				tsTypeAttr = value;
 				if (sTypeAttr == null) sTypeAttr = value;
+			    JsonTypeAttrInObject = Json.JsonTypeSerializer.GetTypeAttrInObject(value);
+			    JsvTypeAttrInObject = Jsv.JsvTypeSerializer.GetTypeAttrInObject(value);
+			}
+		}
+
+		[ThreadStatic]
+		private static string tsJsonTypeAttrInObject;
+		private static string sJsonTypeAttrInObject;
+	    private static readonly string defaultJsonTypeAttrInObject = Json.JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
+		internal static string JsonTypeAttrInObject
+		{
+			get
+			{
+				return tsJsonTypeAttrInObject ?? sJsonTypeAttrInObject ?? defaultJsonTypeAttrInObject;
+			}
+			set
+			{
+				tsJsonTypeAttrInObject = value;
+				if (sJsonTypeAttrInObject == null) sJsonTypeAttrInObject = value;
+			}
+		}
+
+		[ThreadStatic]
+		private static string tsJsvTypeAttrInObject;
+		private static string sJsvTypeAttrInObject;
+	    private static readonly string defaultJsvTypeAttrInObject = Jsv.JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
+		internal static string JsvTypeAttrInObject
+		{
+			get
+			{
+				return tsJsvTypeAttrInObject ?? sJsvTypeAttrInObject ?? defaultJsvTypeAttrInObject;
+			}
+			set
+			{
+				tsJsvTypeAttrInObject = value;
+				if (sJsvTypeAttrInObject == null) sJsvTypeAttrInObject = value;
 			}
 		}
 
@@ -203,6 +239,8 @@ namespace ServiceStack.Text
 			tsPreferInterfaces = sPreferInterfaces = null;
             tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
             tsTypeAttr = sTypeAttr = null;
+            tsJsonTypeAttrInObject = sJsonTypeAttrInObject = null;
+            tsJsvTypeAttrInObject = sJsvTypeAttrInObject = null;
             tsTypeFinder = sTypeFinder = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> {
