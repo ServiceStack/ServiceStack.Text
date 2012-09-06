@@ -452,6 +452,16 @@ namespace ServiceStack.Text
 		/// </summary>
 		public static Func<string, T> DeSerializeFn;
 
+        /// <summary>
+        /// Define custom raw deserialization fn for objects
+        /// </summary>
+        public static Func<string, T> RawDeserializeFn; 
+
+        public static bool HasDeserializeFn
+        {
+            get { return DeSerializeFn != null || RawDeserializeFn != null; }
+        }
+
 		/// <summary>
 		/// Exclude specific properties of this type from being serialized
 		/// </summary>
@@ -467,9 +477,18 @@ namespace ServiceStack.Text
             }
 		}
 
-		public static object ParseFn(string str)
+        public static object ParseFn(string str)
+        {
+            return DeSerializeFn(str);
+        }
+
+		internal static object ParseFn(ITypeSerializer serializer, string str)
 		{
-			return DeSerializeFn(str);
+            if (RawDeserializeFn != null) {
+                return RawDeserializeFn(str);
+            } else {
+			    return DeSerializeFn(serializer.UnescapeString(str));
+            }
 		}
 	}
 

@@ -35,6 +35,11 @@ namespace ServiceStack.Text.Tests
 			return JsonSerialize(model, false);
 		}
 
+		public T JsonSerializeAndCompare<T>(T model)
+		{
+			return JsonSerialize(model, true);
+		}
+
 		public T SerializeAndCompare<T>(T model, bool includeXml = true)
 		{
 			return Serialize(model, true, includeXml);
