@@ -248,6 +248,20 @@ namespace ServiceStack.Text.Tests
 			Assert.That(stringValue, Is.EqualTo(expectedString));
 		}
 
+        [Test]
+        public void Can_convert_multidimensional_array()
+        {
+            var data = new double[,] { { 1, 0 }, { 0, 1 } };
+            var result = TypeSerializer.SerializeToString(data);
+
+            Assert.That(result, Is.EqualTo("[[1,0],[0,1]]"));
+
+            var data2 = new double[,,] { { { 1, 0 }, { 1, 0 } }, { { 0, 1 }, { 0, 1 } } };
+            result = TypeSerializer.SerializeToString(data2);
+
+            Assert.That(result, Is.EqualTo("[[[1,0],[1,0]],[[0,1],[0,1]]]"));
+        }
+
 		[Test]
 		public void Can_convert_empty_List_as_object()
 		{
