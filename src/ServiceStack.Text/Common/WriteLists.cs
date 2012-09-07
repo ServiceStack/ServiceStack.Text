@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -299,7 +300,7 @@ namespace ServiceStack.Text.Common
 		public static void WriteArray(TextWriter writer, object oArrayValue)
 		{
 			if (oArrayValue == null) return;
-			WriteGenericArray(writer, (T[])oArrayValue);
+			WriteGenericArray(writer, (Array)oArrayValue);
 		}
 
 		public static void WriteGenericArrayValueType(TextWriter writer, object oArray)
@@ -318,21 +319,27 @@ namespace ServiceStack.Text.Common
 			writer.Write(JsWriter.ListEndChar);
 		}
 
-		public static void WriteGenericArray(TextWriter writer, T[] array)
-		{
-			writer.Write(JsWriter.ListStartChar);
+        private static void WriteGenericArrayMultiDimension(TextWriter writer, Array array, int rank, int[] indices)
+        {
+            var ranOnce = false;
+            writer.Write(JsWriter.ListStartChar);
+            for (int i = 0; i < array.GetLength(rank); i++)
+            {
+                JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+                indices[rank] = i;
 
-			var ranOnce = false;
-			var arrayLength = array.Length;
-			for (var i = 0; i < arrayLength; i++)
-			{
-				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-				ElementWriteFn(writer, array[i]);
-			}
+                if (rank < (array.Rank - 1))
+                    WriteGenericArrayMultiDimension(writer, array, rank + 1, indices);
+                else
+                    ElementWriteFn(writer, array.GetValue(indices));
+            }
+            writer.Write(JsWriter.ListEndChar);
+        }
 
-			writer.Write(JsWriter.ListEndChar);
-		}
-
+        public static void WriteGenericArray(TextWriter writer, Array array)
+        {
+            WriteGenericArrayMultiDimension(writer, array, 0, new int[array.Rank]);
+        }
 		public static void WriteEnumerable(TextWriter writer, object oEnumerable)
 		{
 			if (oEnumerable == null) return;
