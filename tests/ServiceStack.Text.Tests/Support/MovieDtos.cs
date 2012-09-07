@@ -81,11 +81,19 @@ namespace ServiceStack.Text.Tests.Support
 		#endregion
 	}
 
-	[DataContract]
-	public class MovieResponse
-	{
-		[DataMember]
-		public Movie Movie { get; set; }
-	}
+    [DataContract]
+    public class MovieResponse
+    {
+        [DataMember]
+        public Movie Movie { get; set; }
+    }
+
+    [Dto]
+    public class MoviesResponse
+    {
+        public int Id { get; set; }
+
+        public List<Movie> Movies { get; set; }
+    }
 
 }

@@ -406,6 +406,7 @@ namespace ServiceStack.Text
         }
 
         const string DataContract = "DataContractAttribute";
+        const string Dto = "DtoAttribute";
         const string DataMember = "DataMemberAttribute";
         const string IgnoreDataMember = "IgnoreDataMemberAttribute";
 
@@ -418,8 +419,9 @@ namespace ServiceStack.Text
             //checking for "DataContract" using strings to avoid dependency on System.Runtime.Serialization
             if (type.IsDto())
             {
-                return publicReadableProperties.Where(attr =>
-                    attr.GetCustomAttributes(false).Any(x => x.GetType().Name == DataMember))
+                var hasDtoAttr = type.HasDtoAttr();
+                return publicReadableProperties.Where(attr => hasDtoAttr 
+                    || attr.GetCustomAttributes(false).Any(x => x.GetType().Name == DataMember))
                     .ToArray();
             }
             // else return those properties that are not decorated with IgnoreDataMember
@@ -428,7 +430,12 @@ namespace ServiceStack.Text
 
         public static bool IsDto(this Type type)
         {
-            return type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract);
+            return type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract || x.GetType().Name == Dto);
+        }
+
+        public static bool HasDtoAttr(this Type type)
+        {
+            return type.GetCustomAttributes(true).Any(x => x.GetType().Name == Dto);
         }
 
     }

@@ -17,7 +17,7 @@ namespace ServiceStack.Text.Tests
 		{
 			//TODO: implement serializer and test properly
 			var csv = CsvSerializer.SerializeToString(data);
-			Console.WriteLine(csv);
+			csv.Print();
 		}
 
 		[Test]
@@ -32,11 +32,17 @@ namespace ServiceStack.Text.Tests
 			Serialize(MoviesData.Movies);
 		}
 
-		[Test]
-		public void Can_Serialize_MovieResponse_Dto()
-		{
-			Serialize(new MovieResponse { Movie = MoviesData.Movies[0] });
-		}
+        [Test]
+        public void Can_Serialize_MovieResponse_Dto()
+        {
+            Serialize(new MovieResponse { Movie = MoviesData.Movies[0] });
+        }
+
+        [Test]
+        public void Can_Serialize_MoviesResponse_Dto()
+        {
+            Serialize(new MoviesResponse { Movies = MoviesData.Movies });
+        }
 
 		[Test]
 		public void serialize_Category()
