@@ -28,7 +28,15 @@ namespace ServiceStack.Text.Json
             get { return JsConfig.IncludeNullValues; }
         }
 
-        public string TypeAttrInObject { get { return "{\"__type\":"; } }
+        public string TypeAttrInObject
+        {
+            get { return JsConfig.JsonTypeAttrInObject; }
+        }
+
+        internal static string GetTypeAttrInObject(string typeAttr)
+        {
+            return string.Format("{{\"{0}\":", typeAttr);
+        }
 
         public static readonly bool[] WhiteSpaceFlags = new bool[' ' + 1];
 
@@ -311,6 +319,14 @@ namespace ServiceStack.Text.Json
             return string.IsNullOrEmpty(value) ? value : ParseRawString(value);
         }
 
+        internal static bool IsEmptyMap(string value)
+        {
+            var i = 1;
+            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            if (value.Length == i) return true;
+            return value[i++] == JsWriter.MapEndChar;
+        }
+
         internal static string ParseString(string json, ref int index)
         {
             var jsonLength = json.Length;
@@ -513,6 +529,7 @@ namespace ServiceStack.Text.Json
             if (i == valueLength) return null;
 
             for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            if (i == valueLength) return null;
 
             var tokenStartPos = i;
             var valueChar = value[i];

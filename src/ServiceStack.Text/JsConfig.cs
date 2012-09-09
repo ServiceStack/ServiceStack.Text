@@ -68,6 +68,74 @@ namespace ServiceStack.Text
 		}
 
 		[ThreadStatic]
+		private static string tsTypeAttr;
+		private static string sTypeAttr;
+		public static string TypeAttr
+		{
+			get
+			{
+				return tsTypeAttr ?? sTypeAttr ?? JsWriter.TypeAttr;
+			}
+			set
+			{
+				tsTypeAttr = value;
+				if (sTypeAttr == null) sTypeAttr = value;
+			    JsonTypeAttrInObject = Json.JsonTypeSerializer.GetTypeAttrInObject(value);
+			    JsvTypeAttrInObject = Jsv.JsvTypeSerializer.GetTypeAttrInObject(value);
+			}
+		}
+
+		[ThreadStatic]
+		private static string tsJsonTypeAttrInObject;
+		private static string sJsonTypeAttrInObject;
+	    private static readonly string defaultJsonTypeAttrInObject = Json.JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
+		internal static string JsonTypeAttrInObject
+		{
+			get
+			{
+				return tsJsonTypeAttrInObject ?? sJsonTypeAttrInObject ?? defaultJsonTypeAttrInObject;
+			}
+			set
+			{
+				tsJsonTypeAttrInObject = value;
+				if (sJsonTypeAttrInObject == null) sJsonTypeAttrInObject = value;
+			}
+		}
+
+		[ThreadStatic]
+		private static string tsJsvTypeAttrInObject;
+		private static string sJsvTypeAttrInObject;
+	    private static readonly string defaultJsvTypeAttrInObject = Jsv.JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
+		internal static string JsvTypeAttrInObject
+		{
+			get
+			{
+				return tsJsvTypeAttrInObject ?? sJsvTypeAttrInObject ?? defaultJsvTypeAttrInObject;
+			}
+			set
+			{
+				tsJsvTypeAttrInObject = value;
+				if (sJsvTypeAttrInObject == null) sJsvTypeAttrInObject = value;
+			}
+		}
+
+		[ThreadStatic]
+		private static Func<string, Type> tsTypeFinder;
+		private static Func<string, Type> sTypeFinder;
+		public static Func<string, Type> TypeFinder
+		{
+			get
+			{
+				return tsTypeFinder ?? sTypeFinder ?? AssemblyUtils.FindType;
+			}
+			set
+			{
+				tsTypeFinder = value;
+				if (sTypeFinder == null) sTypeFinder = value;
+			}
+		}
+
+		[ThreadStatic]
 		private static JsonDateHandler? tsDateHandler;
 		private static JsonDateHandler? sDateHandler;
 		public static JsonDateHandler DateHandler
@@ -169,7 +237,11 @@ namespace ServiceStack.Text
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
 			tsDateHandler = sDateHandler = null;
 			tsPreferInterfaces = sPreferInterfaces = null;
-			tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
+            tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
+            tsTypeAttr = sTypeAttr = null;
+            tsJsonTypeAttrInObject = sJsonTypeAttrInObject = null;
+            tsJsvTypeAttrInObject = sJsvTypeAttrInObject = null;
+            tsTypeFinder = sTypeFinder = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> {
                 typeof(KeyValuePair<,>)

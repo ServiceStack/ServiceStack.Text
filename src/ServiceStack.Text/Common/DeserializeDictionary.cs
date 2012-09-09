@@ -63,7 +63,7 @@ namespace ServiceStack.Text.Common
 
             var result = new JsonObject();
 
-            if (value == JsWriter.EmptyMap) return result;
+            if (JsonTypeSerializer.IsEmptyMap(value)) return result;
 
             var valueLength = value.Length;
             while (index < valueLength)
@@ -89,7 +89,7 @@ namespace ServiceStack.Text.Common
 
             var result = new Dictionary<string, string>();
 
-            if (value == JsWriter.EmptyMap) return result;
+            if (JsonTypeSerializer.IsEmptyMap(value)) return result;
 
             var valueLength = value.Length;
             while (index < valueLength)
@@ -124,7 +124,7 @@ namespace ServiceStack.Text.Common
 				? new Dictionary<TKey, TValue>()
 				: (IDictionary<TKey, TValue>)createMapType.CreateInstance();
 
-			if (value == JsWriter.EmptyMap) return to;
+            if (JsonTypeSerializer.IsEmptyMap(value)) return to;
 
 			var valueLength = value.Length;
 			while (index < valueLength)

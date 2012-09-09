@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text.Common
@@ -24,7 +25,7 @@ namespace ServiceStack.Text.Common
 			if (strType[index++] != JsWriter.MapStartChar)
 				throw DeserializeTypeRef.CreateSerializationError(type, strType);
 
-			if (strType == JsWriter.EmptyMap) return ctorFn();
+            if (JsonTypeSerializer.IsEmptyMap(strType)) return ctorFn();
 
 			object instance = null;
 

@@ -130,6 +130,7 @@
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -179,7 +180,9 @@
     <Compile Include="CsvTests\CustomHeaderTests.cs" />
     <Compile Include="JsonTests\ContractByInterfaceTests.cs" />
     <Compile Include="JsonTests\DictionaryTests.cs" />
+    <Compile Include="JsonTests\JsonArrayObjectTests.cs" />
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
+    <Compile Include="JsonTests\JsonObjectTests.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />
