@@ -44,6 +44,12 @@ namespace ServiceStack.Text.Tests
             Serialize(new MoviesResponse { Movies = MoviesData.Movies });
         }
 
+        [Test]
+        public void Can_Serialize_MoviesResponse2_Dto()
+        {
+            Serialize(new MoviesResponse2 { Movies = MoviesData.Movies });
+        }
+
 		[Test]
 		public void serialize_Category()
 		{

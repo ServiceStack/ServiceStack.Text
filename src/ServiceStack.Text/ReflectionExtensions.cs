@@ -438,6 +438,11 @@ namespace ServiceStack.Text
             return type.GetCustomAttributes(true).Any(x => x.GetType().Name == Dto);
         }
 
+        public static bool HasAttr<T>(this Type type) where T : Attribute
+        {
+            return type.GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
+        }
+
     }
 
 }

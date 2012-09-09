@@ -96,4 +96,12 @@ namespace ServiceStack.Text.Tests.Support
         public List<Movie> Movies { get; set; }
     }
 
+    [Csv(CsvBehavior.FirstEnumerable)]
+    public class MoviesResponse2
+    {
+        public int Id { get; set; }
+
+        public List<Movie> Movies { get; set; }
+    }
+
 }
