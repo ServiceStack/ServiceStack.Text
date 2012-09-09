@@ -52,7 +52,7 @@ namespace ServiceStack.Text.Common
 		private static bool TryWriteSelfType (TextWriter writer) {
 			if (ShouldSkipType()) return false;
 
-			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
+			Serializer.WriteRawString(writer, JsConfig.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
 			Serializer.WriteRawString(writer, typeof(T).ToTypeString());
 			return true;
@@ -62,7 +62,7 @@ namespace ServiceStack.Text.Common
 		{
 			if (obj == null || ShouldSkipType()) return false;
 
-			Serializer.WriteRawString(writer, JsWriter.TypeAttr);
+			Serializer.WriteRawString(writer, JsConfig.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
 			Serializer.WriteRawString(writer, obj.GetType().ToTypeString());
 			return true;

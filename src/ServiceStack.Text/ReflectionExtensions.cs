@@ -286,7 +286,7 @@ namespace ServiceStack.Text
             EmptyCtorDelegate emptyCtorFn;
             if (TypeNamesMap.TryGetValue(typeName, out emptyCtorFn)) return emptyCtorFn;
 
-            var type = AssemblyUtils.FindType(typeName);
+            var type = JsConfig.TypeFinder.Invoke(typeName);
             if (type == null) return null;
             emptyCtorFn = GetConstructorMethodToCache(type);
 
