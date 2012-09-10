@@ -274,7 +274,8 @@ namespace ServiceStack.Text.Common
                 return writeFn;
             }
 
-            if (typeof(T).IsGenericType())
+            if (typeof(T).IsGenericType() ||
+                typeof(T).HasInterface(typeof(IDictionary<string, object>))) // is ExpandoObject?
             {
                 if (typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(IList<>)))
                     return WriteLists<T, TSerializer>.Write;

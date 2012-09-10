@@ -209,6 +209,26 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(to["title"], Is.EqualTo(dto["title"]));
 		}
+
+        [Test]
+        public void Can_serialize_Dictionary_string_object_dictionary()
+        {
+            var dto = new Dictionary<string, object> { { "title", "1" } };
+            var to = Serialize(dto);
+
+            Assert.That(to["title"], Is.EqualTo(dto["title"]));
+        }
+
+#if NET40
+        [Test]
+        public void Nongeneric_implementors_of_IDictionary_K_V_Should_serialize_like_Dictionary_K_V()
+        {
+            dynamic expando = new ExpandoObject();
+            expando.Property = "Value";
+            IDictionary<string, object> dict = expando;
+            Assert.AreEqual(dict.Dump(), new Dictionary<string, object>(dict).Dump());
+        }
+#endif
 	}
 
 }
