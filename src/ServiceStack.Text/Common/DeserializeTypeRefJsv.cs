@@ -62,7 +62,7 @@ namespace ServiceStack.Text.Common
 						    var derivedType = instance.GetType();
                             if (derivedType != type) {
 						        var derivedTypeConfig = new TypeConfig(derivedType);
-						        var map = DeserializeTypeRef.GetTypAccessorMap(derivedTypeConfig, Serializer);
+						        var map = DeserializeTypeRef.GetTypeAccessorMap(derivedTypeConfig, Serializer);
                                 if (map != null) {
                                     typeAccessorMap = map;
                                 }

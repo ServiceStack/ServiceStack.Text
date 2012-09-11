@@ -29,7 +29,7 @@ namespace ServiceStack.Text.Common
 	        return serializationException;
 	    }
 
-        internal static Dictionary<string, TypeAccessor> GetTypAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
+        internal static Dictionary<string, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
 
