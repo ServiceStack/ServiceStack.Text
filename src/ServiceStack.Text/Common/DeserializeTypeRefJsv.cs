@@ -38,21 +38,36 @@ namespace ServiceStack.Text.Common
 				index++;
 
 				var propertyValueStr = Serializer.EatValue(strType, ref index);
-				var possibleTypeInfo = propertyValueStr != null && propertyValueStr.Length > 1 && propertyValueStr[0] == '_';
+				var possibleTypeInfo = propertyValueStr != null && propertyValueStr.Length > 1;
 
 				if (possibleTypeInfo && propertyName == JsWriter.TypeAttr)
 				{
-					var typeName = Serializer.ParseString(propertyValueStr);
-					instance = ReflectionExtensions.CreateInstance(typeName);
-					if (instance == null)
+                    try {
+					    var typeName = Serializer.ParseString(propertyValueStr);
+					    instance = ReflectionExtensions.CreateInstance(typeName);
+                    } catch {
+                        instance = null;
+                    }
+
+                    if (instance == null)
 					{
 						Tracer.Instance.WriteWarning("Could not find type: " + propertyValueStr);
 					}
 					else
 					{
 						//If __type info doesn't match, ignore it.
-						if (!type.IsInstanceOfType(instance))
+						if (!type.IsInstanceOfType(instance)) {
 							instance = null;
+						} else {
+						    var derivedType = instance.GetType();
+                            if (derivedType != type) {
+						        var derivedTypeConfig = new TypeConfig(derivedType);
+						        var map = DeserializeTypeRef.GetTypeAccessorMap(derivedTypeConfig, Serializer);
+                                if (map != null) {
+                                    typeAccessorMap = map;
+                                }
+                            }
+						}
 					}
 
 					//Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
@@ -66,7 +81,7 @@ namespace ServiceStack.Text.Common
 				TypeAccessor typeAccessor;
 				typeAccessorMap.TryGetValue(propertyName, out typeAccessor);
 
-				var propType = possibleTypeInfo ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
+				var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
 				if (propType != null)
 				{
 					try

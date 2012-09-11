@@ -37,6 +37,11 @@ namespace ServiceStack.Text.Tests.JsonTests
 		public string DogBark { get; set; }
 	}
 
+    public class Collie : Dog
+    {
+        public bool IsLassie { get; set; }
+    }
+
 	public class Cat : Animal, ICat
 	{
 		public override string Name { get; set; }
@@ -145,37 +150,70 @@ namespace ServiceStack.Text.Tests.JsonTests
 		public void Can_deserialise_polymorphic_list_serialized_by_datacontractjsonserializer()
 		{
 		    Func<string, Type> typeFinder = value => {
-                    var regex = new Regex(@"^(?<type>[^:]+):#(?<namespace>.*)$");
-		            var match = regex.Match(value);
-		            var typeName = string.Format("{0}.{1}", match.Groups["namespace"].Value, match.Groups["type"].Value.Replace(".", "+"));
-		            return Type.GetType(typeName);
-		        };
+		        var regex = new Regex(@"^(?<type>[^:]+):#(?<namespace>.*)$");
+		        var match = regex.Match(value);
+		        var typeName = string.Format("{0}.{1}", match.Groups["namespace"].Value, match.Groups["type"].Value.Replace(".", "+"));
+		        return Type.GetType(typeName);
+		    };
 
-            try {
+		    try {
 		        var originalList = new List<Animal> {new Dog {Name = "Fido"}, new Cat {Name = "Tigger"}};
 
 		        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (List<Animal>), new[] {typeof (Dog), typeof (Cat)}, int.MaxValue, true, null, true);
-                JsConfig.TypeFinder = typeFinder;
+		        JsConfig.TypeFinder = typeFinder;
 		        List<Animal> deserializedList = null;
 		        using (var stream = new MemoryStream()) {
-                    dataContractJsonSerializer.WriteObject(stream, originalList);
+		            dataContractJsonSerializer.WriteObject(stream, originalList);
 		            stream.Position = 0;
-                    using (var reader = new StreamReader(stream)) {
-                        var json = reader.ReadToEnd();
+		            using (var reader = new StreamReader(stream)) {
+		                var json = reader.ReadToEnd();
 		                deserializedList = JsonSerializer.DeserializeFromString<List<Animal>>(json);
-                    }
+		            }
 		        }
 
-			    Assert.That(deserializedList.Count, Is.EqualTo(originalList.Count));
+		        Assert.That(deserializedList.Count, Is.EqualTo(originalList.Count));
 
-			    Assert.That(deserializedList[0].GetType(), Is.EqualTo(originalList[0].GetType()));
-			    Assert.That(deserializedList[1].GetType(), Is.EqualTo(originalList[1].GetType()));
+		        Assert.That(deserializedList[0].GetType(), Is.EqualTo(originalList[0].GetType()));
+		        Assert.That(deserializedList[1].GetType(), Is.EqualTo(originalList[1].GetType()));
 
-			    Assert.That(deserializedList[0].Name, Is.EqualTo(originalList[0].Name));
-			    Assert.That(deserializedList[1].Name, Is.EqualTo(originalList[1].Name));
-            } finally {
-                JsConfig.Reset();
-            }
+		        Assert.That(deserializedList[0].Name, Is.EqualTo(originalList[0].Name));
+		        Assert.That(deserializedList[1].Name, Is.EqualTo(originalList[1].Name));
+		    } finally {
+		        JsConfig.Reset();
+		    }
+		}
+
+	    public void Can_deserialise_polymorphic_list_with_nonabstract_base()
+		{
+			var list =
+				JsonSerializer.DeserializeFromString<List<Dog>>(
+					"[{\"__type\":\""
+					+ typeof(Dog).ToTypeString()
+					+ "\",\"Name\":\"Fido\"},{\"__type\":\""
+					+ typeof(Collie).ToTypeString()
+					+ "\",\"Name\":\"Lassie\",\"IsLassie\":true}]");
+
+			Assert.That(list.Count, Is.EqualTo(2));
+
+			Assert.That(list[0].GetType(), Is.EqualTo(typeof(Dog)));
+			Assert.That(list[1].GetType(), Is.EqualTo(typeof(Collie)));
+
+			Assert.That(list[0].Name, Is.EqualTo(@"Fido"));
+			Assert.That(list[1].Name, Is.EqualTo(@"Lassie"));
+		}
+
+		[Test]
+	    public void Can_deserialise_polymorphic_item_with_nonabstract_base_deserializes_derived_properties_correctly()
+		{
+			var collie =
+				JsonSerializer.DeserializeFromString<Dog>(
+					"{\"__type\":\""
+					+ typeof(Collie).ToTypeString()
+					+ "\",\"Name\":\"Lassie\",\"IsLassie\":true}");
+
+			Assert.That(collie.GetType(), Is.EqualTo(typeof(Collie)));
+			Assert.That(collie.Name, Is.EqualTo(@"Lassie"));
+			Assert.That(((Collie)collie).IsLassie, Is.True);
 		}
 
 		[Test]
