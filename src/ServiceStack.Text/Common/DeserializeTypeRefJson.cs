@@ -44,11 +44,10 @@ namespace ServiceStack.Text.Common
 
 				if (possibleTypeInfo && propertyName == JsWriter.TypeAttr)
 				{
-                    try {
-					    var typeName = Serializer.ParseString(propertyValueStr);
-					    instance = ReflectionExtensions.CreateInstance(typeName);
-                    } catch {
-                        instance = null;
+					var explicitTypeName = Serializer.ParseString(propertyValueStr);
+                    var explicitType = Type.GetType(explicitTypeName);
+                    if (explicitType != null && !explicitType.IsInterface && !explicitType.IsAbstract) {
+                        instance = explicitType.CreateInstance();
                     }
 
 					if (instance == null)
