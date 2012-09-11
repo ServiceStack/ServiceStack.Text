@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -211,12 +212,12 @@ namespace ServiceStack.Text.Tests
 		}
 
         [Test]
-        public void Can_serialize_Dictionary_string_object_dictionary()
+        public void Can_Deserialize_Object_To_Dictionary()
         {
-            var dto = new Dictionary<string, object> { { "title", "1" } };
-            var to = Serialize(dto);
-
-            Assert.That(to["title"], Is.EqualTo(dto["title"]));
+            const string json = "{\"Id\":1}";
+            var d = json.To<Dictionary<string, string>>();
+            Assert.That(d.ContainsKey("Id"));
+            Assert.That(d["Id"], Is.EqualTo("1"));
         }
 
 #if NET40
