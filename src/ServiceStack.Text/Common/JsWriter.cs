@@ -237,11 +237,20 @@ namespace ServiceStack.Text.Common
 
         internal WriteObjectDelegate GetWriteFn<T>()
         {
-            if (typeof(T) == typeof(string))
-            {
+            if (typeof (T) == typeof (string)) {
                 return Serializer.WriteObjectString;
             }
 
+		    var onSerializingFn = JsConfig<T>.OnSerializingFn;
+            if (onSerializingFn != null) {
+                return (w, x) => GetCoreWriteFn<T>()(w, onSerializingFn((T)x));
+            }
+
+            return GetCoreWriteFn<T>();
+        }
+
+        private WriteObjectDelegate GetCoreWriteFn<T>()
+        {
             if ((typeof(T).IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
                 JsConfig<T>.HasSerializeFn)
             {
