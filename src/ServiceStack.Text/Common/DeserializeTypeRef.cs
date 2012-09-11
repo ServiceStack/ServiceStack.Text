@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
@@ -27,6 +28,33 @@ namespace ServiceStack.Text.Common
 	        }
 	        return serializationException;
 	    }
+
+        internal static Dictionary<string, TypeAccessor> GetTypAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
+        {
+            var type = typeConfig.Type;
+
+            var propertyInfos = type.GetSerializableProperties();
+            if (propertyInfos.Length == 0) return null;
+
+            var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
+
+            var isDataContract = type.GetCustomAttributes(typeof(DataContractAttribute), false).Any();
+
+            foreach (var propertyInfo in propertyInfos)
+            {
+                var propertyName = propertyInfo.Name;
+                if (isDataContract)
+                {
+                    var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+                    if (dcsDataMember != null && dcsDataMember.Name != null)
+                    {
+                        propertyName = dcsDataMember.Name;
+                    }
+                }
+                map[propertyName] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
+            }
+            return map;
+        }
 
 		/* The old Reference generic implementation
 		internal static object StringToType(

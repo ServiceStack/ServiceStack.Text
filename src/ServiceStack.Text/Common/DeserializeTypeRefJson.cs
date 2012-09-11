@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using ServiceStack.Text.Json;
 
@@ -57,8 +58,18 @@ namespace ServiceStack.Text.Common
 					else
 					{
 						//If __type info doesn't match, ignore it.
-						if (!type.IsInstanceOfType(instance))
-							instance = null;
+						if (!type.IsInstanceOfType(instance)) {
+						    instance = null;
+						} else {
+						    var derivedType = instance.GetType();
+                            if (derivedType != type) {
+						        var derivedTypeConfig = new TypeConfig(derivedType);
+						        var map = DeserializeTypeRef.GetTypAccessorMap(derivedTypeConfig, Serializer);
+                                if (map != null) {
+                                    typeAccessorMap = map;
+                                }
+                            }
+						}
 					}
 
 					Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);

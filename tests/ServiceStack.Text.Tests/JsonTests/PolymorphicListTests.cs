@@ -39,6 +39,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
     public class Collie : Dog
     {
+        public bool IsLassie { get; set; }
     }
 
 	public class Cat : Animal, ICat
@@ -199,6 +200,20 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Assert.That(list[0].Name, Is.EqualTo(@"Fido"));
 			Assert.That(list[1].Name, Is.EqualTo(@"Lassie"));
+		}
+
+		[Test]
+	    public void Can_deserialise_polymorphic_item_with_nonabstract_base_deserializes_derived_properties_correctly()
+		{
+			var collie =
+				JsonSerializer.DeserializeFromString<Dog>(
+					"{\"__type\":\""
+					+ typeof(Collie).ToTypeString()
+					+ "\",\"Name\":\"Lassie\",\"IsLassie\":true}");
+
+			Assert.That(collie.GetType(), Is.EqualTo(typeof(Collie)));
+			Assert.That(collie.Name, Is.EqualTo(@"Lassie"));
+			Assert.That(((Collie)collie).IsLassie, Is.True);
 		}
 
 		[Test]

@@ -33,32 +33,11 @@ namespace ServiceStack.Text.Common
 
             if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
-            var propertyInfos = type.GetSerializableProperties();
-            if (propertyInfos.Length == 0)
-            {
-                var emptyCtorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-                return value => emptyCtorFn();
-            }
-
-            var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
-
-            var isDataContract = type.GetCustomAttributes(typeof(DataContractAttribute), false).Any();
-
-            foreach (var propertyInfo in propertyInfos)
-            {
-                var propertyName = propertyInfo.Name;
-                if (isDataContract)
-                {
-                    var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
-                    if (dcsDataMember != null && dcsDataMember.Name != null)
-                    {
-                        propertyName = dcsDataMember.Name;
-                    }
-                }
-                map[propertyName] = TypeAccessor.Create(Serializer, typeConfig, propertyInfo);
-            }
-
+            var map = DeserializeTypeRef.GetTypAccessorMap(typeConfig, Serializer);
             var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+            if (map == null) {
+                return value => ctorFn();
+            }
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
 				? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
