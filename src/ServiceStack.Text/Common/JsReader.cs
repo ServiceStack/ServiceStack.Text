@@ -11,6 +11,16 @@ namespace ServiceStack.Text.Common
 
 		public ParseStringDelegate GetParseFn<T>()
 		{
+		    var onDeserializedFn = JsConfig<T>.OnDeserializedFn;
+            if (onDeserializedFn != null) {
+                return value => onDeserializedFn((T)GetCoreParseFn<T>()(value));
+            }
+
+		    return GetCoreParseFn<T>();
+		}
+
+	    private ParseStringDelegate GetCoreParseFn<T>()
+		{
 			var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
 			if (JsConfig<T>.HasDeserializeFn)
