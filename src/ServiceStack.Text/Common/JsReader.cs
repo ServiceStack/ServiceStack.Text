@@ -62,7 +62,8 @@ namespace ServiceStack.Text.Common
 					return DeserializeEnumerable<T, TSerializer>.Parse;
 			}
 
-			var isCollection = typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(ICollection));
+			var isCollection = typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(ICollection))
+				|| typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(IDictionary));
 			if (isCollection)
 			{
 				var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))

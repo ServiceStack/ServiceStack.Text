@@ -117,6 +117,8 @@ namespace ServiceStack.Text.Tests.EasyNetQ_Bug
 		[Test]
 		public void FailureCondition4()
 		{
+			// Look as JsReader.cs line 65
+
 			var original = new MinimalPass // Using Dictionary<,> backing
 			{
 				Container = new Dictionary<string, string>
