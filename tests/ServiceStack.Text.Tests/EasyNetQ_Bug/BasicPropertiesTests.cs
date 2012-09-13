@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.EasyNetQ_Bug
@@ -13,8 +15,8 @@ namespace ServiceStack.Text.Tests.EasyNetQ_Bug
 	{
 		public string ContentType { get; set; }
 		public string ContentEncoding { get; set; }
-		public IDictionary Headers { get; set; }
 		public byte DeliveryMode { get; set; }
+		public IDictionary Headers { get; set; }
 		public byte Priority { get; set; }
 		public string CorrelationId { get; set; }
 		public string ReplyTo { get; set; }
@@ -29,6 +31,15 @@ namespace ServiceStack.Text.Tests.EasyNetQ_Bug
 		public string ProtocolClassName { get; set; }
 	}
 
+	public class MinimalFailure
+	{
+		public IDictionary Container { get; set; }
+	}
+	public class MinimalPass
+	{
+		public Dictionary<string,string> Container { get; set; }
+	}
+
 	#endregion
 
 	[TestFixture]
@@ -36,7 +47,7 @@ namespace ServiceStack.Text.Tests.EasyNetQ_Bug
 	{
 
 		[Test]
-		public void FailureCondition()
+		public void FailureCondition1()
 		{
 			
             var originalProperties = new BasicProperties
@@ -54,7 +65,7 @@ namespace ServiceStack.Text.Tests.EasyNetQ_Bug
                 Timestamp = new AmqpTimestamp{UnixTime =123344044},
                 Type = "Type",
                 UserId = "user id",
-                Headers = new Hashtable
+                Headers = new Dictionary<string,string>
                 {
                     {"one", "header one"},
                     {"two", "header two"}
@@ -65,6 +76,88 @@ namespace ServiceStack.Text.Tests.EasyNetQ_Bug
 			var obj = JsonSerializer.DeserializeFromString<BasicProperties>(str);
 
 			Assert.That(obj.AppId, Is.EqualTo(originalProperties.AppId));
+		}
+		[Test]
+		public void FailureCondition2()
+		{
+            var original = new MinimalFailure
+            {
+                Container = new Dictionary<string,string>
+                {
+                    {"one", "header one"},
+                    {"two", "header two"}
+                }
+            };
+
+			var str = JsonSerializer.SerializeToString(original);
+			var obj = JsonSerializer.DeserializeFromString<MinimalFailure>(str);
+
+			Assert.That(obj.Container, Is.EquivalentTo(original.Container));
+		}
+		[Test]
+		public void FailureCondition3()
+		{
+            var original = new MinimalPass
+            {
+                Container = new Dictionary<string,string>
+                {
+                    {"one", "header one"},
+                    {"two", "header two"}
+                }
+            };
+
+			var str = JsonSerializer.SerializeToString(original);
+			var obj = JsonSerializer.DeserializeFromString<MinimalFailure>(str);
+
+			Assert.That(obj.Container, Is.EquivalentTo(original.Container));
+		}
+		[Test]
+		public void PassCondition()
+		{
+            var original = new MinimalPass
+            {
+                Container = new Dictionary<string,string>
+                {
+                    {"one", "header one"},
+                    {"two", "header two"}
+                }
+            };
+
+			var str = JsonSerializer.SerializeToString(original);
+			var obj = JsonSerializer.DeserializeFromString<MinimalPass>(str);
+
+			Assert.That(obj.Container, Is.EquivalentTo(original.Container));
+		}
+
+		
+		[Test]
+		public void SerialiserTest()
+		{
+            var right = new MinimalPass
+            {
+                Container = new Dictionary<string,string>
+                {
+                    {"one", "header one"},
+                    {"two", "header two"}
+                }
+            };
+            var subject = new MinimalFailure
+            {
+                Container = new Dictionary<string,string>
+                {
+                    {"one", "header one"},
+                    {"two", "header two"}
+                }
+            };
+
+			var str1 = JsonSerializer.SerializeToString(right);
+			var str2 = JsonSerializer.SerializeToString(subject);
+
+			Console.WriteLine("Working --> "+str1);
+			Console.WriteLine();
+			Console.WriteLine("Failing --> "+str2);
+
+			Assert.That(str1, Is.EqualTo(str2));
 		}
 	}
 }
