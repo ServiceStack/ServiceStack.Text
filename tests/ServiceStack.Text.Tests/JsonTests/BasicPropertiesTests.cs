@@ -15,8 +15,8 @@ namespace ServiceStack.Text.Tests.JsonTests {
 	}
 
 	public class SeveralTypesOfDictionary {
-		public IDictionary GuidToInt;
-		public IDictionary DateTimeTo_DictStrStr;
+		public IDictionary GuidToInt { get; set; }
+		public IDictionary DateTimeTo_DictStrStr { get; set; }
 	}
 
 	#endregion
@@ -140,12 +140,15 @@ namespace ServiceStack.Text.Tests.JsonTests {
 			};
 
 			var string_a = original.ToJson();
-			var copy = string_a.FromJson<SeveralTypesOfDictionary>();
-			var string_b = copy.ToJson();
+			var copy_a = string_a.FromJson<SeveralTypesOfDictionary>();
+			var string_b = copy_a.ToJson();
+			var copy_b = string_b.FromJson<SeveralTypesOfDictionary>();
 
 			Console.WriteLine(string_a);
-			Assert.That(string_a, Is.EqualTo(string_b));
-			Assert.That(copy.GuidToInt[Guid.Empty], Is.EqualTo(10));
+			Console.WriteLine(string_b);
+			Assert.That(copy_a.GuidToInt[Guid.Empty], Is.EqualTo(10), "First copy was incorrect");
+			Assert.That(copy_b.GuidToInt[Guid.Empty], Is.EqualTo(10), "Second copy was incorrect");
+			Assert.That(string_a, Is.EqualTo(string_b), "Serialised forms not same");
 		}
 
 		static string DictStr (IDictionary d) {
