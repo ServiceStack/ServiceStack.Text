@@ -132,7 +132,6 @@ namespace ServiceStack.Text.Tests.EasyNetQ_Bug
 			Assert.That(obj.Container, Is.EquivalentTo(original.Container));
 		}
 
-
 		[Test]
 		public void PassCondition()
 		{

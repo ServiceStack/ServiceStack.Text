@@ -89,7 +89,8 @@ namespace ServiceStack.Text
 
         public static bool IsOrHasGenericInterfaceTypeOf(this Type type, Type genericTypeDefinition)
         {
-            return type.GetTypeWithGenericTypeDefinitionOf(genericTypeDefinition) != null;
+            return (type.GetTypeWithGenericTypeDefinitionOf(genericTypeDefinition) != null)
+				|| (type == genericTypeDefinition);
         }
 
         public static Type GetTypeWithGenericTypeDefinitionOf(this Type type, Type genericTypeDefinition)
