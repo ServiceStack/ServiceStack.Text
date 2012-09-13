@@ -55,7 +55,7 @@ namespace ServiceStack.Text
     		if (t.BaseType == typeof(object)) {
 				// on Windows, this can be just "t.GetInterfaces()" but Mono doesn't return in order.
 				var interfaceType = t.GetInterfaces().FirstOrDefault(i => !t.GetInterfaces().Any(i2 => i2.GetInterfaces().Contains(i)));
-				return interfaceType;
+				if (interfaceType != null) return interfaceType;
 			}
 			return t; // not safe to use interface, as it might be a superclass's one.
 		}
