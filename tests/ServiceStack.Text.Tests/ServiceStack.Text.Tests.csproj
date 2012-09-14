@@ -184,6 +184,7 @@
     <Compile Include="JsonTests\JsonArrayObjectTests.cs" />
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
     <Compile Include="JsonTests\JsonObjectTests.cs" />
+    <Compile Include="JsonTests\LongTypeTests.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />
