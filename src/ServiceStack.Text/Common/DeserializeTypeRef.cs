@@ -33,7 +33,7 @@ namespace ServiceStack.Text.Common
         {
             var type = typeConfig.Type;
 
-            var propertyInfos = type.GetSerializableProperties();
+			var propertyInfos = type.GetSerializableProperties();
             if (propertyInfos.Length == 0) return null;
 
             var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);

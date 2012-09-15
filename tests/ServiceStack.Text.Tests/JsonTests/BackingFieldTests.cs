@@ -8,16 +8,16 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 	public class GetOnlyWithBacking
 	{
-		long backing;
+		long property;
 
 		public GetOnlyWithBacking(long i)
 		{
-			backing = i;
+			property = i;
 		}
 
 		public long Property
 		{
-			get { return backing; }
+			get { return property; }
 		}
 	}
 	public class GetSetWithBacking
@@ -55,15 +55,15 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Backed_get_properties_can_be_deserialised()
 		{
+			TypeConfig<GetOnlyWithBacking>.EnableAnonymousFieldSetters = true;
 			var original = new GetOnlyWithBacking(123344044);
 			var str1 = original.ToJson();
 			var copy = str1.FromJson<GetOnlyWithBacking>();
 
 			Console.WriteLine(str1);
 
-			// ReflectionExtensions.cs Line 417 is being used to determine *deserialisable*
-			// for properties type based on if the property is *readable*, not *writable*
-			// TODO: Fix this!
+			// DeserializeType.cs Line ~145
+			// use backing field guesseras last resort.
 
 			Assert.That(copy.Property, Is.EqualTo(original.Property));
 		}

@@ -15,10 +15,9 @@ using System.Reflection.Emit;
 #endif
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
+using Mono.Reflection;
 
 namespace ServiceStack.Text.Common
 {
@@ -150,6 +149,7 @@ namespace ServiceStack.Text.Common
                 var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
                 foreach (var f in fieldInfos)
                 {
+					// This comparison isn't working for named backing fields.
                     if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
                     {
                         fieldInfo = f;
@@ -157,7 +157,13 @@ namespace ServiceStack.Text.Common
                     }
                 }
 
-                if (fieldInfo == null) return null;
+				if (fieldInfo == null) { 
+					// Very experimental!
+					fieldInfo = propertyInfo.GetBackingField();
+					
+					// end experiment.
+					if (fieldInfo == null) return null; 
+				}
             }
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
@@ -195,7 +201,7 @@ namespace ServiceStack.Text.Common
 				: OpCodes.Unbox_Any,
 				propertyInfo.PropertyType);
 
-			generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
+			generator.EmitCall(OpCodes.Callvirt, propSetMethod, null);
 			generator.Emit(OpCodes.Ret);
 
 			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
