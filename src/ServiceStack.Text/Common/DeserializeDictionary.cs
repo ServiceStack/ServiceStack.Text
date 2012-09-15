@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -30,8 +31,12 @@ namespace ServiceStack.Text.Common
 		public static ParseStringDelegate GetParseMethod(Type type)
 		{
 			var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
-			if (mapInterface == null)
+			if (mapInterface == null) {
+				if (type == typeof(IDictionary)) {
+					return GetParseMethod(typeof(Dictionary<object, object>));
+				}
 				throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
+			}
 
 			//optimized access for regularly used types
             if (type == typeof(Dictionary<string, string>))

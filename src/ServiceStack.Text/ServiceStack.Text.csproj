@@ -225,15 +225,9 @@
     <Compile Include="MapExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Marc\Link.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Marc\ObjectAccessor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Marc\TypeAccessor.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Marc\Link.cs" />
+    <Compile Include="Marc\ObjectAccessor.cs" />
+    <Compile Include="Marc\TypeAccessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryStringSerializer.cs">
       <SubType>Code</SubType>
