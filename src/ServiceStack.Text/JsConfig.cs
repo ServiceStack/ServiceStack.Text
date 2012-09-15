@@ -519,6 +519,16 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Define custom serialization hook
+        /// </summary>
+        private static Func<T, T> onSerializingFn;
+        public static Func<T, T> OnSerializingFn
+        {
+            get { return onSerializingFn; }
+            set { onSerializingFn = value; }
+        }
+
 		/// <summary>
 		/// Define custom deserialization fn for BCL Structs
 		/// </summary>
@@ -534,12 +544,19 @@ namespace ServiceStack.Text
             get { return DeSerializeFn != null || RawDeserializeFn != null; }
         }
 
-		/// <summary>
+        private static Func<T, T> onDeserializedFn;
+        public static Func<T, T> OnDeserializedFn
+        {
+            get { return onDeserializedFn; }
+            set { onDeserializedFn = value; }
+        }
+
+        /// <summary>
 		/// Exclude specific properties of this type from being serialized
 		/// </summary>
 		public static string[] ExcludePropertyNames;
 
-		public static void WriteFn<TSerializer>(TextWriter writer, object obj)
+        public static void WriteFn<TSerializer>(TextWriter writer, object obj)
 		{
             if (RawSerializeFn != null) {
                 writer.Write(RawSerializeFn((T)obj));
