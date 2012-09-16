@@ -32,7 +32,12 @@ namespace ServiceStack.Text.Common
 		{
 			var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
 			if (mapInterface == null) {
-				if (type == typeof(IDictionary)) {
+                if (type == typeof(Hashtable))
+                {
+                    return ParseHashtable;
+                }
+                if (type == typeof(IDictionary))
+                {
 					return GetParseMethod(typeof(Dictionary<object, object>));
 				}
 				throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
@@ -67,6 +72,32 @@ namespace ServiceStack.Text.Common
             var index = VerifyAndGetStartIndex(value, typeof(JsonObject));
 
             var result = new JsonObject();
+
+            if (JsonTypeSerializer.IsEmptyMap(value)) return result;
+
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementValue = Serializer.EatValue(value, ref index);
+
+                var mapKey = keyValue;
+                var mapValue = elementValue;
+
+                result[mapKey] = mapValue;
+
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
+
+            return result;
+        }
+
+        public static Hashtable ParseHashtable(string value)
+        {
+            var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
+
+            var result = new Hashtable();
 
             if (JsonTypeSerializer.IsEmptyMap(value)) return result;
 
