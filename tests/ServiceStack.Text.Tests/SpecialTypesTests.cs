@@ -58,9 +58,6 @@ namespace ServiceStack.Text.Tests
 	    public void Can_Serialize_HashTable()
 	    {
             var h = new Hashtable { { "A", 1 }, { "B", 2 } };
-            Assert.That(h.ToJson(), Is.EqualTo("{\"A\":1,\"B\":2}"));
-            Assert.That(JsonSerializer.SerializeToString(h, typeof(Hashtable)), Is.EqualTo("{\"A\":1,\"B\":2}"));
-
 	        var fromJson = h.ToJson().FromJson<Hashtable>();
             Assert.That(fromJson.Count, Is.EqualTo(h.Count));
             Assert.That(fromJson["A"].ToString(), Is.EqualTo(h["A"].ToString()));
