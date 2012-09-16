@@ -81,7 +81,6 @@ namespace ServiceStack.Text.Common
 
 			var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
 				|| typeof(T).HasInterface(typeof(IEnumerable));
-
 			if (isEnumerable)
 			{
 				var parseFn = DeserializeSpecializedCollections<T, TSerializer>.Parse;

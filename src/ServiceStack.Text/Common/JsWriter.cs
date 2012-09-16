@@ -320,7 +320,6 @@ namespace ServiceStack.Text.Common
             
             var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
                 || typeof(T).HasInterface(typeof(IEnumerable));
-
             if (isEnumerable)
             {
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
