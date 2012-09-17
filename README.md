@@ -84,7 +84,10 @@ JSON payload without it's concrete type, see these real-world examples:
   - [Parsing GitHub's JSON response](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/GitHubRestTests.cs)
   - [Parsing Google Maps JSON Response](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/GMapDirectionsTests.cs)
   - [Parsing Centroid](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/CentroidTests.cs)
-   
+
+Also a thin **.NET 4.0 Dynamic JSON** wrapper around ServiceStack's JSON library is included in the 
+[ServiceStack.Razor](https://github.com/ServiceStack/ServiceStack/blob/master/src/ServiceStack.Razor/DynamicJson.cs) 
+project. It provides a dynamic, but more succinct API than the above options.
 
 ## NuGet ServiceStack.Text
 
