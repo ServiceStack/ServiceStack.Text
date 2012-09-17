@@ -117,6 +117,10 @@ namespace ServiceStack.Text.Common
 
 			if (value == string.Empty) return to;
 
+
+			var tryToParseItemsAsPrimitiveTypes =
+				JsConfig.TryToParsePrimitiveTypeValues && typeof(T) == typeof(object);
+
 			if (!string.IsNullOrEmpty(value))
 			{
 				if (value[0] == JsWriter.MapStartChar)
@@ -125,7 +129,9 @@ namespace ServiceStack.Text.Common
 					do
 					{
 						var itemValue = Serializer.EatTypeValue(value, ref i);
-						to.Add((T)parseFn(itemValue));
+						to.Add(tryToParseItemsAsPrimitiveTypes 
+                            ? (T) DeserializeType<TSerializer>.ParsePrimitive(itemValue) 
+                            : (T)parseFn(itemValue));
 					} while (++i < value.Length);
 				}
 				else
@@ -141,7 +147,9 @@ namespace ServiceStack.Text.Common
                             continue;
                         else
                         {
-                            to.Add((T) parseFn(listValue));
+						    to.Add(tryToParseItemsAsPrimitiveTypes 
+                                ? (T) DeserializeType<TSerializer>.ParsePrimitive(listValue) 
+                                : (T)parseFn(listValue));
                             if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
                                 && i == valueLength)
                             {

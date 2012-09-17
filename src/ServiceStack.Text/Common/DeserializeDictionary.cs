@@ -153,6 +153,8 @@ namespace ServiceStack.Text.Common
 
 			var tryToParseItemsAsDictionaries =
 				JsConfig.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
+			var tryToParseItemsAsPrimitiveTypes =
+				JsConfig.TryToParsePrimitiveTypeValues && typeof(TValue) == typeof(object);
 
 			var index = VerifyAndGetStartIndex(value, createMapType);
 
@@ -175,22 +177,29 @@ namespace ServiceStack.Text.Common
 				if (tryToParseItemsAsDictionaries)
 				{
 					var mapValueString = mapValue as string;
-					var tryParseValueAsDictionary = JsonUtils.IsJsObject(mapValueString);
-					if (tryParseValueAsDictionary)
+					if (JsonUtils.IsJsObject(mapValueString))
 					{
 						var tmpMap = ParseDictionary<TKey, TValue>(mapValueString, createMapType, parseKeyFn, parseValueFn);
 						to[mapKey] = (tmpMap != null && tmpMap.Count > 0)
 							? (TValue)tmpMap
 							: to[mapKey] = mapValue;
-					}
-					else
+					} 
+                    else if (JsonUtils.IsJsArray(mapValueString)) 
+                    {
+                        to[mapKey] = (TValue) DeserializeList<List<object>, TSerializer>.Parse(mapValueString);
+                    } 
+                    else
 					{
-						to[mapKey] = mapValue;
+                        to[mapKey] = tryToParseItemsAsPrimitiveTypes 
+                            ? (TValue) DeserializeType<TSerializer>.ParsePrimitive(elementValue) 
+                            : mapValue;
 					}
 				}
 				else
 				{
-					to[mapKey] = mapValue;
+                    to[mapKey] = tryToParseItemsAsPrimitiveTypes 
+                        ? (TValue) DeserializeType<TSerializer>.ParsePrimitive(elementValue) 
+                        : mapValue;
 				}
 
 				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
