@@ -35,6 +35,22 @@ namespace ServiceStack.Text
 			}
 		}
 
+        [ThreadStatic]
+        private static bool? tsTryToParsePrimitiveTypeValues;
+        private static bool? sTryToParsePrimitiveTypeValues;
+        public static bool TryToParsePrimitiveTypeValues
+        {
+            get
+            {
+                return tsTryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues ?? false;
+            }
+            set
+            {
+                tsTryToParsePrimitiveTypeValues = value;
+                if (!sTryToParsePrimitiveTypeValues.HasValue) sTryToParsePrimitiveTypeValues = value;
+            }
+        }
+
 		[ThreadStatic]
 		private static bool? tsIncludeNullValues;
 		private static bool? sIncludeNullValues;
@@ -230,7 +246,8 @@ namespace ServiceStack.Text
         }
 
 	    public static void Reset()
-		{
+	    {
+	        tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
 			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
 			tsIncludeNullValues = sIncludeNullValues = null;
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;

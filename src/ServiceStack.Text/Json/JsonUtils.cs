@@ -136,6 +136,12 @@ namespace ServiceStack.Text.Json
 				&& value[value.Length - 1] == '}';
 		}
 
+		public static bool IsJsArray(string value)
+		{
+			return !string.IsNullOrEmpty(value)
+				&& value[0] == '['
+				&& value[value.Length - 1] == ']';
+		}
 	}
 
 }
