@@ -62,9 +62,6 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Console.WriteLine(str1);
 
-			// DeserializeType.cs Line ~145
-			// use backing field guesseras last resort.
-
 			Assert.That(copy.Property, Is.EqualTo(original.Property));
 		}
 	}

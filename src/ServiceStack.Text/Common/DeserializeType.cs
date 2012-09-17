@@ -142,29 +142,10 @@ namespace ServiceStack.Text.Common
 
             FieldInfo fieldInfo = null;
             if (!propertyInfo.CanWrite)
-            {
-                //TODO: What string comparison is used in SST?
-				string fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
-                var fieldName = string.Format(fieldNameFormat, propertyInfo.Name);
-                var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
-                foreach (var f in fieldInfos)
-                {
-					// This comparison isn't working for named backing fields.
-                    if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
-                    {
-                        fieldInfo = f;
-                        break;
-                    }
-                }
-
-				if (fieldInfo == null) { 
-					// Very experimental!
-					fieldInfo = propertyInfo.GetBackingField();
-					
-					// end experiment.
-					if (fieldInfo == null) return null; 
-				}
-            }
+			{
+				fieldInfo = propertyInfo.GetBackingField();
+				if (fieldInfo == null) return null;
+			}
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
             if (propertyInfo.CanWrite)
