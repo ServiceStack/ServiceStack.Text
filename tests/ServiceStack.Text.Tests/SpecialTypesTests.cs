@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -52,6 +53,16 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(test, Is.EquivalentTo(fromJson));
 		}
+
+	    [Test]
+	    public void Can_Serialize_HashTable()
+	    {
+            var h = new Hashtable { { "A", 1 }, { "B", 2 } };
+	        var fromJson = h.ToJson().FromJson<Hashtable>();
+            Assert.That(fromJson.Count, Is.EqualTo(h.Count));
+            Assert.That(fromJson["A"].ToString(), Is.EqualTo(h["A"].ToString()));
+            Assert.That(fromJson["B"].ToString(), Is.EqualTo(h["B"].ToString()));
+	    }
 
 	}
 }
