@@ -92,7 +92,7 @@ namespace Mono.Reflection {
 		{
 			var result = ILPattern.Match (method, pattern);
 			if (!result.success)
-				throw new ArgumentException ();
+				return null; // there is no matched backing field (constants in get{} cause this, among other things)
 
 			object value;
 			if (!result.TryGetData (FieldPattern.FieldKey, out value))

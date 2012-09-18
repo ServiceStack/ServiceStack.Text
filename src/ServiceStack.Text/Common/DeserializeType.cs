@@ -98,6 +98,28 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
+	   /* // Sketch for deserialising directly to structs...
+	    * public static object ParseStruct<T>(string stringvalue)
+	    {
+			if (typeof(T).IsAbstract) return ParseAbstractType<T>(stringvalue);
+
+			var props = typeof(T).GetProperties();
+			var template = default(T) as ValueType;
+		    foreach (var propertyInfo in props)
+		    {
+				var fieldInfo = propertyInfo.GetBackingField();
+				if (fieldInfo == null) continue;
+
+				var value = Serializer.GetParseFn(fieldInfo.FieldType)(stringvalue);
+				if (fieldInfo.IsStatic) fieldInfo.SetValue(null, value);
+				else
+				{
+					fieldInfo.SetValue(template, value);
+				}
+		    }
+
+		    return template;
+	    }*/
     }
 
     internal class TypeAccessor
@@ -132,14 +154,12 @@ namespace ServiceStack.Text.Common
             {
                 PropertyType = propertyInfo.PropertyType,
                 GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
-                SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
+                SetProperty = GetSetPropertyMethod(propertyInfo),
             };
         }
 
-        private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+        private static SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
         {
-            if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
-
             FieldInfo fieldInfo = null;
             if (!propertyInfo.CanWrite)
 			{

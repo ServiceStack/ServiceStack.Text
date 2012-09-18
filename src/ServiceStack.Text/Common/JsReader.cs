@@ -41,9 +41,6 @@ namespace ServiceStack.Text.Common
 			if (specialParseFn != null)
 				return specialParseFn;
 
-			if (type.IsEnum)
-				return x => Enum.Parse(type, x, true);
-
 			if (type.IsArray)
 			{
 				return DeserializeArray<T, TSerializer>.Parse;
