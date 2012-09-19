@@ -21,9 +21,35 @@ namespace ServiceStack.Text.Tests.JsonTests {
 		}
 	}
 
-	public class Container
+	public struct ToStringAndStringConstructor {
+		string value;
+		public string Value
+		{
+			get { return value; }
+			set { this.value = value; }
+		}
+
+		public override string ToString () {
+			return "OK";
+		}
+
+		public ToStringAndStringConstructor(string value)
+		{
+			this.value = value;
+		}
+	}
+
+	public class ContainerA
 	{
-		public object Contents { get; set; }
+		public ToStringAndParse Contents { get; set; }
+	}
+	public class ContainerB
+	{
+		public ToStringOnly Contents { get; set; }
+	}
+	public class ContainerC
+	{
+		public ToStringAndStringConstructor Contents { get; set; }
 	}
 
 	#endregion
@@ -31,22 +57,32 @@ namespace ServiceStack.Text.Tests.JsonTests {
 	public class ParseAndToStringTests {
 		[Test]
 		public void Should_use_ToString_if_type_has_parse_method () {
-			var original = new Container{Contents = new ToStringAndParse{Value="WRONG!"}};
+			var original = new ContainerA{Contents = new ToStringAndParse{Value="WRONG!"}};
 			var str = original.ToJson();
-			var copy = str.FromJson<ToStringAndParse>();
+			var copy = str.FromJson<ContainerA>();
 
 			Console.WriteLine(str);
-			Assert.That(copy.Value, Is.EqualTo("OK"));
+			Assert.That(copy.Contents.Value, Is.EqualTo("OK"));
+		}
+		[Test]
+		public void Should_use_ToString_if_type_has_string_constructor () {
+			var original = new ContainerC{Contents = new ToStringAndStringConstructor{Value="WRONG!"}};
+			var str = original.ToJson();
+			var copy = str.FromJson<ContainerC>();
+
+			Console.WriteLine(str);
+			Assert.That(copy.Contents.Value, Is.EqualTo("OK"));
 		}
 
 		[Test]
 		public void Should_not_use_ToString_if_type_has_no_parse_method () {
-			var original = new Container{Contents = new ToStringOnly{Value="OK"}};
+			var original = new ContainerB{Contents = new ToStringOnly{Value="OK"}};
 			var str = original.ToJson();
-			var copy = str.FromJson<ToStringOnly>();
-
 			Console.WriteLine(str);
-			Assert.That(copy.Value, Is.EqualTo("OK"));
+
+			var copy = str.FromJson<ContainerB>();
+
+			Assert.That(copy.Contents.Value, Is.EqualTo("OK"));
 		}
 	}
 }
