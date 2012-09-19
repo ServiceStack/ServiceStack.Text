@@ -31,6 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -80,6 +81,7 @@
     <Compile Include="AssemblyUtils.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\DeserializeDynamic.cs" />
     <Compile Include="Common\DateTimeSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -166,6 +168,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DtoAttribute.cs" />
+    <Compile Include="DynamicJson.cs" />
     <Compile Include="DynamicProxy.cs" />
     <Compile Include="Env.cs">
       <SubType>Code</SubType>
@@ -225,15 +228,9 @@
     <Compile Include="MapExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Marc\Link.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Marc\ObjectAccessor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Marc\TypeAccessor.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Marc\Link.cs" />
+    <Compile Include="Marc\ObjectAccessor.cs" />
+    <Compile Include="Marc\TypeAccessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryStringSerializer.cs">
       <SubType>Code</SubType>

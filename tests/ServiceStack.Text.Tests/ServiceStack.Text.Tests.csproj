@@ -31,6 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -171,6 +172,7 @@
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
     <Compile Include="DateTimeOffsetAndTimeSpanTests.cs" />
+    <Compile Include="JsonTests\BasicPropertiesTests.cs" />
     <Compile Include="JsonObjectTests.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
     <Compile Include="JsonTests\CustomSerializerTests.cs" />
@@ -183,6 +185,7 @@
     <Compile Include="JsonTests\JsonArrayObjectTests.cs" />
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
     <Compile Include="JsonTests\JsonObjectTests.cs" />
+    <Compile Include="JsonTests\BackingFieldTests.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />

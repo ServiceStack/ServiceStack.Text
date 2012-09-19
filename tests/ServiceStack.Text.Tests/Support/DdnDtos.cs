@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Platform.Text;
 using ServiceStack.DataAnnotations;
 using ServiceStack.DesignPatterns.Model;
 
@@ -362,56 +361,6 @@ namespace ServiceStack.Text.Tests.Support
 		Content,
 		Text,
 		Promo,
-	}
-
-	[TextRecord]
-	public class FlowPostTransient
-	{
-		public FlowPostTransient()
-		{
-			this.TrackUrns = new List<string>();
-		}
-
-		[TextField]
-		public long Id { get; set; }
-		[TextField]
-		public string Urn { get; set; }
-		[TextField]
-		public Guid UserId { get; set; }
-		[TextField]
-		public DateTime DateAdded { get; set; }
-		[TextField]
-		public DateTime DateModified { get; set; }
-		[TextField]
-		public Guid? TargetUserId { get; set; }
-		[TextField]
-		public long? ForwardedPostId { get; set; }
-		[TextField]
-		public Guid OriginUserId { get; set; }
-		[TextField]
-		public string OriginUserName { get; set; }
-		[TextField]
-		public Guid SourceUserId { get; set; }
-		[TextField]
-		public string SourceUserName { get; set; }
-		[TextField]
-		public string SubjectUrn { get; set; }
-		[TextField]
-		public string ContentUrn { get; set; }
-		[TextField]
-		public IList<string> TrackUrns { get; set; }
-		[TextField]
-		public string Caption { get; set; }
-		[TextField]
-		public Guid CaptionUserId { get; set; }
-		[TextField]
-		public string CaptionSourceName { get; set; }
-		[TextField]
-		public string ForwardedPostUrn { get; set; }
-		[TextField]
-		public FlowPostType PostType { get; set; }
-		[TextField]
-		public Guid? OnBehalfOfUserId { get; set; }
 	}
 
 	[DataContract(Namespace = "http://schemas.ddnglobal.com/types/")]

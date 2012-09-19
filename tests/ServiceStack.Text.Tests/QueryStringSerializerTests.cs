@@ -62,5 +62,34 @@ namespace ServiceStack.Text.Tests
 	    {
             Assert.That(QueryStringSerializer.SerializeToString(new { tab = "\t" }), Is.EqualTo("tab=%09"));
 	    }
-    }
+
+		// NOTE: QueryStringSerializer doesn't have Deserialize, but this is how QS is parsed in ServiceStack
+	    [Test]
+	    public void Can_deserialize_query_string_nullableInt_null_yields_null()
+	    {
+	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(null), Is.EqualTo(null));
+	    }
+
+	    [Test]
+	    public void Can_deserialize_query_string_nullableInt_empty_yields_null()
+	    {
+	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(string.Empty), Is.EqualTo(null));
+	    }
+
+	    [Test]
+	    public void Can_deserialize_query_string_nullableInt_intValues_yields_null()
+	    {
+	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(int.MaxValue.ToString()), Is.EqualTo(int.MaxValue));
+            Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(int.MinValue.ToString()), Is.EqualTo(int.MinValue));
+	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(0.ToString()), Is.EqualTo(0));
+	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse((-1).ToString()), Is.EqualTo(-1));
+	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(1.ToString()), Is.EqualTo(1));
+	    }
+
+	    [Test]
+	    public void Can_deserialize_query_string_nullableInt_NaN_throws()
+	    {
+	    	Assert.Throws(typeof(FormatException), delegate { ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse("NaN"); });
+    	}
+	}
 }

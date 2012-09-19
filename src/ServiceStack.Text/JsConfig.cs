@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Json;
+using ServiceStack.Text.Jsv;
+
+
 #if WINDOWS_PHONE
 using ServiceStack.Text.WP;
 #endif
@@ -34,6 +38,22 @@ namespace ServiceStack.Text
 				if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
 			}
 		}
+
+        [ThreadStatic]
+        private static bool? tsTryToParsePrimitiveTypeValues;
+        private static bool? sTryToParsePrimitiveTypeValues;
+        public static bool TryToParsePrimitiveTypeValues
+        {
+            get
+            {
+                return tsTryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues ?? false;
+            }
+            set
+            {
+                tsTryToParsePrimitiveTypeValues = value;
+                if (!sTryToParsePrimitiveTypeValues.HasValue) sTryToParsePrimitiveTypeValues = value;
+            }
+        }
 
 		[ThreadStatic]
 		private static bool? tsIncludeNullValues;
@@ -230,7 +250,8 @@ namespace ServiceStack.Text
         }
 
 	    public static void Reset()
-		{
+	    {
+	        tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
 			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
 			tsIncludeNullValues = sIncludeNullValues = null;
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;
@@ -519,6 +540,16 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Define custom serialization hook
+        /// </summary>
+        private static Func<T, T> onSerializingFn;
+        public static Func<T, T> OnSerializingFn
+        {
+            get { return onSerializingFn; }
+            set { onSerializingFn = value; }
+        }
+
 		/// <summary>
 		/// Define custom deserialization fn for BCL Structs
 		/// </summary>
@@ -534,12 +565,19 @@ namespace ServiceStack.Text
             get { return DeSerializeFn != null || RawDeserializeFn != null; }
         }
 
-		/// <summary>
+        private static Func<T, T> onDeserializedFn;
+        public static Func<T, T> OnDeserializedFn
+        {
+            get { return onDeserializedFn; }
+            set { onDeserializedFn = value; }
+        }
+
+        /// <summary>
 		/// Exclude specific properties of this type from being serialized
 		/// </summary>
 		public static string[] ExcludePropertyNames;
 
-		public static void WriteFn<TSerializer>(TextWriter writer, object obj)
+        public static void WriteFn<TSerializer>(TextWriter writer, object obj)
 		{
             if (RawSerializeFn != null) {
                 writer.Write(RawSerializeFn((T)obj));

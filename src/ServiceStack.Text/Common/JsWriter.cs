@@ -237,11 +237,20 @@ namespace ServiceStack.Text.Common
 
         internal WriteObjectDelegate GetWriteFn<T>()
         {
-            if (typeof(T) == typeof(string))
-            {
+            if (typeof (T) == typeof (string)) {
                 return Serializer.WriteObjectString;
             }
 
+		    var onSerializingFn = JsConfig<T>.OnSerializingFn;
+            if (onSerializingFn != null) {
+                return (w, x) => GetCoreWriteFn<T>()(w, onSerializingFn((T)x));
+            }
+
+            return GetCoreWriteFn<T>();
+        }
+
+        private WriteObjectDelegate GetCoreWriteFn<T>()
+        {
             if ((typeof(T).IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
                 JsConfig<T>.HasSerializeFn)
             {
@@ -302,22 +311,15 @@ namespace ServiceStack.Text.Common
                 }
             }
 
-            var isCollection = typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(ICollection));
-            if (isCollection)
+            var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))
+                || typeof(T).HasInterface(typeof(IDictionary));
+            if (isDictionary)
             {
-                var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))
-                    || typeof(T).HasInterface(typeof(IDictionary));
-                if (isDictionary)
-                {
-                    return WriteDictionary<TSerializer>.WriteIDictionary;
-                }
-
-                return WriteListsOfElements<TSerializer>.WriteIEnumerable;
+                return WriteDictionary<TSerializer>.WriteIDictionary;
             }
-
+            
             var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
                 || typeof(T).HasInterface(typeof(IEnumerable));
-
             if (isEnumerable)
             {
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
