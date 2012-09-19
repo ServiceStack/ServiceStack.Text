@@ -169,41 +169,40 @@ namespace ServiceStack.Text.Common
             if (JsonTypeSerializer.IsEmptyMap(value)) return to;
 
 			var valueLength = value.Length;
-			while (index < valueLength)
-			{
+			while (index < valueLength) 
+            {
 				var keyValue = Serializer.EatMapKey(value, ref index);
 				Serializer.EatMapKeySeperator(value, ref index);
-				var elementValue = Serializer.EatValue(value, ref index);
+			    var elementStartIndex = index;
+				var elementValue = Serializer.EatTypeValue(value, ref index);
 
 				var mapKey = (TKey)parseKeyFn(keyValue);
-				var mapValue = (TValue)parseValueFn(elementValue);
 
 				if (tryToParseItemsAsDictionaries)
 				{
-					var mapValueString = mapValue as string;
-					if (JsonUtils.IsJsObject(mapValueString))
+					if (value[elementStartIndex] == JsWriter.MapStartChar)
 					{
-						var tmpMap = ParseDictionary<TKey, TValue>(mapValueString, createMapType, parseKeyFn, parseValueFn);
-						to[mapKey] = (tmpMap != null && tmpMap.Count > 0)
-							? (TValue)tmpMap
-							: to[mapKey] = mapValue;
+						var tmpMap = ParseDictionary<TKey, TValue>(elementValue, createMapType, parseKeyFn, parseValueFn);
+                        if (tmpMap != null && tmpMap.Count > 0) {
+                            to[mapKey] = (TValue) tmpMap;
+                        }
 					} 
-                    else if (JsonUtils.IsJsArray(mapValueString)) 
+                    else if (value[elementStartIndex] == JsWriter.ListStartChar) 
                     {
-                        to[mapKey] = (TValue) DeserializeList<List<object>, TSerializer>.Parse(mapValueString);
+                        to[mapKey] = (TValue) DeserializeList<List<object>, TSerializer>.Parse(elementValue);
                     } 
-                    else
-					{
-                        to[mapKey] = tryToParseItemsAsPrimitiveTypes 
-                            ? (TValue) DeserializeType<TSerializer>.ParsePrimitive(elementValue) 
-                            : mapValue;
-					}
+                    else 
+                    {
+				        to[mapKey] = (TValue) (tryToParseItemsAsPrimitiveTypes
+				                        ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex])
+				                        : parseValueFn(elementValue));
+                    }
 				}
-				else
-				{
-                    to[mapKey] = tryToParseItemsAsPrimitiveTypes 
-                        ? (TValue) DeserializeType<TSerializer>.ParsePrimitive(elementValue) 
-                        : mapValue;
+                else
+                {
+				    to[mapKey] = (TValue) (tryToParseItemsAsPrimitiveTypes
+				                    ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex])
+				                    : parseValueFn(elementValue));
 				}
 
 				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
