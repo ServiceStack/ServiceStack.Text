@@ -79,39 +79,39 @@ namespace ServiceStack.Text.Common
 				return value => ulong.Parse(value);
 
 			if (typeof(T) == typeof(bool?))
-				return value => value == null ? (bool?)null : bool.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (bool?)null : bool.Parse(value);
 			if (typeof(T) == typeof(byte?))
-				return value => value == null ? (byte?)null : byte.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (byte?)null : byte.Parse(value);
 			if (typeof(T) == typeof(sbyte?))
-				return value => value == null ? (sbyte?)null : sbyte.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (sbyte?)null : sbyte.Parse(value);
 			if (typeof(T) == typeof(short?))
-				return value => value == null ? (short?)null : short.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (short?)null : short.Parse(value);
 			if (typeof(T) == typeof(int?))
-				return value => value == null ? (int?)null : int.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (int?)null : int.Parse(value);
 			if (typeof(T) == typeof(long?))
-				return value => value == null ? (long?)null : long.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
 			if (typeof(T) == typeof(float?))
-				return value => value == null ? (float?)null : float.Parse(value, CultureInfo.InvariantCulture);
+				return value => string.IsNullOrEmpty(value) ? (float?)null : float.Parse(value, CultureInfo.InvariantCulture);
 			if (typeof(T) == typeof(double?))
-				return value => value == null ? (double?)null : double.Parse(value, CultureInfo.InvariantCulture);
+				return value => string.IsNullOrEmpty(value) ? (double?)null : double.Parse(value, CultureInfo.InvariantCulture);
 			if (typeof(T) == typeof(decimal?))
-				return value => value == null ? (decimal?)null : decimal.Parse(value, CultureInfo.InvariantCulture);
+				return value => string.IsNullOrEmpty(value) ? (decimal?)null : decimal.Parse(value, CultureInfo.InvariantCulture);
 			
 			if (typeof(T) == typeof(TimeSpan?))
-				return value => value == null ? (TimeSpan?)null : TimeSpan.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (TimeSpan?)null : TimeSpan.Parse(value);
 			if (typeof(T) == typeof(Guid?))
-				return value => value == null ? (Guid?)null : new Guid(value);				
+				return value => string.IsNullOrEmpty(value) ? (Guid?)null : new Guid(value);
 			if (typeof(T) == typeof(ushort?))
-				return value => value == null ? (ushort?)null : ushort.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (ushort?)null : ushort.Parse(value);
 			if (typeof(T) == typeof(uint?))
-				return value => value == null ? (uint?)null : uint.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (uint?)null : uint.Parse(value);
 			if (typeof(T) == typeof(ulong?))
-				return value => value == null ? (ulong?)null : ulong.Parse(value);
+				return value => string.IsNullOrEmpty(value) ? (ulong?)null : ulong.Parse(value);
 			
 			if (typeof(T) == typeof(char?))
 			{
 				char cValue;
-				return value => value == null ? (char?)null : char.TryParse(value, out cValue) ? cValue : '\0';
+				return value => string.IsNullOrEmpty(value) ? (char?)null : char.TryParse(value, out cValue) ? cValue : '\0';
 			}
 			
 			return null;
