@@ -32,10 +32,12 @@ namespace ServiceStack.Text.Common
 		{
 			var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
 			if (mapInterface == null) {
+#if !SILVERLIGHT
                 if (type == typeof(Hashtable))
                 {
                     return ParseHashtable;
                 }
+#endif
                 if (type == typeof(IDictionary))
                 {
 					return GetParseMethod(typeof(Dictionary<object, object>));
@@ -93,6 +95,7 @@ namespace ServiceStack.Text.Common
             return result;
         }
 
+#if !SILVERLIGHT
         public static Hashtable ParseHashtable(string value)
         {
             var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
@@ -118,6 +121,7 @@ namespace ServiceStack.Text.Common
 
             return result;
         }
+#endif
 
         public static Dictionary<string, string> ParseStringDictionary(string value)
         {

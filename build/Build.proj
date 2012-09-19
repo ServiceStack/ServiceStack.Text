@@ -1,10 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Default"
     xmlns='http://schemas.microsoft.com/developer/msbuild/2003' ToolsVersion="4.0">
+  <Import Project="$(MSBuildProjectDirectory)/Build.tasks" />
+
+    <PropertyGroup>
+        <MajorVersion>3</MajorVersion>
+        <MinorVersion>9</MinorVersion>
+        <PatchVersion>$(BUILD_NUMBER)</PatchVersion>
+    </PropertyGroup>
 
   <PropertyGroup>
     <BuildSolutionDir>$(MSBuildProjectDirectory)/..</BuildSolutionDir>
+    <SourcesDir>$(BuildSolutionDir)/src</SourcesDir>
     <Configuration Condition="$(Configuration) == ''">Release</Configuration>
+    <NuGetPath>$(BuildSolutionDir)/src/.nuget/nuget.exe</NuGetPath>
+    <NuGetPackageDir>$(BuildSolutionDir)/NuGet/</NuGetPackageDir>
+    <NuGetBasePath>$(MSBuildProjectDirectory)</NuGetBasePath>
+    <NuGetPackageLibDir>$(BuildSolutionDir)/NuGet/lib</NuGetPackageLibDir>
+    <NuGetPackageDescription>$(BuildSolutionDir)/NuGet/servicestack.text.nuspec</NuGetPackageDescription>
+    <Version>$(MajorVersion).$(MinorVersion).$(PatchVersion).0</Version>
+    <UnstableTag Condition="$(RELEASE) == ''">-unstable</UnstableTag>
+    <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)$(UnstableTag)</PackageVersion>
+    <EnvVersion>$(MajorVersion).$(MinorVersion)$(PatchVersion)</EnvVersion>
   </PropertyGroup>
+
+
+  <ItemGroup>
+      <NugetPackageFilesToDelete Include="$(NuGetPackageDir)/*.nupkg"/>
+  </ItemGroup>
+
 
   <PropertyGroup>
     <DoBuildSolutionsDependsOn>
@@ -29,4 +53,38 @@
    Properties="Configuration=$(Configuration)" />
   </Target>
 
+  <Target Name="NuGetPack">
+
+    <!-- Update Versino -->
+    <ItemGroup>
+        <RegexTransform Include="$(SourcesDir)/**/AssemblyInfo.cs">
+            <Find>\d+\.\d+\.\d+\.\d+</Find>
+            <ReplaceWith>$(Version)</ReplaceWith>
+        </RegexTransform>
+        <RegexTransform Include="$(SourcesDir)/ServiceStack.Text/Env.cs">
+            <Find>ServiceStackVersion = \d+\.\d+m;</Find>
+            <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
+        </RegexTransform>
+    </ItemGroup>
+
+    <RegexTransform Items="@(RegexTransform)" />
+
+    <Delete Files="@(NugetPackageFilesToDelete)" />
+
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
+             Targets="Build"
+             Properties="BuildPackage=true;Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/net35;Configuration=$(Configuration)" />
+
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.Net40/ServiceStack.Text.Net40.csproj"
+             Targets="Build"
+             Properties="BuildPackage=true;Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/net40;Configuration=$(Configuration)" />
+
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.SL5/ServiceStack.Text.SL5.csproj"
+             Targets="Build"
+             Properties="BuildPackage=true;Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/sl5;Configuration=$(Configuration)" />
+ 
+    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDescription)&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion)"
+            LogStandardErrorAsError="true" />
+
+  </Target>
 </Project>

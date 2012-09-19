@@ -74,9 +74,11 @@ namespace ServiceStack.Text.Common
 					return null;
 				}
 
+#if !SILVERLIGHT
 				if (type.IsInterface || type.IsAbstract) {
 					return DynamicProxy.GetInstanceFor(type).GetType();
 				}
+#endif
 
                 return type;
             }
