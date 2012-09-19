@@ -70,8 +70,6 @@ namespace ServiceStack.Text.Common
 
         public static bool TryParseShortestXsdDateTime(string dateTimeStr, out DateTime result)
         {
-            result = DateTime.MinValue;
-
 			if (dateTimeStr.StartsWith(EscapedWcfJsonPrefix) || dateTimeStr.StartsWith(WcfJsonPrefix)) {
 			    result = ParseWcfJsonDate(dateTimeStr);
 			    return true;
@@ -163,15 +161,6 @@ namespace ServiceStack.Text.Common
 		{
 			return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc);
 		}
-
-        public static bool TryParseTimeSpan(string dateTimeStr, out TimeSpan result)
-        {
-            return TimeSpan.TryParse(dateTimeStr, out result);
-
-            //return dateTimeStr.StartsWith("P") || dateTimeStr.StartsWith("-P")
-            //    ? ParseXsdTimeSpan(dateTimeStr)
-            //    : TimeSpan.TryParse(dateTimeStr, out result);
-        }
 
         public static TimeSpan ParseTimeSpan(string dateTimeStr)
         {

@@ -123,8 +123,6 @@ namespace ServiceStack.Text.Common
             if (DateTimeSerializer.TryParseShortestXsdDateTime(value, out dateTimeValue)) return dateTimeValue;
             DateTimeOffset dateTimeOffsetValue;
             if (DateTimeSerializer.TryParseDateTimeOffset(value, out dateTimeOffsetValue)) return dateTimeOffsetValue;
-            TimeSpan timeSpanValue;
-            if (DateTimeSerializer.TryParseTimeSpan(value, out timeSpanValue)) return timeSpanValue;
 						
             return value;
         }
