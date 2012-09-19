@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Threading;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -117,7 +118,6 @@ namespace ServiceStack.Text.Common
 
 			if (value == string.Empty) return to;
 
-
 			var tryToParseItemsAsPrimitiveTypes =
 				JsConfig.TryToParsePrimitiveTypeValues && typeof(T) == typeof(object);
 
@@ -129,9 +129,7 @@ namespace ServiceStack.Text.Common
 					do
 					{
 						var itemValue = Serializer.EatTypeValue(value, ref i);
-						to.Add(tryToParseItemsAsPrimitiveTypes 
-                            ? (T) DeserializeType<TSerializer>.ParsePrimitive(itemValue) 
-                            : (T)parseFn(itemValue));
+						to.Add((T)parseFn(itemValue));
 					} while (++i < value.Length);
 				}
 				else
@@ -141,23 +139,23 @@ namespace ServiceStack.Text.Common
 					var i = 0;
 					while (i < valueLength)
 					{
+                        var startIndex = i;
 						var elementValue = Serializer.EatValue(value, ref i);
 						var listValue = elementValue;
                         if (listValue == null) 
                             continue;
-                        else
-                        {
-						    to.Add(tryToParseItemsAsPrimitiveTypes 
-                                ? (T) DeserializeType<TSerializer>.ParsePrimitive(listValue) 
-                                : (T)parseFn(listValue));
-                            if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
-                                && i == valueLength)
-                            {
-                                // If we ate a separator and we are at the end of the value, 
-                                // it means the last element is empty => add default
-                                to.Add(default(T));
-                            }
-                        }
+
+                        to.Add((T) (tryToParseItemsAsPrimitiveTypes
+				                     ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[startIndex])
+				                     : parseFn(elementValue)));
+
+					    if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
+					        && i == valueLength)
+					    {
+					        // If we ate a separator and we are at the end of the value, 
+					        // it means the last element is empty => add default
+					        to.Add(default(T));
+					    }
 					}
 
 				}

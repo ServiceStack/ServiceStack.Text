@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -52,6 +53,13 @@ namespace ServiceStack.Text.Common
                 var parseFn = Serializer.GetParseFn(type);
                 var propertyValue = parseFn(strType);
                 return propertyValue;
+            }
+
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType) && strType[0] == JsWriter.MapStartChar) {
+                var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
+                if (dynamicMatch != null && dynamicMatch.Count > 0) {
+                    return dynamicMatch;
+                }
             }
 
             return Serializer.UnescapeString(strType);
@@ -101,11 +109,29 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-        public static object ParsePrimitive(string value)
+        public static object ParseQuotedPrimitive(string value)
         {
             if (string.IsNullOrEmpty(value)) return null;
             var unescapeString = Serializer.UnescapeString(value);
             if (value != unescapeString) return unescapeString;
+
+#if NET40
+            Guid guidValue;
+            if (Guid.TryParse(value, out guidValue)) return guidValue;
+#endif
+            DateTime dateTimeValue;
+            if (DateTimeSerializer.TryParseShortestXsdDateTime(value, out dateTimeValue)) return dateTimeValue;
+            DateTimeOffset dateTimeOffsetValue;
+            if (DateTimeSerializer.TryParseDateTimeOffset(value, out dateTimeOffsetValue)) return dateTimeOffsetValue;
+            TimeSpan timeSpanValue;
+            if (DateTimeSerializer.TryParseTimeSpan(value, out timeSpanValue)) return timeSpanValue;
+						
+            return value;
+        }
+
+        public static object ParsePrimitive(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return null;
 
             bool boolValue;
             if (bool.TryParse(value, out boolValue)) return boolValue;
@@ -132,18 +158,17 @@ namespace ServiceStack.Text.Common
             decimal decimalValue;
             if (decimal.TryParse(value, out decimalValue)) return decimalValue;
 
-#if NET40
-            Guid guidValue;
-            if (Guid.TryParse(value, out guidValue)) return guidValue;
-#endif
-            DateTime dateTimeValue;
-            if (DateTimeSerializer.TryParseShortestXsdDateTime(value, out dateTimeValue)) return dateTimeValue;
-            DateTimeOffset dateTimeOffsetValue;
-            if (DateTimeSerializer.TryParseDateTimeOffset(value, out dateTimeOffsetValue)) return dateTimeOffsetValue;
-            TimeSpan timeSpanValue;
-            if (DateTimeSerializer.TryParseTimeSpan(value, out timeSpanValue)) return timeSpanValue;
-						
-            return value;
+            return null;
+        }
+
+        internal static object ParsePrimitive(string value, char firstChar)
+        {
+            if (typeof(TSerializer) == typeof(JsonTypeSerializer)) {
+                return firstChar == JsWriter.QuoteChar
+                           ? ParseQuotedPrimitive(value)
+                           : ParsePrimitive(value);
+            }
+            return (ParsePrimitive(value) ?? ParseQuotedPrimitive(value));
         }
     }
 
