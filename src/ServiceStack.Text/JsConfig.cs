@@ -88,6 +88,22 @@ namespace ServiceStack.Text
 		}
 
 		[ThreadStatic]
+		private static bool? tsForceTypeInfo;
+		private static bool? sForceTypeInfo;
+		public static bool IncludeTypeInfo
+		{
+			get
+			{
+				return tsForceTypeInfo ?? sForceTypeInfo ?? false;
+			}
+			set
+			{
+				if (!tsForceTypeInfo.HasValue) tsForceTypeInfo = value;
+				if (!sForceTypeInfo.HasValue) sForceTypeInfo = value;
+			}
+		}
+
+		[ThreadStatic]
 		private static string tsTypeAttr;
 		private static string sTypeAttr;
 		public static string TypeAttr
@@ -470,6 +486,11 @@ namespace ServiceStack.Text
 
     public class JsConfig<T> 
 	{
+		/// <summary>
+		/// Always emit type info for this type.  Takes precedence over ExcludeTypeInfo
+		/// </summary>
+		public static bool IncludeTypeInfo = false;
+
 		/// <summary>
 		/// Never emit type info for this type
 		/// </summary>
