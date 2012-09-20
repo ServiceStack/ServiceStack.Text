@@ -90,7 +90,7 @@ namespace ServiceStack.Text
 		[ThreadStatic]
 		private static bool? tsForceTypeInfo;
 		private static bool? sForceTypeInfo;
-		public static bool ForceTypeInfo
+		public static bool IncludeTypeInfo
 		{
 			get
 			{
@@ -489,7 +489,7 @@ namespace ServiceStack.Text
 		/// <summary>
 		/// Always emit type info for this type.  Takes precedence over ExcludeTypeInfo
 		/// </summary>
-		public static bool ForceTypeInfo = false;
+		public static bool IncludeTypeInfo = false;
 
 		/// <summary>
 		/// Never emit type info for this type

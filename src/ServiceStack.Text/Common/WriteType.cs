@@ -28,9 +28,9 @@ namespace ServiceStack.Text.Common
 		internal static TypePropertyWriter[] PropertyWriters;
 		private static readonly WriteObjectDelegate WriteTypeInfo;
 
-		private static bool IsForced
+		private static bool IsIncluded
 		{
-			get { return (JsConfig.ForceTypeInfo || JsConfig<T>.ForceTypeInfo); }
+			get { return (JsConfig.IncludeTypeInfo || JsConfig<T>.IncludeTypeInfo); }
 		}
 		private static bool IsExcluded
 		{
@@ -41,7 +41,7 @@ namespace ServiceStack.Text.Common
 		{
 			CacheFn = Init() ? GetWriteFn() : WriteEmptyType;
 
-			if (IsForced)
+			if (IsIncluded)
 			{
 				WriteTypeInfo = TypeInfoWriter;
 			}
@@ -60,7 +60,7 @@ namespace ServiceStack.Text.Common
 			TryWriteTypeInfo(writer, obj);
 		}
 
-		private static bool ShouldSkipType() { return IsExcluded && !IsForced; }
+		private static bool ShouldSkipType() { return IsExcluded && !IsIncluded; }
 
 		private static bool TryWriteSelfType (TextWriter writer) {
 			if (ShouldSkipType()) return false;

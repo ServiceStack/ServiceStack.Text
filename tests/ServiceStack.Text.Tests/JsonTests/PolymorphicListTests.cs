@@ -356,7 +356,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_force_specific_TypeInfo()
 		{
-			JsConfig<Dog>.ForceTypeInfo = true;
+			JsConfig<Dog>.IncludeTypeInfo = true;
 			var pets = new ExplicitPets()
 			{
 				Cat = new Cat { Name = "Cat" },
