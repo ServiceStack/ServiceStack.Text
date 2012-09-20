@@ -11,6 +11,7 @@
 //
 
 #if !XBOX && !MONOTOUCH && !SILVERLIGHT
+using System.Collections.Generic;
 using System.Reflection.Emit;
 #endif
 
@@ -105,17 +106,23 @@ namespace ServiceStack.Text.Common
 
 			var props = typeof(T).GetProperties();
 			var template = default(T) as ValueType;
+
+			var dict = Serializer.GetParseFn<Dictionary<string,object>>()(stringvalue) as Dictionary<string,object>;
+			if (dict == null)
+			{
+                Tracer.Instance.WriteWarning(
+                    "Could not deserialize contents of Value type: " + stringvalue);
+				return null;
+			}
+
 		    foreach (var propertyInfo in props)
 		    {
+				if (!dict.ContainsKey(propertyInfo.Name)) continue;
 				var fieldInfo = propertyInfo.GetBackingField();
 				if (fieldInfo == null) continue;
 
-				var value = Serializer.GetParseFn(fieldInfo.FieldType)(stringvalue);
-				if (fieldInfo.IsStatic) fieldInfo.SetValue(null, value);
-				else
-				{
-					fieldInfo.SetValue(template, value);
-				}
+				var value = dict[propertyInfo.Name];
+			    fieldInfo.SetValue(template, value);
 		    }
 
 		    return template;
