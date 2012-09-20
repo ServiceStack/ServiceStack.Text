@@ -14,6 +14,12 @@ namespace ServiceStack.Text.Tests
 			public string Url { get; set; }
 		}
 
+        [TearDown]
+        public void TearDown()
+        {
+            JsConfig.Reset();
+        }
+
 		[Test]
 		public void Dictionary_Object_UrlStatus()
 		{
@@ -65,5 +71,64 @@ namespace ServiceStack.Text.Tests
 			Serialize(dto, includeXml: false);
 		}
 
+        [Test]
+        public void Can_deserialize_object_string()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = "12345";
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.EqualTo(json));
+        }
+
+        [Test]
+        public void Can_deserialize_object_array()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = "[1,2,3]";
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<List<object>>());
+            Assert.That(((List<object>)deserialized)[0], Is.EqualTo(1));
+            Assert.That(((List<object>)deserialized)[1], Is.EqualTo(2));
+            Assert.That(((List<object>)deserialized)[2], Is.EqualTo(3));
+        }
+
+        [Test]
+        public void Can_deserialize_object_dictionary()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = "{\"foo\":\"bar\"}";
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
+            Assert.That(((Dictionary<string, object>)deserialized)["foo"], Is.EqualTo("bar"));
+        }
+
+		[Test]
+		public void Can_deserialize_object_dictionary_with_mixed_values_and_nulls_and_empty_array()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+		    var json = "{\"stringIntValue\": \"-13\",\"intValue\": -13,\"nullValue\": null,\"stringDecimalValue\": \"5.9\",\"decimalValue\": 5.9,\"emptyArrayValue\": [],\"stringValue\": \"Foo\",\"stringWithDigitsValue\": \"OR345\",\"dateValue\":\"\\/Date(785635200000)\\/\"}";
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
+		    var dict = (Dictionary<string, object>) deserialized;
+            Assert.That(dict["stringIntValue"], Is.EqualTo("-13"));
+            Assert.That(dict["intValue"], Is.EqualTo(-13));
+            Assert.That(dict["intValue"], Is.Not.EqualTo(dict["stringIntValue"]));
+            Assert.That(dict["nullValue"], Is.Null);
+            Assert.That(dict["stringDecimalValue"], Is.EqualTo("5.9"));
+            Assert.That(dict["decimalValue"], Is.EqualTo(5.9f));
+            Assert.That(dict["decimalValue"], Is.Not.EqualTo(dict["stringDecimalValue"]));
+            Assert.That(dict["emptyArrayValue"], Is.Not.Null);
+            Assert.That(dict["stringValue"], Is.EqualTo("Foo"));
+            Assert.That(dict["stringWithDigitsValue"], Is.EqualTo("OR345"));
+            Assert.That(dict["dateValue"], Is.EqualTo(new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc)));
+		}
 	}
 }

@@ -180,6 +180,7 @@ namespace ServiceStack.Text.Common
 
 				if (tryToParseItemsAsDictionaries)
 				{
+                    Serializer.EatWhitespace(value, ref elementStartIndex);
 					if (value[elementStartIndex] == JsWriter.MapStartChar)
 					{
 						var tmpMap = ParseDictionary<TKey, TValue>(elementValue, createMapType, parseKeyFn, parseValueFn);
@@ -200,9 +201,12 @@ namespace ServiceStack.Text.Common
 				}
                 else
                 {
-				    to[mapKey] = (TValue) (tryToParseItemsAsPrimitiveTypes
-				                    ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex])
-				                    : parseValueFn(elementValue));
+                    if (tryToParseItemsAsPrimitiveTypes) {
+                        Serializer.EatWhitespace(value, ref elementStartIndex);
+				        to[mapKey] = (TValue) DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
+                    } else {
+                        to[mapKey] = (TValue) parseValueFn(elementValue);
+                    }
 				}
 
 				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);

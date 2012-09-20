@@ -350,6 +350,10 @@ namespace ServiceStack.Text.Jsv
 			return success;
 		}
 
+        public void EatWhitespace(string value, ref int i)
+        {
+        }
+
 		public string EatValue(string value, ref int i)
 		{
 			var tokenStartPos = i;
