@@ -114,7 +114,7 @@ namespace ServiceStack.Text.Tests
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.ConvertObjectTypesIntoStringDictionary = true;
 
-		    var json = "{\"stringIntValue\": \"-13\",\"intValue\": -13,\"nullValue\": null,\"stringDecimalValue\": \"0.00\",\"decimalValue\": 0.00,\"emptyArrayValue\": [],\"stringValue\": \"Foo\",\"stringWithDigitsValue\": \"OR345\"}";
+		    var json = "{\"stringIntValue\": \"-13\",\"intValue\": -13,\"nullValue\": null,\"stringDecimalValue\": \"5.9\",\"decimalValue\": 5.9,\"emptyArrayValue\": [],\"stringValue\": \"Foo\",\"stringWithDigitsValue\": \"OR345\",\"dateValue\":\"\\/Date(785635200000)\\/\"}";
             var deserialized = JsonSerializer.DeserializeFromString<object>(json);
             Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
 		    var dict = (Dictionary<string, object>) deserialized;
@@ -122,12 +122,13 @@ namespace ServiceStack.Text.Tests
             Assert.That(dict["intValue"], Is.EqualTo(-13));
             Assert.That(dict["intValue"], Is.Not.EqualTo(dict["stringIntValue"]));
             Assert.That(dict["nullValue"], Is.Null);
-            Assert.That(dict["stringDecimalValue"], Is.EqualTo("0.00"));
-            Assert.That(dict["decimalValue"], Is.EqualTo(0.00));
+            Assert.That(dict["stringDecimalValue"], Is.EqualTo("5.9"));
+            Assert.That(dict["decimalValue"], Is.EqualTo(5.9f));
             Assert.That(dict["decimalValue"], Is.Not.EqualTo(dict["stringDecimalValue"]));
             Assert.That(dict["emptyArrayValue"], Is.Not.Null);
             Assert.That(dict["stringValue"], Is.EqualTo("Foo"));
             Assert.That(dict["stringWithDigitsValue"], Is.EqualTo("OR345"));
+            Assert.That(dict["dateValue"], Is.EqualTo(new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc)));
 		}
 	}
 }
