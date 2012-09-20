@@ -347,6 +347,29 @@ namespace ServiceStack.Text.Tests.JsonTests
 			public IDog Dog { get; set; }
 		}
 
+		public class ExplicitPets
+		{
+			public Cat Cat { get; set; }
+			public Dog Dog { get; set; }
+		}
+
+		[Test]
+		public void Can_force_specific_TypeInfo()
+		{
+			JsConfig<Dog>.ForceTypeInfo = true;
+			var pets = new ExplicitPets()
+			{
+				Cat = new Cat { Name = "Cat" },
+				Dog = new Dog { Name = "Dog" },
+			};
+
+			Assert.That(pets.ToJson(), Is.EqualTo(
+				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, ServiceStack.Text.Tests"",""Name"":""Dog""}}"));
+
+			Assert.That(new Dog { Name = "Dog" }.ToJson(), Is.EqualTo(
+				@"{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, ServiceStack.Text.Tests"",""Name"":""Dog""}"));
+		}
+
 		[Test]
 		public void Can_exclude_specific_TypeInfo()
 		{
