@@ -16,6 +16,18 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         [Test]
+        public void Can_parse_array_with_null()
+        {
+            Assert.That(JsonArrayObjects.Parse("[null]"), Is.Empty);
+        }
+
+        [Test]
+        public void Can_parse_array_with_nulls()
+        {
+            Assert.That(JsonArrayObjects.Parse("[null,null]"), Is.Empty);
+        }
+
+        [Test]
         public void Can_parse_empty_array_with_whitespaces()
         {
             Assert.That(JsonArrayObjects.Parse("[    ]"), Is.Empty);
