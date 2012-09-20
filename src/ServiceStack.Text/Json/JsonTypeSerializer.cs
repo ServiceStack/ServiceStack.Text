@@ -523,6 +523,11 @@ namespace ServiceStack.Text.Json
             return success;
         }
 
+        public void EatWhitespace(string value, ref int i)
+        {
+            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+        }
+
         public string EatValue(string value, ref int i)
         {
             var valueLength = value.Length;

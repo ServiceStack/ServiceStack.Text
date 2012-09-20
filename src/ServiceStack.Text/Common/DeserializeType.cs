@@ -55,10 +55,16 @@ namespace ServiceStack.Text.Common
                 return propertyValue;
             }
 
-            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType) && strType[0] == JsWriter.MapStartChar) {
-                var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
-                if (dynamicMatch != null && dynamicMatch.Count > 0) {
-                    return dynamicMatch;
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType)) {
+                if (strType[0] == JsWriter.MapStartChar) {
+                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
+                    if (dynamicMatch != null && dynamicMatch.Count > 0) {
+                        return dynamicMatch;
+                    }
+                }
+
+                if (strType[0] == JsWriter.ListStartChar) {
+                    return DeserializeList<List<object>, TSerializer>.Parse(strType);
                 }
             }
 
