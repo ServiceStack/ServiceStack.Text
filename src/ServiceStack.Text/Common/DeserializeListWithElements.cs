@@ -142,12 +142,14 @@ namespace ServiceStack.Text.Common
                         var startIndex = i;
 						var elementValue = Serializer.EatValue(value, ref i);
 						var listValue = elementValue;
-                        if (listValue == null) 
-                            continue;
-
-                        to.Add((T) (tryToParseItemsAsPrimitiveTypes
-				                     ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[startIndex])
-				                     : parseFn(elementValue)));
+                        if (listValue != null) {
+                            if (tryToParseItemsAsPrimitiveTypes) {
+                                Serializer.EatWhitespace(value, ref startIndex);
+				                to.Add((T) DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[startIndex]));
+                            } else {
+                                to.Add((T) parseFn(elementValue));
+                            }
+                        }
 
 					    if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
 					        && i == valueLength)

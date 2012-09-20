@@ -55,10 +55,16 @@ namespace ServiceStack.Text.Common
                 return propertyValue;
             }
 
-            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType) && strType[0] == JsWriter.MapStartChar) {
-                var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
-                if (dynamicMatch != null && dynamicMatch.Count > 0) {
-                    return dynamicMatch;
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType)) {
+                if (strType[0] == JsWriter.MapStartChar) {
+                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
+                    if (dynamicMatch != null && dynamicMatch.Count > 0) {
+                        return dynamicMatch;
+                    }
+                }
+
+                if (strType[0] == JsWriter.ListStartChar) {
+                    return DeserializeList<List<object>, TSerializer>.Parse(strType);
                 }
             }
 
@@ -112,19 +118,16 @@ namespace ServiceStack.Text.Common
         public static object ParseQuotedPrimitive(string value)
         {
             if (string.IsNullOrEmpty(value)) return null;
-            var unescapeString = Serializer.UnescapeString(value);
-            if (value != unescapeString) return unescapeString;
 
 #if NET40
             Guid guidValue;
             if (Guid.TryParse(value, out guidValue)) return guidValue;
 #endif
-            DateTime dateTimeValue;
-            if (DateTimeSerializer.TryParseShortestXsdDateTime(value, out dateTimeValue)) return dateTimeValue;
-            DateTimeOffset dateTimeOffsetValue;
-            if (DateTimeSerializer.TryParseDateTimeOffset(value, out dateTimeOffsetValue)) return dateTimeOffsetValue;
-						
-            return value;
+            if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix)) {
+                return DateTimeSerializer.ParseWcfJsonDate(value);
+            }
+
+            return Serializer.UnescapeString(value);
         }
 
         public static object ParsePrimitive(string value)
