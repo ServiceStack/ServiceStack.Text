@@ -98,8 +98,8 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-	   /* // Sketch for deserialising directly to structs...
-	    * public static object ParseStruct<T>(string stringvalue)
+	    // Sketch for deserialising directly to structs...
+	    public static object ParseStruct<T>(string stringvalue)
 	    {
 			if (typeof(T).IsAbstract) return ParseAbstractType<T>(stringvalue);
 
@@ -119,7 +119,7 @@ namespace ServiceStack.Text.Common
 		    }
 
 		    return template;
-	    }*/
+	    }
     }
 
     internal class TypeAccessor

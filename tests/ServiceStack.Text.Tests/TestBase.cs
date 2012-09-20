@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -82,10 +83,11 @@ namespace ServiceStack.Text.Tests
 				var enumerableModel = model as IEnumerable;
 				if (enumerableModel != null)
 				{
-					Assert.That(fromJsvModel, Is.EquivalentTo(enumerableModel),
+					var enumerable = enumerableModel as object[] ?? enumerableModel.Cast<object>().ToArray();
+					Assert.That(fromJsvModel, Is.EquivalentTo(enumerable),
 						string.Format("Deserialized JSV  {0} was not equal to the original\n{1}", typeof(T), partialJsv));
 
-					Assert.That(fromJsonModel, Is.EquivalentTo(enumerableModel),
+					Assert.That(fromJsonModel, Is.EquivalentTo(enumerable),
 						string.Format("Deserialized JSON {0} was not equal to the original\n{1}", typeof(T), partialJson));
 				}
 				else

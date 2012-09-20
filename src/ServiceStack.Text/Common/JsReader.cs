@@ -69,16 +69,12 @@ namespace ServiceStack.Text.Common
 					return DeserializeEnumerable<T, TSerializer>.Parse;
 			}
 
-            var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))
-                || typeof(T).HasInterface(typeof(IDictionary));
-            if (isDictionary)
+            if (IsDictionary<T>())
             {
                 return DeserializeDictionary<TSerializer>.GetParseMethod(type);
             }
 
-			var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
-				|| typeof(T).HasInterface(typeof(IEnumerable));
-			if (isEnumerable)
+			if (IsEnumerable<T>())
 			{
 				var parseFn = DeserializeSpecializedCollections<T, TSerializer>.Parse;
 				if (parseFn != null) return parseFn;
@@ -104,8 +100,27 @@ namespace ServiceStack.Text.Common
 			var stringConstructor = DeserializeTypeUtils.GetParseMethod(type);
 			if (stringConstructor != null) return stringConstructor;
 
+			if (type.IsValueType) return DecodeValueType<T>;
+
 			return DeserializeType<TSerializer>.ParseAbstractType<T>;
 		}
-		
+
+		object DecodeValueType<T>(string value)
+		{
+			var x = DeserializeType<TSerializer>.ParseStruct<T>(value);
+			return x;
+		}
+
+		static bool IsEnumerable<T>()
+		{
+			return typeof(T).IsAssignableFrom(typeof(IEnumerable))
+				|| typeof(T).HasInterface(typeof(IEnumerable));
+		}
+
+		static bool IsDictionary<T>()
+		{
+			return typeof(T).IsAssignableFrom(typeof(IDictionary))
+                || typeof(T).HasInterface(typeof(IDictionary));
+		}
 	}
 }
