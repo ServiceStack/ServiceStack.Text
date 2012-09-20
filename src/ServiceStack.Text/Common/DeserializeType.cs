@@ -33,13 +33,17 @@ namespace ServiceStack.Text.Common
 
             if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
-            var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
-            var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-            if (map == null) {
-                return value => ctorFn();
-            }
+			ParseStringDelegate parseStringDelegate = value =>
+			{
+				var ctorF = ReflectionExtensions.GetConstructorMethodToCache(type);
+				return ctorF();
+			};
 
-            return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
+            var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
+            if (map == null) return parseStringDelegate;
+			
+			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+	        return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
 				? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
 				: value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
         }
@@ -199,10 +203,12 @@ namespace ServiceStack.Text.Common
 
 			var setter = CreateDynamicSetMethod(propertyInfo);
 
+// ReSharper disable AssignNullToNotNullAttribute
 			var generator = setter.GetILGenerator();
 			generator.Emit(OpCodes.Ldarg_0);
 			generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
 			generator.Emit(OpCodes.Ldarg_1);
+// ReSharper restore AssignNullToNotNullAttribute
 
 			generator.Emit(propertyInfo.PropertyType.IsClass
 				? OpCodes.Castclass
@@ -219,10 +225,12 @@ namespace ServiceStack.Text.Common
 		{
 			var setter = CreateDynamicSetMethod(fieldInfo);
 
+// ReSharper disable AssignNullToNotNullAttribute
 			var generator = setter.GetILGenerator();
 			generator.Emit(OpCodes.Ldarg_0);
 			generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
 			generator.Emit(OpCodes.Ldarg_1);
+// ReSharper restore AssignNullToNotNullAttribute
 
 			generator.Emit(fieldInfo.FieldType.IsClass
 				? OpCodes.Castclass
@@ -241,9 +249,11 @@ namespace ServiceStack.Text.Common
 			var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
 			var returnType = typeof(void);
 
+// ReSharper disable PossibleNullReferenceException
 			return !memberInfo.DeclaringType.IsInterface
 				? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
 				: new DynamicMethod(name, returnType, args, memberInfo.Module, true);
+// ReSharper restore PossibleNullReferenceException
 		}
 #endif
 
