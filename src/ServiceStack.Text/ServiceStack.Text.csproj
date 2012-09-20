@@ -31,6 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -80,6 +81,7 @@
     <Compile Include="AssemblyUtils.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\DeserializeDynamic.cs" />
     <Compile Include="Common\DateTimeSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -166,6 +168,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DtoAttribute.cs" />
+    <Compile Include="DynamicJson.cs" />
     <Compile Include="DynamicProxy.cs" />
     <Compile Include="Env.cs">
       <SubType>Code</SubType>

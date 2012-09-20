@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Json;
+using ServiceStack.Text.Jsv;
+
+
 #if WINDOWS_PHONE
 using ServiceStack.Text.WP;
 #endif
@@ -34,6 +38,22 @@ namespace ServiceStack.Text
 				if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
 			}
 		}
+
+        [ThreadStatic]
+        private static bool? tsTryToParsePrimitiveTypeValues;
+        private static bool? sTryToParsePrimitiveTypeValues;
+        public static bool TryToParsePrimitiveTypeValues
+        {
+            get
+            {
+                return tsTryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues ?? false;
+            }
+            set
+            {
+                tsTryToParsePrimitiveTypeValues = value;
+                if (!sTryToParsePrimitiveTypeValues.HasValue) sTryToParsePrimitiveTypeValues = value;
+            }
+        }
 
 		[ThreadStatic]
 		private static bool? tsIncludeNullValues;
@@ -230,7 +250,8 @@ namespace ServiceStack.Text
         }
 
 	    public static void Reset()
-		{
+	    {
+	        tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
 			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
 			tsIncludeNullValues = sIncludeNullValues = null;
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;

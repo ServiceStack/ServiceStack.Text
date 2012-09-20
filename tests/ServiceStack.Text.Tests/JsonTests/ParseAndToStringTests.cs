@@ -56,7 +56,7 @@ namespace ServiceStack.Text.Tests.JsonTests {
 	[TestFixture]
 	public class ParseAndToStringTests {
 		[Test]
-		public void Should_use_ToString_if_type_has_parse_method () {
+		public void Should_use__ToString__if_type_has_parse_method () {
 			var original = new ContainerA{Contents = new ToStringAndParse{Value="WRONG!"}};
 			var str = original.ToJson();
 			var copy = str.FromJson<ContainerA>();
@@ -65,7 +65,7 @@ namespace ServiceStack.Text.Tests.JsonTests {
 			Assert.That(copy.Contents.Value, Is.EqualTo("OK"));
 		}
 		[Test]
-		public void Should_use_ToString_if_type_has_string_constructor () {
+		public void Should_use__ToString__if_type_has_string_constructor () {
 			var original = new ContainerC{Contents = new ToStringAndStringConstructor{Value="WRONG!"}};
 			var str = original.ToJson();
 			var copy = str.FromJson<ContainerC>();
@@ -75,7 +75,7 @@ namespace ServiceStack.Text.Tests.JsonTests {
 		}
 
 		[Test]
-		public void Should_not_use_ToString_if_type_has_no_parse_method () {
+		public void Should_not_use__ToString__if_type_has_no_parse_method () {
 			var original = new ContainerB{Contents = new ToStringOnly{Value="OK"}};
 			var str = original.ToJson();
 			Console.WriteLine(str);

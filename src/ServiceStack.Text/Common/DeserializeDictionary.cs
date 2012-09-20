@@ -32,10 +32,12 @@ namespace ServiceStack.Text.Common
 		{
 			var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
 			if (mapInterface == null) {
+#if !SILVERLIGHT
                 if (type == typeof(Hashtable))
                 {
                     return ParseHashtable;
                 }
+#endif
                 if (type == typeof(IDictionary))
                 {
 					return GetParseMethod(typeof(Dictionary<object, object>));
@@ -93,6 +95,7 @@ namespace ServiceStack.Text.Common
             return result;
         }
 
+#if !SILVERLIGHT
         public static Hashtable ParseHashtable(string value)
         {
             var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
@@ -118,6 +121,7 @@ namespace ServiceStack.Text.Common
 
             return result;
         }
+#endif
 
         public static Dictionary<string, string> ParseStringDictionary(string value)
         {
@@ -153,6 +157,8 @@ namespace ServiceStack.Text.Common
 
 			var tryToParseItemsAsDictionaries =
 				JsConfig.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
+			var tryToParseItemsAsPrimitiveTypes =
+				JsConfig.TryToParsePrimitiveTypeValues && typeof(TValue) == typeof(object);
 
 			var index = VerifyAndGetStartIndex(value, createMapType);
 
@@ -163,34 +169,40 @@ namespace ServiceStack.Text.Common
             if (JsonTypeSerializer.IsEmptyMap(value)) return to;
 
 			var valueLength = value.Length;
-			while (index < valueLength)
-			{
+			while (index < valueLength) 
+            {
 				var keyValue = Serializer.EatMapKey(value, ref index);
 				Serializer.EatMapKeySeperator(value, ref index);
-				var elementValue = Serializer.EatValue(value, ref index);
+			    var elementStartIndex = index;
+				var elementValue = Serializer.EatTypeValue(value, ref index);
 
 				var mapKey = (TKey)parseKeyFn(keyValue);
-				var mapValue = (TValue)parseValueFn(elementValue);
 
 				if (tryToParseItemsAsDictionaries)
 				{
-					var mapValueString = mapValue as string;
-					var tryParseValueAsDictionary = JsonUtils.IsJsObject(mapValueString);
-					if (tryParseValueAsDictionary)
+					if (value[elementStartIndex] == JsWriter.MapStartChar)
 					{
-						var tmpMap = ParseDictionary<TKey, TValue>(mapValueString, createMapType, parseKeyFn, parseValueFn);
-						to[mapKey] = (tmpMap != null && tmpMap.Count > 0)
-							? (TValue)tmpMap
-							: to[mapKey] = mapValue;
-					}
-					else
-					{
-						to[mapKey] = mapValue;
-					}
+						var tmpMap = ParseDictionary<TKey, TValue>(elementValue, createMapType, parseKeyFn, parseValueFn);
+                        if (tmpMap != null && tmpMap.Count > 0) {
+                            to[mapKey] = (TValue) tmpMap;
+                        }
+					} 
+                    else if (value[elementStartIndex] == JsWriter.ListStartChar) 
+                    {
+                        to[mapKey] = (TValue) DeserializeList<List<object>, TSerializer>.Parse(elementValue);
+                    } 
+                    else 
+                    {
+				        to[mapKey] = (TValue) (tryToParseItemsAsPrimitiveTypes
+				                        ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex])
+				                        : parseValueFn(elementValue));
+                    }
 				}
-				else
-				{
-					to[mapKey] = mapValue;
+                else
+                {
+				    to[mapKey] = (TValue) (tryToParseItemsAsPrimitiveTypes
+				                    ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex])
+				                    : parseValueFn(elementValue));
 				}
 
 				Serializer.EatItemSeperatorOrMapEndChar(value, ref index);

@@ -19,6 +19,8 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Mono.Reflection;
+using System.Runtime.Serialization;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -58,6 +60,13 @@ namespace ServiceStack.Text.Common
                 return propertyValue;
             }
 
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType) && strType[0] == JsWriter.MapStartChar) {
+                var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
+                if (dynamicMatch != null && dynamicMatch.Count > 0) {
+                    return dynamicMatch;
+                }
+            }
+
             return Serializer.UnescapeString(strType);
         }
 
@@ -78,9 +87,11 @@ namespace ServiceStack.Text.Common
 					return null;
 				}
 
+#if !SILVERLIGHT
 				if (type.IsInterface || type.IsAbstract) {
 					return DynamicProxy.GetInstanceFor(type).GetType();
 				}
+#endif
 
                 return type;
             }
@@ -103,7 +114,6 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-	    // Sketch for deserialising directly to structs...
 	    public static object ParseStruct<T>(string stringvalue)
 	    {
 			if (typeof(T).IsAbstract) return ParseAbstractType<T>(stringvalue);
@@ -131,6 +141,66 @@ namespace ServiceStack.Text.Common
 
 		    return template;
 	    }
+		
+        public static object ParseQuotedPrimitive(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return null;
+            var unescapeString = Serializer.UnescapeString(value);
+            if (value != unescapeString) return unescapeString;
+
+#if NET40
+            Guid guidValue;
+            if (Guid.TryParse(value, out guidValue)) return guidValue;
+#endif
+            DateTime dateTimeValue;
+            if (DateTimeSerializer.TryParseShortestXsdDateTime(value, out dateTimeValue)) return dateTimeValue;
+            DateTimeOffset dateTimeOffsetValue;
+            if (DateTimeSerializer.TryParseDateTimeOffset(value, out dateTimeOffsetValue)) return dateTimeOffsetValue;
+						
+            return value;
+        }
+
+        public static object ParsePrimitive(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return null;
+
+            bool boolValue;
+            if (bool.TryParse(value, out boolValue)) return boolValue;
+            byte byteValue;
+            if (byte.TryParse(value, out byteValue)) return byteValue;
+            sbyte sbyteValue;
+            if (sbyte.TryParse(value, out sbyteValue)) return sbyteValue;
+            short shortValue;
+            if (short.TryParse(value, out shortValue)) return shortValue;
+            ushort ushortValue;
+            if (ushort.TryParse(value, out ushortValue)) return ushortValue;
+            int intValue;
+            if (int.TryParse(value, out intValue)) return intValue;
+            uint uintValue;
+            if (uint.TryParse(value, out uintValue)) return uintValue;
+            long longValue;
+            if (long.TryParse(value, out longValue)) return longValue;
+            ulong ulongValue;
+            if (ulong.TryParse(value, out ulongValue)) return ulongValue;
+            float floatValue;
+            if (float.TryParse(value, out floatValue)) return floatValue;
+            double doubleValue;
+            if (double.TryParse(value, out doubleValue)) return doubleValue;
+            decimal decimalValue;
+            if (decimal.TryParse(value, out decimalValue)) return decimalValue;
+
+            return null;
+        }
+
+        internal static object ParsePrimitive(string value, char firstChar)
+        {
+            if (typeof(TSerializer) == typeof(JsonTypeSerializer)) {
+                return firstChar == JsWriter.QuoteChar
+                           ? ParseQuotedPrimitive(value)
+                           : ParsePrimitive(value);
+            }
+            return (ParsePrimitive(value) ?? ParseQuotedPrimitive(value));
+        }
     }
 
     internal class TypeAccessor

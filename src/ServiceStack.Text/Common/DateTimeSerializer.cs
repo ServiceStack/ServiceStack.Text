@@ -68,6 +68,34 @@ namespace ServiceStack.Text.Common
             return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
         }
 
+        public static bool TryParseShortestXsdDateTime(string dateTimeStr, out DateTime result)
+        {
+			if (dateTimeStr.StartsWith(EscapedWcfJsonPrefix) || dateTimeStr.StartsWith(WcfJsonPrefix)) {
+			    result = ParseWcfJsonDate(dateTimeStr);
+			    return true;
+			}
+
+			if (dateTimeStr.Length == DefaultDateTimeFormat.Length
+				|| dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
+				return DateTime.TryParse(dateTimeStr, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result);
+
+			if (dateTimeStr.Length == XsdDateTimeFormatSeconds.Length)
+				return DateTime.TryParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null,
+										   DateTimeStyles.AdjustToUniversal, out result);
+
+            //if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
+            //    && dateTimeStr.Length <= XsdDateTimeFormat.Length)
+            //{
+            //    var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
+            //        ? XmlDateTimeSerializationMode.Local
+            //        : XmlDateTimeSerializationMode.RoundtripKind;
+
+            //    return XmlConvert.ToDateTime(dateTimeStr, dateTimeType);
+            //}
+
+            return DateTime.TryParse(dateTimeStr, null, DateTimeStyles.AssumeLocal, out result);
+        }
+
 		public static string ToDateTimeString(DateTime dateTime)
 		{
 			return dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormat);
@@ -103,6 +131,11 @@ namespace ServiceStack.Text.Common
 
             return DateTimeOffset.Parse(dateTimeOffsetStr, CultureInfo.InvariantCulture);
 		}
+
+        public static bool TryParseDateTimeOffset(string dateTimeOffsetStr, out DateTimeOffset result)
+        {
+            return DateTimeOffset.TryParse(dateTimeOffsetStr, out result);
+        }
 
 		public static string ToXsdDateTimeString(DateTime dateTime)
 		{

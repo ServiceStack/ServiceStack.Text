@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
+using ServiceStack.Text.Tests.DynamicModels.DataModel;
 
 namespace ServiceStack.Text.Tests
 {
@@ -77,6 +78,82 @@ namespace ServiceStack.Text.Tests
 			Serialize(map);
 		}
 
+		[Test]
+		public void Can_deserialize_two_level_dictionary_with_array()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+            try {
+			    var original = new Dictionary<string, StrictType[]>
+          		    {
+					    {"array", 
+                            new [] { 
+                                new StrictType { Name = "First" }, 
+                                new StrictType { Name = "Second" }, 
+                                new StrictType { Name = "Third" }, 
+                            }
+					    },
+          		    };
+			    var json = JsonSerializer.SerializeToString(original);
+			    var deserialized = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
+
+                Console.WriteLine(json);
+
+                Assert.That(deserialized, Is.Not.Null);
+                Assert.That(deserialized["array"], Is.Not.Null);
+                Assert.That(((List<object>)deserialized["array"]).Count, Is.EqualTo(3));
+                Assert.That(((List<object>)deserialized["array"])[0].ToJson(), Is.EqualTo("{\"Name\":\"First\"}"));
+                Assert.That(((List<object>)deserialized["array"])[1].ToJson(), Is.EqualTo("{\"Name\":\"Second\"}"));
+                Assert.That(((List<object>)deserialized["array"])[2].ToJson(), Is.EqualTo("{\"Name\":\"Third\"}"));
+            } finally {
+                JsConfig.TryToParsePrimitiveTypeValues = false;
+                JsConfig.ConvertObjectTypesIntoStringDictionary = false;
+            }
+		}
+
+		[Test]
+		public void Can_deserialize_dictionary_with_special_characters_in_strings()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+            try {
+			    var original = new Dictionary<string, string>
+          		    {
+					    {"embeddedtypecharacters", "{{body}}"},
+					    {"embeddedlistcharacters", "[stuff]"},
+					    {"ShortDateTimeFormat", "yyyy-MM-dd"},
+					    {"DefaultDateTimeFormat", "dd/MM/yyyy HH:mm:ss"},
+					    {"DefaultDateTimeFormatWithFraction", "dd/MM/yyyy HH:mm:ss.fff"},
+					    {"XsdDateTimeFormat", "yyyy-MM-ddTHH:mm:ss.fffffffZ"},
+					    {"XsdDateTimeFormat3F", "yyyy-MM-ddTHH:mm:ss.fffZ"},
+					    {"XsdDateTimeFormatSeconds", "yyyy-MM-ddTHH:mm:ssZ"},
+					    {"ShouldBeAZeroInAString", "0"},
+					    {"ShouldBeAPositiveIntegerInAString", "12345"},
+					    {"ShouldBeANegativeIntegerInAString", "-12345"},
+          		    };
+			    var json = JsonSerializer.SerializeToString(original);
+			    var deserialized = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
+
+                Console.WriteLine(json);
+
+                Assert.That(deserialized, Is.Not.Null);
+                Assert.That(deserialized["embeddedtypecharacters"], Is.Not.Null);
+                Assert.That(deserialized["embeddedtypecharacters"], Is.EqualTo("{{body}}"));
+                Assert.That(deserialized["embeddedlistcharacters"], Is.EqualTo("[stuff]"));
+                Assert.That(deserialized["ShortDateTimeFormat"], Is.EqualTo("yyyy-MM-dd"));
+                Assert.That(deserialized["DefaultDateTimeFormat"], Is.EqualTo("dd/MM/yyyy HH:mm:ss"));
+                Assert.That(deserialized["DefaultDateTimeFormatWithFraction"], Is.EqualTo("dd/MM/yyyy HH:mm:ss.fff"));
+                Assert.That(deserialized["XsdDateTimeFormat"], Is.EqualTo("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
+                Assert.That(deserialized["XsdDateTimeFormat3F"], Is.EqualTo("yyyy-MM-ddTHH:mm:ss.fffZ"));
+                Assert.That(deserialized["XsdDateTimeFormatSeconds"], Is.EqualTo("yyyy-MM-ddTHH:mm:ssZ"));
+                Assert.That(deserialized["ShouldBeAZeroInAString"], Is.EqualTo("0"));
+                Assert.That(deserialized["ShouldBeAPositiveIntegerInAString"], Is.EqualTo("12345"));
+                Assert.That(deserialized["ShouldBeANegativeIntegerInAString"], Is.EqualTo("-12345"));
+            } finally {
+                JsConfig.TryToParsePrimitiveTypeValues = false;
+                JsConfig.ConvertObjectTypesIntoStringDictionary = false;
+            }
+		}
 
 		private static Dictionary<string, object> SetupDict()
 		{
@@ -84,6 +161,7 @@ namespace ServiceStack.Text.Tests
                 { "a", "text" },
                 { "b", 32 },
                 { "c", false },
+                { "d", new[] {1, 2, 3} }
             };
 		}
 
@@ -92,6 +170,7 @@ namespace ServiceStack.Text.Tests
 			public string a { get; set; }
 			public int b { get; set; }
 			public bool c { get; set; }
+		    public int[] d { get; set; }
 		}
 
 		private static void AssertDict(Dictionary<string, object> dict)
@@ -110,32 +189,59 @@ namespace ServiceStack.Text.Tests
 		//    AssertDict(deserializedDict);
 		//}
 
-		//[Test, Ignore("No type info emitted for primitive values")]
+		[Test]
 		public void Test_ServiceStack_Text_TypeSerializer()
 		{
-			var dict = SetupDict();
-			var json = TypeSerializer.SerializeToString(dict);
-			var deserializedDict = TypeSerializer.DeserializeFromString<Dictionary<string, object>>(json);
-			AssertDict(deserializedDict);
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+            try {
+			    var dict = SetupDict();
+			    var json = TypeSerializer.SerializeToString(dict);
+			    var deserializedDict = TypeSerializer.DeserializeFromString<Dictionary<string, object>>(json);
+			    AssertDict(deserializedDict);
+            } finally {
+                JsConfig.TryToParsePrimitiveTypeValues = false;
+                JsConfig.ConvertObjectTypesIntoStringDictionary = false;
+            }
 		}
 
-		//[Test, Ignore("No type info emitted for primitive values")]
+		[Test]
 		public void Test_ServiceStack_Text_JsonSerializer()
 		{
-			var dict = SetupDict();
-			var json = JsonSerializer.SerializeToString(dict);
-			var deserializedDict = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
-			AssertDict(deserializedDict);
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+            try {
+			    var dict = SetupDict();
+			    var json = JsonSerializer.SerializeToString(dict);
+			    var deserializedDict = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
+			    AssertDict(deserializedDict);
+            } finally {
+                JsConfig.TryToParsePrimitiveTypeValues = false;
+                JsConfig.ConvertObjectTypesIntoStringDictionary = false;
+            }
+		}
+
+		[Test]
+		public void Test_ServiceStack_Text_JsonSerializer_Array_Value_Deserializes_Correctly()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+            try {
+			    var dict = SetupDict();
+			    var json = JsonSerializer.SerializeToString(dict);
+			    var deserializedDict = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
+			    Assert.AreEqual("text", deserializedDict["a"]);
+			    Assert.AreEqual(new List<int> {1, 2, 3}, deserializedDict["d"]);                
+            } finally {
+                JsConfig.TryToParsePrimitiveTypeValues = false;
+                JsConfig.ConvertObjectTypesIntoStringDictionary = false;
+            }
 		}
 
 		[Test]
 		public void Can_deserialize_mixed_dictionary_into_strongtyped_map()
 		{
-			var mixedMap = new Dictionary<string, object> {
-                { "a", "text" },
-                { "b", 32 },
-                { "c", false },
-            };
+			var mixedMap = SetupDict();
 
 			var json = JsonSerializer.SerializeToString(mixedMap);
 			Console.WriteLine("JSON:\n" + json);
@@ -144,6 +250,7 @@ namespace ServiceStack.Text.Tests
 			Assert.AreEqual("text", mixedType.a);
 			Assert.AreEqual(32, mixedType.b);
 			Assert.AreEqual(false, mixedType.c);
+			Assert.AreEqual(new[] {1, 2, 3}, mixedType.d);
 		}
 
 		[Test]
@@ -224,7 +331,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Nongeneric_implementors_of_IDictionary_K_V_Should_serialize_like_Dictionary_K_V()
         {
-            dynamic expando = new ExpandoObject();
+            dynamic expando = new System.Dynamic.ExpandoObject();
             expando.Property = "Value";
             IDictionary<string, object> dict = expando;
             Assert.AreEqual(dict.Dump(), new Dictionary<string, object>(dict).Dump());

@@ -3,58 +3,43 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CC38D2CC-5E47-4218-9994-5DDEE36820FA}</ProjectGuid>
-    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <ProjectGuid>{15BF26C8-92F8-445D-8FFC-7882A519B67D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServiceStack.Text</RootNamespace>
     <AssemblyName>ServiceStack.Text</AssemblyName>
-    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
-    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
-    <SilverlightApplication>false</SilverlightApplication>
-    <ValidateXaml>true</ValidateXaml>
-    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
-  </PropertyGroup>
-  <!-- This property group is only here to support building this project using the 
-       MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
-       to set the TargetFrameworkVersion to v3.5 -->
-  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
-    <NoStdLib>true</NoStdLib>
-    <NoConfig>true</NoConfig>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
-    <NoStdLib>true</NoStdLib>
-    <NoConfig>true</NoConfig>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>Bin\Release\ServiceStack.Text.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Windows" />
-    <Reference Include="system" />
+    <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ServiceStack.Text\AssemblyUtils.cs">
@@ -74,6 +59,9 @@
     </Compile>
     <Compile Include="..\ServiceStack.Text\Common\DeserializeDictionary.cs">
       <Link>Common\DeserializeDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\Common\DeserializeDynamic.cs">
+      <Link>Common\DeserializeDynamic.cs</Link>
     </Compile>
     <Compile Include="..\ServiceStack.Text\Common\DeserializeListWithElements.cs">
       <Link>Common\DeserializeListWithElements.cs</Link>
@@ -147,8 +135,20 @@
     <Compile Include="..\ServiceStack.Text\DateTimeExtensions.cs">
       <Link>DateTimeExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\DtoAttribute.cs">
+      <Link>DtoAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\DynamicJson.cs">
+      <Link>DynamicJson.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\DynamicProxy.cs">
+      <Link>DynamicProxy.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\Env.cs">
       <Link>Env.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\HashSet.cs">
+      <Link>HashSet.cs</Link>
     </Compile>
     <Compile Include="..\ServiceStack.Text\ITracer.cs">
       <Link>ITracer.cs</Link>
@@ -258,29 +258,16 @@
     <Compile Include="..\ServiceStack.Text\TypeSerializer.Generic.cs">
       <Link>TypeSerializer.Generic.cs</Link>
     </Compile>
-    <Compile Include="..\ServiceStack.Text\XmlSerializer.cs">
-      <Link>XmlSerializer.cs</Link>
+    <Compile Include="..\ServiceStack.Text\WebRequestExtensions.cs">
+      <Link>WebRequestExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\ServiceStack.Text\DtoAttribute.cs">
+    <Compile Include="..\ServiceStack.Text\XmlSerializer.cs">
       <Link>XmlSerializer.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="obj\Debug\TempPE\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
-        <SilverlightProjectProperties />
-      </FlavorProperties>
-      <UserProperties ProjectLinkReference="579b3fdb-cdad-44e1-8417-885c38e49a0e" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
-    </VisualStudio>
-  </ProjectExtensions>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

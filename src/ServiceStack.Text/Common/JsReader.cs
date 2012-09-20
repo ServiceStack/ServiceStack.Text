@@ -69,6 +69,13 @@ namespace ServiceStack.Text.Common
 					return DeserializeEnumerable<T, TSerializer>.Parse;
 			}
 
+#if NET40
+            if (typeof (T).IsAssignableFrom(typeof (System.Dynamic.IDynamicMetaObjectProvider)) ||
+	            typeof (T).HasInterface(typeof (System.Dynamic.IDynamicMetaObjectProvider))) 
+            {
+                return DeserializeDynamic<TSerializer>.Parse;
+            }
+#endif
             if (IsDictionary<T>())
             {
                 return DeserializeDictionary<TSerializer>.GetParseMethod(type);
