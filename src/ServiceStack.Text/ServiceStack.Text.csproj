@@ -238,6 +238,13 @@
     <Compile Include="ReflectionExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Reflection\BackingFieldResolver.cs" />
+    <Compile Include="Reflection\ByteBuffer.cs" />
+    <Compile Include="Reflection\Disassembler.cs" />
+    <Compile Include="Reflection\ILPattern.cs" />
+    <Compile Include="Reflection\Image.cs" />
+    <Compile Include="Reflection\Instruction.cs" />
+    <Compile Include="Reflection\MethodBodyReader.cs" />
     <Compile Include="Reflection\StaticAccessors.cs">
       <SubType>Code</SubType>
     </Compile>

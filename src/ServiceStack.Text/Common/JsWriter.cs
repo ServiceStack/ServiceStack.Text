@@ -232,7 +232,7 @@ namespace ServiceStack.Text.Common
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
-            return Serializer.WriteObjectString;
+			return Serializer.WriteObjectString;
         }
 
         internal WriteObjectDelegate GetWriteFn<T>()

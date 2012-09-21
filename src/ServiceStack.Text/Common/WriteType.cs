@@ -168,9 +168,9 @@ namespace ServiceStack.Text.Common
 			{
 				this.propertyName = propertyName;
 				this.propertyNameCLSFriendly = propertyNameCLSFriendly;
-				this.GetterFn = getterFn;
-				this.WriteFn = writeFn;
-			    this.DefaultValue = defaultValue;
+				GetterFn = getterFn;
+				WriteFn = writeFn;
+			    DefaultValue = defaultValue;
 			}
 		}
 

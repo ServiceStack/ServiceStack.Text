@@ -186,11 +186,16 @@
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
     <Compile Include="JsonTests\JsonObjectTests.cs" />
     <Compile Include="JsonTests\BackingFieldTests.cs" />
+    <Compile Include="JsonTests\ParseAndToStringTests.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />
     <Compile Include="MessagingTests.cs" />
     <Compile Include="NullableTypesTests.cs" />
+    <Compile Include="Reflection\BackingFieldResolverTest.cs" />
+    <Compile Include="Reflection\BaseReflectionTest.cs" />
+    <Compile Include="Reflection\DisassemblerTest.cs" />
+    <Compile Include="Reflection\Formatter.cs" />
     <Compile Include="StringConverterUtilsTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="StructTests.cs" />
@@ -215,6 +220,7 @@
     <Compile Include="UseCases\CentroidTests.cs" />
     <Compile Include="UseCases\GitHubRestTests.cs" />
     <Compile Include="UseCases\GithubV3ApiTests.cs" />
+    <Compile Include="UseCases\GMapDirectionsTests.cs" />
     <Compile Include="Utils\DateTimeSerializerTests.cs" />
     <Compile Include="DdnContentIngestTests.cs" />
     <Compile Include="Support\DdnDtos.cs" />
@@ -268,6 +274,14 @@
       <Project>{579B3FDB-CDAD-44E1-8417-885C38E49A0E}</Project>
       <Name>ServiceStack.Text</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Reflection\target.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Reflection\target.il" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

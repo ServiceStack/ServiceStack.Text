@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using NUnit.Framework;
-using ServiceStack.Text.Tests.Support;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {

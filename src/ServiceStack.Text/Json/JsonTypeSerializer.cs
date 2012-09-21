@@ -105,10 +105,34 @@ namespace ServiceStack.Text.Json
 
         public void WriteObjectString(TextWriter writer, object value)
         {
-            JsonUtils.WriteString(writer, value != null ? value.ToString() : null);
+			if (value.GetType().HasParseAndToString())
+			{
+				JsonUtils.WriteString(writer, value != null ? value.ToString() : null);
+			} else
+			{
+				WriteValueType(writer, value);
+			}
         }
 
-        public void WriteException(TextWriter writer, object value)
+	    void WriteValueType(TextWriter writer, object value)
+	    {
+			var props = value.GetType().GetPublicProperties();
+			if (props.Length < 1) return;
+
+			writer.Write("{");
+			string sep = "";
+		    foreach (var propertyInfo in props)
+		    {
+				writer.Write(sep);
+				WritePropertyName(writer, propertyInfo.Name);
+				writer.Write("=");
+				GetWriteFn(propertyInfo.PropertyType)(writer, propertyInfo.GetValue(value, null));
+				sep = ",";
+		    }
+			writer.Write("}");
+	    }
+
+	    public void WriteException(TextWriter writer, object value)
         {
             WriteString(writer, ((Exception)value).Message);
         }
@@ -361,11 +385,6 @@ namespace ServiceStack.Text.Json
             return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
                 ? value.Substring(1, value.Length - 2)
                 : value;
-
-            //if (value[0] != JsonUtils.QuoteChar)
-            //    throw new Exception("Invalid unquoted string starting with: " + value.SafeSubstring(50));
-
-            //return value.Substring(1, value.Length - 2);
         }
 
         static readonly char[] IsSafeJsonChars = new[] { JsonUtils.QuoteChar, JsonUtils.EscapeChar };

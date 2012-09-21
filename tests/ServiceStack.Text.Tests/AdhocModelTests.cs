@@ -1,13 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Globalization;
 using System.Runtime.Serialization;
-using System.Threading;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
-using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text.Tests
 {

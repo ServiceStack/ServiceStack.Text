@@ -174,7 +174,29 @@ namespace ServiceStack.Text
 			   || underlyingType == typeof(decimal);
         }
 
-        public static Type GetTypeWithGenericInterfaceOf(this Type type, Type genericInterfaceType)
+		public static MethodInfo StaticMethodLike(this Type type, string methodName, Type[] parameters)
+		{
+			return type.GetMethods(BindingFlags.Static | BindingFlags.Public)
+				.SingleOrDefault(m=>
+					m.Name == methodName
+					&& m.GetParameters().Select(p=>p.ParameterType).SequenceEqual(parameters)
+				);
+		}
+
+	    public static bool HasParseAndToString(this Type type)
+		{
+			if (type == typeof(string)) return true;
+			var ts = type.GetMethod("ToString", new Type[0]);
+			if (ts == null || ts.ReturnType != typeof(string)) return false;
+
+			var prs = type.StaticMethodLike("Parse", new[]{typeof(string)});
+			var sctor = type.GetConstructor(new []{typeof(string)});
+			if (sctor == null && (prs == null || prs.ReturnType != type)) return false;
+
+			return true;
+		}
+
+	    public static Type GetTypeWithGenericInterfaceOf(this Type type, Type genericInterfaceType)
         {
             foreach (var t in type.GetInterfaces())
             {

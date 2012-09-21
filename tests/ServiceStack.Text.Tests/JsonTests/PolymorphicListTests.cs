@@ -129,13 +129,10 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialise_polymorphic_list()
 		{
-			var list =
-				JsonSerializer.DeserializeFromString<List<Animal>>(
-					"[{\"__type\":\""
-					+ typeof(Dog).ToTypeString()
-					+ "\",\"Name\":\"Fido\"},{\"__type\":\""
-					+ typeof(Cat).ToTypeString()
-					+ "\",\"Name\":\"Tigger\"}]");
+			var value = "[{\"__type\":\"" + typeof (Dog).ToTypeString() + "\",\"Name\":\"Fido\"},{\"__type\":\"" + typeof (Cat).ToTypeString() + "\",\"Name\":\"Tigger\"}]";
+
+			Console.WriteLine(value);
+			var list = JsonSerializer.DeserializeFromString<List<Animal>>(value);
 
 			Assert.That(list.Count, Is.EqualTo(2));
 

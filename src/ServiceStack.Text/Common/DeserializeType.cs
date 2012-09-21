@@ -11,13 +11,14 @@
 //
 
 #if !XBOX && !MONOTOUCH && !SILVERLIGHT
+using System.Collections.Generic;
 using System.Reflection.Emit;
 #endif
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Mono.Reflection;
 using System.Runtime.Serialization;
 using ServiceStack.Text.Json;
 
@@ -34,13 +35,17 @@ namespace ServiceStack.Text.Common
 
             if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
-            var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
-            var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-            if (map == null) {
-                return value => ctorFn();
-            }
+			ParseStringDelegate parseStringDelegate = value =>
+			{
+				var ctorF = ReflectionExtensions.GetConstructorMethodToCache(type);
+				return ctorF();
+			};
 
-            return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
+            var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
+            if (map == null) return parseStringDelegate;
+			
+			var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+	        return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
 				? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
 				: value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
         }
@@ -115,6 +120,34 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
+	    public static object ParseStruct<T>(string stringvalue)
+	    {
+			if (typeof(T).IsAbstract) return ParseAbstractType<T>(stringvalue);
+
+			var props = typeof(T).GetProperties();
+			var template = default(T) as ValueType;
+
+			var dict = Serializer.GetParseFn<Dictionary<string,object>>()(stringvalue) as Dictionary<string,object>;
+			if (dict == null)
+			{
+                Tracer.Instance.WriteWarning(
+                    "Could not deserialize contents of Value type: " + stringvalue);
+				return null;
+			}
+
+		    foreach (var propertyInfo in props)
+		    {
+				if (!dict.ContainsKey(propertyInfo.Name)) continue;
+				var fieldInfo = propertyInfo.GetBackingField();
+				if (fieldInfo == null) continue;
+
+				var value = dict[propertyInfo.Name];
+			    fieldInfo.SetValue(template, value);
+		    }
+
+		    return template;
+	    }
+		
         public static object ParseQuotedPrimitive(string value)
         {
             if (string.IsNullOrEmpty(value)) return null;
@@ -205,32 +238,18 @@ namespace ServiceStack.Text.Common
             {
                 PropertyType = propertyInfo.PropertyType,
                 GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
-                SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
+                SetProperty = GetSetPropertyMethod(propertyInfo),
             };
         }
 
-        private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+        private static SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
         {
-            if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
-
             FieldInfo fieldInfo = null;
             if (!propertyInfo.CanWrite)
-            {
-                //TODO: What string comparison is used in SST?
-				string fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
-                var fieldName = string.Format(fieldNameFormat, propertyInfo.Name);
-                var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
-                foreach (var f in fieldInfos)
-                {
-                    if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
-                    {
-                        fieldInfo = f;
-                        break;
-                    }
-                }
-
-                if (fieldInfo == null) return null;
-            }
+			{
+				fieldInfo = propertyInfo.GetBackingField();
+				if (fieldInfo == null) return null;
+			}
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
             if (propertyInfo.CanWrite)
@@ -257,17 +276,19 @@ namespace ServiceStack.Text.Common
 
 			var setter = CreateDynamicSetMethod(propertyInfo);
 
+// ReSharper disable AssignNullToNotNullAttribute
 			var generator = setter.GetILGenerator();
 			generator.Emit(OpCodes.Ldarg_0);
 			generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
 			generator.Emit(OpCodes.Ldarg_1);
+// ReSharper restore AssignNullToNotNullAttribute
 
 			generator.Emit(propertyInfo.PropertyType.IsClass
 				? OpCodes.Castclass
 				: OpCodes.Unbox_Any,
 				propertyInfo.PropertyType);
 
-			generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
+			generator.EmitCall(OpCodes.Callvirt, propSetMethod, null);
 			generator.Emit(OpCodes.Ret);
 
 			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
@@ -277,10 +298,12 @@ namespace ServiceStack.Text.Common
 		{
 			var setter = CreateDynamicSetMethod(fieldInfo);
 
+// ReSharper disable AssignNullToNotNullAttribute
 			var generator = setter.GetILGenerator();
 			generator.Emit(OpCodes.Ldarg_0);
 			generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
 			generator.Emit(OpCodes.Ldarg_1);
+// ReSharper restore AssignNullToNotNullAttribute
 
 			generator.Emit(fieldInfo.FieldType.IsClass
 				? OpCodes.Castclass
@@ -299,9 +322,11 @@ namespace ServiceStack.Text.Common
 			var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
 			var returnType = typeof(void);
 
+// ReSharper disable PossibleNullReferenceException
 			return !memberInfo.DeclaringType.IsInterface
 				? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
 				: new DynamicMethod(name, returnType, args, memberInfo.Module, true);
+// ReSharper restore PossibleNullReferenceException
 		}
 #endif
 
