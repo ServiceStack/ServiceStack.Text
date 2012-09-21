@@ -123,20 +123,21 @@ namespace ServiceStack.Text.Common
 
 			if (!string.IsNullOrEmpty(value))
 			{
-				if (value[0] == JsWriter.MapStartChar)
+				var valueLength = value.Length;
+				var i = 0;
+                Serializer.EatWhitespace(value, ref i);
+				if (i < valueLength && value[i] == JsWriter.MapStartChar)
 				{
-					var i = 0;
 					do
 					{
 						var itemValue = Serializer.EatTypeValue(value, ref i);
 						to.Add((T)parseFn(itemValue));
+                        Serializer.EatWhitespace(value, ref i);
 					} while (++i < value.Length);
 				}
 				else
 				{
-					var valueLength = value.Length;
 
-					var i = 0;
 					while (i < valueLength)
 					{
                         var startIndex = i;
