@@ -130,5 +130,98 @@ namespace ServiceStack.Text.Tests
             Assert.That(dict["stringWithDigitsValue"], Is.EqualTo("OR345"));
             Assert.That(dict["dateValue"], Is.EqualTo(new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc)));
 		}
+
+        [Test]
+		public void Can_deserialize_object_dictionary_with_line_breaks()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = @"{
+                    ""value""
+:
+   5   ,
+
+                }";
+
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
+		    var dict = (Dictionary<string, object>) deserialized;
+            Assert.That(dict["value"], Is.EqualTo(5));
+		}
+
+        [Test]
+		public void Can_deserialize_object_array_with_line_breaks_before_first_element()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = @"[
+                {
+                    ""name"":""foo""
+                }]";
+
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<List<object>>());
+            var arrayValues = (List<object>) deserialized;
+            Assert.That(arrayValues.Count, Is.EqualTo(1));
+            Assert.That(arrayValues[0], Is.Not.Null);
+		}
+
+        [Test]
+		public void Can_deserialize_object_array_with_line_breaks_after_last_element()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = @"[{
+                    ""name"":""foo""
+                }
+                ]";
+
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<List<object>>());
+            var arrayValues = (List<object>) deserialized;
+            Assert.That(arrayValues.Count, Is.EqualTo(1));
+            Assert.That(arrayValues[0], Is.Not.Null);
+		}
+
+        [Test]
+		public void Can_deserialize_object_array_with_line_breaks_around_element()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = @"[
+                {
+                    ""name"":""foo""
+                }
+                ]";
+
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<List<object>>());
+            var arrayValues = (List<object>) deserialized;
+            Assert.That(arrayValues.Count, Is.EqualTo(1));
+            Assert.That(arrayValues[0], Is.Not.Null);
+		}
+
+        [Test]
+		public void Can_deserialize_object_array_with_line_breaks_around_number_element()
+		{
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = @"[
+                
+                    5
+                
+                ]";
+
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<List<object>>());
+            var arrayValues = (List<object>) deserialized;
+            Assert.That(arrayValues.Count, Is.EqualTo(1));
+            Assert.That(arrayValues[0], Is.EqualTo(5));
+		}
 	}
 }

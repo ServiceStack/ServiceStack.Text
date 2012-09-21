@@ -181,27 +181,27 @@ namespace ServiceStack.Text.Common
 				if (tryToParseItemsAsDictionaries)
 				{
                     Serializer.EatWhitespace(value, ref elementStartIndex);
-					if (value[elementStartIndex] == JsWriter.MapStartChar)
+					if (elementStartIndex < valueLength && value[elementStartIndex] == JsWriter.MapStartChar)
 					{
 						var tmpMap = ParseDictionary<TKey, TValue>(elementValue, createMapType, parseKeyFn, parseValueFn);
                         if (tmpMap != null && tmpMap.Count > 0) {
                             to[mapKey] = (TValue) tmpMap;
                         }
 					} 
-                    else if (value[elementStartIndex] == JsWriter.ListStartChar) 
+                    else if (elementStartIndex < valueLength && value[elementStartIndex] == JsWriter.ListStartChar) 
                     {
                         to[mapKey] = (TValue) DeserializeList<List<object>, TSerializer>.Parse(elementValue);
                     } 
                     else 
                     {
-				        to[mapKey] = (TValue) (tryToParseItemsAsPrimitiveTypes
+				        to[mapKey] = (TValue) (tryToParseItemsAsPrimitiveTypes && elementStartIndex < valueLength
 				                        ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex])
 				                        : parseValueFn(elementValue));
                     }
 				}
                 else
                 {
-                    if (tryToParseItemsAsPrimitiveTypes) {
+                    if (tryToParseItemsAsPrimitiveTypes && elementStartIndex < valueLength) {
                         Serializer.EatWhitespace(value, ref elementStartIndex);
 				        to[mapKey] = (TValue) DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
                     } else {
