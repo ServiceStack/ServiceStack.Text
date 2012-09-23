@@ -116,15 +116,15 @@ namespace ServiceStack.Text
 			{
 				tsTypeAttr = value;
 				if (sTypeAttr == null) sTypeAttr = value;
-			    JsonTypeAttrInObject = Json.JsonTypeSerializer.GetTypeAttrInObject(value);
-			    JsvTypeAttrInObject = Jsv.JsvTypeSerializer.GetTypeAttrInObject(value);
+			    JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(value);
+			    JsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(value);
 			}
 		}
 
 		[ThreadStatic]
 		private static string tsJsonTypeAttrInObject;
 		private static string sJsonTypeAttrInObject;
-	    private static readonly string defaultJsonTypeAttrInObject = Json.JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
+	    private static readonly string defaultJsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
 		internal static string JsonTypeAttrInObject
 		{
 			get
@@ -141,7 +141,7 @@ namespace ServiceStack.Text
 		[ThreadStatic]
 		private static string tsJsvTypeAttrInObject;
 		private static string sJsvTypeAttrInObject;
-	    private static readonly string defaultJsvTypeAttrInObject = Jsv.JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
+	    private static readonly string defaultJsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
 		internal static string JsvTypeAttrInObject
 		{
 			get
@@ -215,7 +215,30 @@ namespace ServiceStack.Text
 			}
 		}
 
-		/// <summary>
+	    /// <summary>
+	    /// Define how property names are mapped during deserialization
+	    /// </summary>
+	    private static JsonPropertyConvention _propertyConvention;
+	    public static JsonPropertyConvention PropertyConvention
+	    {
+	        get { return _propertyConvention; }
+            set
+            { 
+                _propertyConvention = value;
+                switch(_propertyConvention)
+                {
+                    case JsonPropertyConvention.ExactMatch:
+                        DeserializeTypeRefJson.PropertyNameResolver = DeserializeTypeRefJson.DefaultPropertyNameResolver;
+                        break;
+                    case JsonPropertyConvention.Lenient:
+                        DeserializeTypeRefJson.PropertyNameResolver = DeserializeTypeRefJson.LenientPropertyNameResolver;
+                        break;
+                }
+            }
+	    }
+            
+
+	    /// <summary>
 		/// Gets or sets a value indicating if the framework should throw serialization exceptions
 		/// or continue regardless of deserialization errors. If <see langword="true"/>  the framework
 		/// will throw; otherwise, it will parse as many fields as possible. The default is <see langword="false"/>.
@@ -280,10 +303,9 @@ namespace ServiceStack.Text
             tsJsvTypeAttrInObject = sJsvTypeAttrInObject = null;
             tsTypeFinder = sTypeFinder = null;
             HasSerializeFn = new HashSet<Type>();
-            TreatValueAsRefTypes = new HashSet<Type> {
-                typeof(KeyValuePair<,>)
-            };
-		}
+            TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
+	        PropertyConvention = JsonPropertyConvention.ExactMatch;
+	    }
 
 #if MONOTOUCH
         /// <summary>
@@ -383,7 +405,6 @@ namespace ServiceStack.Text
             JsonAotConfig.RegisterElement<T, TElement>();
         }
 #endif
-
 	}
 
 #if MONOTOUCH
@@ -622,6 +643,18 @@ namespace ServiceStack.Text
             }
 		}
 	}
+
+    public enum JsonPropertyConvention
+    {
+        /// <summary>
+        /// The property names on target types must match property names in the JSON source
+        /// </summary>
+        ExactMatch,
+        /// <summary>
+        /// The property names on target types may not match the property names in the JSON source
+        /// </summary>
+        Lenient
+    }
 
 	public enum JsonDateHandler
 	{
