@@ -1,14 +1,53 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
+using System.Globalization;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
+    // Provides a contract for mapping properties to their type accessors
+    internal interface IPropertyNameResolver
+    {
+        TypeAccessor GetTypeAccessorForProperty(string propertyName, Dictionary<string, TypeAccessor> typeAccessorMap);
+    }
+    // The default behavior is that the target model must match property names exactly
+    internal class DefaultPropertyNameResolver : IPropertyNameResolver
+    {
+        public virtual TypeAccessor GetTypeAccessorForProperty(string propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
+        {
+            TypeAccessor typeAccessor;
+            typeAccessorMap.TryGetValue(propertyName, out typeAccessor);
+            return typeAccessor;
+        }
+    }
+    // The lenient behavior is that properties on the target model can be .NET-cased, while the source JSON can differ
+    internal class LenientPropertyNameResolver : DefaultPropertyNameResolver
+    {
+        private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
+        public override TypeAccessor GetTypeAccessorForProperty(string propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
+        {
+            TypeAccessor typeAccessor;
+            
+            // camelCase is already supported by default, so no need to add another transform in the tree
+            return typeAccessorMap.TryGetValue(TransformFromLowercaseUnderscore(propertyName), out typeAccessor)
+                       ? typeAccessor
+                       : base.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
+        }
+
+        private static string TransformFromLowercaseUnderscore(string propertyName)
+        {
+            // "lowercase_underscore" -> LowercaseUnderscore
+            return TextInfo.ToTitleCase(propertyName).Replace("_", string.Empty);
+        }
+    }
+
 	internal static class DeserializeTypeRefJson
 	{
-		private static readonly JsonTypeSerializer Serializer = (JsonTypeSerializer)JsonTypeSerializer.Instance;
+	    public static readonly IPropertyNameResolver DefaultPropertyNameResolver = new DefaultPropertyNameResolver();
+        public static readonly IPropertyNameResolver LenientPropertyNameResolver = new LenientPropertyNameResolver();
+        public static IPropertyNameResolver PropertyNameResolver = DefaultPropertyNameResolver;
+
+        private static readonly JsonTypeSerializer Serializer = (JsonTypeSerializer)JsonTypeSerializer.Instance;
 
 		internal static object StringToType(
 		Type type,
@@ -77,9 +116,8 @@ namespace ServiceStack.Text.Common
 
 				if (instance == null) instance = ctorFn();
 
-				TypeAccessor typeAccessor;
-				typeAccessorMap.TryGetValue(propertyName, out typeAccessor);
-
+                var typeAccessor = PropertyNameResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
+                
 				var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
 				if (propType != null)
 				{

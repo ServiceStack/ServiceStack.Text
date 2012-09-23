@@ -6,7 +6,7 @@ using ServiceStack.Text.Tests.Support;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
-	[TestFixture]
+    [TestFixture]
 	public class CamelCaseTests : TestBase
 	{
 		[SetUp]
