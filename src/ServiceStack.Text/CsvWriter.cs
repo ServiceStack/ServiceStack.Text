@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Reflection;
 
@@ -61,13 +63,23 @@ namespace ServiceStack.Text
 			Headers = new List<string>();
 
 			PropertyGetters = new List<Func<T, object>>();
+            var isDataContract = typeof(T).GetCustomAttributes(typeof(DataContractAttribute), false).Any();
 			foreach (var propertyInfo in TypeConfig<T>.Properties)
 			{
 				if (!propertyInfo.CanRead || propertyInfo.GetGetMethod() == null) continue;
 				if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
 				PropertyGetters.Add(propertyInfo.GetValueGetter<T>());
-				Headers.Add(propertyInfo.Name);
+                var propertyName = propertyInfo.Name;
+                if (isDataContract)
+                {
+                    var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+                    if (dcsDataMember != null && dcsDataMember.Name != null)
+                    {
+                        propertyName = dcsDataMember.Name;
+                    }
+                }
+                Headers.Add(propertyName);
 			}
 		}
 
