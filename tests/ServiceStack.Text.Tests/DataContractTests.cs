@@ -177,15 +177,26 @@ namespace ServiceStack.Text.Tests
 		[DataContract]
 		public class ClassTwo
 		{
-			[DataMember]
+			[DataMember(Name="NewName")]
 			public string Name { get; set; }
 		}
+
+        [Test]
+        public void Csv_Serialize_Should_Respects_DataContract_Name()
+        {
+            var classTwo = new ClassTwo
+            {
+                Name = "Value"
+            };
+
+            Assert.That(CsvSerializer.SerializeToString(classTwo), Is.EqualTo("NewName\r\nValue\r\n"));
+        }
 		
 		[Test]
 		public void deserialize_from_string_with_the_dataMember_name()
 		{
 			const string jsonList =
-                "{\"Id\":1,\"listClassTwo\":[{\"Name\":\"Name One\"},{\"Name\":\"Name Two\"}]}";
+                "{\"Id\":1,\"listClassTwo\":[{\"NewName\":\"Name One\"},{\"NewName\":\"Name Two\"}]}";
 
 			var classOne = JsonSerializer.DeserializeFromString<ClassOne>(jsonList);
 
@@ -194,13 +205,13 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
-		public void serialize()
+		public void Json_Serialize_Should_Respects_DataContract_Name()
 		{
 			var classOne= new ClassOne {
 				Id = 1,
 				List = new List<ClassTwo> { new ClassTwo { Name = "Name One" }, new ClassTwo { Name = "Name Two" } }
 			};
-			Console.WriteLine(JsonSerializer.SerializeToString(classOne));
+            Assert.That(JsonSerializer.SerializeToString(classOne), Is.EqualTo("{\"Id\":1,\"listClassTwo\":[{\"NewName\":\"Name One\"},{\"NewName\":\"Name Two\"}]}"));
 		}
 	}
 }
