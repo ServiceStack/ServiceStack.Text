@@ -189,7 +189,7 @@ namespace ServiceStack.Text.Tests
                 Name = "Value"
             };
 
-            Assert.That(CsvSerializer.SerializeToString(classTwo), Is.EqualTo("NewName\r\nValue\r\n"));
+            Assert.That(CsvSerializer.SerializeToString(classTwo), Is.EqualTo(String.Format("NewName{0}Value{0}", Environment.NewLine)));
         }
 		
 		[Test]
