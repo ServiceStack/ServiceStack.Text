@@ -39,7 +39,30 @@ namespace ServiceStack.Text.Common
             // "lowercase_underscore" -> LowercaseUnderscore
             return TextInfo.ToTitleCase(propertyName).Replace("_", string.Empty);
         }
+
     }
+
+#if SILVERLIGHT
+    public static class TextInfoSilverLightExtension
+    {
+        public static string ToTitleCase(this TextInfo textInfo, string str)
+        {
+            string[] words = str.Split('_');
+
+            for (int i = 0; i <= words.Length - 1; i++)
+            {
+                if ((!object.ReferenceEquals(words[i], string.Empty)))
+                {
+                    string firstLetter = words[i].Substring(0, 1);
+                    string rest = words[i].Substring(1);
+                    string result = firstLetter.ToUpper() + rest.ToLower();
+                    words[i] = result;
+                }
+            }
+            return String.Join("_", words);
+        }
+    }
+#endif
 
 	internal static class DeserializeTypeRefJson
 	{
