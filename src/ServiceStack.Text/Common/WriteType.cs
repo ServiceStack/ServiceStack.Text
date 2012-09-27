@@ -112,7 +112,7 @@ namespace ServiceStack.Text.Common
 			{
 				var propertyInfo = propertyInfos[i];
 
-				string propertyName, propertyNameCLSFriendly;
+				string propertyName, propertyNameCLSFriendly, propertyNameLowercaseUnderscore;
 
 				if (isDataContract)
 				{
@@ -121,11 +121,13 @@ namespace ServiceStack.Text.Common
 
 					propertyName = dcsDataMember.Name ?? propertyInfo.Name;
 					propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
+				    propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseUnderscore();
 				}
 				else
 				{
 					propertyName = propertyInfo.Name;
 					propertyNameCLSFriendly = propertyName.ToCamelCase();
+                    propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
 				}
 
 			    var propertyType = propertyInfo.PropertyType;
@@ -137,6 +139,7 @@ namespace ServiceStack.Text.Common
 				(
 					propertyName,
 					propertyNameCLSFriendly,
+                    propertyNameLowercaseUnderscore,
 					propertyInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
                     suppressDefaultValue
@@ -152,22 +155,26 @@ namespace ServiceStack.Text.Common
 			{
 				get
 				{
-					return (JsConfig.EmitCamelCaseNames)
-						? propertyNameCLSFriendly
-						: propertyName;
+				    return (JsConfig.EmitCamelCaseNames)
+				               ? propertyNameCLSFriendly
+				               : (JsConfig.EmitLowercaseUnderscoreNames)
+				                     ? propertyNameLowercaseUnderscore
+				                     : propertyName;
 				}
 			}
 			internal readonly string propertyName;
 			internal readonly string propertyNameCLSFriendly;
+            internal readonly string propertyNameLowercaseUnderscore;
 			internal readonly Func<T, object> GetterFn;
             internal readonly WriteObjectDelegate WriteFn;
             internal readonly object DefaultValue;
 
-			public TypePropertyWriter(string propertyName, string propertyNameCLSFriendly,
+			public TypePropertyWriter(string propertyName, string propertyNameCLSFriendly, string propertyNameLowercaseUnderscore,
 				Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue)
 			{
 				this.propertyName = propertyName;
 				this.propertyNameCLSFriendly = propertyNameCLSFriendly;
+			    this.propertyNameLowercaseUnderscore = propertyNameLowercaseUnderscore;
 				this.GetterFn = getterFn;
 				this.WriteFn = writeFn;
 			    this.DefaultValue = defaultValue;
