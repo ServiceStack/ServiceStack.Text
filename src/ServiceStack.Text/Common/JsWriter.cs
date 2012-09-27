@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
@@ -357,7 +356,7 @@ namespace ServiceStack.Text.Common
 
         public void WriteType(TextWriter writer, object value)
         {
-            Serializer.WriteRawString(writer, ((Type)value).ToTypeString());
+            Serializer.WriteRawString(writer, JsConfig.TypeWriter((Type)value));
         }
 
     }

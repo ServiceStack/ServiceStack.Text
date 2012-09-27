@@ -67,7 +67,7 @@ namespace ServiceStack.Text.Common
 
 			Serializer.WriteRawString(writer, JsConfig.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
-			Serializer.WriteRawString(writer, typeof(T).ToTypeString());
+			Serializer.WriteRawString(writer, JsConfig.TypeWriter(typeof(T)));
 			return true;
 		}
 
@@ -77,7 +77,7 @@ namespace ServiceStack.Text.Common
 
 			Serializer.WriteRawString(writer, JsConfig.TypeAttr);
 			writer.Write(JsWriter.MapKeySeperator);
-			Serializer.WriteRawString(writer, obj.GetType().ToTypeString());
+			Serializer.WriteRawString(writer, JsConfig.TypeWriter(obj.GetType()));
 			return true;
 		}
 

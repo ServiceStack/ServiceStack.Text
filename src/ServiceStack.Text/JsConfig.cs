@@ -155,6 +155,22 @@ namespace ServiceStack.Text
 			}
 		}
 
+        [ThreadStatic]
+        private static Func<Type, string> tsTypeWriter;
+        private static Func<Type, string> sTypeWriter;
+        public static Func<Type, string> TypeWriter
+        {
+            get
+            {
+                return tsTypeWriter ?? sTypeWriter ?? AssemblyUtils.WriteType;
+            }
+            set
+            {
+                tsTypeWriter = value;
+                if (sTypeWriter == null) sTypeWriter = value;
+            }
+        }
+
 		[ThreadStatic]
 		private static Func<string, Type> tsTypeFinder;
 		private static Func<string, Type> sTypeFinder;
