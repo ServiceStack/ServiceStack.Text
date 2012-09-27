@@ -566,8 +566,8 @@ namespace ServiceStack.Text
 
         public static string ToLowercaseUnderscore(this string value)
         {
-            value = value.ToCamelCase();
             if (string.IsNullOrEmpty(value)) return value;
+            value = value.ToCamelCase();
             
             var sb = new StringBuilder(value.Length);
             foreach (var t in value)
