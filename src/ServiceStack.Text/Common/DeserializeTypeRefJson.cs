@@ -23,7 +23,7 @@ namespace ServiceStack.Text.Common
     // The lenient behavior is that properties on the target model can be .NET-cased, while the source JSON can differ
     internal class LenientPropertyNameResolver : DefaultPropertyNameResolver
     {
-        private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
+        
         public override TypeAccessor GetTypeAccessorForProperty(string propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
         {
             TypeAccessor typeAccessor;
@@ -37,7 +37,7 @@ namespace ServiceStack.Text.Common
         private static string TransformFromLowercaseUnderscore(string propertyName)
         {
             // "lowercase_underscore" -> LowercaseUnderscore
-            return TextInfo.ToTitleCase(propertyName).Replace("_", string.Empty);
+            return propertyName.ToTitleCase();
         }
 
     }

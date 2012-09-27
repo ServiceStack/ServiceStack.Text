@@ -558,6 +558,33 @@ namespace ServiceStack.Text
             return (char)(firstChar + LowerCaseOffset) + value.Substring(1);
         }
 
+        private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
+        public static string ToTitleCase(this string value)
+        {
+            return TextInfo.ToTitleCase(value).Replace("_", string.Empty);
+        }
+
+        public static string ToLowercaseUnderscore(this string value)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            value = value.ToCamelCase();
+            
+            var sb = new StringBuilder(value.Length);
+            foreach (var t in value)
+            {
+                if (char.IsLower(t))
+                {
+                    sb.Append(t);
+                }
+                else
+                {
+                    sb.Append("_");
+                    sb.Append(char.ToLower(t));
+                }
+            }
+            return sb.ToString();
+        }
+
         public static string SafeSubstring(this string value, int length)
         {
             return string.IsNullOrEmpty(value)

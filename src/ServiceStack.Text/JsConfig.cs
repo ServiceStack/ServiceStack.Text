@@ -215,6 +215,27 @@ namespace ServiceStack.Text
 			}
 		}
 
+        /// <summary>
+        /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
+        /// to support web-friendly serialized formats, ie emitting lowercase_underscore_casing for JSON
+        /// </summary>
+        [ThreadStatic]
+        private static bool? tsEmitLowercaseUnderscoreNames;
+        private static bool? sEmitLowercaseUnderscoreNames;
+        public static bool EmitLowercaseUnderscoreNames
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return tsEmitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames ?? false;
+            }
+            set
+            {
+                tsEmitLowercaseUnderscoreNames = value;
+                if (!sEmitLowercaseUnderscoreNames.HasValue) sEmitLowercaseUnderscoreNames = value;
+            }
+        }
+
 	    /// <summary>
 	    /// Define how property names are mapped during deserialization
 	    /// </summary>
@@ -295,6 +316,7 @@ namespace ServiceStack.Text
 			tsIncludeNullValues = sIncludeNullValues = null;
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;
 			tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
+            tsEmitLowercaseUnderscoreNames = sEmitLowercaseUnderscoreNames = null;
 			tsDateHandler = sDateHandler = null;
 			tsPreferInterfaces = sPreferInterfaces = null;
             tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
