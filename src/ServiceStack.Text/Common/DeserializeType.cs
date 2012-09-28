@@ -88,7 +88,7 @@ namespace ServiceStack.Text.Common
 					return null;
 				}
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !MONOTOUCH
 				if (type.IsInterface || type.IsAbstract) {
 					return DynamicProxy.GetInstanceFor(type).GetType();
 				}
