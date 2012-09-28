@@ -357,7 +357,7 @@ namespace ServiceStack.Text.Common
 
         public void WriteType(TextWriter writer, object value)
         {
-            Serializer.WriteRawString(writer, ((Type)value).ToTypeString());
+            Serializer.WriteRawString(writer, JsConfig.TypeWriter((Type)value));
         }
 
     }
