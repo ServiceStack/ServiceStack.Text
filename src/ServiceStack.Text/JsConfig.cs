@@ -155,6 +155,22 @@ namespace ServiceStack.Text
 			}
 		}
 
+    [ThreadStatic]
+    private static Func<Type, string> tsTypeWriter;
+    private static Func<Type, string> sTypeWriter;
+    public static Func<Type, string> TypeWriter
+    {
+      get
+      {
+        return tsTypeWriter ?? sTypeWriter ?? AssemblyUtils.WriteType;
+      }
+      set
+      {
+        tsTypeWriter = value;
+        if (sTypeWriter == null) sTypeWriter = value;
+      }
+    }
+
 		[ThreadStatic]
 		private static Func<string, Type> tsTypeFinder;
 		private static Func<string, Type> sTypeFinder;
@@ -323,6 +339,7 @@ namespace ServiceStack.Text
             tsTypeAttr = sTypeAttr = null;
             tsJsonTypeAttrInObject = sJsonTypeAttrInObject = null;
             tsJsvTypeAttrInObject = sJsvTypeAttrInObject = null;
+            tsTypeWriter = sTypeWriter = null;
             tsTypeFinder = sTypeFinder = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };

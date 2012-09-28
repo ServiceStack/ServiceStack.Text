@@ -127,6 +127,26 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 
 		[Test]
+		public void Can_serialise_polymorphic_entity_with_customised_typename()
+		{
+			try
+			{
+				JsConfig.TypeWriter = type => type.Name;
+
+				Animal dog = new Dog { Name = @"Fido", DogBark = "woof" };
+				var asText = JsonSerializer.SerializeToString(dog);
+
+				Log(asText);
+
+				Assert.That(asText,
+					Is.EqualTo(
+						"{\"__type\":\"Dog\",\"Name\":\"Fido\",\"DogBark\":\"woof\"}"));
+			} finally {
+				JsConfig.Reset();
+			}
+		}
+
+		[Test]
 		public void Can_deserialise_polymorphic_list()
 		{
 			var list =
