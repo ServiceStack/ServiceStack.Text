@@ -157,5 +157,10 @@ private static Assembly LoadAssembly(string assemblyPath)
         {
             return versionRegEx.Replace(type.AssemblyQualifiedName, "");
         }
+
+        public static string WriteType(Type type)
+        {
+            return type.ToTypeString();
+        }
     }
 }
