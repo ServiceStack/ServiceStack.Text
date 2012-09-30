@@ -82,7 +82,9 @@ namespace ServiceStack.Text.Common
 				var propertyValueStr = Serializer.EatValue(strType, ref index);
 				var possibleTypeInfo = propertyValueStr != null && propertyValueStr.Length > 1;
 
-				if (possibleTypeInfo && propertyName == JsWriter.TypeAttr)
+				//if we already have an instance don't check type info, because then we will have a half deserialized object
+				//we could throw here or just use the existing instance.
+				if (instance == null && possibleTypeInfo && propertyName == JsWriter.TypeAttr)
 				{
 					var explicitTypeName = Serializer.ParseString(propertyValueStr);
                     var explicitType = Type.GetType(explicitTypeName);

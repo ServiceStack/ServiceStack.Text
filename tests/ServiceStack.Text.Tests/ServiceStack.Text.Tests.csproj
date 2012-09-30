@@ -187,6 +187,7 @@
     <Compile Include="JsonTests\JsonObjectTests.cs" />
     <Compile Include="JsonTests\BackingFieldTests.cs" />
     <Compile Include="JsonTests\LowercaseUnderscoreTests.cs" />
+    <Compile Include="JsonTests\PolymorphicInstanceTest.cs" />
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\PropertyConventionTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
