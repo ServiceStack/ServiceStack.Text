@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+#if !SILVERLIGHT && !MONOTOUCH
 using System.Reflection.Emit;
 
 namespace ServiceStack.Text {
-	
 	public static class DynamicProxy {
 		public static T GetInstanceFor<T> () {
 			return (T)GetInstanceFor(typeof(T));
@@ -129,3 +129,4 @@ namespace ServiceStack.Text {
 		}
 	}
 }
+#endif

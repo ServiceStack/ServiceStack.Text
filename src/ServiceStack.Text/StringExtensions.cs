@@ -561,7 +561,23 @@ namespace ServiceStack.Text
         private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
         public static string ToTitleCase(this string value)
         {
+#if SILVERLIGHT
+            string[] words = value.Split('_');
+
+            for (int i = 0; i <= words.Length - 1; i++)
+            {
+                if ((!object.ReferenceEquals(words[i], string.Empty)))
+                {
+                    string firstLetter = words[i].Substring(0, 1);
+                    string rest = words[i].Substring(1);
+                    string result = firstLetter.ToUpper() + rest.ToLower();
+                    words[i] = result;
+                }
+            }
+            return String.Join("", words);
+#else
             return TextInfo.ToTitleCase(value).Replace("_", string.Empty);
+#endif
         }
 
         public static string ToLowercaseUnderscore(this string value)

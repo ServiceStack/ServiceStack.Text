@@ -124,6 +124,24 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_ToTitleCase_String()
+        {
+            var text = "Abc_def";
+
+            var ttc = text.ToTitleCase();
+            Assert.That(ttc, Is.EqualTo("AbcDef"));
+        }
+
+        [Test]
+        public void Can_ToTitleCase_Empty_String()
+        {
+            var text = "";
+
+            var ttc = text.ToTitleCase();
+            Assert.That(ttc, Is.EqualTo(""));
+        }
+
+	    [Test]
         public void Can_Url_Encode_Unicode_String()
         {
             var text = "This string & has % 权뜑簒㮐ᾟ䗚璥趮⚦䭌䳅浝䕌ਥ⤧笫 characters";
