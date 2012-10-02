@@ -327,7 +327,8 @@ namespace ServiceStack.Text
 
 	    public static void Reset()
 	    {
-	        tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
+            ModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
+            tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
 			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
 			tsIncludeNullValues = sIncludeNullValues = null;
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;
@@ -450,8 +451,8 @@ namespace ServiceStack.Text
 		/// This is helpful for integration with IoC containers where you need to call the container constructor.
 		/// Return null if you don't know how to construct the type and the parameterless constructor will be used.
 		/// </summary>
-		public static Func<Type, EmptyCtorDelegate> ConstructorProvider { get; set; }
-	}
+        public static EmptyCtorFactoryDelegate ModelFactory { get; set; }
+    }
 
 #if MONOTOUCH
     [MonoTouch.Foundation.Preserve(AllMembers=true)]

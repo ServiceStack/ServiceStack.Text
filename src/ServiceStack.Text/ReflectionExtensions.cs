@@ -23,6 +23,7 @@ using System.Linq.Expressions;
 
 namespace ServiceStack.Text
 {
+    public delegate EmptyCtorDelegate EmptyCtorFactoryDelegate(Type type);
     public delegate object EmptyCtorDelegate();
 
     public static class ReflectionExtensions

@@ -13,6 +13,12 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig<EntityWithValues>.RawSerializeFn = SerializeEntity;
             JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity;
 		}
+        
+        [TestFixtureTearDown]
+        public void TestFixtureTearDown()
+        {
+            JsConfig.Reset();
+        }
 
 		[Test]
 		public void Can_serialize_Entity()
@@ -122,7 +128,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		public void Can_Serialize_With_Custom_Constructor()
 		{
 			bool hit = false;
-			JsConfig.ConstructorProvider = type =>
+			JsConfig.ModelFactory = type =>
 			{
 				if (typeof(Test1) == type)
 				{
