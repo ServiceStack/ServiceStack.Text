@@ -35,7 +35,15 @@ namespace ServiceStack.Text.Common
             if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
             var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
-            var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+
+			EmptyCtorDelegate ctorFn = null;
+			var provider = JsConfig.ConstructorProvider;
+			if (provider != null) {
+				ctorFn = provider(type);
+			}
+			if (ctorFn == null) {
+				ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
+			}
             if (map == null) {
                 return value => ctorFn();
             }
