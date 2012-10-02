@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
+using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
@@ -88,5 +89,60 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
             return entity;
         }
+
+		[DataContract]
+		private class Test1Base
+		{
+			public Test1Base(bool itb, bool itbm)
+			{
+				InTest1Base = itb; InTest1BaseM = itbm;
+			}
+
+			[DataMember]
+			public bool InTest1BaseM { get; set; }
+
+			public bool InTest1Base { get; set; }
+		}
+
+		[DataContract]
+		private class Test1 : Test1Base
+		{
+			public Test1(bool it, bool itm, bool itb, bool itbm):base(itb, itbm)
+			{
+				InTest1 = it; InTest1M = itm;
+			}
+
+			[DataMember]
+			public bool InTest1M { get; set; }
+
+			public bool InTest1 { get; set; }
+		}
+
+		[Test]
+		public void Can_Serialize_With_Custom_Constructor()
+		{
+			bool hit = false;
+			JsConfig.ConstructorProvider = type =>
+			{
+				if (typeof(Test1) == type)
+				{
+					hit = true;
+					return () => new Test1(false, false, true, false);
+				}
+				return null;
+			};
+
+			var t1 = new Test1(true, true, true, true);
+
+			var data = JsonSerializer.SerializeToString(t1);
+
+			var t2 = JsonSerializer.DeserializeFromString<Test1>(data);
+
+			Assert.IsTrue(hit);
+			Assert.IsTrue(t2.InTest1BaseM);
+			Assert.IsTrue(t2.InTest1M);
+			Assert.IsTrue(t2.InTest1Base);
+			Assert.IsFalse(t2.InTest1);
+		}
 	}
 }
