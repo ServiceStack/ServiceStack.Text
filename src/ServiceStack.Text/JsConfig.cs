@@ -444,6 +444,13 @@ namespace ServiceStack.Text
             JsonAotConfig.RegisterElement<T, TElement>();
         }
 #endif
+
+		/// <summary>
+		/// Set this to enable your own type construction provider.
+		/// This is helpful for integration with IoC containers where you need to call the container constructor.
+		/// Return null if you don't know how to construct the type and the parameterless constructor will be used.
+		/// </summary>
+		public static Func<Type, EmptyCtorDelegate> ConstructorProvider { get; set; }
 	}
 
 #if MONOTOUCH
