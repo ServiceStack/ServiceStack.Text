@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using ServiceStack.Text.Common;
 using ServiceStack.Text.Support;
 #if WINDOWS_PHONE
 using System.IO.IsolatedStorage;
@@ -115,7 +116,24 @@ namespace ServiceStack.Text
 
         public static string EncodeJsv(this string value)
         {
-            return value.ToCsvField();
+			return string.IsNullOrEmpty(value) || !JsWriter.HasAnyEscapeChars(value)
+		       	? value
+		       	: string.Concat
+		       	  	(
+						JsWriter.QuoteString,
+						value.Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
+						JsWriter.QuoteString
+		       	  	);
+        }
+
+        public static string DecodeJsv(this string value)
+        {
+			const int startingQuotePos = 1;
+			const int endingQuotePos = 2;
+			return string.IsNullOrEmpty(value) || value[0] != JsWriter.QuoteChar
+			       	? value
+					: value.Substring(startingQuotePos, value.Length - endingQuotePos)
+						.Replace(TypeSerializer.DoubleQuoteString, JsWriter.QuoteString);
         }
 
         public static string UrlEncode(this string text)

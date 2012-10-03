@@ -15,11 +15,11 @@ namespace ServiceStack.Text
 			var ranOnce = false;
 			foreach (var field in row)
 			{
-				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+				CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
 				writer.Write(field.ToCsvField());
 			}
-			writer.WriteLine();
+			writer.Write(CsvConfig.RowSeparatorString);
 		}
 
 		public static void Write(TextWriter writer, IEnumerable<Dictionary<string, string>> records)
@@ -35,6 +35,22 @@ namespace ServiceStack.Text
                 WriteRow(writer, record.Values);
 			}
 		}
+    }
+
+    public static class CsvWriter
+    {
+        public static bool HasAnyEscapeChars(string value)
+        {
+            return CsvConfig.EscapeStrings.Any(value.Contains);
+        }
+
+        internal static void WriteItemSeperatorIfRanOnce(TextWriter writer, ref bool ranOnce)
+        {
+            if (ranOnce)
+                writer.Write(CsvConfig.ItemSeperatorString);
+            else
+                ranOnce = true;
+        }
     }
 
 	internal class CsvWriter<T>
@@ -178,11 +194,11 @@ namespace ServiceStack.Text
 				var ranOnce = false;
 				foreach (var header in Headers)
 				{
-					JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+					CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
 					writer.Write(header);
 				}
-				writer.WriteLine();
+				writer.Write(CsvConfig.RowSeparatorString);
 			}
 
 			if (records == null) return;
@@ -224,11 +240,11 @@ namespace ServiceStack.Text
 			var ranOnce = false;
 			foreach (var field in row)
 			{
-				JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+				CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
 				writer.Write(field.ToCsvField());
 			}
-			writer.WriteLine();
+			writer.Write(CsvConfig.RowSeparatorString);
 		}
 
 		public static void Write(TextWriter writer, IEnumerable<List<string>> rows)
@@ -238,11 +254,11 @@ namespace ServiceStack.Text
 				var ranOnce = false;
 				foreach (var header in Headers)
 				{
-					JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+					CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
 					writer.Write(header);
 				}
-				writer.WriteLine();
+				writer.Write(CsvConfig.RowSeparatorString);
 			}
 
 			foreach (var row in rows)

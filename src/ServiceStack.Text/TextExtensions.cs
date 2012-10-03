@@ -21,24 +21,22 @@ namespace ServiceStack.Text
 	{
 		public static string ToCsvField(this string text)
 		{
-			return string.IsNullOrEmpty(text) || !JsWriter.HasAnyEscapeChars(text)
+			return string.IsNullOrEmpty(text) || !CsvWriter.HasAnyEscapeChars(text)
 		       	? text
 		       	: string.Concat
 		       	  	(
-						JsWriter.QuoteString,
-						text.Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
-						JsWriter.QuoteString
+                        CsvConfig.ItemDelimiterString,
+						text.Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
+						CsvConfig.ItemDelimiterString
 		       	  	);
 		}
 
 		public static string FromCsvField(this string text)
 		{
-			const int startingQuotePos = 1;
-			const int endingQuotePos = 2;
-			return string.IsNullOrEmpty(text) || text[0] != JsWriter.QuoteChar
+			return string.IsNullOrEmpty(text) || !text.StartsWith(CsvConfig.ItemDelimiterString)
 			       	? text
-					: text.Substring(startingQuotePos, text.Length - endingQuotePos)
-						.Replace(TypeSerializer.DoubleQuoteString, JsWriter.QuoteString);
+					: text.Substring(CsvConfig.ItemDelimiterString.Length, text.Length - CsvConfig.EscapedItemDelimiterString.Length)
+						.Replace(CsvConfig.EscapedItemDelimiterString, CsvConfig.ItemDelimiterString);
 		}
 
 		public static List<string> FromCsvFields(this IEnumerable<string> texts)
