@@ -9,6 +9,39 @@ namespace ServiceStack.Text.Tests.CsvTests
 	public class DictionaryTests
 	{
 		[Test]
+		public void Serializes_dictionary_mismatched_keys_deserializes_tabular_csv()
+		{
+			var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> { {"Column2Data", "Like"}, {"Column3Data", "To"}, {"Column4Data", "Read"}, {"Column5Data", "Novels"}},
+                new Dictionary<string, string> { { "Column1Data", "I am" }, {"Column3Data", "Cool"}, {"Column4Data", "And"}, {"Column5Data", "Awesome"}},
+                new Dictionary<string, string> { { "Column1Data", "I" }, {"Column2Data", " Like "}, {"Column4Data", null}, {"Column5Data", null}},
+                new Dictionary<string, string> { { "Column1Data", "I" }, {"Column2Data", "Don't"}, {"Column3Data", "Know,"}, {"Column5Data", "You?"}},
+                new Dictionary<string, string> { { "Column1Data", "I" }, {"Column2Data", "Saw"}, {"Column3Data", "The"}, {"Column4Data", "Movie"}},
+                new Dictionary<string, string> { { "Column1Data", "I" }, {"Column2Data", "Went"}, {"Column3Data", "To"}, {"Column4Data", "Space\nCamp"}, {"Column5Data", "Last\r\nYear"}}
+			};
+
+			var csv = CsvSerializer.SerializeToCsv(data);
+			Console.WriteLine(csv);
+
+			Assert.That(csv, Is.EqualTo(
+				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data"
+				+ Environment.NewLine
+				+ ",Like,To,Read,Novels"
+				+ Environment.NewLine
+				+ "I am,,Cool,And,Awesome"
+				+ Environment.NewLine
+				+ "I, Like ,,,"
+				+ Environment.NewLine
+				+ "I,Don't,\"Know,\",,You?"
+				+ Environment.NewLine
+				+ "I,Saw,The,Movie,"
+				+ Environment.NewLine
+				+ "I,Went,To,\"Space\nCamp\",\"Last\r\nYear\""
+				+ Environment.NewLine
+			));
+		}
+
+		[Test]
 		public void Serializes_dictionary_data()
 		{
 			var data = new List<Dictionary<string, string>> {
