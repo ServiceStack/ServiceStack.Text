@@ -57,7 +57,7 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteRawString(TextWriter writer, string value)
 		{
-			writer.Write(value.ToCsvField());
+			writer.Write(value.EncodeJsv());
 		}
 
 		public void WritePropertyName(TextWriter writer, string value)
@@ -74,18 +74,18 @@ namespace ServiceStack.Text.Jsv
 		{
 			if (value != null)
 			{
-				writer.Write(value.ToString().ToCsvField());
+				writer.Write(value.ToString().EncodeJsv());
 			}
 		}
 
 		public void WriteException(TextWriter writer, object value)
 		{
-			writer.Write(((Exception)value).Message.ToCsvField());
+			writer.Write(((Exception)value).Message.EncodeJsv());
 		}
 
 		public void WriteString(TextWriter writer, string value)
 		{
-			writer.Write(value.ToCsvField());
+			writer.Write(value.EncodeJsv());
 		}
 
 		public void WriteDateTime(TextWriter writer, object oDateTime)
