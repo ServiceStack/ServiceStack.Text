@@ -26,14 +26,32 @@ namespace ServiceStack.Text
 		{
 			if (records == null) return; //AOT
 
-		    var requireHeaders = !CsvConfig<Dictionary<string, string>>.OmitHeaders;
+		    var allKeys = new HashSet<string>();
+		    var cachedRecords = new List<IDictionary<string, string>>();
+
 			foreach (var record in records) {
-                if (requireHeaders) {
-                    WriteRow(writer, record.Keys);
-                    requireHeaders = false;
+                foreach (var key in record.Keys) {
+                    if (!allKeys.Contains(key)) {
+                        allKeys.Add(key);
+                    }
                 }
-                WriteRow(writer, record.Values);
+                cachedRecords.Add(record);
 			}
+
+		    var headers = allKeys.OrderBy(key => key).ToList();
+
+            if (!CsvConfig<Dictionary<string, string>>.OmitHeaders) {
+                WriteRow(writer, headers);
+            }
+		    foreach (var cachedRecord in cachedRecords) {
+                var fullRecord = new List<string>();
+                foreach (var header in headers) {
+                    fullRecord.Add(cachedRecord.ContainsKey(header)
+                                        ? cachedRecord[header]
+                                        : null);
+                }
+                WriteRow(writer, fullRecord);
+		    }
 		}
     }
 
