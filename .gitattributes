@@ -13,9 +13,9 @@
 *.png 	binary
 *.gif 	binary
 
-*.cs text eol=crlf diff=csharp 
-*.vb text eol=crlf
-*.c text eol=crlf
+*.cs text=auto diff=csharp 
+*.vb text=auto
+*.c text=auto
 *.cpp text=auto
 *.cxx text=auto
 *.h text=auto
