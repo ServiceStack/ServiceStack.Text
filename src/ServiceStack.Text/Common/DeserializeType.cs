@@ -22,7 +22,9 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-    internal static class DeserializeType<TSerializer>
+	using System.Globalization;
+
+	internal static class DeserializeType<TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
@@ -136,27 +138,27 @@ namespace ServiceStack.Text.Common
             bool boolValue;
             if (bool.TryParse(value, out boolValue)) return boolValue;
             byte byteValue;
-            if (byte.TryParse(value, out byteValue)) return byteValue;
+			if (byte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out byteValue)) return byteValue;
             sbyte sbyteValue;
-            if (sbyte.TryParse(value, out sbyteValue)) return sbyteValue;
+			if (sbyte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out sbyteValue)) return sbyteValue;
             short shortValue;
-            if (short.TryParse(value, out shortValue)) return shortValue;
+			if (short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out shortValue)) return shortValue;
             ushort ushortValue;
-            if (ushort.TryParse(value, out ushortValue)) return ushortValue;
+			if (ushort.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ushortValue)) return ushortValue;
             int intValue;
-            if (int.TryParse(value, out intValue)) return intValue;
+			if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out intValue)) return intValue;
             uint uintValue;
-            if (uint.TryParse(value, out uintValue)) return uintValue;
+			if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uintValue)) return uintValue;
             long longValue;
-            if (long.TryParse(value, out longValue)) return longValue;
+			if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out longValue)) return longValue;
             ulong ulongValue;
-            if (ulong.TryParse(value, out ulongValue)) return ulongValue;
+			if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongValue)) return ulongValue;
             float floatValue;
-            if (float.TryParse(value, out floatValue)) return floatValue;
+			if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue)) return floatValue;
             double doubleValue;
-            if (double.TryParse(value, out doubleValue)) return doubleValue;
+			if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue)) return doubleValue;
             decimal decimalValue;
-            if (decimal.TryParse(value, out decimalValue)) return decimalValue;
+			if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue)) return decimalValue;
 
             return null;
         }
