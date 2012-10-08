@@ -16,13 +16,14 @@ using System.Reflection.Emit;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-    internal static class DeserializeType<TSerializer>
+	internal static class DeserializeType<TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
@@ -135,28 +136,32 @@ namespace ServiceStack.Text.Common
 
             bool boolValue;
             if (bool.TryParse(value, out boolValue)) return boolValue;
-            byte byteValue;
-            if (byte.TryParse(value, out byteValue)) return byteValue;
-            sbyte sbyteValue;
-            if (sbyte.TryParse(value, out sbyteValue)) return sbyteValue;
-            short shortValue;
-            if (short.TryParse(value, out shortValue)) return shortValue;
-            ushort ushortValue;
-            if (ushort.TryParse(value, out ushortValue)) return ushortValue;
-            int intValue;
-            if (int.TryParse(value, out intValue)) return intValue;
-            uint uintValue;
-            if (uint.TryParse(value, out uintValue)) return uintValue;
-            long longValue;
-            if (long.TryParse(value, out longValue)) return longValue;
-            ulong ulongValue;
-            if (ulong.TryParse(value, out ulongValue)) return ulongValue;
-            float floatValue;
-            if (float.TryParse(value, out floatValue)) return floatValue;
-            double doubleValue;
-            if (double.TryParse(value, out doubleValue)) return doubleValue;
+
             decimal decimalValue;
-            if (decimal.TryParse(value, out decimalValue)) return decimalValue;
+            if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue))
+            {
+                if (decimalValue == decimal.Truncate(decimalValue))
+                {
+                    if (decimalValue <= ulong.MaxValue && decimalValue >= 0) return (ulong)decimalValue;
+                    if (decimalValue <= long.MaxValue && decimalValue >= long.MinValue)
+                    {
+                        var longValue = (long)decimalValue;
+                        if (longValue <= sbyte.MaxValue && longValue >= sbyte.MinValue) return (sbyte)longValue;
+                        if (longValue <= byte.MaxValue && longValue >= byte.MinValue) return (byte)longValue;
+                        if (longValue <= short.MaxValue && longValue >= short.MinValue) return (short)longValue;
+                        if (longValue <= ushort.MaxValue && longValue >= ushort.MinValue) return (ushort)longValue;
+                        if (longValue <= int.MaxValue && longValue >= int.MinValue) return (int)longValue;
+                        if (longValue <= uint.MaxValue && longValue >= uint.MinValue) return (uint)longValue;
+                    }
+                }
+                return decimalValue;
+            }
+
+            float floatValue;
+            if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue)) return floatValue;
+
+            double doubleValue;
+            if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue)) return doubleValue;
 
             return null;
         }
