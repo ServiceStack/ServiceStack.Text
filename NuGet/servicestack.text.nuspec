@@ -20,6 +20,10 @@
     <tags>JSON Text Serializer CSV JSV Dump PrettyPrint Fast</tags>
     <language>en-US</language> 
     <copyright>ServiceStack 2012 and contributors</copyright>
-  </metadata> 
+  </metadata>
+	<files>
+		<file src="lib\**\*.*" target="lib" />
+		<file src="..\src\**\*.cs" target="src" />
+	</files>
 </package>
 
