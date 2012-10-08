@@ -144,7 +144,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(dict["intValue"], Is.Not.EqualTo(dict["stringIntValue"]));
             Assert.That(dict["nullValue"], Is.Null);
             Assert.That(dict["stringDecimalValue"], Is.EqualTo("5.9"));
-            Assert.That(dict["decimalValue"], Is.EqualTo(5.9f));
+            Assert.That(dict["decimalValue"], Is.EqualTo(5.9m));
             Assert.That(dict["decimalValue"], Is.Not.EqualTo(dict["stringDecimalValue"]));
             Assert.That(dict["emptyArrayValue"], Is.Not.Null);
             Assert.That(dict["stringValue"], Is.EqualTo("Foo"));
