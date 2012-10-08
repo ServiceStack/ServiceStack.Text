@@ -4,6 +4,8 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
+	using System.Globalization;
+
 	[TestFixture]
 	public class DynamicObjectTests
 		: TestBase
@@ -114,13 +116,17 @@ namespace ServiceStack.Text.Tests
 			JsConfig.TryToParsePrimitiveTypeValues = true;
 			JsConfig.ConvertObjectTypesIntoStringDictionary = true;
 
-			var json = "{\"decimalValue\": 5.25,\"floatValue\": 5.25,\"doubleValue\": 5.25}";
+			var json = 
+				"{\"decimalValue\": " + decimal.MaxValue.ToString("F", CultureInfo.InvariantCulture) +
+				",\"floatValue\": " + float.MaxValue.ToString("E20", CultureInfo.InvariantCulture) +
+				",\"doubleValue\": " + double.MaxValue.ToString("E20", CultureInfo.InvariantCulture) + 
+				"}";
 			var deserialized = JsonSerializer.DeserializeFromString<object>(json);
 			Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
 			var dict = (Dictionary<string, object>)deserialized;
-			Assert.That(dict["decimalValue"], Is.EqualTo(5.25m), "decimal");
-			Assert.That(dict["floatValue"], Is.EqualTo(5.25f), "float");
-			Assert.That(dict["doubleValue"], Is.EqualTo(5.25d), "double");
+			Assert.That(dict["decimalValue"], Is.InstanceOf<decimal>() & Is.EqualTo(decimal.MaxValue), "decimal");
+			Assert.That(dict["floatValue"], Is.InstanceOf<float>() & Is.EqualTo(float.MaxValue), "float");
+			Assert.That(dict["doubleValue"], Is.InstanceOf<double>() & Is.EqualTo(double.MaxValue), "double");
 		}
 
 		[Test]
