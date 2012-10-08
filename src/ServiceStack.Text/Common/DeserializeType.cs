@@ -137,28 +137,30 @@ namespace ServiceStack.Text.Common
 
             bool boolValue;
             if (bool.TryParse(value, out boolValue)) return boolValue;
-            byte byteValue;
-			if (byte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out byteValue)) return byteValue;
-            sbyte sbyteValue;
-			if (sbyte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out sbyteValue)) return sbyteValue;
-            short shortValue;
-			if (short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out shortValue)) return shortValue;
-            ushort ushortValue;
-			if (ushort.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ushortValue)) return ushortValue;
-            int intValue;
-			if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out intValue)) return intValue;
-            uint uintValue;
-			if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uintValue)) return uintValue;
-            long longValue;
-			if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out longValue)) return longValue;
-            ulong ulongValue;
-			if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongValue)) return ulongValue;
-            float floatValue;
+
+			long longValue;
+			if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out longValue))
+			{
+				if (longValue <= sbyte.MaxValue && longValue >= sbyte.MinValue) return (sbyte)longValue;
+				if (longValue <= byte.MaxValue && longValue >= byte.MinValue) return (byte)longValue;
+				if (longValue <= short.MaxValue && longValue >= short.MinValue) return (short)longValue;
+				if (longValue <= ushort.MaxValue && longValue >= ushort.MinValue) return (ushort)longValue;
+				if (longValue <= int.MaxValue && longValue >= int.MinValue) return (int)longValue;
+				if (longValue <= uint.MaxValue && longValue >= uint.MinValue) return (uint)longValue;
+				return longValue;
+			}
+
+			decimal decimalValue;
+			if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue))
+			{
+				return decimalValue <= ulong.MaxValue && decimalValue > 0 ? (ulong)decimalValue : decimalValue;
+			}
+
+			float floatValue;
 			if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue)) return floatValue;
-            double doubleValue;
+
+			double doubleValue;
 			if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue)) return doubleValue;
-            decimal decimalValue;
-			if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue)) return decimalValue;
 
             return null;
         }
