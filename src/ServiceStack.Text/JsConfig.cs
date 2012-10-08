@@ -327,7 +327,8 @@ namespace ServiceStack.Text
 
 	    public static void Reset()
 	    {
-	        tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
+            ModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
+            tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
 			tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
 			tsIncludeNullValues = sIncludeNullValues = null;
 			tsExcludeTypeInfo = sExcludeTypeInfo = null;
@@ -444,7 +445,14 @@ namespace ServiceStack.Text
             JsonAotConfig.RegisterElement<T, TElement>();
         }
 #endif
-	}
+
+		/// <summary>
+		/// Set this to enable your own type construction provider.
+		/// This is helpful for integration with IoC containers where you need to call the container constructor.
+		/// Return null if you don't know how to construct the type and the parameterless constructor will be used.
+		/// </summary>
+        public static EmptyCtorFactoryDelegate ModelFactory { get; set; }
+    }
 
 #if MONOTOUCH
     [MonoTouch.Foundation.Preserve(AllMembers=true)]

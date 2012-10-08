@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
@@ -35,11 +34,11 @@ namespace ServiceStack.Text.Common
             if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
 
             var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
-            var ctorFn = ReflectionExtensions.GetConstructorMethodToCache(type);
-            if (map == null) {
-                return value => ctorFn();
-            }
 
+			var ctorFn = JsConfig.ModelFactory(type);
+            if (map == null) 
+                return value => ctorFn();
+            
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
 				? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
 				: value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
