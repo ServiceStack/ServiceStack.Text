@@ -92,8 +92,6 @@ namespace ServiceStack.Text
             EscapeStrings = GetEscapeStrings();
         }
 
-		private const string DefaultRowSeparatorString = "\r\n";
-
 		[ThreadStatic]
 		private static string tsRowSeparatorString;
 		private static string sRowSeparatorString;
@@ -101,7 +99,7 @@ namespace ServiceStack.Text
 		{
 			get
 			{
-			    return tsRowSeparatorString ?? sRowSeparatorString ?? DefaultRowSeparatorString;
+			    return tsRowSeparatorString ?? sRowSeparatorString ?? Environment.NewLine;
 			}
 		    set
 			{
