@@ -22,7 +22,35 @@ namespace ServiceStack.Text
 			writer.Write(CsvConfig.RowSeparatorString);
 		}
 
-		public static void Write(TextWriter writer, IEnumerable<Dictionary<string, string>> records)
+        public static void WriteObjectRow(TextWriter writer, IEnumerable<object> row)
+        {
+            var ranOnce = false;
+            foreach (var field in row)
+            {
+                JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+
+                writer.Write(field.ToCsvField());
+            }
+            writer.WriteLine();
+        }
+
+        public static void Write(TextWriter writer, IEnumerable<Dictionary<string, object>> records)
+        {
+            if (records == null) return; //AOT
+
+            var requireHeaders = !CsvConfig<Dictionary<string, object>>.OmitHeaders;
+            foreach (var record in records)
+            {
+                if (requireHeaders)
+                {
+                    WriteRow(writer, record.Keys);
+                    requireHeaders = false;
+                }
+                WriteObjectRow(writer, record.Values);
+            }
+        }
+
+        public static void Write(TextWriter writer, IEnumerable<Dictionary<string, string>> records)
 		{
 			if (records == null) return; //AOT
 
@@ -186,19 +214,21 @@ namespace ServiceStack.Text
 			Write(writer, (IEnumerable<T>)records);
 		}
 
-		public static void WriteObjectRow(TextWriter writer, object record)
-		{
-			WriteRow(writer, (T)record);
-		}
-
 		public static void Write(TextWriter writer, IEnumerable<T> records)
 		{
 			if (records == null) return; //AOT
 
-            if (typeof (T) == typeof(Dictionary<string, string>)) {
-                CsvDictionaryWriter.Write(writer, (IEnumerable<Dictionary<string, string>>)records);
-                return;
-            }
+            if (typeof(T) == typeof(Dictionary<string, string>))
+	            {
+	                CsvDictionaryWriter.Write(writer, (IEnumerable<Dictionary<string, string>>)records);
+	               return;
+	            }
+	
+	            if (typeof(T) == typeof(Dictionary<string, object>))
+	            {
+	               CsvDictionaryWriter.Write(writer, (IEnumerable<Dictionary<string, object>>)records);
+	               return;
+	             }
 
 			if (OptimizedWriter != null)
 			{
@@ -252,19 +282,31 @@ namespace ServiceStack.Text
 			Write(writer, new[] { row });
 		}
 
-		public static void WriteRow(TextWriter writer, IEnumerable<string> row)
-		{
-			var ranOnce = false;
-			foreach (var field in row)
-			{
-				CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+        public static void WriteRow(TextWriter writer, IEnumerable<string> row)
+        {
+            var ranOnce = false;
+            foreach (var field in row)
+            {
+                JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
-				writer.Write(field.ToCsvField());
-			}
-			writer.Write(CsvConfig.RowSeparatorString);
-		}
+                writer.Write(field.ToCsvField());
+            }
+            writer.WriteLine();
+        }
 
-		public static void Write(TextWriter writer, IEnumerable<List<string>> rows)
+	    public static void WriteObjectRow(TextWriter writer, IEnumerable<object> row)
+        {
+            var ranOnce = false;
+            foreach (var field in row)
+            {
+                JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+
+                writer.Write(field.ToCsvField());
+            }
+            writer.WriteLine();
+        }
+
+	    public static void Write(TextWriter writer, IEnumerable<List<string>> rows)
 		{
 			if (Headers.Count > 0)
 			{
