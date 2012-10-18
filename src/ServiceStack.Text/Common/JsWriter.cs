@@ -228,7 +228,7 @@ namespace ServiceStack.Text.Common
                 return Serializer.WriteDecimal;
 
             if (type.IsEnum || type.UnderlyingSystemType.IsEnum)
-                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
+                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0 || JsConfig.TreatEnumAsInteger
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 

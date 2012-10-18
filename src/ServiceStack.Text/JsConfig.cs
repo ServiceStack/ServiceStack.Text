@@ -71,6 +71,22 @@ namespace ServiceStack.Text
 			}
 		}
 
+        [ThreadStatic]
+        private static bool? tsTreatEnumAsInteger;
+        private static bool? sTreatEnumAsInteger;
+        public static bool TreatEnumAsInteger
+        {
+            get
+            {
+                return tsTreatEnumAsInteger ?? sTreatEnumAsInteger ?? false;
+            }
+            set
+            {
+                tsTreatEnumAsInteger = value;
+                if (!sTreatEnumAsInteger.HasValue) sTreatEnumAsInteger = value;
+            }
+        }
+
 		[ThreadStatic]
 		private static bool? tsExcludeTypeInfo;
 		private static bool? sExcludeTypeInfo;
