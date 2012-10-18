@@ -96,7 +96,7 @@ namespace ServiceStack.Text
 			Headers = new List<string>();
 
 			PropertyGetters = new List<Func<T, object>>();
-            var isDataContract = typeof(T).GetCustomAttributes(typeof(DataContractAttribute), false).Any();
+            var isDataContract = typeof(T).IsDefined(typeof(DataContractAttribute), false);
 			foreach (var propertyInfo in TypeConfig<T>.Properties)
 			{
 				if (!propertyInfo.CanRead || propertyInfo.GetGetMethod() == null) continue;
