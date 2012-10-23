@@ -11,4 +11,5 @@ COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.OrmLite\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.Examples\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\..\ServiceStack.RedisWebServices\lib
 
+MD ..\NuGet\lib\net35
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\NuGet\lib\net35
