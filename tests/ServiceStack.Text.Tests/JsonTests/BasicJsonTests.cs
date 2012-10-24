@@ -44,6 +44,12 @@ namespace ServiceStack.Text.Tests.JsonTests
             public DateTime? DateTime { get; set; }
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            JsConfig.Reset();
+        }
+
 	    [Test]
 	    public void Can_parse_json_with_nullable_valuetypes()
 	    {
@@ -281,6 +287,46 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.That(TypeSerializer.SerializeToString(anon), Is.EqualTo("{EnumProp1:3,EnumProp2:8}"));
             Assert.That(JsonSerializer.SerializeToString(anon), Is.EqualTo("{\"EnumProp1\":3,\"EnumProp2\":8}"));
+        }
+
+        public enum ExampleEnumWithoutFlagsAttribute : ulong
+        {
+            None = 0,
+            One = 1,
+            Two = 2
+        }
+
+        private class ClassWithEnumWithoutFlagsAttribute
+        {
+            public ExampleEnumWithoutFlagsAttribute EnumProp1 { get; set; }
+            public ExampleEnumWithoutFlagsAttribute EnumProp2 { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_unsigned_enum_with_turned_on_TreatEnumAsInteger()
+        {
+            JsConfig.TreatEnumAsInteger = true;
+
+            var anon = new ClassWithEnumWithoutFlagsAttribute
+            {
+                EnumProp1 = ExampleEnumWithoutFlagsAttribute.One,
+                EnumProp2 = ExampleEnumWithoutFlagsAttribute.Two
+            };
+
+            Assert.That(TypeSerializer.SerializeToString(anon), Is.EqualTo("{EnumProp1:1,EnumProp2:2}"));
+            Assert.That(JsonSerializer.SerializeToString(anon), Is.EqualTo("{\"EnumProp1\":1,\"EnumProp2\":2}"));
+        }
+
+        [Test]
+        public void Can_deserialize_unsigned_enum_with_turned_on_TreatEnumAsInteger()
+        {
+            JsConfig.TreatEnumAsInteger = true;
+
+            var s = "{\"EnumProp1\":1,\"EnumProp2\":2}";
+            var o = JsonSerializer.DeserializeFromString<ClassWithEnumWithoutFlagsAttribute>(s);
+
+            Assert.That(o.EnumProp1, Is.EqualTo(ExampleEnumWithoutFlagsAttribute.One));
+            Assert.That(o.EnumProp2, Is.EqualTo(ExampleEnumWithoutFlagsAttribute.Two));
         }
 	}
 }
