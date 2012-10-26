@@ -28,5 +28,28 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             Assert.That(JsonObject.Parse("{ \n\t  \n\r}"), Is.Empty);
         }
+
+        public class Jackalope
+        {
+            public string Name { get; set; }
+            public Jackalope BabyJackalope { get; set; }
+        }
+
+        [Test]
+        public void Can_serialise_json_object_deserialise_typed_object()
+        {
+            var jacks = new
+            {
+                Jack = (new Jackalope { BabyJackalope = new Jackalope { Name = "in utero" } })
+            };
+
+            var jackString = JsonSerializer.SerializeToString(jacks.Jack);
+            var jackJson = JsonObject.Parse(jackString);
+            var jackJsonString = jackJson.SerializeToString();
+            Assert.AreEqual(jackString, jackJsonString);
+
+            var jackalope = JsonSerializer.DeserializeFromString<Jackalope>(jackJsonString);
+            Assert.That(jackalope.BabyJackalope.Name, Is.EqualTo("in utero"));
+        }
     }
 }

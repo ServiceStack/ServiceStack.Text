@@ -6,6 +6,7 @@ namespace ServiceStack.Text.Json
 	public static class JsonUtils
 	{
 		public const char EscapeChar = '\\';
+	    public const char LeftCurlyBraceChar = '{';
 		public const char QuoteChar = '"';
 		public const string Null = "null";
 		public const string True = "true";
@@ -29,7 +30,7 @@ namespace ServiceStack.Text.Json
 
 		public static void WriteString(TextWriter writer, string value)
 		{
-			if (value == null)
+		    if (value == null)
 			{
 				writer.Write(JsonUtils.Null);
 				return;
@@ -43,7 +44,11 @@ namespace ServiceStack.Text.Json
 			}
 
 			var hexSeqBuffer = new char[4];
-			writer.Write(QuoteChar);
+
+		    bool beginsWithLeftCurlyBrace = value[0] == LeftCurlyBraceChar;
+
+            if(!beginsWithLeftCurlyBrace)
+                writer.Write(QuoteChar);
 
 			var len = value.Length;
 			for (var i = 0; i < len; i++)
@@ -61,12 +66,14 @@ namespace ServiceStack.Text.Json
 					case '\t':
 						writer.Write("\\t");
 						continue;
+                       
+                    case '"':
+                    case '\\':
+                        if (!beginsWithLeftCurlyBrace)
+                            writer.Write('\\');
 
-					case '"':
-					case '\\':
-						writer.Write('\\');
-						writer.Write(value[i]);
-						continue;
+                        writer.Write(value[i]);
+                        continue;
 
 					case '\f':
 						writer.Write("\\f");
@@ -94,7 +101,8 @@ namespace ServiceStack.Text.Json
 				}
 			}
 
-			writer.Write(QuoteChar);
+            if (!beginsWithLeftCurlyBrace)
+                writer.Write(QuoteChar);
 		}
 
 		/// <summary>
