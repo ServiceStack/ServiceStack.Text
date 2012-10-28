@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text
@@ -107,6 +109,29 @@ namespace ServiceStack.Text
         public string Child(string key)
         {
             return base[key];
+        }
+
+        static readonly Regex NumberRegEx = new Regex(@"^[0-9]*(?:\.[0-9]*)?$", RegexOptions.Compiled);
+
+        /// <summary>
+        /// Write JSON Array, Object, bool or number values as raw string
+        /// </summary>
+        public static void WriteValue(TextWriter writer, object value)
+        {
+            var strValue = value as string;
+            if (!string.IsNullOrEmpty(strValue))
+            {
+                var firstChar = strValue[0];
+                if (firstChar == '{' || firstChar == '['
+                    || JsonUtils.True == strValue
+                    || JsonUtils.False == strValue
+                    || NumberRegEx.IsMatch(strValue))
+                {
+                    writer.Write(strValue);
+                    return;
+                }
+            }
+            JsonUtils.WriteString(writer, strValue);
         }
     }
 
