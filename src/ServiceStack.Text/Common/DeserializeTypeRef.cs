@@ -38,14 +38,13 @@ namespace ServiceStack.Text.Common
 
             var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
 
-            var isDataContract = type.GetCustomAttributes(typeof(DataContractAttribute), false).Any();
-
+            var isDataContract = type.IsDto();
             foreach (var propertyInfo in propertyInfos)
             {
                 var propertyName = propertyInfo.Name;
                 if (isDataContract)
                 {
-                    var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+                    var dcsDataMember = propertyInfo.GetDataMember();
                     if (dcsDataMember != null && dcsDataMember.Name != null)
                     {
                         propertyName = dcsDataMember.Name;

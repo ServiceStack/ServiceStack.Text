@@ -227,5 +227,17 @@ namespace ServiceStack.Text.Tests
 			};
             Assert.That(JsonSerializer.SerializeToString(classOne), Is.EqualTo("{\"Id\":1,\"listClassTwo\":[{\"NewName\":\"Name One\"},{\"NewName\":\"Name Two\"}]}"));
 		}
-	}
+
+	    [Test]
+	    public void Can_get_weak_DataMember()
+	    {
+	        var dto = new ClassOne();
+	        var dataMemberAttr = dto.GetType().GetProperty("Id").GetWeakDataMember();
+            Assert.That(dataMemberAttr.Name, Is.Null);
+
+            dataMemberAttr = dto.GetType().GetProperty("List").GetWeakDataMember();
+            Assert.That(dataMemberAttr.Name, Is.EqualTo("listClassTwo"));
+        }
+
+    }
 }

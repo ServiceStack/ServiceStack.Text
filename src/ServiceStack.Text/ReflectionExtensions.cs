@@ -91,7 +91,7 @@ namespace ServiceStack.Text
         public static bool IsOrHasGenericInterfaceTypeOf(this Type type, Type genericTypeDefinition)
         {
             return (type.GetTypeWithGenericTypeDefinitionOf(genericTypeDefinition) != null)
-				|| (type == genericTypeDefinition);
+                || (type == genericTypeDefinition);
         }
 
         public static Type GetTypeWithGenericTypeDefinitionOf(this Type type, Type genericTypeDefinition)
@@ -157,13 +157,13 @@ namespace ServiceStack.Text
             if (!type.IsValueType) return false;
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
             return underlyingType == typeof(byte)
-			   || underlyingType == typeof(sbyte)
-			   || underlyingType == typeof(short)
-			   || underlyingType == typeof(ushort)
-			   || underlyingType == typeof(int)
-			   || underlyingType == typeof(uint)
-			   || underlyingType == typeof(long)
-			   || underlyingType == typeof(ulong);
+               || underlyingType == typeof(sbyte)
+               || underlyingType == typeof(short)
+               || underlyingType == typeof(ushort)
+               || underlyingType == typeof(int)
+               || underlyingType == typeof(uint)
+               || underlyingType == typeof(long)
+               || underlyingType == typeof(ulong);
         }
 
         public static bool IsRealNumberType(this Type type)
@@ -171,8 +171,8 @@ namespace ServiceStack.Text
             if (!type.IsValueType) return false;
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
             return underlyingType == typeof(float)
-			   || underlyingType == typeof(double)
-			   || underlyingType == typeof(decimal);
+               || underlyingType == typeof(double)
+               || underlyingType == typeof(decimal);
         }
 
         public static Type GetTypeWithGenericInterfaceOf(this Type type, Type genericInterfaceType)
@@ -186,8 +186,8 @@ namespace ServiceStack.Text
 
             var genericType = type.GetGenericType();
             return genericType.GetGenericTypeDefinition() == genericInterfaceType
-					? genericType
-					: null;
+                    ? genericType
+                    : null;
         }
 
         public static bool HasAnyTypeDefinitionsOf(this Type genericType, params Type[] theseGenericTypes)
@@ -390,8 +390,8 @@ namespace ServiceStack.Text
 
                     var typeProperties = subType.GetProperties(
                         BindingFlags.FlattenHierarchy
-						| BindingFlags.Public
-						| BindingFlags.Instance);
+                        | BindingFlags.Public
+                        | BindingFlags.Instance);
 
                     var newPropertyInfos = typeProperties
                         .Where(x => !propertyInfos.Contains(x));
@@ -422,7 +422,7 @@ namespace ServiceStack.Text
             if (type.IsDto())
             {
                 var hasDtoAttr = type.HasDtoAttr();
-                return publicReadableProperties.Where(attr => hasDtoAttr 
+                return publicReadableProperties.Where(attr => hasDtoAttr
                     || attr.GetCustomAttributes(false).Any(x => x.GetType().Name == DataMember))
                     .ToArray();
             }
@@ -445,6 +445,45 @@ namespace ServiceStack.Text
             return type.GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
         }
 
+        static readonly Dictionary<Type, FastMember.TypeAccessor> typeAccessorMap 
+            = new Dictionary<Type, FastMember.TypeAccessor>();
+
+        public static DataMemberAttribute GetDataMember(this PropertyInfo pi)
+        {
+            var dataMember = pi.GetCustomAttributes(typeof(DataMemberAttribute), false)
+                .FirstOrDefault() as DataMemberAttribute;
+
+            if (dataMember == null && Env.IsMono)
+            {
+                var dataMemberAttr = pi.GetWeakDataMember();
+                return dataMemberAttr;
+            }
+
+            return dataMember;
+        }
+
+        public static DataMemberAttribute GetWeakDataMember(this PropertyInfo pi)
+        {
+            var dataMemberAttr = pi.GetCustomAttributes(true).FirstOrDefault(x => x.GetType().Name == DataMember);
+            if (dataMemberAttr != null)
+            {
+                var dataMemberType = dataMemberAttr.GetType();
+
+                FastMember.TypeAccessor dataMemberAccessor;
+                lock (typeAccessorMap)
+                {
+                    if (!typeAccessorMap.TryGetValue(dataMemberType, out dataMemberAccessor))
+                    {
+                        dataMemberAccessor = FastMember.TypeAccessor.Create(dataMemberAttr.GetType());
+                        typeAccessorMap[dataMemberType] = dataMemberAccessor;
+                    }
+                }
+
+                var propertyName = dataMemberAccessor[dataMemberAttr, "Name"];
+                return new DataMemberAttribute { Name = (string) propertyName};
+            }
+            return null;
+        }
     }
 
 }
