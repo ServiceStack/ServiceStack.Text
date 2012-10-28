@@ -107,7 +107,7 @@ namespace ServiceStack.Text.Common
 			// NOTE: very limited support for DataContractSerialization (DCS)
 			//	NOT supporting Serializable
 			//	support for DCS is intended for (re)Name of properties and Ignore by NOT having a DataMember present
-			var isDataContract = typeof(T).GetCustomAttributes(typeof(DataContractAttribute), false).Any();
+		    var isDataContract = typeof(T).IsDto();
 			for (var i = 0; i < propertyNamesLength; i++)
 			{
 				var propertyInfo = propertyInfos[i];
@@ -116,7 +116,7 @@ namespace ServiceStack.Text.Common
 
 				if (isDataContract)
 				{
-					var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+				    var dcsDataMember = propertyInfo.GetDataMember();
 					if (dcsDataMember == null) continue;
 
 					propertyName = dcsDataMember.Name ?? propertyInfo.Name;

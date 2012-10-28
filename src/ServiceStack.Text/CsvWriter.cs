@@ -96,7 +96,7 @@ namespace ServiceStack.Text
 			Headers = new List<string>();
 
 			PropertyGetters = new List<Func<T, object>>();
-            var isDataContract = typeof(T).IsDefined(typeof(DataContractAttribute), false);
+		    var isDataContract = typeof(T).IsDto();
 			foreach (var propertyInfo in TypeConfig<T>.Properties)
 			{
 				if (!propertyInfo.CanRead || propertyInfo.GetGetMethod() == null) continue;
@@ -106,7 +106,7 @@ namespace ServiceStack.Text
                 var propertyName = propertyInfo.Name;
                 if (isDataContract)
                 {
-                    var dcsDataMember = propertyInfo.GetCustomAttributes(typeof(DataMemberAttribute), false).FirstOrDefault() as DataMemberAttribute;
+                    var dcsDataMember = propertyInfo.GetDataMember();
                     if (dcsDataMember != null && dcsDataMember.Name != null)
                     {
                         propertyName = dcsDataMember.Name;
