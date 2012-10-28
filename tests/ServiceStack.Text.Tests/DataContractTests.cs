@@ -253,7 +253,7 @@ namespace ServiceStack.Text.Tests
         {
             var mc = new MyClass { Title = "Some random title" };
 
-            mc.ToJson().Print();
+            Assert.That(mc.ToJson(), Is.EqualTo("{\"some-title\":\"Some random title\"}"));
         }
 
     }

@@ -88,11 +88,13 @@ namespace ServiceStack.Text.Tests.Support
         public Movie Movie { get; set; }
     }
 
-    [Dto]
+    [DataContract]
     public class MoviesResponse
     {
+        [DataMember]
         public int Id { get; set; }
 
+        [DataMember]
         public List<Movie> Movies { get; set; }
     }
 

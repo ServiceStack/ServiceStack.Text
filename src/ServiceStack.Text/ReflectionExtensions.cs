@@ -408,7 +408,6 @@ namespace ServiceStack.Text
         }
 
         const string DataContract = "DataContractAttribute";
-        const string Dto = "DtoAttribute";
         const string DataMember = "DataMemberAttribute";
         const string IgnoreDataMember = "IgnoreDataMemberAttribute";
 
@@ -417,27 +416,24 @@ namespace ServiceStack.Text
             var publicProperties = GetPublicProperties(type);
             var publicReadableProperties = publicProperties.Where(x => x.GetGetMethod(false) != null);
 
-            //If it is a 'DataContract' only return 'DataMember' properties.
-            //checking for "DataContract" using strings to avoid dependency on System.Runtime.Serialization
             if (type.IsDto())
             {
-                var hasDtoAttr = type.HasDtoAttr();
-                return publicReadableProperties.Where(attr => hasDtoAttr
-                    || attr.GetCustomAttributes(false).Any(x => x.GetType().Name == DataMember))
-                    .ToArray();
+                return Env.IsMono
+                    ? publicReadableProperties.Where(attr => 
+                        attr.IsDefined(typeof(DataMemberAttribute), false)).ToArray()
+                    : publicReadableProperties.Where(attr => 
+                        attr.GetCustomAttributes(false).Any(x => x.GetType().Name == DataMember)).ToArray();
             }
+
             // else return those properties that are not decorated with IgnoreDataMember
             return publicReadableProperties.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
         }
 
         public static bool IsDto(this Type type)
         {
-            return type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract || x.GetType().Name == Dto);
-        }
-
-        public static bool HasDtoAttr(this Type type)
-        {
-            return type.GetCustomAttributes(true).Any(x => x.GetType().Name == Dto);
+            return !Env.IsMono
+                ? type.IsDefined(typeof(DataContractAttribute), false)
+                : type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract);
         }
 
         public static bool HasAttr<T>(this Type type) where T : Attribute
