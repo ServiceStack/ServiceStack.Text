@@ -110,9 +110,11 @@ namespace ServiceStack.Text
         {
             return base[key];
         }
-
+#if !SILVERLIGHT && !MONOTOUCH
         static readonly Regex NumberRegEx = new Regex(@"^[0-9]*(?:\.[0-9]*)?$", RegexOptions.Compiled);
-
+#else
+        static readonly Regex NumberRegEx = new Regex(@"^[0-9]*(?:\.[0-9]*)?$");
+#endif
         /// <summary>
         /// Write JSON Array, Object, bool or number values as raw string
         /// </summary>
