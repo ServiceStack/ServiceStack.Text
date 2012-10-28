@@ -181,6 +181,13 @@ namespace ServiceStack.Text.Tests
 			public string Name { get; set; }
 		}
 
+        [DataContract]
+        public class ClassThree
+        {
+            [DataMember(Name = "some-title")]
+            public string Title { get; set; }
+        }
+
         [Test]
         public void Csv_Serialize_Should_Respects_DataContract_Name()
         {
@@ -203,6 +210,13 @@ namespace ServiceStack.Text.Tests
 			Assert.AreEqual(1, classOne.Id);
 			Assert.AreEqual(2, classOne.List.Count);
 		}
+
+        [Test]
+        public void Json_Serialize_Should_Respects_DataContract_Name_When_Deserialize()
+        {
+            var t = JsonSerializer.DeserializeFromString<ClassThree>("{\"some-title\": \"right\", \"Title\": \"wrong\"}");
+            Assert.That(t.Title, Is.EqualTo("right"));
+        }
 
 		[Test]
 		public void Json_Serialize_Should_Respects_DataContract_Name()
