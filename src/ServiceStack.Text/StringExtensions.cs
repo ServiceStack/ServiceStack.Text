@@ -579,7 +579,7 @@ namespace ServiceStack.Text
         private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
         public static string ToTitleCase(this string value)
         {
-#if SILVERLIGHT
+#if SILVERLIGHT || __MonoCS__
             string[] words = value.Split('_');
 
             for (int i = 0; i <= words.Length - 1; i++)
