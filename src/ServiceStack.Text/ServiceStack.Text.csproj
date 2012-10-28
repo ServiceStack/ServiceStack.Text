@@ -167,7 +167,7 @@
     <Compile Include="DateTimeExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DtoAttribute.cs" />
+    <Compile Include="CsvAttribute.cs" />
     <Compile Include="DynamicJson.cs" />
     <Compile Include="DynamicProxy.cs" />
     <Compile Include="Env.cs">

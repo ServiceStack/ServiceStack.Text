@@ -418,7 +418,7 @@ namespace ServiceStack.Text
 
             if (type.IsDto())
             {
-                return Env.IsMono
+                return !Env.IsMono
                     ? publicReadableProperties.Where(attr => 
                         attr.IsDefined(typeof(DataMemberAttribute), false)).ToArray()
                     : publicReadableProperties.Where(attr => 
