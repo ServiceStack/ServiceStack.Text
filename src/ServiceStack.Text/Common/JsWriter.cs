@@ -297,7 +297,9 @@ namespace ServiceStack.Text.Common
                         mapTypeArgs[0], mapTypeArgs[1]);
 
                     var keyWriteFn = Serializer.GetWriteFn(mapTypeArgs[0]);
-                    var valueWriteFn = Serializer.GetWriteFn(mapTypeArgs[1]);
+                    var valueWriteFn = typeof(T) == typeof(JsonObject)
+                        ? (w, o) => w.Write(o)
+                        : Serializer.GetWriteFn(mapTypeArgs[1]);
 
                     return (w, x) => writeFn(w, x, keyWriteFn, valueWriteFn);
                 }
