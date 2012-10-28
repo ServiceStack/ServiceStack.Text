@@ -45,11 +45,14 @@
   </Target>
 
   <Target Name="UnitTests" DependsOnTargets="$(DoBuildSolutionsDependsOn)">
-      <Exec Command="$(BuildSolutionDir)/lib/tests/nunit-console-x86.exe $(BuildSolutionDir)/tests/ServiceStack.Text.Tests/bin/$(Configuration)/ServiceStack.Text.Tests.dll"/>
+      <Exec Command="$(BuildSolutionDir)/lib/tests/nunit-console/nunit-console-x86.exe $(BuildSolutionDir)/tests/ServiceStack.Text.Tests/bin/$(Configuration)/ServiceStack.Text.Tests.dll"/>
+      <Exec Command="$(BuildSolutionDir)/lib/tests/nunit-console/nunit-console-x86.exe /framework=4.0 $(BuildSolutionDir)/tests/ServiceStack.Text.Net40.Tests/bin/$(Configuration)/ServiceStack.Text.Tests.dll"/>
   </Target>
 
   <Target Name="BuildSolutions">
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
+   Properties="Configuration=$(Configuration)" />
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.Net40/ServiceStack.Text.Net40.sln" Targets="Build"
    Properties="Configuration=$(Configuration)" />
   </Target>
 

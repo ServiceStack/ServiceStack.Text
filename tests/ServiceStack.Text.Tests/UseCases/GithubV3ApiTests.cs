@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests.UseCases
 	/// Stand-alone C# client for the Github v3 API
 	/// Uses only ServiceStack.Text (+NUnit for tests)
 	/// </summary>
-	[TestFixture]
+	[TestFixture, Explicit]
 	public class GithubV3ApiGatewayTests
 	{
 		[Test]
