@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text
@@ -124,7 +125,9 @@ namespace ServiceStack.Text
             if (!string.IsNullOrEmpty(strValue))
             {
                 var firstChar = strValue[0];
-                if (firstChar == '{' || firstChar == '['
+                var lastChar = strValue[strValue.Length - 1];
+                if ((firstChar == JsWriter.MapStartChar && lastChar == JsWriter.MapEndChar)
+                    || (firstChar == JsWriter.ListStartChar && lastChar == JsWriter.ListEndChar) 
                     || JsonUtils.True == strValue
                     || JsonUtils.False == strValue
                     || NumberRegEx.IsMatch(strValue))
@@ -144,5 +147,25 @@ namespace ServiceStack.Text
 			return JsonSerializer.DeserializeFromString<JsonArrayObjects>(json);
 		}
 	}
+
+    public struct JsonValue
+    {
+        private readonly string json;
+
+        public JsonValue(string json)
+        {
+            this.json = json;
+        }
+
+        public T As<T>()
+        {
+            return JsonSerializer.DeserializeFromString<T>(json);
+        }
+        
+        public string ToString()
+        {
+            return json;
+        }
+    }
 
 }

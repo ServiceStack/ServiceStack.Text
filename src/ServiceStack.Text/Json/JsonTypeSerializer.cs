@@ -381,7 +381,8 @@ namespace ServiceStack.Text.Json
         {
             if (string.IsNullOrEmpty(json)) return json;
             var jsonLength = json.Length;
-            if (json[index] == JsonUtils.QuoteChar)
+            var firstChar = json[index];
+            if (firstChar == JsonUtils.QuoteChar)
             {
                 index++;
 

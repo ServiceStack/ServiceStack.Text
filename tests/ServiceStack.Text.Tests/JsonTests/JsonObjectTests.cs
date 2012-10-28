@@ -105,6 +105,28 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         [Test]
+        public void Can_DeSerialize_TypedContainerDto_into_JsonValueContainerDto()
+        {
+            var container = new TypedContainerDto {
+                Source = text,
+                Destination = image
+            };
+
+            var json = container.ToJson();
+
+            var fromJson = json.FromJson<JsonValueContainerDto>();
+
+            var fromText = fromJson.Source.As<TextElementDto>();
+            var fromImage = fromJson.Destination.As<ImageElementDto>();
+
+            Assert.That(container.Source.Action.ElementId, Is.EqualTo(fromText.Action.ElementId));
+            Assert.That(container.Destination.ElementId, Is.EqualTo(fromImage.ElementId));
+
+            Assert.That(container.Destination.Action, Is.EqualTo(fromImage.Action));
+            Assert.That(container.Destination.Content, Is.EqualTo(fromImage.Content));
+        }
+
+        [Test]
         public void Can_Serialize_StringContainerDto()
         {
             var container = new StringContainerDto {
@@ -131,12 +153,19 @@ namespace ServiceStack.Text.Tests.JsonTests
             public TextElementDto Source { get; set; }
             public ImageElementDto Destination { get; set; }
         }
-        
+
         // DTOs
         public class StringContainerDto // This is the request dto
         {
             public string Source { get; set; } // This will be some ElementDto
             public string Destination { get; set; } // This will be some ElementDto
+        }
+
+        // DTOs
+        public class JsonValueContainerDto // This is the request dto
+        {
+            public JsonValue Source { get; set; } // This will be some ElementDto
+            public JsonValue Destination { get; set; } // This will be some ElementDto
         }
 
         public class TextElementDto
