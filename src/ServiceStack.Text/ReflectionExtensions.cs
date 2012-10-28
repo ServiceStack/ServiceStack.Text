@@ -453,15 +453,14 @@ namespace ServiceStack.Text
             var dataMember = pi.GetCustomAttributes(typeof(DataMemberAttribute), false)
                 .FirstOrDefault() as DataMemberAttribute;
 
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX
             if (dataMember == null && Env.IsMono)
-            {
-                var dataMemberAttr = pi.GetWeakDataMember();
-                return dataMemberAttr;
-            }
-
+                return pi.GetWeakDataMember();
+#endif
             return dataMember;
         }
 
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX
         public static DataMemberAttribute GetWeakDataMember(this PropertyInfo pi)
         {
             var dataMemberAttr = pi.GetCustomAttributes(true).FirstOrDefault(x => x.GetType().Name == DataMember);
@@ -484,6 +483,8 @@ namespace ServiceStack.Text
             }
             return null;
         }
+#endif
+
     }
 
 }
