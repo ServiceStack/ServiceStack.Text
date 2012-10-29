@@ -123,6 +123,9 @@
     <Compile Include="..\ServiceStack.Text\CsvConfig.cs">
       <Link>CsvConfig.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\CsvAttribute.cs">
+      <Link>CsvAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\CsvSerializer.cs">
       <Link>CsvSerializer.cs</Link>
     </Compile>
@@ -134,9 +137,6 @@
     </Compile>
     <Compile Include="..\ServiceStack.Text\DateTimeExtensions.cs">
       <Link>DateTimeExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\ServiceStack.Text\DtoAttribute.cs">
-      <Link>DtoAttribute.cs</Link>
     </Compile>
     <Compile Include="..\ServiceStack.Text\DynamicJson.cs">
       <Link>DynamicJson.cs</Link>
