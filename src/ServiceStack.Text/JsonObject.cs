@@ -162,7 +162,7 @@ namespace ServiceStack.Text
             return JsonSerializer.DeserializeFromString<T>(json);
         }
         
-        public string ToString()
+        public override string ToString()
         {
             return json;
         }

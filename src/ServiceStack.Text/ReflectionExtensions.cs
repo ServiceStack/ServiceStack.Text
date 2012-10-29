@@ -441,8 +441,10 @@ namespace ServiceStack.Text
             return type.GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
         }
 
+#if !SILVERLIGHT && !MONOTOUCH 
         static readonly Dictionary<Type, FastMember.TypeAccessor> typeAccessorMap 
             = new Dictionary<Type, FastMember.TypeAccessor>();
+#endif
 
         public static DataMemberAttribute GetDataMember(this PropertyInfo pi)
         {
