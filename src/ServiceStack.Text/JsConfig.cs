@@ -361,6 +361,10 @@ namespace ServiceStack.Text
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
+
+#if MONOTOUCH
+			InitForAot();
+#endif
         }
 
 #if MONOTOUCH
@@ -369,7 +373,8 @@ namespace ServiceStack.Text
         /// Just needs to be called once in a static constructor.
         /// </summary>
         [MonoTouch.Foundation.Preserve]
-		public static void InitForAot() { }
+		public static void InitForAot() { 
+		}
 
         [MonoTouch.Foundation.Preserve]
         public static void RegisterForAot()

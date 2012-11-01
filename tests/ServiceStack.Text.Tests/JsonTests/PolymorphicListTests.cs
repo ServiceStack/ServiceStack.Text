@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+#if !MONOTOUCH
 using System.Runtime.Serialization.Json;
+#endif
 using System.Text;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
@@ -76,11 +78,13 @@ namespace ServiceStack.Text.Tests.JsonTests
 	[TestFixture]
 	public class PolymorphicListTests : TestBase
 	{
+		String assemblyName;
 		[SetUp]
 		public void SetUp()
 		{
 			JsConfig.Reset();
 			JsConfig<ICat>.ExcludeTypeInfo = false;
+			assemblyName = GetType().Assembly.GetName().Name;
 		}
 
 		[Test]
@@ -166,6 +170,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(list[1].Name, Is.EqualTo(@"Tigger"));
 		}
 
+#if !MONOTOUCH
 		[Test]
 		public void Can_deserialise_polymorphic_list_serialized_by_datacontractjsonserializer()
 		{
@@ -202,6 +207,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		        JsConfig.Reset();
 		    }
 		}
+#endif
 
 	    public void Can_deserialise_polymorphic_list_with_nonabstract_base()
 		{
@@ -258,6 +264,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(animals[1].Name, Is.EqualTo(@"Tigger"));
 		}
 
+#if !MONOTOUCH
 		[Test]
 		public void Can_deserialise_an_entity_containing_a_polymorphic_property_serialized_by_datacontractjsonserializer()
 		{
@@ -292,6 +299,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                 JsConfig.Reset();
             }
 		}
+#endif
 
 		[Test]
 		public void Can_deserialise_an_entity_containing_a_polymorphic_property_serialized_by_newtonsoft()
@@ -384,10 +392,10 @@ namespace ServiceStack.Text.Tests.JsonTests
 			};
 
 			Assert.That(pets.ToJson(), Is.EqualTo(
-				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, ServiceStack.Text.Tests"",""Name"":""Dog""}}"));
+				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, " + assemblyName + @""",""Name"":""Dog""}}"));
 
 			Assert.That(new Dog { Name = "Dog" }.ToJson(), Is.EqualTo(
-				@"{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, ServiceStack.Text.Tests"",""Name"":""Dog""}"));
+				@"{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, " + assemblyName + @""",""Name"":""Dog""}"));
 		}
 
 		[Test]
@@ -400,7 +408,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			};
 
 			Assert.That(pets.ToJson(), Is.EqualTo(
-				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, ServiceStack.Text.Tests"",""Name"":""Dog""}}"));
+				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, " + assemblyName + @""",""Name"":""Dog""}}"));
 		}
 
 		public class PetDog

@@ -2,7 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using NUnit.Framework;
+using ServiceStack.Text.Json;
+
+
+#if !MONOTOUCH
 using ServiceStack.Common.Tests.Models;
+#endif
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
@@ -43,6 +48,15 @@ namespace ServiceStack.Text.Tests.JsonTests
             public bool? Boolean { get; set; }
             public DateTime? DateTime { get; set; }
         }
+
+		[SetUp]
+		public void Setup ()
+		{
+#if MONOTOUCH
+			JsConfig.RegisterTypeForAot<ExampleEnumWithoutFlagsAttribute>();
+			JsConfig.RegisterTypeForAot<ExampleEnum>();
+#endif
+		}
 
         [TearDown]
         public void TearDown()
@@ -128,6 +142,10 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_dictionary_of_int_int()
 		{
+#if MONOTOUCH
+			JsConfig.RegisterTypeForAot<Dictionary<int, int>>();
+#endif
+
 			var json = JsonSerializer.SerializeToString<IntIntDictionary>(new IntIntDictionary() { Dictionary = { { 10, 100 }, { 20, 200 } } });
 			const string expected = "{\"Dictionary\":{\"10\":100,\"20\":200}}";
 			Assert.That(json, Is.EqualTo(expected));
@@ -244,6 +262,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 		}
 
+#if !MONOTOUCH
 		[DataContract]
 		class Person
 		{
@@ -265,6 +284,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,Name:Abc}"));
 			Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"Name\":\"Abc\"}"));
 		}
+#endif
 
         [Flags]
         public enum ExampleEnum : ulong
@@ -296,7 +316,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             Two = 2
         }
 
-        private class ClassWithEnumWithoutFlagsAttribute
+        public class ClassWithEnumWithoutFlagsAttribute
         {
             public ExampleEnumWithoutFlagsAttribute EnumProp1 { get; set; }
             public ExampleEnumWithoutFlagsAttribute EnumProp2 { get; set; }

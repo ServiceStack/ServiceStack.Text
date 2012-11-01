@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using ServiceStack.Client;
+//using ServiceStack.Client;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
@@ -176,6 +176,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 #endif
 
+#if !MONOTOUCH
 		[Test]
 		public void Can_deserialize_json_date_dcjsCompatible_utc()
 		{
@@ -220,6 +221,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(fromJson.Kind, Is.EqualTo(DateTimeKind.Local)); // fromBclJson.Kind
 			JsConfig.Reset();
 		}
+#endif
 		#endregion
 
 		#region ISO-8601 Tests
