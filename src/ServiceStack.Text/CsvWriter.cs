@@ -5,6 +5,9 @@ using System.Linq;
 using System.Runtime.Serialization;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Reflection;
+#if WINDOWS_PHONE
+using ServiceStack.Text.WP;
+#endif
 
 namespace ServiceStack.Text
 {
