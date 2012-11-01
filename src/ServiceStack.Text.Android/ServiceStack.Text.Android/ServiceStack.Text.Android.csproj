@@ -119,6 +119,9 @@
     <Compile Include="..\..\ServiceStack.Text\Controller\PathInfo.cs">
       <Link>Controller\PathInfo.cs</Link>
     </Compile>
+    <Compile Include="..\..\ServiceStack.Text\CsvAttribute.cs">
+      <Link>CsvAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\..\ServiceStack.Text\CsvConfig.cs">
       <Link>CsvConfig.cs</Link>
     </Compile>
@@ -251,9 +254,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\..\ServiceStack.Text\DynamicProxy.cs">
       <Link>DynamicProxy.cs</Link>
-    </Compile>
-    <Compile Include="..\..\ServiceStack.Text\DtoAttribute.cs">
-      <Link>DtoAttribute.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

@@ -256,7 +256,7 @@
       <Link>DynamicProxy.cs</Link>
     </Compile>
     <Compile Include="..\..\ServiceStack.Text\CsvAttribute.cs">
-      <Link>DtoAttribute.cs</Link>
+      <Link>CsvAttribute.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
