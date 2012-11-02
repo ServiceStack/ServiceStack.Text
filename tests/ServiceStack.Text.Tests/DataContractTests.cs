@@ -165,7 +165,7 @@ namespace ServiceStack.Text.Tests
             [DataMember]
             public int Id { get; set; }
 
-            [DataMember(Name = "listClassTwo")]
+            [DataMember(Name = "listClassTwo", Order = 1)]
             public List<ClassTwo> List { get; set; }
 
             public ClassOne()
@@ -239,9 +239,10 @@ namespace ServiceStack.Text.Tests
 
             dataMemberAttr = dto.GetType().GetProperty("List").GetWeakDataMember();
             Assert.That(dataMemberAttr.Name, Is.EqualTo("listClassTwo"));
+            Assert.That(dataMemberAttr.Order, Is.EqualTo(1));
         }
 
-        [DataContract]
+        [DataContract(Name = "my-class", Namespace = "http://schemas.ns.com")]
         public class MyClass
         {
             [DataMember(Name = "some-title")]
@@ -249,7 +250,18 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Does_get_weak_DataMember()
+        public void Can_get_weak_DataContract()
+        {
+            var mc = new MyClass { Title = "Some random title" };
+
+            var attr = mc.GetType().GetWeakDataContract();
+
+            Assert.That(attr.Name, Is.EqualTo("my-class"));
+            Assert.That(attr.Namespace, Is.EqualTo("http://schemas.ns.com"));
+        }
+
+        [Test]
+        public void Does_use_DataMember_Name()
         {
             var mc = new MyClass { Title = "Some random title" };
 
