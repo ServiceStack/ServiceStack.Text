@@ -148,34 +148,6 @@ namespace ServiceStack.Text.Tests.JsonTests
 			JsConfig.Reset();
 		}
 
-#if !__MonoCS__
-		[Test]
-		public void Can_serialize_json_date_dcjsCompatible_local()
-		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
-
-			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
-			var ssJson = JsonSerializer.SerializeToString(dateTime);
-            var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
-
-			Assert.That(ssJson, Is.EqualTo(bclJson));
-			JsConfig.Reset();
-		}
-
-		[Test]
-		public void Can_serialize_json_date_dcjsCompatible_unspecified()
-		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
-
-			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
-			var ssJson = JsonSerializer.SerializeToString(dateTime);
-            var bclJson = BclJsonDataContractSerializer.Instance.Parse(dateTime);
-
-            Assert.That(ssJson, Is.EqualTo(bclJson));
-			JsConfig.Reset();
-		}
-#endif
-
 #if !MONOTOUCH
 		[Test]
 		public void Can_deserialize_json_date_dcjsCompatible_utc()
@@ -185,9 +157,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(ssJson);
-			var fromBclJson = BclJsonDataContractDeserializer.Instance.Parse<DateTime>(ssJson);
-
-			Assert.That(fromJson, Is.EqualTo(fromBclJson));
+		
             Assert.That(fromJson.Kind, Is.EqualTo(DateTimeKind.Utc)); // fromBclJson.Kind
 			JsConfig.Reset();
 		}
@@ -200,9 +170,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(ssJson);
-			var fromBclJson = BclJsonDataContractDeserializer.Instance.Parse<DateTime>(ssJson);
-
-			Assert.That(fromJson, Is.EqualTo(fromBclJson));
+			
             Assert.That(fromJson.Kind, Is.EqualTo(DateTimeKind.Local)); // fromBclJson.Kind
 			JsConfig.Reset();
 		}
@@ -215,9 +183,8 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(ssJson);
-			var fromBclJson = BclJsonDataContractDeserializer.Instance.Parse<DateTime>(ssJson);
 
-			Assert.That(fromJson, Is.EqualTo(fromBclJson));
+
             Assert.That(fromJson.Kind, Is.EqualTo(DateTimeKind.Local)); // fromBclJson.Kind
 			JsConfig.Reset();
 		}
