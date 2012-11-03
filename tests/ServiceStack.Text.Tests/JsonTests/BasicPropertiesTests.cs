@@ -23,14 +23,6 @@ namespace ServiceStack.Text.Tests.JsonTests {
 
 	[TestFixture]
 	public class BasicPropertiesTests {
-		[SetUp]
-		public void SetUp ()
-		{
-#if MONOTOUCH
-			JsConfig.RegisterTypeForAot<Dictionary<string, string>>();
-#endif
-		}
-
 		[Test]
 		public void Generic_dictionary_backed_IDictionary_round_trips_ok () {
 			var original = new ContainsIDictionary {

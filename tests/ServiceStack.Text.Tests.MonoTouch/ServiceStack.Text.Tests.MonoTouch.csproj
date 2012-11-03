@@ -87,13 +87,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
+    <None Include="..\ServiceStack.Text.Tests\AdhocModelTests.cs.orig">
+      <Link>AdhocModelTests.cs.orig</Link>
+    </None>
+    <None Include="..\ServiceStack.Text.Tests\ServiceStack.Text.Tests.csproj">
+      <Link>ServiceStack.Text.Tests.csproj</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\AnonymousDeserializationTests.cs">
-      <Link>JsonTests\AnonymousDeserializationTests.cs</Link>
-    </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\BackingFieldTests.cs">
       <Link>JsonTests\BackingFieldTests.cs</Link>
     </Compile>
@@ -166,6 +169,76 @@
     <Compile Include="..\ServiceStack.Text.Tests\DynamicModels\DataModel\StrictType.cs">
       <Link>DynamicModels\DataModel\StrictType.cs</Link>
     </Compile>
+    <Compile Include="Aot.cs" />
+    <Compile Include="..\ServiceStack.Text.Tests\Utils\DateTimeSerializerTests.cs">
+      <Link>Utils\DateTimeSerializerTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsvTests\JsvDeserializeTypeTest.cs">
+      <Link>JsvTests\JsvDeserializeTypeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\AnonymousTypes.cs">
+      <Link>AnonymousTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\BasicStringSerializerTests.cs">
+      <Link>BasicStringSerializerTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\CultureInfoTests.cs">
+      <Link>CultureInfoTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\CustomStructTests.cs">
+      <Link>CustomStructTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\CyclicalDependencyTests.cs">
+      <Link>CyclicalDependencyTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\DateTimeOffsetAndTimeSpanTests.cs">
+      <Link>DateTimeOffsetAndTimeSpanTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\DictionaryTests.cs">
+      <Link>DictionaryTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\DynamicObjectTests.cs">
+      <Link>DynamicObjectTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonObjectTests.cs">
+      <Link>JsonObjectTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\NullableTypesTests.cs">
+      <Link>NullableTypesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\QueryStringSerializerTests.cs">
+      <Link>QueryStringSerializerTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\ReflectionExtensionTests.cs">
+      <Link>ReflectionExtensionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\ReportedIssues.cs">
+      <Link>ReportedIssues.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\SpecialTypesTests.cs">
+      <Link>SpecialTypesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\StringConverterUtilsTests.cs">
+      <Link>StringConverterUtilsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\StringExtensionsTests.cs">
+      <Link>StringExtensionsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\StringSerializerTests.cs">
+      <Link>StringSerializerTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\StringSerializerTranslationTests.cs">
+      <Link>StringSerializerTranslationTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\StructTests.cs">
+      <Link>StructTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\SystemTimeTests.cs">
+      <Link>SystemTimeTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\TypeConverterTests.cs">
+      <Link>TypeConverterTests.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -177,5 +250,7 @@
   <ItemGroup>
     <Folder Include="JsonTests\" />
     <Folder Include="DynamicModels\" />
+    <Folder Include="Utils\" />
+    <Folder Include="JsvTests\" />
   </ItemGroup>
 </Project>

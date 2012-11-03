@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+#if !MONOTOUCH
 using ServiceStack.ServiceInterface.ServiceModel;
+#endif
 
 namespace ServiceStack.Text.Tests
 {
@@ -170,7 +172,7 @@ namespace ServiceStack.Text.Tests
             public Byte Icon { get; set; }
             public Boolean Canceled { get; set; }
         }
-
+#if !MONOTOUCH
         public class BookResponse : IHasResponseStatus
         {
             public Book Book { get; set; }
@@ -193,6 +195,7 @@ namespace ServiceStack.Text.Tests
         	var jsv = GetBook().ToJsv();
 			Assert.That(jsv.IndexOf("__"), Is.EqualTo(-1));
 		}
+#endif
 
 		public class TextTags
 		{

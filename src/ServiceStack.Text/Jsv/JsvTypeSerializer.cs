@@ -221,7 +221,10 @@ namespace ServiceStack.Text.Jsv
 		public void WriteEnum(TextWriter writer, object enumValue)
 		{
 			if (enumValue == null) return;
-			writer.Write(enumValue.ToString());
+			if (JsConfig.TreatEnumAsInteger)
+				JsWriter.WriteEnumFlags(writer, enumValue);
+			else
+				writer.Write(enumValue.ToString());
 		}
 
         public void WriteEnumFlags(TextWriter writer, object enumFlagValue)

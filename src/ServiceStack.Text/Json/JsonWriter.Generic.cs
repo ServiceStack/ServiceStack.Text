@@ -154,6 +154,9 @@ namespace ServiceStack.Text.Json
 
 	    public static void WriteObject(TextWriter writer, object value)
 		{
+#if MONOTOUCH
+			if (writer == null) return;
+#endif
 			CacheFn(writer, value);
 		}
 	}

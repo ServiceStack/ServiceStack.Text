@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+#if !MONOTOUCH
 using ServiceStack.Common.Extensions;
+#endif
 
 namespace ServiceStack.Text.Tests
 {
@@ -99,7 +101,7 @@ namespace ServiceStack.Text.Tests
 
 			SerializeAndCompare(userStat);
 		}
-
+#if !MONOTOUCH
 		[Test]
 		public void Can_serialize_UserStats_list()
 		{
@@ -119,5 +121,6 @@ namespace ServiceStack.Text.Tests
 
 			SerializeAndCompare(userStats);
 		}
+#endif
 	}
 }

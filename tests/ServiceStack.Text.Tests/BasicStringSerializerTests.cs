@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Northwind.Common.ComplexModel;
 using NUnit.Framework;
+#if !MONOTOUCH
+using System.ComponentModel.DataAnnotations;
+using Northwind.Common.ComplexModel;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Common.Tests.Models;
+#endif
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Tests
@@ -42,20 +44,6 @@ namespace ServiceStack.Text.Tests
             EnumValue1 = 0,
             EnumValue2 = 1,
         }
-
-		public class TestClass
-		{
-			[Required]
-			public string Member1 { get; set; }
-
-			public string Member2 { get; set; }
-
-			[Required]
-			public string Member3 { get; set; }
-
-			[StringLength(1)]
-			public string Member4 { get; set; }
-		}
 
 		[Test]
 		public void Can_convert_comma_delimited_string_to_List_String()
@@ -390,6 +378,35 @@ namespace ServiceStack.Text.Tests
 			Assert.That(actualValue, Is.EqualTo(byteArrayValue));
 		}
 
+		
+		public T Serialize<T>(T model)
+		{
+			var jsvModel = TypeSerializer.SerializeToString(model);
+			Console.WriteLine("Len: " + jsvModel.Length + ", " + jsvModel);
+			var fromJsvModel = TypeSerializer.DeserializeFromString<T>(jsvModel);
+			
+			var jsonModel = JsonSerializer.SerializeToString(model);
+			Console.WriteLine("Len: " + jsonModel.Length + ", " + jsonModel);
+			var fromJsonModel = JsonSerializer.DeserializeFromString<T>(jsonModel);
+			
+			return fromJsonModel;
+		}
+
+#if !MONOTOUCH
+		public class TestClass
+		{
+			[Required]
+			public string Member1 { get; set; }
+			
+			public string Member2 { get; set; }
+			
+			[Required]
+			public string Member3 { get; set; }
+			
+			[StringLength(1)]
+			public string Member4 { get; set; }
+		}
+
 		[Test]
 		public void Can_convert_string_to_List()
 		{
@@ -451,19 +468,6 @@ namespace ServiceStack.Text.Tests
 			var toCollection = Serialize(fromCollection);
 
 			Assert.That(toCollection.EquivalentTo(fromCollection), Is.True);
-		}
-
-		public T Serialize<T>(T model)
-		{
-			var jsvModel = TypeSerializer.SerializeToString(model);
-			Console.WriteLine("Len: " + jsvModel.Length + ", " + jsvModel);
-			var fromJsvModel = TypeSerializer.DeserializeFromString<T>(jsvModel);
-
-			var jsonModel = JsonSerializer.SerializeToString(model);
-			Console.WriteLine("Len: " + jsonModel.Length + ", " + jsonModel);
-			var fromJsonModel = JsonSerializer.DeserializeFromString<T>(jsonModel);
-
-			return fromJsonModel;
 		}
 
 		[Test]
@@ -610,6 +614,6 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(toModel, Is.EquivalentTo(model));
 		}
-
+#endif
 	}
 }

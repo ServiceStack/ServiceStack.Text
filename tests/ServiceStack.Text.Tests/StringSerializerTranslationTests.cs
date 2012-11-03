@@ -1,4 +1,4 @@
-#if !MONO
+#if !MONO && !MONOTOUCH
 using System;
 using System.Collections.Generic;
 using System.Globalization;

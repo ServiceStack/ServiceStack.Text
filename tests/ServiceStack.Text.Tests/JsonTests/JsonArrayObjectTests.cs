@@ -9,6 +9,14 @@ namespace ServiceStack.Text.Tests.JsonTests
     [TestFixture]
     public class JsonArrayObjectTests
     {
+
+		[Test]
+		public void Can_serialize_int_array() 
+		{
+			var array = new [] {1,2};
+			Assert.That(JsonSerializer.SerializeToString(array), Is.EqualTo("[1,2]"));
+		}
+
         [Test]
         public void Can_parse_empty_array()
         {

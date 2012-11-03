@@ -98,6 +98,9 @@ namespace ServiceStack.Text.Jsv
 
 	    public static void WriteObject(TextWriter writer, object value)
 		{
+#if MONOTOUCH
+			if (writer == null) return;
+#endif
 			CacheFn(writer, value);
 		}
 

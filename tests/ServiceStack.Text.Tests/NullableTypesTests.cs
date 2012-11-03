@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+#if !MONOTOUCH
 using ServiceStack.Common.Tests.Models;
+#endif
 
 namespace ServiceStack.Text.Tests
 {
@@ -14,7 +16,7 @@ namespace ServiceStack.Text.Tests
             JsConfig.Reset();
         }
 
-
+#if !MONOTOUCH
         [Test]
         public void Can_Serialize_populated_model_of_NullableTypes()
         {
@@ -38,6 +40,7 @@ namespace ServiceStack.Text.Tests
 
             ModelWithFieldsOfNullableTypes.AssertIsEqual(model, fromJson);
         }
+#endif
 
         [Test]
         public void Serialize_array_with_null_should_always_produce_Valid_JSON()
@@ -165,7 +168,7 @@ namespace ServiceStack.Text.Tests
 
             var jsv = TypeSerializer.SerializeToString(item);
             result = TypeSerializer.DeserializeFromString<Foo>(jsv);
-            Assert.IsEmpty(result.Strings); //JSV doesn't support setting null values explicitly
+            Assert.That(result.Strings, Is.Empty); //JSV doesn't support setting null values explicitly
 
             JsConfig.IncludeNullValues = false;
         }

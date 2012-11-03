@@ -204,7 +204,6 @@ namespace ServiceStack.Text.Common
 
 		public static void WriteList(TextWriter writer, object oList)
 		{
-			if (oList == null) return;
 			WriteGenericIList(writer, (IList<T>)oList);
 		}
 
@@ -247,12 +246,12 @@ namespace ServiceStack.Text.Common
 
 		public static void WriteIList(TextWriter writer, object oList)
 		{
-			if (oList == null) return;
 			WriteGenericIList(writer, (IList<T>)oList);
 		}
 
 		public static void WriteGenericIList(TextWriter writer, IList<T> list)
 		{
+			if (list == null) return;
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;
@@ -298,15 +297,19 @@ namespace ServiceStack.Text.Common
 
 		public static void WriteArray(TextWriter writer, object oArrayValue)
 		{
-			if (oArrayValue == null) return;
 			WriteGenericArray(writer, (Array)oArrayValue);
 		}
 
-		public static void WriteGenericArrayValueType(TextWriter writer, object oArray)
+		public static void WriteGenericArrayValueType (TextWriter writer, object oArray)
 		{
+			WriteGenericArrayValueType(writer, (T[])oArray);
+		}
+
+		public static void WriteGenericArrayValueType(TextWriter writer, T[] array)
+		{
+			if (array == null) return;
 			writer.Write(JsWriter.ListStartChar);
 
-			var array = (T[])oArray;
 			var ranOnce = false;
 			var arrayLength = array.Length;
 			for (var i = 0; i < arrayLength; i++)
@@ -341,12 +344,12 @@ namespace ServiceStack.Text.Common
         }
 		public static void WriteEnumerable(TextWriter writer, object oEnumerable)
 		{
-			if (oEnumerable == null) return;
 			WriteGenericEnumerable(writer, (IEnumerable<T>)oEnumerable);
 		}
 
 		public static void WriteGenericEnumerable(TextWriter writer, IEnumerable<T> enumerable)
 		{
+			if (enumerable == null) return;
 			writer.Write(JsWriter.ListStartChar);
 
 			var ranOnce = false;

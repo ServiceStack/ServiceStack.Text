@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+#if !MONOTOUCH
 using ServiceStack.ServiceInterface.ServiceModel;
+#endif
 using ServiceStack.Text;
 
 namespace ServiceStack.ServiceModel.Tests
@@ -33,7 +35,7 @@ namespace ServiceStack.ServiceModel.Tests
 			}
 
 		}
-
+#if !MONOTOUCH
 		[Test]
 		public void Create_super_list_type_of_int_from_string()
 		{
@@ -42,6 +44,7 @@ namespace ServiceStack.ServiceModel.Tests
 			var result = TypeSerializer.DeserializeFromString<ArrayOfIntId>(textValue);
 			Assert.That(result, Is.EquivalentTo(convertedValue));
 		}
+#endif
 
 		[Test]
 		public void Create_guid_from_string()

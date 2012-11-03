@@ -358,13 +358,10 @@ namespace ServiceStack.Text
             tsJsvTypeAttrInObject = sJsvTypeAttrInObject = null;
             tsTypeWriter = sTypeWriter = null;
             tsTypeFinder = sTypeFinder = null;
+			tsTreatEnumAsInteger = sTreatEnumAsInteger = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
-
-#if MONOTOUCH
-			InitForAot();
-#endif
         }
 
 #if MONOTOUCH
@@ -379,7 +376,7 @@ namespace ServiceStack.Text
         [MonoTouch.Foundation.Preserve]
         public static void RegisterForAot()
         {
-            JsonAotConfig.Register<Poco>();
+			RegisterTypeForAot<Poco>();
 
             RegisterElement<Poco, string>();
 
@@ -416,9 +413,6 @@ namespace ServiceStack.Text
             RegisterElement<Poco, Guid?>();
             RegisterElement<Poco, DateTime?>();
             RegisterElement<Poco, TimeSpan?>();
-
-            RegisterQueryStringWriter();
-            RegisterCsvSerializer();
         }
 
 		[MonoTouch.Foundation.Preserve]
@@ -427,19 +421,11 @@ namespace ServiceStack.Text
 			bool ret = false;
 			try
 			{
-				JsonAotConfig.Register<T>();
-
-				int i = 0;
-				if(JsvWriter<T>.WriteFn() != null && JsvReader<T>.GetParseFn() != null) i++;
-				if(JsonWriter<T>.WriteFn() != null && JsonReader<T>.GetParseFn() != null) i++;
-				if(QueryStringWriter<Poco>.WriteFn() != null) i++;
-
-				CsvSerializer<T>.WriteFn();
-	            CsvSerializer<T>.WriteObject(null, null);
-	            CsvWriter<T>.WriteObject(null, null);
-	            CsvWriter<T>.WriteObjectRow(null, null);
+				RegisterSerializers<T>();
 				ret = true;
-			}catch(Exception){}
+			}catch(Exception e){
+				Console.WriteLine("Aot error: " + e);
+			}
 
 			return ret;
 		}
@@ -452,19 +438,96 @@ namespace ServiceStack.Text
         }
 
         [MonoTouch.Foundation.Preserve]
-        static void RegisterCsvSerializer()
+        static void RegisterCsvSerializer<T>()
         {
-            CsvSerializer<Poco>.WriteFn();
-            CsvSerializer<Poco>.WriteObject(null, null);
-            CsvWriter<Poco>.WriteObject(null, null);
-            CsvWriter<Poco>.WriteObjectRow(null, null);
+            CsvSerializer<T>.WriteFn();
+            CsvSerializer<T>.WriteObject(null, null);
+			CsvWriter<T>.Write(null, default(IEnumerable<T>));
+            CsvWriter<T>.WriteRow(null, default(T));
         }
 
+		[MonoTouch.Foundation.Preserve]
+		internal static void RegisterSerializers<T>()
+		{
+			Register<T, JsonTypeSerializer>(JsonTypeSerializer.Instance);
+			Register<T, JsvTypeSerializer>(JsvTypeSerializer.Instance);
+			RegisterCsvSerializer<T>();
+			RegisterQueryStringWriter();
+		}
+
+
         [MonoTouch.Foundation.Preserve]
-        public static void RegisterElement<T, TElement>()
+		internal static void RegisterElement<T, TElement>()
         {
-            JsonAotConfig.RegisterElement<T, TElement>();
-        }
+			RegisterSerializers<T>();
+			RegisterElement<T, TElement, JsonTypeSerializer>();
+			RegisterElement<T, TElement, JsvTypeSerializer>();
+		}
+
+		[MonoTouch.Foundation.Preserve]
+		internal static void Register<T, TSerializer>(ITypeSerializer serializer) where TSerializer : ITypeSerializer 
+		{
+			var i = 0;
+			if (JsonWriter<T>.WriteFn() != null) i++;
+			if (JsonWriter.Instance.GetWriteFn<T>() != null) i++;
+			if (JsonReader<T>.Parse(null) != null) i++;
+			if (JsonReader<T>.GetParseFn() != null) i++;
+			//if (JsWriter.GetTypeSerializer<JsonTypeSerializer>().GetWriteFn<T>() != null) i++;
+			if (new List<T>() != null) i++;
+			if (new T[0] != null) i++;
+			if (serializer.GetParseFn<T>() != null) i++;
+			if (serializer.GetWriteFn<T>() != null) i++;
+			if (DeserializeArray<T[], TSerializer>.Parse != null) i++;
+			
+			JsConfig<T>.ExcludeTypeInfo = false;
+			if (JsConfig<T>.SerializeFn != null) i++;
+			//JsConfig<T>.SerializeFn = arg => "";
+			//JsConfig<T>.DeSerializeFn = arg => default(T);
+			if (WriteType<T, TSerializer>.Write != null) i++;
+			DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(null, null);
+			DeserializeCollection<TSerializer>.ParseCollection<T>(null, null, null);
+			DeserializeListWithElements<T, TSerializer>.ParseGenericList(null, null, null);
+			
+			SpecializedQueueElements<T>.ConvertToQueue(null);
+			SpecializedQueueElements<T>.ConvertToStack(null);
+			
+			WriteListsOfElements<T, TSerializer>.WriteList(null, null);
+			WriteListsOfElements<T, TSerializer>.WriteIList(null, null);
+			WriteListsOfElements<T, TSerializer>.WriteEnumerable(null, null);
+			WriteListsOfElements<T, TSerializer>.WriteListValueType(null, null);
+			WriteListsOfElements<T, TSerializer>.WriteIListValueType(null, null);
+			WriteListsOfElements<T, TSerializer>.WriteIListValueType(null, null);
+			WriteListsOfElements<T, TSerializer>.WriteGenericArrayValueType(null, null);
+			
+			JsonReader<T>.Parse(null);
+			
+			TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
+			TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
+			
+			QueryStringWriter<T>.WriteObject(null, null);
+		}
+
+		static void RegisterElement<T, TElement, TSerializer>() where TSerializer : ITypeSerializer
+		{
+			DeserializeDictionary<TSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
+			DeserializeDictionary<TSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
+			
+			ToStringDictionaryMethods<T, TElement, TSerializer>.WriteIDictionary(null, null, null, null);
+			ToStringDictionaryMethods<TElement, T, TSerializer>.WriteIDictionary(null, null, null, null);
+			
+			// Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
+			// No idea why this is happening because there is no visible exception raised.  Suspect MonoTouch is swallowing an AOT exception somewhere.
+			DeserializeArrayWithElements<TElement, TSerializer>.ParseGenericArray(null, null);
+			DeserializeListWithElements<TElement, TSerializer>.ParseGenericList(null, null, null);
+			
+			// Cannot use the line below for some unknown reason - when trying to compile to run on device, mtouch bombs during native code compile.
+			// Something about this line or its inner workings is offensive to mtouch. Luckily this was not needed for my List<Guide> issue.
+			// DeserializeCollection<JsonTypeSerializer>.ParseCollection<TElement>(null, null, null);
+			
+			TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
+			TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
+		}
+
 #endif
 
         /// <summary>
@@ -480,96 +543,6 @@ namespace ServiceStack.Text
     internal class Poco
     {
         public string Dummy { get; set; }
-    }
-
-    [MonoTouch.Foundation.Preserve(AllMembers=true)]
-    internal class JsonAotConfig
-    {
-        static JsReader<JsonTypeSerializer> reader;
-        static JsWriter<JsonTypeSerializer> writer;
-        static JsonTypeSerializer serializer;
-
-        static JsonAotConfig()
-        {
-            serializer = new JsonTypeSerializer();
-            reader = new JsReader<JsonTypeSerializer>();
-            writer = new JsWriter<JsonTypeSerializer>();
-        }
-
-        public static ParseStringDelegate GetParseFn(Type type)
-        {
-            var parseFn = JsonTypeSerializer.Instance.GetParseFn(type);
-            return parseFn;
-        }
-
-        internal static ParseStringDelegate RegisterBuiltin<T>()
-        {
-            var i = 0;
-            if (reader.GetParseFn<T>() != null) i++;
-            if (JsonReader<T>.GetParseFn() != null) i++;
-            if (JsonReader<T>.Parse(null) != null) i++;
-            if (JsonWriter<T>.WriteFn() != null) i++;
-
-            return serializer.GetParseFn<T>();
-        }
-
-        public static void Register<T>()
-        {
-            var i = 0;
-            var serializer = JsonTypeSerializer.Instance;
-            if (new List<T>() != null) i++;
-            if (new T[0] != null) i++;
-            if (serializer.GetParseFn<T>() != null) i++;
-            if (DeserializeArray<T[], JsonTypeSerializer>.Parse != null) i++;
-
-            JsConfig<T>.ExcludeTypeInfo = false;
-            //JsConfig<T>.SerializeFn = arg => "";
-            //JsConfig<T>.DeSerializeFn = arg => default(T);
-
-            DeserializeArrayWithElements<T, JsonTypeSerializer>.ParseGenericArray(null, null);
-            DeserializeCollection<JsonTypeSerializer>.ParseCollection<T>(null, null, null);
-            DeserializeListWithElements<T, JsonTypeSerializer>.ParseGenericList(null, null, null);
-
-            SpecializedQueueElements<T>.ConvertToQueue(null);
-            SpecializedQueueElements<T>.ConvertToStack(null);
-
-            WriteListsOfElements<T, JsonTypeSerializer>.WriteList(null, null);
-            WriteListsOfElements<T, JsonTypeSerializer>.WriteIList(null, null);
-            WriteListsOfElements<T, JsonTypeSerializer>.WriteEnumerable(null, null);
-            WriteListsOfElements<T, JsonTypeSerializer>.WriteListValueType(null, null);
-            WriteListsOfElements<T, JsonTypeSerializer>.WriteIListValueType(null, null);
-
-            JsonReader<T>.Parse(null);
-            JsonWriter<T>.WriteFn();
-
-            TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
-            TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
-
-            QueryStringWriter<T>.WriteObject(null, null);
-        }
-
-        // Edited to fix issues with null List<Guid> properties in response objects
-        public static void RegisterElement<T, TElement>()
-        {
-            RegisterBuiltin<TElement>();
-            DeserializeDictionary<JsonTypeSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
-            DeserializeDictionary<JsonTypeSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
-
-            ToStringDictionaryMethods<T, TElement, JsonTypeSerializer>.WriteIDictionary(null, null, null, null);
-            ToStringDictionaryMethods<TElement, T, JsonTypeSerializer>.WriteIDictionary(null, null, null, null);
-
-            // Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
-            // No idea why this is happening because there is no visible exception raised.  Suspect MonoTouch is swallowing an AOT exception somewhere.
-            DeserializeArrayWithElements<TElement, JsonTypeSerializer>.ParseGenericArray(null, null);
-            DeserializeListWithElements<TElement, JsonTypeSerializer>.ParseGenericList(null, null, null);
-
-            // Cannot use the line below for some unknown reason - when trying to compile to run on device, mtouch bombs during native code compile.
-            // Something about this line or its inner workings is offensive to mtouch. Luckily this was not needed for my List<Guide> issue.
-            // DeserializeCollection<JsonTypeSerializer>.ParseCollection<TElement>(null, null, null);
-
-            TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
-            TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
-        }
     }
 #endif
 

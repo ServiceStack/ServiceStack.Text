@@ -51,7 +51,7 @@ namespace ServiceStack.Text.Json
         public WriteObjectDelegate GetWriteFn<T>()
         {
             return JsonWriter<T>.WriteFn();
-        }
+		}
 
         public WriteObjectDelegate GetWriteFn(Type type)
         {
@@ -284,7 +284,10 @@ namespace ServiceStack.Text.Json
         public void WriteEnum(TextWriter writer, object enumValue)
         {
             if (enumValue == null) return;
-            WriteRawString(writer, enumValue.ToString());
+			if (JsConfig.TreatEnumAsInteger)
+				JsWriter.WriteEnumFlags(writer, enumValue);
+			else
+				WriteRawString(writer, enumValue.ToString());
         }
 
         public void WriteEnumFlags(TextWriter writer, object enumFlagValue)

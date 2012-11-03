@@ -53,6 +53,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		public void Setup ()
 		{
 #if MONOTOUCH
+			JsConfig.Reset();
 			JsConfig.RegisterTypeForAot<ExampleEnumWithoutFlagsAttribute>();
 			JsConfig.RegisterTypeForAot<ExampleEnum>();
 #endif
@@ -142,10 +143,6 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_dictionary_of_int_int()
 		{
-#if MONOTOUCH
-			JsConfig.RegisterTypeForAot<Dictionary<int, int>>();
-#endif
-
 			var json = JsonSerializer.SerializeToString<IntIntDictionary>(new IntIntDictionary() { Dictionary = { { 10, 100 }, { 20, 200 } } });
 			const string expected = "{\"Dictionary\":{\"10\":100,\"20\":200}}";
 			Assert.That(json, Is.EqualTo(expected));
@@ -333,9 +330,9 @@ namespace ServiceStack.Text.Tests.JsonTests
                 EnumProp2 = ExampleEnumWithoutFlagsAttribute.Two
             };
 
-            Assert.That(TypeSerializer.SerializeToString(anon), Is.EqualTo("{EnumProp1:1,EnumProp2:2}"));
             Assert.That(JsonSerializer.SerializeToString(anon), Is.EqualTo("{\"EnumProp1\":1,\"EnumProp2\":2}"));
-        }
+			Assert.That(TypeSerializer.SerializeToString(anon), Is.EqualTo("{EnumProp1:1,EnumProp2:2}"));
+		}
 
         [Test]
         public void Can_deserialize_unsigned_enum_with_turned_on_TreatEnumAsInteger()

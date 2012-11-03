@@ -1,12 +1,15 @@
 ﻿using System;
 using NUnit.Framework;
+#if !MONOTOUCH
 using ServiceStack.ServiceModel.Serialization;
+#endif
 
 namespace ServiceStack.Text.Tests
 {
     [TestFixture]
     public class DateTimeOffsetAndTimeSpanTests : TestBase
     {
+#if !MONOTOUCH
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
@@ -18,6 +21,7 @@ namespace ServiceStack.Text.Tests
         {
             JsonDataContractSerializer.Instance.UseBcl = false;            
         }
+#endif
 
         [Test]
         public void Can_Serializable_DateTimeOffset_Field()

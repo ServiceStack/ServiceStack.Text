@@ -115,7 +115,7 @@ namespace ServiceStack.Text.Common
 
             throw new NotSupportedException(typeof(TSerializer).Name);
         }
-		
+
         public static void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
             if (enumFlagValue == null) return;
@@ -228,7 +228,7 @@ namespace ServiceStack.Text.Common
                 return Serializer.WriteDecimal;
 
             if (type.IsEnum || type.UnderlyingSystemType.IsEnum)
-                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0 || JsConfig.TreatEnumAsInteger
+                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0 
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
