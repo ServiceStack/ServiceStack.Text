@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-//using ServiceStack.Client;
+using ServiceStack.Client;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
