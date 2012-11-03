@@ -1,6 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
+#if !MONOTOUCH
 using ServiceStack.Client;
+#endif
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
