@@ -81,6 +81,7 @@
     <Compile Include="AssemblyUtils.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Common\DeserializeDynamic.cs" />
     <Compile Include="Common\DateTimeSerializer.cs">
       <SubType>Code</SubType>
