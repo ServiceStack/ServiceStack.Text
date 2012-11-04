@@ -60,6 +60,9 @@
     <Compile Include="..\ServiceStack.Text\AssemblyUtils.cs">
       <Link>AssemblyUtils.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\CollectionExtensions.cs">
+      <Link>CollectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\Common\DateTimeSerializer.cs">
       <Link>Common\DateTimeSerializer.cs</Link>
     </Compile>

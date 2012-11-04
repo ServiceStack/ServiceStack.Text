@@ -42,6 +42,9 @@
     <Compile Include="..\..\ServiceStack.Text\AssemblyUtils.cs">
       <Link>AssemblyUtils.cs</Link>
     </Compile>
+    <Compile Include="..\..\ServiceStack.Text\CollectionExtensions.cs">
+      <Link>CollectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\ServiceStack.Text\CsvConfig.cs">
       <Link>CsvConfig.cs</Link>
     </Compile>

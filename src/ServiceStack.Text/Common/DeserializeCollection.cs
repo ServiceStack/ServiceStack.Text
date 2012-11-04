@@ -55,13 +55,13 @@ namespace ServiceStack.Text.Common
         public static ICollection<string> ParseStringCollection(string value, Type createType)
         {
             var items = DeserializeArrayWithElements<string, TSerializer>.ParseGenericArray(value, Serializer.ParseString);
-            return CreateAndPopulate(createType, items);
+            return CollectionExtensions.CreateAndPopulate(createType, items);
         }
 
         public static ICollection<int> ParseIntCollection(string value, Type createType)
         {
             var items = DeserializeArrayWithElements<int, TSerializer>.ParseGenericArray(value, x => int.Parse(x));
-            return CreateAndPopulate(createType, items);
+            return CollectionExtensions.CreateAndPopulate(createType, items);
         }
 
         public static ICollection<T> ParseCollection<T>(string value, Type createType, ParseStringDelegate parseFn)
@@ -69,29 +69,7 @@ namespace ServiceStack.Text.Common
             if (value == null) return null;
 
             var items = DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(value, parseFn);
-            return CreateAndPopulate(createType, items);
-        }
-
-        private static ICollection<T> CreateAndPopulate<T>(Type ofCollectionType, T[] withItems)
-        {
-            if (ofCollectionType == null) return new List<T>(withItems);
-
-            var genericTypeDefinition = ofCollectionType.IsGenericType()
-				? ofCollectionType.GetGenericTypeDefinition()
-				: null;
-#if !XBOX
-            if (genericTypeDefinition == typeof(HashSet<T>))
-                return new HashSet<T>(withItems);
-#endif
-            if (genericTypeDefinition == typeof(LinkedList<T>))
-                return new LinkedList<T>(withItems);
-
-            var collection = (ICollection<T>)ofCollectionType.CreateInstance();
-            foreach (var item in withItems)
-            {
-                collection.Add(item);
-            }
-            return collection;
+            return CollectionExtensions.CreateAndPopulate(createType, items);
         }
 
         private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache 
