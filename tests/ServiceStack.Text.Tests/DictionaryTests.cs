@@ -10,6 +10,26 @@ namespace ServiceStack.Text.Tests
 	public class DictionaryTests
 		: TestBase
 	{
+		[TestFixtureSetUp]
+		public void SetUp()
+		{
+#if MONOTOUCH
+			JsConfig.RegisterTypeForAot<Dictionary<string, int>> ();
+			JsConfig.RegisterTypeForAot<KeyValuePair<int, string>> ();
+
+			JsConfig.RegisterTypeForAot<KeyValuePair<string, int>> ();
+			JsConfig.RegisterTypeForAot<Dictionary<string, int>> ();
+
+			JsConfig.RegisterTypeForAot<KeyValuePair<string, Dictionary<string, int>>> ();
+			JsConfig.RegisterTypeForAot<Dictionary<string, Dictionary<string, int>>> ();
+
+			JsConfig.RegisterTypeForAot<KeyValuePair<int, Dictionary<string, int>>> ();
+			JsConfig.RegisterTypeForAot<Dictionary<int, Dictionary<string, int>>> ();
+
+
+#endif
+		}
+
         [TearDown]
         public void TearDown()
         {

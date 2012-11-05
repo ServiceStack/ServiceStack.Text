@@ -51,6 +51,26 @@ namespace ServiceStack.Text.Tests
 			}
 		}
 
+		[TestFixtureSetUp]
+		public void SetUp()
+		{
+#if MONOTOUCH
+			JsConfig.RegisterTypeForAot<Text> ();
+			JsConfig.RegisterTypeForAot<Foo> ();
+			JsConfig.RegisterTypeForAot<PersonStatus> ();
+			JsConfig.RegisterTypeForAot<Person> ();
+			JsConfig.RegisterTypeForAot<TestDictionary> ();
+			JsConfig.RegisterTypeForAot<KeyValuePair<string, string>> ();
+			JsConfig.RegisterTypeForAot<Pair> ();
+#endif
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			JsConfig.Reset();
+		}
+
 		[Test]
 		public void Test_structs()
 		{

@@ -297,6 +297,7 @@ namespace ServiceStack.Text.Common
 
 		public static void WriteArray(TextWriter writer, object oArrayValue)
 		{
+			if (oArrayValue == null) return;
 			WriteGenericArray(writer, (Array)oArrayValue);
 		}
 
