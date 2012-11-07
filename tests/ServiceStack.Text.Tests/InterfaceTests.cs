@@ -142,9 +142,9 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
-		public void Can_Serialize_User_OAuthSession_list()
+		public void Can_Serialize_User_AuthSession_list()
 		{
-			var userSession = new OAuthUserSession {
+			var userSession = new AuthUserSession {
 				Id = "1",
 				CreatedAt = DateTime.UtcNow,
 				LastModified = DateTime.UtcNow,
@@ -171,7 +171,7 @@ namespace ServiceStack.Text.Tests
 		{
             try {
 			    JsConfig.ExcludeTypeInfo = true;
-			    var userSession = new OAuthUserSession {
+			    var userSession = new AuthUserSession {
 				    Id = "1",
 				    CreatedAt = DateTime.UtcNow,
 				    LastModified = DateTime.UtcNow,
