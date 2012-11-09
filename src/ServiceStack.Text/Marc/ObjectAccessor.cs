@@ -3,7 +3,7 @@
 
 //Not using it here, but @marcgravell's stuff is too good not to include
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
-namespace FastMember
+namespace ServiceStack.Text.FastMember
 {
     /// <summary>
     /// Represents an individual object, allowing access to members by-name
