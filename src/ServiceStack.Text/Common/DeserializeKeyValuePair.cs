@@ -66,9 +66,9 @@ namespace ServiceStack.Text.Common
                 Serializer.EatMapKeySeperator(value, ref index);
                 var keyElementValue = Serializer.EatTypeValue(value, ref index);
 
-                if (string.Compare(key, "key", true) == 0)
+                if (string.Compare(key, "key", StringComparison.InvariantCultureIgnoreCase) == 0)
                     keyValue = (TKey)parseKeyFn(keyElementValue);
-                else if (string.Compare(key, "value", true) == 0)
+                else if (string.Compare(key, "value", StringComparison.InvariantCultureIgnoreCase) == 0)
                     valueValue = (TValue) parseValueFn(keyElementValue);
                 else
                     throw new SerializationException("Incorrect KeyValuePair property: " + key);
