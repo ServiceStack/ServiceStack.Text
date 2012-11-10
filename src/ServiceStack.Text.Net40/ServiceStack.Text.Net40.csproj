@@ -78,6 +78,9 @@
     <Compile Include="..\ServiceStack.Text\Common\DeserializeTypeRef.cs">
       <Link>Common\DeserializeTypeRef.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\Common\DeserializeKeyValuePair.cs">
+      <Link>Common\DeserializeKeyValuePair.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\Common\DeserializeTypeRefJson.cs">
       <Link>Common\DeserializeTypeRefJson.cs</Link>
     </Compile>

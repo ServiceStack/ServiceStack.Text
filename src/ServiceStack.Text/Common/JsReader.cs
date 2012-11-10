@@ -68,6 +68,9 @@ namespace ServiceStack.Text.Common
 					|| type.HasAnyTypeDefinitionsOf(typeof(Stack<>)))
 					return DeserializeSpecializedCollections<T, TSerializer>.Parse;
 
+                if (type.IsOrHasGenericInterfaceTypeOf(typeof(KeyValuePair<,>)))
+                    return DeserializeKeyValuePair<TSerializer>.GetParseMethod(type);
+
 				if (type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
 					return DeserializeEnumerable<T, TSerializer>.Parse;
 			}

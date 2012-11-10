@@ -135,6 +135,9 @@
     <Compile Include="..\..\ServiceStack.Text\Common\DeserializeArray.cs">
       <Link>Common\DeserializeArray.cs</Link>
     </Compile>
+    <Compile Include="..\..\ServiceStack.Text\Common\DeserializeKeyValuePair.cs">
+      <Link>Common\DeserializeKeyValuePair.cs</Link>
+    </Compile>
     <Compile Include="..\..\ServiceStack.Text\Common\DeserializeBuiltin.cs">
       <Link>Common\DeserializeBuiltin.cs</Link>
     </Compile>

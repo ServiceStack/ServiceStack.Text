@@ -165,5 +165,32 @@ namespace ServiceStack.Text.Tests
                 + "\"KvpList\":[{\"Key\":\"foo\",\"Value\":\"bar\"},{\"Key\":\"x\",\"Value\":\"y\"}],"
                 + "\"KvpEnumerable\":[{\"Key\":\"foo\",\"Value\":\"bar\"},{\"Key\":\"x\",\"Value\":\"y\"}]}"));
         }
+
+        [Test]
+        public void Should_deserialize_KeyValuePair_with_int_DateTime()
+        {
+            var t = "{\"Key\":99,\"Value\":\"\\/Date(1320098400000+0200)\\/\"}";
+            var b = JsonSerializer.DeserializeFromString<KeyValuePair<int, DateTime>>(t);
+            Assert.That(b, Is.Not.Null);
+            Assert.That(b.Key, Is.EqualTo(99));
+            Assert.That(b.Value, Is.EqualTo(new DateTime(2011, 11, 1)));
+        }
+
+        public class TestKeyValuePair
+        {
+            public KeyValuePair<int?, bool?> KeyValue { get; set; }
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Should_deserialize_class_with_KeyValuePair_with_nullables()
+        {
+            var t = "{\"KeyValue\":{\"Value\":true},\"Name\":\"test\"}";
+            var b = JsonSerializer.DeserializeFromString<TestKeyValuePair>(t);
+            Assert.That(b.KeyValue.Key, Is.Null);
+            Assert.That(b.KeyValue.Value, Is.EqualTo(true));
+            Assert.That(b.Name, Is.EqualTo("test"));
+        }
+
     }
 }

@@ -84,6 +84,9 @@
     <Compile Include="..\ServiceStack.Text\Common\DeserializeSpecializedCollections.cs">
       <Link>Common\DeserializeSpecializedCollections.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\Common\DeserializeKeyValuePair.cs">
+      <Link>Common\DeserializeKeyValuePair.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\Common\DeserializeType.cs">
       <Link>Common\DeserializeType.cs</Link>
     </Compile>
