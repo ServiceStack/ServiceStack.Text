@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
@@ -91,10 +92,14 @@ namespace ServiceStack.Text.Tests.JsvTests
 		[Test]
 		public void Can_serialize_Employee_to_StringDictionary()
 		{
-			Assert.That(NorthwindData.Employees[0].ToStringDictionary().EquivalentTo(
+            var actual = NorthwindData.Employees
+                .First(x => x.LastName == "Davolio")
+                .ToStringDictionary();
+
+		    Assert.That(actual.EquivalentTo(
 				new Dictionary<string, string>
 				{
-					{"Id","1"},
+					{"Id","2"},
 					{"LastName","Davolio"},
 					{"FirstName","Nancy"},
 					{"Title","Sales Representative"},
@@ -109,12 +114,12 @@ namespace ServiceStack.Text.Tests.JsvTests
 					{"HomePhone","(206) 555-9857"},
 					{"Extension","5467"},
 					{"Notes","Education includes a BA in psychology from Colorado State University in 1970.  She also completed 'The Art of the Cold Call.'  Nancy is a member of Toastmasters International."},
-					{"ReportsTo","2"},
+					{"ReportsTo","1"},
 					{"PhotoPath","http://accweb/emmployees/davolio.bmp"},
 				}));
 		}
 
-		[Test]
+	    [Test]
 		public void Can_serialize_EmployeeTerritory_to_StringDictionary()
 		{
 			Assert.That(NorthwindData.EmployeeTerritories[0].ToStringDictionary().EquivalentTo(

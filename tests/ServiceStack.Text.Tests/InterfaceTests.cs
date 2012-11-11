@@ -18,7 +18,7 @@ namespace ServiceStack.Text.Tests
 			var messageString = TypeSerializer.SerializeToString(message);
 
 			Assert.That(messageString, Is.EqualTo(
-			"{Id:00000000000000000000000000000000,CreatedDate:0001-01-01,Priority:0,RetryAttempts:0,Body:test}"));
+            "{Id:00000000000000000000000000000000,CreatedDate:0001-01-01,Priority:0,RetryAttempts:0,Options:1,Body:test}"));
 
 			Serialize(message);
 		}
@@ -31,7 +31,7 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(messageString, Is.EqualTo(
 			"{__type:\"ServiceStack.Messaging.Message`1[[System.String, mscorlib]], ServiceStack.Interfaces\","
-			 + "Id:00000000000000000000000000000000,CreatedDate:0001-01-01,Priority:0,RetryAttempts:0,Body:test}"));
+             + "Id:00000000000000000000000000000000,CreatedDate:0001-01-01,Priority:0,RetryAttempts:0,Options:1,Body:test}"));
 		}
 
 		public class DtoWithObject
