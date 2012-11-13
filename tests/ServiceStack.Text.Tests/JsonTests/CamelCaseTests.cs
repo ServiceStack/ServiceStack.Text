@@ -45,21 +45,6 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Serialize(dto);
 		}
 
-		[Test]
-		public void Does_serialize_To_Better_CamelCase()
-		{
-			Assert.AreEqual("id", "ID".ToCamelCase());
-			Assert.AreEqual("imdbid", "IMDBID".ToCamelCase());
-			Assert.AreEqual("abcdTitle", "ABCDTitle".ToCamelCase());
-			Assert.AreEqual("pqrsRatingNumber", "PQRSRatingNumber".ToCamelCase());
-			Assert.AreEqual("directorEFGH", "DirectorEFGH".ToCamelCase());
-			Assert.AreEqual("releaseDate", "releaseDate".ToCamelCase());
-			Assert.AreEqual("tagLineIJKL", "tagLineIJKL".ToCamelCase());
-			Assert.AreEqual("genres", "genres".ToCamelCase());
-			Assert.AreEqual("", "".ToCamelCase());
-			Assert.AreEqual((string)null, ((string)null).ToCamelCase());
-		}
-
 		[DataContract]
 		class Person
 		{
