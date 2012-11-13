@@ -123,38 +123,38 @@ namespace ServiceStack.Text.Tests
             Assert.That(decoded, Is.EqualTo(text));
         }
 
-		[Test]
-		public void Can_ToCamelCase_String()
-		{
-			Assert.That("U".ToCamelCase(), Is.EqualTo("u"));
-			Assert.That("UU".ToCamelCase(), Is.EqualTo("uu"));
-			Assert.That("UUU".ToCamelCase(), Is.EqualTo("uuu"));
-			Assert.That("UUUU".ToCamelCase(), Is.EqualTo("uuuu"));
-			Assert.That("l".ToCamelCase(), Is.EqualTo("l"));
-			Assert.That("ll".ToCamelCase(), Is.EqualTo("ll"));
-			Assert.That("lll".ToCamelCase(), Is.EqualTo("lll"));
-			Assert.That("llll".ToCamelCase(), Is.EqualTo("llll"));
-			Assert.That("Ul".ToCamelCase(), Is.EqualTo("ul"));
-			Assert.That("Ull".ToCamelCase(), Is.EqualTo("ull"));
-			Assert.That("Ulll".ToCamelCase(), Is.EqualTo("ulll"));
-			Assert.That("UUl".ToCamelCase(), Is.EqualTo("uUl"));
-			Assert.That("UUll".ToCamelCase(), Is.EqualTo("uUll"));
-			Assert.That("UUUl".ToCamelCase(), Is.EqualTo("uuUl"));
-			Assert.That("lU".ToCamelCase(), Is.EqualTo("lU"));
-			Assert.That("lUl".ToCamelCase(), Is.EqualTo("lUl"));
-			Assert.That("lUll".ToCamelCase(), Is.EqualTo("lUll"));
-			Assert.That("llU".ToCamelCase(), Is.EqualTo("llU"));
-			Assert.That("llUl".ToCamelCase(), Is.EqualTo("llUl"));
-			Assert.That("lllU".ToCamelCase(), Is.EqualTo("lllU"));
-			Assert.That("llUlll".ToCamelCase(), Is.EqualTo("llUlll"));
-			Assert.That("lllUlll".ToCamelCase(), Is.EqualTo("lllUlll"));
-			Assert.That("lllUUUlll".ToCamelCase(), Is.EqualTo("lllUUUlll"));
-			Assert.That("lllUlllUlll".ToCamelCase(), Is.EqualTo("lllUlllUlll"));
-			Assert.That("".ToCamelCase(), Is.EqualTo(""));
-			Assert.That(((string)null).ToCamelCase(), Is.EqualTo((string)null));
-		}
-		
-		[Test]
+        [Test]
+        public void Can_ToCamelCase_String()
+        {
+            Assert.That("U".ToCamelCase(), Is.EqualTo("u"));
+            Assert.That("UU".ToCamelCase(), Is.EqualTo("uu"));
+            Assert.That("UUU".ToCamelCase(), Is.EqualTo("uuu"));
+            Assert.That("UUUU".ToCamelCase(), Is.EqualTo("uuuu"));
+            Assert.That("l".ToCamelCase(), Is.EqualTo("l"));
+            Assert.That("ll".ToCamelCase(), Is.EqualTo("ll"));
+            Assert.That("lll".ToCamelCase(), Is.EqualTo("lll"));
+            Assert.That("llll".ToCamelCase(), Is.EqualTo("llll"));
+            Assert.That("Ul".ToCamelCase(), Is.EqualTo("ul"));
+            Assert.That("Ull".ToCamelCase(), Is.EqualTo("ull"));
+            Assert.That("Ulll".ToCamelCase(), Is.EqualTo("ulll"));
+            Assert.That("UUl".ToCamelCase(), Is.EqualTo("uUl"));
+            Assert.That("UUll".ToCamelCase(), Is.EqualTo("uUll"));
+            Assert.That("UUUl".ToCamelCase(), Is.EqualTo("uuUl"));
+            Assert.That("lU".ToCamelCase(), Is.EqualTo("lU"));
+            Assert.That("lUl".ToCamelCase(), Is.EqualTo("lUl"));
+            Assert.That("lUll".ToCamelCase(), Is.EqualTo("lUll"));
+            Assert.That("llU".ToCamelCase(), Is.EqualTo("llU"));
+            Assert.That("llUl".ToCamelCase(), Is.EqualTo("llUl"));
+            Assert.That("lllU".ToCamelCase(), Is.EqualTo("lllU"));
+            Assert.That("llUlll".ToCamelCase(), Is.EqualTo("llUlll"));
+            Assert.That("lllUlll".ToCamelCase(), Is.EqualTo("lllUlll"));
+            Assert.That("lllUUUlll".ToCamelCase(), Is.EqualTo("lllUUUlll"));
+            Assert.That("lllUlllUlll".ToCamelCase(), Is.EqualTo("lllUlllUlll"));
+            Assert.That("".ToCamelCase(), Is.EqualTo(""));
+            Assert.That(((string)null).ToCamelCase(), Is.EqualTo((string)null));
+        }
+
+        [Test]
         public void Can_ToTitleCase_String()
         {
             var text = "Abc_def";

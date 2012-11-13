@@ -569,28 +569,28 @@ namespace ServiceStack.Text
         {
             if (string.IsNullOrEmpty(value)) return value;
 
-			if (value == "ID") return "id";
+            if (value == "ID") return "id";
 
-			var len = value.Length;
-			var newValue = new char[len];
-			var firstPart = true;
+            var len = value.Length;
+            var newValue = new char[len];
+            var firstPart = true;
 
-			for (var i = 0; i < len; ++i) {
-				var c0 = value[i];
-				var c1 = i < len - 1 ? value[i + 1] : 'A';
-				var c0isUpper = c0 >= 'A' && c0 <= 'Z';
-				var c1isUpper = c1 >= 'A' && c1 <= 'Z';
+            for (var i = 0; i < len; ++i) {
+                var c0 = value[i];
+                var c1 = i < len - 1 ? value[i + 1] : 'A';
+                var c0isUpper = c0 >= 'A' && c0 <= 'Z';
+                var c1isUpper = c1 >= 'A' && c1 <= 'Z';
 
-				if (firstPart && c0isUpper && (c1isUpper || i == 0))
-					c0 = (char)(c0 + LowerCaseOffset);
-				else
-					firstPart = false;
+                if (firstPart && c0isUpper && (c1isUpper || i == 0))
+                    c0 = (char)(c0 + LowerCaseOffset);
+                else
+                    firstPart = false;
 
-				newValue[i] = c0;
-			}
+                newValue[i] = c0;
+            }
 
-			return new string(newValue);
-		}
+            return new string(newValue);
+        }
 
         private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
         public static string ToTitleCase(this string value)
