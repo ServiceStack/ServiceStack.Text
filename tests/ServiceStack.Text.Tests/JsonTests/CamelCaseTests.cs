@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
-using ServiceStack.Text;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
