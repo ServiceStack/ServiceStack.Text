@@ -47,10 +47,10 @@ namespace ServiceStack.Text.Common
 			}
 			if (typeof(T).IsAbstract)
 			{
-				WriteTypeInfo = TypeInfoWriter;
-				if (!typeof(T).IsInterface)
+				WriteTypeInfo = TypeInfoWriter;	
+				if(!JsConfig.PreferInterfaces || !typeof(T).IsInterface)
 				{
-					CacheFn = WriteAbstractProperties;
+					CacheFn = WriteAbstractProperties;				
 				}
 			}
 		}

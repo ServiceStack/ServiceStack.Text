@@ -378,24 +378,30 @@ namespace ServiceStack.Text.Tests.JsonTests
 		public class ExplicitPets
 		{
 			public Cat Cat { get; set; }
-			public Dog Dog { get; set; }
+			public OtherDog Dog { get; set; }
+		}
+
+		public class OtherDog : IDog
+		{
+			public string Name { get; set; }
 		}
 
 		[Test]
 		public void Can_force_specific_TypeInfo()
 		{
-			JsConfig<Dog>.IncludeTypeInfo = true;
+			//This configuration has to be set before first usage of WriteType<OtherDog>, otherwise this setting change will not be applied
+			JsConfig<OtherDog>.IncludeTypeInfo = true;
+
 			var pets = new ExplicitPets()
 			{
 				Cat = new Cat { Name = "Cat" },
-				Dog = new Dog { Name = "Dog" },
+				Dog = new OtherDog { Name = "Dog" },
 			};
-
 			Assert.That(pets.ToJson(), Is.EqualTo(
-				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, " + assemblyName + @""",""Name"":""Dog""}}"));
+				@"{""Cat"":{""Name"":""Cat""},""Dog"":{""__type"":""ServiceStack.Text.Tests.JsonTests.PolymorphicListTests+OtherDog, " + assemblyName + @""",""Name"":""Dog""}}"));
 
-			Assert.That(new Dog { Name = "Dog" }.ToJson(), Is.EqualTo(
-				@"{""__type"":""ServiceStack.Text.Tests.JsonTests.Dog, " + assemblyName + @""",""Name"":""Dog""}"));
+			Assert.That(new OtherDog { Name = "Dog" }.ToJson(), Is.EqualTo(
+				@"{""__type"":""ServiceStack.Text.Tests.JsonTests.PolymorphicListTests+OtherDog, " + assemblyName + @""",""Name"":""Dog""}"));
 		}
 
 		[Test]
@@ -433,6 +439,21 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Assert.That(weirdCat.Dog, Is.Not.Null);
 			Assert.That(weirdCat.Dog.Name, Is.EqualTo(petDog.Dog.Name));
+		}
+
+		[Test]
+		public void Can_serialize_and_deserialize_an_entity_containing_a_polymorphic_item_with_additional_properties_correctly()
+		{
+		    Pets pets = new Pets { Cat = new Cat { Name = "Kitty"}, Dog = new Collie { Name = "Lassie", IsLassie = true}};
+		    string serializedPets = JsonSerializer.SerializeToString(pets);
+		    Pets deserialized = JsonSerializer.DeserializeFromString<Pets>(serializedPets);
+
+		    Assert.That(deserialized.Cat, Is.TypeOf(typeof(Cat)));
+		    Assert.That(deserialized.Cat.Name, Is.EqualTo("Kitty"));
+
+		    Assert.That(deserialized.Dog, Is.TypeOf(typeof(Collie)));
+		    Assert.That(deserialized.Dog.Name, Is.EqualTo("Lassie"));
+		    Assert.That(((Collie)deserialized.Dog).IsLassie, Is.True);
 		}
 
 	}
