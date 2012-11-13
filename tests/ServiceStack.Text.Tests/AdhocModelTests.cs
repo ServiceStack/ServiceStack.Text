@@ -139,6 +139,12 @@ namespace ServiceStack.Text.Tests
 			}
 		}
 
+		[SetUp]
+		public void SetUp()
+		{
+			JsConfig.Reset();
+		}
+
 		[Test]
 		public void Can_Deserialize_text()
 		{
@@ -292,6 +298,8 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_Serialize_Cyclical_Dependency_via_interface()
 		{
+			JsConfig.PreferInterfaces = true;
+
 			var dto = new Parent {
 				Id = 1,
 				ParentName = "Parent",
@@ -301,7 +309,7 @@ namespace ServiceStack.Text.Tests
 
 			var fromDto = Serialize(dto, includeXml: false);
 
-			var parent = (Parent)fromDto.Child.Parent;
+			var parent = (IParent)fromDto.Child.Parent;
 			Assert.That(parent.Id, Is.EqualTo(dto.Id));
 			Assert.That(parent.ParentName, Is.EqualTo(dto.ParentName));
 		}

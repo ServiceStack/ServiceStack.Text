@@ -59,7 +59,7 @@ namespace ServiceStack.Text.Common
                 } else if (JsonUtils.IsJsArray(elementValue)) {
                     container[mapKey] = DeserializeList<List<object>, TSerializer>.Parse(elementValue);
                 } else if (tryToParsePrimitiveTypes) {
-                    container[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue);
+                    container[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue) ?? Serializer.UnescapeString(elementValue);
                 } else {
                     container[mapKey] = Serializer.UnescapeString(elementValue);
                 }
