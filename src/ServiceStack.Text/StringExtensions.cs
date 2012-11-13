@@ -569,6 +569,8 @@ namespace ServiceStack.Text
         {
             if (string.IsNullOrEmpty(value)) return value;
 
+			if (value == "ID") return "id";
+
 			var len = value.Length;
 			var newValue = new char[len];
 			var firstPart = true;
@@ -576,8 +578,10 @@ namespace ServiceStack.Text
 			for (var i = 0; i < len; ++i) {
 				var c0 = value[i];
 				var c1 = i < len - 1 ? value[i + 1] : 'A';
+				var c0isUpper = c0 >= 'A' && c0 <= 'Z';
+				var c1isUpper = c1 >= 'A' && c1 <= 'Z';
 
-				if (firstPart && c0 >= 'A' && c0 <= 'Z' && c1 >= 'A' && c1 <= 'Z')
+				if (firstPart && c0isUpper && (c1isUpper || i == 0))
 					c0 = (char)(c0 + LowerCaseOffset);
 				else
 					firstPart = false;

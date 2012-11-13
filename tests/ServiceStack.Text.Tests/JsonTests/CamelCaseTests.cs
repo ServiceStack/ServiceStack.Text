@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
+using ServiceStack.Text;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
@@ -42,6 +43,21 @@ namespace ServiceStack.Text.Tests.JsonTests
 				"{\"id\":1,\"imdbId\":\"tt0111161\",\"title\":\"The Shawshank Redemption\",\"rating\":9.2,\"director\":\"Frank Darabont\",\"releaseDate\":\"\\/Date(792979200000)\\/\",\"tagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"genres\":[\"Crime\",\"Drama\"]}"));
 
 			Serialize(dto);
+		}
+
+		[Test]
+		public void Does_serialize_To_Better_CamelCase()
+		{
+			Assert.AreEqual("id", "ID".ToCamelCase());
+			Assert.AreEqual("imdbid", "IMDBID".ToCamelCase());
+			Assert.AreEqual("abcdTitle", "ABCDTitle".ToCamelCase());
+			Assert.AreEqual("pqrsRatingNumber", "PQRSRatingNumber".ToCamelCase());
+			Assert.AreEqual("directorEFGH", "DirectorEFGH".ToCamelCase());
+			Assert.AreEqual("releaseDate", "releaseDate".ToCamelCase());
+			Assert.AreEqual("tagLineIJKL", "tagLineIJKL".ToCamelCase());
+			Assert.AreEqual("genres", "genres".ToCamelCase());
+			Assert.AreEqual("", "".ToCamelCase());
+			Assert.AreEqual((string)null, ((string)null).ToCamelCase());
 		}
 
 		[DataContract]
