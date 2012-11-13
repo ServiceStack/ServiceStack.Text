@@ -569,8 +569,6 @@ namespace ServiceStack.Text
         {
             if (string.IsNullOrEmpty(value)) return value;
 
-            if (value == "ID") return "id";
-
             var len = value.Length;
             var newValue = new char[len];
             var firstPart = true;
