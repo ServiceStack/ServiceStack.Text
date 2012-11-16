@@ -65,6 +65,9 @@
     <Compile Include="..\..\ServiceStack.Text\Common\DeserializeDictionary.cs">
       <Link>Common\DeserializeDictionary.cs</Link>
     </Compile>
+    <Compile Include="..\..\ServiceStack.Text\Common\DeserializeKeyValuePair.cs">
+      <Link>Common\DeserializeKeyValuePair.cs</Link>
+    </Compile>
     <Compile Include="..\..\ServiceStack.Text\Common\DeserializeListWithElements.cs">
       <Link>Common\DeserializeListWithElements.cs</Link>
     </Compile>
