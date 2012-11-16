@@ -345,5 +345,14 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(o.EnumProp1, Is.EqualTo(ExampleEnumWithoutFlagsAttribute.One));
             Assert.That(o.EnumProp2, Is.EqualTo(ExampleEnumWithoutFlagsAttribute.Two));
         }
+
+        [Test]
+        public void Can_serialize_object_array_with_nulls()
+        {
+            var objs = new[] { (object)"hello", (object)null };
+            JsConfig.IncludeNullValues = false;
+
+            Assert.That(objs.ToJson(), Is.EqualTo("[\"hello\",null]"));
+        }
 	}
 }

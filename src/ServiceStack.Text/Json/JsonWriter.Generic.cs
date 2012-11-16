@@ -93,10 +93,7 @@ namespace ServiceStack.Text.Json
 		{
 			if (value == null)
 			{
-				if (JsConfig.IncludeNullValues)
-				{
-					writer.Write(JsonUtils.Null);
-				}
+				writer.Write(JsonUtils.Null);
 				return;
 			}
 
