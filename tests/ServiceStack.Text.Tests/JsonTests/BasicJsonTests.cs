@@ -354,5 +354,13 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.That(objs.ToJson(), Is.EqualTo("[\"hello\",null]"));
         }
+        
+
+        [Test]
+        public void Should_return_null_instance_for_empty_json()
+        {
+            var o = JsonSerializer.DeserializeFromString("", typeof(JsonPrimitives));
+            Assert.IsNull(o);
+        }    
 	}
 }

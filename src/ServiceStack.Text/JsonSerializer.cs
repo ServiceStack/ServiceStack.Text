@@ -40,7 +40,7 @@ namespace ServiceStack.Text
 
 		public static object DeserializeFromString(string value, Type type)
 		{
-			return value == null
+            return string.IsNullOrEmpty(value)
 					? null
 					: JsonReader.GetParseFn(type)(value);
 		}
