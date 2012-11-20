@@ -215,6 +215,9 @@ namespace ServiceStack.Text.Common
 
         private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
         {
+            if (propertyInfo.ReflectedType != propertyInfo.DeclaringType)
+                propertyInfo = propertyInfo.DeclaringType.GetProperty(propertyInfo.Name);
+
             if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
 
             FieldInfo fieldInfo = null;
