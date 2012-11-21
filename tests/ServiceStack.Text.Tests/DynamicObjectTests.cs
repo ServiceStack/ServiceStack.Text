@@ -98,6 +98,31 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_deserialize_object_epoch_datetime()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = "{\"foo\":\"\\/Date(1353438089156)\\/\"}";
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
+            Assert.That(((Dictionary<string, object>)deserialized)["foo"], Is.InstanceOf<DateTime>());
+        }
+
+        [Test]
+        public void Can_deserialize_object_iso8601_datetime()
+        {
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = "{\"foo\":\"2012-11-20T21:37:32.0876543Z\"}";
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
+            Assert.That(((Dictionary<string, object>)deserialized)["foo"], Is.InstanceOf<DateTime>());
+        }
+
+        [Test]
         public void Can_deserialize_object_dictionary()
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;
