@@ -125,6 +125,16 @@ namespace ServiceStack.Text.Common
 #endif
             if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix)) {
                 return DateTimeSerializer.ParseWcfJsonDate(value);
+            } 
+            
+            if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
+            {
+                // check that we have UTC ISO8601 date:
+                // YYYY-MM-DDThh:mm:ssZ
+                if (value.Length > 14 && value[10] == 'T' && value.EndsWith("Z", StringComparison.InvariantCulture))
+                {
+                    return DateTimeSerializer.ParseShortestXsdDateTime(value);
+                }
             }
 
             return Serializer.UnescapeString(value);
