@@ -110,16 +110,32 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Can_deserialize_object_iso8601_datetime()
+        public void Can_deserialize_object_utc_iso8601_datetime()
         {
             JsConfig.DateHandler = JsonDateHandler.ISO8601;
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.ConvertObjectTypesIntoStringDictionary = true;
 
-            var json = "{\"foo\":\"2012-11-20T21:37:32.0876543Z\"}";
+            var json = "{\"foo\":\"2012-11-20T21:37:32.87Z\"}";
+            var deserialized = JsonSerializer.DeserializeFromString<object>(json);
+            var datetime = ((Dictionary<string, object>)deserialized)["foo"];
+            Assert.That(datetime, Is.InstanceOf<DateTime>());
+            Assert.That(datetime, Is.EqualTo(new DateTime(2012, 11, 20, 21, 37, 32, 870, DateTimeKind.Utc).ToLocalTime()));
+        }
+
+        [Test]
+        public void Can_deserialize_object_iso8601_datetime_with_timezone()
+        {
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+
+            var json = "{\"foo\":\"2012-11-20T21:37:32.87+02:00\"}";
             var deserialized = JsonSerializer.DeserializeFromString<object>(json);
             Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
-            Assert.That(((Dictionary<string, object>)deserialized)["foo"], Is.InstanceOf<DateTime>());
+            var datetime = ((Dictionary<string, object>) deserialized)["foo"];
+            Assert.That(datetime, Is.InstanceOf<DateTime>());
+            Assert.That(datetime, Is.EqualTo(new DateTime(2012, 11, 20, 19, 37, 32, 870, DateTimeKind.Utc).ToLocalTime()));
         }
 
         [Test]

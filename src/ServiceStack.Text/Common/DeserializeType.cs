@@ -131,7 +131,12 @@ namespace ServiceStack.Text.Common
             {
                 // check that we have UTC ISO8601 date:
                 // YYYY-MM-DDThh:mm:ssZ
-                if (value.Length > 14 && value[10] == 'T' && value.EndsWith("Z", StringComparison.InvariantCulture))
+                // YYYY-MM-DDThh:mm:ss+02:00
+                // YYYY-MM-DDThh:mm:ss-02:00
+                if (value.Length > 14 && value[10] == 'T' && 
+                    (value.EndsWith("Z", StringComparison.InvariantCulture) 
+                        || value[value.Length - 6] == '+'
+                        || value[value.Length - 6] == '-'))
                 {
                     return DateTimeSerializer.ParseShortestXsdDateTime(value);
                 }
