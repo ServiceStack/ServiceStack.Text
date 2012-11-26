@@ -468,7 +468,8 @@ namespace ServiceStack.Text.Json
         }
 
         /// <summary>
-        /// Since Silverlight doesn't have char.ConvertFromUtf32() so putting Mono's implemenation inline.
+        /// Given a character as utf32, returns the equivalent string provided that the character
+        /// is legal json.
         /// </summary>
         /// <param name="utf32"></param>
         /// <returns></returns>
@@ -476,8 +477,8 @@ namespace ServiceStack.Text.Json
         {
             if (utf32 < 0 || utf32 > 0x10FFFF)
                 throw new ArgumentOutOfRangeException("utf32", "The argument must be from 0 to 0x10FFFF.");
-            if (0xD800 <= utf32 && utf32 <= 0xDFFF)
-                throw new ArgumentOutOfRangeException("utf32", "The argument must not be in surrogate pair range.");
+            if (char.IsControl((char)utf32))
+                throw new ArgumentOutOfRangeException("utf32", "The argument cannot be a control character.");
             if (utf32 < 0x10000)
                 return new string((char)utf32, 1);
             utf32 -= 0x10000;

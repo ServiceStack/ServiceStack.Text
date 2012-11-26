@@ -84,14 +84,15 @@ namespace ServiceStack.Text.Json
 					continue;
 				}
 
-				var isValidSequence = value[i] < 0xD800 || value[i] > 0xDFFF;
-				if (isValidSequence)
-				{
-					// Default, turn into a \uXXXX sequence
-					IntToHex(value[i], hexSeqBuffer);
-					writer.Write("\\u");
-					writer.Write(hexSeqBuffer);
-				}
+                // per json.org, any unicode character *except* controls are legal
+                var isValidSequence = !char.IsControl(value[i]);
+                if (isValidSequence)
+                {
+                    // Default, turn into a \uXXXX sequence
+                    IntToHex(value[i], hexSeqBuffer);
+                    writer.Write("\\u");
+                    writer.Write(hexSeqBuffer);
+                }
 			}
 
 			writer.Write(QuoteChar);
@@ -108,6 +109,10 @@ namespace ServiceStack.Text.Json
 			for (var i = 0; i < len; i++)
 			{
 				var c = value[i];
+
+                // non-printable
+                if (!(value[i] >= 32 && value[i] <= 126)) return true;
+
 				if (c >= LengthFromLargestChar || !EscapeCharFlags[c]) continue;
 				return true;
 			}
