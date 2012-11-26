@@ -31,5 +31,24 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(jsonObject.GetUnescaped("a"), Is.EqualTo(test.Replace("\"","\\\"")));
         }
+
+        [Test]
+        public void Does_encode_unicode()
+        {
+            string test = "<\"I get this : 􏰁􏰂􏰃􏰄􏰂􏰅􏰆􏰇􏰈􏰀􏰉􏰊􏰇􏰋􏰆􏰌􏰀􏰆􏰊􏰀􏰍􏰄􏰎􏰆􏰏􏰐􏰑􏰑􏰆􏰒􏰆􏰂􏰊􏰀";
+            var obj = new { test };
+            using (var mem = new System.IO.MemoryStream())
+            {
+                ServiceStack.Text.JsonSerializer.SerializeToStream(obj, obj.GetType(), mem);
+
+                var encoded = System.Text.Encoding.UTF8.GetString(mem.ToArray());
+
+                var copy1 = JsonObject.Parse(encoded);
+
+                Assert.That(test, Is.EqualTo(copy1["test"]));
+
+                System.Diagnostics.Debug.WriteLine(copy1["test"]);
+            }
+        }
     }
 }
