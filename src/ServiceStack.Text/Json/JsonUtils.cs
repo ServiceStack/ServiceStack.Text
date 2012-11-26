@@ -46,54 +46,49 @@ namespace ServiceStack.Text.Json
 			writer.Write(QuoteChar);
 
 			var len = value.Length;
-			for (var i = 0; i < len; i++)
-			{
-				switch (value[i])
-				{
-					case '\n':
-						writer.Write("\\n");
-						continue;
-
-					case '\r':
-						writer.Write("\\r");
-						continue;
-
-					case '\t':
-						writer.Write("\\t");
-						continue;
-
-					case '"':
-					case '\\':
-						writer.Write('\\');
-						writer.Write(value[i]);
-						continue;
-
-					case '\f':
-						writer.Write("\\f");
-						continue;
-
-					case '\b':
-						writer.Write("\\b");
-						continue;
-				}
-
-				//Is printable char?
-				if (value[i] >= 32 && value[i] <= 126)
-				{
-					writer.Write(value[i]);
-					continue;
-				}
-
-                // per json.org, any unicode character *except* controls are legal
-                var isValidSequence = !char.IsControl(value[i]);
-                if (isValidSequence)
+            for (var i = 0; i < len; i++)
+            {
+                switch (value[i])
                 {
-                    // Default, turn into a \uXXXX sequence
-                    IntToHex(value[i], hexSeqBuffer);
-                    writer.Write("\\u");
-                    writer.Write(hexSeqBuffer);
+                    case '\n':
+                        writer.Write("\\n");
+                        continue;
+
+                    case '\r':
+                        writer.Write("\\r");
+                        continue;
+
+                    case '\t':
+                        writer.Write("\\t");
+                        continue;
+
+                    case '"':
+                    case '\\':
+                        writer.Write('\\');
+                        writer.Write(value[i]);
+                        continue;
+
+                    case '\f':
+                        writer.Write("\\f");
+                        continue;
+
+                    case '\b':
+                        writer.Write("\\b");
+                        continue;
                 }
-			}
+
+                //Is printable char?
+                if (value[i] >= 32 && value[i] <= 126)
+                {
+                    writer.Write(value[i]);
+                    continue;
+                }
+
+                // Default, turn into a \uXXXX sequence
+                IntToHex(value[i], hexSeqBuffer);
+                writer.Write("\\u");
+                writer.Write(hexSeqBuffer);
+            }
 
 			writer.Write(QuoteChar);
 		}

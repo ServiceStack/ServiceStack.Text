@@ -477,8 +477,6 @@ namespace ServiceStack.Text.Json
         {
             if (utf32 < 0 || utf32 > 0x10FFFF)
                 throw new ArgumentOutOfRangeException("utf32", "The argument must be from 0 to 0x10FFFF.");
-            if (char.IsControl((char)utf32))
-                throw new ArgumentOutOfRangeException("utf32", "The argument cannot be a control character.");
             if (utf32 < 0x10000)
                 return new string((char)utf32, 1);
             utf32 -= 0x10000;
