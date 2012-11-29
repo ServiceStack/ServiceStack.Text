@@ -302,18 +302,6 @@ namespace ServiceStack.Text
             writer.WriteLine();
         }
 
-	    public static void WriteObjectRow(TextWriter writer, IEnumerable<object> row)
-        {
-            var ranOnce = false;
-            foreach (var field in row)
-            {
-                JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
-
-                writer.Write(field.ToCsvField());
-            }
-            writer.WriteLine();
-        }
-
 	    public static void Write(TextWriter writer, IEnumerable<List<string>> rows)
 		{
 			if (Headers.Count > 0)
