@@ -21,13 +21,13 @@ namespace ServiceStack.Text
 	{
         public static string ToCsvField(this string text)
         {
-            return string.IsNullOrEmpty(text) || !JsWriter.HasAnyEscapeChars(text)
+            return string.IsNullOrEmpty(text) || !CsvWriter.HasAnyEscapeChars(text)
                        ? text
                        : string.Concat
                              (
-                                 JsWriter.QuoteString,
-                                 text.Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
-                                 JsWriter.QuoteString
+                                 CsvConfig.ItemDelimiterString,
+                                 text.Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
+                                 CsvConfig.ItemDelimiterString
                              );
         }
 
