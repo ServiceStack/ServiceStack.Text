@@ -214,7 +214,12 @@ namespace ServiceStack.Text
 			Write(writer, (IEnumerable<T>)records);
 		}
 
-		public static void Write(TextWriter writer, IEnumerable<T> records)
+        public static void WriteObjectRow(TextWriter writer, object record)
+        {
+            WriteRow(writer, (T) record);
+        }
+
+	    public static void Write(TextWriter writer, IEnumerable<T> records)
 		{
 			if (records == null) return; //AOT
 
@@ -287,7 +292,7 @@ namespace ServiceStack.Text
             var ranOnce = false;
             foreach (var field in row)
             {
-                JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+                CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
                 writer.Write(field.ToCsvField());
             }
