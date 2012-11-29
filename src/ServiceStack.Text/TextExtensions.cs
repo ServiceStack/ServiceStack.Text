@@ -19,19 +19,31 @@ namespace ServiceStack.Text
 {
 	public static class TextExtensions
 	{
-		public static string ToCsvField(this string text)
-		{
-			return string.IsNullOrEmpty(text) || !CsvWriter.HasAnyEscapeChars(text)
-		       	? text
-		       	: string.Concat
-		       	  	(
-                        CsvConfig.ItemDelimiterString,
-						text.Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
-						CsvConfig.ItemDelimiterString
-		       	  	);
-		}
+        public static string ToCsvField(this string text)
+        {
+            return string.IsNullOrEmpty(text) || !JsWriter.HasAnyEscapeChars(text)
+                       ? text
+                       : string.Concat
+                             (
+                                 JsWriter.QuoteString,
+                                 text.Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
+                                 JsWriter.QuoteString
+                             );
+        }
 
-		public static string FromCsvField(this string text)
+        public static object ToCsvField(this object text)
+        {
+            return text == null || !JsWriter.HasAnyEscapeChars(text.ToString())
+                       ? text
+                       : string.Concat
+                             (
+                                 JsWriter.QuoteString,
+                                 text.ToString().Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
+                                 JsWriter.QuoteString
+                             );
+        }
+
+	    public static string FromCsvField(this string text)
 		{
 			return string.IsNullOrEmpty(text) || !text.StartsWith(CsvConfig.ItemDelimiterString)
 			       	? text
