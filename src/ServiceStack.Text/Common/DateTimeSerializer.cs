@@ -31,6 +31,19 @@ namespace ServiceStack.Text.Common
 		public const string WcfJsonPrefix = "/Date(";
 		public const char WcfJsonSuffix = ')';
 
+        /// <summary>
+        /// If AlwaysUseUtc is set to true then convert all DateTime to UTC.
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        private static DateTime Prepare(this DateTime dateTime)
+        {
+            if (JsConfig.AlwaysUseUtc && dateTime.Kind != DateTimeKind.Utc)
+                return dateTime.ToStableUniversalTime();
+            else
+                return dateTime;
+        }
+
         public static DateTime? ParseShortestNullableXsdDateTime(string dateTimeStr)
         {
             if (dateTimeStr == null)
@@ -45,13 +58,15 @@ namespace ServiceStack.Text.Common
 				return DateTime.MinValue;
 
 			if (dateTimeStr.StartsWith(EscapedWcfJsonPrefix) || dateTimeStr.StartsWith(WcfJsonPrefix))
-				return ParseWcfJsonDate(dateTimeStr);
+                return ParseWcfJsonDate(dateTimeStr).Prepare();
 
-			if (dateTimeStr.Length == DefaultDateTimeFormat.Length
-				|| dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
-				return DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
+            if (dateTimeStr.Length == DefaultDateTimeFormat.Length
+                || dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
+            {
+                return DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture).Prepare();
+            }
 
-			if (dateTimeStr.Length == XsdDateTimeFormatSeconds.Length)
+	        if (dateTimeStr.Length == XsdDateTimeFormatSeconds.Length)
 				return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null,
 										   DateTimeStyles.AdjustToUniversal);
 
@@ -62,10 +77,10 @@ namespace ServiceStack.Text.Common
                     ? XmlDateTimeSerializationMode.Local
                     : XmlDateTimeSerializationMode.RoundtripKind;
 
-                return XmlConvert.ToDateTime(dateTimeStr, dateTimeType);
+                return XmlConvert.ToDateTime(dateTimeStr, dateTimeType).Prepare();
             }
 
-            return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
+            return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal).Prepare();
         }
 
 		public static string ToDateTimeString(DateTime dateTime)

@@ -313,6 +313,26 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating if the framework should always convert <see cref="DateTime"/> to UTC format instead of local time. 
+        /// </summary>
+        [ThreadStatic]
+        private static bool? tsAlwaysUseUtc;
+        private static bool? sAlwaysUseUtc;
+        public static bool AlwaysUseUtc
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return tsAlwaysUseUtc ?? sAlwaysUseUtc ?? false;
+            }
+            set
+            {
+                tsAlwaysUseUtc = value;
+                if (!sAlwaysUseUtc.HasValue) sAlwaysUseUtc = value;
+            }
+        }
+
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
         internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
@@ -359,6 +379,7 @@ namespace ServiceStack.Text
             tsTypeWriter = sTypeWriter = null;
             tsTypeFinder = sTypeFinder = null;
 			tsTreatEnumAsInteger = sTreatEnumAsInteger = null;
+            tsAlwaysUseUtc = sAlwaysUseUtc = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
