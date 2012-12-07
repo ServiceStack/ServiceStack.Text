@@ -57,7 +57,7 @@ namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 				return idx < 0 ? null : 
 					(
 						this[idx].Value is string
-						? Type.GetType(((string)this[idx].Value).FromCsvField())
+                        ? AssemblyUtils.FindType(((string)this[idx].Value).FromCsvField())
 						: this[idx].Value as Type
 					);
 			}

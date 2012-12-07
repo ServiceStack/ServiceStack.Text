@@ -87,7 +87,7 @@ namespace ServiceStack.Text.Common
 				if (instance == null && possibleTypeInfo && propertyName == JsWriter.TypeAttr)
 				{
 					var explicitTypeName = Serializer.ParseString(propertyValueStr);
-                    var explicitType = Type.GetType(explicitTypeName);
+                    var explicitType = AssemblyUtils.FindType(explicitTypeName);
                     if (explicitType != null && !explicitType.IsInterface && !explicitType.IsAbstract) {
                         instance = explicitType.CreateInstance();
                     }

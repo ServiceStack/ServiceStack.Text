@@ -53,7 +53,7 @@ namespace ServiceStack.Text.Common
 
 		public static Type ParseType(string assemblyQualifiedName)
 		{
-			return Type.GetType(assemblyQualifiedName.FromCsvField());
+			return AssemblyUtils.FindType(assemblyQualifiedName.FromCsvField());
 		}
 	}
 

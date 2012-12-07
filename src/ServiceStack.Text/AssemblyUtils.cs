@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -6,6 +7,7 @@ using System.Text.RegularExpressions;
 #if SILVERLIGHT
 
 #endif
+using System.Threading;
 using ServiceStack.Common.Support;
 
 namespace ServiceStack.Text
@@ -20,6 +22,8 @@ namespace ServiceStack.Text
         private const string ExeExt = "dll";
         private const char UriSeperator = '/';
 
+        private static Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
+
 #if !XBOX
         /// <summary>
         /// Find the type from the name supplied
@@ -28,19 +32,31 @@ namespace ServiceStack.Text
         /// <returns></returns>
         public static Type FindType(string typeName)
         {
+            Type type = null;
+            if (TypeCache.TryGetValue(typeName, out type)) return type;
+
 #if !SILVERLIGHT
-            var type = Type.GetType(typeName);
-            if (type != null) return type;
+            type = Type.GetType(typeName);
 #endif
-            var typeDef = new AssemblyTypeDefinition(typeName);
-            if (!String.IsNullOrEmpty(typeDef.AssemblyName))
+            if (type == null)
             {
-                return FindType(typeDef.TypeName, typeDef.AssemblyName);
+                var typeDef = new AssemblyTypeDefinition(typeName);
+                type = !string.IsNullOrEmpty(typeDef.AssemblyName) 
+                    ? FindType(typeDef.TypeName, typeDef.AssemblyName) 
+                    : FindTypeFromLoadedAssemblies(typeDef.TypeName);
             }
-            else
+
+            Dictionary<string, Type> snapshot, newCache;
+            do
             {
-                return FindTypeFromLoadedAssemblies(typeDef.TypeName);
-            }
+                snapshot = TypeCache;
+                newCache = new Dictionary<string, Type>(TypeCache);
+                newCache[typeName] = type;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref TypeCache, newCache, snapshot), snapshot));
+
+            return type;
         }
 #endif
 

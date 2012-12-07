@@ -178,7 +178,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		        var regex = new Regex(@"^(?<type>[^:]+):#(?<namespace>.*)$");
 		        var match = regex.Match(value);
 		        var typeName = string.Format("{0}.{1}", match.Groups["namespace"].Value, match.Groups["type"].Value.Replace(".", "+"));
-		        return Type.GetType(typeName);
+                return AssemblyUtils.FindType(typeName);
 		    };
 
 		    try {
@@ -272,7 +272,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                     var regex = new Regex(@"^(?<type>[^:]+):#(?<namespace>.*)$");
 		            var match = regex.Match(value);
 		            var typeName = string.Format("{0}.{1}", match.Groups["namespace"].Value, match.Groups["type"].Value.Replace(".", "+"));
-		            return Type.GetType(typeName);
+                    return AssemblyUtils.FindType(typeName);
 		        };
 
             try {

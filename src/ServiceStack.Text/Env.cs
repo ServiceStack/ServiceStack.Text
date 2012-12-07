@@ -10,9 +10,9 @@ namespace ServiceStack.Text
 			var platform = (int)Environment.OSVersion.Platform;
 			IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
 
-			IsMono = Type.GetType("Mono.Runtime") != null;
+            IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
-			IsMonoTouch = Type.GetType("MonoTouch.Foundation.NSObject") != null;
+            IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null;
 
 			SupportsExpressions = SupportsEmit = !IsMonoTouch;
 
