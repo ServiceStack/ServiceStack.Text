@@ -27,6 +27,7 @@ namespace ServiceStack.Text.Tests.JsvTests
             { }
         }
 
+        [Test]
         public void Should_set_property_of_parent_class()
         {
             var serializer = new JsvSerializer<TestChild>();
