@@ -182,6 +182,7 @@
     <Compile Include="CsvTests\CustomHeaderTests.cs" />
     <Compile Include="JsonTests\ContractByInterfaceTests.cs" />
     <Compile Include="JsonTests\DictionaryTests.cs" />
+    <Compile Include="JsvTests\GeneratedJsvTests.cs" />
     <Compile Include="JsvTests\InheritanceTests.cs" />
     <Compile Include="JsonTests\JsonArrayObjectTests.cs" />
     <Compile Include="JsonTests\JsonDateTimeTests.cs" />
