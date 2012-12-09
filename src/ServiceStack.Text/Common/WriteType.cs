@@ -39,9 +39,13 @@ namespace ServiceStack.Text.Common
 
 		static WriteType()
 		{
-			CacheFn = Init() ? GetWriteFn() : WriteEmptyType;
+		    if (typeof(T) == typeof(Object)) {
+		        CacheFn = WriteObjectType;
+		    } else {
+		        CacheFn = Init() ? GetWriteFn() : WriteEmptyType;
+		    }
 
-			if (IsIncluded)
+		    if (IsIncluded)
 			{
 				WriteTypeInfo = TypeInfoWriter;
 			}
@@ -181,9 +185,22 @@ namespace ServiceStack.Text.Common
 			}
 		}
 
+        public static void WriteObjectType(TextWriter writer, object value)
+        {
+            writer.Write(JsWriter.EmptyMap);
+        }
+
 		public static void WriteEmptyType(TextWriter writer, object value)
 		{
-			writer.Write(JsWriter.EmptyMap);
+		    if (WriteTypeInfo != null || JsState.IsWritingDynamic) {
+		        writer.Write(JsWriter.MapStartChar);
+		        if (!(JsConfig.PreferInterfaces && TryWriteSelfType(writer))) {
+		            TryWriteTypeInfo(writer, value);
+		        }
+		        writer.Write(JsWriter.MapEndChar);
+		        return;
+		    }
+		    writer.Write(JsWriter.EmptyMap);
 		}
 
 		public static void WriteAbstractProperties(TextWriter writer, object value)
@@ -218,6 +235,7 @@ namespace ServiceStack.Text.Common
 			{
 				if (JsConfig.PreferInterfaces && TryWriteSelfType(writer)) i++;
 				else if (TryWriteTypeInfo(writer, value)) i++;
+			    JsState.IsWritingDynamic = false;
 			}
 
 			if (PropertyWriters != null)
