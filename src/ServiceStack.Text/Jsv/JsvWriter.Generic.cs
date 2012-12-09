@@ -61,7 +61,7 @@ namespace ServiceStack.Text.Jsv
 			if (value == null) return;
 			var type = value.GetType();
 			var writeFn = type == typeof(object)
-                ? WriteType<object, JsvTypeSerializer>.WriteEmptyType
+                ? WriteType<object, JsvTypeSerializer>.WriteObjectType
 				: GetWriteFn(type);
 
 			var prevState = JsState.IsWritingDynamic;

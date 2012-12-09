@@ -99,7 +99,7 @@ namespace ServiceStack.Text.Json
 
 			var type = value.GetType();
 			var writeFn = type == typeof(object)
-				? WriteType<object, JsonTypeSerializer>.WriteEmptyType
+				? WriteType<object, JsonTypeSerializer>.WriteObjectType
 				: GetWriteFn(type);
 
 			var prevState = JsState.IsWritingDynamic;
