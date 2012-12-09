@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
@@ -21,6 +18,12 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_parse_empty_array()
         {
             Assert.That(JsonArrayObjects.Parse("[]"), Is.Empty);
+        }
+
+        [Test]
+        public void Can_parse_empty_array_with_tab()
+        {
+            Assert.That(JsonArrayObjects.Parse("[\t]"), Is.Empty);
         }
 
         [Test]
@@ -47,6 +50,24 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_parse_empty_array_with_mixed_whitespaces()
         {
             Assert.That(JsonArrayObjects.Parse("[ \n\t  \n\r]"), Is.Empty);
+        }
+
+        public class NamesTest
+        {
+            public NamesTest(List<string> names)
+            {
+                Names = names;
+            }
+
+            public List<string> Names { get; set; }
+        }
+
+        [Test]
+        public void Can_parse_empty_array_in_dto_with_tab()
+        {
+            var prettyJson = "{\"Names\":[\t]}";
+            var oPretty = prettyJson.FromJson<NamesTest>();
+            Assert.That(oPretty.Names.Count, Is.EqualTo(0));
         }
     }
 }

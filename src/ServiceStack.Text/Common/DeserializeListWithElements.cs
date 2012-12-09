@@ -60,9 +60,13 @@ namespace ServiceStack.Text.Common
 
 			const int startQuotePos = 1;
 			const int endQuotePos = 2;
-			return value[0] == JsWriter.ListStartChar
+			var ret = value[0] == JsWriter.ListStartChar
 			       	? value.Substring(startQuotePos, value.Length - endQuotePos)
 			       	: value;
+
+		    var pos = 0;
+            Serializer.EatWhitespace(ret, ref pos);
+            return ret.Substring(pos, ret.Length - pos);
 		}
 
 		public static List<string> ParseStringList(string value)
