@@ -165,6 +165,9 @@
     <Compile Include="..\ServiceStack.Text\JsConfig.cs">
       <Link>JsConfig.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\JsConfigScope.cs">
+      <Link>JsConfigScope.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\JsonObject.cs">
       <Link>JsonObject.cs</Link>
     </Compile>
