@@ -23,198 +23,186 @@ namespace ServiceStack.Text
             Reset();
         }
 
-        [ThreadStatic]
-        private static bool? tsConvertObjectTypesIntoStringDictionary;
+        public static IDisposable BeginScope()
+        {
+            return new JsConfigScope();
+        }
+
+        static JsConfigScope CurrentScope()
+        {
+            return JsConfigScope.Current ?? new JsConfigScope();
+        }
+
         private static bool? sConvertObjectTypesIntoStringDictionary;
         public static bool ConvertObjectTypesIntoStringDictionary
         {
             get
             {
-                return tsConvertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary ?? false;
+                return CurrentScope().ConvertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary ?? false;
             }
             set
             {
-                tsConvertObjectTypesIntoStringDictionary = value;
+                CurrentScope().ConvertObjectTypesIntoStringDictionary = value;
                 if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
             }
         }
 
-        [ThreadStatic]
-        private static bool? tsTryToParsePrimitiveTypeValues;
         private static bool? sTryToParsePrimitiveTypeValues;
         public static bool TryToParsePrimitiveTypeValues
         {
             get
             {
-                return tsTryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues ?? false;
+                return CurrentScope().TryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues ?? false;
             }
             set
             {
-                tsTryToParsePrimitiveTypeValues = value;
+                CurrentScope().TryToParsePrimitiveTypeValues = value;
                 if (!sTryToParsePrimitiveTypeValues.HasValue) sTryToParsePrimitiveTypeValues = value;
             }
         }
 
-        [ThreadStatic]
-        private static bool? tsIncludeNullValues;
         private static bool? sIncludeNullValues;
         public static bool IncludeNullValues
         {
             get
             {
-                return tsIncludeNullValues ?? sIncludeNullValues ?? false;
+                return CurrentScope().IncludeNullValues ?? sIncludeNullValues ?? false;
             }
             set
             {
-                tsIncludeNullValues = value;
+                CurrentScope().IncludeNullValues = value;
                 if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
             }
         }
 
-        [ThreadStatic]
-        private static bool? tsTreatEnumAsInteger;
         private static bool? sTreatEnumAsInteger;
         public static bool TreatEnumAsInteger
         {
             get
             {
-                return tsTreatEnumAsInteger ?? sTreatEnumAsInteger ?? false;
+                return CurrentScope().TreatEnumAsInteger ?? sTreatEnumAsInteger ?? false;
             }
             set
             {
-                tsTreatEnumAsInteger = value;
+                CurrentScope().TreatEnumAsInteger = value;
                 if (!sTreatEnumAsInteger.HasValue) sTreatEnumAsInteger = value;
             }
         }
 
-        [ThreadStatic]
-        private static bool? tsExcludeTypeInfo;
         private static bool? sExcludeTypeInfo;
         public static bool ExcludeTypeInfo
         {
             get
             {
-                return tsExcludeTypeInfo ?? sExcludeTypeInfo ?? false;
+                return CurrentScope().ExcludeTypeInfo ?? sExcludeTypeInfo ?? false;
             }
             set
             {
-                tsExcludeTypeInfo = value;
+                CurrentScope().ExcludeTypeInfo = value;
                 if (!sExcludeTypeInfo.HasValue) sExcludeTypeInfo = value;
             }
         }
 
-        [ThreadStatic]
-        private static bool? tsForceTypeInfo;
         private static bool? sForceTypeInfo;
         public static bool IncludeTypeInfo
         {
             get
             {
-                return tsForceTypeInfo ?? sForceTypeInfo ?? false;
+                return CurrentScope().IncludeTypeInfo ?? sForceTypeInfo ?? false;
             }
             set
             {
-                if (!tsForceTypeInfo.HasValue) tsForceTypeInfo = value;
+                if (!CurrentScope().IncludeTypeInfo.HasValue)
+                    CurrentScope().IncludeTypeInfo = value;
+
                 if (!sForceTypeInfo.HasValue) sForceTypeInfo = value;
             }
         }
 
-        [ThreadStatic]
-        private static string tsTypeAttr;
         private static string sTypeAttr;
         public static string TypeAttr
         {
             get
             {
-                return tsTypeAttr ?? sTypeAttr ?? JsWriter.TypeAttr;
+                return CurrentScope().TypeAttr ?? sTypeAttr ?? JsWriter.TypeAttr;
             }
             set
             {
-                tsTypeAttr = value;
+                CurrentScope().TypeAttr = value;
                 if (sTypeAttr == null) sTypeAttr = value;
                 JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(value);
                 JsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(value);
             }
         }
 
-        [ThreadStatic]
-        private static string tsJsonTypeAttrInObject;
         private static string sJsonTypeAttrInObject;
         private static readonly string defaultJsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
         internal static string JsonTypeAttrInObject
         {
             get
             {
-                return tsJsonTypeAttrInObject ?? sJsonTypeAttrInObject ?? defaultJsonTypeAttrInObject;
+                return CurrentScope().JsonTypeAttrInObject ?? sJsonTypeAttrInObject ?? defaultJsonTypeAttrInObject;
             }
             set
             {
-                tsJsonTypeAttrInObject = value;
+                CurrentScope().JsonTypeAttrInObject = value;
                 if (sJsonTypeAttrInObject == null) sJsonTypeAttrInObject = value;
             }
         }
 
-        [ThreadStatic]
-        private static string tsJsvTypeAttrInObject;
         private static string sJsvTypeAttrInObject;
         private static readonly string defaultJsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
         internal static string JsvTypeAttrInObject
         {
             get
             {
-                return tsJsvTypeAttrInObject ?? sJsvTypeAttrInObject ?? defaultJsvTypeAttrInObject;
+                return CurrentScope().JsvTypeAttrInObject ?? sJsvTypeAttrInObject ?? defaultJsvTypeAttrInObject;
             }
             set
             {
-                tsJsvTypeAttrInObject = value;
+                CurrentScope().JsvTypeAttrInObject = value;
                 if (sJsvTypeAttrInObject == null) sJsvTypeAttrInObject = value;
             }
         }
 
-        [ThreadStatic]
-        private static Func<Type, string> tsTypeWriter;
         private static Func<Type, string> sTypeWriter;
         public static Func<Type, string> TypeWriter
         {
             get
             {
-                return tsTypeWriter ?? sTypeWriter ?? AssemblyUtils.WriteType;
+                return CurrentScope().TypeWriter ?? sTypeWriter ?? AssemblyUtils.WriteType;
             }
             set
             {
-                tsTypeWriter = value;
+                CurrentScope().TypeWriter = value;
                 if (sTypeWriter == null) sTypeWriter = value;
             }
         }
 
-        [ThreadStatic]
-        private static Func<string, Type> tsTypeFinder;
         private static Func<string, Type> sTypeFinder;
         public static Func<string, Type> TypeFinder
         {
             get
             {
-                return tsTypeFinder ?? sTypeFinder ?? AssemblyUtils.FindType;
+                return CurrentScope().TypeFinder ?? sTypeFinder ?? AssemblyUtils.FindType;
             }
             set
             {
-                tsTypeFinder = value;
+                CurrentScope().TypeFinder = value;
                 if (sTypeFinder == null) sTypeFinder = value;
             }
         }
 
-        [ThreadStatic]
-        private static JsonDateHandler? tsDateHandler;
         private static JsonDateHandler? sDateHandler;
         public static JsonDateHandler DateHandler
         {
             get
             {
-                return tsDateHandler ?? sDateHandler ?? JsonDateHandler.TimestampOffset;
+                return CurrentScope().DateHandler ?? sDateHandler ?? JsonDateHandler.TimestampOffset;
             }
             set
             {
-                tsDateHandler = value;
+                CurrentScope().DateHandler = value;
                 if (!sDateHandler.HasValue) sDateHandler = value;
             }
         }
@@ -230,19 +218,17 @@ namespace ServiceStack.Text
         /// to support user-friendly serialized formats, ie emitting camelCasing for JSON
         /// and parsing member names and enum values in a case-insensitive manner.
         /// </summary>
-        [ThreadStatic]
-        private static bool? tsEmitCamelCaseNames;
         private static bool? sEmitCamelCaseNames;
         public static bool EmitCamelCaseNames
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsEmitCamelCaseNames ?? sEmitCamelCaseNames ?? false;
+                return CurrentScope().EmitCamelCaseNames ?? sEmitCamelCaseNames ?? false;
             }
             set
             {
-                tsEmitCamelCaseNames = value;
+                CurrentScope().EmitCamelCaseNames = value;
                 if (!sEmitCamelCaseNames.HasValue) sEmitCamelCaseNames = value;
             }
         }
@@ -251,19 +237,17 @@ namespace ServiceStack.Text
         /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
         /// to support web-friendly serialized formats, ie emitting lowercase_underscore_casing for JSON
         /// </summary>
-        [ThreadStatic]
-        private static bool? tsEmitLowercaseUnderscoreNames;
         private static bool? sEmitLowercaseUnderscoreNames;
         public static bool EmitLowercaseUnderscoreNames
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsEmitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames ?? false;
+                return CurrentScope().EmitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames ?? false;
             }
             set
             {
-                tsEmitLowercaseUnderscoreNames = value;
+                CurrentScope().EmitLowercaseUnderscoreNames = value;
                 if (!sEmitLowercaseUnderscoreNames.HasValue) sEmitLowercaseUnderscoreNames = value;
             }
         }
@@ -296,19 +280,17 @@ namespace ServiceStack.Text
         /// or continue regardless of deserialization errors. If <see langword="true"/>  the framework
         /// will throw; otherwise, it will parse as many fields as possible. The default is <see langword="false"/>.
         /// </summary>
-        [ThreadStatic]
-        private static bool? tsThrowOnDeserializationError;
         private static bool? sThrowOnDeserializationError;
         public static bool ThrowOnDeserializationError
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsThrowOnDeserializationError ?? sThrowOnDeserializationError ?? false;
+                return CurrentScope().ThrowOnDeserializationError ?? sThrowOnDeserializationError ?? false;
             }
             set
             {
-                tsThrowOnDeserializationError = value;
+                CurrentScope().ThrowOnDeserializationError = value;
                 if (!sThrowOnDeserializationError.HasValue) sThrowOnDeserializationError = value;
             }
         }
@@ -316,19 +298,17 @@ namespace ServiceStack.Text
         /// <summary>
         /// Gets or sets a value indicating if the framework should always convert <see cref="DateTime"/> to UTC format instead of local time. 
         /// </summary>
-        [ThreadStatic]
-        private static bool? tsAlwaysUseUtc;
         private static bool? sAlwaysUseUtc;
         public static bool AlwaysUseUtc
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsAlwaysUseUtc ?? sAlwaysUseUtc ?? false;
+                return CurrentScope().AlwaysUseUtc ?? sAlwaysUseUtc ?? false;
             }
             set
             {
-                tsAlwaysUseUtc = value;
+                CurrentScope().AlwaysUseUtc = value;
                 if (!sAlwaysUseUtc.HasValue) sAlwaysUseUtc = value;
             }
         }
@@ -337,8 +317,6 @@ namespace ServiceStack.Text
 
         internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
-        [ThreadStatic]
-        private static bool? tsPreferInterfaces;
         private static bool? sPreferInterfaces;
         /// <summary>
         /// If set to true, Interface types will be prefered over concrete types when serializing.
@@ -347,11 +325,11 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsPreferInterfaces ?? sPreferInterfaces ?? false;
+                return CurrentScope().PreferInterfaces ?? sPreferInterfaces ?? false;
             }
             set
             {
-                tsPreferInterfaces = value;
+                CurrentScope().PreferInterfaces = value;
                 if (!sPreferInterfaces.HasValue) sPreferInterfaces = value;
             }
         }
@@ -364,22 +342,23 @@ namespace ServiceStack.Text
         public static void Reset()
         {
             ModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
-            tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
-            tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
-            tsIncludeNullValues = sIncludeNullValues = null;
-            tsExcludeTypeInfo = sExcludeTypeInfo = null;
-            tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
-            tsEmitLowercaseUnderscoreNames = sEmitLowercaseUnderscoreNames = null;
-            tsDateHandler = sDateHandler = null;
-            tsPreferInterfaces = sPreferInterfaces = null;
-            tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
-            tsTypeAttr = sTypeAttr = null;
-            tsJsonTypeAttrInObject = sJsonTypeAttrInObject = null;
-            tsJsvTypeAttrInObject = sJsvTypeAttrInObject = null;
-            tsTypeWriter = sTypeWriter = null;
-            tsTypeFinder = sTypeFinder = null;
-			tsTreatEnumAsInteger = sTreatEnumAsInteger = null;
-            tsAlwaysUseUtc = sAlwaysUseUtc = null;
+            sTryToParsePrimitiveTypeValues = null;
+            sConvertObjectTypesIntoStringDictionary = null;
+            sIncludeNullValues = null;
+            sExcludeTypeInfo = null;
+            sEmitCamelCaseNames = null;
+            sEmitLowercaseUnderscoreNames = null;
+            sDateHandler = null;
+            sPreferInterfaces = null;
+            sThrowOnDeserializationError = null;
+            sTypeAttr = null;
+            sJsonTypeAttrInObject = null;
+            sJsvTypeAttrInObject = null;
+            sTypeWriter = null;
+            sTypeFinder = null;
+			sTreatEnumAsInteger = null;
+            sAlwaysUseUtc = null;
+            JsConfigScope.DisposeCurrent();
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
