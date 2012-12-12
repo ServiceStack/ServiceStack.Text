@@ -28,181 +28,234 @@ namespace ServiceStack.Text
             return new JsConfigScope();
         }
 
-        static JsConfigScope CurrentScope()
-        {
-            return JsConfigScope.Current ?? new JsConfigScope();
-        }
-
+        [ThreadStatic]
+        private static bool? tsConvertObjectTypesIntoStringDictionary;
         private static bool? sConvertObjectTypesIntoStringDictionary;
         public static bool ConvertObjectTypesIntoStringDictionary
         {
             get
             {
-                return CurrentScope().ConvertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ConvertObjectTypesIntoStringDictionary: null)
+                    ?? tsConvertObjectTypesIntoStringDictionary 
+                    ?? sConvertObjectTypesIntoStringDictionary 
+                    ?? false;
             }
             set
             {
-                CurrentScope().ConvertObjectTypesIntoStringDictionary = value;
+                tsConvertObjectTypesIntoStringDictionary = value;
                 if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
             }
         }
 
+        [ThreadStatic]
+        private static bool? tsTryToParsePrimitiveTypeValues;
         private static bool? sTryToParsePrimitiveTypeValues;
         public static bool TryToParsePrimitiveTypeValues
         {
             get
             {
-                return CurrentScope().TryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParsePrimitiveTypeValues: null)
+                    ?? tsTryToParsePrimitiveTypeValues
+                    ?? sTryToParsePrimitiveTypeValues 
+                    ?? false;
             }
             set
             {
-                CurrentScope().TryToParsePrimitiveTypeValues = value;
+                tsTryToParsePrimitiveTypeValues = value;
                 if (!sTryToParsePrimitiveTypeValues.HasValue) sTryToParsePrimitiveTypeValues = value;
             }
         }
 
+        [ThreadStatic]
+        private static bool? tsIncludeNullValues;
         private static bool? sIncludeNullValues;
         public static bool IncludeNullValues
         {
             get
             {
-                return CurrentScope().IncludeNullValues ?? sIncludeNullValues ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValues: null)
+                    ?? tsIncludeNullValues
+                    ?? sIncludeNullValues 
+                    ?? false;
             }
             set
             {
-                CurrentScope().IncludeNullValues = value;
+                tsIncludeNullValues = value;
                 if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
             }
         }
 
+        [ThreadStatic]
+        private static bool? tsTreatEnumAsInteger;
         private static bool? sTreatEnumAsInteger;
         public static bool TreatEnumAsInteger
         {
             get
             {
-                return CurrentScope().TreatEnumAsInteger ?? sTreatEnumAsInteger ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TreatEnumAsInteger: null)
+                    ?? tsTreatEnumAsInteger
+                    ?? sTreatEnumAsInteger 
+                    ?? false;
             }
             set
             {
-                CurrentScope().TreatEnumAsInteger = value;
+                tsTreatEnumAsInteger = value;
                 if (!sTreatEnumAsInteger.HasValue) sTreatEnumAsInteger = value;
             }
         }
 
+        [ThreadStatic]
+        private static bool? tsExcludeTypeInfo;
         private static bool? sExcludeTypeInfo;
         public static bool ExcludeTypeInfo
         {
             get
             {
-                return CurrentScope().ExcludeTypeInfo ?? sExcludeTypeInfo ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypeInfo: null)
+                    ?? tsExcludeTypeInfo
+                    ?? sExcludeTypeInfo 
+                    ?? false;
             }
             set
             {
-                CurrentScope().ExcludeTypeInfo = value;
+                tsExcludeTypeInfo = value;
                 if (!sExcludeTypeInfo.HasValue) sExcludeTypeInfo = value;
             }
         }
 
+        [ThreadStatic]
+        private static bool? tsForceTypeInfo;
         private static bool? sForceTypeInfo;
         public static bool IncludeTypeInfo
         {
             get
             {
-                return CurrentScope().IncludeTypeInfo ?? sForceTypeInfo ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeTypeInfo: null)
+                    ?? tsForceTypeInfo
+                    ?? sForceTypeInfo 
+                    ?? false;
             }
             set
             {
-                if (!CurrentScope().IncludeTypeInfo.HasValue)
-                    CurrentScope().IncludeTypeInfo = value;
-
+                if (!tsForceTypeInfo.HasValue) tsForceTypeInfo = value;
                 if (!sForceTypeInfo.HasValue) sForceTypeInfo = value;
             }
         }
 
+        [ThreadStatic]
+        private static string tsTypeAttr;
         private static string sTypeAttr;
         public static string TypeAttr
         {
             get
             {
-                return CurrentScope().TypeAttr ?? sTypeAttr ?? JsWriter.TypeAttr;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeAttr: null)
+                    ?? tsTypeAttr
+                    ?? sTypeAttr 
+                    ?? JsWriter.TypeAttr;
             }
             set
             {
-                CurrentScope().TypeAttr = value;
+                tsTypeAttr = value;
                 if (sTypeAttr == null) sTypeAttr = value;
                 JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(value);
                 JsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(value);
             }
         }
 
+        [ThreadStatic]
+        private static string tsJsonTypeAttrInObject;
         private static string sJsonTypeAttrInObject;
         private static readonly string defaultJsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
         internal static string JsonTypeAttrInObject
         {
             get
             {
-                return CurrentScope().JsonTypeAttrInObject ?? sJsonTypeAttrInObject ?? defaultJsonTypeAttrInObject;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsonTypeAttrInObject: null)
+                    ?? tsJsonTypeAttrInObject
+                    ?? sJsonTypeAttrInObject 
+                    ?? defaultJsonTypeAttrInObject;
             }
             set
             {
-                CurrentScope().JsonTypeAttrInObject = value;
+                tsJsonTypeAttrInObject = value;
                 if (sJsonTypeAttrInObject == null) sJsonTypeAttrInObject = value;
             }
         }
 
+        [ThreadStatic]
+        private static string tsJsvTypeAttrInObject;
         private static string sJsvTypeAttrInObject;
         private static readonly string defaultJsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
         internal static string JsvTypeAttrInObject
         {
             get
             {
-                return CurrentScope().JsvTypeAttrInObject ?? sJsvTypeAttrInObject ?? defaultJsvTypeAttrInObject;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsvTypeAttrInObject: null)
+                    ?? tsJsvTypeAttrInObject
+                    ?? sJsvTypeAttrInObject 
+                    ?? defaultJsvTypeAttrInObject;
             }
             set
             {
-                CurrentScope().JsvTypeAttrInObject = value;
+                tsJsvTypeAttrInObject = value;
                 if (sJsvTypeAttrInObject == null) sJsvTypeAttrInObject = value;
             }
         }
 
+        [ThreadStatic]
+        private static Func<Type, string> tsTypeWriter;
         private static Func<Type, string> sTypeWriter;
         public static Func<Type, string> TypeWriter
         {
             get
             {
-                return CurrentScope().TypeWriter ?? sTypeWriter ?? AssemblyUtils.WriteType;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeWriter: null)
+                    ?? tsTypeWriter
+                    ?? sTypeWriter 
+                    ?? AssemblyUtils.WriteType;
             }
             set
             {
-                CurrentScope().TypeWriter = value;
+                tsTypeWriter = value;
                 if (sTypeWriter == null) sTypeWriter = value;
             }
         }
 
+        [ThreadStatic]
+        private static Func<string, Type> tsTypeFinder;
         private static Func<string, Type> sTypeFinder;
         public static Func<string, Type> TypeFinder
         {
             get
             {
-                return CurrentScope().TypeFinder ?? sTypeFinder ?? AssemblyUtils.FindType;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeFinder: null)
+                    ?? tsTypeFinder
+                    ?? sTypeFinder 
+                    ?? AssemblyUtils.FindType;
             }
             set
             {
-                CurrentScope().TypeFinder = value;
+                tsTypeFinder = value;
                 if (sTypeFinder == null) sTypeFinder = value;
             }
         }
 
+        [ThreadStatic]
+        private static JsonDateHandler? tsDateHandler;
         private static JsonDateHandler? sDateHandler;
         public static JsonDateHandler DateHandler
         {
             get
             {
-                return CurrentScope().DateHandler ?? sDateHandler ?? JsonDateHandler.TimestampOffset;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.DateHandler: null)
+                    ?? tsDateHandler
+                    ?? sDateHandler 
+                    ?? JsonDateHandler.TimestampOffset;
             }
             set
             {
-                CurrentScope().DateHandler = value;
+                tsDateHandler = value;
                 if (!sDateHandler.HasValue) sDateHandler = value;
             }
         }
@@ -218,17 +271,22 @@ namespace ServiceStack.Text
         /// to support user-friendly serialized formats, ie emitting camelCasing for JSON
         /// and parsing member names and enum values in a case-insensitive manner.
         /// </summary>
+        [ThreadStatic]
+        private static bool? tsEmitCamelCaseNames;
         private static bool? sEmitCamelCaseNames;
         public static bool EmitCamelCaseNames
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return CurrentScope().EmitCamelCaseNames ?? sEmitCamelCaseNames ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames: null)
+                    ?? tsEmitCamelCaseNames
+                    ?? sEmitCamelCaseNames 
+                    ?? false;
             }
             set
             {
-                CurrentScope().EmitCamelCaseNames = value;
+                tsEmitCamelCaseNames = value;
                 if (!sEmitCamelCaseNames.HasValue) sEmitCamelCaseNames = value;
             }
         }
@@ -237,17 +295,22 @@ namespace ServiceStack.Text
         /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
         /// to support web-friendly serialized formats, ie emitting lowercase_underscore_casing for JSON
         /// </summary>
+        [ThreadStatic]
+        private static bool? tsEmitLowercaseUnderscoreNames;
         private static bool? sEmitLowercaseUnderscoreNames;
         public static bool EmitLowercaseUnderscoreNames
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return CurrentScope().EmitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitLowercaseUnderscoreNames: null)
+                    ?? tsEmitLowercaseUnderscoreNames
+                    ?? sEmitLowercaseUnderscoreNames 
+                    ?? false;
             }
             set
             {
-                CurrentScope().EmitLowercaseUnderscoreNames = value;
+                tsEmitLowercaseUnderscoreNames = value;
                 if (!sEmitLowercaseUnderscoreNames.HasValue) sEmitLowercaseUnderscoreNames = value;
             }
         }
@@ -280,17 +343,22 @@ namespace ServiceStack.Text
         /// or continue regardless of deserialization errors. If <see langword="true"/>  the framework
         /// will throw; otherwise, it will parse as many fields as possible. The default is <see langword="false"/>.
         /// </summary>
+        [ThreadStatic]
+        private static bool? tsThrowOnDeserializationError;
         private static bool? sThrowOnDeserializationError;
         public static bool ThrowOnDeserializationError
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return CurrentScope().ThrowOnDeserializationError ?? sThrowOnDeserializationError ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnDeserializationError: null)
+                    ?? tsThrowOnDeserializationError
+                    ?? sThrowOnDeserializationError 
+                    ?? false;
             }
             set
             {
-                CurrentScope().ThrowOnDeserializationError = value;
+                tsThrowOnDeserializationError = value;
                 if (!sThrowOnDeserializationError.HasValue) sThrowOnDeserializationError = value;
             }
         }
@@ -298,17 +366,22 @@ namespace ServiceStack.Text
         /// <summary>
         /// Gets or sets a value indicating if the framework should always convert <see cref="DateTime"/> to UTC format instead of local time. 
         /// </summary>
+        [ThreadStatic]
+        private static bool? tsAlwaysUseUtc;
         private static bool? sAlwaysUseUtc;
         public static bool AlwaysUseUtc
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return CurrentScope().AlwaysUseUtc ?? sAlwaysUseUtc ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.AlwaysUseUtc: null)
+                    ?? tsAlwaysUseUtc
+                    ?? sAlwaysUseUtc 
+                    ?? false;
             }
             set
             {
-                CurrentScope().AlwaysUseUtc = value;
+                tsAlwaysUseUtc = value;
                 if (!sAlwaysUseUtc.HasValue) sAlwaysUseUtc = value;
             }
         }
@@ -317,6 +390,8 @@ namespace ServiceStack.Text
 
         internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
+        [ThreadStatic]
+        private static bool? tsPreferInterfaces;
         private static bool? sPreferInterfaces;
         /// <summary>
         /// If set to true, Interface types will be prefered over concrete types when serializing.
@@ -325,11 +400,14 @@ namespace ServiceStack.Text
         {
             get
             {
-                return CurrentScope().PreferInterfaces ?? sPreferInterfaces ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.PreferInterfaces: null)
+                    ?? tsPreferInterfaces
+                    ?? sPreferInterfaces 
+                    ?? false;
             }
             set
             {
-                CurrentScope().PreferInterfaces = value;
+                tsPreferInterfaces = value;
                 if (!sPreferInterfaces.HasValue) sPreferInterfaces = value;
             }
         }
@@ -342,23 +420,22 @@ namespace ServiceStack.Text
         public static void Reset()
         {
             ModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
-            sTryToParsePrimitiveTypeValues = null;
-            sConvertObjectTypesIntoStringDictionary = null;
-            sIncludeNullValues = null;
-            sExcludeTypeInfo = null;
-            sEmitCamelCaseNames = null;
-            sEmitLowercaseUnderscoreNames = null;
-            sDateHandler = null;
-            sPreferInterfaces = null;
-            sThrowOnDeserializationError = null;
-            sTypeAttr = null;
-            sJsonTypeAttrInObject = null;
-            sJsvTypeAttrInObject = null;
-            sTypeWriter = null;
-            sTypeFinder = null;
-			sTreatEnumAsInteger = null;
-            sAlwaysUseUtc = null;
-            JsConfigScope.DisposeCurrent();
+            tsTryToParsePrimitiveTypeValues = sTryToParsePrimitiveTypeValues = null;
+            tsConvertObjectTypesIntoStringDictionary = sConvertObjectTypesIntoStringDictionary = null;
+            tsIncludeNullValues = sIncludeNullValues = null;
+            tsExcludeTypeInfo = sExcludeTypeInfo = null;
+            tsEmitCamelCaseNames = sEmitCamelCaseNames = null;
+            tsEmitLowercaseUnderscoreNames = sEmitLowercaseUnderscoreNames = null;
+            tsDateHandler = sDateHandler = null;
+            tsPreferInterfaces = sPreferInterfaces = null;
+            tsThrowOnDeserializationError = sThrowOnDeserializationError = null;
+            tsTypeAttr = sTypeAttr = null;
+            tsJsonTypeAttrInObject = sJsonTypeAttrInObject = null;
+            tsJsvTypeAttrInObject = sJsvTypeAttrInObject = null;
+            tsTypeWriter = sTypeWriter = null;
+            tsTypeFinder = sTypeFinder = null;
+            tsTreatEnumAsInteger = sTreatEnumAsInteger = null;
+            tsAlwaysUseUtc = sAlwaysUseUtc = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
@@ -370,13 +447,13 @@ namespace ServiceStack.Text
         /// Just needs to be called once in a static constructor.
         /// </summary>
         [MonoTouch.Foundation.Preserve]
-		public static void InitForAot() { 
-		}
+        public static void InitForAot() { 
+        }
 
         [MonoTouch.Foundation.Preserve]
         public static void RegisterForAot()
         {
-			RegisterTypeForAot<Poco>();
+            RegisterTypeForAot<Poco>();
 
             RegisterElement<Poco, string>();
 
@@ -389,7 +466,7 @@ namespace ServiceStack.Text
             RegisterElement<Poco, int>();
             RegisterElement<Poco, uint>();
 
-			RegisterElement<Poco, long>();
+            RegisterElement<Poco, long>();
             RegisterElement<Poco, ulong>();
             RegisterElement<Poco, float>();
             RegisterElement<Poco, double>();
@@ -409,24 +486,24 @@ namespace ServiceStack.Text
             RegisterElement<Poco, double?>();
             RegisterElement<Poco, decimal?>();
 
-			//RegisterElement<Poco, JsonValue>();
+            //RegisterElement<Poco, JsonValue>();
 
-			RegisterTypeForAot<DayOfWeek>(); // used by DateTime
+            RegisterTypeForAot<DayOfWeek>(); // used by DateTime
 
-			// register built in structs
-			RegisterTypeForAot<Guid>();
-			RegisterTypeForAot<TimeSpan>();
-			RegisterTypeForAot<DateTime>();
-			RegisterTypeForAot<DateTime?>();
-			RegisterTypeForAot<TimeSpan?>();
-			RegisterTypeForAot<Guid?>();
+            // register built in structs
+            RegisterTypeForAot<Guid>();
+            RegisterTypeForAot<TimeSpan>();
+            RegisterTypeForAot<DateTime>();
+            RegisterTypeForAot<DateTime?>();
+            RegisterTypeForAot<TimeSpan?>();
+            RegisterTypeForAot<Guid?>();
         }
 
-		[MonoTouch.Foundation.Preserve]
-		public static void RegisterTypeForAot<T>()
-		{
-			AotConfig.RegisterSerializers<T>();
-		}
+        [MonoTouch.Foundation.Preserve]
+        public static void RegisterTypeForAot<T>()
+        {
+            AotConfig.RegisterSerializers<T>();
+        }
 
         [MonoTouch.Foundation.Preserve]
         static void RegisterQueryStringWriter()
@@ -434,149 +511,149 @@ namespace ServiceStack.Text
             var i = 0;
             if (QueryStringWriter<Poco>.WriteFn() != null) i++;
         }
-		        
+                
         [MonoTouch.Foundation.Preserve]
-		internal static int RegisterElement<T, TElement>()
+        internal static int RegisterElement<T, TElement>()
         {
-			var i = 0;
-			i += AotConfig.RegisterSerializers<TElement>();
-			AotConfig.RegisterElement<T, TElement, JsonTypeSerializer>();
-			AotConfig.RegisterElement<T, TElement, JsvTypeSerializer>();
-			return i;
-		}
+            var i = 0;
+            i += AotConfig.RegisterSerializers<TElement>();
+            AotConfig.RegisterElement<T, TElement, JsonTypeSerializer>();
+            AotConfig.RegisterElement<T, TElement, JsvTypeSerializer>();
+            return i;
+        }
 
-		///<summary>
-		/// Class contains Ahead-of-Time (AOT) explicit class declarations which is used only to workaround "-aot-only" exceptions occured on device only. 
-		/// </summary>			
-		[MonoTouch.Foundation.Preserve(AllMembers=true)]
-		internal class AotConfig
-		{
-			internal static JsReader<JsonTypeSerializer> jsonReader;
-			internal static JsWriter<JsonTypeSerializer> jsonWriter;
-			internal static JsReader<JsvTypeSerializer> jsvReader;
-			internal static JsWriter<JsvTypeSerializer> jsvWriter;
-			internal static JsonTypeSerializer jsonSerializer;
-			internal static JsvTypeSerializer jsvSerializer;
+        ///<summary>
+        /// Class contains Ahead-of-Time (AOT) explicit class declarations which is used only to workaround "-aot-only" exceptions occured on device only. 
+        /// </summary>			
+        [MonoTouch.Foundation.Preserve(AllMembers=true)]
+        internal class AotConfig
+        {
+            internal static JsReader<JsonTypeSerializer> jsonReader;
+            internal static JsWriter<JsonTypeSerializer> jsonWriter;
+            internal static JsReader<JsvTypeSerializer> jsvReader;
+            internal static JsWriter<JsvTypeSerializer> jsvWriter;
+            internal static JsonTypeSerializer jsonSerializer;
+            internal static JsvTypeSerializer jsvSerializer;
 
-			static AotConfig()
-			{
-				jsonSerializer = new JsonTypeSerializer();
-				jsvSerializer = new JsvTypeSerializer();
-				jsonReader = new JsReader<JsonTypeSerializer>();
-				jsonWriter = new JsWriter<JsonTypeSerializer>();
-				jsvReader = new JsReader<JsvTypeSerializer>();
-				jsvWriter = new JsWriter<JsvTypeSerializer>();
-			}
+            static AotConfig()
+            {
+                jsonSerializer = new JsonTypeSerializer();
+                jsvSerializer = new JsvTypeSerializer();
+                jsonReader = new JsReader<JsonTypeSerializer>();
+                jsonWriter = new JsWriter<JsonTypeSerializer>();
+                jsvReader = new JsReader<JsvTypeSerializer>();
+                jsvWriter = new JsWriter<JsvTypeSerializer>();
+            }
 
-			internal static int RegisterSerializers<T>()
-			{
-				var i = 0;
-				i += Register<T, JsonTypeSerializer>();
-				if (jsonSerializer.GetParseFn<T>() != null) i++;
-				if (jsonSerializer.GetWriteFn<T>() != null) i++;
-				if (jsonReader.GetParseFn<T>() != null) i++;
-				if (jsonWriter.GetWriteFn<T>() != null) i++;
+            internal static int RegisterSerializers<T>()
+            {
+                var i = 0;
+                i += Register<T, JsonTypeSerializer>();
+                if (jsonSerializer.GetParseFn<T>() != null) i++;
+                if (jsonSerializer.GetWriteFn<T>() != null) i++;
+                if (jsonReader.GetParseFn<T>() != null) i++;
+                if (jsonWriter.GetWriteFn<T>() != null) i++;
 
-				i += Register<T, JsvTypeSerializer>();
-				if (jsvSerializer.GetParseFn<T>() != null) i++;
-				if (jsvSerializer.GetWriteFn<T>() != null) i++;
-				if (jsvReader.GetParseFn<T>() != null) i++;
-				if (jsvWriter.GetWriteFn<T>() != null) i++;
+                i += Register<T, JsvTypeSerializer>();
+                if (jsvSerializer.GetParseFn<T>() != null) i++;
+                if (jsvSerializer.GetWriteFn<T>() != null) i++;
+                if (jsvReader.GetParseFn<T>() != null) i++;
+                if (jsvWriter.GetWriteFn<T>() != null) i++;
 
 
-				//RegisterCsvSerializer<T>();
-				RegisterQueryStringWriter();
-				return i;
-			}
+                //RegisterCsvSerializer<T>();
+                RegisterQueryStringWriter();
+                return i;
+            }
 
-			internal static void RegisterCsvSerializer<T>()
-			{
-				CsvSerializer<T>.WriteFn();
-				CsvSerializer<T>.WriteObject(null, null);
-				CsvWriter<T>.Write(null, default(IEnumerable<T>));
-				CsvWriter<T>.WriteRow(null, default(T));
-			}
+            internal static void RegisterCsvSerializer<T>()
+            {
+                CsvSerializer<T>.WriteFn();
+                CsvSerializer<T>.WriteObject(null, null);
+                CsvWriter<T>.Write(null, default(IEnumerable<T>));
+                CsvWriter<T>.WriteRow(null, default(T));
+            }
 
-			public static ParseStringDelegate GetParseFn(Type type)
-			{
-				var parseFn = JsonTypeSerializer.Instance.GetParseFn(type);
-				return parseFn;
-			}
+            public static ParseStringDelegate GetParseFn(Type type)
+            {
+                var parseFn = JsonTypeSerializer.Instance.GetParseFn(type);
+                return parseFn;
+            }
 
-			internal static int Register<T, TSerializer>() where TSerializer : ITypeSerializer 
-			{
-				var i = 0;
+            internal static int Register<T, TSerializer>() where TSerializer : ITypeSerializer 
+            {
+                var i = 0;
 
-				if (JsonWriter<T>.WriteFn() != null) i++;
-				if (JsonWriter.Instance.GetWriteFn<T>() != null) i++;
-				if (JsonReader.Instance.GetParseFn<T>() != null) i++;
-				if (JsonReader<T>.Parse(null) != null) i++;
-				if (JsonReader<T>.GetParseFn() != null) i++;
-				//if (JsWriter.GetTypeSerializer<JsonTypeSerializer>().GetWriteFn<T>() != null) i++;
-				if (new List<T>() != null) i++;
-				if (new T[0] != null) i++;
+                if (JsonWriter<T>.WriteFn() != null) i++;
+                if (JsonWriter.Instance.GetWriteFn<T>() != null) i++;
+                if (JsonReader.Instance.GetParseFn<T>() != null) i++;
+                if (JsonReader<T>.Parse(null) != null) i++;
+                if (JsonReader<T>.GetParseFn() != null) i++;
+                //if (JsWriter.GetTypeSerializer<JsonTypeSerializer>().GetWriteFn<T>() != null) i++;
+                if (new List<T>() != null) i++;
+                if (new T[0] != null) i++;
 
-				JsConfig<T>.ExcludeTypeInfo = false;
-				
-				if (JsConfig<T>.OnDeserializedFn != null) i++;
-				if (JsConfig<T>.HasDeserializeFn) i++;
-				if (JsConfig<T>.SerializeFn != null) i++;
-				if (JsConfig<T>.DeSerializeFn != null) i++;
-				//JsConfig<T>.SerializeFn = arg => "";
-				//JsConfig<T>.DeSerializeFn = arg => default(T);
-				if (TypeConfig<T>.Properties != null) i++;
+                JsConfig<T>.ExcludeTypeInfo = false;
+                
+                if (JsConfig<T>.OnDeserializedFn != null) i++;
+                if (JsConfig<T>.HasDeserializeFn) i++;
+                if (JsConfig<T>.SerializeFn != null) i++;
+                if (JsConfig<T>.DeSerializeFn != null) i++;
+                //JsConfig<T>.SerializeFn = arg => "";
+                //JsConfig<T>.DeSerializeFn = arg => default(T);
+                if (TypeConfig<T>.Properties != null) i++;
 
 /*
-				if (WriteType<T, TSerializer>.Write != null) i++;
-				if (WriteType<object, TSerializer>.Write != null) i++;
-				
-				if (DeserializeBuiltin<T>.Parse != null) i++;
-				if (DeserializeArray<T[], TSerializer>.Parse != null) i++;
-				DeserializeType<TSerializer>.ExtractType(null);
-				DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(null, null);
-				DeserializeCollection<TSerializer>.ParseCollection<T>(null, null, null);
-				DeserializeListWithElements<T, TSerializer>.ParseGenericList(null, null, null);
+                if (WriteType<T, TSerializer>.Write != null) i++;
+                if (WriteType<object, TSerializer>.Write != null) i++;
+                
+                if (DeserializeBuiltin<T>.Parse != null) i++;
+                if (DeserializeArray<T[], TSerializer>.Parse != null) i++;
+                DeserializeType<TSerializer>.ExtractType(null);
+                DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(null, null);
+                DeserializeCollection<TSerializer>.ParseCollection<T>(null, null, null);
+                DeserializeListWithElements<T, TSerializer>.ParseGenericList(null, null, null);
 
-				SpecializedQueueElements<T>.ConvertToQueue(null);
-				SpecializedQueueElements<T>.ConvertToStack(null);
+                SpecializedQueueElements<T>.ConvertToQueue(null);
+                SpecializedQueueElements<T>.ConvertToStack(null);
 */
 
-				WriteListsOfElements<T, TSerializer>.WriteList(null, null);
-				WriteListsOfElements<T, TSerializer>.WriteIList(null, null);
-				WriteListsOfElements<T, TSerializer>.WriteEnumerable(null, null);
-				WriteListsOfElements<T, TSerializer>.WriteListValueType(null, null);
-				WriteListsOfElements<T, TSerializer>.WriteIListValueType(null, null);
-				WriteListsOfElements<T, TSerializer>.WriteGenericArrayValueType(null, null);
-				WriteListsOfElements<T, TSerializer>.WriteArray(null, null);
+                WriteListsOfElements<T, TSerializer>.WriteList(null, null);
+                WriteListsOfElements<T, TSerializer>.WriteIList(null, null);
+                WriteListsOfElements<T, TSerializer>.WriteEnumerable(null, null);
+                WriteListsOfElements<T, TSerializer>.WriteListValueType(null, null);
+                WriteListsOfElements<T, TSerializer>.WriteIListValueType(null, null);
+                WriteListsOfElements<T, TSerializer>.WriteGenericArrayValueType(null, null);
+                WriteListsOfElements<T, TSerializer>.WriteArray(null, null);
 
-				TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
-				TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
-				
-				QueryStringWriter<T>.WriteObject(null, null);
-				return i;
-			}
+                TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
+                TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
+                
+                QueryStringWriter<T>.WriteObject(null, null);
+                return i;
+            }
 
-			internal static void RegisterElement<T, TElement, TSerializer>() where TSerializer : ITypeSerializer
-			{
-				DeserializeDictionary<TSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
-				DeserializeDictionary<TSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
-				
-				ToStringDictionaryMethods<T, TElement, TSerializer>.WriteIDictionary(null, null, null, null);
-				ToStringDictionaryMethods<TElement, T, TSerializer>.WriteIDictionary(null, null, null, null);
-				
-				// Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
-				// No idea why this is happening because there is no visible exception raised.  Suspect MonoTouch is swallowing an AOT exception somewhere.
-				DeserializeArrayWithElements<TElement, TSerializer>.ParseGenericArray(null, null);
-				DeserializeListWithElements<TElement, TSerializer>.ParseGenericList(null, null, null);
-				
-				// Cannot use the line below for some unknown reason - when trying to compile to run on device, mtouch bombs during native code compile.
-				// Something about this line or its inner workings is offensive to mtouch. Luckily this was not needed for my List<Guide> issue.
-				// DeserializeCollection<JsonTypeSerializer>.ParseCollection<TElement>(null, null, null);
-				
-				TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
-				TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
-			}
-		}
+            internal static void RegisterElement<T, TElement, TSerializer>() where TSerializer : ITypeSerializer
+            {
+                DeserializeDictionary<TSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
+                DeserializeDictionary<TSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
+                
+                ToStringDictionaryMethods<T, TElement, TSerializer>.WriteIDictionary(null, null, null, null);
+                ToStringDictionaryMethods<TElement, T, TSerializer>.WriteIDictionary(null, null, null, null);
+                
+                // Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
+                // No idea why this is happening because there is no visible exception raised.  Suspect MonoTouch is swallowing an AOT exception somewhere.
+                DeserializeArrayWithElements<TElement, TSerializer>.ParseGenericArray(null, null);
+                DeserializeListWithElements<TElement, TSerializer>.ParseGenericList(null, null, null);
+                
+                // Cannot use the line below for some unknown reason - when trying to compile to run on device, mtouch bombs during native code compile.
+                // Something about this line or its inner workings is offensive to mtouch. Luckily this was not needed for my List<Guide> issue.
+                // DeserializeCollection<JsonTypeSerializer>.ParseCollection<TElement>(null, null, null);
+                
+                TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
+                TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
+            }
+        }
 
 #endif
 
