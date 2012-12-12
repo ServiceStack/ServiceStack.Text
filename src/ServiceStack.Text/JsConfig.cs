@@ -23,6 +23,11 @@ namespace ServiceStack.Text
             Reset();
         }
 
+        public static JsConfigScope BeginScope()
+        {
+            return new JsConfigScope();
+        }
+
         [ThreadStatic]
         private static bool? tsConvertObjectTypesIntoStringDictionary;
         private static bool? sConvertObjectTypesIntoStringDictionary;
@@ -30,7 +35,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsConvertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ConvertObjectTypesIntoStringDictionary: null)
+                    ?? tsConvertObjectTypesIntoStringDictionary 
+                    ?? sConvertObjectTypesIntoStringDictionary 
+                    ?? false;
             }
             set
             {
@@ -46,7 +54,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsTryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParsePrimitiveTypeValues: null)
+                    ?? tsTryToParsePrimitiveTypeValues
+                    ?? sTryToParsePrimitiveTypeValues 
+                    ?? false;
             }
             set
             {
@@ -62,7 +73,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsIncludeNullValues ?? sIncludeNullValues ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValues: null)
+                    ?? tsIncludeNullValues
+                    ?? sIncludeNullValues 
+                    ?? false;
             }
             set
             {
@@ -78,7 +92,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsTreatEnumAsInteger ?? sTreatEnumAsInteger ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TreatEnumAsInteger: null)
+                    ?? tsTreatEnumAsInteger
+                    ?? sTreatEnumAsInteger 
+                    ?? false;
             }
             set
             {
@@ -94,7 +111,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsExcludeTypeInfo ?? sExcludeTypeInfo ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypeInfo: null)
+                    ?? tsExcludeTypeInfo
+                    ?? sExcludeTypeInfo 
+                    ?? false;
             }
             set
             {
@@ -110,7 +130,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsForceTypeInfo ?? sForceTypeInfo ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeTypeInfo: null)
+                    ?? tsForceTypeInfo
+                    ?? sForceTypeInfo 
+                    ?? false;
             }
             set
             {
@@ -126,7 +149,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsTypeAttr ?? sTypeAttr ?? JsWriter.TypeAttr;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeAttr: null)
+                    ?? tsTypeAttr
+                    ?? sTypeAttr 
+                    ?? JsWriter.TypeAttr;
             }
             set
             {
@@ -145,7 +171,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsJsonTypeAttrInObject ?? sJsonTypeAttrInObject ?? defaultJsonTypeAttrInObject;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsonTypeAttrInObject: null)
+                    ?? tsJsonTypeAttrInObject
+                    ?? sJsonTypeAttrInObject 
+                    ?? defaultJsonTypeAttrInObject;
             }
             set
             {
@@ -162,7 +191,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsJsvTypeAttrInObject ?? sJsvTypeAttrInObject ?? defaultJsvTypeAttrInObject;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsvTypeAttrInObject: null)
+                    ?? tsJsvTypeAttrInObject
+                    ?? sJsvTypeAttrInObject 
+                    ?? defaultJsvTypeAttrInObject;
             }
             set
             {
@@ -178,7 +210,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsTypeWriter ?? sTypeWriter ?? AssemblyUtils.WriteType;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeWriter: null)
+                    ?? tsTypeWriter
+                    ?? sTypeWriter 
+                    ?? AssemblyUtils.WriteType;
             }
             set
             {
@@ -194,7 +229,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsTypeFinder ?? sTypeFinder ?? AssemblyUtils.FindType;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeFinder: null)
+                    ?? tsTypeFinder
+                    ?? sTypeFinder 
+                    ?? AssemblyUtils.FindType;
             }
             set
             {
@@ -210,7 +248,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsDateHandler ?? sDateHandler ?? JsonDateHandler.TimestampOffset;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.DateHandler: null)
+                    ?? tsDateHandler
+                    ?? sDateHandler 
+                    ?? JsonDateHandler.TimestampOffset;
             }
             set
             {
@@ -238,7 +279,10 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsEmitCamelCaseNames ?? sEmitCamelCaseNames ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames: null)
+                    ?? tsEmitCamelCaseNames
+                    ?? sEmitCamelCaseNames 
+                    ?? false;
             }
             set
             {
@@ -259,7 +303,10 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsEmitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitLowercaseUnderscoreNames: null)
+                    ?? tsEmitLowercaseUnderscoreNames
+                    ?? sEmitLowercaseUnderscoreNames 
+                    ?? false;
             }
             set
             {
@@ -304,7 +351,10 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsThrowOnDeserializationError ?? sThrowOnDeserializationError ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnDeserializationError: null)
+                    ?? tsThrowOnDeserializationError
+                    ?? sThrowOnDeserializationError 
+                    ?? false;
             }
             set
             {
@@ -324,7 +374,10 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return tsAlwaysUseUtc ?? sAlwaysUseUtc ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.AlwaysUseUtc: null)
+                    ?? tsAlwaysUseUtc
+                    ?? sAlwaysUseUtc 
+                    ?? false;
             }
             set
             {
@@ -347,7 +400,10 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsPreferInterfaces ?? sPreferInterfaces ?? false;
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.PreferInterfaces: null)
+                    ?? tsPreferInterfaces
+                    ?? sPreferInterfaces 
+                    ?? false;
             }
             set
             {

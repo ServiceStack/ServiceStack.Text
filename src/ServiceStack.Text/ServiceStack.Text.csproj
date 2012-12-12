@@ -185,6 +185,7 @@
     <Compile Include="JsConfig.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="JsConfigScope.cs" />
     <Compile Include="JsonObject.cs">
       <SubType>Code</SubType>
     </Compile>
