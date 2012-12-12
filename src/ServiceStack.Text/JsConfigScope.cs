@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace ServiceStack.Text
 {
-    internal sealed class JsConfigScope : IDisposable
+    public sealed class JsConfigScope : IDisposable
     {
         bool disposed;
         JsConfigScope parent;
@@ -15,14 +15,14 @@ namespace ServiceStack.Text
         [ThreadStatic]
         private static JsConfigScope head;
 
-        public JsConfigScope()
+        internal JsConfigScope()
         {
             Thread.BeginThreadAffinity();
             parent = head;
             head = this;
         }
 
-        public static JsConfigScope Current
+        internal static JsConfigScope Current
         {
             get
             {

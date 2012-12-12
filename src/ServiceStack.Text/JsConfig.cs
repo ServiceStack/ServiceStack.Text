@@ -23,7 +23,7 @@ namespace ServiceStack.Text
             Reset();
         }
 
-        public static IDisposable BeginScope()
+        public static JsConfigScope BeginScope()
         {
             return new JsConfigScope();
         }
