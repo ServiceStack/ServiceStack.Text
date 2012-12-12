@@ -264,6 +264,9 @@
     <Compile Include="..\..\ServiceStack.Text\CsvAttribute.cs">
       <Link>CsvAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\..\ServiceStack.Text\JsConfigScope.cs">
+      <Link>JsConfigScope.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\ServiceStack.Text\ServiceStack.Text.XBox360.csproj">
