@@ -228,7 +228,13 @@ namespace ServiceStack.Text.Common
                 return Serializer.WriteDecimal;
 
             if (type.IsEnum || type.UnderlyingSystemType.IsEnum)
-                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0 
+                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
+                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
+                    : Serializer.WriteEnum;
+
+            Type nullableType;
+            if ((nullableType = Nullable.GetUnderlyingType(type)) != null && nullableType.IsEnum)
+                return nullableType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
