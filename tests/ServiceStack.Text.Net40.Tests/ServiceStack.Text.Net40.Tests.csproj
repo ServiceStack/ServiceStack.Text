@@ -319,6 +319,7 @@
     <Compile Include="DynamicJsonTests.cs" />
     <Compile Include="ExpandoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="EnumTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceStack.Text.Net40\ServiceStack.Text.Net40.csproj">
