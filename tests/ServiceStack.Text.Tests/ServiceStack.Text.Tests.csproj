@@ -172,6 +172,7 @@
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
     <Compile Include="DateTimeOffsetAndTimeSpanTests.cs" />
+    <Compile Include="EnumTests.cs" />
     <Compile Include="JsonTests\BasicPropertiesTests.cs" />
     <Compile Include="JsonObjectTests.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
