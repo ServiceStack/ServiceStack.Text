@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -43,8 +43,8 @@ namespace ServiceStack.Text.Tests
 				NullableFlagsEnum = EnumWithFlags.Two,
 				NullableNoFlagsEnum = EnumWithoutFlags.Two
 			};
-			
-			var expected = "{\"FlagsEnum\":1,\"NoFlagsEnum\":\"One\",\"NullableFlagsEnum\":2,\"NullableNoFlagsEnum\":\"Two\"}";
+
+			const string expected = "{\"FlagsEnum\":1,\"NoFlagsEnum\":\"One\",\"NullableFlagsEnum\":2,\"NullableNoFlagsEnum\":\"Two\"}";
 			var text = JsonSerializer.SerializeToString(item);
 
 			Assert.AreEqual(expected, text);
