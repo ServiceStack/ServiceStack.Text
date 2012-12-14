@@ -5,26 +5,26 @@ namespace ServiceStack.Text.Tests
 {
 	[TestFixture]
 	public class EnumTests
-	{	
+	{
 		[SetUp]
 		public void SetUp()
 		{
 			JsConfig.Reset();
 		}
-		
+
 		public enum EnumWithoutFlags
 		{
 			One = 1,
 			Two = 2
 		}
-		
+
 		[Flags]
 		public enum EnumWithFlags
 		{
 			One = 1,
 			Two = 2
 		}
-		
+
 		public class ClassWithEnums
 		{
 			public EnumWithFlags FlagsEnum { get; set; }
@@ -32,7 +32,7 @@ namespace ServiceStack.Text.Tests
 			public EnumWithFlags? NullableFlagsEnum { get; set; }
 			public EnumWithoutFlags? NullableNoFlagsEnum { get; set; }
 		}
-		
+
 		[Test]
 		public void Can_correctly_serialize_enums()
 		{
@@ -46,7 +46,7 @@ namespace ServiceStack.Text.Tests
 			
 			var expected = "{\"FlagsEnum\":1,\"NoFlagsEnum\":\"One\",\"NullableFlagsEnum\":2,\"NullableNoFlagsEnum\":\"Two\"}";
 			var text = JsonSerializer.SerializeToString(item);
-			
+
 			Assert.AreEqual(expected, text);
 		}
 	}
