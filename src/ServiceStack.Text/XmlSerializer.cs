@@ -36,7 +36,8 @@ namespace ServiceStack.Text
             try
             {
 #if WINDOWS_PHONE
-                using (var reader = XmlDictionaryReader.Create(xml))
+                StringReader stringReader = new StringReader(xml);
+                using (var reader = XmlDictionaryReader.Create(stringReader))
                 {
                     var serializer = new DataContractSerializer(type);
                     return serializer.ReadObject(reader);
