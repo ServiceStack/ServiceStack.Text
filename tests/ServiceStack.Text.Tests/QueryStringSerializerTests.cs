@@ -57,6 +57,15 @@ namespace ServiceStack.Text.Tests
             Assert.That(QueryStringSerializer.SerializeToString(new {newline = "\r\n"}), Is.EqualTo("newline=%0d%0a"));
 	    }
 
+        [Test]
+        public void Can_serialize_array_of_strings_with_colon()
+        {
+            var t = new List<string>();
+            t.Add("Foo:Bar");
+            t.Add("Get:Out");
+            Assert.That(QueryStringSerializer.SerializeToString(new { list = t }), Is.EqualTo("list=[Foo%3aBar,Get%3aOut]"));
+        }
+
 	    [Test]
 	    public void Can_serialize_tab()
 	    {

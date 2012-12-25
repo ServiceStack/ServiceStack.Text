@@ -283,23 +283,26 @@ namespace ServiceStack.Text.Common
 
         public static void WriteQueryString(TextWriter writer, object value)
         {
-            var i = 0;
-            foreach (var propertyWriter in PropertyWriters)
+            try
             {
-                var propertyValue = propertyWriter.GetterFn((T)value);
-                if (propertyValue == null) continue;
-                var propertyValueString = propertyValue as string;
-                if (propertyValueString != null)
+                JsState.QueryStringMode = true;
+                var i = 0;
+                foreach (var propertyWriter in PropertyWriters)
                 {
-                    propertyValue = propertyValueString.UrlEncode();
+                    var propertyValue = propertyWriter.GetterFn((T) value);
+                    if (propertyValue == null) continue;
+
+                    if (i++ > 0)
+                        writer.Write('&');
+
+                    Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
+                    writer.Write('=');
+                    propertyWriter.WriteFn(writer, propertyValue);
                 }
-
-                if (i++ > 0)
-                    writer.Write('&');
-
-                Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
-                writer.Write('=');
-                propertyWriter.WriteFn(writer, propertyValue);
+            }
+            finally
+            {
+                JsState.QueryStringMode = false;
             }
         }
     }
