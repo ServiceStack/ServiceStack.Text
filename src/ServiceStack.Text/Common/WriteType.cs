@@ -12,6 +12,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Reflection;
 
@@ -141,13 +142,24 @@ namespace ServiceStack.Text.Common
                     ? propertyType.GetDefaultValue()
                     : null;
 
+                WriteObjectDelegate writeFn;
+
+                if (JsConfig.HasSerializeFn.Contains(propertyType))
+                {
+                    writeFn = JsConfig.GetWriteFn<TSerializer>(propertyType);
+                }
+                else
+                {
+                    writeFn = Serializer.GetWriteFn(propertyType);
+                }
+
                 PropertyWriters[i] = new TypePropertyWriter
                 (
                     propertyName,
                     propertyNameCLSFriendly,
                     propertyNameLowercaseUnderscore,
                     propertyInfo.GetValueGetter<T>(),
-                    Serializer.GetWriteFn(propertyType),
+                    writeFn,
                     suppressDefaultValue
                 );
             }
