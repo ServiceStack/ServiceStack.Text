@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
@@ -387,7 +388,7 @@ namespace ServiceStack.Text
         }
 
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
-
+        internal static Dictionary<Type, object> HashSerializeFn = new Dictionary<Type, object>();
         internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
         [ThreadStatic]
@@ -663,6 +664,31 @@ namespace ServiceStack.Text
         /// Return null if you don't know how to construct the type and the parameterless constructor will be used.
         /// </summary>
         public static EmptyCtorFactoryDelegate ModelFactory { get; set; }
+
+        internal static IDictionary<Type, WriteObjectDelegate> writeFnCache = new Dictionary<Type, WriteObjectDelegate>();
+
+        internal static bool RemoveCacheFn(Type cachedType)
+        {
+            return writeFnCache.Remove(cachedType);
+        }
+
+        internal static WriteObjectDelegate GetWriteFn<TSerializer>(Type propertyType) where TSerializer : ITypeSerializer
+        {
+            if (writeFnCache.ContainsKey(propertyType)) return writeFnCache[propertyType];
+
+            WriteObjectDelegate writeFn;
+            Type typeofClassWithGenericStaticMethod = typeof (JsConfig<>);
+            Type[] args = new[] {propertyType};
+            Type genericType = typeofClassWithGenericStaticMethod.MakeGenericType(args);
+            MethodInfo methodInfo = genericType
+                .GetMethod("WriteFn", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo generic = methodInfo.MakeGenericMethod(typeof (TSerializer));
+            writeFn = (WriteObjectDelegate) Delegate.CreateDelegate(typeof (WriteObjectDelegate), generic);
+            
+            writeFnCache.Add(propertyType, writeFn);
+
+            return writeFn;
+        }
     }
 
 #if MONOTOUCH
@@ -742,6 +768,8 @@ namespace ServiceStack.Text
             get { return rawSerializeFn; }
             set
             {
+                JsConfig.RemoveCacheFn(typeof (T));
+
                 rawSerializeFn = value;
                 if (value != null)
                     JsConfig.HasSerializeFn.Add(typeof(T));
