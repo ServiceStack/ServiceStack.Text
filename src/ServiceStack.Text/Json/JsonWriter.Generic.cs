@@ -25,6 +25,11 @@ namespace ServiceStack.Text.Json
 
 		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
 
+        public static bool RemoveWriteFn(Type type)
+        {
+            return WriteFnCache.Remove(type);
+        }
+
 		public static WriteObjectDelegate GetWriteFn(Type type)
 		{
 			try
