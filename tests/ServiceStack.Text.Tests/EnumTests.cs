@@ -59,6 +59,20 @@ namespace ServiceStack.Text.Tests
             Assert.AreEqual("0", val);
         }
 
+	    public enum SomeEnum
+	    {
+	        Value
+	    };
+
+        [Test]
+        public void CanSerializeDeserializeFlag()
+        {
+            //JsConfig.TreatEnumAsInteger = true;
+            var serialized =JsonSerializer.SerializeToString<SomeEnum>(SomeEnum.Value);
+            var deserialized = JsonSerializer.DeserializeFromString < SomeEnum>(serialized);
+            Assert.AreEqual(deserialized, SomeEnum.Value);
+        }
+
         [Test]
         public void CanSerializeSbyteFlag()
         {
