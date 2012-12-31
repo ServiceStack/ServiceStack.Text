@@ -49,6 +49,40 @@ namespace ServiceStack.Text.Tests
 
 			Assert.AreEqual(expected, text);
 		}
+
+        [Test]
+        public void CanSerializeIntFlag()
+        {
+            JsConfig.TreatEnumAsInteger = true;
+            var val = JsonSerializer.SerializeToString(FlagEnum.A);
+
+            Assert.AreEqual("0", val);
+        }
+
+        [Test]
+        public void CanSerializeSbyteFlag()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.TreatEnumAsInteger = true;
+            JsConfig.IncludeNullValues = true;
+            var val = JsonSerializer.SerializeToString(SbyteFlagEnum.A);
+
+            Assert.AreEqual("0", val);
+        }
+
+	    [Flags]
+	    public enum FlagEnum
+	    {
+	        A,
+	        B
+	    }
+
+	    [Flags]
+	    public enum SbyteFlagEnum: sbyte
+	    {
+	        A,
+	        B
+	    }
 	}
 }
 

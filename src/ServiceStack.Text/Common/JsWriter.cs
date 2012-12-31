@@ -124,6 +124,9 @@ namespace ServiceStack.Text.Common
 
             switch (typeCode)
             {
+                case TypeCode.SByte:
+                    writer.Write((sbyte) enumFlagValue);
+                    break;
                 case TypeCode.Byte:
                     writer.Write((byte)enumFlagValue);
                     break;
