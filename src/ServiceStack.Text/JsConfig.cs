@@ -440,6 +440,13 @@ namespace ServiceStack.Text
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
+
+            foreach (var rawSerializeType in writeFnCache.Keys.ToArray())
+            {
+                ClearRawSerializeFn(rawSerializeType);
+            }
+
+            writeFnCache.Clear();
         }
 
 #if MONOTOUCH
@@ -670,6 +677,17 @@ namespace ServiceStack.Text
         internal static bool RemoveCacheFn(Type cachedType)
         {
             return writeFnCache.Remove(cachedType);
+        }
+
+        internal static void ClearRawSerializeFn(Type propertyType)
+        {
+            //JsConfig<T>.Reset()
+            Type typeofClassWithGenericStaticMethod = typeof (JsConfig<>);
+            Type[] args = new[] {propertyType};
+            Type genericType = typeofClassWithGenericStaticMethod.MakeGenericType(args);
+            MethodInfo methodInfo = genericType
+                .GetMethod("Reset", BindingFlags.Static | BindingFlags.Public);
+            methodInfo.Invoke(null, null);
         }
 
         internal static WriteObjectDelegate GetWriteFn<TSerializer>(Type propertyType) where TSerializer : ITypeSerializer
