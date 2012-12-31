@@ -15,17 +15,29 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity;
         }
 
-		[Test]
+        [Test]
         public void Can_Serialize_AnonymousTypeProperties_WithCustomFunction()
-		{
-            JsConfig.Reset();
-
+        {
             // Arrange: this will enforce to create a byte[] serializer function
-		    JsonSerializer.SerializeToString(new byte[] { 1, 2, 3, 4, 5 });
+            JsonSerializer.SerializeToString(new byte[] {1, 2, 3, 4, 5});
 
-			var test = new { Name = "Test", Data = new byte[] { 1, 2, 3, 4, 5 } };
+            var test = new {Name = "Test", Data = new byte[] {1, 2, 3, 4, 5}};
 
             // Act: now we set a custom function for byte[]
+            JsConfig<byte[]>.RawSerializeFn = c =>
+                {
+                    var temp = new int[c.Length];
+                    Array.Copy(c, temp, c.Length);
+                    return JsonSerializer.SerializeToString(temp);
+                };
+            // Assert:
+            var json = JsonSerializer.SerializeToString(test);
+			Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":[1,2,3,4,5]}"));
+        }
+
+        [Test]
+        public void Reset_ShouldClear_JsConfigT_CachedFunctions(){
+            var test = new {Name = "Test", Data = new byte[] {1, 2, 3, 4, 5}};
 		    JsConfig<byte[]>.RawSerializeFn = c =>
 		        {
 		            var temp = new int[c.Length];
@@ -33,9 +45,13 @@ namespace ServiceStack.Text.Tests.JsonTests
 		            return JsonSerializer.SerializeToString(temp);
 		        };
 			var json = JsonSerializer.SerializeToString(test);
-
-            // Assert:
+    
 			Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":[1,2,3,4,5]}"));
+            // Act: now we set a custom function for byte[]
+            JsConfig.Reset();
+            json = JsonSerializer.SerializeToString(test);
+            // Assert:
+     		Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":\"AQIDBAU=\"}"));
 		}
 
         [TestFixtureTearDown]
