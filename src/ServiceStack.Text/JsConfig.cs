@@ -844,6 +844,12 @@ namespace ServiceStack.Text
                 return DeSerializeFn(serializer.UnescapeString(str));
             }
         }
+
+        public static void Reset()
+        {
+            RawSerializeFn = null;
+            DeSerializeFn = null;
+        }
     }
 
     public enum JsonPropertyConvention
