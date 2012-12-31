@@ -184,6 +184,7 @@
     <Compile Include="CsvStreamTests.cs" />
     <Compile Include="CsvTests\CustomHeaderTests.cs" />
     <Compile Include="JsonTests\ContractByInterfaceTests.cs" />
+    <Compile Include="JsonTests\DictionaryDeserializationTests.cs" />
     <Compile Include="JsonTests\DictionaryTests.cs" />
     <Compile Include="JsonTests\IDictionarySerializationTests.cs" />
     <Compile Include="JsonTests\StringParsingTests.cs" />
