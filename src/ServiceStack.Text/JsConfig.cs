@@ -839,10 +839,15 @@ namespace ServiceStack.Text
             {
                 writer.Write(RawSerializeFn((T)obj));
             }
-            else
+            else if (SerializeFn != null)
             {
                 var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-                serializer.WriteString(writer, SerializeFn((T)obj));
+                serializer.WriteString(writer, SerializeFn((T) obj));
+            }
+            else
+            {
+               var writerFn = JsonWriter.Instance.GetWriteFn<T>();
+               writerFn(writer, obj);
             }
         }
 
