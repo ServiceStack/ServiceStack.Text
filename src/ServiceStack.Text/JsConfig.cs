@@ -441,7 +441,7 @@ namespace ServiceStack.Text
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
 
-            foreach (var rawSerializeType in writeFnCache.Keys.ToArray())
+            foreach (var rawSerializeType in AllTypesUsed)
             {
                 ClearRawSerializeFn(rawSerializeType);
             }
@@ -673,6 +673,7 @@ namespace ServiceStack.Text
         public static EmptyCtorFactoryDelegate ModelFactory { get; set; }
 
         internal static IDictionary<Type, WriteObjectDelegate> writeFnCache = new Dictionary<Type, WriteObjectDelegate>();
+        internal static HashSet<Type> AllTypesUsed = new HashSet<Type>();
 
         internal static bool RemoveCacheFn(Type cachedType)
         {
@@ -787,7 +788,8 @@ namespace ServiceStack.Text
             set
             {
                 JsConfig.RemoveCacheFn(typeof (T));
-
+                JsConfig.AllTypesUsed.Add(typeof (T));
+                JsonWriter.RemoveWriteFn(typeof (T));
                 rawSerializeFn = value;
                 if (value != null)
                     JsConfig.HasSerializeFn.Add(typeof(T));
