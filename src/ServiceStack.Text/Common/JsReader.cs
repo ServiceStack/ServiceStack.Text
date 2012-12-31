@@ -28,7 +28,10 @@ namespace ServiceStack.Text.Common
 
 			if (type.IsEnum)
 			{
-				return x => Enum.Parse(type, x, true);
+				return x =>
+				    {
+				        return Enum.Parse(type, Serializer.UnescapeSafeString(x), true);
+				    };
 			}
 
 			if (type == typeof(string))

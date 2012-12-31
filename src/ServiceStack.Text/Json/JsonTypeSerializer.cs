@@ -18,7 +18,7 @@ using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Json
 {
-    internal class JsonTypeSerializer
+     internal class JsonTypeSerializer
         : ITypeSerializer
     {
         public static ITypeSerializer Instance = new JsonTypeSerializer();
@@ -400,71 +400,7 @@ namespace ServiceStack.Text.Json
                 }
             }
 
-            var sb = new StringBuilder(jsonLength);
-
-        	while (true)
-            {
-                if (index == jsonLength) break;
-
-                char c = json[index++];
-                if (c == JsonUtils.QuoteChar) break;
-
-                if (c == JsonUtils.EscapeChar)
-                {
-                    if (index == jsonLength)
-                    {
-                        break;
-                    }
-                    c = json[index++];
-                    switch (c)
-                    {
-                        case '"':
-                            sb.Append('"');
-                            break;
-                        case '\\':
-                            sb.Append('\\');
-                            break;
-                        case '/':
-                            sb.Append('/');
-                            break;
-                        case 'b':
-                            sb.Append('\b');
-                            break;
-                        case 'f':
-                            sb.Append('\f');
-                            break;
-                        case 'n':
-                            sb.Append('\n');
-                            break;
-                        case 'r':
-                            sb.Append('\r');
-                            break;
-                        case 't':
-                            sb.Append('\t');
-                            break;
-                        case 'u':
-                            var remainingLength = jsonLength - index;
-                            if (remainingLength >= 4)
-                            {
-                                var unicodeString = json.Substring(index, 4);
-                                var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
-                                sb.Append(ConvertFromUtf32((int) unicodeIntVal));
-                                index += 4;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                            break;
-                    }
-                }
-                else
-                {
-                    sb.Append(c);
-                }
-            }
-
-            return sb.ToString();
+           return StringEscaper.Unescape(json);
         }
 
         /// <summary>
@@ -473,7 +409,7 @@ namespace ServiceStack.Text.Json
         /// </summary>
         /// <param name="utf32"></param>
         /// <returns></returns>
-        private static string ConvertFromUtf32(int utf32)
+        public static string ConvertFromUtf32(int utf32)
         {
             if (utf32 < 0 || utf32 > 0x10FFFF)
                 throw new ArgumentOutOfRangeException("utf32", "The argument must be from 0 to 0x10FFFF.");
