@@ -247,6 +247,7 @@
     <Compile Include="StreamExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="StringEscaper.cs" />
     <Compile Include="StringExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
