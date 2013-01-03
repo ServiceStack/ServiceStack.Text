@@ -130,7 +130,7 @@ namespace ServiceStack.Text.Common
                 case TypeCode.Int16:
                     writer.Write((short)enumFlagValue);
                     break;
-				case TypeCode.UInt16:
+                case TypeCode.UInt16:
                     writer.Write((ushort)enumFlagValue);
                     break;
                 case TypeCode.Int32:
@@ -150,7 +150,7 @@ namespace ServiceStack.Text.Common
                     break;
             }
         }
-	}
+    }
 
     internal class JsWriter<TSerializer>
         where TSerializer : ITypeSerializer
@@ -172,24 +172,24 @@ namespace ServiceStack.Text.Common
 
         public WriteObjectDelegate GetValueTypeToStringMethod(Type type)
         {
-			if (type == typeof(char) || type == typeof(char?))
-				return Serializer.WriteChar;
-			if (type == typeof(int) || type == typeof(int?))
-				return Serializer.WriteInt32;
-			if (type == typeof(long) || type == typeof(long?))
-				return Serializer.WriteInt64;
-			if (type == typeof(ulong) || type == typeof(ulong?))
-				return Serializer.WriteUInt64;
-			if (type == typeof(uint) || type == typeof(uint?))
-				return Serializer.WriteUInt32;
+            if (type == typeof(char) || type == typeof(char?))
+                return Serializer.WriteChar;
+            if (type == typeof(int) || type == typeof(int?))
+                return Serializer.WriteInt32;
+            if (type == typeof(long) || type == typeof(long?))
+                return Serializer.WriteInt64;
+            if (type == typeof(ulong) || type == typeof(ulong?))
+                return Serializer.WriteUInt64;
+            if (type == typeof(uint) || type == typeof(uint?))
+                return Serializer.WriteUInt32;
 
-			if (type == typeof(byte) || type == typeof(byte?))
-				return Serializer.WriteByte;
+            if (type == typeof(byte) || type == typeof(byte?))
+                return Serializer.WriteByte;
 
-			if (type == typeof(short) || type == typeof(short?))
-				return Serializer.WriteInt16;
+            if (type == typeof(short) || type == typeof(short?))
+                return Serializer.WriteInt16;
             if (type == typeof(ushort) || type == typeof(ushort?))
-				return Serializer.WriteUInt16;
+                return Serializer.WriteUInt16;
 
             if (type == typeof(bool) || type == typeof(bool?))
                 return Serializer.WriteBool;
@@ -200,11 +200,11 @@ namespace ServiceStack.Text.Common
             if (type == typeof(DateTime?))
                 return Serializer.WriteNullableDateTime;
 
-			if (type == typeof(DateTimeOffset))
-				return Serializer.WriteDateTimeOffset;
+            if (type == typeof(DateTimeOffset))
+                return Serializer.WriteDateTimeOffset;
 
-			if (type == typeof(DateTimeOffset?))
-				return Serializer.WriteNullableDateTimeOffset;
+            if (type == typeof(DateTimeOffset?))
+                return Serializer.WriteNullableDateTimeOffset;
 
             if (type == typeof(TimeSpan))
                 return Serializer.WriteTimeSpan;
@@ -243,12 +243,14 @@ namespace ServiceStack.Text.Common
 
         internal WriteObjectDelegate GetWriteFn<T>()
         {
-            if (typeof (T) == typeof (string)) {
+            if (typeof(T) == typeof(string))
+            {
                 return Serializer.WriteObjectString;
             }
 
-		    var onSerializingFn = JsConfig<T>.OnSerializingFn;
-            if (onSerializingFn != null) {
+            var onSerializingFn = JsConfig<T>.OnSerializingFn;
+            if (onSerializingFn != null)
+            {
                 return (w, x) => GetCoreWriteFn<T>()(w, onSerializingFn((T)x));
             }
 
@@ -325,7 +327,7 @@ namespace ServiceStack.Text.Common
             {
                 return WriteDictionary<TSerializer>.WriteIDictionary;
             }
-            
+
             var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
                 || typeof(T).HasInterface(typeof(IEnumerable));
             if (isEnumerable)

@@ -46,7 +46,7 @@ namespace ServiceStack.Text.Common
 
             return value => ParseKeyValuePairType(value, createMapType, keyValuePairArgs, keyTypeParseMethod, valueTypeParseMethod);
         }
-        
+
         public static object ParseKeyValuePair<TKey, TValue>(
             string value, Type createMapType,
             ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn)
@@ -69,7 +69,7 @@ namespace ServiceStack.Text.Common
                 if (string.Compare(key, "key", StringComparison.InvariantCultureIgnoreCase) == 0)
                     keyValue = (TKey)parseKeyFn(keyElementValue);
                 else if (string.Compare(key, "value", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    valueValue = (TValue) parseValueFn(keyElementValue);
+                    valueValue = (TValue)parseValueFn(keyElementValue);
                 else
                     throw new SerializationException("Incorrect KeyValuePair property: " + key);
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);

@@ -289,7 +289,7 @@ namespace ServiceStack.Text.Common
                 var i = 0;
                 foreach (var propertyWriter in PropertyWriters)
                 {
-                    var propertyValue = propertyWriter.GetterFn((T) value);
+                    var propertyValue = propertyWriter.GetterFn((T)value);
                     if (propertyValue == null) continue;
 
                     if (i++ > 0)

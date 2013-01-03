@@ -38,13 +38,13 @@ namespace ServiceStack.Text.Common
             if (type.HasInterface(typeof(ICollection<int>)))
                 return value => ParseIntCollection(value, type);
 
-            var elementType =  collectionInterface.GetGenericArguments()[0];
+            var elementType = collectionInterface.GetGenericArguments()[0];
 
             var supportedTypeParseMethod = Serializer.GetParseFn(elementType);
             if (supportedTypeParseMethod != null)
             {
                 var createCollectionType = type.HasAnyTypeDefinitionsOf(typeof(ICollection<>))
-					? null : type;
+                    ? null : type;
 
                 return value => ParseCollectionType(value, createCollectionType, elementType, supportedTypeParseMethod);
             }
@@ -72,8 +72,8 @@ namespace ServiceStack.Text.Common
             return CollectionExtensions.CreateAndPopulate(createType, items);
         }
 
-        private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache 
-			= new Dictionary<Type, ParseCollectionDelegate>();
+        private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache
+            = new Dictionary<Type, ParseCollectionDelegate>();
 
         private delegate object ParseCollectionDelegate(string value, Type createType, ParseStringDelegate parseFn);
 

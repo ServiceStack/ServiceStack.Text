@@ -23,7 +23,7 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-	internal static class DeserializeType<TSerializer>
+    internal static class DeserializeType<TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
@@ -36,13 +36,13 @@ namespace ServiceStack.Text.Common
 
             var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
 
-			var ctorFn = JsConfig.ModelFactory(type);
-            if (map == null) 
+            var ctorFn = JsConfig.ModelFactory(type);
+            if (map == null)
                 return value => ctorFn();
-            
+
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-				? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
-				: value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
+                ? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
+                : value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
         }
 
         public static object ObjectStringToType(string strType)
@@ -55,15 +55,19 @@ namespace ServiceStack.Text.Common
                 return propertyValue;
             }
 
-            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType)) {
-                if (strType[0] == JsWriter.MapStartChar) {
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType))
+            {
+                if (strType[0] == JsWriter.MapStartChar)
+                {
                     var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
-                    if (dynamicMatch != null && dynamicMatch.Count > 0) {
+                    if (dynamicMatch != null && dynamicMatch.Count > 0)
+                    {
                         return dynamicMatch;
                     }
                 }
 
-                if (strType[0] == JsWriter.ListStartChar) {
+                if (strType[0] == JsWriter.ListStartChar)
+                {
                     return DeserializeList<List<object>, TSerializer>.Parse(strType);
                 }
             }
@@ -75,23 +79,25 @@ namespace ServiceStack.Text.Common
         {
             var typeAttrInObject = Serializer.TypeAttrInObject;
             if (strType != null
-				&& strType.Length > typeAttrInObject.Length
-				&& strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
+                && strType.Length > typeAttrInObject.Length
+                && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
 
                 var type = JsConfig.TypeFinder.Invoke(typeName);
 
-				if (type == null) {
-					Tracer.Instance.WriteWarning("Could not find type: " + typeName);
-					return null;
-				}
+                if (type == null)
+                {
+                    Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+                    return null;
+                }
 
 #if !SILVERLIGHT && !MONOTOUCH
-				if (type.IsInterface || type.IsAbstract) {
-					return DynamicProxy.GetInstanceFor(type).GetType();
-				}
+                if (type.IsInterface || type.IsAbstract)
+                {
+                    return DynamicProxy.GetInstanceFor(type).GetType();
+                }
 #endif
 
                 return type;
@@ -123,18 +129,19 @@ namespace ServiceStack.Text.Common
             Guid guidValue;
             if (Guid.TryParse(value, out guidValue)) return guidValue;
 #endif
-            if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix)) {
+            if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix))
+            {
                 return DateTimeSerializer.ParseWcfJsonDate(value);
-            } 
-            
+            }
+
             if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
             {
                 // check that we have UTC ISO8601 date:
                 // YYYY-MM-DDThh:mm:ssZ
                 // YYYY-MM-DDThh:mm:ss+02:00
                 // YYYY-MM-DDThh:mm:ss-02:00
-                if (value.Length > 14 && value[10] == 'T' && 
-                    (value.EndsWith("Z", StringComparison.InvariantCulture) 
+                if (value.Length > 14 && value[10] == 'T' &&
+                    (value.EndsWith("Z", StringComparison.InvariantCulture)
                         || value[value.Length - 6] == '+'
                         || value[value.Length - 6] == '-'))
                 {
@@ -183,7 +190,8 @@ namespace ServiceStack.Text.Common
 
         internal static object ParsePrimitive(string value, char firstChar)
         {
-            if (typeof(TSerializer) == typeof(JsonTypeSerializer)) {
+            if (typeof(TSerializer) == typeof(JsonTypeSerializer))
+            {
                 return firstChar == JsWriter.QuoteChar
                            ? ParseQuotedPrimitive(value)
                            : ParsePrimitive(value);
@@ -203,8 +211,8 @@ namespace ServiceStack.Text.Common
             var typeAttrInObject = Serializer.TypeAttrInObject;
 
             if (strType != null
-				&& strType.Length > typeAttrInObject.Length
-				&& strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
+                && strType.Length > typeAttrInObject.Length
+                && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.EatValue(strType, ref propIndex);
@@ -239,7 +247,7 @@ namespace ServiceStack.Text.Common
             if (!propertyInfo.CanWrite)
             {
                 //TODO: What string comparison is used in SST?
-				string fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
+                string fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
                 var fieldName = string.Format(fieldNameFormat, propertyInfo.Name);
                 var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
                 foreach (var f in fieldInfos)
@@ -263,68 +271,68 @@ namespace ServiceStack.Text.Common
             if (fieldInfo == null) return null;
             return (instance, value) => fieldInfo.SetValue(instance, value);
 #else
-			return propertyInfo.CanWrite
-				? CreateIlPropertySetter(propertyInfo)
-				: CreateIlFieldSetter(fieldInfo);
+            return propertyInfo.CanWrite
+                ? CreateIlPropertySetter(propertyInfo)
+                : CreateIlFieldSetter(fieldInfo);
 #endif
         }
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
 
-		private static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
-		{
-			var propSetMethod = propertyInfo.GetSetMethod(true);
-			if (propSetMethod == null)
-				return null;
+        private static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
+        {
+            var propSetMethod = propertyInfo.GetSetMethod(true);
+            if (propSetMethod == null)
+                return null;
 
-			var setter = CreateDynamicSetMethod(propertyInfo);
+            var setter = CreateDynamicSetMethod(propertyInfo);
 
-			var generator = setter.GetILGenerator();
-			generator.Emit(OpCodes.Ldarg_0);
-			generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
-			generator.Emit(OpCodes.Ldarg_1);
+            var generator = setter.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
+            generator.Emit(OpCodes.Ldarg_1);
 
-			generator.Emit(propertyInfo.PropertyType.IsClass
-				? OpCodes.Castclass
-				: OpCodes.Unbox_Any,
-				propertyInfo.PropertyType);
+            generator.Emit(propertyInfo.PropertyType.IsClass
+                ? OpCodes.Castclass
+                : OpCodes.Unbox_Any,
+                propertyInfo.PropertyType);
 
-			generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
-			generator.Emit(OpCodes.Ret);
+            generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
+            generator.Emit(OpCodes.Ret);
 
-			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-		}
+            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+        }
 
-		private static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
-		{
-			var setter = CreateDynamicSetMethod(fieldInfo);
+        private static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
+        {
+            var setter = CreateDynamicSetMethod(fieldInfo);
 
-			var generator = setter.GetILGenerator();
-			generator.Emit(OpCodes.Ldarg_0);
-			generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
-			generator.Emit(OpCodes.Ldarg_1);
+            var generator = setter.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
+            generator.Emit(OpCodes.Ldarg_1);
 
-			generator.Emit(fieldInfo.FieldType.IsClass
-				? OpCodes.Castclass
-				: OpCodes.Unbox_Any,
-				fieldInfo.FieldType);
+            generator.Emit(fieldInfo.FieldType.IsClass
+                ? OpCodes.Castclass
+                : OpCodes.Unbox_Any,
+                fieldInfo.FieldType);
 
-			generator.Emit(OpCodes.Stfld, fieldInfo);
-			generator.Emit(OpCodes.Ret);
+            generator.Emit(OpCodes.Stfld, fieldInfo);
+            generator.Emit(OpCodes.Ret);
 
-			return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-		}
+            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+        }
 
-		private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
-		{
-			var args = new[] { typeof(object), typeof(object) };
-			var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
-			var returnType = typeof(void);
+        private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
+        {
+            var args = new[] { typeof(object), typeof(object) };
+            var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
+            var returnType = typeof(void);
 
-			return !memberInfo.DeclaringType.IsInterface
-				? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
-				: new DynamicMethod(name, returnType, args, memberInfo.Module, true);
-		}
+            return !memberInfo.DeclaringType.IsInterface
+                ? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
+                : new DynamicMethod(name, returnType, args, memberInfo.Module, true);
+        }
 #endif
 
         internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
@@ -335,7 +343,7 @@ namespace ServiceStack.Text.Common
             var setMethodInfo = propertyInfo.GetSetMethod(true);
             return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
 #else
-			return CreateIlPropertySetter(propertyInfo);
+            return CreateIlPropertySetter(propertyInfo);
 #endif
         }
     }
