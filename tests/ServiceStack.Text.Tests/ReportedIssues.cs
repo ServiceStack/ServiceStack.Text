@@ -276,5 +276,44 @@ namespace ServiceStack.Text.Tests
             var deserialized = TypeSerializer.DeserializeFromString<List<int?>>(serialized);
             Assert.That(deserialized, Is.EqualTo(arrayOfInt));
         }
+        
+       [Test]
+        public void Deserialize_Correctly_When_Last_Item_Is_Null_in_String_list_prop()
+        {
+            var type = new TestMappedList() { StringListProp = new List<String> { "hello", null } };
+            var serialized = TypeSerializer.SerializeToString(type);
+            Console.WriteLine(serialized);
+            var deserialized = TypeSerializer.DeserializeFromString<TestMappedList>(serialized);
+            Assert.That(deserialized.StringListProp, Is.EqualTo(type.StringListProp));
+        }
+
+        [Test]
+        public void Deserialize_Correctly_When_Last_Item_Is_Null_in_String_array_prop()
+        {
+            var type = new TestMappedList() { StringArrayProp = new string [] { "hello", null } };
+            var serialized = TypeSerializer.SerializeToString(type);
+            Console.WriteLine(serialized);
+            var deserialized = TypeSerializer.DeserializeFromString<TestMappedList>(serialized);
+            Assert.That(deserialized.StringArrayProp, Is.EqualTo(type.StringArrayProp));
+        }
+
+        [Test]
+        public void Deserialize_Correctly_When_Last_Item_Is_Null_in_Int_array_prop()
+        {
+            var type = new TestMappedList() { IntArrayProp = new List<int?> { 1, null } };
+            var serialized = TypeSerializer.SerializeToString(type);
+            Console.WriteLine(serialized);
+            var deserialized = TypeSerializer.DeserializeFromString<TestMappedList>(serialized);
+            Assert.That(deserialized.IntArrayProp, Is.EqualTo(type.IntArrayProp));
+        }
 	}
+
+    public class TestMappedList
+    {
+        public List<String> StringListProp { get; set; }
+
+        public string[] StringArrayProp { get; set; }
+
+        public List<int?> IntArrayProp { get; set; }
+    }
 }
