@@ -7,7 +7,7 @@ namespace ServiceStack.Text
         FirstEnumerable
     }
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
     public class CsvAttribute : Attribute
     {
         public CsvBehavior CsvBehavior { get; set; }
