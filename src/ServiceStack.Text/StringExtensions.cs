@@ -435,6 +435,11 @@ namespace ServiceStack.Text
             return JsonSerializer.DeserializeFromString<T>(json);
         }
 
+        public static string ToCsv<T>(this T obj)
+        {
+            return CsvSerializer.SerializeToString(obj);
+        }
+
 #if !XBOX && !SILVERLIGHT && !MONOTOUCH
         public static string ToXml<T>(this T obj)
         {

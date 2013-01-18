@@ -388,7 +388,7 @@ namespace ServiceStack.Text
 
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
-        internal static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
+        public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
         [ThreadStatic]
         private static bool? tsPreferInterfaces;
@@ -713,7 +713,7 @@ namespace ServiceStack.Text
         /// <summary>
         /// Opt-in flag to set some Value Types to be treated as a Ref Type
         /// </summary>
-        public bool TreatValueAsRefTypes
+        public static bool TreatValueAsRefType
         {
             get { return JsConfig.TreatValueAsRefTypes.Contains(typeof(T)); }
             set

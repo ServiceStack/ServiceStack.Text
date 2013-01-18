@@ -192,5 +192,29 @@ namespace ServiceStack.Text.Tests
             Assert.That(b.Name, Is.EqualTo("test"));
         }
 
+        [Test]
+        public void Can_TreatValueAsRefType()
+        {
+            JsConfig<UserStruct>.TreatValueAsRefType = true;
+
+            var dto = new UserStruct { Id = 1, Name = "foo" };
+
+            Assert.That(dto.ToJson(),
+                Is.EqualTo("{\"Id\":1,\"Name\":\"foo\"}"));
+
+            Assert.That(dto.ToJsv(),
+                Is.EqualTo("{Id:1,Name:foo}"));
+
+            Assert.That(dto.ToXml(),
+                Is.EqualTo("<?xml version=\"1.0\" encoding=\"utf-8\"?><UserStruct xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.datacontract.org/2004/07/ServiceStack.Text.Tests\"><Id>1</Id><Name>foo</Name></UserStruct>"));
+
+            JsConfig.Reset();
+        }
+    }
+
+    public struct UserStruct
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
