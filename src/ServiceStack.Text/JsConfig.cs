@@ -6,7 +6,7 @@ using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
 
-#if WINDOWS_PHONE
+#if WINDOWS_PHONE && !WP8
 using ServiceStack.Text.WP;
 #endif
 

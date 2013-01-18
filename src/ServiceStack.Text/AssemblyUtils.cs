@@ -126,7 +126,7 @@ namespace ServiceStack.Text
 #endif
 
 #if !SILVERLIGHT
-private static Assembly LoadAssembly(string assemblyPath)
+        private static Assembly LoadAssembly(string assemblyPath)
 		{
 			return Assembly.LoadFrom(assemblyPath);
 		}
