@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-#if WINDOWS_PHONE
+#if WINDOWS_PHONE && !WP8
 using ServiceStack.Text.WP;
 #endif
 

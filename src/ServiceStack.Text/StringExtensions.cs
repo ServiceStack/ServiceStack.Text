@@ -22,8 +22,9 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Support;
 #if WINDOWS_PHONE
 using System.IO.IsolatedStorage;
+#if  !WP8
 using ServiceStack.Text.WP;
-
+#endif
 #endif
 
 namespace ServiceStack.Text
