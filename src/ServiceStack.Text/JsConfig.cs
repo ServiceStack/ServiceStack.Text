@@ -417,6 +417,28 @@ namespace ServiceStack.Text
             return TreatValueAsRefTypes.Contains(valueType.IsGenericType ? valueType.GetGenericTypeDefinition() : valueType);
         }
 
+
+        [ThreadStatic]
+        private static bool? tsIncludePublicFields;
+        private static bool? sIncludePublicFields;
+        /// <summary>
+        /// If set to true, Interface types will be prefered over concrete types when serializing.
+        /// </summary>
+        public static bool IncludePublicFields
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludePublicFields : null)
+                    ?? tsIncludePublicFields
+                    ?? sIncludePublicFields
+                    ?? false;
+            }
+            set
+            {
+                tsIncludePublicFields = value;
+                if (!sIncludePublicFields.HasValue) sIncludePublicFields = value;
+            }
+        }
         public static void Reset()
         {
             ModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
@@ -436,6 +458,7 @@ namespace ServiceStack.Text
             tsTypeFinder = sTypeFinder = null;
 			tsTreatEnumAsInteger = sTreatEnumAsInteger = null;
             tsAlwaysUseUtc = sAlwaysUseUtc = null;
+            tsIncludePublicFields = sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;

@@ -346,5 +346,28 @@ namespace ServiceStack.Text.Common
             return CreateIlPropertySetter(propertyInfo);
 #endif
         }
+
+        public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
+        {
+            return new TypeAccessor
+            {
+                PropertyType = fieldInfo.FieldType,
+                GetProperty = serializer.GetParseFn(fieldInfo.FieldType),
+                SetProperty = GetSetFieldMethod(typeConfig, fieldInfo),
+            };
+            
+        }
+
+		private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
+		{
+			if (fieldInfo.ReflectedType != fieldInfo.DeclaringType)
+				fieldInfo = fieldInfo.DeclaringType.GetField(fieldInfo.Name);
+
+#if SILVERLIGHT || MONOTOUCH || XBOX
+            return (instance, value) => fieldInfo.SetValue(instance, value);
+#else
+			return CreateIlFieldSetter(fieldInfo);
+#endif
+		}
     }
 }

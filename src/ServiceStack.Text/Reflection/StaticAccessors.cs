@@ -49,6 +49,18 @@ namespace ServiceStack.Text.Reflection
 #endif
         }
 
+        public static Func<T, object> GetValueGetter<T>(this FieldInfo fieldInfo)
+        {
+#if (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
+            return x => fieldInfo.GetValue(x);
+#else
+            var instance = Expression.Parameter(fieldInfo.DeclaringType, "i");
+            var property = Expression.Field(instance, fieldInfo);
+            var convert = Expression.TypeAs(property, typeof(object));
+            return Expression.Lambda<Func<T, object>>(convert, instance).Compile();
+#endif
+        }
+
 #if !XBOX
         public static Action<T, object> GetValueSetter<T>(this PropertyInfo propertyInfo)
         {
