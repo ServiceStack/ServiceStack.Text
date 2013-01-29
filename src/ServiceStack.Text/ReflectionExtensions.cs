@@ -407,6 +407,18 @@ namespace ServiceStack.Text
                 .ToArray();
         }
 
+        public static FieldInfo[] GetPublicFields(this Type type)
+        {
+            if (type.IsInterface)
+            {
+
+                return new FieldInfo[0];
+            }
+
+            return type.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
+                .ToArray();
+        }
+
         const string DataContract = "DataContractAttribute";
         const string DataMember = "DataMemberAttribute";
         const string IgnoreDataMember = "IgnoreDataMemberAttribute";
@@ -427,6 +439,18 @@ namespace ServiceStack.Text
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicReadableProperties.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
+        }
+
+        public static FieldInfo[] GetSerializableFields(this Type type)
+        {
+            if (type.IsDto()) {
+                return new FieldInfo[0];
+            }
+            
+            var publicFields = GetPublicFields(type);
+
+            // else return those properties that are not decorated with IgnoreDataMember
+            return publicFields.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
         }
 
         public static bool IsDto(this Type type)

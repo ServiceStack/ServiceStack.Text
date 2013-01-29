@@ -12,6 +12,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Reflection;
 
@@ -102,10 +103,12 @@ namespace ServiceStack.Text.Common
             if (!typeof(T).IsClass && !typeof(T).IsInterface && !JsConfig.TreatAsRefType(typeof(T))) return false;
 
             var propertyInfos = TypeConfig<T>.Properties;
+            var fieldInfos = JsConfig.IncludePublicFields ? TypeConfig<T>.Fields : new FieldInfo[0];
             var propertyNamesLength = propertyInfos.Length;
-            PropertyWriters = new TypePropertyWriter[propertyNamesLength];
+            var fieldNamesLength = fieldInfos.Length;
+            PropertyWriters = new TypePropertyWriter[propertyNamesLength + fieldNamesLength];
 
-            if (propertyNamesLength == 0 && !JsState.IsWritingDynamic)
+            if (propertyNamesLength + fieldNamesLength == 0 && !JsState.IsWritingDynamic)
             {
                 return typeof(T).IsDto();
             }
@@ -147,6 +150,30 @@ namespace ServiceStack.Text.Common
                     propertyNameCLSFriendly,
                     propertyNameLowercaseUnderscore,
                     propertyInfo.GetValueGetter<T>(),
+                    Serializer.GetWriteFn(propertyType),
+                    suppressDefaultValue
+                );
+            }
+
+            for (var i = 0; i < fieldNamesLength; i++)
+            {
+                var fieldInfo = fieldInfos[i];
+
+                string propertyName = fieldInfo.Name;
+                string propertyNameCLSFriendly = propertyName.ToCamelCase();
+                string propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
+
+                var propertyType = fieldInfo.FieldType;
+                var suppressDefaultValue = propertyType.IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
+                    ? propertyType.GetDefaultValue()
+                    : null;
+
+                PropertyWriters[i + propertyNamesLength] = new TypePropertyWriter
+                (
+                    propertyName,
+                    propertyNameCLSFriendly,
+                    propertyNameLowercaseUnderscore,
+                    fieldInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
                     suppressDefaultValue
                 );
