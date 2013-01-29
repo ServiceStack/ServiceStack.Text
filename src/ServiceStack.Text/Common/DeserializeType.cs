@@ -347,6 +347,17 @@ namespace ServiceStack.Text.Common
 #endif
         }
 
+        internal static SetPropertyDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
+        {
+
+#if SILVERLIGHT || MONOTOUCH || XBOX
+            return (instance, value) => fieldInfo.SetValue(instance, value);
+#else
+            return CreateIlFieldSetter(fieldInfo);
+#endif
+        }
+
+
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
         {
             return new TypeAccessor

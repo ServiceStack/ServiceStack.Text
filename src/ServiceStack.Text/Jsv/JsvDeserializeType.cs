@@ -10,5 +10,10 @@ namespace ServiceStack.Text.Jsv
 		{
 			return TypeAccessor.GetSetPropertyMethod(type, propertyInfo);
 		}
+
+		public static SetPropertyDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
+		{
+			return TypeAccessor.GetSetFieldMethod(type, fieldInfo);
+		}
 	}
 }
