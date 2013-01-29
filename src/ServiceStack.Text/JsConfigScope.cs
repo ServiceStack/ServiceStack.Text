@@ -72,5 +72,6 @@ namespace ServiceStack.Text
         public bool? ThrowOnDeserializationError { get; set; }
         public bool? AlwaysUseUtc { get; set; }
         public bool? PreferInterfaces { get; set; }
+        public bool? IncludePublicFields { get; set; }
     }
 }

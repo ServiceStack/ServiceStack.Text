@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
@@ -37,23 +38,36 @@ namespace ServiceStack.Text.Common
             var type = typeConfig.Type;
 
             var propertyInfos = type.GetSerializableProperties();
-            if (propertyInfos.Length == 0) return null;
+            var fieldInfos = JsConfig.IncludePublicFields ? type.GetSerializableFields() : new FieldInfo[0];
+            if (propertyInfos.Length == 0 && fieldInfos.Length == 0) return null;
 
             var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
 
-            var isDataContract = type.IsDto();
-            foreach (var propertyInfo in propertyInfos)
+            if (propertyInfos.Length != 0)
             {
-                var propertyName = propertyInfo.Name;
-                if (isDataContract)
+                var isDataContract = type.IsDto();
+                foreach (var propertyInfo in propertyInfos)
                 {
-                    var dcsDataMember = propertyInfo.GetDataMember();
-                    if (dcsDataMember != null && dcsDataMember.Name != null)
+                    var propertyName = propertyInfo.Name;
+                    if (isDataContract)
                     {
-                        propertyName = dcsDataMember.Name;
+                        var dcsDataMember = propertyInfo.GetDataMember();
+                        if (dcsDataMember != null && dcsDataMember.Name != null)
+                        {
+                            propertyName = dcsDataMember.Name;
+                        }
                     }
+                    map[propertyName] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
                 }
-                map[propertyName] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
+            }
+
+            if (fieldInfos.Length != 0)
+            {
+                foreach (var fieldInfo in fieldInfos)
+                {
+                    var field = fieldInfo.Name;
+                    map[field] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
+                }
             }
             return map;
         }
