@@ -166,7 +166,7 @@ namespace ServiceStack.Text
 			}
 		}
 
-		public static T DeserializeFromStream<T>(WebRequest webRequest)
+		public static T DeserializeResponse<T>(WebRequest webRequest)
 		{
 			using (var webRes = webRequest.GetResponse())
 			{
@@ -177,7 +177,7 @@ namespace ServiceStack.Text
 			}
 		}
 
-		public static object DeserializeFromStream<T>(Type type, WebRequest webRequest)
+		public static object DeserializeResponse<T>(Type type, WebRequest webRequest)
 		{
 			using (var webRes = webRequest.GetResponse())
 			{
