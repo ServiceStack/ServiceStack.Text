@@ -14,6 +14,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -40,7 +41,7 @@ namespace ServiceStack.Text
 
 		public static object DeserializeFromString(string value, Type type)
 		{
-            return string.IsNullOrEmpty(value)
+			return string.IsNullOrEmpty(value)
 					? null
 					: JsonReader.GetParseFn(type)(value);
 		}
@@ -53,13 +54,13 @@ namespace ServiceStack.Text
 		public static string SerializeToString<T>(T value)
 		{
 			if (value == null) return null;
-            if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
-            {
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
-                var result = SerializeToString(value, value.GetType());
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
-                return result;
-            }
+			if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
+			{
+				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
+				var result = SerializeToString(value, value.GetType());
+				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+				return result;
+			}
 
 			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
@@ -103,12 +104,12 @@ namespace ServiceStack.Text
 				writer.Write(value);
 				return;
 			}
-            if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
+			if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
 			{
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
-                SerializeToWriter(value, value.GetType(), writer);
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
-                return;
+				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
+				SerializeToWriter(value, value.GetType(), writer);
+				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+				return;
 			}
 
 			JsonWriter<T>.WriteObject(writer, value);
@@ -131,9 +132,9 @@ namespace ServiceStack.Text
 			if (value == null) return;
 			if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
 			{
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
-                SerializeToStream(value, value.GetType(), stream);
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
+				SerializeToStream(value, value.GetType(), stream);
+				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
 				return;
 			}
 
@@ -164,5 +165,60 @@ namespace ServiceStack.Text
 				return DeserializeFromString(reader.ReadToEnd(), type);
 			}
 		}
+
+		public static T DeserializeResponse<T>(WebRequest webRequest)
+		{
+			using (var webRes = webRequest.GetResponse())
+			{
+				using (var stream = webRes.GetResponseStream())
+				{
+					return DeserializeFromStream<T>(stream);
+				}
+			}
+		}
+
+		public static object DeserializeResponse<T>(Type type, WebRequest webRequest)
+		{
+			using (var webRes = webRequest.GetResponse())
+			{
+				using (var stream = webRes.GetResponseStream())
+				{
+					return DeserializeFromStream(type, stream);
+				}
+			}
+		}
+
+		public static T DeserializeRequest<T>(WebRequest webRequest)
+		{
+			using (var webRes = webRequest.GetResponse())
+			{
+				return DeserializeResponse<T>(webRes);
+			}
+		}
+
+		public static object DeserializeRequest(Type type, WebRequest webRequest)
+		{
+			using (var webRes = webRequest.GetResponse())
+			{
+				return DeserializeResponse(type, webRes);
+			}
+		}
+
+		public static T DeserializeResponse<T>(WebResponse webResponse)
+		{
+			using (var stream = webResponse.GetResponseStream())
+			{
+				return DeserializeFromStream<T>(stream);
+			}
+		}
+
+		public static object DeserializeResponse(Type type, WebResponse webResponse)
+		{
+			using (var stream = webResponse.GetResponseStream())
+			{
+				return DeserializeFromStream(type, stream);
+			}
+		}
+
 	}
 }
