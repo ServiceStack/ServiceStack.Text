@@ -188,5 +188,37 @@ namespace ServiceStack.Text
 			}
 		}
 
+		public static T DeserializeRequest<T>(WebRequest webRequest)
+		{
+			using (var webRes = webRequest.GetResponse())
+			{
+				return DeserializeResponse<T>(webRes);
+			}
+		}
+
+		public static object DeserializeRequest(Type type, WebRequest webRequest)
+		{
+			using (var webRes = webRequest.GetResponse())
+			{
+				return DeserializeResponse(type, webRes);
+			}
+		}
+
+		public static T DeserializeResponse<T>(WebResponse webResponse)
+		{
+			using (var stream = webResponse.GetResponseStream())
+			{
+				return DeserializeFromStream<T>(stream);
+			}
+		}
+
+		public static object DeserializeResponse(Type type, WebResponse webResponse)
+		{
+			using (var stream = webResponse.GetResponseStream())
+			{
+				return DeserializeFromStream(type, stream);
+			}
+		}
+
 	}
 }
