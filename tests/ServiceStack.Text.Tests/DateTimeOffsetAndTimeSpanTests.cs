@@ -64,41 +64,38 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialize_TimeSpan_field_with_StandardTimeSpanFormat()
         {
-            var period = TimeSpan.FromSeconds(70);
+            using (JsConfig.With(timeSpanHandler:JsonTimeSpanHandler.StandardFormat))
+            {
+                var period = TimeSpan.FromSeconds(70);
 
-            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.StandardFormat;
-
-            var model = new SampleModel { Id = 1, TimeSpan = period };
-            var json = JsonSerializer.SerializeToString(model);
-            Assert.That(json, Is.StringContaining("\"TimeSpan\":\"00:01:10\""));
-
-            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.DurationFormat; //Revert so no other tests are affected
+                var model = new SampleModel { Id = 1, TimeSpan = period };
+                var json = JsonSerializer.SerializeToString(model);
+                Assert.That(json, Is.StringContaining("\"TimeSpan\":\"00:01:10\""));
+            }
         }
 
         [Test]
         public void Can_serialize_NullableTimeSpan_field_with_StandardTimeSpanFormat()
         {
-            var period = TimeSpan.FromSeconds(70);
+            using (JsConfig.With(timeSpanHandler: JsonTimeSpanHandler.StandardFormat))
+            {
+                var period = TimeSpan.FromSeconds(70);
 
-            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.StandardFormat;
-
-            var model = new NullableSampleModel { Id = 1, TimeSpan = period };
-            var json = JsonSerializer.SerializeToString(model);
-            Assert.That(json, Is.StringContaining("\"TimeSpan\":\"00:01:10\""));
-
-            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.DurationFormat; //Revert so no other tests are affected
+                var model = new NullableSampleModel { Id = 1, TimeSpan = period };
+                var json = JsonSerializer.SerializeToString(model);
+                Assert.That(json, Is.StringContaining("\"TimeSpan\":\"00:01:10\""));
+            }
         }
 
         [Test]
         public void Can_serialize_NullTimeSpan_field_with_StandardTimeSpanFormat()
         {
-            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.StandardFormat;
-
-            var model = new NullableSampleModel { Id = 1 };
-            var json = JsonSerializer.SerializeToString(model);
-            Assert.That(json, Is.Not.StringContaining("\"TimeSpan\""));
-
-            JsConfig.TimeSpanHandler = JsonTimeSpanHandler.DurationFormat; //Revert so no other tests are affected
+            using (JsConfig.With(timeSpanHandler: JsonTimeSpanHandler.StandardFormat))
+            {
+                var model = new NullableSampleModel { Id = 1 };
+                var json = JsonSerializer.SerializeToString(model);
+                Assert.That(json, Is.Not.StringContaining("\"TimeSpan\""));
+            }
         }
 
         public class SampleModel

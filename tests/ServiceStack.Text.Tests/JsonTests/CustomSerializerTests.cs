@@ -182,7 +182,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_detect_dto_with_no_Version()
         {
-            JsConfig.ModelFactory = type => {
+            using (JsConfig.With(modelFactory:type => {
                 if (typeof(IHasVersion).IsAssignableFrom(type))
                 {
                     return () => {
@@ -192,17 +192,18 @@ namespace ServiceStack.Text.Tests.JsonTests
                     };
                 }
                 return () => type.CreateInstance();
-            };
+            }))
+            {
+                var dto = new Dto { Name = "Foo" };
+                var fromDto = dto.ToJson().FromJson<DtoV1>();
+                Assert.That(fromDto.Version, Is.EqualTo(0));
+                Assert.That(fromDto.Name, Is.EqualTo("Foo"));
 
-            var dto = new Dto { Name = "Foo" };
-            var fromDto = dto.ToJson().FromJson<DtoV1>();
-            Assert.That(fromDto.Version, Is.EqualTo(0));
-            Assert.That(fromDto.Name, Is.EqualTo("Foo"));
-
-            var dto1 = new DtoV1 { Name = "Foo 1" };
-            var fromDto1 = dto1.ToJson().FromJson<DtoV1>();
-            Assert.That(fromDto1.Version, Is.EqualTo(1));
-            Assert.That(fromDto1.Name, Is.EqualTo("Foo 1"));
+                var dto1 = new DtoV1 { Name = "Foo 1" };
+                var fromDto1 = dto1.ToJson().FromJson<DtoV1>();
+                Assert.That(fromDto1.Version, Is.EqualTo(1));
+                Assert.That(fromDto1.Name, Is.EqualTo("Foo 1"));
+            }
         }
 
     }
