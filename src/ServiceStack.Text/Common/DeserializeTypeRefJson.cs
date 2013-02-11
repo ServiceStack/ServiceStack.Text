@@ -66,7 +66,7 @@ namespace ServiceStack.Text.Common
             if (strType[index++] != JsWriter.MapStartChar)
                 throw DeserializeTypeRef.CreateSerializationError(type, strType);
 
-            if (JsonTypeSerializer.IsEmptyMap(strType)) return ctorFn();
+            if (JsonTypeSerializer.IsEmptyMap(strType, index)) return ctorFn();
 
             object instance = null;
 

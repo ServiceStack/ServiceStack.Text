@@ -76,7 +76,7 @@ namespace ServiceStack.Text.Common
 
             var result = new JsonObject();
 
-            if (JsonTypeSerializer.IsEmptyMap(value)) return result;
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return result;
 
             var valueLength = value.Length;
             while (index < valueLength)
@@ -103,7 +103,7 @@ namespace ServiceStack.Text.Common
 
             var result = new Hashtable();
 
-            if (JsonTypeSerializer.IsEmptyMap(value)) return result;
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return result;
 
             var valueLength = value.Length;
             while (index < valueLength)
@@ -130,7 +130,7 @@ namespace ServiceStack.Text.Common
 
             var result = new Dictionary<string, string>();
 
-            if (JsonTypeSerializer.IsEmptyMap(value)) return result;
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return result;
 
             var valueLength = value.Length;
             while (index < valueLength)
@@ -167,7 +167,7 @@ namespace ServiceStack.Text.Common
                 ? new Dictionary<TKey, TValue>()
                 : (IDictionary<TKey, TValue>)createMapType.CreateInstance();
 
-            if (JsonTypeSerializer.IsEmptyMap(value)) return to;
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return to;
 
             var valueLength = value.Length;
             while (index < valueLength)
