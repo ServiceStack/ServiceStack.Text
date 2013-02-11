@@ -53,9 +53,9 @@ namespace ServiceStack.Text.Common
         {
             if (value == null) return default(KeyValuePair<TKey, TValue>);
 
-            var index = 1;
+            var index = VerifyAndGetStartIndex(value, createMapType);
 
-            if (JsonTypeSerializer.IsEmptyMap(value)) return new KeyValuePair<TKey, TValue>();
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return new KeyValuePair<TKey, TValue>();
             var keyValue = default(TKey);
             var valueValue = default(TValue);
 
@@ -76,6 +76,18 @@ namespace ServiceStack.Text.Common
             }
 
             return new KeyValuePair<TKey, TValue>(keyValue, valueValue);
+        }
+
+        private static int VerifyAndGetStartIndex(string value, Type createMapType)
+        {
+            var index = 0;
+            if (!Serializer.EatMapStartChar(value, ref index))
+            {
+                //Don't throw ex because some KeyValueDataContractDeserializer don't have '{}'
+                Tracer.Instance.WriteDebug("WARN: Map definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
+                                           JsWriter.MapStartChar, createMapType != null ? createMapType.Name : "Dictionary<,>", value.Substring(0, value.Length < 50 ? value.Length : 50));
+            }
+            return index;
         }
 
         private static Dictionary<string, ParseKeyValuePairDelegate> ParseDelegateCache
