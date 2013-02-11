@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using NUnit.Framework;
@@ -361,6 +362,111 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             var o = JsonSerializer.DeserializeFromString("", typeof(JsonPrimitives));
             Assert.IsNull(o);
-        }    
+        }
+
+        [Test]
+        public void Can_parse_empty_string_dictionary_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Dictionary<string, string>>();
+            Assert.That(serializer.DeserializeFromString(" {}"), Is.Empty);
+        }
+
+        [Test]
+        public void Can_parse_nonempty_string_dictionary_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Dictionary<string, string>>();
+            var dictionary = serializer.DeserializeFromString(" {\"A\":\"N\",\"B\":\"O\"}");
+            Assert.That(dictionary.Count, Is.EqualTo(2));
+            Assert.That(dictionary["A"], Is.EqualTo("N"));
+            Assert.That(dictionary["B"], Is.EqualTo("O"));
+        }
+
+        [Test]
+        public void Can_parse_empty_dictionary_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Dictionary<int, double>>();
+            Assert.That(serializer.DeserializeFromString(" {}"), Is.Empty);
+        }
+
+        [Test]
+        public void Can_parse_nonempty_dictionary_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Dictionary<int, double>>();
+            var dictionary = serializer.DeserializeFromString(" {\"1\":2.5,\"2\":5}");
+            Assert.That(dictionary.Count, Is.EqualTo(2));
+            Assert.That(dictionary[1], Is.EqualTo(2.5));
+            Assert.That(dictionary[2], Is.EqualTo(5.0));
+        }
+
+        [Test]
+        public void Can_parse_empty_hashtable_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Hashtable>();
+            Assert.That(serializer.DeserializeFromString(" {}"), Is.Empty);
+        }
+
+        [Test]
+        public void Can_parse_nonempty_hashtable_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Hashtable>();
+            var hashtable = serializer.DeserializeFromString(" {\"A\":1,\"B\":2}");
+            Assert.That(hashtable.Count, Is.EqualTo(2));
+            Assert.That(hashtable["A"].ToString(), Is.EqualTo(1.ToString()));
+            Assert.That(hashtable["B"].ToString(), Is.EqualTo(2.ToString()));
+        }
+
+        [Test]
+        public void Can_parse_empty_json_object_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<JsonObject>();
+            Assert.That(serializer.DeserializeFromString(" {}"), Is.Empty);
+        }
+
+        [Test]
+        public void Can_parse_nonempty_json_object_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<JsonObject>();
+            var jsonObject = serializer.DeserializeFromString(" {\"foo\":\"bar\"}");
+            Assert.That(jsonObject, Is.Not.Empty);
+            Assert.That(jsonObject["foo"], Is.EqualTo("bar"));
+        }
+
+        [Test]
+        public void Can_parse_empty_key_value_pair_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<KeyValuePair<string, string>>();
+            Assert.That(serializer.DeserializeFromString(" {}"), Is.EqualTo(default(KeyValuePair<string, string>)));
+        }
+
+        [Test]
+        public void Can_parse_nonempty_key_value_pair_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<KeyValuePair<string, string>>();
+            var keyValuePair = serializer.DeserializeFromString(" {\"Key\":\"foo\"\"Value\":\"bar\"}");
+            Assert.That(keyValuePair, Is.EqualTo(new KeyValuePair<string, string>("foo", "bar")));
+        }
+
+        [Test]
+        public void Can_parse_empty_object_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Foo>();
+            var foo = serializer.DeserializeFromString(" {}");
+            Assert.That(foo, Is.Not.Null);
+            Assert.That(foo.Bar, Is.Null);
+        }
+
+        [Test]
+        public void Can_parse_nonempty_object_with_leading_whitespace()
+        {
+            var serializer = new JsonSerializer<Foo>();
+            var foo = serializer.DeserializeFromString(" {\"Bar\":\"baz\"}");
+            Assert.That(foo, Is.Not.Null);
+            Assert.That(foo.Bar, Is.EqualTo("baz"));
+        }
+
+        public class Foo
+        {
+            public string Bar { get; set; }
+        }
 	}
 }
