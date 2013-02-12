@@ -716,6 +716,8 @@ namespace ServiceStack.Text
         /// </summary>
         public static bool EmitCamelCaseNames = false;
 
+        public static bool EmitLowercaseUnderscoreNames = false;
+
         /// <summary>
         /// Define custom serialization fn for BCL Structs
         /// </summary>

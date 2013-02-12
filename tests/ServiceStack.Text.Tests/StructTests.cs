@@ -116,7 +116,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Test_enum_overloads()
 		{
-			JsConfig.EmitCamelCaseNames = true;
+			JsConfig<Person>.EmitCamelCaseNames = true;
 			JsConfig.IncludeNullValues = true;
 			JsConfig<PersonStatus>.SerializeFn = text => text.ToString().ToCamelCase();
 
