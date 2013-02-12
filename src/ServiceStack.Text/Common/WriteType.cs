@@ -188,9 +188,9 @@ namespace ServiceStack.Text.Common
             {
                 get
                 {
-                    return (JsConfig.EmitCamelCaseNames)
+                    return (JsConfig<T>.EmitCamelCaseNames || JsConfig.EmitCamelCaseNames)
                         ? propertyNameCLSFriendly
-                        : (JsConfig.EmitLowercaseUnderscoreNames)
+                        : (JsConfig<T>.EmitLowercaseUnderscoreNames || JsConfig.EmitLowercaseUnderscoreNames)
                             ? propertyNameLowercaseUnderscore
                             : propertyName;
                 }
