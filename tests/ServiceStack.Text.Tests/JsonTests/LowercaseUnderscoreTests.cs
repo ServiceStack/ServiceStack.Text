@@ -53,6 +53,18 @@ namespace ServiceStack.Text.Tests.JsonTests
             public string Name { get; set; }
         }
 
+        class WithUnderscore
+        {
+            public int ? user_id { get; set; }
+        }
+
+        [Test]
+        public void Should_not_put_double_underscore()
+        {
+            var t = new WithUnderscore {user_id = 0};
+            Assert.That(t.ToJson(), Is.EqualTo("{\"user_id\":0}"));
+        }
+
         [Test]
         public void Can_override_name()
         {
