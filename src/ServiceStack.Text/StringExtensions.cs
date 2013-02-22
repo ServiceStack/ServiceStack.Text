@@ -627,7 +627,7 @@ namespace ServiceStack.Text
             var sb = new StringBuilder(value.Length);
             foreach (var t in value)
             {
-                if (char.IsLower(t))
+                if (char.IsLower(t) || t == '_')
                 {
                     sb.Append(t);
                 }
