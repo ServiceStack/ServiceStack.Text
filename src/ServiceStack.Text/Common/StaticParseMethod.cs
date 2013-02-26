@@ -43,17 +43,25 @@ namespace ServiceStack.Text.Common
 
             if (parseMethodInfo == null) return null;
 
-            ParseDelegate parseDelegate;
+            ParseDelegate parseDelegate = null;
             try
             {
-                parseDelegate = (ParseDelegate)Delegate.CreateDelegate(typeof(ParseDelegate), parseMethodInfo);
+				if (parseMethodInfo.ReturnType != typeof(T))
+				{
+					parseDelegate = (ParseDelegate)Delegate.CreateDelegate(typeof(ParseDelegate), parseMethodInfo, false);
+				}
+				if (parseDelegate == null)
+				{
+					//Try wrapping strongly-typed return with wrapper fn.
+					var typedParseDelegate = (Func<string, T>)Delegate.CreateDelegate(typeof(Func<string, T>), parseMethodInfo);
+					parseDelegate = x => typedParseDelegate(x);
+				}
             }
             catch (ArgumentException)
             {
-                //Try wrapping strongly-typed return with wrapper fn.
-                var typedParseDelegate = (Func<string, T>)Delegate.CreateDelegate(typeof(Func<string, T>), parseMethodInfo);
-                parseDelegate = x => typedParseDelegate(x);
+				// how are we logging these errors?
             }
+
             if (parseDelegate != null)
                 return value => parseDelegate(value.FromCsvField());
 
