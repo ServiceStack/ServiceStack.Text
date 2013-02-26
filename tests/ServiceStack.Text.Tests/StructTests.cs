@@ -2,134 +2,135 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Tests
 {
-	[TestFixture]
-	public class StructTests
-	{
-		[Serializable]
-		public class Foo
-		{
-			public string Name { get; set; }
+    [TestFixture]
+    public class StructTests
+    {
+        [Serializable]
+        public class Foo
+        {
+            public string Name { get; set; }
 
-			public Text Content1 { get; set; }
+            public Text Content1 { get; set; }
 
-			public Text Content2 { get; set; }
-		}
+            public Text Content2 { get; set; }
+        }
 
-		public interface IText { }
+        public interface IText { }
 
-		[Serializable]
-		public struct Text
-		{
-			private readonly string _value;
+        [Serializable]
+        public struct Text
+        {
+            private readonly string _value;
 
-			public Text(string value)
-			{
-				_value = value;
-			}
+            public Text(string value)
+            {
+                _value = value;
+            }
 
-			public static Text Parse(string value)
-			{
-				return value == null ? null : new Text(value);
-			}
+            public static Text Parse(string value)
+            {
+                return value == null ? null : new Text(value);
+            }
 
-			public static implicit operator Text(string value)
-			{
-				return new Text(value);
-			}
+            public static implicit operator Text(string value)
+            {
+                return new Text(value);
+            }
 
-			public static implicit operator string(Text item)
-			{
-				return item._value;
-			}
+            public static implicit operator string(Text item)
+            {
+                return item._value;
+            }
 
-			public override string ToString()
-			{
-				return _value;
-			}
-		}
+            public override string ToString()
+            {
+                return _value;
+            }
+        }
 
-		[TestFixtureSetUp]
-		public void SetUp()
-		{
+        [TestFixtureSetUp]
+        public void SetUp()
+        {
 #if MONOTOUCH
-			JsConfig.RegisterTypeForAot<Text> ();
-			JsConfig.RegisterTypeForAot<Foo> ();
-			JsConfig.RegisterTypeForAot<PersonStatus> ();
-			JsConfig.RegisterTypeForAot<Person> ();
-			JsConfig.RegisterTypeForAot<TestDictionary> ();
-			JsConfig.RegisterTypeForAot<KeyValuePair<string, string>> ();
-			JsConfig.RegisterTypeForAot<Pair> ();
+            JsConfig.RegisterTypeForAot<Text> ();
+            JsConfig.RegisterTypeForAot<Foo> ();
+            JsConfig.RegisterTypeForAot<PersonStatus> ();
+            JsConfig.RegisterTypeForAot<Person> ();
+            JsConfig.RegisterTypeForAot<TestDictionary> ();
+            JsConfig.RegisterTypeForAot<KeyValuePair<string, string>> ();
+            JsConfig.RegisterTypeForAot<Pair> ();
 #endif
-		}
+        }
 
-		[TearDown]
-		public void TearDown()
-		{
-			JsConfig.Reset();
-		}
+        [TearDown]
+        public void TearDown()
+        {
+            JsConfig.Reset();
+        }
 
-		[Test]
-		public void Test_structs()
-		{
-			JsConfig<Text>.SerializeFn = text => text.ToString();
+        [Test]
+        public void Test_structs()
+        {
+            JsConfig<Text>.SerializeFn = text => text.ToString();
 
-			var dto = new Foo { Content1 = "My content", Name = "My name" };
+            var dto = new Foo { Content1 = "My content", Name = "My name" };
 
-			var json = JsonSerializer.SerializeToString(dto, dto.GetType());
+            var json = JsonSerializer.SerializeToString(dto, dto.GetType());
 
-			Assert.That(json, Is.EqualTo("{\"Name\":\"My name\",\"Content1\":\"My content\"}"));
-		}
+            Assert.That(json, Is.EqualTo("{\"Name\":\"My name\",\"Content1\":\"My content\"}"));
+        }
 
-		[Test]
-		public void Test_structs_with_double_quotes()
-		{
-			var dto = new Foo { Content1 = "My \"quoted\" content", Name = "My \"quoted\" name" };
+        [Test]
+        public void Test_structs_with_double_quotes()
+        {
+            var dto = new Foo { Content1 = "My \"quoted\" content", Name = "My \"quoted\" name" };
 
-			JsConfig<Text>.SerializeFn = text => text.ToString();
-			JsConfig<Text>.DeSerializeFn = v => new Text(v);
+            JsConfig<Text>.SerializeFn = text => text.ToString();
+            JsConfig<Text>.DeSerializeFn = v => new Text(v);
 
-			var json = JsonSerializer.SerializeToString(dto, dto.GetType());
-			Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));
+            var json = JsonSerializer.SerializeToString(dto, dto.GetType());
+            Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));
 
-			var foo = JsonSerializer.DeserializeFromString<Foo>(json);
+            var foo = JsonSerializer.DeserializeFromString<Foo>(json);
             Assert.That(foo.Name, Is.EqualTo(dto.Name));
             Assert.That(foo.Content1, Is.EqualTo(dto.Content1));
-		}
+        }
 
-		public enum PersonStatus
-		{
-			None,
-			ActiveAgent,
-			InactiveAgent
-		}
+        public enum PersonStatus
+        {
+            None,
+            ActiveAgent,
+            InactiveAgent
+        }
 
-		public class Person
-		{
-			//A bunch of other properties
-			public PersonStatus Status { get; set; }
-		}
+        public class Person
+        {
+            //A bunch of other properties
+            public PersonStatus Status { get; set; }
+        }
 
 
-		[Test]
-		public void Test_enum_overloads()
-		{
-			JsConfig<Person>.EmitCamelCaseNames = true;
-			JsConfig.IncludeNullValues = true;
-			JsConfig<PersonStatus>.SerializeFn = text => text.ToString().ToCamelCase();
+        [Test]
+        public void Test_enum_overloads()
+        {
+            JsConfig<Person>.EmitCamelCaseNames = true;
+            JsConfig.IncludeNullValues = true;
+            JsConfig<PersonStatus>.SerializeFn = text => text.ToString().ToCamelCase();
 
-			var dto = new Person { Status = PersonStatus.ActiveAgent };
+            var dto = new Person { Status = PersonStatus.ActiveAgent };
 
-			var json = JsonSerializer.SerializeToString(dto);
+            var json = JsonSerializer.SerializeToString(dto);
 
-			Assert.That(json, Is.EqualTo("{\"status\":\"activeAgent\"}"));
+            Assert.That(json, Is.EqualTo("{\"status\":\"activeAgent\"}"));
 
-			Console.WriteLine(json);
+            Console.WriteLine(json);
 
-			JsConfig.Reset();
-		}
+            JsConfig.Reset();
+        }
 
         
         public class TestDictionary
@@ -209,6 +210,48 @@ namespace ServiceStack.Text.Tests
                 Is.EqualTo("<?xml version=\"1.0\" encoding=\"utf-8\"?><UserStruct xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.datacontract.org/2004/07/ServiceStack.Text.Tests\"><Id>1</Id><Name>foo</Name></UserStruct>"));
 
             JsConfig.Reset();
+        }
+
+        [Serializable]
+        protected struct DangerousText1
+        {
+            public static object Parse(string text)
+            {
+                return new DangerousText1();
+            }
+        }
+
+        [Serializable]
+        protected struct DangerousText2
+        {
+            public static int Parse(string text)
+            {
+                return 42;
+            }
+        }
+
+        [Test]
+        public void StaticParseMethod_will_not_throw_on_standard_usage()
+        {
+            ParseStringDelegate ret = null;
+            Assert.DoesNotThrow(() => ret = StaticParseMethod<Text>.Parse);
+            Assert.IsNotNull(ret);
+        }
+
+        [Test]
+        public void StaticParseMethod_will_not_throw_on_old_usage()
+        {
+            ParseStringDelegate ret = null;
+            Assert.DoesNotThrow(() => ret = StaticParseMethod<DangerousText1>.Parse);
+            Assert.IsNotNull(ret);
+        }
+
+        [Test]
+        public void StaticParseMethod_will_not_throw_on_unstandard_usage()
+        {
+            ParseStringDelegate ret = null;
+            Assert.DoesNotThrow(() => ret = StaticParseMethod<DangerousText2>.Parse);
+            Assert.IsNull(ret);
         }
     }
 
