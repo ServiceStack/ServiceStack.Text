@@ -197,6 +197,7 @@ namespace ServiceStack.Text
 			}
 		}
 
+#if !WINDOWS_PHONE
 		public static T DeserializeResponse<T>(WebRequest webRequest)
 		{
 #if NETFX_CORE
@@ -272,7 +273,7 @@ namespace ServiceStack.Text
 			}
 #endif
 		}
-
+#endif
 		public static T DeserializeResponse<T>(WebResponse webResponse)
 		{
 			using (var stream = webResponse.GetResponseStream())
