@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Linq;
 
 namespace ServiceStack.Text.Common
 {
@@ -32,8 +33,13 @@ namespace ServiceStack.Text.Common
             if (ListCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteList"));
+            writeFn = (WriteObjectDelegate)mi.CreateDelegate(typeof(WriteObjectDelegate));
+#else
             var mi = genericType.GetMethod("WriteList", BindingFlags.Static | BindingFlags.Public);
             writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
+#endif
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
             do
@@ -57,8 +63,13 @@ namespace ServiceStack.Text.Common
             if (IListCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteIList"));
+            writeFn = (WriteObjectDelegate)mi.CreateDelegate(typeof(WriteObjectDelegate));
+#else
             var mi = genericType.GetMethod("WriteIList", BindingFlags.Static | BindingFlags.Public);
             writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
+#endif
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
             do
@@ -81,8 +92,13 @@ namespace ServiceStack.Text.Common
             if (CacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteArray"));
+            writeFn = (WriteObjectDelegate)mi.CreateDelegate(typeof(WriteObjectDelegate));
+#else
             var mi = genericType.GetMethod("WriteArray", BindingFlags.Static | BindingFlags.Public);
             writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
+#endif
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
             do
@@ -105,8 +121,13 @@ namespace ServiceStack.Text.Common
             if (EnumerableCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteEnumerable"));
+            writeFn = (WriteObjectDelegate)mi.CreateDelegate(typeof(WriteObjectDelegate));
+#else
             var mi = genericType.GetMethod("WriteEnumerable", BindingFlags.Static | BindingFlags.Public);
             writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
+#endif
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
             do
@@ -129,8 +150,13 @@ namespace ServiceStack.Text.Common
             if (ListValueTypeCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteListValueType"));
+            writeFn = (WriteObjectDelegate)mi.CreateDelegate(typeof(WriteObjectDelegate));
+#else
             var mi = genericType.GetMethod("WriteListValueType", BindingFlags.Static | BindingFlags.Public);
             writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
+#endif
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
             do
@@ -154,8 +180,13 @@ namespace ServiceStack.Text.Common
             if (IListValueTypeCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteIListValueType"));
+            writeFn = (WriteObjectDelegate)mi.CreateDelegate(typeof(WriteObjectDelegate));
+#else
             var mi = genericType.GetMethod("WriteIListValueType", BindingFlags.Static | BindingFlags.Public);
             writeFn = (WriteObjectDelegate)Delegate.CreateDelegate(typeof(WriteObjectDelegate), mi);
+#endif
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
             do
@@ -390,11 +421,11 @@ namespace ServiceStack.Text.Common
             writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
-            list.ForEach(x =>
+            foreach (var x in list)
             {
                 JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
                 serializer.WriteString(writer, x);
-            });
+            }
 
             writer.Write(JsWriter.ListEndChar);
         }
@@ -482,12 +513,23 @@ namespace ServiceStack.Text.Common
             if (type == typeof(IList<long>))
                 return WriteListsOfElements<long, TSerializer>.WriteIListValueType;
 
+#if NETFX_CORE
+            var elementType = listInterface.GenericTypeArguments[0];
+
+            var isGenericList = typeof(T).GetTypeInfo().IsGenericType
+                && typeof(T).GetGenericTypeDefinition() == typeof(List<>);
+#else
             var elementType = listInterface.GetGenericArguments()[0];
 
             var isGenericList = typeof(T).IsGenericType
                 && typeof(T).GetGenericTypeDefinition() == typeof(List<>);
+#endif
 
+#if NETFX_CORE
+            if (elementType.GetTypeInfo().IsValueType
+#else
             if (elementType.IsValueType
+#endif
                 && JsWriter.ShouldUseDefaultToStringMethod(elementType))
             {
                 if (isGenericList)

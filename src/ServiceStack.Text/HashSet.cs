@@ -16,7 +16,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+#if NETFX_CORE
+namespace ServiceStack.Text.WinRT
+#else
 namespace ServiceStack.Text.WP
+#endif
 {
     ///<summary>
     /// A hashset implementation that uses an IDictionary

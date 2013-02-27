@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using System.Threading;
 
 namespace ServiceStack.Text.Common
@@ -31,8 +32,13 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn.Invoke;
 
             var genericType = typeof(DeserializeArrayWithElements<,>).MakeGenericType(type, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("ParseGenericArray"));
+            parseFn = (ParseArrayOfElementsDelegate)mi.CreateDelegate(typeof(ParseArrayOfElementsDelegate));
+#else
             var mi = genericType.GetMethod("ParseGenericArray", BindingFlags.Public | BindingFlags.Static);
             parseFn = (ParseArrayOfElementsDelegate)Delegate.CreateDelegate(typeof(ParseArrayOfElementsDelegate), mi);
+#endif
 
             Dictionary<Type, ParseArrayOfElementsDelegate> snapshot, newCache;
             do
@@ -111,9 +117,15 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn;
 
             var genericType = typeof(DeserializeArray<,>).MakeGenericType(type, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("GetParseFn"));
+            var parseFactoryFn = (Func<ParseStringDelegate>)mi.CreateDelegate(
+                typeof(Func<ParseStringDelegate>));
+#else
             var mi = genericType.GetMethod("GetParseFn", BindingFlags.Public | BindingFlags.Static);
             var parseFactoryFn = (Func<ParseStringDelegate>)Delegate.CreateDelegate(
                 typeof(Func<ParseStringDelegate>), mi);
+#endif
             parseFn = parseFactoryFn();
 
             Dictionary<Type, ParseStringDelegate> snapshot, newCache;

@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using ServiceStack.Text.Common;
+using System.Reflection;
 
 namespace ServiceStack.Text
 {
@@ -144,16 +146,30 @@ namespace ServiceStack.Text
 			set
 			{
 				if (value == null) return;
+#if NETFX_CORE
+				if (value.GetType().GetTypeInfo().IsValueType)
+					throw new ArgumentException("CustomHeaders is a ValueType");
+#else
 				if (value.GetType().IsValueType)
 					throw new ArgumentException("CustomHeaders is a ValueType");
+#endif
 
+#if NETFX_CORE
+				var propertyInfos = value.GetType().GetRuntimeProperties();
+				if (propertyInfos.Count() == 0) return;
+#else
 				var propertyInfos = value.GetType().GetProperties();
 				if (propertyInfos.Length == 0) return;
+#endif
 
 				customHeadersMap = new Dictionary<string, string>();
 				foreach (var pi in propertyInfos)
 				{
+#if NETFX_CORE
+					var getMethod = pi.GetMethod;
+#else
 					var getMethod = pi.GetGetMethod();
+#endif
 					if (getMethod == null) continue;
 
 					var oValue = getMethod.Invoke(value, new object[0]);

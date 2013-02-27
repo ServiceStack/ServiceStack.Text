@@ -35,7 +35,11 @@ namespace ServiceStack.Text.Common
         /// <returns></returns>
         public static ConstructorInfo GetTypeStringConstructor(Type type)
         {
+#if NETFX_CORE
+            foreach (var ci in type.GetTypeInfo().DeclaredConstructors)
+#else
             foreach (var ci in type.GetConstructors())
+#endif
             {
                 var paramInfos = ci.GetParameters();
                 var matchFound = (paramInfos.Length == 1 && paramInfos[0].ParameterType == typeof(string));

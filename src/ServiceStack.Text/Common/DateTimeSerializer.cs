@@ -73,11 +73,19 @@ namespace ServiceStack.Text.Common
             if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
                 && dateTimeStr.Length <= XsdDateTimeFormat.Length)
             {
+#if NETFX_CORE
+                var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
+                    ? "yyyy-MM-ddTHH:mm:sszzzzzzz"
+                    : "yyyy-MM-ddTHH:mm:sszzzzzzz";
+
+                return XmlConvert.ToDateTimeOffset(dateTimeStr, dateTimeType).DateTime.Prepare();
+#else
                 var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
                     ? XmlDateTimeSerializationMode.Local
                     : XmlDateTimeSerializationMode.RoundtripKind;
 
                 return XmlConvert.ToDateTime(dateTimeStr, dateTimeType).Prepare();
+#endif
             }
 
             return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal).Prepare();
@@ -121,7 +129,11 @@ namespace ServiceStack.Text.Common
 
         public static string ToXsdDateTimeString(DateTime dateTime)
         {
+#if NETFX_CORE
+            return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XsdDateTimeFormat);
+#else
             return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);
+#endif
         }
 
         public static string ToXsdTimeSpanString(TimeSpan timeSpan)
@@ -141,7 +153,11 @@ namespace ServiceStack.Text.Common
 
         public static DateTime ParseXsdDateTime(string dateTimeStr)
         {
+#if NETFX_CORE
+            return XmlConvert.ToDateTimeOffset(dateTimeStr).DateTime;
+#else
             return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc);
+#endif
         }
 
         public static TimeSpan ParseTimeSpan(string dateTimeStr)

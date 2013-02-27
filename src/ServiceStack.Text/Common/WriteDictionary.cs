@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Linq;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
@@ -76,8 +77,13 @@ namespace ServiceStack.Text.Common
             if (CacheFns.TryGetValue(mapKey, out writeFn)) return writeFn.Invoke;
 
             var genericType = typeof(ToStringDictionaryMethods<,,>).MakeGenericType(keyType, valueType, typeof(TSerializer));
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteIDictionary"));
+            writeFn = (WriteMapDelegate)mi.CreateDelegate(typeof(WriteMapDelegate));
+#else
             var mi = genericType.GetMethod("WriteIDictionary", BindingFlags.Static | BindingFlags.Public);
             writeFn = (WriteMapDelegate)Delegate.CreateDelegate(typeof(WriteMapDelegate), mi);
+#endif
 
             Dictionary<MapKey, WriteMapDelegate> snapshot, newCache;
             do

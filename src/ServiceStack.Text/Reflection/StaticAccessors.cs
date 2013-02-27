@@ -21,7 +21,11 @@ namespace ServiceStack.Text.Reflection
     {
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
         {
-#if (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
+#if NETFX_CORE
+			var getMethodInfo = propertyInfo.GetMethod;
+			if (getMethodInfo == null) return null;
+			return x => getMethodInfo.Invoke(x, new object[0]);
+#elif (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
 			var getMethodInfo = propertyInfo.GetGetMethod();
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
@@ -37,7 +41,11 @@ namespace ServiceStack.Text.Reflection
 
         public static Func<T, object> GetValueGetter<T>(this PropertyInfo propertyInfo)
         {
-#if (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
+#if NETFX_CORE
+			var getMethodInfo = propertyInfo.GetMethod;
+            if (getMethodInfo == null) return null;
+			return x => getMethodInfo.Invoke(x, new object[0]);
+#elif (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
 			var getMethodInfo = propertyInfo.GetGetMethod();
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
@@ -71,10 +79,17 @@ namespace ServiceStack.Text.Reflection
 
             var instance = Expression.Parameter(propertyInfo.DeclaringType, "i");
             var argument = Expression.Parameter(typeof(object), "a");
+#if NETFX_CORE
+            var setterCall = Expression.Call(
+                instance,
+                propertyInfo.SetMethod,
+                Expression.Convert(argument, propertyInfo.PropertyType));
+#else
             var setterCall = Expression.Call(
                 instance,
                 propertyInfo.GetSetMethod(),
                 Expression.Convert(argument, propertyInfo.PropertyType));
+#endif
 
             return Expression.Lambda<Action<T, object>>
             (

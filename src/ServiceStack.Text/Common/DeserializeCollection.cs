@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Linq;
 #if WINDOWS_PHONE && !WP8
 using ServiceStack.Text.WP;
 #endif
@@ -38,7 +39,11 @@ namespace ServiceStack.Text.Common
             if (type.HasInterface(typeof(ICollection<int>)))
                 return value => ParseIntCollection(value, type);
 
+#if NETFX_CORE
+            var elementType = collectionInterface.GenericTypeArguments[0];
+#else
             var elementType = collectionInterface.GetGenericArguments()[0];
+#endif
 
             var supportedTypeParseMethod = Serializer.GetParseFn(elementType);
             if (supportedTypeParseMethod != null)
@@ -83,9 +88,15 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
                 return parseDelegate(value, createType, parseFn);
 
+#if NETFX_CORE
+            var mi = typeof(DeserializeCollection<TSerializer>).GetRuntimeMethods().First(p => p.Name.Equals("ParseCollection"));
+            var genericMi = mi.MakeGenericMethod(new[] { elementType });
+            parseDelegate = (ParseCollectionDelegate)genericMi.CreateDelegate(typeof(ParseCollectionDelegate));
+#else
             var mi = typeof(DeserializeCollection<TSerializer>).GetMethod("ParseCollection", BindingFlags.Static | BindingFlags.Public);
             var genericMi = mi.MakeGenericMethod(new[] { elementType });
             parseDelegate = (ParseCollectionDelegate)Delegate.CreateDelegate(typeof(ParseCollectionDelegate), genericMi);
+#endif
 
             Dictionary<Type, ParseCollectionDelegate> snapshot, newCache;
             do

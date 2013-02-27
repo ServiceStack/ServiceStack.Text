@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Linq;
 
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
@@ -116,10 +118,93 @@ namespace ServiceStack.Text.Common
             throw new NotSupportedException(typeof(TSerializer).Name);
         }
 
+#if NETFX_CORE
+        private static readonly Type[] knownTypes = new Type[] {
+                typeof(bool), typeof(char), typeof(sbyte), typeof(byte),
+                typeof(short), typeof(ushort), typeof(int), typeof(uint),
+                typeof(long), typeof(ulong), typeof(float), typeof(double),
+                typeof(decimal), typeof(string),
+                typeof(DateTime), typeof(TimeSpan), typeof(Guid), typeof(Uri),
+                typeof(byte[]), typeof(System.Type)};
+        private static readonly ServiceStackTypeCode[] knownCodes = new ServiceStackTypeCode[] {
+            ServiceStackTypeCode.Boolean, ServiceStackTypeCode.Char, ServiceStackTypeCode.SByte, ServiceStackTypeCode.Byte,
+            ServiceStackTypeCode.Int16, ServiceStackTypeCode.UInt16, ServiceStackTypeCode.Int32, ServiceStackTypeCode.UInt32,
+            ServiceStackTypeCode.Int64, ServiceStackTypeCode.UInt64, ServiceStackTypeCode.Single, ServiceStackTypeCode.Double,
+            ServiceStackTypeCode.Decimal, ServiceStackTypeCode.String,
+            ServiceStackTypeCode.DateTime, ServiceStackTypeCode.TimeSpan, ServiceStackTypeCode.Guid, ServiceStackTypeCode.Uri,
+            ServiceStackTypeCode.ByteArray, ServiceStackTypeCode.Type
+        };
+
+        internal enum ServiceStackTypeCode
+        {
+            Empty = 0,
+            Unknown = 1, // maps to TypeCode.Object
+            Boolean = 3,
+            Char = 4,
+            SByte = 5,
+            Byte = 6,
+            Int16 = 7,
+            UInt16 = 8,
+            Int32 = 9,
+            UInt32 = 10,
+            Int64 = 11,
+            UInt64 = 12,
+            Single = 13,
+            Double = 14,
+            Decimal = 15,
+            DateTime = 16,
+            String = 18,
+
+            // additions
+            TimeSpan = 100,
+            ByteArray = 101,
+            Guid = 102,
+            Uri = 103,
+            Type = 104
+        }
+
+        private static ServiceStackTypeCode GetTypeCode(Type type)
+        {
+            int idx = Array.IndexOf<Type>(knownTypes, type);
+            if (idx >= 0) return knownCodes[idx];
+            return type == null ? ServiceStackTypeCode.Empty : ServiceStackTypeCode.Unknown;
+        }
+#endif
+
         public static void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
             if (enumFlagValue == null) return;
+#if NETFX_CORE
+            var typeCode = GetTypeCode(Enum.GetUnderlyingType(enumFlagValue.GetType()));
 
+            switch (typeCode)
+            {
+                case ServiceStackTypeCode.Byte:
+                    writer.Write((byte)enumFlagValue);
+                    break;
+                case ServiceStackTypeCode.Int16:
+                    writer.Write((short)enumFlagValue);
+                    break;
+                case ServiceStackTypeCode.UInt16:
+                    writer.Write((ushort)enumFlagValue);
+                    break;
+                case ServiceStackTypeCode.Int32:
+                    writer.Write((int)enumFlagValue);
+                    break;
+                case ServiceStackTypeCode.UInt32:
+                    writer.Write((uint)enumFlagValue);
+                    break;
+                case ServiceStackTypeCode.Int64:
+                    writer.Write((long)enumFlagValue);
+                    break;
+                case ServiceStackTypeCode.UInt64:
+                    writer.Write((ulong)enumFlagValue);
+                    break;
+                default:
+                    writer.Write((int)enumFlagValue);
+                    break;
+            }
+#else
             var typeCode = Type.GetTypeCode(Enum.GetUnderlyingType(enumFlagValue.GetType()));
 
             switch (typeCode)
@@ -149,6 +234,7 @@ namespace ServiceStack.Text.Common
                     writer.Write((int)enumFlagValue);
                     break;
             }
+#endif
         }
     }
 
@@ -227,6 +313,18 @@ namespace ServiceStack.Text.Common
             if (type == typeof(decimal) || type == typeof(decimal?))
                 return Serializer.WriteDecimal;
 
+#if NETFX_CORE
+            if (type.GetTypeInfo().IsEnum)
+                return type.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), false).Count() > 0
+                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
+                    : Serializer.WriteEnum;
+
+            Type nullableType;
+            if ((nullableType = Nullable.GetUnderlyingType(type)) != null && nullableType.GetTypeInfo().IsEnum)
+                return nullableType.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), false).Count() > 0
+                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
+                    : Serializer.WriteEnum;
+#else
             if (type.IsEnum || type.UnderlyingSystemType.IsEnum)
                 return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
@@ -237,6 +335,7 @@ namespace ServiceStack.Text.Common
                 return nullableType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
+#endif
 
             return Serializer.WriteObjectString;
         }
@@ -259,7 +358,11 @@ namespace ServiceStack.Text.Common
 
         private WriteObjectDelegate GetCoreWriteFn<T>()
         {
+#if NETFX_CORE
+            if ((typeof(T).GetTypeInfo().IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
+#else
             if ((typeof(T).IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
+#endif
                 JsConfig<T>.HasSerializeFn)
             {
                 return JsConfig<T>.HasSerializeFn
@@ -300,7 +403,11 @@ namespace ServiceStack.Text.Common
                 var mapInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
                 if (mapInterface != null)
                 {
+#if NETFX_CORE
+                    var mapTypeArgs = mapInterface.GenericTypeArguments;
+#else
                     var mapTypeArgs = mapInterface.GetGenericArguments();
+#endif
                     var writeFn = WriteDictionary<TSerializer>.GetWriteGenericDictionary(
                         mapTypeArgs[0], mapTypeArgs[1]);
 
@@ -315,27 +422,43 @@ namespace ServiceStack.Text.Common
                 var enumerableInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
                 if (enumerableInterface != null)
                 {
+#if NETFX_CORE
+                    var elementType = enumerableInterface.GenericTypeArguments[0];
+#else
                     var elementType = enumerableInterface.GetGenericArguments()[0];
+#endif
                     var writeFn = WriteListsOfElements<TSerializer>.GetGenericWriteEnumerable(elementType);
                     return writeFn;
                 }
             }
 
+#if NETFX_CORE
+            var isDictionary = typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IDictionary).GetTypeInfo())
+#else
             var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))
+#endif
                 || typeof(T).HasInterface(typeof(IDictionary));
             if (isDictionary)
             {
                 return WriteDictionary<TSerializer>.WriteIDictionary;
             }
 
+#if NETFX_CORE
+            var isEnumerable = typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IEnumerable).GetTypeInfo())
+#else
             var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
+#endif
                 || typeof(T).HasInterface(typeof(IEnumerable));
             if (isEnumerable)
             {
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
             }
 
+#if NETFX_CORE
+            if (typeof(T).GetTypeInfo().IsClass || typeof(T).GetTypeInfo().IsInterface || JsConfig.TreatAsRefType(typeof(T)))
+#else
             if (typeof(T).IsClass || typeof(T).IsInterface || JsConfig.TreatAsRefType(typeof(T)))
+#endif
             {
                 var typeToStringMethod = WriteType<T, TSerializer>.Write;
                 if (typeToStringMethod != null)
@@ -356,7 +479,11 @@ namespace ServiceStack.Text.Common
             if (SpecialTypes.TryGetValue(type, out writeFn))
                 return writeFn;
 
+#if NETFX_CORE
+            if (type.GetTypeInfo().IsAssignableFrom(typeof(Type).GetType().GetTypeInfo()))
+#else
             if (type.IsInstanceOfType(typeof(Type)))
+#endif
                 return WriteType;
 
             if (type.IsInstanceOf(typeof(Exception)))

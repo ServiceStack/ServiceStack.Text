@@ -176,7 +176,11 @@ namespace ServiceStack.Text.Json
             if (charValue == null)
                 writer.Write(JsonUtils.Null);
             else
+#if NETFX_CORE
+                WriteRawString(writer, ((char)charValue).ToString());
+#else
                 WriteRawString(writer, ((char)charValue).ToString(CultureInfo.InvariantCulture));
+#endif
         }
 
         public void WriteByte(TextWriter writer, object byteValue)
