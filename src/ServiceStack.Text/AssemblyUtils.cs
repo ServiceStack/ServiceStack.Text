@@ -68,11 +68,19 @@ namespace ServiceStack.Text
 		/// </summary>
     	public static Type MainInterface<T>() {
 			var t = typeof(T);
+#if NETFX_CORE
+    		if (t.GetTypeInfo().BaseType == typeof(object)) {
+				// on Windows, this can be just "t.GetInterfaces()" but Mono doesn't return in order.
+				var interfaceType = t.GetTypeInfo().ImplementedInterfaces.FirstOrDefault(i => !t.GetTypeInfo().ImplementedInterfaces.Any(i2 => i2.GetTypeInfo().ImplementedInterfaces.Contains(i)));
+				if (interfaceType != null) return interfaceType;
+			}
+#else
     		if (t.BaseType == typeof(object)) {
 				// on Windows, this can be just "t.GetInterfaces()" but Mono doesn't return in order.
 				var interfaceType = t.GetInterfaces().FirstOrDefault(i => !t.GetInterfaces().Any(i2 => i2.GetInterfaces().Contains(i)));
 				if (interfaceType != null) return interfaceType;
 			}
+#endif
 			return t; // not safe to use interface, as it might be a superclass's one.
 		}
 
@@ -89,6 +97,7 @@ namespace ServiceStack.Text
             {
                 return type;
             }
+#if !NETFX_CORE
             var binPath = GetAssemblyBinPath(Assembly.GetExecutingAssembly());
             Assembly assembly = null;
             var assemblyDllPath = binPath + String.Format("{0}.{1}", assemblyName, DllExt);
@@ -102,6 +111,47 @@ namespace ServiceStack.Text
                 assembly = LoadAssembly(assemblyExePath);
             }
             return assembly != null ? assembly.GetType(typeName) : null;
+#else
+            return null;
+#endif
+        }
+#endif
+
+#if NETFX_CORE
+        private sealed class AppDomain
+        {
+            public static AppDomain CurrentDomain { get; private set; }
+ 
+            static AppDomain()
+            {
+                CurrentDomain = new AppDomain();
+            }
+ 
+            public Assembly[] GetAssemblies()
+            {
+                return GetAssemblyListAsync().Result.ToArray();
+            }
+ 
+            private async System.Threading.Tasks.Task<IEnumerable<Assembly>> GetAssemblyListAsync()
+            {
+                var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+ 
+                List<Assembly> assemblies = new List<Assembly>();
+                foreach (Windows.Storage.StorageFile file in await folder.GetFilesAsync())
+                {
+                    if (file.FileType == ".dll" || file.FileType == ".exe")
+                    {
+                        var filename = file.Name.Substring(0, file.Name.Length - file.FileType.Length);
+                        if (filename.Equals("sqlite3"))
+                            continue;
+                        AssemblyName name = new AssemblyName() { Name = filename };
+                        Assembly asm = Assembly.Load(name);
+                        assemblies.Add(asm);
+                    }
+                }
+ 
+                return assemblies;
+            }
         }
 #endif
 
@@ -130,6 +180,11 @@ namespace ServiceStack.Text
 		{
 			return Assembly.LoadFrom(assemblyPath);
 		}
+#elif NETFX_CORE
+        private static Assembly LoadAssembly(string assemblyPath)
+        {
+            return Assembly.Load(new AssemblyName(assemblyPath));
+        }
 #elif WINDOWS_PHONE
         private static Assembly LoadAssembly(string assemblyPath)
         {
@@ -150,6 +205,8 @@ namespace ServiceStack.Text
         {
 #if WINDOWS_PHONE
             var codeBase = assembly.GetName().CodeBase;
+#elif NETFX_CORE
+            var codeBase = assembly.GetName().FullName;
 #else
             var codeBase = assembly.CodeBase;
 #endif

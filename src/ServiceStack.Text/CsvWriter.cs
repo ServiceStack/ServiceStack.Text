@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Reflection;
 #if WINDOWS_PHONE && !WP8
@@ -130,7 +131,11 @@ namespace ServiceStack.Text
 		    var isDataContract = typeof(T).IsDto();
 			foreach (var propertyInfo in TypeConfig<T>.Properties)
 			{
+#if NETFX_CORE
+				if (!propertyInfo.CanRead || propertyInfo.GetMethod == null) continue;
+#else
 				if (!propertyInfo.CanRead || propertyInfo.GetGetMethod() == null) continue;
+#endif
 				if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
 				PropertyGetters.Add(propertyInfo.GetValueGetter<T>());
@@ -187,7 +192,11 @@ namespace ServiceStack.Text
 
 			if (records == null) return rows;
 
+#if NETFX_CORE
+			if (typeof(T).GetTypeInfo().IsValueType || typeof(T) == typeof(string))
+#else
 			if (typeof(T).IsValueType || typeof(T) == typeof(string))
+#endif
 			{
 				rows.Add(GetSingleRow(records, typeof(T)));
 				return rows;
@@ -258,7 +267,11 @@ namespace ServiceStack.Text
 
 			if (records == null) return;
 
+#if NETFX_CORE
+			if (typeof(T).GetTypeInfo().IsValueType || typeof(T) == typeof(string))
+#else
 			if (typeof(T).IsValueType || typeof(T) == typeof(string))
+#endif
 			{
 				var singleRow = GetSingleRow(records, typeof(T));
 				WriteRow(writer, singleRow);

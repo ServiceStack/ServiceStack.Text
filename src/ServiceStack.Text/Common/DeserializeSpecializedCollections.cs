@@ -91,13 +91,17 @@ namespace ServiceStack.Text.Common
         internal static ParseStringDelegate GetGenericQueueParseFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
-            var elementType = enumerableInterface.GetGenericArguments()[0];
-
+#if NETFX_CORE
+            var elementType = enumerableInterface.GenericTypeArguments[0];
             var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
-
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("ConvertToQueue"));
+            var convertToQueue = (ConvertObjectDelegate)mi.CreateDelegate(typeof(ConvertObjectDelegate));
+#else
+            var elementType = enumerableInterface.GetGenericArguments()[0];
+            var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
             var mi = genericType.GetMethod("ConvertToQueue", BindingFlags.Static | BindingFlags.Public);
-
             var convertToQueue = (ConvertObjectDelegate)Delegate.CreateDelegate(typeof(ConvertObjectDelegate), mi);
+#endif
 
             var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseFn();
 
@@ -119,13 +123,17 @@ namespace ServiceStack.Text.Common
         internal static ParseStringDelegate GetGenericStackParseFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
-            var elementType = enumerableInterface.GetGenericArguments()[0];
-
+#if NETFX_CORE
+            var elementType = enumerableInterface.GenericTypeArguments[0];
             var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
-
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("ConvertToStack"));
+            var convertToQueue = (ConvertObjectDelegate)mi.CreateDelegate(typeof(ConvertObjectDelegate));
+#else
+            var elementType = enumerableInterface.GetGenericArguments()[0];
+            var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
             var mi = genericType.GetMethod("ConvertToStack", BindingFlags.Static | BindingFlags.Public);
-
             var convertToQueue = (ConvertObjectDelegate)Delegate.CreateDelegate(typeof(ConvertObjectDelegate), mi);
+#endif
 
             var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseFn();
 
@@ -135,11 +143,15 @@ namespace ServiceStack.Text.Common
         public static ParseStringDelegate GetGenericEnumerableParseFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
-            var elementType = enumerableInterface.GetGenericArguments()[0];
-
+#if NETFX_CORE
+            var elementType = enumerableInterface.GenericTypeArguments[0];
             var genericType = typeof(SpecializedEnumerableElements<,>).MakeGenericType(typeof(T), elementType);
-
+            var fi = genericType.GetRuntimeField("ConvertFn");
+#else
+            var elementType = enumerableInterface.GetGenericArguments()[0];
+            var genericType = typeof(SpecializedEnumerableElements<,>).MakeGenericType(typeof(T), elementType);
             var fi = genericType.GetField("ConvertFn", BindingFlags.Static | BindingFlags.Public);
+#endif
 
             var convertFn = fi.GetValue(null) as ConvertObjectDelegate;
             if (convertFn == null) return null;
@@ -171,12 +183,20 @@ namespace ServiceStack.Text.Common
 
         static SpecializedEnumerableElements()
         {
+#if NETFX_CORE
+            foreach (var ctorInfo in typeof(TCollection).GetTypeInfo().DeclaredConstructors)
+#else
             foreach (var ctorInfo in typeof(TCollection).GetConstructors())
+#endif
             {
                 var ctorParams = ctorInfo.GetParameters();
                 if (ctorParams.Length != 1) continue;
                 var ctorParam = ctorParams[0];
+#if NETFX_CORE
+                if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(ctorParam.ParameterType.GetTypeInfo())
+#else
                 if (typeof(IEnumerable).IsAssignableFrom(ctorParam.ParameterType)
+#endif
                     || ctorParam.ParameterType.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
                 {
                     ConvertFn = fromObject =>

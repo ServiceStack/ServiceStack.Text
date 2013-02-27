@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 
@@ -79,6 +80,15 @@ namespace ServiceStack.Text
 		{
 			if (value == null) return null;
 			if (typeof(T) == typeof(string)) return value as string;
+#if NETFX_CORE
+            if (typeof(T) == typeof(object) || typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface)
+            {
+                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+                var result = SerializeToString(value, value.GetType());
+                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+                return result;
+            }
+#else
             if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
             {
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
@@ -86,6 +96,7 @@ namespace ServiceStack.Text
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
                 return result;
             }
+#endif
 
 			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
@@ -118,9 +129,15 @@ namespace ServiceStack.Text
 			}
 			if (typeof(T) == typeof(object))
 			{
+#if NETFX_CORE
+                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+                SerializeToWriter(value, value.GetType(), writer);
+                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+#else
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
                 SerializeToWriter(value, value.GetType(), writer);
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+#endif
                 return;
 			}
 
@@ -144,9 +161,15 @@ namespace ServiceStack.Text
 			if (value == null) return;
 			if (typeof(T) == typeof(object))
 			{
+#if NETFX_CORE
+                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+                SerializeToStream(value, value.GetType(), stream);
+                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+#else
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
                 SerializeToStream(value, value.GetType(), stream);
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+#endif
                 return;
 			}
 
@@ -211,7 +234,11 @@ namespace ServiceStack.Text
         /// </summary>
         public static void PrintDump<T>(this T instance)
         {
+#if NETFX_CORE
+            System.Diagnostics.Debug.WriteLine(SerializeAndFormat(instance));
+#else
             Console.WriteLine(SerializeAndFormat(instance));
+#endif
         }
 
         /// <summary>
@@ -219,10 +246,17 @@ namespace ServiceStack.Text
         /// </summary>
         public static void Print(this string text, params object[] args)
         {
+#if NETFX_CORE
+            if (args.Length > 0)
+                System.Diagnostics.Debug.WriteLine(text, args);
+            else
+                System.Diagnostics.Debug.WriteLine(text);
+#else
             if (args.Length > 0)
                 Console.WriteLine(text, args);
             else
                 Console.WriteLine(text);
+#endif
         }
 
 		public static string SerializeAndFormat<T>(this T instance)

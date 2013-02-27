@@ -16,6 +16,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 
@@ -54,6 +55,15 @@ namespace ServiceStack.Text
 		public static string SerializeToString<T>(T value)
 		{
 			if (value == null) return null;
+#if NETFX_CORE
+			if (typeof(T) == typeof(object) || typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface)
+			{
+				if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+				var result = SerializeToString(value, value.GetType());
+				if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+				return result;
+			}
+#else
 			if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
 			{
 				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
@@ -61,6 +71,7 @@ namespace ServiceStack.Text
 				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
 				return result;
 			}
+#endif
 
 			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
@@ -104,6 +115,15 @@ namespace ServiceStack.Text
 				writer.Write(value);
 				return;
 			}
+#if NETFX_CORE
+			if (typeof(T) == typeof(object) || typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface)
+			{
+				if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+				SerializeToWriter(value, value.GetType(), writer);
+				if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+				return;
+			}
+#else
 			if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
 			{
 				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
@@ -111,6 +131,7 @@ namespace ServiceStack.Text
 				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
 				return;
 			}
+#endif
 
 			JsonWriter<T>.WriteObject(writer, value);
 		}
@@ -130,6 +151,15 @@ namespace ServiceStack.Text
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
 			if (value == null) return;
+#if NETFX_CORE
+			if (typeof(T) == typeof(object) || typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface)
+			{
+				if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+				SerializeToStream(value, value.GetType(), stream);
+				if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+				return;
+			}
+#else
 			if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
 			{
 				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
@@ -137,6 +167,7 @@ namespace ServiceStack.Text
 				if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
 				return;
 			}
+#endif
 
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
 			JsonWriter<T>.WriteObject(writer, value);
@@ -168,17 +199,38 @@ namespace ServiceStack.Text
 
 		public static T DeserializeResponse<T>(WebRequest webRequest)
 		{
-			using (var webRes = webRequest.GetResponse())
-			{
-				using (var stream = webRes.GetResponseStream())
-				{
-					return DeserializeFromStream<T>(stream);
-				}
-			}
+#if NETFX_CORE
+            var async = webRequest.GetResponseAsync();
+            async.Wait();
+
+            var webRes = async.Result;
+            using (var stream = webRes.GetResponseStream())
+            {
+                return DeserializeFromStream<T>(stream);
+            }
+#else
+            using (var webRes = webRequest.GetResponse())
+            {
+                using (var stream = webRes.GetResponseStream())
+                {
+                    return DeserializeFromStream<T>(stream);
+                }
+            }
+#endif
 		}
 
 		public static object DeserializeResponse<T>(Type type, WebRequest webRequest)
 		{
+#if NETFX_CORE
+            var async = webRequest.GetResponseAsync();
+            async.Wait();
+
+            var webRes = async.Result;
+            using (var stream = webRes.GetResponseStream())
+            {
+                return DeserializeFromStream(type, stream);
+            }
+#else
 			using (var webRes = webRequest.GetResponse())
 			{
 				using (var stream = webRes.GetResponseStream())
@@ -186,22 +238,39 @@ namespace ServiceStack.Text
 					return DeserializeFromStream(type, stream);
 				}
 			}
+#endif
 		}
 
 		public static T DeserializeRequest<T>(WebRequest webRequest)
 		{
+#if NETFX_CORE
+            var async = webRequest.GetResponseAsync();
+            async.Wait();
+
+            var webRes = async.Result;
+			return DeserializeResponse<T>(webRes);
+#else
 			using (var webRes = webRequest.GetResponse())
 			{
 				return DeserializeResponse<T>(webRes);
-			}
+            }
+#endif
 		}
 
 		public static object DeserializeRequest(Type type, WebRequest webRequest)
 		{
+#if NETFX_CORE
+            var async = webRequest.GetResponseAsync();
+            async.Wait();
+
+            var webRes = async.Result;
+			return DeserializeResponse(type, webRes);
+#else
 			using (var webRes = webRequest.GetResponse())
 			{
 				return DeserializeResponse(type, webRes);
 			}
+#endif
 		}
 
 		public static T DeserializeResponse<T>(WebResponse webResponse)

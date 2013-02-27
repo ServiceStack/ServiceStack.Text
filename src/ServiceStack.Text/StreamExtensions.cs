@@ -90,10 +90,12 @@ namespace ServiceStack.Text
 			{
 				CopyTo(input, tempStream, buffer);
 				// No need to copy the buffer if it's the right size
+#if !NETFX_CORE
 				if (tempStream.Length == tempStream.GetBuffer().Length)
 				{
 					return tempStream.GetBuffer();
 				}
+#endif
 				// Okay, make a copy that's the right size
 				return tempStream.ToArray();
 			}

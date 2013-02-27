@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
-
 
 #if WINDOWS_PHONE && !WP8
 using ServiceStack.Text.WP;
@@ -402,7 +402,11 @@ namespace ServiceStack.Text
 
         internal static bool TreatAsRefType(Type valueType)
         {
+#if NETFX_CORE
+            return TreatValueAsRefTypes.Contains(valueType.GetTypeInfo().IsGenericType ? valueType.GetGenericTypeDefinition() : valueType);
+#else
             return TreatValueAsRefTypes.Contains(valueType.IsGenericType ? valueType.GetGenericTypeDefinition() : valueType);
+#endif
         }
 
 
