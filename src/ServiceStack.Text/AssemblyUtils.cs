@@ -121,6 +121,7 @@ namespace ServiceStack.Text
         private sealed class AppDomain
         {
             public static AppDomain CurrentDomain { get; private set; }
+            public static Assembly[] cacheObj = null;
  
             static AppDomain()
             {
@@ -129,7 +130,7 @@ namespace ServiceStack.Text
  
             public Assembly[] GetAssemblies()
             {
-                return GetAssemblyListAsync().Result.ToArray();
+                return cacheObj ?? GetAssemblyListAsync().Result.ToArray();
             }
  
             private async System.Threading.Tasks.Task<IEnumerable<Assembly>> GetAssemblyListAsync()
@@ -141,16 +142,23 @@ namespace ServiceStack.Text
                 {
                     if (file.FileType == ".dll" || file.FileType == ".exe")
                     {
-                        var filename = file.Name.Substring(0, file.Name.Length - file.FileType.Length);
-                        if (filename.Equals("sqlite3"))
-                            continue;
-                        AssemblyName name = new AssemblyName() { Name = filename };
-                        Assembly asm = Assembly.Load(name);
-                        assemblies.Add(asm);
+                        try
+                        {
+                            var filename = file.Name.Substring(0, file.Name.Length - file.FileType.Length);
+                            AssemblyName name = new AssemblyName() { Name = filename };
+                            Assembly asm = Assembly.Load(name);
+                            assemblies.Add(asm);
+                        }
+                        catch (Exception)
+                        {
+                            // Invalid WinRT assembly!
+                        }
                     }
                 }
+
+                cacheObj = assemblies.ToArray();
  
-                return assemblies;
+                return cacheObj;
             }
         }
 #endif
