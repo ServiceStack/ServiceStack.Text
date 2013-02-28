@@ -205,10 +205,10 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(dto.ToJsv(),
                 Is.EqualTo("{Id:1,Name:foo}"));
-
+#if !XBOX && !SILVERLIGHT && !MONOTOUCH
             Assert.That(dto.ToXml(),
                 Is.EqualTo("<?xml version=\"1.0\" encoding=\"utf-8\"?><UserStruct xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.datacontract.org/2004/07/ServiceStack.Text.Tests\"><Id>1</Id><Name>foo</Name></UserStruct>"));
-
+#endif
             JsConfig.Reset();
         }
 
