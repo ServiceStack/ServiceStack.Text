@@ -28,37 +28,65 @@ namespace ServiceStack.Text
 		{
 			public void WriteDebug(string error)
 			{
+#if NETFX_CORE
+				System.Diagnostics.Debug.WriteLine(error);
+#else
 				Console.WriteLine(error);
+#endif
 			}
 
 			public void WriteDebug(string format, params object[] args)
 			{
-				Console.WriteLine(format, args);
+#if NETFX_CORE
+                System.Diagnostics.Debug.WriteLine(format, args);
+#else
+                Console.WriteLine(format, args);
+#endif
 			}
 
 		    public void WriteWarning(string warning)
 		    {
+#if NETFX_CORE
+                System.Diagnostics.Debug.WriteLine(warning);                
+#else
                 Console.WriteLine(warning);                
+#endif
 		    }
 
 		    public void WriteWarning(string format, params object[] args)
 		    {
+#if NETFX_CORE
+                System.Diagnostics.Debug.WriteLine(format, args);
+#else
                 Console.WriteLine(format, args);
+#endif
             }
 
 		    public void WriteError(Exception ex)
 			{
-				Console.WriteLine(ex);
+#if NETFX_CORE
+                System.Diagnostics.Debug.WriteLine(ex);
+#else
+                Console.WriteLine(ex);
+#endif
 			}
 
 			public void WriteError(string error)
 			{
-				Console.WriteLine(error);
+#if NETFX_CORE
+                System.Diagnostics.Debug.WriteLine(error);
+#else
+                Console.WriteLine(error);
+#endif
 			}
 
 			public void WriteError(string format, params object[] args)
 			{
-				Console.WriteLine(format, args);
+#if NETFX_CORE
+                System.Diagnostics.Debug.WriteLine(format, args);
+#else
+                Console.WriteLine(format, args);
+#endif
 			}
 		}
 	}

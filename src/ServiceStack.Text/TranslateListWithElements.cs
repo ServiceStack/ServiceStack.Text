@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Linq;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
@@ -31,8 +32,13 @@ namespace ServiceStack.Text
                 return translateToFn(from, toInstanceOfType);
 
             var genericType = typeof(TranslateListWithElements<>).MakeGenericType(elementType);
+#if NETFX_CORE
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("LateBoundTranslateToGenericICollection"));
+            translateToFn = (ConvertInstanceDelegate)mi.CreateDelegate(typeof(ConvertInstanceDelegate));
+#else
             var mi = genericType.GetMethod("LateBoundTranslateToGenericICollection", BindingFlags.Static | BindingFlags.Public);
             translateToFn = (ConvertInstanceDelegate)Delegate.CreateDelegate(typeof(ConvertInstanceDelegate), mi);
+#endif
 
             Dictionary<Type, ConvertInstanceDelegate> snapshot, newCache;
             do
@@ -57,10 +63,17 @@ namespace ServiceStack.Text
             ConvertInstanceDelegate translateToFn;
             if (TranslateConvertibleICollectionCache.TryGetValue(typeKey, out translateToFn)) return translateToFn(from, toInstanceOfType);
 
+#if NETFX_CORE
+            var toElementType = toInstanceOfType.GetGenericType().GenericTypeArguments[0];
+            var genericType = typeof(TranslateListWithConvertibleElements<,>).MakeGenericType(fromElementType, toElementType);
+            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("LateBoundTranslateToGenericICollection"));
+            translateToFn = (ConvertInstanceDelegate)mi.CreateDelegate(typeof(ConvertInstanceDelegate));
+#else
             var toElementType = toInstanceOfType.GetGenericType().GetGenericArguments()[0];
             var genericType = typeof(TranslateListWithConvertibleElements<,>).MakeGenericType(fromElementType, toElementType);
             var mi = genericType.GetMethod("LateBoundTranslateToGenericICollection", BindingFlags.Static | BindingFlags.Public);
             translateToFn = (ConvertInstanceDelegate)Delegate.CreateDelegate(typeof(ConvertInstanceDelegate), mi);
+#endif
 
             Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate> snapshot, newCache;
             do
@@ -144,7 +157,11 @@ namespace ServiceStack.Text
 	{
 		public static object CreateInstance(Type toInstanceOfType)
 		{
+#if NETFX_CORE
+			if (toInstanceOfType.GetTypeInfo().IsGenericType)
+#else
 			if (toInstanceOfType.IsGenericType)
+#endif
 			{
 				if (toInstanceOfType.HasAnyTypeDefinitionsOf(
 					typeof(ICollection<>), typeof(IList<>)))

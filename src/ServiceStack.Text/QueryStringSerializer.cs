@@ -17,6 +17,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Linq;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 
@@ -36,9 +37,15 @@ namespace ServiceStack.Text
                 if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
 
                 var genericType = typeof(QueryStringWriter<>).MakeGenericType(type);
+#if NETFX_CORE
+                var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteFn"));
+                var writeFactoryFn = (Func<WriteObjectDelegate>)mi.CreateDelegate(
+                    typeof(Func<WriteObjectDelegate>));
+#else
                 var mi = genericType.GetMethod("WriteFn", BindingFlags.NonPublic | BindingFlags.Static);
                 var writeFactoryFn = (Func<WriteObjectDelegate>)Delegate.CreateDelegate(
                     typeof(Func<WriteObjectDelegate>), mi);
+#endif
                 writeFn = writeFactoryFn();
 
                 Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -104,7 +111,11 @@ namespace ServiceStack.Text
 			}
 			else
 			{
+#if NETFX_CORE
+				if (typeof(T).GetTypeInfo().IsClass || typeof(T).GetTypeInfo().IsInterface)
+#else
 				if (typeof(T).IsClass || typeof(T).IsInterface)
+#endif
 				{
 					var canWriteType = WriteType<T, JsvTypeSerializer>.Write;
 					if (canWriteType != null)

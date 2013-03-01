@@ -12,6 +12,7 @@
 
 using System;
 using System.Reflection;
+using System.Linq;
 using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text.Common
@@ -23,9 +24,13 @@ namespace ServiceStack.Text.Common
         public static ParseStringDelegate GetParseFn<T>(string parseMethod)
         {
             // Get the static Parse(string) method on the type supplied
+#if NETFX_CORE
+            var parseMethodInfo = typeof(T).GetRuntimeMethod(parseMethod, new[] { typeof(string) });
+#else
             var parseMethodInfo = typeof(T).GetMethod(
                 parseMethod, BindingFlags.Public | BindingFlags.Static, null,
                 new[] { typeof(string) }, null);
+#endif
 
             if (parseMethodInfo == null) 
                 return null;
@@ -33,6 +38,18 @@ namespace ServiceStack.Text.Common
             ParseDelegate parseDelegate = null;
             try
             {
+#if NETFX_CORE
+                if (parseMethodInfo.ReturnType != typeof(T))
+                {
+                    parseDelegate = (ParseDelegate)parseMethodInfo.CreateDelegate(typeof(ParseDelegate));
+                }
+                if (parseDelegate == null)
+                {
+                    //Try wrapping strongly-typed return with wrapper fn.
+                    var typedParseDelegate = (Func<string, T>)parseMethodInfo.CreateDelegate(typeof(Func<string, T>));
+                    parseDelegate = x => typedParseDelegate(x);
+                }
+#else
                 if (parseMethodInfo.ReturnType != typeof(T))
                 {
                     parseDelegate = (ParseDelegate)Delegate.CreateDelegate(typeof(ParseDelegate), parseMethodInfo, false);
@@ -43,6 +60,7 @@ namespace ServiceStack.Text.Common
                     var typedParseDelegate = (Func<string, T>)Delegate.CreateDelegate(typeof(Func<string, T>), parseMethodInfo);
                     parseDelegate = x => typedParseDelegate(x);
                 }
+#endif
             }
             catch (ArgumentException)
             {

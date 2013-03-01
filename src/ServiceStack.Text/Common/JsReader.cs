@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace ServiceStack.Text.Common
 {
@@ -27,7 +28,11 @@ namespace ServiceStack.Text.Common
             if (JsConfig<T>.HasDeserializeFn)
                 return value => JsConfig<T>.ParseFn(Serializer, value);
 
+#if NETFX_CORE
+            if (type.GetTypeInfo().IsEnum)
+#else
             if (type.IsEnum)
+#endif
             {
                 return x => Enum.Parse(type, x, true);
             }
@@ -42,7 +47,11 @@ namespace ServiceStack.Text.Common
             if (specialParseFn != null)
                 return specialParseFn;
 
+#if NETFX_CORE
+            if (type.GetTypeInfo().IsEnum)
+#else
             if (type.IsEnum)
+#endif
                 return x => Enum.Parse(type, x, true);
 
             if (type.IsArray)
@@ -84,14 +93,22 @@ namespace ServiceStack.Text.Common
             }
 #endif
 
+#if NETFX_CORE
+            var isDictionary = typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IDictionary).GetTypeInfo())
+#else
             var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))
+#endif
                 || typeof(T).HasInterface(typeof(IDictionary));
             if (isDictionary)
             {
                 return DeserializeDictionary<TSerializer>.GetParseMethod(type);
             }
 
+#if NETFX_CORE
+            var isEnumerable = typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IEnumerable).GetTypeInfo())
+#else
             var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
+#endif
                 || typeof(T).HasInterface(typeof(IEnumerable));
             if (isEnumerable)
             {
@@ -99,7 +116,11 @@ namespace ServiceStack.Text.Common
                 if (parseFn != null) return parseFn;
             }
 
+#if NETFX_CORE
+            if (type.GetTypeInfo().IsValueType)
+#else
             if (type.IsValueType)
+#endif
             {
                 var staticParseMethod = StaticParseMethod<T>.Parse;
                 if (staticParseMethod != null)

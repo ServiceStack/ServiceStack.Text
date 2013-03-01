@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
@@ -88,7 +89,11 @@ namespace ServiceStack.Text.Common
                 {
                     var explicitTypeName = Serializer.ParseString(propertyValueStr);
                     var explicitType = AssemblyUtils.FindType(explicitTypeName);
+#if NETFX_CORE
+                    if (explicitType != null && !explicitType.GetTypeInfo().IsInterface && !explicitType.GetTypeInfo().IsAbstract)
+#else
                     if (explicitType != null && !explicitType.IsInterface && !explicitType.IsAbstract)
+#endif
                     {
                         instance = explicitType.CreateInstance();
                     }
@@ -100,7 +105,11 @@ namespace ServiceStack.Text.Common
                     else
                     {
                         //If __type info doesn't match, ignore it.
+#if NETFX_CORE
+                        if (!type.IsInstanceOf(instance.GetType()))
+#else
                         if (!type.IsInstanceOfType(instance))
+#endif
                         {
                             instance = null;
                         }

@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ServiceStack.Text.Common;
@@ -33,8 +34,13 @@ namespace ServiceStack.Text.Jsv
                 if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
 
                 var genericType = typeof(JsvWriter<>).MakeGenericType(type);
+#if NETFX_CORE
+                var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteFn"));
+                var writeFactoryFn = (Func<WriteObjectDelegate>)mi.CreateDelegate(typeof(Func<WriteObjectDelegate>));
+#else
                 var mi = genericType.GetMethod("WriteFn", BindingFlags.Public | BindingFlags.Static);
                 var writeFactoryFn = (Func<WriteObjectDelegate>)Delegate.CreateDelegate(typeof(Func<WriteObjectDelegate>), mi);
+#endif
                 writeFn = writeFactoryFn();
 
                 Dictionary<Type, WriteObjectDelegate> snapshot, newCache;

@@ -20,6 +20,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Support;
+#if NETFX_CORE
+using System.Threading.Tasks;
+#endif
+
 #if WINDOWS_PHONE
 using System.IO.IsolatedStorage;
 #if  !WP8
@@ -400,8 +404,13 @@ namespace ServiceStack.Text
             return extPos > dirPos ? filePath.Substring(0, extPos) : filePath;
         }
 
+#if NETFX_CORE
+        private static readonly char DirSep = '\\';//Path.DirectorySeparatorChar;
+        private static readonly char AltDirSep = '/';//Path.DirectorySeparatorChar == '/' ? '\\' : '/';
+#else
         private static readonly char DirSep = Path.DirectorySeparatorChar;
         private static readonly char AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
+#endif
         static readonly char[] DirSeps = new[] { '\\', '/' };
 
         public static string ParentDirectory(this string filePath)
@@ -466,8 +475,13 @@ namespace ServiceStack.Text
 
         public static bool StartsWithIgnoreCase(this string text, string startsWith)
         {
+#if NETFX_CORE
+            return text != null
+                && text.StartsWith(startsWith, StringComparison.CurrentCultureIgnoreCase);
+#else
             return text != null
                 && text.StartsWith(startsWith, StringComparison.InvariantCultureIgnoreCase);
+#endif
         }
 
         public static string ReadAllText(this string filePath)
@@ -477,7 +491,18 @@ namespace ServiceStack.Text
 			{
 				return new StreamReader( fileStream ).ReadToEnd( ) ;
 			}
+#elif NETFX_CORE
+            var task = Windows.Storage.StorageFile.GetFileFromPathAsync(filePath);
+            task.AsTask().Wait();
 
+            var file = task.GetResults();
+            
+            var streamTask = file.OpenStreamForReadAsync();
+            streamTask.Wait();
+
+            var fileStream = streamTask.Result;
+
+			return new StreamReader( fileStream ).ReadToEnd( ) ;
 #elif WINDOWS_PHONE
             using (var isoStore = IsolatedStorageFile.GetUserStoreForApplication())
             {
@@ -489,8 +514,8 @@ namespace ServiceStack.Text
 #else
             return File.ReadAllText(filePath);
 #endif
-
         }
+
 
         public static int IndexOfAny(this string text, params string[] needles)
         {
@@ -662,10 +687,15 @@ namespace ServiceStack.Text
                 throw new ArgumentNullException("type");
 
             // HACK: The only way to detect anonymous types right now.
+#if NETFX_CORE
+            return type.IsGenericType() && type.Name.Contains("AnonymousType")
+                && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"));
+#else
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                && type.IsGenericType && type.Name.Contains("AnonymousType")
+                && type.IsGenericType() && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
                 && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
+#endif
         }
     }
 }
