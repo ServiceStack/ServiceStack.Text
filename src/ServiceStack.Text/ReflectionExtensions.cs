@@ -394,7 +394,7 @@ namespace ServiceStack.Text
                         queue.Enqueue(subInterface);
                     }
 
-                    var typeProperties = PlatformExtensionsBecauseWinRTIsSuchAPOS.GetPublicProperties(subType);
+                    var typeProperties = subType.GetTypesPublicProperties();
 
                     var newPropertyInfos = typeProperties
                         .Where(x => !propertyInfos.Contains(x));
@@ -405,7 +405,7 @@ namespace ServiceStack.Text
                 return propertyInfos.ToArray();
             }
 
-            return PlatformExtensionsBecauseWinRTIsSuchAPOS.GetPublicProperties(type)
+            return type.GetTypesPublicProperties()
                 .Where(t => t.GetIndexParameters().Length == 0) // ignore indexed properties
                 .ToArray();
         }
@@ -438,7 +438,7 @@ namespace ServiceStack.Text
                 return new FieldInfo[0];
             }
             
-            var publicFields = PlatformExtensionsBecauseWinRTIsSuchAPOS.GetPublicFields(type);
+            var publicFields = PlatformExtensions.GetPublicFields(type);
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicFields.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
@@ -531,7 +531,7 @@ namespace ServiceStack.Text
 #endif
     }
 
-    public static class PlatformExtensionsBecauseWinRTIsSuchAPOS
+    public static class PlatformExtensions //Because WinRT is a POS
     {
         public static bool IsInterface(this Type type)
         {
@@ -604,8 +604,8 @@ namespace ServiceStack.Text
             return type.GetConstructor(Type.EmptyTypes);
 #endif
         }
-        
-        public static PropertyInfo[] GetPublicProperties(this Type subType)
+
+        internal static PropertyInfo[] GetTypesPublicProperties(this Type subType)
         {
 #if NETFX_CORE 
             return subType.GetRuntimeProperties();
