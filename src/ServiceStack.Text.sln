@@ -20,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{EEDB29
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.WinRT", "ServiceStack.Text.WinRT\ServiceStack.Text.WinRT.csproj", "{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,39 +93,6 @@ Global
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.ActiveCfg = Release|x86
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.Build.0 = Release|x86
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Xbox 360.ActiveCfg = Release|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|ARM.ActiveCfg = Debug|ARM
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|ARM.Build.0 = Debug|ARM
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|x64.ActiveCfg = Debug|x64
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|x64.Build.0 = Debug|x64
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|x86.ActiveCfg = Debug|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|x86.Build.0 = Debug|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|Any CPU.ActiveCfg = Release|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|Any CPU.Build.0 = Release|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|ARM.ActiveCfg = Release|ARM
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|ARM.Build.0 = Release|ARM
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|Mixed Platforms.ActiveCfg = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|Mixed Platforms.Build.0 = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|x64.ActiveCfg = Release|x64
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|x64.Build.0 = Release|x64
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|x86.ActiveCfg = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|x86.Build.0 = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.MonoTouch|Xbox 360.ActiveCfg = Release|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|ARM.ActiveCfg = Release|ARM
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|ARM.Build.0 = Release|ARM
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|Mixed Platforms.Build.0 = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|x64.ActiveCfg = Release|x64
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|x64.Build.0 = Release|x64
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|x86.ActiveCfg = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|x86.Build.0 = Release|x86
-		{1D8696A9-8562-4B6D-A4C6-F6E36744C9B0}.Release|Xbox 360.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
