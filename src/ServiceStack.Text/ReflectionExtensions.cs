@@ -672,6 +672,56 @@ namespace ServiceStack.Text
                    .FirstOrDefault() as TAttr;
 #endif
         }
+        
+        public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo)
+            where TAttribute : Attribute
+        {
+            return propertyInfo.FirstAttribute<TAttribute>(true);
+        }
+
+        public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo, bool inherit)
+            where TAttribute : Attribute
+        {
+#if NETFX_CORE
+            var attrs = propertyInfo.GetCustomAttributes<TAttribute>(inherit);
+            return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
+#else
+            var attrs = propertyInfo.GetCustomAttributes(typeof(TAttribute), inherit);
+            return (TAttribute)(attrs.Length > 0 ? attrs[0] : null);
+#endif
+        }
+
+        public static Type FirstGenericTypeDefinition(this Type type)
+        {
+            while (type != null)
+            {
+                if (type.HasGenericType())
+                    return type.GenericTypeDefinition();
+
+                type = type.BaseType;
+            }
+
+            return null;
+        }
+
+        public static bool IsDynamic(this Assembly assembly)
+        {
+#if MONOTOUCH || WINDOWS_PHONE || NETFX_CORE
+            return false;
+#else
+            try
+            {
+                var isDyanmic = assembly is System.Reflection.Emit.AssemblyBuilder
+                    || string.IsNullOrEmpty(assembly.Location);
+                return isDyanmic;
+            }
+            catch (NotSupportedException)
+            {
+                //Ignore assembly.Location not supported in a dynamic assembly.
+                return true;
+            }
+#endif
+        }
 
         public static MethodInfo GetPublicStaticMethod(this Type type, string methodName, Type[] types = null)
         {
@@ -857,6 +907,8 @@ namespace ServiceStack.Text
             return type.GetProperties();
 #endif
         }
+ 
+    
     }
 
 }
