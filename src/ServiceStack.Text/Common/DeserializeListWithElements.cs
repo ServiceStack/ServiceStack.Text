@@ -120,7 +120,7 @@ namespace ServiceStack.Text.Common
             if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 
             var isReadOnly = createListType != null
-                && (createListType.IsGenericType() && createListType.GenericTypeDefinition() == typeof(ReadOnlyCollection<>));
+                && (createListType.IsGeneric() && createListType.GenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
             var to = (createListType == null || isReadOnly)
                 ? new List<T>()

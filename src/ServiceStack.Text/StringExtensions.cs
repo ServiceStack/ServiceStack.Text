@@ -692,7 +692,7 @@ namespace ServiceStack.Text
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"));
 #else
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                && type.IsGenericType() && type.Name.Contains("AnonymousType")
+                && type.IsGeneric() && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
                 && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
 #endif
@@ -700,20 +700,51 @@ namespace ServiceStack.Text
         
         public static int CompareIgnoreCase(this string strA, string strB)
         {
-#if NETFX_CORE
-            return string.Compare(strA, strB, StringComparison.CurrentCultureIgnoreCase);
-#else
-            return String.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase);
-#endif
+            return String.Compare(strA, strB, InvariantComparisonIgnoreCase());
         }
 
         public static bool EndsWithInvariant(this string str, string endsWith)
         {
-#if NETFX_CORE
-            return str.EndsWith(endsWith, StringComparison.CurrentCulture;
-#else
-            return str.EndsWith(endsWith, StringComparison.InvariantCulture);
-#endif
+            return str.EndsWith(endsWith, InvariantComparison());
         }
+
+#if NETFX_CORE
+        public static char DirSeparatorChar = '\\';
+        public static StringComparison InvariantComparison()
+        {
+            return StringComparison.CurrentCulture;
+        }
+        public static StringComparison InvariantComparisonIgnoreCase()
+        {
+            return StringComparison.CurrentCultureIgnoreCase;
+        }
+        public static StringComparer InvariantComparer()
+        {
+            return StringComparer.CurrentCulture;
+        }
+        public static StringComparer InvariantComparerIgnoreCase()
+        {
+            return StringComparer.CurrentCultureIgnoreCase;
+        }
+#else
+        public static char DirSeparatorChar = Path.DirectorySeparatorChar;
+        public static StringComparison InvariantComparison()
+        {
+            return StringComparison.InvariantCulture;
+        }
+        public static StringComparison InvariantComparisonIgnoreCase()
+        {
+            return StringComparison.InvariantCultureIgnoreCase;
+        }
+        public static StringComparer InvariantComparer()
+        {
+            return StringComparer.InvariantCulture;
+        }
+        public static StringComparer InvariantComparerIgnoreCase()
+        {
+            return StringComparer.InvariantCultureIgnoreCase;
+        }
+#endif
+
     }
 }

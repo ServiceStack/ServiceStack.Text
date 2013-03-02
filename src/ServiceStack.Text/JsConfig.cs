@@ -402,7 +402,7 @@ namespace ServiceStack.Text
 
         internal static bool TreatAsRefType(Type valueType)
         {
-            return TreatValueAsRefTypes.Contains(valueType.IsGenericType() ? valueType.GenericTypeDefinition() : valueType);
+            return TreatValueAsRefTypes.Contains(valueType.IsGeneric() ? valueType.GenericTypeDefinition() : valueType);
         }
 
 

@@ -145,7 +145,7 @@ namespace ServiceStack.Text
 	{
 		public static object CreateInstance(Type toInstanceOfType)
 		{
-            if (toInstanceOfType.IsGenericType())
+            if (toInstanceOfType.IsGeneric())
             {
 				if (toInstanceOfType.HasAnyTypeDefinitionsOf(
 					typeof(ICollection<>), typeof(IList<>)))

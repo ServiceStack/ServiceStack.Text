@@ -485,7 +485,7 @@ namespace ServiceStack.Text.Common
 
             var elementType = listInterface.GenericTypeArguments()[0];
 
-            var isGenericList = typeof(T).IsGenericType()
+            var isGenericList = typeof(T).IsGeneric()
                 && typeof(T).GenericTypeDefinition() == typeof(List<>);
 
             if (elementType.IsValueType()

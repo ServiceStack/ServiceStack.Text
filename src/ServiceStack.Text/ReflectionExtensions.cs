@@ -68,7 +68,7 @@ namespace ServiceStack.Text
         {
             while (type != null)
             {
-                if (type.IsGenericType())
+                if (type.IsGeneric())
                     return true;
 
                 type = type.BaseType();
@@ -80,7 +80,7 @@ namespace ServiceStack.Text
         {
             while (type != null)
             {
-                if (type.IsGenericType())
+                if (type.IsGeneric())
                     return type;
 
                 type = type.BaseType();
@@ -98,7 +98,7 @@ namespace ServiceStack.Text
         {
             foreach (var t in type.GetTypeInterfaces())
             {
-                if (t.IsGenericType() && t.GetGenericTypeDefinition() == genericTypeDefinition)
+                if (t.IsGeneric() && t.GetGenericTypeDefinition() == genericTypeDefinition)
                 {
                     return t;
                 }
@@ -181,11 +181,11 @@ namespace ServiceStack.Text
         {
             foreach (var t in type.GetTypeInterfaces())
             {
-                if (t.IsGenericType() && t.GetGenericTypeDefinition() == genericInterfaceType) 
+                if (t.IsGeneric() && t.GetGenericTypeDefinition() == genericInterfaceType) 
                     return t;
             }
 
-            if (!type.IsGenericType()) return null;
+            if (!type.IsGeneric()) return null;
 
             var genericType = type.GetGenericType();
             return genericType.GetGenericTypeDefinition() == genericInterfaceType
@@ -195,7 +195,7 @@ namespace ServiceStack.Text
 
         public static bool HasAnyTypeDefinitionsOf(this Type genericType, params Type[] theseGenericTypes)
         {
-            if (!genericType.IsGenericType()) return false;
+            if (!genericType.IsGeneric()) return false;
 
             var genericTypeDefinition = genericType.GenericTypeDefinition();
 
@@ -425,11 +425,11 @@ namespace ServiceStack.Text
                     ? publicReadableProperties.Where(attr => 
                         attr.IsDefined(typeof(DataMemberAttribute), false)).ToArray()
                     : publicReadableProperties.Where(attr => 
-                        attr.GetCustomAttributes(false).Any(x => x.GetType().Name == DataMember)).ToArray();
+                        attr.CustomAttributes(false).Any(x => x.GetType().Name == DataMember)).ToArray();
             }
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicReadableProperties.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
+            return publicReadableProperties.Where(prop => !prop.CustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
         }
 
         public static FieldInfo[] GetSerializableFields(this Type type)
@@ -438,15 +438,15 @@ namespace ServiceStack.Text
                 return new FieldInfo[0];
             }
             
-            var publicFields = PlatformExtensions.GetPublicFields(type);
+            var publicFields = type.GetPublicFields();
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicFields.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
+            return publicFields.Where(prop => !prop.CustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
         }
 
         public static bool HasAttr<T>(this Type type) where T : Attribute
         {
-            return type.GetTypeAttributes<T>();
+            return type.HasAttribute<T>();
         }
 
 #if !SILVERLIGHT && !MONOTOUCH 
@@ -467,7 +467,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetDataMember(this PropertyInfo pi)
         {
-            var dataMember = pi.GetCustomAttributes(typeof(DataMemberAttribute), false)
+            var dataMember = pi.CustomAttributes(typeof(DataMemberAttribute), false)
                 .FirstOrDefault() as DataMemberAttribute;
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
@@ -480,7 +480,7 @@ namespace ServiceStack.Text
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
         public static DataContractAttribute GetWeakDataContract(this Type type)
         {
-            var attr = type.GetCustomAttributes(true).FirstOrDefault(x => x.GetType().Name == DataContract);
+            var attr = type.CustomAttributes().FirstOrDefault(x => x.GetType().Name == DataContract);
             if (attr != null)
             {
                 var attrType = attr.GetType();
@@ -502,7 +502,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetWeakDataMember(this PropertyInfo pi)
         {
-            var attr = pi.GetCustomAttributes(true).FirstOrDefault(x => x.GetType().Name == DataMember);
+            var attr = pi.CustomAttributes().FirstOrDefault(x => x.GetType().Name == DataMember);
             if (attr != null)
             {
                 var attrType = attr.GetType();
@@ -542,6 +542,15 @@ namespace ServiceStack.Text
 #endif
         }
 
+        public static bool IsArray(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsArray);
+#else
+            return type.IsArray;
+#endif
+        }
+
         public static bool IsValueType(this Type type)
         {
 #if NETFX_CORE
@@ -551,7 +560,7 @@ namespace ServiceStack.Text
 #endif
         }
 
-        internal static bool IsGenericType(this Type type)
+        public static bool IsGeneric(this Type type)
         {
 #if NETFX_CORE
             return type.GetTypeInfo().IsGenericType;
@@ -611,9 +620,18 @@ namespace ServiceStack.Text
             return subType.GetRuntimeProperties();
 #else
             return subType.GetProperties(
-                BindingFlags.FlattenHierarchy | 
-                BindingFlags.Public | 
+                BindingFlags.FlattenHierarchy |
+                BindingFlags.Public |
                 BindingFlags.Instance);
+#endif
+        }
+
+        public static PropertyInfo[] Properties(this Type type)
+        {
+#if NETFX_CORE 
+            return type.GetRuntimeProperties();
+#else
+            return type.GetProperties();
 #endif
         }
 
@@ -632,12 +650,43 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static bool GetTypeAttributes<T>(this Type type) where T : Attribute
+        public static MemberInfo[] GetPublicMembers(this Type type)
+        {
+
+#if NETFX_CORE
+            var members = new List<MemberInfo>();
+            members.AddRange(type.GetRuntimeFields().Where(p => p.IsPublic && !p.IsStatic));
+            members.AddRange(type.GetPublicProperties());
+            return members.ToArray();
+#else
+            return type.GetMembers(BindingFlags.Public | BindingFlags.Instance);
+#endif
+        }
+
+        public static MemberInfo[] GetAllPublicMembers(this Type type)
+        {
+
+#if NETFX_CORE
+            var members = new List<MemberInfo>();
+            members.AddRange(type.GetRuntimeFields().Where(p => p.IsPublic && !p.IsStatic));
+            members.AddRange(type.GetPublicProperties());
+            return members.ToArray();
+#else
+            return type.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+#endif
+        }
+
+        public static bool HasAttribute<T>(this Type type, bool inherit = true) where T : Attribute
+        {
+            return type.CustomAttributes(inherit).Any(x => x.GetType() == typeof(T));
+        }
+
+        public static IEnumerable<T> AttributesOfType<T>(this Type type, bool inherit = true) where T : Attribute
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
+            return type.GetTypeInfo().GetCustomAttributes<RouteAttribute>(inherit);
 #else
-            return type.GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
+            return type.GetCustomAttributes(inherit).OfType<T>();
 #endif
         }
 
@@ -662,13 +711,85 @@ namespace ServiceStack.Text
 #endif
         }
 
+        public static Type[] Interfaces(this Type type)
+        {
+#if NETFX_CORE
+            return propertyInfo.GetTypeInfo().GetCustomAttributes(inherit)
+#else
+            return type.GetInterfaces();
+#endif
+        }
+
+        public static PropertyInfo[] AllProperties(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeProperties();
+#else
+            return type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+#endif
+        }
+
+        public static object[] CustomAttributes(this PropertyInfo propertyInfo, bool inherit = true)
+        {
+#if NETFX_CORE
+            return propertyInfo.GetTypeInfo().GetCustomAttributes(inherit)
+#else
+            return propertyInfo.GetCustomAttributes(inherit);
+#endif
+        }
+
+        public static object[] CustomAttributes(this PropertyInfo propertyInfo, Type attrType, bool inherit = true)
+        {
+#if NETFX_CORE
+            return propertyInfo.GetTypeInfo().GetCustomAttributes(attrType, inherit)
+#else
+            return propertyInfo.GetCustomAttributes(attrType, inherit);
+#endif
+        }
+
+        public static object[] CustomAttributes(this FieldInfo fieldInfo, bool inherit = true)
+        {
+#if NETFX_CORE
+            return fieldInfo.GetTypeInfo().GetCustomAttributes(inherit)
+#else
+            return fieldInfo.GetCustomAttributes(inherit);
+#endif
+        }
+
+        public static object[] CustomAttributes(this FieldInfo fieldInfo, Type attrType, bool inherit = true)
+        {
+#if NETFX_CORE
+            return fieldInfo.GetTypeInfo().GetCustomAttributes(attrType, inherit)
+#else
+            return fieldInfo.GetCustomAttributes(attrType, inherit);
+#endif
+        }
+
+        public static object[] CustomAttributes(this Type type, bool inherit = true)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().GetCustomAttributes(inherit);
+#else
+            return type.GetCustomAttributes(inherit);
+#endif
+        }
+
+        public static object[] CustomAttributes(this Type type, Type attrType, bool inherit = true)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().GetCustomAttributes(attrType, inherit);
+#else
+            return type.GetCustomAttributes(attrType, inherit);
+#endif
+        }
+
         public static TAttr FirstAttribute<TAttr>(this Type type, bool inherit = true) where TAttr : Attribute
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
+            return type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), inherit)
                 .FirstOrDefault() as TAttr;
 #else
-            return type.GetCustomAttributes(typeof(TAttr), true)
+            return type.GetCustomAttributes(typeof(TAttr), inherit)
                    .FirstOrDefault() as TAttr;
 #endif
         }
@@ -734,14 +855,23 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static MethodInfo GetMethod(this Type type, string methodName, Type[] types = null)
+        public static MethodInfo GetMethodInfo(this Type type, string methodName, Type[] types = null)
         {
 #if NETFX_CORE
-            return type.GetRuntimeMethod(parseMethod, types);
+            return type.GetRuntimeMethods().First(p => p.Name.Equals(methodName));
 #else
             return types == null
                 ? type.GetMethod(methodName)
                 : type.GetMethod(methodName, types);
+#endif
+        }
+
+        public static object InvokeMethod(this Delegate fn, object instance, object[] parameters = null)
+        {
+#if NETFX_CORE
+            return fn.GetMethodInfo().Invoke(instance, parameters ?? new object[] { });
+#else
+            return fn.Method.Invoke(instance, parameters ?? new object[] { });
 #endif
         }
 
@@ -845,7 +975,7 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static MethodInfo GetMethod(this PropertyInfo pi, bool nonPublic = true)
+        public static MethodInfo GetMethodInfo(this PropertyInfo pi, bool nonPublic = true)
         {
 #if NETFX_CORE
             return pi.GetMethod;
