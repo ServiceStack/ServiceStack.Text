@@ -688,7 +688,7 @@ namespace ServiceStack.Text
 
             // HACK: The only way to detect anonymous types right now.
 #if NETFX_CORE
-            return type.IsGenericType() && type.Name.Contains("AnonymousType")
+            return type.IsGeneric() && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"));
 #else
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)

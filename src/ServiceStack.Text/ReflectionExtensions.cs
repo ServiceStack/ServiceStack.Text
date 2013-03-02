@@ -536,7 +536,7 @@ namespace ServiceStack.Text
         public static bool IsInterface(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().IsInterface);
+            return type.GetTypeInfo().IsInterface;
 #else
             return type.IsInterface;
 #endif
@@ -545,7 +545,7 @@ namespace ServiceStack.Text
         public static bool IsArray(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().IsArray);
+            return type.GetTypeInfo().IsArray;
 #else
             return type.IsArray;
 #endif
@@ -554,7 +554,7 @@ namespace ServiceStack.Text
         public static bool IsValueType(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().IsValueType);
+            return type.GetTypeInfo().IsValueType;
 #else
             return type.IsValueType;
 #endif
@@ -578,6 +578,24 @@ namespace ServiceStack.Text
 #endif
         }
 
+        public static Type ReflectedType(this PropertyInfo pi)
+        {
+#if NETFX_CORE
+            return pi.PropertyType;
+#else
+            return pi.ReflectedType;
+#endif
+        }
+
+        public static Type ReflectedType(this FieldInfo fi)
+        {
+#if NETFX_CORE
+            return fi.FieldType;
+#else
+            return fi.ReflectedType;
+#endif
+        }
+
         public static Type GenericTypeDefinition(this Type type)
         {
 #if NETFX_CORE
@@ -590,7 +608,7 @@ namespace ServiceStack.Text
         public static Type[] GetTypeInterfaces(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().ImplementedInterfaces;
+            return type.GetTypeInfo().ImplementedInterfaces.ToArray();
 #else
             return type.GetInterfaces();
 #endif
@@ -617,7 +635,7 @@ namespace ServiceStack.Text
         internal static PropertyInfo[] GetTypesPublicProperties(this Type subType)
         {
 #if NETFX_CORE 
-            return subType.GetRuntimeProperties();
+            return subType.GetRuntimeProperties().ToArray();
 #else
             return subType.GetProperties(
                 BindingFlags.FlattenHierarchy |
@@ -629,7 +647,7 @@ namespace ServiceStack.Text
         public static PropertyInfo[] Properties(this Type type)
         {
 #if NETFX_CORE 
-            return type.GetRuntimeProperties();
+            return type.GetRuntimeProperties().ToArray();
 #else
             return type.GetProperties();
 #endif
@@ -684,7 +702,7 @@ namespace ServiceStack.Text
         public static IEnumerable<T> AttributesOfType<T>(this Type type, bool inherit = true) where T : Attribute
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes<RouteAttribute>(inherit);
+            return type.GetTypeInfo().GetCustomAttributes<T>(inherit);
 #else
             return type.GetCustomAttributes(inherit).OfType<T>();
 #endif
@@ -714,7 +732,10 @@ namespace ServiceStack.Text
         public static Type[] Interfaces(this Type type)
         {
 #if NETFX_CORE
-            return propertyInfo.GetTypeInfo().GetCustomAttributes(inherit)
+            return type.GetTypeInfo().ImplementedInterfaces.ToArray();
+            //return type.GetTypeInfo().ImplementedInterfaces
+            //    .FirstOrDefault(x => !x.GetTypeInfo().ImplementedInterfaces
+            //        .Any(y => y.GetTypeInfo().ImplementedInterfaces.Contains(y)));
 #else
             return type.GetInterfaces();
 #endif
@@ -723,7 +744,7 @@ namespace ServiceStack.Text
         public static PropertyInfo[] AllProperties(this Type type)
         {
 #if NETFX_CORE
-            return type.GetRuntimeProperties();
+            return type.GetRuntimeProperties().ToArray();
 #else
             return type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 #endif
@@ -732,7 +753,7 @@ namespace ServiceStack.Text
         public static object[] CustomAttributes(this PropertyInfo propertyInfo, bool inherit = true)
         {
 #if NETFX_CORE
-            return propertyInfo.GetTypeInfo().GetCustomAttributes(inherit)
+            return propertyInfo.GetCustomAttributes(inherit).ToArray();
 #else
             return propertyInfo.GetCustomAttributes(inherit);
 #endif
@@ -741,7 +762,7 @@ namespace ServiceStack.Text
         public static object[] CustomAttributes(this PropertyInfo propertyInfo, Type attrType, bool inherit = true)
         {
 #if NETFX_CORE
-            return propertyInfo.GetTypeInfo().GetCustomAttributes(attrType, inherit)
+            return propertyInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
 #else
             return propertyInfo.GetCustomAttributes(attrType, inherit);
 #endif
@@ -750,7 +771,7 @@ namespace ServiceStack.Text
         public static object[] CustomAttributes(this FieldInfo fieldInfo, bool inherit = true)
         {
 #if NETFX_CORE
-            return fieldInfo.GetTypeInfo().GetCustomAttributes(inherit)
+            return fieldInfo.GetCustomAttributes(inherit).ToArray();
 #else
             return fieldInfo.GetCustomAttributes(inherit);
 #endif
@@ -759,7 +780,7 @@ namespace ServiceStack.Text
         public static object[] CustomAttributes(this FieldInfo fieldInfo, Type attrType, bool inherit = true)
         {
 #if NETFX_CORE
-            return fieldInfo.GetTypeInfo().GetCustomAttributes(attrType, inherit)
+            return fieldInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
 #else
             return fieldInfo.GetCustomAttributes(attrType, inherit);
 #endif
@@ -768,7 +789,7 @@ namespace ServiceStack.Text
         public static object[] CustomAttributes(this Type type, bool inherit = true)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(inherit);
+            return type.GetTypeInfo().GetCustomAttributes(inherit).ToArray();
 #else
             return type.GetCustomAttributes(inherit);
 #endif
@@ -777,7 +798,7 @@ namespace ServiceStack.Text
         public static object[] CustomAttributes(this Type type, Type attrType, bool inherit = true)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(attrType, inherit);
+            return type.GetTypeInfo().GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
 #else
             return type.GetCustomAttributes(attrType, inherit);
 #endif
@@ -819,7 +840,7 @@ namespace ServiceStack.Text
                 if (type.HasGenericType())
                     return type.GenericTypeDefinition();
 
-                type = type.BaseType;
+                type = type.BaseType();
             }
 
             return null;
@@ -847,7 +868,7 @@ namespace ServiceStack.Text
         public static MethodInfo GetPublicStaticMethod(this Type type, string methodName, Type[] types = null)
         {
 #if NETFX_CORE
-            return type.GetRuntimeMethod(parseMethod, types);
+            return type.GetRuntimeMethod(methodName, types);
 #else
             return types == null
                 ? type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static)
@@ -878,7 +899,7 @@ namespace ServiceStack.Text
         public static FieldInfo GetPublicStaticField(this Type type, string fieldName)
         {
 #if NETFX_CORE
-            return type.GetRuntimeField(methodName);
+            return type.GetRuntimeField(fieldName);
 #else
             return type.GetField(fieldName, BindingFlags.Public | BindingFlags.Static);
 #endif
@@ -905,7 +926,7 @@ namespace ServiceStack.Text
         public static ConstructorInfo[] DeclaredConstructors(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().DeclaredConstructors;
+            return type.GetTypeInfo().DeclaredConstructors.ToArray();
 #else
             return type.GetConstructors();
 #endif
@@ -914,7 +935,7 @@ namespace ServiceStack.Text
         public static bool AssignableFrom(this Type type, Type fromType)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().IsAssignableFrom(fromType.GetTypeInfo();
+            return type.GetTypeInfo().IsAssignableFrom(fromType.GetTypeInfo());
 #else
             return type.IsAssignableFrom(fromType);
 #endif
@@ -933,7 +954,7 @@ namespace ServiceStack.Text
         public static bool IsAbstract(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo.IsAbstract;
+            return type.GetTypeInfo().IsAbstract;
 #else
             return type.IsAbstract;
 #endif
@@ -960,7 +981,7 @@ namespace ServiceStack.Text
         public static FieldInfo[] GetWritableFields(this Type type)
         {
 #if NETFX_CORE
-            return type.GetRuntimeFields().Where(p => !p.IsPublic && !p.IsStatic);
+            return type.GetRuntimeFields().Where(p => !p.IsPublic && !p.IsStatic).ToArray();
 #else
             return type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
 #endif
@@ -1023,7 +1044,7 @@ namespace ServiceStack.Text
         public static MethodInfo[] GetMethodInfos(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetMethods();
+            return type.GetRuntimeMethods().ToArray();
 #else
             return type.GetMethods();
 #endif
@@ -1032,7 +1053,7 @@ namespace ServiceStack.Text
         public static PropertyInfo[] GetPropertyInfos(this Type type)
         {
 #if NETFX_CORE
-            return type.GetRuntimeProperties();
+            return type.GetRuntimeProperties().ToArray();
 #else
             return type.GetProperties();
 #endif
