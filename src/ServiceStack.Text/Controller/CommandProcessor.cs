@@ -28,15 +28,11 @@ namespace ServiceStack.Text.Controller
 			this.Controllers = controllers;
 
 			this.contextMap = new Dictionary<string, object>();
-#if !NETFX_CORE
-			controllers.ToList().ForEach(x => contextMap[x.GetType().Name] = x);
-#else
             foreach (var x in controllers.ToList())
             {
                 contextMap[x.GetType().Name] = x;
             }
-#endif
-		}
+        }
 
 		public void Invoke(string commandUri)
 		{
@@ -54,13 +50,8 @@ namespace ServiceStack.Text.Controller
 
 			var methodName = pathInfo.ActionName;
 
-#if !NETFX_CORE
-			var method = context.GetType().GetMethods().First(
-				c => c.Name == methodName && c.GetParameters().Count() == pathInfo.Arguments.Count);
-#else
-			var method = context.GetType().GetRuntimeMethods().First(
-				c => c.Name == methodName && c.GetParameters().Count() == pathInfo.Arguments.Count);
-#endif
+            var method = context.GetType().GetMethodInfos().First(
+                c => c.Name == methodName && c.GetParameters().Count() == pathInfo.Arguments.Count);
 
 			var methodParamTypes = method.GetParameters().Select(x => x.ParameterType);
 

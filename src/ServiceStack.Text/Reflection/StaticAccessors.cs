@@ -79,17 +79,10 @@ namespace ServiceStack.Text.Reflection
 
             var instance = Expression.Parameter(propertyInfo.DeclaringType, "i");
             var argument = Expression.Parameter(typeof(object), "a");
-#if NETFX_CORE
             var setterCall = Expression.Call(
                 instance,
-                propertyInfo.SetMethod,
+                propertyInfo.SetMethod(),
                 Expression.Convert(argument, propertyInfo.PropertyType));
-#else
-            var setterCall = Expression.Call(
-                instance,
-                propertyInfo.GetSetMethod(),
-                Expression.Convert(argument, propertyInfo.PropertyType));
-#endif
 
             return Expression.Lambda<Action<T, object>>
             (

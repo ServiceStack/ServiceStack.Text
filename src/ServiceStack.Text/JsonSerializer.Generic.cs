@@ -46,23 +46,13 @@ namespace ServiceStack.Text
 		{
 			if (value == null) return null;
 			if (typeof(T) == typeof(string)) return value as string;
-#if NETFX_CORE
-            if (typeof(T) == typeof(object) || typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface)
+            if (typeof(T) == typeof(object) || typeof(T).IsAbstract() || typeof(T).IsInterface())
             {
-                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = true;
                 var result = JsonSerializer.SerializeToString(value, value.GetType());
-                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = false;
                 return result;
             }
-#else
-            if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
-            {
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
-                var result = JsonSerializer.SerializeToString(value, value.GetType());
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
-                return result;
-            }
-#endif
 
 			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb))
@@ -80,23 +70,13 @@ namespace ServiceStack.Text
 				writer.Write(value);
 				return;
 			}
-#if NETFX_CORE
-            if (typeof(T) == typeof(object) || typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface)
+            if (typeof(T) == typeof(object) || typeof(T).IsAbstract() || typeof(T).IsInterface())
             {
-                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = true;
+                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = true;
                 JsonSerializer.SerializeToWriter(value, value.GetType(), writer);
-                if (typeof(T).GetTypeInfo().IsAbstract || typeof(T).GetTypeInfo().IsInterface) JsState.IsWritingDynamic = false;
+                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = false;
                 return;
             }
-#else
-            if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
-            {
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
-                JsonSerializer.SerializeToWriter(value, value.GetType(), writer);
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
-                return;
-            }
-#endif
            
             JsonWriter<T>.WriteObject(writer, value);
 		}

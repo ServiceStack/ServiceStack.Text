@@ -39,11 +39,7 @@ namespace ServiceStack.Text.Common
                 return x => new Uri(x.FromCsvField());
 
             //Warning: typeof(object).IsInstanceOfType(typeof(Type)) == True??
-#if NETFX_CORE
-            if (type.IsInstanceOf(typeof(Type)))
-#else
-            if (type.IsInstanceOfType(typeof(Type)))
-#endif
+            if (type.InstanceOfType(typeof(Type)))
                 return ParseType;
 
             if (type == typeof(Exception))

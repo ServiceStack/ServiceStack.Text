@@ -38,13 +38,8 @@ namespace ServiceStack.Text.Common
                 return parseDelegate.Invoke;
 
             var genericType = typeof(DeserializeListWithElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-#if NETFX_CORE
-            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("ParseGenericList"));
-            parseDelegate = (ParseListDelegate)mi.CreateDelegate(typeof(ParseListDelegate));
-#else
-            var mi = genericType.GetMethod("ParseGenericList", BindingFlags.Static | BindingFlags.Public);
-            parseDelegate = (ParseListDelegate)Delegate.CreateDelegate(typeof(ParseListDelegate), mi);
-#endif
+            var mi = genericType.GetPublicStaticMethod("ParseGenericList");
+            parseDelegate = (ParseListDelegate)mi.MakeDelegate(typeof(ParseListDelegate));
 
             Dictionary<Type, ParseListDelegate> snapshot, newCache;
             do
@@ -125,11 +120,7 @@ namespace ServiceStack.Text.Common
             if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 
             var isReadOnly = createListType != null
-#if NETFX_CORE
-                && (createListType.GetTypeInfo().IsGenericType && createListType.GetTypeInfo().GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
-#else
-                && (createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
-#endif
+                && (createListType.IsGenericType() && createListType.GenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
             var to = (createListType == null || isReadOnly)
                 ? new List<T>()
@@ -221,11 +212,7 @@ namespace ServiceStack.Text.Common
             if (typeof(T) == typeof(List<int>))
                 return DeserializeListWithElements<TSerializer>.ParseIntList;
 
-#if NETFX_CORE
-            var elementType = listInterface.GenericTypeArguments[0];
-#else
-            var elementType = listInterface.GetGenericArguments()[0];
-#endif
+            var elementType = listInterface.GenericTypeArguments()[0];
 
             var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseFn(elementType);
             if (supportedTypeParseMethod != null)
@@ -270,11 +257,7 @@ namespace ServiceStack.Text.Common
             if (typeof(T) == typeof(IEnumerable<int>))
                 return DeserializeListWithElements<TSerializer>.ParseIntList;
 
-#if NETFX_CORE
-            var elementType = enumerableInterface.GenericTypeArguments[0];
-#else
-            var elementType = enumerableInterface.GetGenericArguments()[0];
-#endif
+            var elementType = enumerableInterface.GenericTypeArguments()[0];
 
             var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseFn(elementType);
             if (supportedTypeParseMethod != null)

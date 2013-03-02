@@ -32,12 +32,7 @@ namespace ServiceStack.Text.Common
         {
             var type = typeConfig.Type;
 
-#if NETFX_CORE
-            if (!type.GetTypeInfo().IsClass || type.GetTypeInfo().IsAbstract || type.GetTypeInfo().IsInterface) return null;
-#else
-            if (!type.IsClass || type.IsAbstract || type.IsInterface) return null;
-#endif
-
+            if (!type.IsStandardClass()) return null;
             var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
 
             var ctorFn = JsConfig.ModelFactory(type);
@@ -111,11 +106,7 @@ namespace ServiceStack.Text.Common
 
         public static object ParseAbstractType<T>(string value)
         {
-#if NETFX_CORE
-            if (typeof(T).GetTypeInfo().IsAbstract)
-#else
-            if (typeof(T).IsAbstract)
-#endif
+            if (typeof(T).IsAbstract())
             {
                 if (string.IsNullOrEmpty(value)) return null;
                 var concreteType = ExtractType(value);
@@ -149,13 +140,9 @@ namespace ServiceStack.Text.Common
                 // YYYY-MM-DDThh:mm:ss+02:00
                 // YYYY-MM-DDThh:mm:ss-02:00
                 if (value.Length > 14 && value[10] == 'T' &&
-#if NETFX_CORE
-                    (value.EndsWith("Z", StringComparison.CurrentCulture)
-#else
-                    (value.EndsWith("Z", StringComparison.InvariantCulture)
-#endif
-                        || value[value.Length - 6] == '+'
-                        || value[value.Length - 6] == '-'))
+                    (value.EndsWithInvariant("Z")
+                    || value[value.Length - 6] == '+'
+                    || value[value.Length - 6] == '-'))
                 {
                     return DateTimeSerializer.ParseShortestXsdDateTime(value);
                 }
@@ -250,13 +237,8 @@ namespace ServiceStack.Text.Common
 
         private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
         {
-#if NETFX_CORE
-            if (propertyInfo.PropertyType != propertyInfo.DeclaringType)
-                propertyInfo = propertyInfo.DeclaringType.GetRuntimeProperty(propertyInfo.Name);
-#else
             if (propertyInfo.ReflectedType != propertyInfo.DeclaringType)
-                propertyInfo = propertyInfo.DeclaringType.GetProperty(propertyInfo.Name);
-#endif
+                propertyInfo = propertyInfo.DeclaringType.GetPropertyInfo(propertyInfo.Name);
 
             if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
 
@@ -266,11 +248,8 @@ namespace ServiceStack.Text.Common
                 //TODO: What string comparison is used in SST?
                 string fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
                 var fieldName = string.Format(fieldNameFormat, propertyInfo.Name);
-#if NETFX_CORE
-                var fieldInfos = typeConfig.Type.GetRuntimeFields().Where(p => !p.IsPublic && !p.IsStatic);
-#else
-                var fieldInfos = typeConfig.Type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
-#endif
+
+                var fieldInfos = typeConfig.Type.GetWritableFields();
                 foreach (var f in fieldInfos)
                 {
                     if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
@@ -286,11 +265,7 @@ namespace ServiceStack.Text.Common
 #if SILVERLIGHT || MONOTOUCH || XBOX
             if (propertyInfo.CanWrite)
             {
-#if NETFX_CORE
-                var setMethodInfo = propertyInfo.SetMethod;
-#else
-                var setMethodInfo = propertyInfo.GetSetMethod(true);
-#endif
+                var setMethodInfo = propertyInfo.SetMethod();
                 return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
             }
             if (fieldInfo == null) return null;
@@ -365,11 +340,7 @@ namespace ServiceStack.Text.Common
             if (!propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Any()) return null;
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
-#if NETFX_CORE
-            var setMethodInfo = propertyInfo.SetMethod;
-#else
-            var setMethodInfo = propertyInfo.GetSetMethod(true);
-#endif
+            var setMethodInfo = propertyInfo.SetMethod();
             return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
 #else
             return CreateIlPropertySetter(propertyInfo);
@@ -400,13 +371,8 @@ namespace ServiceStack.Text.Common
 
 		private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
 		{
-#if NETFX_CORE
-			if (fieldInfo.FieldType != fieldInfo.DeclaringType)
-				fieldInfo = fieldInfo.DeclaringType.GetRuntimeField(fieldInfo.Name);
-#else
-			if (fieldInfo.ReflectedType != fieldInfo.DeclaringType)
-				fieldInfo = fieldInfo.DeclaringType.GetField(fieldInfo.Name);
-#endif
+            if (fieldInfo.ReflectedType != fieldInfo.DeclaringType)
+                fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
 #if SILVERLIGHT || MONOTOUCH || XBOX
             return (instance, value) => fieldInfo.SetValue(instance, value);

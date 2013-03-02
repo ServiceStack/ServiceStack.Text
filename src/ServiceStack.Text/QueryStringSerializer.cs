@@ -37,15 +37,10 @@ namespace ServiceStack.Text
                 if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
 
                 var genericType = typeof(QueryStringWriter<>).MakeGenericType(type);
-#if NETFX_CORE
-                var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("WriteFn"));
-                var writeFactoryFn = (Func<WriteObjectDelegate>)mi.CreateDelegate(
+                var mi = genericType.GetPublicStaticMethod("WriteFn");
+                var writeFactoryFn = (Func<WriteObjectDelegate>)mi.MakeDelegate(
                     typeof(Func<WriteObjectDelegate>));
-#else
-                var mi = genericType.GetMethod("WriteFn", BindingFlags.NonPublic | BindingFlags.Static);
-                var writeFactoryFn = (Func<WriteObjectDelegate>)Delegate.CreateDelegate(
-                    typeof(Func<WriteObjectDelegate>), mi);
-#endif
+
                 writeFn = writeFactoryFn();
 
                 Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -98,7 +93,7 @@ namespace ServiceStack.Text
 	{
 		private static readonly WriteObjectDelegate CacheFn;
 
-		internal static WriteObjectDelegate WriteFn()
+	    public static WriteObjectDelegate WriteFn()
 		{
 			return CacheFn;
 		}
@@ -111,12 +106,8 @@ namespace ServiceStack.Text
 			}
 			else
 			{
-#if NETFX_CORE
-				if (typeof(T).GetTypeInfo().IsClass || typeof(T).GetTypeInfo().IsInterface)
-#else
-				if (typeof(T).IsClass || typeof(T).IsInterface)
-#endif
-				{
+                if (typeof(T).IsClass() || typeof(T).IsInterface())
+                {
 					var canWriteType = WriteType<T, JsvTypeSerializer>.Write;
 					if (canWriteType != null)
 					{

@@ -66,7 +66,8 @@ namespace ServiceStack.Text
 		/// <summary>
 		/// The top-most interface of the given type, if any.
 		/// </summary>
-    	public static Type MainInterface<T>() {
+    	public static Type MainInterface<T>() 
+        {
 			var t = typeof(T);
 #if NETFX_CORE
     		if (t.GetTypeInfo().BaseType == typeof(object)) {
@@ -97,6 +98,7 @@ namespace ServiceStack.Text
             {
                 return type;
             }
+
 #if !NETFX_CORE
             var binPath = GetAssemblyBinPath(Assembly.GetExecutingAssembly());
             Assembly assembly = null;

@@ -126,6 +126,7 @@ namespace ServiceStack.Text.Common
                 typeof(decimal), typeof(string),
                 typeof(DateTime), typeof(TimeSpan), typeof(Guid), typeof(Uri),
                 typeof(byte[]), typeof(System.Type)};
+
         private static readonly ServiceStackTypeCode[] knownCodes = new ServiceStackTypeCode[] {
             ServiceStackTypeCode.Boolean, ServiceStackTypeCode.Char, ServiceStackTypeCode.SByte, ServiceStackTypeCode.Byte,
             ServiceStackTypeCode.Int16, ServiceStackTypeCode.UInt16, ServiceStackTypeCode.Int32, ServiceStackTypeCode.UInt32,
@@ -313,29 +314,16 @@ namespace ServiceStack.Text.Common
             if (type == typeof(decimal) || type == typeof(decimal?))
                 return Serializer.WriteDecimal;
 
-#if NETFX_CORE
-            if (type.GetTypeInfo().IsEnum)
-                return type.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), false).Count() > 0
+            if (type.IsUnderlyingEnum())
+                return type.FirstAttribute<FlagsAttribute>(false) != null
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
             Type nullableType;
-            if ((nullableType = Nullable.GetUnderlyingType(type)) != null && nullableType.GetTypeInfo().IsEnum)
-                return nullableType.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), false).Count() > 0
+            if ((nullableType = Nullable.GetUnderlyingType(type)) != null && nullableType.IsEnum())
+                return nullableType.FirstAttribute<FlagsAttribute>(false) != null
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
-#else
-            if (type.IsEnum || type.UnderlyingSystemType.IsEnum)
-                return type.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
-                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
-                    : Serializer.WriteEnum;
-
-            Type nullableType;
-            if ((nullableType = Nullable.GetUnderlyingType(type)) != null && nullableType.IsEnum)
-                return nullableType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0
-                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
-                    : Serializer.WriteEnum;
-#endif
 
             return Serializer.WriteObjectString;
         }
@@ -358,12 +346,7 @@ namespace ServiceStack.Text.Common
 
         private WriteObjectDelegate GetCoreWriteFn<T>()
         {
-#if NETFX_CORE
-            if ((typeof(T).GetTypeInfo().IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
-#else
-            if ((typeof(T).IsValueType && !JsConfig.TreatAsRefType(typeof(T))) ||
-#endif
-                JsConfig<T>.HasSerializeFn)
+            if ((typeof(T).IsValueType() && !JsConfig.TreatAsRefType(typeof(T))) || JsConfig<T>.HasSerializeFn)
             {
                 return JsConfig<T>.HasSerializeFn
                     ? JsConfig<T>.WriteFn<TSerializer>
@@ -394,7 +377,7 @@ namespace ServiceStack.Text.Common
                 return writeFn;
             }
 
-            if (typeof(T).IsGenericType() ||
+            if (typeof(T).HasGenericType() ||
                 typeof(T).HasInterface(typeof(IDictionary<string, object>))) // is ExpandoObject?
             {
                 if (typeof(T).IsOrHasGenericInterfaceTypeOf(typeof(IList<>)))
@@ -403,11 +386,7 @@ namespace ServiceStack.Text.Common
                 var mapInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
                 if (mapInterface != null)
                 {
-#if NETFX_CORE
-                    var mapTypeArgs = mapInterface.GenericTypeArguments;
-#else
-                    var mapTypeArgs = mapInterface.GetGenericArguments();
-#endif
+                    var mapTypeArgs = mapInterface.GenericTypeArguments();
                     var writeFn = WriteDictionary<TSerializer>.GetWriteGenericDictionary(
                         mapTypeArgs[0], mapTypeArgs[1]);
 
@@ -422,43 +401,27 @@ namespace ServiceStack.Text.Common
                 var enumerableInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
                 if (enumerableInterface != null)
                 {
-#if NETFX_CORE
-                    var elementType = enumerableInterface.GenericTypeArguments[0];
-#else
-                    var elementType = enumerableInterface.GetGenericArguments()[0];
-#endif
+                    var elementType = enumerableInterface.GenericTypeArguments()[0];
                     var writeFn = WriteListsOfElements<TSerializer>.GetGenericWriteEnumerable(elementType);
                     return writeFn;
                 }
             }
 
-#if NETFX_CORE
-            var isDictionary = typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IDictionary).GetTypeInfo())
-#else
-            var isDictionary = typeof(T).IsAssignableFrom(typeof(IDictionary))
-#endif
+            var isDictionary = typeof(T).AssignableFrom(typeof(IDictionary))
                 || typeof(T).HasInterface(typeof(IDictionary));
             if (isDictionary)
             {
                 return WriteDictionary<TSerializer>.WriteIDictionary;
             }
 
-#if NETFX_CORE
-            var isEnumerable = typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IEnumerable).GetTypeInfo())
-#else
-            var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
-#endif
+            var isEnumerable = typeof(T).AssignableFrom(typeof(IEnumerable))
                 || typeof(T).HasInterface(typeof(IEnumerable));
             if (isEnumerable)
             {
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
             }
 
-#if NETFX_CORE
-            if (typeof(T).GetTypeInfo().IsClass || typeof(T).GetTypeInfo().IsInterface || JsConfig.TreatAsRefType(typeof(T)))
-#else
-            if (typeof(T).IsClass || typeof(T).IsInterface || JsConfig.TreatAsRefType(typeof(T)))
-#endif
+            if (typeof(T).IsClass() || typeof(T).IsInterface() || JsConfig.TreatAsRefType(typeof(T)))
             {
                 var typeToStringMethod = WriteType<T, TSerializer>.Write;
                 if (typeToStringMethod != null)
@@ -479,11 +442,7 @@ namespace ServiceStack.Text.Common
             if (SpecialTypes.TryGetValue(type, out writeFn))
                 return writeFn;
 
-#if NETFX_CORE
-            if (type.GetTypeInfo().IsAssignableFrom(typeof(Type).GetType().GetTypeInfo()))
-#else
-            if (type.IsInstanceOfType(typeof(Type)))
-#endif
+            if (type.InstanceOfType(typeof(Type)))
                 return WriteType;
 
             if (type.IsInstanceOf(typeof(Exception)))

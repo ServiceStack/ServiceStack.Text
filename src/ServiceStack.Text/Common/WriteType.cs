@@ -51,18 +51,11 @@ namespace ServiceStack.Text.Common
             {
                 WriteTypeInfo = TypeInfoWriter;
             }
-#if NETFX_CORE
-            if (typeof(T).GetTypeInfo().IsAbstract)
-#else
-            if (typeof(T).IsAbstract)
-#endif
+
+            if (typeof(T).IsAbstract())
             {
                 WriteTypeInfo = TypeInfoWriter;
-#if NETFX_CORE
-                if (!JsConfig.PreferInterfaces || !typeof(T).GetTypeInfo().IsInterface)
-#else
-                if (!JsConfig.PreferInterfaces || !typeof(T).IsInterface)
-#endif
+                if (!JsConfig.PreferInterfaces || !typeof(T).IsInterface())
                 {
                     CacheFn = WriteAbstractProperties;
                 }
@@ -108,11 +101,7 @@ namespace ServiceStack.Text.Common
 
         private static bool Init()
         {
-#if NETFX_CORE
-            if (!typeof(T).GetTypeInfo().IsClass && !typeof(T).GetTypeInfo().IsInterface && !JsConfig.TreatAsRefType(typeof(T))) return false;
-#else
-            if (!typeof(T).IsClass && !typeof(T).IsInterface && !JsConfig.TreatAsRefType(typeof(T))) return false;
-#endif
+            if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
 
             var propertyInfos = TypeConfig<T>.Properties;
             var fieldInfos = JsConfig.IncludePublicFields ? TypeConfig<T>.Fields : new FieldInfo[0];
@@ -152,11 +141,7 @@ namespace ServiceStack.Text.Common
                 }
 
                 var propertyType = propertyInfo.PropertyType;
-#if NETFX_CORE
-                var suppressDefaultValue = propertyType.GetTypeInfo().IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
-#else
-                var suppressDefaultValue = propertyType.IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
-#endif
+                var suppressDefaultValue = propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType)
                     ? propertyType.GetDefaultValue()
                     : null;
 
@@ -180,11 +165,7 @@ namespace ServiceStack.Text.Common
                 string propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
 
                 var propertyType = fieldInfo.FieldType;
-#if NETFX_CORE
-                var suppressDefaultValue = propertyType.GetTypeInfo().IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
-#else
-                var suppressDefaultValue = propertyType.IsValueType && JsConfig.HasSerializeFn.Contains(propertyType)
-#endif
+                var suppressDefaultValue = propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType)
                     ? propertyType.GetDefaultValue()
                     : null;
 
@@ -262,11 +243,7 @@ namespace ServiceStack.Text.Common
                 return;
             }
             var valueType = value.GetType();
-#if NETFX_CORE
-            if (valueType.GetTypeInfo().IsAbstract)
-#else
-            if (valueType.IsAbstract)
-#endif
+            if (valueType.IsAbstract())
             {
                 WriteProperties(writer, value);
                 return;

@@ -57,12 +57,7 @@ namespace ServiceStack.Text.Common
                 return ParseJsonObject;
             }
 
-#if NETFX_CORE
-            var dictionaryArgs = mapInterface.GenericTypeArguments;
-#else
-            var dictionaryArgs = mapInterface.GetGenericArguments();
-#endif
-
+            var dictionaryArgs = mapInterface.GenericTypeArguments();
             var keyTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 
@@ -252,15 +247,9 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-#if NETFX_CORE
-            var mi = typeof(DeserializeDictionary<TSerializer>).GetRuntimeMethods().First(p => p.Name.Equals("ParseDictionary"));
+            var mi = typeof(DeserializeDictionary<TSerializer>).GetPublicStaticMethod("ParseDictionary");
             var genericMi = mi.MakeGenericMethod(argTypes);
-            parseDelegate = (ParseDictionaryDelegate)genericMi.CreateDelegate(typeof(ParseDictionaryDelegate));
-#else
-            var mi = typeof(DeserializeDictionary<TSerializer>).GetMethod("ParseDictionary", BindingFlags.Static | BindingFlags.Public);
-            var genericMi = mi.MakeGenericMethod(argTypes);
-            parseDelegate = (ParseDictionaryDelegate)Delegate.CreateDelegate(typeof(ParseDictionaryDelegate), genericMi);
-#endif
+            parseDelegate = (ParseDictionaryDelegate)genericMi.MakeDelegate(typeof(ParseDictionaryDelegate));
 
             Dictionary<string, ParseDictionaryDelegate> snapshot, newCache;
             do

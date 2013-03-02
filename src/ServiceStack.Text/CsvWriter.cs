@@ -131,12 +131,8 @@ namespace ServiceStack.Text
 		    var isDataContract = typeof(T).IsDto();
 			foreach (var propertyInfo in TypeConfig<T>.Properties)
 			{
-#if NETFX_CORE
-				if (!propertyInfo.CanRead || propertyInfo.GetMethod == null) continue;
-#else
-				if (!propertyInfo.CanRead || propertyInfo.GetGetMethod() == null) continue;
-#endif
-				if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
+                if (!propertyInfo.CanRead || propertyInfo.GetMethod() == null) continue;
+                if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
 				PropertyGetters.Add(propertyInfo.GetValueGetter<T>());
                 var propertyName = propertyInfo.Name;
@@ -192,12 +188,8 @@ namespace ServiceStack.Text
 
 			if (records == null) return rows;
 
-#if NETFX_CORE
-			if (typeof(T).GetTypeInfo().IsValueType || typeof(T) == typeof(string))
-#else
-			if (typeof(T).IsValueType || typeof(T) == typeof(string))
-#endif
-			{
+            if (typeof(T).IsValueType() || typeof(T) == typeof(string))
+            {
 				rows.Add(GetSingleRow(records, typeof(T)));
 				return rows;
 			}
@@ -267,12 +259,8 @@ namespace ServiceStack.Text
 
 			if (records == null) return;
 
-#if NETFX_CORE
-			if (typeof(T).GetTypeInfo().IsValueType || typeof(T) == typeof(string))
-#else
-			if (typeof(T).IsValueType || typeof(T) == typeof(string))
-#endif
-			{
+            if (typeof(T).IsValueType() || typeof(T) == typeof(string))
+            {
 				var singleRow = GetSingleRow(records, typeof(T));
 				WriteRow(writer, singleRow);
 				return;

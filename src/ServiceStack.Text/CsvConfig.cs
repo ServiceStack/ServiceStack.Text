@@ -146,31 +146,17 @@ namespace ServiceStack.Text
 			set
 			{
 				if (value == null) return;
-#if NETFX_CORE
-				if (value.GetType().GetTypeInfo().IsValueType)
-					throw new ArgumentException("CustomHeaders is a ValueType");
-#else
-				if (value.GetType().IsValueType)
-					throw new ArgumentException("CustomHeaders is a ValueType");
-#endif
+                if (value.GetType().IsValueType())
+                    throw new ArgumentException("CustomHeaders is a ValueType");
 
-#if NETFX_CORE
-				var propertyInfos = value.GetType().GetRuntimeProperties();
-				if (propertyInfos.Count() == 0) return;
-#else
-				var propertyInfos = value.GetType().GetProperties();
-				if (propertyInfos.Length == 0) return;
-#endif
+                var propertyInfos = value.GetType().GetPropertyInfos();
+                if (propertyInfos.Length == 0) return;
 
 				customHeadersMap = new Dictionary<string, string>();
 				foreach (var pi in propertyInfos)
 				{
-#if NETFX_CORE
-					var getMethod = pi.GetMethod;
-#else
-					var getMethod = pi.GetGetMethod();
-#endif
-					if (getMethod == null) continue;
+                    var getMethod = pi.GetMethod();
+                    if (getMethod == null) continue;
 
 					var oValue = getMethod.Invoke(value, new object[0]);
 					if (oValue == null) continue;

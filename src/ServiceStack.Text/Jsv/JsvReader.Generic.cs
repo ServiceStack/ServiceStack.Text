@@ -33,13 +33,8 @@ namespace ServiceStack.Text.Jsv
             if (parseFactoryFn != null) return parseFactoryFn();
 
             var genericType = typeof(JsvReader<>).MakeGenericType(type);
-#if NETFX_CORE
-            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("GetParseFn"));
-            parseFactoryFn = (ParseFactoryDelegate)mi.CreateDelegate(typeof(ParseFactoryDelegate));
-#else
-            var mi = genericType.GetMethod("GetParseFn", BindingFlags.Public | BindingFlags.Static);
-            parseFactoryFn = (ParseFactoryDelegate)Delegate.CreateDelegate(typeof(ParseFactoryDelegate), mi);
-#endif
+            var mi = genericType.GetPublicStaticMethod("GetParseFn");
+            parseFactoryFn = (ParseFactoryDelegate)mi.MakeDelegate(typeof(ParseFactoryDelegate));
 
             Dictionary<Type, ParseFactoryDelegate> snapshot, newCache;
             do
@@ -73,12 +68,8 @@ namespace ServiceStack.Text.Jsv
 		{
 			if (ReadFn == null)
 			{
-#if NETFX_CORE
-				if (typeof(T).GetTypeInfo().IsInterface)
-#else
-				if (typeof(T).IsInterface)
-#endif
-				{
+                if (typeof(T).IsInterface())
+                {
 					throw new NotSupportedException("Can not deserialize interface type: "
 						+ typeof(T).Name);
 				}

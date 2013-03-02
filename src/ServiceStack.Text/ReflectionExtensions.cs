@@ -32,11 +32,7 @@ namespace ServiceStack.Text
 
         public static object GetDefaultValue(this Type type)
         {
-#if NETFX_CORE
-            if (!type.GetTypeInfo().IsValueType) return null;
-#else
-            if (!type.IsValueType) return null;
-#endif
+            if (!type.IsValueType()) return null;
 
             object defaultValue;
             if (DefaultValueTypes.TryGetValue(type, out defaultValue)) return defaultValue;
@@ -63,30 +59,19 @@ namespace ServiceStack.Text
                 if (type == thisOrBaseType)
                     return true;
 
-#if NETFX_CORE
-                type = type.GetTypeInfo().BaseType;
-#else
-                type = type.BaseType;
-#endif
+                type = type.BaseType();
             }
             return false;
         }
 
-        public static bool IsGenericType(this Type type)
+        public static bool HasGenericType(this Type type)
         {
             while (type != null)
             {
-#if NETFX_CORE
-                if (type.GetTypeInfo().IsGenericType)
+                if (type.IsGenericType())
                     return true;
 
-                type = type.GetTypeInfo().BaseType;
-#else
-                if (type.IsGenericType)
-                    return true;
-
-                type = type.BaseType;
-#endif
+                type = type.BaseType();
             }
             return false;
         }
@@ -95,17 +80,10 @@ namespace ServiceStack.Text
         {
             while (type != null)
             {
-#if NETFX_CORE
-                if (type.GetTypeInfo().IsGenericType)
+                if (type.IsGenericType())
                     return type;
 
-                type = type.GetTypeInfo().BaseType;
-#else
-                if (type.IsGenericType)
-                    return type;
-
-                type = type.BaseType;
-#endif
+                type = type.BaseType();
             }
             return null;
         }
@@ -118,17 +96,9 @@ namespace ServiceStack.Text
 
         public static Type GetTypeWithGenericTypeDefinitionOf(this Type type, Type genericTypeDefinition)
         {
-#if NETFX_CORE
-            foreach (var t in type.GetTypeInfo().ImplementedInterfaces)
-#else
-            foreach (var t in type.GetInterfaces())
-#endif
+            foreach (var t in type.GetTypeInterfaces())
             {
-#if NETFX_CORE
-                if (t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == genericTypeDefinition)
-#else
-                if (t.IsGenericType && t.GetGenericTypeDefinition() == genericTypeDefinition)
-#endif
+                if (t.IsGenericType() && t.GetGenericTypeDefinition() == genericTypeDefinition)
                 {
                     return t;
                 }
@@ -147,11 +117,7 @@ namespace ServiceStack.Text
         {
             if (type == interfaceType) return interfaceType;
 
-#if NETFX_CORE
-            foreach (var t in type.GetTypeInfo().ImplementedInterfaces)
-#else
-            foreach (var t in type.GetInterfaces())
-#endif
+            foreach (var t in type.GetTypeInterfaces())
             {
                 if (t == interfaceType)
                     return t;
@@ -162,11 +128,7 @@ namespace ServiceStack.Text
 
         public static bool HasInterface(this Type type, Type interfaceType)
         {
-#if NETFX_CORE
-            foreach (var t in type.GetTypeInfo().ImplementedInterfaces)
-#else
-            foreach (var t in type.GetInterfaces())
-#endif
+            foreach (var t in type.GetTypeInterfaces())
             {
                 if (t == interfaceType)
                     return true;
@@ -186,21 +148,14 @@ namespace ServiceStack.Text
 
         public static bool IsNumericType(this Type type)
         {
-#if NETFX_CORE
-            if (!type.GetTypeInfo().IsValueType) return false;
-#else 
-            if (!type.IsValueType) return false;
-#endif
+            if (!type.IsValueType()) return false;
             return type.IsIntegerType() || type.IsRealNumberType();
         }
 
         public static bool IsIntegerType(this Type type)
         {
-#if NETFX_CORE
-            if (!type.GetTypeInfo().IsValueType) return false;
-#else
-            if (!type.IsValueType) return false;
-#endif
+            if (!type.IsValueType()) return false;
+
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
             return underlyingType == typeof(byte)
                || underlyingType == typeof(sbyte)
@@ -214,11 +169,8 @@ namespace ServiceStack.Text
 
         public static bool IsRealNumberType(this Type type)
         {
-#if NETFX_CORE
-            if (!type.GetTypeInfo().IsValueType) return false;
-#else
-            if (!type.IsValueType) return false;
-#endif
+            if (!type.IsValueType()) return false;
+
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
             return underlyingType == typeof(float)
                || underlyingType == typeof(double)
@@ -227,24 +179,13 @@ namespace ServiceStack.Text
 
         public static Type GetTypeWithGenericInterfaceOf(this Type type, Type genericInterfaceType)
         {
-#if NETFX_CORE
-            foreach (var t in type.GetTypeInfo().ImplementedInterfaces)
-#else
-            foreach (var t in type.GetInterfaces())
-#endif
+            foreach (var t in type.GetTypeInterfaces())
             {
-#if NETFX_CORE
-                if (t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == genericInterfaceType) return t;
-#else
-                if (t.IsGenericType && t.GetGenericTypeDefinition() == genericInterfaceType) return t;
-#endif
+                if (t.IsGenericType() && t.GetGenericTypeDefinition() == genericInterfaceType) 
+                    return t;
             }
 
-#if NETFX_CORE
-            if (!type.GetTypeInfo().IsGenericType) return null;
-#else
-            if (!type.IsGenericType) return null;
-#endif
+            if (!type.IsGenericType()) return null;
 
             var genericType = type.GetGenericType();
             return genericType.GetGenericTypeDefinition() == genericInterfaceType
@@ -254,12 +195,9 @@ namespace ServiceStack.Text
 
         public static bool HasAnyTypeDefinitionsOf(this Type genericType, params Type[] theseGenericTypes)
         {
-#if NETFX_CORE
-            if (!genericType.GetTypeInfo().IsGenericType) return false;
-#else
-            if (!genericType.IsGenericType) return false;
-#endif
-            var genericTypeDefinition = genericType.GetGenericTypeDefinition();
+            if (!genericType.IsGenericType()) return false;
+
+            var genericTypeDefinition = genericType.GenericTypeDefinition();
 
             foreach (var thisGenericType in theseGenericTypes)
             {
@@ -279,13 +217,9 @@ namespace ServiceStack.Text
             var typeBInterface = typeB.GetTypeWithGenericInterfaceOf(assignableFromType);
             if (typeBInterface == null) return null;
 
-#if NETFX_CORE
-            var typeAGenericArgs = typeAInterface.GenericTypeArguments;
-            var typeBGenericArgs = typeBInterface.GenericTypeArguments;
-#else
-            var typeAGenericArgs = typeAInterface.GetGenericArguments();
-            var typeBGenericArgs = typeBInterface.GetGenericArguments();
-#endif
+            var typeAGenericArgs = typeAInterface.GetTypeGenericArguments();
+            var typeBGenericArgs = typeBInterface.GetTypeGenericArguments();
+
             if (typeAGenericArgs.Length != typeBGenericArgs.Length) return null;
 
             for (var i = 0; i < typeBGenericArgs.Length; i++)
@@ -307,14 +241,10 @@ namespace ServiceStack.Text
 
             var typeBInterface = typeB.GetTypeWithGenericInterfaceOf(assignableFromType);
             if (typeBInterface == null) return null;
-            
-#if NETFX_CORE
-            var typeAGenericArgs = typeAInterface.GenericTypeArguments;
-            var typeBGenericArgs = typeBInterface.GenericTypeArguments;
-#else
-            var typeAGenericArgs = typeAInterface.GetGenericArguments();
-            var typeBGenericArgs = typeBInterface.GetGenericArguments();
-#endif
+
+            var typeAGenericArgs = typeAInterface.GetTypeGenericArguments();
+            var typeBGenericArgs = typeBInterface.GetTypeGenericArguments();
+
             if (typeAGenericArgs.Length != typeBGenericArgs.Length) return null;
 
             for (var i = 0; i < typeBGenericArgs.Length; i++)
@@ -332,11 +262,7 @@ namespace ServiceStack.Text
         {
             foreach (var type in types)
             {
-#if NETFX_CORE
-                if (!(type == typeof(string) || type.GetTypeInfo().IsValueType)) return false;
-#else
-                if (!(type == typeof(string) || type.IsValueType)) return false;
-#endif
+                if (!(type == typeof(string) || type.IsValueType())) return false;
             }
             return true;
         }
@@ -387,11 +313,7 @@ namespace ServiceStack.Text
 
         public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
         {
-#if NETFX_CORE
-            var emptyCtor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Count() == 0);
-#else
-            var emptyCtor = type.GetConstructor(Type.EmptyTypes);
-#endif
+            var emptyCtor = type.GetEmptyConstructor();
             if (emptyCtor != null)
             {
 
@@ -452,11 +374,7 @@ namespace ServiceStack.Text
 
         public static PropertyInfo[] GetPublicProperties(this Type type)
         {
-#if NETFX_CORE
-            if (type.GetTypeInfo().IsInterface)
-#else
-            if (type.IsInterface)
-#endif
+            if (type.IsInterface())
             {
                 var propertyInfos = new List<PropertyInfo>();
 
@@ -464,14 +382,11 @@ namespace ServiceStack.Text
                 var queue = new Queue<Type>();
                 considered.Add(type);
                 queue.Enqueue(type);
+
                 while (queue.Count > 0)
                 {
                     var subType = queue.Dequeue();
-#if NETFX_CORE
-                    foreach (var subInterface in subType.GetTypeInfo().ImplementedInterfaces)
-#else
-                    foreach (var subInterface in subType.GetInterfaces())
-#endif
+                    foreach (var subInterface in subType.GetTypeInterfaces())
                     {
                         if (considered.Contains(subInterface)) continue;
 
@@ -479,14 +394,7 @@ namespace ServiceStack.Text
                         queue.Enqueue(subInterface);
                     }
 
-#if NETFX_CORE 
-                    var typeProperties = subType.GetRuntimeProperties();
-#else
-                    var typeProperties = subType.GetProperties(
-                        BindingFlags.FlattenHierarchy
-                        | BindingFlags.Public
-                        | BindingFlags.Instance);
-#endif
+                    var typeProperties = PlatformExtensionsBecauseWinRTIsSuchAPOS.GetPublicProperties(subType);
 
                     var newPropertyInfos = typeProperties
                         .Where(x => !propertyInfos.Contains(x));
@@ -497,35 +405,9 @@ namespace ServiceStack.Text
                 return propertyInfos.ToArray();
             }
 
-#if NETFX_CORE
-            return type.GetRuntimeProperties()
+            return PlatformExtensionsBecauseWinRTIsSuchAPOS.GetPublicProperties(type)
                 .Where(t => t.GetIndexParameters().Length == 0) // ignore indexed properties
                 .ToArray();
-#else
-            return type.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
-                .Where(t => t.GetIndexParameters().Length == 0) // ignore indexed properties
-                .ToArray();
-#endif
-        }
-
-        public static FieldInfo[] GetPublicFields(this Type type)
-        {
-#if NETFX_CORE
-            if (type.GetTypeInfo().IsInterface)
-#else
-            if (type.IsInterface)
-#endif
-            {
-
-                return new FieldInfo[0];
-            }
-
-#if NETFX_CORE
-            return type.GetRuntimeFields().Where(p => p.IsPublic && !p.IsStatic).ToArray();
-#else
-            return type.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
-                .ToArray();
-#endif
         }
 
         const string DataContract = "DataContractAttribute";
@@ -535,11 +417,7 @@ namespace ServiceStack.Text
         public static PropertyInfo[] GetSerializableProperties(this Type type)
         {
             var publicProperties = GetPublicProperties(type);
-#if NETFX_CORE
-            var publicReadableProperties = publicProperties.Where(x => x.GetMethod != null);
-#else
-            var publicReadableProperties = publicProperties.Where(x => x.GetGetMethod(false) != null);
-#endif
+            var publicReadableProperties = publicProperties.Where(x => x.PropertyGetMethod() != null);
 
             if (type.IsDto())
             {
@@ -560,30 +438,15 @@ namespace ServiceStack.Text
                 return new FieldInfo[0];
             }
             
-            var publicFields = GetPublicFields(type);
+            var publicFields = PlatformExtensionsBecauseWinRTIsSuchAPOS.GetPublicFields(type);
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicFields.Where(prop => !prop.GetCustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
         }
 
-        public static bool IsDto(this Type type)
-        {
-#if NETFX_CORE
-            return type.GetTypeInfo().IsDefined(typeof(DataContractAttribute), false);
-#else
-            return !Env.IsMono
-                ? type.IsDefined(typeof(DataContractAttribute), false)
-                : type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract);
-#endif
-        }
-
         public static bool HasAttr<T>(this Type type) where T : Attribute
         {
-#if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
-#else
-            return type.GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
-#endif
+            return type.GetTypeAttributes<T>();
         }
 
 #if !SILVERLIGHT && !MONOTOUCH 
@@ -593,13 +456,7 @@ namespace ServiceStack.Text
 
         public static DataContractAttribute GetDataContract(this Type type)
         {
-#if NETFX_CORE
-            var dataContract = type.GetTypeInfo().GetCustomAttributes(typeof(DataContractAttribute), true)
-                .FirstOrDefault() as DataContractAttribute;
-#else
-            var dataContract = type.GetCustomAttributes(typeof(DataContractAttribute), true)
-                .FirstOrDefault() as DataContractAttribute;
-#endif
+            var dataContract = type.FirstAttribute<DataContractAttribute>();
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
             if (dataContract == null && Env.IsMono)
@@ -672,7 +529,334 @@ namespace ServiceStack.Text
             return null;
         }
 #endif
+    }
 
+    public static class PlatformExtensionsBecauseWinRTIsSuchAPOS
+    {
+        public static bool IsInterface(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsInterface);
+#else
+            return type.IsInterface;
+#endif
+        }
+
+        public static bool IsValueType(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsValueType);
+#else
+            return type.IsValueType;
+#endif
+        }
+
+        internal static bool IsGenericType(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsGenericType;
+#else
+            return type.IsGenericType;
+#endif
+        }
+
+        public static Type BaseType(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().BaseType;
+#else
+            return type.BaseType;
+#endif
+        }
+
+        public static Type GenericTypeDefinition(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().GetGenericTypeDefinition();
+#else
+            return type.GetGenericTypeDefinition();
+#endif
+        }
+
+        public static Type[] GetTypeInterfaces(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().ImplementedInterfaces;
+#else
+            return type.GetInterfaces();
+#endif
+        }
+
+        public static Type[] GetTypeGenericArguments(this Type type)
+        {
+#if NETFX_CORE
+            return type.GenericTypeArguments;
+#else
+            return type.GetGenericArguments();
+#endif
+        }
+
+        public static ConstructorInfo GetEmptyConstructor(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Count() == 0);
+#else
+            return type.GetConstructor(Type.EmptyTypes);
+#endif
+        }
+        
+        public static PropertyInfo[] GetPublicProperties(this Type subType)
+        {
+#if NETFX_CORE 
+            return subType.GetRuntimeProperties();
+#else
+            return subType.GetProperties(
+                BindingFlags.FlattenHierarchy | 
+                BindingFlags.Public | 
+                BindingFlags.Instance);
+#endif
+        }
+
+        public static FieldInfo[] GetPublicFields(this Type type)
+        {
+            if (type.IsInterface())
+            {
+                return new FieldInfo[0];
+            }
+
+#if NETFX_CORE
+            return type.GetRuntimeFields().Where(p => p.IsPublic && !p.IsStatic).ToArray();
+#else
+            return type.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
+            .ToArray();
+#endif
+        }
+
+        public static bool GetTypeAttributes<T>(this Type type) where T : Attribute
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
+#else
+            return type.GetCustomAttributes(true).Any(x => x.GetType() == typeof(T));
+#endif
+        }
+
+        const string DataContract = "DataContractAttribute";
+        public static bool IsDto(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsDefined(typeof(DataContractAttribute), false);
+#else
+            return !Env.IsMono
+                   ? type.IsDefined(typeof(DataContractAttribute), false)
+                   : type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract);
+#endif
+        }
+
+        public static MethodInfo PropertyGetMethod(this PropertyInfo pi, bool nonPublic = false)
+        {
+#if NETFX_CORE
+            return pi.GetMethod;
+#else
+            return pi.GetGetMethod(false);
+#endif
+        }
+
+        public static TAttr FirstAttribute<TAttr>(this Type type, bool inherit = true) where TAttr : Attribute
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
+                .FirstOrDefault() as TAttr;
+#else
+            return type.GetCustomAttributes(typeof(TAttr), true)
+                   .FirstOrDefault() as TAttr;
+#endif
+        }
+
+        public static MethodInfo GetPublicStaticMethod(this Type type, string methodName, Type[] types = null)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeMethod(parseMethod, types);
+#else
+            return types == null
+                ? type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static)
+                : type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static, null, types, null);
+#endif
+        }
+
+        public static MethodInfo GetMethod(this Type type, string methodName, Type[] types = null)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeMethod(parseMethod, types);
+#else
+            return types == null
+                ? type.GetMethod(methodName)
+                : type.GetMethod(methodName, types);
+#endif
+        }
+
+        public static FieldInfo GetPublicStaticField(this Type type, string fieldName)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeField(methodName);
+#else
+            return type.GetField(fieldName, BindingFlags.Public | BindingFlags.Static);
+#endif
+        }
+
+        public static Delegate MakeDelegate(this MethodInfo mi, Type delegateType, bool throwOnBindFailure=true)
+        {
+#if NETFX_CORE
+            return mi.CreateDelegate(delegateType);
+#else
+            return Delegate.CreateDelegate(delegateType, mi, throwOnBindFailure);
+#endif
+        }
+
+        public static Type[] GenericTypeArguments(this Type type)
+        {
+#if NETFX_CORE
+            return type.GenericTypeArguments;
+#else
+            return type.GetGenericArguments();
+#endif
+        }
+
+        public static ConstructorInfo[] DeclaredConstructors(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().DeclaredConstructors;
+#else
+            return type.GetConstructors();
+#endif
+        }
+
+        public static bool AssignableFrom(this Type type, Type fromType)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsAssignableFrom(fromType.GetTypeInfo();
+#else
+            return type.IsAssignableFrom(fromType);
+#endif
+        }
+        
+        public static bool IsStandardClass(this Type type)
+        {
+#if NETFX_CORE
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsClass && !typeInfo.IsAbstract && !typeInfo.IsInterface;
+#else
+            return type.IsClass && !type.IsAbstract && !type.IsInterface;
+#endif
+        }
+
+        public static bool IsAbstract(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo.IsAbstract;
+#else
+            return type.IsAbstract;
+#endif
+        }
+
+        public static PropertyInfo GetPropertyInfo(this Type type, string propertyName)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeProperty(propertyName);
+#else
+            return type.GetProperty(propertyName);
+#endif
+        }
+
+        public static FieldInfo GetFieldInfo(this Type type, string fieldName)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeField(fieldName);
+#else
+            return type.GetField(fieldName);
+#endif
+        }
+
+        public static FieldInfo[] GetWritableFields(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeFields().Where(p => !p.IsPublic && !p.IsStatic);
+#else
+            return type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
+#endif
+        }
+
+        public static MethodInfo SetMethod(this PropertyInfo pi, bool nonPublic = true)
+        {
+#if NETFX_CORE
+            return pi.SetMethod;
+#else
+            return pi.GetSetMethod(nonPublic);
+#endif
+        }
+
+        public static MethodInfo GetMethod(this PropertyInfo pi, bool nonPublic = true)
+        {
+#if NETFX_CORE
+            return pi.GetMethod;
+#else
+            return pi.GetGetMethod(nonPublic);
+#endif
+        }
+
+        public static bool InstanceOfType(this Type type, object instance)
+        {
+#if NETFX_CORE
+            return type.IsInstanceOf(instance.GetType());
+#else
+            return type.IsInstanceOfType(instance);
+#endif
+        }
+        
+        public static bool IsClass(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsClass;
+#else
+            return type.IsClass;
+#endif
+        }
+
+        public static bool IsEnum(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsEnum;
+#else
+            return type.IsEnum;
+#endif
+        }
+
+        public static bool IsUnderlyingEnum(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsEnum;
+#else
+            return type.IsEnum || type.UnderlyingSystemType.IsEnum;
+#endif
+        }
+
+        public static MethodInfo[] GetMethodInfos(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().GetMethods();
+#else
+            return type.GetMethods();
+#endif
+        }
+
+        public static PropertyInfo[] GetPropertyInfos(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetRuntimeProperties();
+#else
+            return type.GetProperties();
+#endif
+        }
     }
 
 }

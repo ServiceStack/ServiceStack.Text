@@ -117,15 +117,10 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn;
 
             var genericType = typeof(DeserializeArray<,>).MakeGenericType(type, typeof(TSerializer));
-#if NETFX_CORE
-            var mi = genericType.GetRuntimeMethods().First(p => p.Name.Equals("GetParseFn"));
-            var parseFactoryFn = (Func<ParseStringDelegate>)mi.CreateDelegate(
+
+            var mi = genericType.GetPublicStaticMethod("GetParseFn");
+            var parseFactoryFn = (Func<ParseStringDelegate>)mi.MakeDelegate(
                 typeof(Func<ParseStringDelegate>));
-#else
-            var mi = genericType.GetMethod("GetParseFn", BindingFlags.Public | BindingFlags.Static);
-            var parseFactoryFn = (Func<ParseStringDelegate>)Delegate.CreateDelegate(
-                typeof(Func<ParseStringDelegate>), mi);
-#endif
             parseFn = parseFactoryFn();
 
             Dictionary<Type, ParseStringDelegate> snapshot, newCache;

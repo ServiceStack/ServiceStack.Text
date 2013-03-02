@@ -7,11 +7,15 @@ namespace ServiceStack.Text
 	{
 		static Env()
 		{
+		    string platformName = null;
+
 #if NETFX_CORE
-            IsUnix = false;
+            IsWinRT = true;
+            platformName = "WinRT";
 #else
             var platform = (int)Environment.OSVersion.Platform;
 			IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
+		    platformName = Environment.OSVersion.Platform.ToString();
 #endif
 
             IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
@@ -24,11 +28,7 @@ namespace ServiceStack.Text
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
-#if NETFX_CORE
-                + "Microsoft Windows Store App"
-#else
-                + Environment.OSVersion.Platform
-#endif
+                + platformName
                 + (IsMono ? "/Mono" : "/.NET")
                 + (IsMonoTouch ? " MonoTouch" : "")
                 + (IsWinRT ? ".NET WinRT" : "");

@@ -34,12 +34,7 @@ namespace ServiceStack.Text.Common
         {
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(KeyValuePair<,>));
 
-#if NETFX_CORE
-            var keyValuePairArgs = mapInterface.GenericTypeArguments;
-#else
-            var keyValuePairArgs = mapInterface.GetGenericArguments();
-#endif
-
+            var keyValuePairArgs = mapInterface.GenericTypeArguments();
             var keyTypeParseMethod = Serializer.GetParseFn(keyValuePairArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 
@@ -71,17 +66,10 @@ namespace ServiceStack.Text.Common
                 Serializer.EatMapKeySeperator(value, ref index);
                 var keyElementValue = Serializer.EatTypeValue(value, ref index);
 
-#if NETFX_CORE
-                if (string.Compare(key, "key", StringComparison.CurrentCultureIgnoreCase) == 0)
+                if (key.CompareIgnoreCase("key") == 0)
                     keyValue = (TKey)parseKeyFn(keyElementValue);
-                else if (string.Compare(key, "value", StringComparison.CurrentCultureIgnoreCase) == 0)
+                else if (key.CompareIgnoreCase("value") == 0)
                     valueValue = (TValue)parseValueFn(keyElementValue);
-#else
-                if (string.Compare(key, "key", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    keyValue = (TKey)parseKeyFn(keyElementValue);
-                else if (string.Compare(key, "value", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    valueValue = (TValue)parseValueFn(keyElementValue);
-#endif
                 else
                     throw new SerializationException("Incorrect KeyValuePair property: " + key);
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
@@ -117,15 +105,9 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-#if NETFX_CORE
-            var mi = typeof(DeserializeKeyValuePair<TSerializer>).GetRuntimeMethods().First(p => p.Name.Equals("ParseKeyValuePair"));
+            var mi = typeof(DeserializeKeyValuePair<TSerializer>).GetPublicStaticMethod("ParseKeyValuePair");
             var genericMi = mi.MakeGenericMethod(argTypes);
-            parseDelegate = (ParseKeyValuePairDelegate)genericMi.CreateDelegate(typeof(ParseKeyValuePairDelegate));
-#else
-            var mi = typeof(DeserializeKeyValuePair<TSerializer>).GetMethod("ParseKeyValuePair", BindingFlags.Static | BindingFlags.Public);
-            var genericMi = mi.MakeGenericMethod(argTypes);
-            parseDelegate = (ParseKeyValuePairDelegate)Delegate.CreateDelegate(typeof(ParseKeyValuePairDelegate), genericMi);
-#endif
+            parseDelegate = (ParseKeyValuePairDelegate)genericMi.MakeDelegate(typeof(ParseKeyValuePairDelegate));
 
             Dictionary<string, ParseKeyValuePairDelegate> snapshot, newCache;
             do
