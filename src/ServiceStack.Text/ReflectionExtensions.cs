@@ -341,6 +341,9 @@ namespace ServiceStack.Text
 #elif WINDOWS_PHONE
             return Expression.Lambda<EmptyCtorDelegate>(Expression.New(type)).Compile();
 #else
+            if (type == typeof(string))
+                return () => String.Empty;
+
             //Anonymous types don't have empty constructors
             return () => FormatterServices.GetUninitializedObject(type);
 #endif
