@@ -49,6 +49,17 @@ namespace ServiceStack.Text.Tests
 
 			Assert.AreEqual(expected, text);
 		}
+
+        public void Should_deserialize_enum()
+        {
+            Assert.That(JsonSerializer.DeserializeFromString<EnumWithoutFlags>("\"Two\""), Is.EqualTo(EnumWithoutFlags.Two));
+        }
+
+        public void Should_handle_empty_enum()
+        {
+            Assert.That(JsonSerializer.DeserializeFromString<EnumWithoutFlags>(""), Is.EqualTo((EnumWithoutFlags)0));
+        }
+
 	}
 }
 
