@@ -57,7 +57,7 @@ namespace ServiceStack.Text.Common
             if (string.IsNullOrEmpty(dateTimeStr))
                 return DateTime.MinValue;
 
-            if (dateTimeStr.StartsWith(EscapedWcfJsonPrefix) || dateTimeStr.StartsWith(WcfJsonPrefix))
+            if (dateTimeStr.StartsWith(EscapedWcfJsonPrefix, StringComparison.Ordinal) || dateTimeStr.StartsWith(WcfJsonPrefix, StringComparison.Ordinal))
                 return ParseWcfJsonDate(dateTimeStr).Prepare();
 
             if (dateTimeStr.Length == DefaultDateTimeFormat.Length
@@ -107,8 +107,8 @@ namespace ServiceStack.Text.Common
 
             // for interop, do not assume format based on config
             // format: prefer TimestampOffset, DCJSCompatible
-            if (dateTimeOffsetStr.StartsWith(EscapedWcfJsonPrefix) ||
-                dateTimeOffsetStr.StartsWith(WcfJsonPrefix))
+            if (dateTimeOffsetStr.StartsWith(EscapedWcfJsonPrefix, StringComparison.Ordinal) ||
+                dateTimeOffsetStr.StartsWith(WcfJsonPrefix, StringComparison.Ordinal))
             {
                 return ParseWcfJsonDateOffset(dateTimeOffsetStr);
             }
@@ -162,7 +162,7 @@ namespace ServiceStack.Text.Common
 
         public static TimeSpan ParseTimeSpan(string dateTimeStr)
         {
-            return dateTimeStr.StartsWith("P") || dateTimeStr.StartsWith("-P")
+            return dateTimeStr.StartsWith("P", StringComparison.Ordinal) || dateTimeStr.StartsWith("-P", StringComparison.Ordinal)
                 ? ParseXsdTimeSpan(dateTimeStr)
                 : TimeSpan.Parse(dateTimeStr);
         }
@@ -218,7 +218,7 @@ namespace ServiceStack.Text.Common
             var timeString = (suffixPos < 0) ? wcfJsonDate : wcfJsonDate.Substring(WcfJsonPrefix.Length, suffixPos - WcfJsonPrefix.Length);
 
             // for interop, do not assume format based on config
-            if (!wcfJsonDate.StartsWith(WcfJsonPrefix))
+            if (!wcfJsonDate.StartsWith(WcfJsonPrefix, StringComparison.Ordinal))
             {
                 return DateTimeOffset.Parse(timeString, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
             }
@@ -263,7 +263,7 @@ namespace ServiceStack.Text.Common
             var timeString = wcfJsonDate.Substring(WcfJsonPrefix.Length, suffixPos - WcfJsonPrefix.Length);
 
             // for interop, do not assume format based on config
-            if (!wcfJsonDate.StartsWith(WcfJsonPrefix))
+            if (!wcfJsonDate.StartsWith(WcfJsonPrefix, StringComparison.Ordinal))
             {
                 return DateTime.Parse(timeString, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
             }

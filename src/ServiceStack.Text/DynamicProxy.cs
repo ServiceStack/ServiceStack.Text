@@ -54,9 +54,10 @@ namespace ServiceStack.Text {
 		static void IncludeType (Type typeOfT, TypeBuilder typeBuilder) {
 			var methodInfos = typeOfT.GetMethods();
 			foreach (var methodInfo in methodInfos) {
-				if (methodInfo.Name.StartsWith("set_")) continue; // we always add a set for a get.
+                if (methodInfo.Name.StartsWith("set_", StringComparison.Ordinal)) continue; // we always add a set for a get.
 
-				if (methodInfo.Name.StartsWith("get_")) {
+                if (methodInfo.Name.StartsWith("get_", StringComparison.Ordinal))
+                {
 					BindProperty(typeBuilder, methodInfo);
 				} else {
 					BindMethod(typeBuilder, methodInfo);

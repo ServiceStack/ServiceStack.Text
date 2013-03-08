@@ -45,7 +45,7 @@ namespace ServiceStack.Text
 
 	    public static string FromCsvField(this string text)
 		{
-			return string.IsNullOrEmpty(text) || !text.StartsWith(CsvConfig.ItemDelimiterString)
+            return string.IsNullOrEmpty(text) || !text.StartsWith(CsvConfig.ItemDelimiterString, StringComparison.Ordinal)
 			       	? text
 					: text.Substring(CsvConfig.ItemDelimiterString.Length, text.Length - CsvConfig.EscapedItemDelimiterString.Length)
 						.Replace(CsvConfig.EscapedItemDelimiterString, CsvConfig.ItemDelimiterString);

@@ -128,7 +128,7 @@ namespace ServiceStack.Text.Common
             Guid guidValue;
             if (Guid.TryParse(value, out guidValue)) return guidValue;
 #endif
-            if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix))
+            if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix, StringComparison.Ordinal) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix, StringComparison.Ordinal))
             {
                 return DateTimeSerializer.ParseWcfJsonDate(value);
             }

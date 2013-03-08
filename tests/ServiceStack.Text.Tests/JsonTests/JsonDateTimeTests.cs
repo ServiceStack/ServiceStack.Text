@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 #if !MONOTOUCH
 using ServiceStack.Client;
@@ -435,5 +436,15 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         #endregion
+
+        public void Test1()
+        {
+            var tz = TimeZoneInfo.GetSystemTimeZones().ToList().First(t => t.Id == "Afghanistan Standard Time");
+
+            JsConfig.AlwaysUseUtc = true;
+            var date = TimeZoneInfo.ConvertTime(new DateTime(2013, 3, 17, 0, 0, 0, DateTimeKind.Utc), tz);
+            date.PrintDump();
+            date.ToJson().Print();
+        }
     }
 }

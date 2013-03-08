@@ -223,7 +223,7 @@ namespace ServiceStack.Text
 
             var binPathPos = codeBase.LastIndexOf(UriSeperator);
             var assemblyPath = codeBase.Substring(0, binPathPos + 1);
-            if (assemblyPath.StartsWith(FileUri))
+            if (assemblyPath.StartsWith(FileUri, StringComparison.OrdinalIgnoreCase))
             {
                 assemblyPath = assemblyPath.Remove(0, FileUri.Length);
             }
