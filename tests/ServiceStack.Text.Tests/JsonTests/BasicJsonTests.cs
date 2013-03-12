@@ -320,6 +320,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             public ExampleEnumWithoutFlagsAttribute EnumProp2 { get; set; }
         }
 
+        public class ClassWithNullableEnumWithoutFlagsAttribute
+        {
+            public ExampleEnumWithoutFlagsAttribute ? EnumProp1 { get; set; }
+        }
+
         [Test]
         public void Can_serialize_unsigned_enum_with_turned_on_TreatEnumAsInteger()
         {
@@ -334,6 +339,19 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(JsonSerializer.SerializeToString(anon), Is.EqualTo("{\"EnumProp1\":1,\"EnumProp2\":2}"));
 			Assert.That(TypeSerializer.SerializeToString(anon), Is.EqualTo("{EnumProp1:1,EnumProp2:2}"));
 		}
+
+        [Test]
+        public void Can_serialize_nullable_enum_with_turned_on_TreatEnumAsInteger()
+        {
+            JsConfig.TreatEnumAsInteger = true;
+
+            var anon = new ClassWithNullableEnumWithoutFlagsAttribute
+            {
+                EnumProp1 = ExampleEnumWithoutFlagsAttribute.One
+            };
+
+            Assert.That(JsonSerializer.SerializeToString(anon), Is.EqualTo("{\"EnumProp1\":1}"));
+        }
 
         [Test]
         public void Can_deserialize_unsigned_enum_with_turned_on_TreatEnumAsInteger()
