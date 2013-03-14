@@ -64,6 +64,9 @@ namespace ServiceStack.Text.Common
             if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
             if (value == string.Empty) return new T[0];
 
+            var tryToParseItemsAsPrimitiveTypes =
+                JsConfig.TryToParsePrimitiveTypeValues && typeof(T) == typeof(object);
+
             if (value[0] == JsWriter.MapStartChar)
             {
                 var itemValues = new List<string>();
@@ -89,9 +92,17 @@ namespace ServiceStack.Text.Common
                 var i = 0;
                 while (i < valueLength)
                 {
+                    var elementStartIndex = i;
                     var elementValue = Serializer.EatValue(value, ref i);
                     var listValue = elementValue;
-                    to.Add((T)elementParseFn(listValue));
+                    Serializer.EatWhitespace(value, ref elementStartIndex);
+
+                    to.Add(
+                        (tryToParseItemsAsPrimitiveTypes && DeserializeType<TSerializer>.ExtractType(listValue) == null)
+                            ? (T)DeserializeType<TSerializer>.ParsePrimitive(listValue, value[elementStartIndex])
+                            : (T)elementParseFn(listValue)
+                        );
+
                     if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
                         && i == valueLength)
                     {
