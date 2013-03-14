@@ -206,7 +206,9 @@ namespace ServiceStack.Text.Common
                     if (tryToParseItemsAsPrimitiveTypes && elementStartIndex < valueLength)
                     {
                         Serializer.EatWhitespace(value, ref elementStartIndex);
-                        to[mapKey] = (TValue)DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
+                        to[mapKey] = DeserializeType<TSerializer>.ExtractType(elementValue) != null
+                            ? (TValue)parseValueFn(elementValue)
+                            : (TValue)DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
                     }
                     else
                     {
