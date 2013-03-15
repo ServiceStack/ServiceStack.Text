@@ -72,6 +72,7 @@ namespace ServiceStack.Text
         public bool? EmitLowercaseUnderscoreNames { get; set; }
         public bool? ThrowOnDeserializationError { get; set; }
         public bool? AlwaysUseUtc { get; set; }
+        public bool? EscapeUnicode { get; set; }
         public bool? PreferInterfaces { get; set; }
         public bool? IncludePublicFields { get; set; }
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }

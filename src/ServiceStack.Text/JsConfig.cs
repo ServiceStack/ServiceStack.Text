@@ -45,6 +45,7 @@ namespace ServiceStack.Text
             Func<string, Type> typeFinder = null,
 			bool? treatEnumAsInteger = null,
             bool? alwaysUseUtc = null,
+            bool? escapeUnicode = null,
             bool? includePublicFields = null,
             EmptyCtorFactoryDelegate modelFactory = null)
         {
@@ -65,6 +66,7 @@ namespace ServiceStack.Text
                 TypeFinder = typeFinder ?? sTypeFinder,
                 TreatEnumAsInteger = treatEnumAsInteger ?? sTreatEnumAsInteger,
                 AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
+                EscapeUnicode = escapeUnicode ?? sEscapeUnicode,
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 ModelFactory = modelFactory ?? ModelFactory,
             };
@@ -378,6 +380,25 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating if unicode symbols should be serialized as "\uXXXX".
+        /// </summary>
+        private static bool? sEscapeUnicode;
+        public static bool EscapeUnicode
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EscapeUnicode : null)
+                    ?? sEscapeUnicode
+                    ?? false;
+            }
+            set
+            {
+                if (!sEscapeUnicode.HasValue) sEscapeUnicode = value;
+            }
+        }
+
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
         public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
@@ -464,6 +485,7 @@ namespace ServiceStack.Text
             sTypeFinder = null;
 			sTreatEnumAsInteger = null;
             sAlwaysUseUtc = null;
+            sEscapeUnicode = null;
             sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };

@@ -84,10 +84,15 @@ namespace ServiceStack.Text.Json
                     continue;
                 }
 
-                // Default, turn into a \uXXXX sequence
-                IntToHex(value[i], hexSeqBuffer);
-                writer.Write("\\u");
-                writer.Write(hexSeqBuffer);
+                if (JsConfig.EscapeUnicode)
+                {
+                    // Default, turn into a \uXXXX sequence
+                    IntToHex(value[i], hexSeqBuffer);
+                    writer.Write("\\u");
+                    writer.Write(hexSeqBuffer);
+                }
+                else
+                    writer.Write(value[i]);
             }
 
 			writer.Write(QuoteChar);

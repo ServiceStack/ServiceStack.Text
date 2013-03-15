@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
@@ -17,6 +18,12 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			public ModelWithIdAndName Model { get; set; }
 		}
+
+        [TearDown]
+        public void TearDown()
+        {
+            JsConfig.Reset();
+        }
 
 		[Test]
 		public void Can_deserialize_text_with_escaped_chars()
@@ -212,5 +219,44 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 			Assert.That(fromJson, Is.EqualTo(model));
 		}
+
+        [Test]
+        public void Can_serialize_unicode_without_escape()
+        {
+            var model = new Model { Name = "JříАбвĀašū" };
+            var toJson = JsonSerializer.SerializeToString(model);
+            Assert.That(toJson, Is.EqualTo("{\"Name\":\"JříАбвĀašū\"}"));
+        }
+
+        [Test]
+        public void Can_deserialize_unicode_without_escape()
+        {
+            var fromJson = JsonSerializer.DeserializeFromString<Model>("{\"Name\":\"JříАбвĀašū\"}");
+            Assert.That(fromJson.Name, Is.EqualTo("JříАбвĀašū"));
+        }
+
+        [Test]
+        public void Can_serialize_unicode_with_escape()
+        {
+            JsConfig.EscapeUnicode = true;
+            var model = new Model { Name = "JříАбвĀašū" };
+            var toJson = JsonSerializer.SerializeToString(model);
+            Assert.That(toJson, Is.EqualTo("{\"Name\":\"J\\u0159\\u00ED\\u0410\\u0431\\u0432\\u0100a\\u0161\\u016B\"}"));
+        }
+
+        [Test]
+        public void Can_deserialize_unicode_with_escape()
+        {
+            JsConfig.EscapeUnicode = true;
+            var fromJson = JsonSerializer.DeserializeFromString<Model>("{\"Name\":\"J\\u0159\\u00ED\\u0410\\u0431\\u0432\\u0100a\\u0161\\u016B\"}");
+            Assert.That(fromJson.Name, Is.EqualTo("JříАбвĀašū"));
+        }
+
+
+
+        public class Model
+        {
+            public string Name { get; set; }
+        }
 	}
 }
