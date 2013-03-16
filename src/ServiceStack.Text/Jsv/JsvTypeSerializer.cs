@@ -388,7 +388,7 @@ namespace ServiceStack.Text.Jsv
 						if (!isLiteralQuote)
 							break;
 					}
-					return value.Substring(tokenStartPos, i - tokenStartPos);
+					return value.Substring(tokenStartPos, i - tokenStartPos).DecodeJsv();
 
 				//Is Type/Map, i.e. {...}
 				case JsWriter.MapStartChar:

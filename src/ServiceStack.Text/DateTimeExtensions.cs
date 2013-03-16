@@ -128,13 +128,18 @@ namespace ServiceStack.Text
 
 		public static DateTime ToStableUniversalTime(this DateTime dateTime)
 		{
+            // The .Net converter assumes "Unspecified" means local time, but this could cause issues during conversion (times that don't exist).
+            // A better approach is to assume UTC unless otherwise specified.
+            if (dateTime.Kind == DateTimeKind.Local)
 #if SILVERLIGHT
-			// Silverlight 3, 4 and 5 all work ok with DateTime.ToUniversalTime, but have no TimeZoneInfo.ConverTimeToUtc implementation.
-			return dateTime.ToUniversalTime();
+			    // Silverlight 3, 4 and 5 all work ok with DateTime.ToUniversalTime, but have no TimeZoneInfo.ConverTimeToUtc implementation.
+			    return dateTime.ToUniversalTime();
 #else
-			// .Net 2.0 - 3.5 has an issue with DateTime.ToUniversalTime, but works ok with TimeZoneInfo.ConvertTimeToUtc.
-			// .Net 4.0+ does this under the hood anyway.
-			return TimeZoneInfo.ConvertTimeToUtc(dateTime);
+                // .Net 2.0 - 3.5 has an issue with DateTime.ToUniversalTime, but works ok with TimeZoneInfo.ConvertTimeToUtc.
+                // .Net 4.0+ does this under the hood anyway.
+                return TimeZoneInfo.ConvertTimeToUtc(dateTime);
+
+            return new DateTime(dateTime.Ticks, DateTimeKind.Utc);
 #endif
 		}
 
