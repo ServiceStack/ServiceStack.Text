@@ -63,7 +63,7 @@ namespace ServiceStack.Text.Tests
             var t = new List<string>();
             t.Add("Foo:Bar");
             t.Add("Get:Out");
-            Assert.That(QueryStringSerializer.SerializeToString(new { list = t }), Is.EqualTo("list=[Foo%3aBar,Get%3aOut]"));
+            Assert.That(QueryStringSerializer.SerializeToString(new { list = t }), Is.EqualTo("list=Foo%3aBar,Get%3aOut"));
         }
 
 	    [Test]

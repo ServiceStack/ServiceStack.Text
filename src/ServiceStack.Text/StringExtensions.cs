@@ -121,7 +121,10 @@ namespace ServiceStack.Text
 
         public static string EncodeJsv(this string value)
         {
-            if (JsState.QueryStringMode) value = UrlEncode(value);
+            if (JsState.QueryStringMode)
+            {
+                return UrlEncode(value);
+            }
 			return String.IsNullOrEmpty(value) || !JsWriter.HasAnyEscapeChars(value)
 		       	? value
 		       	: String.Concat
