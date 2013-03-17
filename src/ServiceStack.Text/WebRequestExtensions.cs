@@ -12,64 +12,64 @@ namespace ServiceStack.Text
         public const string MultiPartFormData = "multipart/form-data";
         
         public static string GetJsonFromUrl(this string url, 
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return url.GetStringFromUrl(Json, requestilter, responseFilter);
+            return url.GetStringFromUrl(Json, requestFilter, responseFilter);
         }
 
         public static string GetXmlFromUrl(this string url,
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return url.GetStringFromUrl(Xml, requestilter, responseFilter);
+            return url.GetStringFromUrl(Xml, requestFilter, responseFilter);
         }
 
         public static string GetStringFromUrl(this string url, string acceptContentType = "*/*",
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, acceptContentType: acceptContentType, requestilter: requestilter, responseFilter: responseFilter);
+            return SendStringToUrl(url, acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PostToUrl(this string url, object formData = null, string acceptContentType = "*/*",
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
             return SendStringToUrl(url, method: "POST",
                 contentType: FormUrlEncoded, requestBody: postFormData,
-                acceptContentType: acceptContentType, requestilter: requestilter, responseFilter: responseFilter);
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PutToUrl(this string url, object formData = null, string acceptContentType = "*/*",
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
             return SendStringToUrl(url, method: "PUT",
                 contentType: FormUrlEncoded, requestBody: postFormData,
-                acceptContentType: acceptContentType, requestilter: requestilter, responseFilter: responseFilter);
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string DeleteFromUrl(this string url, string acceptContentType = "*/*",
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "DELETE", acceptContentType: acceptContentType, requestilter: requestilter, responseFilter: responseFilter);
+            return SendStringToUrl(url, method: "DELETE", acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string OptionsFromUrl(this string url, string acceptContentType = "*/*",
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "OPTIONS", acceptContentType: acceptContentType, requestilter: requestilter, responseFilter: responseFilter);
+            return SendStringToUrl(url, method: "OPTIONS", acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string HeadFromUrl(this string url, string acceptContentType = "*/*",
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "HEAD", acceptContentType: acceptContentType, requestilter: requestilter, responseFilter: responseFilter);
+            return SendStringToUrl(url, method: "HEAD", acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string SendStringToUrl(this string url, string method = null,
             string requestBody = null, string contentType = null, string acceptContentType = "*/*",
-            Action<HttpWebRequest> requestilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             var webReq = (HttpWebRequest)WebRequest.Create(url);
             if (method != null)
@@ -100,6 +100,28 @@ namespace ServiceStack.Text
                 }
                 return reader.ReadToEnd();
             }
+        }
+
+        public static byte[] GetBytesFromUrl(this string url, string acceptContentType = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.SendBytesToUrl(acceptContentType:acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static byte[] PostBytesToUrl(this string url, byte[] requestBody = null, string acceptContentType = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendBytesToUrl(url, method: "POST",
+                contentType: FormUrlEncoded, requestBody: requestBody,
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static byte[] PutBytesToUrl(this string url, byte[] requestBody = null, string acceptContentType = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendBytesToUrl(url, method: "PUT",
+                contentType: FormUrlEncoded, requestBody: requestBody,
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static byte[] SendBytesToUrl(this string url, string method = null,
