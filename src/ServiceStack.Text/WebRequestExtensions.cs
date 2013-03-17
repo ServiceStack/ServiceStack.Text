@@ -180,25 +180,25 @@ namespace ServiceStack.Text
             }
         }
 
-        public static bool Is200(this Exception ex)
+        public static bool IsAny200(this Exception ex)
         {
             var status = ex.GetStatus();
             return status >= HttpStatusCode.OK && status < HttpStatusCode.MultipleChoices;
         }
 
-        public static bool Is300(this Exception ex)
+        public static bool IsAny300(this Exception ex)
         {
             var status = ex.GetStatus();
             return status >= HttpStatusCode.MultipleChoices && status < HttpStatusCode.BadRequest;
         }
 
-        public static bool Is400(this Exception ex)
+        public static bool IsAny400(this Exception ex)
         {
             var status = ex.GetStatus();
             return status >= HttpStatusCode.BadRequest && status < HttpStatusCode.InternalServerError;
         }
 
-        public static bool Is500(this Exception ex)
+        public static bool IsAny500(this Exception ex)
         {
             var status = ex.GetStatus();
             return status >= HttpStatusCode.InternalServerError && (int)status < 600;
