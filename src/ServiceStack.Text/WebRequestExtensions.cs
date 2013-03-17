@@ -108,19 +108,19 @@ namespace ServiceStack.Text
             return url.SendBytesToUrl(acceptContentType:acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-        public static byte[] PostBytesToUrl(this string url, byte[] requestBody = null, string acceptContentType = "*/*",
+        public static byte[] PostBytesToUrl(this string url, byte[] requestBody = null, string contentType = null, string acceptContentType = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendBytesToUrl(url, method: "POST",
-                contentType: FormUrlEncoded, requestBody: requestBody,
+                contentType: contentType, requestBody: requestBody,
                 acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-        public static byte[] PutBytesToUrl(this string url, byte[] requestBody = null, string acceptContentType = "*/*",
+        public static byte[] PutBytesToUrl(this string url, byte[] requestBody = null, string contentType = null, string acceptContentType = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendBytesToUrl(url, method: "PUT",
-                contentType: FormUrlEncoded, requestBody: requestBody,
+                contentType: contentType, requestBody: requestBody,
                 acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
