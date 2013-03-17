@@ -71,5 +71,15 @@ namespace ServiceStack.Text.Tests
             Assert.That(queryString,
                 Is.EqualTo("Id=tt0110912&Title=Pulp%20Fiction&Rating=8.9&Director=Quentin%20Tarantino&ReleaseDate=1994-10-24&TagLine=Girls%20like%20me%20don%27t%20make%20invitations%20like%20this%20to%20just%20anyone%21&Genres=Crime,Drama,Thriller"));
         }
+
+        [Test]
+        public void Can_write_string_to_QueryString()
+        {
+            var str = "title=Pulp Fiction";
+
+            var queryString = QueryStringSerializer.SerializeToString(str);
+
+            queryString.Print();
+        }
     }
 }

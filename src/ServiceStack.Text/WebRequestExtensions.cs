@@ -29,6 +29,14 @@ namespace ServiceStack.Text
             return SendStringToUrl(url, acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PostToUrl(this string url, string formData = null, string acceptContentType = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "POST",
+                contentType: FormUrlEncoded, requestBody: formData,
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PostToUrl(this string url, object formData = null, string acceptContentType = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -36,6 +44,14 @@ namespace ServiceStack.Text
 
             return SendStringToUrl(url, method: "POST",
                 contentType: FormUrlEncoded, requestBody: postFormData,
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutToUrl(this string url, string formData = null, string acceptContentType = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT",
+                contentType: FormUrlEncoded, requestBody: formData,
                 acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
