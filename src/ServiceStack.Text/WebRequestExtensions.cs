@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text;
 
 namespace ServiceStack.Text
 {
@@ -47,6 +48,16 @@ namespace ServiceStack.Text
                 acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PostJsonToUrl(this string url, object data)
+        {
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToJson(), contentType: Json, acceptContentType: Json);
+        }
+
+        public static string PostXmlToUrl(this string url, object data)
+        {
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml);
+        }
+
         public static string PutToUrl(this string url, string formData = null, string acceptContentType = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -63,6 +74,16 @@ namespace ServiceStack.Text
             return SendStringToUrl(url, method: "PUT",
                 contentType: FormUrlEncoded, requestBody: postFormData,
                 acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutJsonToUrl(this string url, object data)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: Json, acceptContentType: Json);
+        }
+
+        public static string PutXmlToUrl(this string url, object data)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml);
         }
 
         public static string DeleteFromUrl(this string url, string acceptContentType = "*/*",
