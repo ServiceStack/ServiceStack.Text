@@ -30,6 +30,15 @@ namespace ServiceStack.Text
             return SendStringToUrl(url, acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PostStringToUrl(this string url, string requestBody = null,
+            string contentType = null, string acceptContentType = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "POST",
+                requestBody: requestBody, contentType: contentType,
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PostToUrl(this string url, string formData = null, string acceptContentType = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -48,14 +57,41 @@ namespace ServiceStack.Text
                 acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-        public static string PostJsonToUrl(this string url, object data)
+        public static string PostJsonToUrl(this string url, string json,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "POST", requestBody: data.ToJson(), contentType: Json, acceptContentType: Json);
+            return SendStringToUrl(url, method: "POST", requestBody: json, contentType: Json, acceptContentType: Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-        public static string PostXmlToUrl(this string url, object data)
+        public static string PostJsonToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml);
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToJson(), contentType: Json, acceptContentType: Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PostXmlToUrl(this string url, string xml,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "POST", requestBody: xml, contentType: Xml, acceptContentType: Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PostXmlToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutStringToUrl(this string url, string requestBody = null,
+            string contentType = null, string acceptContentType = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT",
+                requestBody: requestBody, contentType: contentType,
+                acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PutToUrl(this string url, string formData = null, string acceptContentType = "*/*",
@@ -76,14 +112,32 @@ namespace ServiceStack.Text
                 acceptContentType: acceptContentType, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-        public static string PutJsonToUrl(this string url, object data)
+        public static string PutJsonToUrl(this string url, string json,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: Json, acceptContentType: Json);
+            return SendStringToUrl(url, method: "PUT", requestBody: json, contentType: Json, acceptContentType: Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-        public static string PutXmlToUrl(this string url, object data)
+        public static string PutJsonToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml);
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: Json, acceptContentType: Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutXmlToUrl(this string url, string xml,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: xml, contentType: Xml, acceptContentType: Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutXmlToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string DeleteFromUrl(this string url, string acceptContentType = "*/*",
@@ -199,12 +253,6 @@ namespace ServiceStack.Text
                     return stream.ReadFully();
                 }
             }
-        }
-
-        public static bool IsAny200(this Exception ex)
-        {
-            var status = ex.GetStatus();
-            return status >= HttpStatusCode.OK && status < HttpStatusCode.MultipleChoices;
         }
 
         public static bool IsAny300(this Exception ex)
