@@ -37,8 +37,8 @@ namespace ServiceStack.Text.Common
 
         private static string TransformFromLowercaseUnderscore(string propertyName)
         {
-            // "lowercase_underscore" -> LowercaseUnderscore
-            return propertyName.ToTitleCase();
+            // "lowercase-hyphen" -> "lowercase_underscore" -> LowercaseUnderscore
+            return propertyName.Replace("-","_").ToTitleCase();
         }
 
     }
