@@ -172,6 +172,11 @@ namespace ServiceStack.Text
             webReq.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip,deflate");
             webReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
+            if (requestFilter != null)
+            {
+                requestFilter(webReq);
+            }
+
             if (requestBody != null)
             {
                 using (var reqStream = webReq.GetRequestStream())
