@@ -83,11 +83,6 @@ namespace ServiceStack.Text.Common
                 writer.Write(ItemSeperator);
             else
                 ranOnce = true;
-
-            foreach (var escapeChar in EscapeChars)
-            {
-                EscapeCharFlags[escapeChar] = true;
-            }
         }
 
         internal static bool ShouldUseDefaultToStringMethod(Type type)

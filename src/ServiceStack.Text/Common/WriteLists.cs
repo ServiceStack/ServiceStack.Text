@@ -210,7 +210,7 @@ namespace ServiceStack.Text.Common
 
         public static void WriteGenericList(TextWriter writer, List<T> list)
         {
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             var listLength = list.Count;
@@ -220,7 +220,7 @@ namespace ServiceStack.Text.Common
                 ElementWriteFn(writer, list[i]);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteListValueType(TextWriter writer, object list)
@@ -232,7 +232,7 @@ namespace ServiceStack.Text.Common
         {
             if (list == null) return; //AOT
 
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             var listLength = list.Count;
@@ -242,7 +242,7 @@ namespace ServiceStack.Text.Common
                 ElementWriteFn(writer, list[i]);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteIList(TextWriter writer, object oList)
@@ -253,7 +253,7 @@ namespace ServiceStack.Text.Common
         public static void WriteGenericIList(TextWriter writer, IList<T> list)
         {
             if (list == null) return;
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             var listLength = list.Count;
@@ -271,7 +271,7 @@ namespace ServiceStack.Text.Common
                 Tracer.Instance.WriteError(ex);
                 throw;
             }
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteIListValueType(TextWriter writer, object list)
@@ -283,7 +283,7 @@ namespace ServiceStack.Text.Common
         {
             if (list == null) return; //AOT
 
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             var listLength = list.Count;
@@ -293,7 +293,7 @@ namespace ServiceStack.Text.Common
                 ElementWriteFn(writer, list[i]);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteArray(TextWriter writer, object oArrayValue)
@@ -310,7 +310,7 @@ namespace ServiceStack.Text.Common
         public static void WriteGenericArrayValueType(TextWriter writer, T[] array)
         {
             if (array == null) return;
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             var arrayLength = array.Length;
@@ -320,13 +320,13 @@ namespace ServiceStack.Text.Common
                 ElementWriteFn(writer, array[i]);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         private static void WriteGenericArrayMultiDimension(TextWriter writer, Array array, int rank, int[] indices)
         {
             var ranOnce = false;
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
             for (int i = 0; i < array.GetLength(rank); i++)
             {
                 JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
@@ -337,7 +337,7 @@ namespace ServiceStack.Text.Common
                 else
                     ElementWriteFn(writer, array.GetValue(indices));
             }
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteGenericArray(TextWriter writer, Array array)
@@ -352,7 +352,7 @@ namespace ServiceStack.Text.Common
         public static void WriteGenericEnumerable(TextWriter writer, IEnumerable<T> enumerable)
         {
             if (enumerable == null) return;
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             foreach (var value in enumerable)
@@ -361,12 +361,12 @@ namespace ServiceStack.Text.Common
                 ElementWriteFn(writer, value);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteGenericEnumerableValueType(TextWriter writer, IEnumerable<T> enumerable)
         {
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             foreach (var value in enumerable)
@@ -375,7 +375,7 @@ namespace ServiceStack.Text.Common
                 ElementWriteFn(writer, value);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
     }
 
@@ -388,7 +388,7 @@ namespace ServiceStack.Text.Common
 
         public static void WriteListString(ITypeSerializer serializer, TextWriter writer, List<string> list)
         {
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             foreach (var x in list)
@@ -397,7 +397,7 @@ namespace ServiceStack.Text.Common
                 serializer.WriteString(writer, x);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteIListString(ITypeSerializer serializer, TextWriter writer, object list)
@@ -407,7 +407,7 @@ namespace ServiceStack.Text.Common
 
         public static void WriteIListString(ITypeSerializer serializer, TextWriter writer, IList<string> list)
         {
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var ranOnce = false;
             var listLength = list.Count;
@@ -417,7 +417,7 @@ namespace ServiceStack.Text.Common
                 serializer.WriteString(writer, list[i]);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
 
         public static void WriteBytes(ITypeSerializer serializer, TextWriter writer, object byteValue)
@@ -428,7 +428,7 @@ namespace ServiceStack.Text.Common
 
         public static void WriteStringArray(ITypeSerializer serializer, TextWriter writer, object oList)
         {
-            writer.Write(JsWriter.ListStartChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListStartChar);
 
             var list = (string[])oList;
             var ranOnce = false;
@@ -439,7 +439,7 @@ namespace ServiceStack.Text.Common
                 serializer.WriteString(writer, list[i]);
             }
 
-            writer.Write(JsWriter.ListEndChar);
+            if (!JsState.QueryStringMode) writer.Write(JsWriter.ListEndChar);
         }
     }
 

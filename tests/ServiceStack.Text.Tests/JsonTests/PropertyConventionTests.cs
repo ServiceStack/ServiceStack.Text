@@ -42,5 +42,41 @@ namespace ServiceStack.Text.Tests.JsonTests
             public int TotalCount { get; set; }
             public bool WasPublished { get; set; }
         }
+
+        public class Hyphens
+        {
+            public string SnippetFormat { get; set; }
+            public int Total { get; set; }
+            public int Start { get; set; }
+            public int PageLength { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_hyphens()
+        {
+            var json = @"{
+                ""snippet-format"":""raw"",
+                ""total"":1,
+                ""start"":1,
+                ""page-length"":200
+             }";
+
+            var map = JsonObject.Parse(json);
+            Assert.That(map["snippet-format"], Is.EqualTo("raw"));
+            Assert.That(map["total"], Is.EqualTo("1"));
+            Assert.That(map["start"], Is.EqualTo("1"));
+            Assert.That(map["page-length"], Is.EqualTo("200"));
+
+            JsConfig.PropertyConvention = JsonPropertyConvention.Lenient;
+
+            var dto = json.FromJson<Hyphens>();
+
+            Assert.That(dto.SnippetFormat, Is.EqualTo("raw"));
+            Assert.That(dto.Total, Is.EqualTo(1));
+            Assert.That(dto.Start, Is.EqualTo(1));
+            Assert.That(dto.PageLength, Is.EqualTo(200));
+
+            JsConfig.Reset();
+        }
     }
 }

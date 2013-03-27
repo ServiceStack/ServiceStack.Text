@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using ServiceStack.Text.Json;
