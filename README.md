@@ -448,3 +448,10 @@ A value with a double-quote is escaped with another double quote e.g:
 To better illustrate the resilience of `TypeSerializer` and the JSV Format check out a real world example of it when it's used to [Painlessly migrate between old and new types in Redis](https://github.com/ServiceStack/ServiceStack.Redis/wiki/MigrationsUsingSchemalessNoSql). 
 
 Support for dynamic payloads and late-bound objects is explained in the post [Versatility of JSV Late-bound objects](http://www.servicestack.net/mythz_blog/?p=314).
+
+
+# Community Resources
+
+  - [ServiceStack.Text has nice extension method called Dump and has a few friends](http://blogs.lessthandot.com/index.php/DesktopDev/MSTech/servicestack-text-has-a-nice) by [@chrissie1](https://twitter.com/chrissie1)
+  - [JSON.NET vs ServiceStack](http://daniel.wertheim.se/2011/02/07/json-net-vs-servicestack/)
+  - [GithubSharp with ServiceStack.Text](http://xtzgzorex.wordpress.com/2012/01/30/githubsharp-with-servicestack-text/) by [@XTZGZoReX](https://twitter.com/XTZGZoReX)
