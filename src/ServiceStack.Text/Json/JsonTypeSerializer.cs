@@ -496,7 +496,41 @@ namespace ServiceStack.Text.Json
 
         public string EatMapKey(string value, ref int i)
         {
-            return ParseJsonString(value, ref i);
+            var valueLength = value.Length;
+            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+
+            var tokenStartPos = i;
+            var valueChar = value[i];
+            var withinQuotes = false;
+            var endsToEat = 1;
+
+            switch (valueChar)
+            {
+                //If we are at the end, return.
+                case JsWriter.ItemSeperator:
+                case JsWriter.MapEndChar:
+                    return null;
+
+                //Is Within Quotes, i.e. "..."
+                case JsWriter.QuoteChar:
+                    return ParseString(value, ref i);
+            }
+            
+            //Is Value
+            while (++i < valueLength)
+            {
+                valueChar = value[i];
+
+                if (valueChar == JsWriter.ItemSeperator
+                    //If it doesn't have quotes it's either a keyword or number so also has a ws boundary
+                    || (valueChar < WhiteSpaceFlags.Length && WhiteSpaceFlags[valueChar])
+                )
+                {
+                    break;
+                }
+            }
+
+            return value.Substring(tokenStartPos, i - tokenStartPos);
         }
 
         public bool EatMapKeySeperator(string value, ref int i)

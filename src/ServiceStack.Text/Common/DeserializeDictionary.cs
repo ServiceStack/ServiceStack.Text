@@ -84,6 +84,7 @@ namespace ServiceStack.Text.Common
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
+                if (keyValue == null) continue;
 
                 var mapKey = keyValue;
                 var mapValue = elementValue;
@@ -111,6 +112,7 @@ namespace ServiceStack.Text.Common
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
+                if (keyValue == null) continue;
 
                 var mapKey = keyValue;
                 var mapValue = elementValue;
@@ -138,6 +140,7 @@ namespace ServiceStack.Text.Common
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
+                if (keyValue == null) continue;
 
                 var mapKey = Serializer.UnescapeString(keyValue);
                 var mapValue = Serializer.UnescapeString(elementValue);
@@ -176,8 +179,9 @@ namespace ServiceStack.Text.Common
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementStartIndex = index;
                 var elementValue = Serializer.EatTypeValue(value, ref index);
+                if (keyValue == null) continue;
 
-                var mapKey = (TKey)parseKeyFn(keyValue);
+                TKey mapKey = (TKey)parseKeyFn(keyValue);
 
                 if (tryToParseItemsAsDictionaries)
                 {

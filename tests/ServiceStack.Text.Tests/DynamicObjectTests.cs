@@ -204,6 +204,7 @@ namespace ServiceStack.Text.Tests
             var deserialized = JsonSerializer.DeserializeFromString<object>(json);
             Assert.That(deserialized, Is.InstanceOf<Dictionary<string, object>>());
 		    var dict = (Dictionary<string, object>) deserialized;
+            Assert.That(dict.Keys.Count, Is.EqualTo(1));
             Assert.That(dict["value"], Is.EqualTo(5));
 		}
 

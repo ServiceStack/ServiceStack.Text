@@ -460,7 +460,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_parse_nonempty_key_value_pair_with_leading_whitespace()
         {
             var serializer = new JsonSerializer<KeyValuePair<string, string>>();
-            var keyValuePair = serializer.DeserializeFromString(" {\"Key\":\"foo\"\"Value\":\"bar\"}");
+            var keyValuePair = serializer.DeserializeFromString(" {\"Key\":\"foo\",\"Value\":\"bar\"}");
             Assert.That(keyValuePair, Is.EqualTo(new KeyValuePair<string, string>("foo", "bar")));
         }
 

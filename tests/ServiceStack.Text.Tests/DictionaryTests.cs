@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
@@ -323,6 +323,52 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(to["title"], Is.EqualTo(dto["title"]));
 		}
+
+        [Test]
+        public void Can_serialize_Dictionary_with_escaped_symbols_in_key()
+        {
+            var dto = new Dictionary<string, string> { { @"a\fb", "\"test\"" } };
+            var to = Serialize(dto);
+
+            Assert.That(to.Keys.ToArray()[0], Is.EqualTo(@"a\fb"));
+        }
+
+        [Test]
+        public void Can_serialize_Dictionary_with_escaped_symbols_in_key_and_binary_value()
+        {
+            var dto = new Dictionary<string, byte[]> { { @"a\fb", new byte[]{1} } };
+            var to = Serialize(dto);
+
+            Assert.That(to.Keys.ToArray()[0], Is.EqualTo(@"a\fb"));
+        }
+
+        [Test]
+        public void Can_serialize_Dictionary_with_int_key_and_string_with_quote()
+        {
+            var dto = new Dictionary<int, string> { { 1, @"a""b" } };
+            var to = Serialize(dto);
+
+            Assert.That(to.Keys.ToArray()[0], Is.EqualTo(1));
+            Assert.That(to[1], Is.EqualTo(@"a""b"));
+        }
+
+        [Test]
+        public void Can_serialize_string_byte_Dictionary_with_UTF8()
+        {
+            var dto = new Dictionary<string, byte[]> { { "aфаž\"a", new byte[] { 1 } } };
+            var to = Serialize(dto);
+
+            Assert.That(to.Keys.ToArray()[0], Is.EqualTo( "aфаž\"a"));
+        }
+
+        [Test]
+        public void Can_serialize_string_string_Dictionary_with_UTF8()
+        {
+            var dto = new Dictionary<string, string> { { "aфаž\"a", "abc" } };
+            var to = Serialize(dto);
+
+            Assert.That(to.Keys.ToArray()[0], Is.EqualTo("aфаž\"a"));
+        }
 
         [Test]
         public void Can_Deserialize_Object_To_Dictionary()
