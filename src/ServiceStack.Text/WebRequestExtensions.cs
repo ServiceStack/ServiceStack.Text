@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -337,5 +338,24 @@ namespace ServiceStack.Text
             return GetStatus(webEx) == statusCode;
         }
 
+        public static string ToFormUrlEncoded(this NameValueCollection queryParams)
+        {
+            var sb = new StringBuilder();
+            foreach (string key in queryParams)
+            {
+                var values = queryParams.GetValues(key);
+                if (values == null) continue;
+
+                foreach (var value in values)
+                {
+                    if (sb.Length > 0)
+                        sb.Append('&');
+
+                    sb.AppendFormat("{0}={1}", key.UrlEncode(), value.UrlEncode());
+                }
+            }
+
+            return sb.ToString();
+        }
     }
 }
