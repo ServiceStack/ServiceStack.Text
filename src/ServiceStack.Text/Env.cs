@@ -34,7 +34,7 @@ namespace ServiceStack.Text
                 + (IsWinRT ? ".NET WinRT" : "");
 		}
 
-		public static decimal ServiceStackVersion = 3.942m;
+		public static decimal ServiceStackVersion = 3.943m;
 
 		public static bool IsUnix { get; set; }
 
