@@ -44,3 +44,6 @@ App_Data/
 *.user
 NuGet/
 build/
+_NCrunch*/
+*.ncrunchproject
+*.ncrunchsolution
