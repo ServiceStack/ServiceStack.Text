@@ -662,7 +662,7 @@ namespace ServiceStack.Text
                 else
                 {
                     sb.Append("_");
-                    sb.Append(Char.ToLower(t));
+                    sb.Append(Char.ToLower(t, CultureInfo.InvariantCulture));
                 }
             }
             return sb.ToString();
