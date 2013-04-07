@@ -78,13 +78,14 @@ namespace ServiceStack.Text
             return SendStringToUrl(url, method: "POST", requestBody: xml, contentType: Xml, acceptContentType: Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
-
+#if !XBOX && !SILVERLIGHT && !MONOTOUCH
         public static string PostXmlToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
+#endif
 
         public static string PutStringToUrl(this string url, string requestBody = null,
             string contentType = null, string acceptContentType = "*/*",
@@ -134,12 +135,14 @@ namespace ServiceStack.Text
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+#if !XBOX && !SILVERLIGHT && !MONOTOUCH
         public static string PutXmlToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: Xml, acceptContentType: Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
+#endif
 
         public static string DeleteFromUrl(this string url, string acceptContentType = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
