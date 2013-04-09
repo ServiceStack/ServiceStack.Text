@@ -71,7 +71,8 @@ namespace ServiceStack.Text.Common
                                            DateTimeStyles.AdjustToUniversal);
 
             if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
-                && dateTimeStr.Length <= XsdDateTimeFormat.Length)
+                && dateTimeStr.Length <= XsdDateTimeFormat.Length
+                && dateTimeStr.EndsWith("Z"))
             {
 #if NETFX_CORE
                 var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
@@ -80,11 +81,7 @@ namespace ServiceStack.Text.Common
 
                 return XmlConvert.ToDateTimeOffset(dateTimeStr, dateTimeType).DateTime.Prepare();
 #else
-                var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
-                    ? XmlDateTimeSerializationMode.Local
-                    : XmlDateTimeSerializationMode.RoundtripKind;
-
-                return XmlConvert.ToDateTime(dateTimeStr, dateTimeType).Prepare();
+                return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc).Prepare();
 #endif
             }
 
@@ -190,13 +187,24 @@ namespace ServiceStack.Text.Common
         {
             var timeOfDay = dateTime.TimeOfDay;
 
+            string xsdDateTimeString;
+
             if (timeOfDay.Ticks == 0)
-                return dateTime.ToString(ShortDateTimeFormat);
+            {
+                xsdDateTimeString = dateTime.ToString(ShortDateTimeFormat);
+            }
+            else if (timeOfDay.Milliseconds == 0)
+            {
+                xsdDateTimeString = dateTime.Kind != DateTimeKind.Utc
+                                        ? dateTime.ToString("yyyy-MM-ddTHH:mm:sszzz")
+                                        : dateTime.ToString(XsdDateTimeFormatSeconds);
+            }
+            else
+            {
+                xsdDateTimeString = dateTime.Kind != DateTimeKind.Utc ? dateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz") : ToXsdDateTimeString(dateTime);
+            }
 
-            if (timeOfDay.Milliseconds == 0)
-                return dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
-
-            return ToXsdDateTimeString(dateTime);
+            return xsdDateTimeString;
         }
 
 

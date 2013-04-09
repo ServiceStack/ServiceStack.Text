@@ -111,6 +111,29 @@ namespace ServiceStack.Text.Tests.Utils
 			Assert.That(result, Is.Not.Null);
 		}
 
+        [Test]
+        public void DateTimeWithoutMilliseconds_should_always_be_deserialized_correctly_by_TypeSerializer()
+        {
+            var dateWithoutMillisecondsUtc = new DateTime(2013, 4, 9, 15, 20, 0, DateTimeKind.Utc);
+            var dateWithoutMillisecondsLocal = new DateTime(2013, 4, 9, 15, 20, 0, DateTimeKind.Local);
+            var dateWithoutMillisecondsUnspecified = new DateTime(2013, 4, 9, 15, 20, 0, DateTimeKind.Unspecified);
+
+            string serialized = null;
+            DateTime deserialized;
+
+            serialized = TypeSerializer.SerializeToString(dateWithoutMillisecondsUtc);
+            deserialized = TypeSerializer.DeserializeFromString<DateTime>(serialized);
+            Assert.AreEqual(dateWithoutMillisecondsUtc, deserialized);
+
+            serialized = TypeSerializer.SerializeToString(dateWithoutMillisecondsLocal);
+            deserialized = TypeSerializer.DeserializeFromString<DateTime>(serialized);
+            Assert.AreEqual(dateWithoutMillisecondsLocal, deserialized);
+
+            serialized = TypeSerializer.SerializeToString(dateWithoutMillisecondsUnspecified);
+            deserialized = TypeSerializer.DeserializeFromString<DateTime>(serialized);
+            Assert.AreEqual(dateWithoutMillisecondsUnspecified, deserialized);
+        }
+
 		[Test, Ignore("Don't pre-serialize into Utc")]
 		public void UtcDateTime_Is_Deserialized_As_Kind_Utc()
 		{
