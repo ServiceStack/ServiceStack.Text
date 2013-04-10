@@ -191,19 +191,16 @@ namespace ServiceStack.Text.Common
 
             if (timeOfDay.Ticks == 0)
                 return dateTime.ToString(ShortDateTimeFormat);
-            
+
             if (timeOfDay.Milliseconds == 0)
-            {
-                return dateTime.Kind != DateTimeKind.Utc && !Env.IsMono //TODO: find proper fix for Mono
+                return dateTime.Kind != DateTimeKind.Utc
                     ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
                     : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
-            }
-
-            return dateTime.Kind != DateTimeKind.Utc && !Env.IsMono     //TODO: find proper fix for Mono
-                ? dateTime.ToString(DateTimeFormatTicksUtcOffset) 
+            
+            return dateTime.Kind != DateTimeKind.Utc
+                ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
                 : ToXsdDateTimeString(dateTime);
         }
-
 
         static readonly char[] TimeZoneChars = new[] { '+', '-' };
 
