@@ -19,12 +19,14 @@ namespace ServiceStack.Text.Common
 {
     public static class DateTimeSerializer
     {
-        public const string ShortDateTimeFormat = "yyyy-MM-dd";					//11
-        public const string DefaultDateTimeFormat = "dd/MM/yyyy HH:mm:ss";		//20
-        public const string DefaultDateTimeFormatWithFraction = "dd/MM/yyyy HH:mm:ss.fff";	//24
-        public const string XsdDateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffffffZ";	//29
-        public const string XsdDateTimeFormat3F = "yyyy-MM-ddTHH:mm:ss.fffZ";	//25
-        public const string XsdDateTimeFormatSeconds = "yyyy-MM-ddTHH:mm:ssZ";	//21
+        public const string ShortDateTimeFormat = "yyyy-MM-dd";                               //11
+        public const string DefaultDateTimeFormat = "dd/MM/yyyy HH:mm:ss";                    //20
+        public const string DefaultDateTimeFormatWithFraction = "dd/MM/yyyy HH:mm:ss.fff";    //24
+        public const string XsdDateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffffffZ";               //29
+        public const string XsdDateTimeFormat3F = "yyyy-MM-ddTHH:mm:ss.fffZ";                 //25
+        public const string XsdDateTimeFormatSeconds = "yyyy-MM-ddTHH:mm:ssZ";                //21
+        public const string DateTimeFormatSecondsUtcOffset = "yyyy-MM-ddTHH:mm:sszzz";        //22
+        public const string DateTimeFormatTicksUtcOffset = "yyyy-MM-ddTHH:mm:ss.fffffffzzz";  //30
 
         public const string EscapedWcfJsonPrefix = "\\/Date(";
         public const string EscapedWcfJsonSuffix = ")\\/";
@@ -196,12 +198,14 @@ namespace ServiceStack.Text.Common
             else if (timeOfDay.Milliseconds == 0)
             {
                 xsdDateTimeString = dateTime.Kind != DateTimeKind.Utc
-                                        ? dateTime.ToString("yyyy-MM-ddTHH:mm:sszzz")
-                                        : dateTime.ToString(XsdDateTimeFormatSeconds);
+                    ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
+                    : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
             }
             else
             {
-                xsdDateTimeString = dateTime.Kind != DateTimeKind.Utc ? dateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz") : ToXsdDateTimeString(dateTime);
+                xsdDateTimeString = dateTime.Kind != DateTimeKind.Utc
+                    ? dateTime.ToString(DateTimeFormatTicksUtcOffset) 
+                    : ToXsdDateTimeString(dateTime);
             }
 
             return xsdDateTimeString;
