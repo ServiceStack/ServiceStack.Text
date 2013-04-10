@@ -189,26 +189,19 @@ namespace ServiceStack.Text.Common
         {
             var timeOfDay = dateTime.TimeOfDay;
 
-            string xsdDateTimeString;
-
             if (timeOfDay.Ticks == 0)
+                return dateTime.ToString(ShortDateTimeFormat);
+            
+            if (timeOfDay.Milliseconds == 0)
             {
-                xsdDateTimeString = dateTime.ToString(ShortDateTimeFormat);
-            }
-            else if (timeOfDay.Milliseconds == 0)
-            {
-                xsdDateTimeString = dateTime.Kind != DateTimeKind.Utc
+                return dateTime.Kind != DateTimeKind.Utc && !Env.IsMono //TODO: find proper fix for Mono
                     ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
                     : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
             }
-            else
-            {
-                xsdDateTimeString = dateTime.Kind != DateTimeKind.Utc
-                    ? dateTime.ToString(DateTimeFormatTicksUtcOffset) 
-                    : ToXsdDateTimeString(dateTime);
-            }
 
-            return xsdDateTimeString;
+            return dateTime.Kind != DateTimeKind.Utc && !Env.IsMono     //TODO: find proper fix for Mono
+                ? dateTime.ToString(DateTimeFormatTicksUtcOffset) 
+                : ToXsdDateTimeString(dateTime);
         }
 
 
