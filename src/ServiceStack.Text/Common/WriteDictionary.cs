@@ -117,9 +117,6 @@ namespace ServiceStack.Text.Common
                     encodeMapKey = Serializer.GetTypeInfo(keyType).EncodeMapKey;
                 }
 
-                if (writeValueFn == null)
-                    writeValueFn = Serializer.GetWriteFn(dictionaryValue.GetType());
-
                 JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
                 JsState.WritingKeyCount++;
@@ -147,6 +144,7 @@ namespace ServiceStack.Text.Common
                 }
                 else
                 {
+                    writeValueFn = Serializer.GetWriteFn(dictionaryValue.GetType());
                     JsState.IsWritingValue = true;
                     writeValueFn(writer, dictionaryValue);
                     JsState.IsWritingValue = false;
