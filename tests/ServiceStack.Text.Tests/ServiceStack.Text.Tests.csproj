@@ -168,7 +168,11 @@
     <Compile Include="AotTests.cs" />
     <Compile Include="BasicStringSerializerTests.cs" />
     <Compile Include="BclStructTests.cs" />
+    <Compile Include="CsvTests\CsvDeserializationTests.cs" />
     <Compile Include="CsvTests\DictionaryTests.cs" />
+    <Compile Include="CsvTests\PropertyConverterTests.cs" />
+    <Compile Include="CsvTests\QueryRow.cs" />
+    <Compile Include="CsvTests\TestData.cs" />
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
     <Compile Include="DateTimeOffsetAndTimeSpanTests.cs" />

@@ -1,6 +1,10 @@
 using System;
+using System.IO;
+using System.Linq;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
+using ServiceStack.Text.Csv;
+using ServiceStack.Text.Tests.CsvTests;
 using ServiceStack.Text.Tests.Support;
 
 namespace ServiceStack.Text.Tests
@@ -182,5 +186,24 @@ namespace ServiceStack.Text.Tests
 			Serialize(NorthwindData.Territories);
 		}
 
+		[Test]
+		public void Can_deserialize_from_stream()
+		{
+			var testCsv = TestData.TestCsv.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToArray();
+			var tempFileName = Path.GetTempFileName();
+			File.WriteAllLines(tempFileName, testCsv);
+
+			using (var fs = new FileStream(tempFileName, FileMode.Open, FileAccess.Read))
+			{
+				var queryRows = CsvSerializer.DeserializeEnumerableFromStream<QueryRow>(fs).ToList();
+				Assert.That(queryRows.Count, Is.EqualTo(testCsv.Length - 1));
+				Assert.That(queryRows[0].Artist, Is.EqualTo("Elton John"));
+				Assert.That(queryRows[0].Country, Is.EqualTo("US"));
+				Assert.That(queryRows[0].Query, Is.EqualTo("Your Song"));
+				Assert.That(queryRows[0].Title, Is.EqualTo("Your Song"));
+			}
+
+			File.Delete(tempFileName);
+		}
 	}
 }

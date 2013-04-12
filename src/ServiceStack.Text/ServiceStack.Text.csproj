@@ -166,6 +166,10 @@
     <Compile Include="CsvWriter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Csv\CsvDeserializationException.cs" />
+    <Compile Include="Csv\CsvDeserialize.cs" />
+    <Compile Include="Csv\CsvExtensions.cs" />
+    <Compile Include="Csv\PropertyConvertor.cs" />
     <Compile Include="DateTimeExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
