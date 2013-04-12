@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Csv;
 using ServiceStack.Text.Jsv;
 using ServiceStack.Text.Reflection;
 
@@ -106,6 +107,11 @@ namespace ServiceStack.Text
 		{
             throw new NotImplementedException();
 		}
+
+		public static IEnumerable<T> DeserializeEnumerableFromStream<T>(Stream stream)
+		{
+			return CsvDeserialize.DeSerialize<T>(stream);
+		} 
 
 		public static object DeserializeFromStream(Type type, Stream stream)
 		{

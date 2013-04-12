@@ -12,9 +12,9 @@ namespace ServiceStack.Text.Csv
 		private const char DELIMETER = ',';
 
 		/// <exception cref="CsvDeserializationException"></exception>
-		public static IEnumerable<TEntity> DeSerialize<TEntity>(string testCsv)
+		public static IEnumerable<TEntity> DeSerialize<TEntity>(string newlineRowDelimetedCsv)
 		{
-			var rows = testCsv.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+			var rows = newlineRowDelimetedCsv.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 			return DeSerialize<TEntity>(rows);
 		}
 
