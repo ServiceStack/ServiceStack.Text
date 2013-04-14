@@ -167,7 +167,7 @@ namespace ServiceStack.Text
 			}
 		}
 
-#if !WINDOWS_PHONE
+#if !WINDOWS_PHONE && !SILVERLIGHT
 		public static T DeserializeResponse<T>(WebRequest webRequest)
 		{
 #if NETFX_CORE
