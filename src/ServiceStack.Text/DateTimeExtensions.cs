@@ -150,8 +150,8 @@ namespace ServiceStack.Text
 
         public static DateTime LastMonday(this DateTime from)
         {
-            var modayOfWeekBefore = from.Date.AddDays(-(int)from.DayOfWeek - 6);
-            return modayOfWeekBefore;
+            var mondayOfWeek = from.Date.AddDays(-(int)from.DayOfWeek + 1);
+            return mondayOfWeek;
         }
 
         public static DateTime StartOfLastMonth(this DateTime from)
