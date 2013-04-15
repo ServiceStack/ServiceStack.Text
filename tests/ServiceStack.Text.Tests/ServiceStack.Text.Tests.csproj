@@ -170,6 +170,7 @@
     <Compile Include="BclStructTests.cs" />
     <Compile Include="CsvTests\DictionaryTests.cs" />
     <Compile Include="CyclicalDependencyTests.cs" />
+    <Compile Include="DateTimeExtensionsTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
     <Compile Include="DateTimeOffsetAndTimeSpanTests.cs" />
     <Compile Include="EnumTests.cs" />
