@@ -69,8 +69,7 @@ namespace ServiceStack.Text.Common
             }
 
             if (dateTimeStr.Length == XsdDateTimeFormatSeconds.Length)
-                return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null,
-                                           DateTimeStyles.AdjustToUniversal);
+                return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null, DateTimeStyles.AdjustToUniversal);
 
             if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
                 && dateTimeStr.Length <= XsdDateTimeFormat.Length
@@ -79,15 +78,119 @@ namespace ServiceStack.Text.Common
 #if NETFX_CORE
                 var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
                     ? "yyyy-MM-ddTHH:mm:sszzzzzzz"
-                    : "yyyy-MM-ddTHH:mm:sszzzzzzz";
+                        : "yyyy-MM-ddTHH:mm:sszzzzzzz";
 
                 return XmlConvert.ToDateTimeOffset(dateTimeStr, dateTimeType).DateTime.Prepare();
 #else
+                var dateTime = Env.IsMono ? ParseManual(dateTimeStr) : null;
+                if (dateTime != null) 
+                    return dateTime.Value;
+                
                 return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc).Prepare();
 #endif
             }
 
-            return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal).Prepare();
+            try
+            {
+                return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal).Prepare();
+            }
+            catch(FormatException) 
+            {
+                var manualDate = ParseManual(dateTimeStr);
+                if (manualDate != null) 
+                    return manualDate.Value;
+
+                throw;
+            }
+        }
+
+        public static DateTime? ParseManual(string dateTimeStr)
+        {
+            if (dateTimeStr == null || dateTimeStr.Length < "YYYY-MM-DD".Length)
+                return null;
+
+            var dateKind = DateTimeKind.Utc;
+            if (dateTimeStr.EndsWith("Z"))
+            {
+                dateTimeStr = dateTimeStr.Substring(0, dateTimeStr.Length - 1);
+            }
+
+            var parts = dateTimeStr.Split('T');
+            if (parts.Length == 1)
+                parts = dateTimeStr.SplitOnFirst(' ');
+
+            var dateParts = parts[0].Split('-');
+            int hh = 0, min = 0, ss = 0, ms = 0;
+            double subMs = 0;
+            int offsetMultiplier = 0;
+
+            if (parts.Length == 2)
+            {
+                var timeStringParts = parts[1].Split('+');
+                if (timeStringParts.Length == 2)
+                {
+                    offsetMultiplier = -1;
+                }
+                else
+                {
+                    timeStringParts = parts[1].Split('-');
+                    if (timeStringParts.Length == 2)
+                    {
+                        offsetMultiplier = 1;
+                    }
+                }
+
+                var timeOffset = timeStringParts.Length == 2 ? timeStringParts[1] : null;
+                var timeParts = timeStringParts[0].Split(':');
+
+                if (timeParts.Length == 3)
+                {
+                    int.TryParse(timeParts[0], out hh);
+                    int.TryParse(timeParts[1], out min);
+
+                    var secParts = timeParts[2].Split('.');
+                    int.TryParse(secParts[0], out ss);     
+                    if (secParts.Length == 2)
+                    {
+                        var msStr = secParts[1].PadRight(3, '0');
+                        ms = int.Parse(msStr.Substring(0, 3));
+
+                        if (msStr.Length > 3)
+                        {
+                            var subMsStr = msStr.Substring(3);
+                            subMs = double.Parse(subMsStr) / Math.Pow(10, subMsStr.Length);
+                        }
+                    }
+                }
+
+                var dateTime = new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]), int.Parse(dateParts[2]), hh, min, ss, ms, dateKind);
+                if (subMs != 0)
+                {
+                    dateTime.AddMilliseconds(subMs);
+                }
+
+                if (offsetMultiplier != 0 && timeOffset != null)
+                {
+                    timeParts = timeOffset.Split(':');
+                    if (timeParts.Length == 2)
+                    {
+                        hh = int.Parse(timeParts[0]);
+                        min = int.Parse(timeParts[1]);
+                    }
+                    else
+                    {
+                        hh = int.Parse(timeOffset.Substring(0,2));
+                        min = int.Parse(timeOffset.Substring(2));
+                    }
+
+                    dateTime = dateTime.AddHours(offsetMultiplier * hh);
+                    dateTime = dateTime.AddMinutes(offsetMultiplier * min);
+                }
+
+                return dateTime.ToLocalTime().Prepare();
+            }
+
+            return null;
         }
 
         public static string ToDateTimeString(DateTime dateTime)

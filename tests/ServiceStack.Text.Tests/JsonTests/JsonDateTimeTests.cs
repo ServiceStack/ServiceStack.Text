@@ -14,8 +14,8 @@ namespace ServiceStack.Text.Tests.JsonTests
         [SetUp]
         public void SetUp()
         {
+            JsConfig.Reset();
             _localTimezoneOffset = TimeZoneInfo.Local.BaseUtcOffset.Hours.ToString("00") + TimeZoneInfo.Local.BaseUtcOffset.Minutes.ToString("00");
-
         }
 
 		#region TimestampOffset Tests
@@ -231,6 +231,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void When_using_ISO8601_and_serializing_as_Utc_It_should_deserialize_as_Utc()
         {
+            JsConfig.AlwaysUseUtc = true;
             JsConfig.DateHandler = JsonDateHandler.ISO8601;
             var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
             var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"

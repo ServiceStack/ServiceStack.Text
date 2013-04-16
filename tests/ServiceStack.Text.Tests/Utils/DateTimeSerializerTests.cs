@@ -194,7 +194,7 @@ namespace ServiceStack.Text.Tests.Utils
 					shortDateTimeUtc.Hour, shortDateTimeUtc.Minute, shortDateTimeUtc.Second,
 					shortDateTimeUtc.Millisecond, DateTimeKind.Utc)));
 
-			Assert.That(longDateTime.ToStableUniversalTime(), Is.EqualTo(dateTime.ToStableUniversalTime()));
+            AssertDatesAreEqual(longDateTime.ToStableUniversalTime(), dateTime.ToStableUniversalTime());
 
 			var toDateTime = DateTimeSerializer.ParseShortestXsdDateTime(shortestDateStr);
 			AssertDatesAreEqual(toDateTime, dateTime, "shortestDate");
@@ -208,7 +208,7 @@ namespace ServiceStack.Text.Tests.Utils
             AssertDatesAreEqual(wcfDate, dateTime, "wcf date");
 		}
 
-        private void AssertDatesAreEqual(DateTime toDateTime, DateTime dateTime, string which)
+        private void AssertDatesAreEqual(DateTime toDateTime, DateTime dateTime, string which=null)
         {
 			Assert.That(toDateTime.ToStableUniversalTime().RoundToMs(), Is.EqualTo(dateTime.ToStableUniversalTime().RoundToMs()), which);
         }
