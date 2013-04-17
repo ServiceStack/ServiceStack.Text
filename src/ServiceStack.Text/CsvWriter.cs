@@ -80,8 +80,13 @@ namespace ServiceStack.Text
             }
             foreach (var cachedRecord in cachedRecords)
             {
-                var fullRecord = headers.ConvertAll(header => 
-                    cachedRecord.ContainsKey(header) ? cachedRecord[header] : null);
+                var fullRecord = new List<string>();
+                foreach (var header in headers) 
+                {
+                    fullRecord.Add(cachedRecord.ContainsKey(header)
+                                        ? cachedRecord[header]
+                                        : null);
+                }
                 WriteRow(writer, fullRecord);
             }
         }
