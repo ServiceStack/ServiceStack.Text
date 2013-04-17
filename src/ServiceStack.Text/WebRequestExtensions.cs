@@ -341,6 +341,18 @@ namespace ServiceStack.Text
             return GetStatus(webEx) == statusCode;
         }
 
+        public static string GetResponseBody(this Exception ex)
+        {
+            var webEx = ex as WebException;
+            if (webEx == null || webEx.Status != WebExceptionStatus.ProtocolError) return null;
+
+            var errorResponse = ((HttpWebResponse)webEx.Response);
+            using (var reader = new StreamReader(errorResponse.GetResponseStream()))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
         public static string ToFormUrlEncoded(this NameValueCollection queryParams)
         {
             var sb = new StringBuilder();
