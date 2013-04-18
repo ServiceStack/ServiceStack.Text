@@ -1061,6 +1061,18 @@ namespace ServiceStack.Text
             return type.GetProperties();
 #endif
         }
+
+#if SILVERLIGHT || NETFX_CORE
+        public static List<U> ConvertAll<T, U>(this List<T> list, Func<T, U> converter)
+        {
+            var result = new List<U>();
+            foreach (var element in list)
+            {
+                result.Add(converter(element));
+            }
+            return result;
+        }
+#endif
  
     
     }
