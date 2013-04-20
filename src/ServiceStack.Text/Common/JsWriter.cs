@@ -336,6 +336,11 @@ namespace ServiceStack.Text.Common
                 return (w, x) => GetCoreWriteFn<T>()(w, onSerializingFn((T)x));
             }
 
+            if (JsConfig<T>.HasSerializeFn)
+            {
+                return JsConfig<T>.WriteFn<TSerializer>;
+            }
+
             return GetCoreWriteFn<T>();
         }
 
@@ -427,7 +432,6 @@ namespace ServiceStack.Text.Common
 
             return Serializer.WriteBuiltIn;
         }
-
 
         public Dictionary<Type, WriteObjectDelegate> SpecialTypes;
 

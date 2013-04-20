@@ -467,6 +467,11 @@ namespace ServiceStack.Text
 
         public static void Reset()
         {
+            foreach (var rawSerializeType in HasSerializeFn.ToArray())
+            {
+                ClearRawSerializeFn(rawSerializeType);
+            }
+
             sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
             sTryToParsePrimitiveTypeValues = null;
             sConvertObjectTypesIntoStringDictionary = null;
@@ -490,6 +495,15 @@ namespace ServiceStack.Text
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
+        }
+
+        internal static void ClearRawSerializeFn(Type type)
+        {
+            var typeofClassWithGenericStaticMethod = typeof (JsConfig<>);
+            var args = new[] { type };
+            var genericType = typeofClassWithGenericStaticMethod.MakeGenericType(args);
+            var methodInfo = genericType.GetMethod("Reset", BindingFlags.Static | BindingFlags.Public);
+            methodInfo.Invoke(null, null);
         }
 
 #if MONOTOUCH
@@ -840,10 +854,15 @@ namespace ServiceStack.Text
             {
                 writer.Write(RawSerializeFn((T)obj));
             }
-            else
+            else if (SerializeFn != null)
             {
                 var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-                serializer.WriteString(writer, SerializeFn((T)obj));
+                serializer.WriteString(writer, SerializeFn((T) obj));
+            }
+            else
+            {
+                var writerFn = JsonWriter.Instance.GetWriteFn<T>();
+                writerFn(writer, obj);
             }
         }
 
@@ -863,6 +882,12 @@ namespace ServiceStack.Text
                 return DeSerializeFn(serializer.UnescapeString(str));
             }
         }
+
+        public static void Reset()
+        {
+            RawSerializeFn = null;
+            DeSerializeFn = null;
+        }    
     }
 
     public enum JsonPropertyConvention
