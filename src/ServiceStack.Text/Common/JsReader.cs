@@ -85,8 +85,8 @@ namespace ServiceStack.Text.Common
             }
 #endif
 
-            var isDictionary = typeof(T).AssignableFrom(typeof(IDictionary))
-                || typeof(T).HasInterface(typeof(IDictionary));
+            var isDictionary = typeof(T) != typeof(IEnumerable)
+                && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
             if (isDictionary)
             {
                 return DeserializeDictionary<TSerializer>.GetParseMethod(type);

@@ -52,6 +52,10 @@ namespace ServiceStack.Text.Common
                 return ParseStringCollection<TSerializer>;
             }
 #endif
+            if (typeof(T) == typeof(IEnumerable))
+            {
+                return GetEnumerableParseFn();
+            }
 
             return GetGenericEnumerableParseFn();
         }
@@ -125,6 +129,11 @@ namespace ServiceStack.Text.Common
             var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseFn();
 
             return x => convertToQueue(parseFn(x));
+        }
+
+        public static ParseStringDelegate GetEnumerableParseFn()
+        {
+            return DeserializeListWithElements<TSerializer>.ParseStringList;
         }
 
         public static ParseStringDelegate GetGenericEnumerableParseFn()

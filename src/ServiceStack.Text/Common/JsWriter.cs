@@ -402,8 +402,8 @@ namespace ServiceStack.Text.Common
                 }
             }
 
-            var isDictionary = typeof(T).AssignableFrom(typeof(IDictionary))
-                || typeof(T).HasInterface(typeof(IDictionary));
+            var isDictionary = typeof(T) != typeof(IEnumerable) 
+                && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
             if (isDictionary)
             {
                 return WriteDictionary<TSerializer>.WriteIDictionary;
