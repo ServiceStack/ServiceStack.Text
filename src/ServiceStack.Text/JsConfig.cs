@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
@@ -401,6 +402,51 @@ namespace ServiceStack.Text
 
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
+        internal static Dictionary<Type, object> HashSerializeFn = new Dictionary<Type, object>();
+
+        internal static bool RemoveCacheFn(Type cachedType)
+        {
+            bool result = false;
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = writeFnCache;
+                result = snapshot.Remove(cachedType);
+                newCache = new Dictionary<Type, WriteObjectDelegate>(writeFnCache);
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref writeFnCache, newCache, snapshot), snapshot));
+            return result;
+        }
+
+        internal static WriteObjectDelegate GetWriteFn<TSerializer>(Type propertyType)
+            where TSerializer : ITypeSerializer
+        {
+            WriteObjectDelegate writeFn;
+            if (writeFnCache.TryGetValue(propertyType, out writeFn)) return writeFn;
+
+            Type typeofClassWithGenericStaticMethod = typeof (JsConfig<>);
+            Type[] args = new[] { propertyType };
+            Type genericType = typeofClassWithGenericStaticMethod.MakeGenericType(args);
+            MethodInfo methodInfo = genericType
+                .GetMethod("WriteFn", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo generic = methodInfo.MakeGenericMethod(typeof (TSerializer));
+            writeFn = (WriteObjectDelegate) Delegate.CreateDelegate(typeof (WriteObjectDelegate), generic);
+
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = writeFnCache;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(writeFnCache);
+                newCache[propertyType] = writeFn;
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref writeFnCache, newCache, snapshot), snapshot));
+            return writeFn;
+        }
+
+        internal static Dictionary<Type, WriteObjectDelegate> writeFnCache = new Dictionary<Type, WriteObjectDelegate>();
+
+        internal static HashSet<Type> AllTypesUsed = new HashSet<Type>();
+
         public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
         private static bool? sPreferInterfaces;
@@ -490,6 +536,24 @@ namespace ServiceStack.Text
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
+
+            foreach (var rawSerializeType in AllTypesUsed)
+            {
+                ClearRawSerializeFn(rawSerializeType);
+            }
+
+            writeFnCache.Clear();
+        }
+
+        internal static void ClearRawSerializeFn(Type propertyType)
+        {
+            //JsConfig<T>.Reset()
+            Type typeofClassWithGenericStaticMethod = typeof (JsConfig<>);
+            Type[] args = new[] { propertyType };
+            Type genericType = typeofClassWithGenericStaticMethod.MakeGenericType(args);
+            MethodInfo methodInfo = genericType
+                .GetMethod("Reset", BindingFlags.Static | BindingFlags.Public);
+            methodInfo.Invoke(null, null);
         }
 
 #if MONOTOUCH
@@ -749,6 +813,7 @@ namespace ServiceStack.Text
             get { return serializeFn; }
             set
             {
+
                 serializeFn = value;
                 if (value != null)
                     JsConfig.HasSerializeFn.Add(typeof(T));
@@ -789,6 +854,11 @@ namespace ServiceStack.Text
             get { return rawSerializeFn; }
             set
             {
+
+                JsConfig.RemoveCacheFn(typeof (T));
+                JsConfig.AllTypesUsed.Add(typeof (T));
+                JsonWriter.RemoveWriteFn(typeof (T));
+
                 rawSerializeFn = value;
                 if (value != null)
                     JsConfig.HasSerializeFn.Add(typeof(T));
@@ -838,12 +908,17 @@ namespace ServiceStack.Text
         {
             if (RawSerializeFn != null)
             {
-                writer.Write(RawSerializeFn((T)obj));
+                writer.Write(RawSerializeFn((T) obj));
+            }
+            else if (SerializeFn != null)
+            {
+                var serializer = JsWriter.GetTypeSerializer<TSerializer>();
+                serializer.WriteString(writer, SerializeFn((T) obj));
             }
             else
             {
-                var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-                serializer.WriteString(writer, SerializeFn((T)obj));
+                var writerFn = JsonWriter.Instance.GetWriteFn<T>();
+                writerFn(writer, obj);
             }
         }
 
@@ -862,6 +937,12 @@ namespace ServiceStack.Text
             {
                 return DeSerializeFn(serializer.UnescapeString(str));
             }
+        }
+
+        public static void Reset()
+        {
+            RawSerializeFn = null;
+            DeSerializeFn = null;
         }
     }
 

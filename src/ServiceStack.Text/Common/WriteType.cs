@@ -146,13 +146,15 @@ namespace ServiceStack.Text.Common
                     ? propertyType.GetDefaultValue()
                     : null;
 
+                WriteObjectDelegate writeFn = JsConfig.HasSerializeFn.Contains(propertyType) ? JsConfig.GetWriteFn<TSerializer>(propertyType) : Serializer.GetWriteFn(propertyType);
+
                 PropertyWriters[i] = new TypePropertyWriter
                 (
                     propertyName,
                     propertyNameCLSFriendly,
                     propertyNameLowercaseUnderscore,
                     propertyInfo.GetValueGetter<T>(),
-                    Serializer.GetWriteFn(propertyType),
+                    writeFn,
                     suppressDefaultValue
                 );
             }
