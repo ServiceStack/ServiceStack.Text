@@ -206,7 +206,17 @@ namespace ServiceStack.Text.Tests.JsonTests
                 Assert.That(fromDto1.Name, Is.EqualTo("Foo 1"));
             }
         }
+    }
 
+    [TestFixture]
+    public class CustomRawSerializerTests
+    {
+        [TestFixtureTearDown]
+        public void TestFixtureTearDown()
+        {
+            JsConfig.Reset();
+        }
+        
         public class RealType
         {
             public string Name { get; set; }
@@ -267,6 +277,6 @@ namespace ServiceStack.Text.Tests.JsonTests
             json = JsonSerializer.SerializeToString(test);
             // Assert:
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":\"AQIDBAU=\"}"));
-        }
+        }        
     }
 }
