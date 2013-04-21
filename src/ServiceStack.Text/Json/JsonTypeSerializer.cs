@@ -399,71 +399,120 @@ namespace ServiceStack.Text.Json
                 }
             }
 
-            var sb = new StringBuilder(jsonLength);
+            return Unescape(json);
+        }
 
-        	while (true)
+
+        public static string Unescape(string input)
+        {
+            var length = input.Length;
+            int start = 0;
+            int count = 0; 
+            StringBuilder output = new StringBuilder(length);
+            for ( ; count < length; )
             {
-                if (index == jsonLength) break;
-
-                char c = json[index++];
-                if (c == JsonUtils.QuoteChar) break;
-
-                if (c == JsonUtils.EscapeChar)
+                if (input[count] == JsonUtils.QuoteChar)
                 {
-                    if (index == jsonLength)
+                    if (start != count)
                     {
-                        break;
+                        output.Append(input, start, count - start);
+                    }                    
+                    count++;
+                    start = count;
+                    continue;
+                }
+
+                if (input[count] == JsonUtils.EscapeChar)
+                {
+                    if (start != count)
+                    {
+                        output.Append(input, start, count - start);
                     }
-                    c = json[index++];
+                    start = count;
+                    count++;
+                    if (count >= length) continue;
+
+                    //we will always be parsing an escaped char here
+                    var c = input[count];
+
                     switch (c)
                     {
-                        case '"':
-                            sb.Append('"');
-                            break;
-                        case '\\':
-                            sb.Append('\\');
-                            break;
-                        case '/':
-                            sb.Append('/');
+                        case 'a':
+                            output.Append('\a');
+                            count++;
                             break;
                         case 'b':
-                            sb.Append('\b');
+                            output.Append('\b');
+                            count++;
                             break;
                         case 'f':
-                            sb.Append('\f');
+                            output.Append('\f');
+                            count++;
                             break;
                         case 'n':
-                            sb.Append('\n');
+                            output.Append('\n');
+                            count++;
                             break;
                         case 'r':
-                            sb.Append('\r');
+                            output.Append('\r');
+                            count++;
+                            break;
+                        case 'v':
+                            output.Append('\v');
+                            count++;
                             break;
                         case 't':
-                            sb.Append('\t');
+                            output.Append('\t');
+                            count++;
                             break;
                         case 'u':
-                            var remainingLength = jsonLength - index;
-                            if (remainingLength >= 4)
+                            if (count + 4 < length)
                             {
-                                var unicodeString = json.Substring(index, 4);
+                                var unicodeString = input.Substring(count+1, 4);
                                 var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
-                                sb.Append(ConvertFromUtf32((int) unicodeIntVal));
-                                index += 4;
+                                output.Append(JsonTypeSerializer.ConvertFromUtf32((int) unicodeIntVal));
+                                count += 5;
                             }
                             else
                             {
-                                break;
+                                output.Append(c);
                             }
                             break;
+                        case 'x':
+                            if (count + 4 < length)
+                            {
+                                var unicodeString = input.Substring(count+1, 4);
+                                var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
+                                output.Append(JsonTypeSerializer.ConvertFromUtf32((int) unicodeIntVal));
+                                count += 5;
+                            }
+                            else
+                            if (count + 2 < length)
+                            {
+                                var unicodeString = input.Substring(count+1, 2);
+                                var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
+                                output.Append(JsonTypeSerializer.ConvertFromUtf32((int) unicodeIntVal));
+                                count += 3;
+                            }
+                            else
+                            {
+                                output.Append(input, start, count - start);
+                            }
+                            break;
+                        default:
+                            output.Append(c);
+                            count++;
+                            break;
                     }
+                    start = count;
                 }
                 else
                 {
-                    sb.Append(c);
+                    count++;
                 }
             }
-
-            return sb.ToString();
+            output.Append(input, start, length - start);
+            return output.ToString();
         }
 
         /// <summary>
@@ -472,7 +521,7 @@ namespace ServiceStack.Text.Json
         /// </summary>
         /// <param name="utf32"></param>
         /// <returns></returns>
-        private static string ConvertFromUtf32(int utf32)
+        public static string ConvertFromUtf32(int utf32)
         {
             if (utf32 < 0 || utf32 > 0x10FFFF)
                 throw new ArgumentOutOfRangeException("utf32", "The argument must be from 0 to 0x10FFFF.");
