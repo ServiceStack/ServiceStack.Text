@@ -195,6 +195,7 @@
     <Compile Include="JsonSerializer.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\JsonEscaper.cs" />
     <Compile Include="Json\JsonReader.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
