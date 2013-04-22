@@ -100,6 +100,8 @@ namespace ServiceStack.Text.Common
 
             writer.Write(JsWriter.MapStartChar);
             var encodeMapKey = false;
+            Type lastKeyType = null;
+            Type lastValueType = null;
 
             var map = (IDictionary)oMap;
             var ranOnce = false;
@@ -110,9 +112,10 @@ namespace ServiceStack.Text.Common
                 var isNull = (dictionaryValue == null);
                 if (isNull && !Serializer.IncludeNullValues) continue;
 
-                if (writeKeyFn == null)
+                var keyType = key.GetType();
+                if (writeKeyFn == null || lastKeyType != keyType)
                 {
-                    var keyType = key.GetType();
+                    lastKeyType = keyType;
                     writeKeyFn = Serializer.GetWriteFn(keyType);
                     encodeMapKey = Serializer.GetTypeInfo(keyType).EncodeMapKey;
                 }
@@ -144,7 +147,13 @@ namespace ServiceStack.Text.Common
                 }
                 else
                 {
-                    writeValueFn = Serializer.GetWriteFn(dictionaryValue.GetType());
+                    var valueType = dictionaryValue.GetType();
+                    if (writeValueFn == null || lastValueType != valueType)
+                    {
+                        lastValueType = valueType;
+                        writeValueFn = Serializer.GetWriteFn(valueType);
+                    }
+
                     JsState.IsWritingValue = true;
                     writeValueFn(writer, dictionaryValue);
                     JsState.IsWritingValue = false;
