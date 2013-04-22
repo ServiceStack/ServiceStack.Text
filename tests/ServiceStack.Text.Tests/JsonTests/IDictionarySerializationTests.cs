@@ -14,6 +14,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             hash["a"] = "b";
             hash[1] = 1;
+            hash[2.0m] = 2.0m;
 
             var serialized = JsonSerializer.SerializeToString(hash);
 
@@ -21,6 +22,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.AreEqual("b", deserialized["a"]);
             Assert.AreEqual("1", deserialized["1"]);
+            Assert.AreEqual("2.0", deserialized["2.0"]);
         }
     }
 }
