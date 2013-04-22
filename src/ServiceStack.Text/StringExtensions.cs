@@ -315,6 +315,17 @@ namespace ServiceStack.Text
             return sb.ToString();
         }
 
+        public static string FromAsciiBytes(this byte[] bytes)
+        {
+            return bytes == null ? null
+                : Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+        }
+
+        public static byte[] ToAsciiBytes(this string value)
+        {
+            return Encoding.ASCII.GetBytes(value);
+        }
+
         public static string FromUtf8Bytes(this byte[] bytes)
         {
             return bytes == null ? null
