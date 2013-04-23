@@ -469,7 +469,7 @@ namespace ServiceStack.Text
         {
             foreach (var rawSerializeType in HasSerializeFn.ToArray())
             {
-                ClearRawSerializeFn(rawSerializeType);
+                Reset(rawSerializeType);
             }
 
             sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
@@ -497,11 +497,13 @@ namespace ServiceStack.Text
             PropertyConvention = JsonPropertyConvention.ExactMatch;
         }
 
-        internal static void ClearRawSerializeFn(Type type)
+        public static void Reset(Type cachesForType)
         {
-            var typeofClassWithGenericStaticMethod = typeof (JsConfig<>);
-            var args = new[] { type };
-            var genericType = typeofClassWithGenericStaticMethod.MakeGenericType(args);
+            typeof(JsConfig<>).MakeGenericType(new[] { cachesForType }).InvokeReset();
+        }
+
+        internal static void InvokeReset(this Type genericType)
+        {
             var methodInfo = genericType.GetMethod("Reset", BindingFlags.Static | BindingFlags.Public);
             methodInfo.Invoke(null, null);
         }
@@ -768,6 +770,8 @@ namespace ServiceStack.Text
                     JsConfig.HasSerializeFn.Add(typeof(T));
                 else
                     JsConfig.HasSerializeFn.Remove(typeof(T));
+                
+                ClearFnCaches();
             }
         }
 
@@ -808,6 +812,8 @@ namespace ServiceStack.Text
                     JsConfig.HasSerializeFn.Add(typeof(T));
                 else
                     JsConfig.HasSerializeFn.Remove(typeof(T));
+
+                ClearFnCaches();
             }
         }
 
@@ -881,6 +887,12 @@ namespace ServiceStack.Text
             {
                 return DeSerializeFn(serializer.UnescapeString(str));
             }
+        }
+        
+        internal static void ClearFnCaches()
+        {
+            typeof(JsonWriter<>).MakeGenericType(new[] { typeof(T) }).InvokeReset();
+            typeof(JsvWriter<>).MakeGenericType(new[] { typeof(T) }).InvokeReset();
         }
 
         public static void Reset()
