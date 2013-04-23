@@ -25,6 +25,19 @@ namespace ServiceStack.Text.Jsv
 		public static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
 
         private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
+        
+        internal static void RemoveCacheFn(Type forType)
+        {
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = WriteFnCache;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
+                newCache.Remove(forType);
+                
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+        }
 
 		public static WriteObjectDelegate GetWriteFn(Type type)
 		{
@@ -84,7 +97,16 @@ namespace ServiceStack.Text.Jsv
 	/// <typeparam name="T"></typeparam>
 	internal static class JsvWriter<T>
 	{
-		private static readonly WriteObjectDelegate CacheFn;
+		private static WriteObjectDelegate CacheFn;
+        
+        public static void Reset()
+        {
+            JsvWriter.RemoveCacheFn(typeof(T));
+            
+            CacheFn = typeof(T) == typeof(object) 
+                ? JsvWriter.WriteLateBoundObject 
+                : JsvWriter.Instance.GetWriteFn<T>();
+        }
 
 		public static WriteObjectDelegate WriteFn()
 		{

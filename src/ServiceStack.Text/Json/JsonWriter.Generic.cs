@@ -26,6 +26,19 @@ namespace ServiceStack.Text.Json
 
 		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
 
+        internal static void RemoveCacheFn(Type forType)
+        {
+            Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = WriteFnCache;
+                newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
+                newCache.Remove(forType);
+                
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+        }
+
 		public static WriteObjectDelegate GetWriteFn(Type type)
 		{
 			try
@@ -127,7 +140,16 @@ namespace ServiceStack.Text.Json
 	internal static class JsonWriter<T>
 	{
 		internal static TypeInfo TypeInfo;
-		private static readonly WriteObjectDelegate CacheFn;
+		private static WriteObjectDelegate CacheFn;
+
+        public static void Reset()
+        {
+            JsonWriter.RemoveCacheFn(typeof(T));
+
+            CacheFn = typeof(T) == typeof(object) 
+                ? JsonWriter.WriteLateBoundObject 
+                : JsonWriter.Instance.GetWriteFn<T>();
+        }
 
 		public static WriteObjectDelegate WriteFn()
 		{
