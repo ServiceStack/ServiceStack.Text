@@ -125,24 +125,24 @@ namespace ServiceStack.Text
             {
                 return UrlEncode(value);
             }
-			return String.IsNullOrEmpty(value) || !JsWriter.HasAnyEscapeChars(value)
-		       	? value
-		       	: String.Concat
-		       	  	(
-						JsWriter.QuoteString,
-						value.Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
-						JsWriter.QuoteString
-		       	  	);
+            return String.IsNullOrEmpty(value) || !JsWriter.HasAnyEscapeChars(value)
+                ? value
+                : String.Concat
+                    (
+                        JsWriter.QuoteString,
+                        value.Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
+                        JsWriter.QuoteString
+                    );
         }
 
         public static string DecodeJsv(this string value)
         {
-			const int startingQuotePos = 1;
-			const int endingQuotePos = 2;
-			return String.IsNullOrEmpty(value) || value[0] != JsWriter.QuoteChar
-			       	? value
-					: value.Substring(startingQuotePos, value.Length - endingQuotePos)
-						.Replace(TypeSerializer.DoubleQuoteString, JsWriter.QuoteString);
+            const int startingQuotePos = 1;
+            const int endingQuotePos = 2;
+            return String.IsNullOrEmpty(value) || value[0] != JsWriter.QuoteChar
+                    ? value
+                    : value.Substring(startingQuotePos, value.Length - endingQuotePos)
+                        .Replace(TypeSerializer.DoubleQuoteString, JsWriter.QuoteString);
         }
 
         public static string UrlEncode(this string text)
@@ -314,7 +314,7 @@ namespace ServiceStack.Text
             }
             return sb.ToString();
         }
-
+#if !SILVERLIGHT
         public static string FromAsciiBytes(this byte[] bytes)
         {
             return bytes == null ? null
@@ -325,7 +325,7 @@ namespace ServiceStack.Text
         {
             return Encoding.ASCII.GetBytes(value);
         }
-
+#endif
         public static string FromUtf8Bytes(this byte[] bytes)
         {
             return bytes == null ? null
@@ -449,12 +449,12 @@ namespace ServiceStack.Text
         }
 
         public static string ToJson<T>(this T obj) {
-        	return JsConfig.PreferInterfaces
-				? JsonSerializer.SerializeToString(obj, AssemblyUtils.MainInterface<T>())
-				: JsonSerializer.SerializeToString(obj);
+            return JsConfig.PreferInterfaces
+                ? JsonSerializer.SerializeToString(obj, AssemblyUtils.MainInterface<T>())
+                : JsonSerializer.SerializeToString(obj);
         }
 
-    	public static T FromJson<T>(this string json)
+        public static T FromJson<T>(this string json)
         {
             return JsonSerializer.DeserializeFromString<T>(json);
         }
@@ -501,10 +501,10 @@ namespace ServiceStack.Text
         public static string ReadAllText(this string filePath)
         {
 #if XBOX && !SILVERLIGHT
-			using( var fileStream = new FileStream( filePath, FileMode.Open, FileAccess.Read ) )
-			{
-				return new StreamReader( fileStream ).ReadToEnd( ) ;
-			}
+            using( var fileStream = new FileStream( filePath, FileMode.Open, FileAccess.Read ) )
+            {
+                return new StreamReader( fileStream ).ReadToEnd( ) ;
+            }
 #elif NETFX_CORE
             var task = Windows.Storage.StorageFile.GetFileFromPathAsync(filePath);
             task.AsTask().Wait();
@@ -516,7 +516,7 @@ namespace ServiceStack.Text
 
             var fileStream = streamTask.Result;
 
-			return new StreamReader( fileStream ).ReadToEnd( ) ;
+            return new StreamReader( fileStream ).ReadToEnd( ) ;
 #elif WINDOWS_PHONE
             using (var isoStore = IsolatedStorageFile.GetUserStoreForApplication())
             {
@@ -579,7 +579,7 @@ namespace ServiceStack.Text
         }
 
 #if XBOX && !SILVERLIGHT
-		static readonly Regex StripHtmlRegEx = new Regex(@"<(.|\n)*?>", RegexOptions.Compiled);
+        static readonly Regex StripHtmlRegEx = new Regex(@"<(.|\n)*?>", RegexOptions.Compiled);
 #else
         static readonly Regex StripHtmlRegEx = new Regex(@"<(.|\n)*?>");
 #endif
@@ -589,8 +589,8 @@ namespace ServiceStack.Text
         }
 
 #if XBOX && !SILVERLIGHT
-		static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]", RegexOptions.Compiled);
-		static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)", RegexOptions.Compiled);
+        static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]", RegexOptions.Compiled);
+        static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)", RegexOptions.Compiled);
 #else
         static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]");
         static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)");
