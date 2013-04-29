@@ -491,10 +491,21 @@ namespace ServiceStack.Text
         {
 #if NETFX_CORE
             return text != null
-                && text.StartsWith(startsWith, StringComparison.CurrentCultureIgnoreCase);
+                && text.StartsWith(endsWith, StringComparison.CurrentCultureIgnoreCase);
 #else
             return text != null
                 && text.StartsWith(startsWith, StringComparison.InvariantCultureIgnoreCase);
+#endif
+        }
+
+        public static bool EndsWithIgnoreCase(this string text, string endsWith)
+        {
+#if NETFX_CORE
+            return text != null
+                && text.EndsWith(endsWith, StringComparison.CurrentCultureIgnoreCase);
+#else
+            return text != null
+                && text.EndsWith(endsWith, StringComparison.InvariantCultureIgnoreCase);
 #endif
         }
 
