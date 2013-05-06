@@ -75,10 +75,15 @@ namespace ServiceStack.Text
             set { base[key] = value; }
         }
 
-		public static JsonObject Parse(string json)
-		{
-			return JsonSerializer.DeserializeFromString<JsonObject>(json);
-		}
+        public static JsonObject Parse(string json)
+        {
+            return JsonSerializer.DeserializeFromString<JsonObject>(json);
+        }
+
+        public static JsonArrayObjects ParseArray(string json)
+        {
+            return JsonArrayObjects.Parse(json);
+        }
 
 		public JsonArrayObjects ArrayObjects(string propertyName)
 		{
