@@ -310,6 +310,8 @@ namespace ServiceStack.Text.Common
                 writer.Write(JsWriter.QuoteChar);
         }
 
+        private static readonly char[] ArrayBrackets = new[] { '[', ']' };
+
         public static void WriteQueryString(TextWriter writer, object value)
         {
             try
@@ -326,7 +328,29 @@ namespace ServiceStack.Text.Common
 
                     Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
                     writer.Write('=');
-                    propertyWriter.WriteFn(writer, propertyValue);
+
+                    var isEnumerable = propertyValue != null
+                        && !(propertyValue is string)
+                        && !(propertyValue.GetType().IsValueType)
+                        && propertyValue.GetType().HasInterface(typeof(IEnumerable));
+
+                    if (!isEnumerable)
+                    {
+                        propertyWriter.WriteFn(writer, propertyValue);
+                    }
+                    else
+                    {                        
+                        //Trim brackets in top-level lists in QueryStrings, e.g: ?a=[1,2,3] => ?a=1,2,3
+                        using (var ms = new MemoryStream())
+                        using (var enumerableWriter = new StreamWriter(ms))
+                        {
+                            propertyWriter.WriteFn(enumerableWriter, propertyValue); 
+                            enumerableWriter.Flush();
+                            var output = ms.ToArray().FromUtf8Bytes();
+                            output = output.Trim(ArrayBrackets);
+                            writer.Write(output);
+                        }
+                    }
                 }
             }
             finally

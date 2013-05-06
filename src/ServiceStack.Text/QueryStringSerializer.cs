@@ -112,7 +112,11 @@ namespace ServiceStack.Text
             }
 			else
 			{
-                if (typeof(T).IsClass() || typeof(T).IsInterface())
+                var isEnumerable = typeof(T).AssignableFrom(typeof(IEnumerable))
+                    || typeof(T).HasInterface(typeof(IEnumerable));
+
+                if ((typeof(T).IsClass() || typeof(T).IsInterface()) 
+                    && !isEnumerable)
                 {
 					var canWriteType = WriteType<T, JsvTypeSerializer>.Write;
 					if (canWriteType != null)

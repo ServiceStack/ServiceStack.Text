@@ -100,5 +100,43 @@ namespace ServiceStack.Text.Tests
 	    {
 	    	Assert.Throws(typeof(FormatException), delegate { ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse("NaN"); });
     	}
-	}
+
+	    [Test]
+	    public void Deos_serialize_QueryStrings()
+	    {
+            var testPocos = new TestPocos { ListOfA = new List<A> { new A { ListOfB = new List<B> { new B { Property = "prop1" }, new B { Property = "prop2" } } } } };
+
+            Assert.That(QueryStringSerializer.SerializeToString(testPocos), Is.EqualTo(
+                "ListOfA={ListOfB:[{Property:prop1},{Property:prop2}]}"));
+            
+            Assert.That(QueryStringSerializer.SerializeToString(new[] { 1, 2, 3 }), Is.EqualTo(
+                "[1,2,3]"));
+
+            Assert.That(QueryStringSerializer.SerializeToString(new[] { "AA", "BB", "CC" }), Is.EqualTo(
+                "[AA,BB,CC]"));
+	    }
+
+        public class TestService : ServiceInterface.Service
+        {
+            public object Get(TestPocos request)
+            {
+                return "OK";
+            }
+        }
+
+        public class TestPocos
+        {
+            public List<A> ListOfA { get; set; }
+        }
+        
+        public class A
+        {
+            public List<B> ListOfB { get; set; }
+        }
+
+        public class B
+        {
+            public string Property { get; set; }
+        }
+    }
 }
