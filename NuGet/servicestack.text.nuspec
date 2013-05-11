@@ -6,9 +6,9 @@
     <version>3.9.44</version> 
     <authors>Demis Bellot</authors> 
     <owners>Demis Bellot</owners>
-    <summary>.NET's fastest JSON, JSV and CSV Text Serializers (3x faster than JSON.NET)</summary>
+    <summary>.NET's fastest JSON, JSV and CSV Text Serializers</summary>
     <description>
-        .NET's fastest JSON, JSV and CSV Text Serializers (3x faster than JSON.NET). Fast, Light, Resilient.
+        .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
         Benchmarks at: http://servicestack.net/benchmarks/
         Includes the String and Stream functionality for all the ServiceStack projects including: 
           - T.Dump() generic extension method for easy dbugging and introspection of types
