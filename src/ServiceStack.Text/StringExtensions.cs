@@ -491,7 +491,7 @@ namespace ServiceStack.Text
         {
 #if NETFX_CORE
             return text != null
-                && text.StartsWith(endsWith, StringComparison.CurrentCultureIgnoreCase);
+                && text.StartsWith(startsWith, StringComparison.CurrentCultureIgnoreCase);
 #else
             return text != null
                 && text.StartsWith(startsWith, StringComparison.InvariantCultureIgnoreCase);
