@@ -331,7 +331,7 @@ namespace ServiceStack.Text.Common
 
                     var isEnumerable = propertyValue != null
                         && !(propertyValue is string)
-                        && !(propertyValue.GetType().IsValueType)
+                        && !(propertyValue.GetType().IsValueType())
                         && propertyValue.GetType().HasInterface(typeof(IEnumerable));
 
                     if (!isEnumerable)
