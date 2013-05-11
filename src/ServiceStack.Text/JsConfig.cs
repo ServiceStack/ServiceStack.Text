@@ -504,8 +504,13 @@ namespace ServiceStack.Text
 
         internal static void InvokeReset(this Type genericType)
         {
+#if NETFX_CORE
+            MethodInfo methodInfo = genericType.GetTypeInfo().GetType().GetMethodInfo("Reset");
+            methodInfo.Invoke(null, null);
+#else
             var methodInfo = genericType.GetMethod("Reset", BindingFlags.Static | BindingFlags.Public);
             methodInfo.Invoke(null, null);
+#endif
         }
 
 #if MONOTOUCH
