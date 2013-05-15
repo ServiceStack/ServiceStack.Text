@@ -116,15 +116,7 @@ namespace ServiceStack.Text.Tests
                 "[AA,BB,CC]"));
 	    }
 
-        public class TestService : ServiceInterface.Service
-        {
-            public object Get(TestPocos request)
-            {
-                return "OK";
-            }
-        }
-
-        public class TestPocos
+	    public class TestPocos
         {
             public List<A> ListOfA { get; set; }
         }
