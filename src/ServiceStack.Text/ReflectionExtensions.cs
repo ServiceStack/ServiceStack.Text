@@ -148,33 +148,82 @@ namespace ServiceStack.Text
 
         public static bool IsNumericType(this Type type)
         {
-            if (!type.IsValueType()) return false;
-            return type.IsIntegerType() || type.IsRealNumberType();
-        }
+            if (type == null) return false;
 
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.Single:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    return true;
+
+                case TypeCode.Object:
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        return IsNumericType(Nullable.GetUnderlyingType(type));
+                    }
+                    if (type.IsEnum)
+                    {
+                        return type.IsEnumFlags();
+                    }
+                    return false;
+            }
+            return false;
+        }
+        
         public static bool IsIntegerType(this Type type)
         {
-            if (!type.IsValueType()) return false;
+            if (type == null) return false;
 
-            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
-            return underlyingType == typeof(byte)
-               || underlyingType == typeof(sbyte)
-               || underlyingType == typeof(short)
-               || underlyingType == typeof(ushort)
-               || underlyingType == typeof(int)
-               || underlyingType == typeof(uint)
-               || underlyingType == typeof(long)
-               || underlyingType == typeof(ulong);
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    return true;
+
+                case TypeCode.Object:
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        return IsNumericType(Nullable.GetUnderlyingType(type));
+                    }
+                    return false;
+            }
+            return false;
         }
 
         public static bool IsRealNumberType(this Type type)
         {
-            if (!type.IsValueType()) return false;
+            if (type == null) return false;
 
-            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
-            return underlyingType == typeof(float)
-               || underlyingType == typeof(double)
-               || underlyingType == typeof(decimal);
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+
+                case TypeCode.Object:
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        return IsNumericType(Nullable.GetUnderlyingType(type));
+                    }
+                    return false;
+            }
+            return false;
         }
 
         public static Type GetTypeWithGenericInterfaceOf(this Type type, Type genericInterfaceType)
@@ -1032,6 +1081,15 @@ namespace ServiceStack.Text
             return type.GetTypeInfo().IsEnum;
 #else
             return type.IsEnum;
+#endif
+        }
+
+        public static bool IsEnumFlags(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsEnum && type.FirstAttribute<FlagsAttribute>(false) != null;
+#else
+            return type.IsEnum && type.FirstAttribute<FlagsAttribute>(false) != null;
 #endif
         }
 
