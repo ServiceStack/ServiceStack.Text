@@ -16,6 +16,7 @@ using System.IO;
 using System.Reflection;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Reflection;
+using System.Collections.Generic;
 
 namespace ServiceStack.Text.Common
 {
@@ -281,9 +282,11 @@ namespace ServiceStack.Text.Common
                         ? propertyWriter.GetterFn((T)value)
                         : null;
 
-                    if ((propertyValue == null
-                         || (propertyWriter.DefaultValue != null && propertyWriter.DefaultValue.Equals(propertyValue)))
-                        && !Serializer.IncludeNullValues) continue;
+                    if ( ((propertyValue == null
+                          || (propertyWriter.DefaultValue != null && propertyWriter.DefaultValue.Equals(propertyValue)))
+                          && !Serializer.IncludeNullValues)
+                         || (propertyValue != null && SerializationVisitorTracker.HasVisited(writer,propertyValue)) )
+                        continue;
 
                     if (i++ > 0)
                         writer.Write(JsWriter.ItemSeperator);
@@ -298,6 +301,7 @@ namespace ServiceStack.Text.Common
                     }
                     else
                     {
+                        SerializationVisitorTracker.Track(writer, propertyValue);
                         propertyWriter.WriteFn(writer, propertyValue);
                     }
                     if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;

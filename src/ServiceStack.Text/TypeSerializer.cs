@@ -91,7 +91,15 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
-				JsvWriter<T>.WriteObject(writer, value);
+                try
+                {
+                    SerializationVisitorTracker.TrackSerialization(writer);
+                    JsvWriter<T>.WriteObject(writer, value);
+                }
+                finally
+                {
+                    SerializationVisitorTracker.UnTrackSerialization(writer);
+                }
 			}
 			return sb.ToString();
 		}
@@ -104,7 +112,15 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
-				JsvWriter.GetWriteFn(type)(writer, value);
+                try
+                {
+                    SerializationVisitorTracker.TrackSerialization(writer);
+                    JsvWriter.GetWriteFn(type)(writer, value);
+                }
+                finally
+                {
+                    SerializationVisitorTracker.UnTrackSerialization(writer);
+                }
 			}
 			return sb.ToString();
 		}
@@ -125,8 +141,16 @@ namespace ServiceStack.Text
                 return;
 			}
 
-			JsvWriter<T>.WriteObject(writer, value);
-		}
+            try
+            {
+                SerializationVisitorTracker.TrackSerialization(writer);
+                JsvWriter<T>.WriteObject(writer, value);
+            }
+            finally
+            {
+                SerializationVisitorTracker.UnTrackSerialization(writer);
+            }
+        }
 
 		public static void SerializeToWriter(object value, Type type, TextWriter writer)
 		{
@@ -137,7 +161,15 @@ namespace ServiceStack.Text
 				return;
 			}
 
-			JsvWriter.GetWriteFn(type)(writer, value);
+            try
+            {
+                SerializationVisitorTracker.TrackSerialization(writer);
+                JsvWriter.GetWriteFn(type)(writer, value);
+            }
+            finally
+            {
+                SerializationVisitorTracker.UnTrackSerialization(writer);
+            }
 		}
 
 		public static void SerializeToStream<T>(T value, Stream stream)
@@ -152,15 +184,31 @@ namespace ServiceStack.Text
 			}
 
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsvWriter<T>.WriteObject(writer, value);
-			writer.Flush();
+            try
+            {
+                SerializationVisitorTracker.TrackSerialization(writer);
+                JsvWriter<T>.WriteObject(writer, value);
+            }
+            finally
+            {
+                SerializationVisitorTracker.UnTrackSerialization(writer);
+            }
+            writer.Flush();
 		}
 
 		public static void SerializeToStream(object value, Type type, Stream stream)
 		{
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsvWriter.GetWriteFn(type)(writer, value);
-			writer.Flush();
+            try
+            {
+                SerializationVisitorTracker.TrackSerialization(writer);
+    			JsvWriter.GetWriteFn(type)(writer, value);
+            }
+            finally
+            {
+                SerializationVisitorTracker.UnTrackSerialization(writer);
+            }
+            writer.Flush();
 		}
 
 		public static T Clone<T>(T value)

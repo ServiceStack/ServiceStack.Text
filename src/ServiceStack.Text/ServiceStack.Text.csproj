@@ -139,6 +139,7 @@
     <Compile Include="Common\StaticParseMethod.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\SerializationVisitorTracker.cs" />
     <Compile Include="Common\WriteDictionary.cs">
       <SubType>Code</SubType>
     </Compile>
