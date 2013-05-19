@@ -115,6 +115,9 @@
     <Compile Include="..\ServiceStack.Text.Tests\DataTests.cs">
       <Link>DataTests.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\DateTimeExtensionsTests.cs">
+      <Link>DateTimeExtensionsTests.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\DateTimeOffsetAndTimeSpanTests.cs">
       <Link>DateTimeOffsetAndTimeSpanTests.cs</Link>
     </Compile>
@@ -166,6 +169,9 @@
     <Compile Include="..\ServiceStack.Text.Tests\DynamicModels\ModelWithAllTypes.cs">
       <Link>DynamicModels\ModelWithAllTypes.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\DynamicModels\ModelWithComplexTypes.cs">
+      <Link>DynamicModels\ModelWithComplexTypes.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\DynamicObjectTests.cs">
       <Link>DynamicObjectTests.cs</Link>
     </Compile>
@@ -196,6 +202,9 @@
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\ContractByInterfaceTests.cs">
       <Link>JsonTests\ContractByInterfaceTests.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\CustomRawSerializerTests.cs">
+      <Link>JsonTests\CustomRawSerializerTests.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\CustomSerializerTests.cs">
       <Link>JsonTests\CustomSerializerTests.cs</Link>
     </Compile>
@@ -204,6 +213,9 @@
     </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\EscapedCharsTests.cs">
       <Link>JsonTests\EscapedCharsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\IDictionarySerializationTests.cs">
+      <Link>JsonTests\IDictionarySerializationTests.cs</Link>
     </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\JsonArrayObjectTests.cs">
       <Link>JsonTests\JsonArrayObjectTests.cs</Link>
@@ -217,14 +229,35 @@
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\JsonObjectTests.cs">
       <Link>JsonTests\JsonObjectTests.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\LowercaseUnderscoreTests.cs">
+      <Link>JsonTests\LowercaseUnderscoreTests.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\ModelWithAllTypesTests.cs">
       <Link>JsonTests\ModelWithAllTypesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\ModelWithComplexTypesTest.cs">
+      <Link>JsonTests\ModelWithComplexTypesTest.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\PolymorphicInstanceTest.cs">
+      <Link>JsonTests\PolymorphicInstanceTest.cs</Link>
     </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\PolymorphicListTests.cs">
       <Link>JsonTests\PolymorphicListTests.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\PropertyConventionTests.cs">
+      <Link>JsonTests\PropertyConventionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsonTests\PublicFieldTest.cs">
+      <Link>JsonTests\PublicFieldTest.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsonTests\ThrowOnDeserializeErrorTest.cs">
       <Link>JsonTests\ThrowOnDeserializeErrorTest.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsvTests\GeneratedJsvTests.cs">
+      <Link>JsvTests\GeneratedJsvTests.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text.Tests\JsvTests\InheritanceTests.cs">
+      <Link>JsvTests\InheritanceTests.cs</Link>
     </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\JsvTests\JsvDeserializeTypeTest.cs">
       <Link>JsvTests\JsvDeserializeTypeTest.cs</Link>
