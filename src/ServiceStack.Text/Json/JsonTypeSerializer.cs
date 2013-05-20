@@ -115,7 +115,9 @@ namespace ServiceStack.Text.Json
 
         public void WriteDateTime(TextWriter writer, object oDateTime)
         {
-            WriteRawString(writer, DateTimeSerializer.ToWcfJsonDate((DateTime)oDateTime));
+            writer.Write(JsWriter.QuoteString);
+            DateTimeSerializer.WriteWcfJsonDate(writer, (DateTime)oDateTime);
+            writer.Write(JsWriter.QuoteString);
         }
 
         public void WriteNullableDateTime(TextWriter writer, object dateTime)
@@ -128,7 +130,9 @@ namespace ServiceStack.Text.Json
 
         public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
         {
-            WriteRawString(writer, DateTimeSerializer.ToWcfJsonDateTimeOffset((DateTimeOffset)oDateTimeOffset));
+            writer.Write(JsWriter.QuoteString);
+            DateTimeSerializer.WriteWcfJsonDateTimeOffset(writer, (DateTimeOffset)oDateTimeOffset);
+            writer.Write(JsWriter.QuoteString);
         }
 
         public void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)

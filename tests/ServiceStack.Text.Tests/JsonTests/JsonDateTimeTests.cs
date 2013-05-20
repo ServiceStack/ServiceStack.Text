@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
 #if !MONOTOUCH
@@ -65,18 +67,15 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
 
-			// Unspecified time is assumed to be local, so just make sure they serialize the same way.
+			// Unspecified time emits '-0000' offset and treated as local time when parsed
 
 			var dateTime1 = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson1 = JsonSerializer.SerializeToString(dateTime1);
 
-			var dateTime2 = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
-			var ssJson2 = JsonSerializer.SerializeToString(dateTime2);
-
-			Assert.That(ssJson1, Is.EqualTo(ssJson2));
+            Assert.That(ssJson1, Is.EqualTo(@"""\/Date(785653200000-0000)\/"""));
 			JsConfig.Reset();
 		}
-
+        
 		[Test]
 		public void Can_deserialize_json_date_timestampOffset_withoutOffset_asUtc()
 		{
@@ -263,7 +262,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
 
 			var offsetSpan = TimeZoneInfo.Local.GetUtcOffset(dateTime);
-			var offset = offsetSpan.ToTimeOffsetString(true);
+			var offset = offsetSpan.ToTimeOffsetString(":");
 
 			Assert.That(ssJson, Is.EqualTo(@"""1994-11-24T12:34:56.0000000" + offset + @""""));
 			JsConfig.Reset();
@@ -315,7 +314,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			JsConfig.DateHandler = JsonDateHandler.ISO8601;
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Local);
-			var offset = TimeZoneInfo.Local.GetUtcOffset(dateTime).ToTimeOffsetString(true);
+			var offset = TimeZoneInfo.Local.GetUtcOffset(dateTime).ToTimeOffsetString(":");
 
 			var json = @"""1994-11-24T12:34:56" + offset + @"""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -447,5 +446,30 @@ namespace ServiceStack.Text.Tests.JsonTests
             date.PrintDump();
             date.ToJson().Print();
         }
+
+	    [Test]
+	    public void ToUnixTimeTests()
+	    {
+	        var dates = new[]
+	            {
+			        DateTime.Now,
+			        DateTime.UtcNow,
+			        new DateTime(1979, 5, 9),
+			        new DateTime(1972, 3, 24, 0, 0, 0, DateTimeKind.Local),
+			        new DateTime(1972, 4, 24),
+			        new DateTime(1979, 5, 9, 0, 0, 1),
+			        new DateTime(1979, 5, 9, 0, 0, 0, 1),
+			        new DateTime(2010, 10, 20, 10, 10, 10, 1),
+			        new DateTime(2010, 11, 22, 11, 11, 11, 1),
+                    new DateTime(1970, 1, 1, 1, 1, 1, DateTimeKind.Unspecified),
+                    new DateTime(1991, 1, 1, 1, 1, 1, DateTimeKind.Unspecified),
+                    new DateTime(2001, 1, 1, 1, 1, 1, DateTimeKind.Unspecified),
+                    new DateTime(622119282055250000)
+	            }.ToList();
+
+            dates.ForEach(x => "{0} == {1} :: {2}".Print(x.ToUnixTimeMs(), x.ToUnixTimeMsAlt(), x.ToUnixTimeMs() == x.ToUnixTimeMsAlt()));
+            Assert.That(dates.All(x => x.ToUnixTimeMs() == x.ToUnixTimeMsAlt()));
+	    }
+
     }
 }
