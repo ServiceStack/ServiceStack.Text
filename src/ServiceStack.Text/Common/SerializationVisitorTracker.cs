@@ -12,22 +12,34 @@ namespace ServiceStack.Text.Common
 
         internal static void TrackSerialization(TextWriter writer)
         {
-            VisitedCache.Add(writer, new List<object>());
+            lock (VisitedCache)
+            {
+                VisitedCache.Add(writer, new List<object>());
+            }
         }
 
         internal static void UnTrackSerialization(TextWriter writer)
         {
-            VisitedCache.Remove(writer);
+            lock (VisitedCache)
+            {
+                VisitedCache.Remove(writer);
+            }
         }
 
         internal static bool HasVisited(TextWriter writer, object o)
         {
-            return VisitedCache[writer].Exists(x => Object.ReferenceEquals(x, o));
+            lock (VisitedCache)
+            {
+                return VisitedCache[writer].Exists(x => Object.ReferenceEquals(x, o));
+            }
         }
 
         internal static void Track(TextWriter writer, object o)
         {
-            VisitedCache[writer].Add(o);
+            lock (VisitedCache)
+            {
+                VisitedCache[writer].Add(o);
+            }
         }
     }
 
