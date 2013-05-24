@@ -167,6 +167,7 @@ namespace ServiceStack.Text.Tests
                 var p = new person();
                 p.teacher = new person { name = "sam", teacher = p };
                 p.name = "bob";
+                p.PrintDump();
                 p.ToJsv().Print();
                 p.ToJson().Print();
             }
