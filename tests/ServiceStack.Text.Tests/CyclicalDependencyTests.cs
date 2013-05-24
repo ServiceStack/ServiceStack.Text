@@ -152,5 +152,26 @@ namespace ServiceStack.Text.Tests
 			Assert.That(from.Contact, Is.EqualTo(dto.Contact));
 			Assert.That(from.Notes, Is.EqualTo(dto.Notes));
 		}
+
+        class person
+        {
+            public string name { get; set; }
+            public person teacher { get; set; }
+        }
+
+	    [Test]
+	    public void Can_limit_cyclical_dependencies()
+	    {
+	        using (JsConfig.With(maxDepth:4))
+	        {
+                var p = new person();
+                p.teacher = new person { name = "sam", teacher = p };
+                p.name = "bob";
+                p.ToJsv().Print();
+                p.ToJson().Print();
+            }
+        }
+
+
 	}
 }

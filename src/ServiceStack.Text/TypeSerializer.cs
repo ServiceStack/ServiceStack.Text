@@ -91,7 +91,7 @@ namespace ServiceStack.Text
 			var sb = new StringBuilder();
 			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
 			{
-				JsvWriter<T>.WriteObject(writer, value);
+                JsvWriter<T>.WriteRootObject(writer, value);
 			}
 			return sb.ToString();
 		}
@@ -125,7 +125,7 @@ namespace ServiceStack.Text
                 return;
 			}
 
-			JsvWriter<T>.WriteObject(writer, value);
+            JsvWriter<T>.WriteRootObject(writer, value);
 		}
 
 		public static void SerializeToWriter(object value, Type type, TextWriter writer)
@@ -152,7 +152,7 @@ namespace ServiceStack.Text
 			}
 
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsvWriter<T>.WriteObject(writer, value);
+            JsvWriter<T>.WriteRootObject(writer, value);
 			writer.Flush();
 		}
 

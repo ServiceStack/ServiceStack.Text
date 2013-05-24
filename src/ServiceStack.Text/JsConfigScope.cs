@@ -75,6 +75,7 @@ namespace ServiceStack.Text
         public bool? EscapeUnicode { get; set; }
         public bool? PreferInterfaces { get; set; }
         public bool? IncludePublicFields { get; set; }
+        public int? MaxDepth { get; set; }
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }
     }
 }

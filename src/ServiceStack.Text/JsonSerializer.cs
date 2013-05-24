@@ -72,7 +72,7 @@ namespace ServiceStack.Text
 				}
 				else
 				{
-					JsonWriter<T>.WriteObject(writer, value);
+					JsonWriter<T>.WriteRootObject(writer, value);
 				}
 			}
 			return sb.ToString();
@@ -113,7 +113,7 @@ namespace ServiceStack.Text
                 return;
             }
 
-			JsonWriter<T>.WriteObject(writer, value);
+			JsonWriter<T>.WriteRootObject(writer, value);
 		}
 
 		public static void SerializeToWriter(object value, Type type, TextWriter writer)
@@ -140,7 +140,7 @@ namespace ServiceStack.Text
             }
 
 			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-			JsonWriter<T>.WriteObject(writer, value);
+			JsonWriter<T>.WriteRootObject(writer, value);
 			writer.Flush();
 		}
 

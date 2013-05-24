@@ -120,13 +120,32 @@ namespace ServiceStack.Text.Jsv
                 : JsvWriter.Instance.GetWriteFn<T>();
 		}
 
-	    public static void WriteObject(TextWriter writer, object value)
-		{
+        public static void WriteObject(TextWriter writer, object value)
+        {
 #if MONOTOUCH
 			if (writer == null) return;
 #endif
-			CacheFn(writer, value);
-		}
+            try
+            {
+                if (++JsState.Depth > JsConfig.MaxDepth)
+                    return;
 
-	}
+                CacheFn(writer, value);
+            }
+            finally 
+            {
+                JsState.Depth--;
+            }
+        }
+
+        public static void WriteRootObject(TextWriter writer, object value)
+        {
+#if MONOTOUCH
+			if (writer == null) return;
+#endif
+            JsState.Depth = 0;
+            CacheFn(writer, value);
+        }
+
+    }
 }

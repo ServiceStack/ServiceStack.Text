@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ServiceStack.Text.Common
 {
@@ -16,5 +17,8 @@ namespace ServiceStack.Text.Common
 
         [ThreadStatic]
         internal static bool QueryStringMode = false;
+
+        [ThreadStatic]
+        internal static int Depth = 0;
     }
 }

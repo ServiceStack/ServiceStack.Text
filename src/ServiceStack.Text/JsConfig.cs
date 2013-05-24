@@ -47,6 +47,7 @@ namespace ServiceStack.Text
             bool? alwaysUseUtc = null,
             bool? escapeUnicode = null,
             bool? includePublicFields = null,
+            int? maxDepth = null,
             EmptyCtorFactoryDelegate modelFactory = null)
         {
             return new JsConfigScope {
@@ -68,6 +69,7 @@ namespace ServiceStack.Text
                 AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
                 EscapeUnicode = escapeUnicode ?? sEscapeUnicode,
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
+                MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
             };
         }
@@ -442,6 +444,24 @@ namespace ServiceStack.Text
             set
             {
                 if (!sIncludePublicFields.HasValue) sIncludePublicFields = value;
+            }
+        }
+
+        /// <summary>
+        /// Sets the maximum depth to avoid circular dependencies
+        /// </summary>
+        private static int? sMaxDepth;
+        public static int MaxDepth
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.MaxDepth : null)
+                    ?? sMaxDepth
+                    ?? int.MaxValue;
+            }
+            set
+            {
+                if (!sMaxDepth.HasValue) sMaxDepth = value;
             }
         }
 
