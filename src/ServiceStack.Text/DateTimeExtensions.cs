@@ -46,7 +46,7 @@ namespace ServiceStack.Text
             var dtUtc = dateTime;
             if (dateTime.Kind != DateTimeKind.Utc)
             {
-                dtUtc = dateTime.Kind == DateTimeKind.Unspecified
+                dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue
                     ? DateTime.SpecifyKind(dateTime.Subtract(LocalTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
                     : dateTime.ToStableUniversalTime();
             }
