@@ -133,7 +133,17 @@ namespace ServiceStack.Text.Tests.Utils
             deserialized = TypeSerializer.DeserializeFromString<DateTime>(serialized);
             Assert.AreEqual(dateWithoutMillisecondsUnspecified, deserialized);
         }
-
+				
+		[Test]
+        public void TestDateTimeNew()
+        {
+			DateTime newDateTime = new DateTime();
+			var convertedUnixTimeMs = ServiceStack.Text.DateTimeExtensions.ToUnixTimeMs(newDateTime);
+            Assert.AreNotEqual(null, convertedUnixTimeMs );
+            Assert.AreEqual(-62135596800000, convertedUnixTimeMs);
+            Assert.AreEqual(newDateTime,ServiceStack.Text.DateTimeExtensions.FromUnixTimeMs(convertedUnixTimeMs));
+        }
+		
 		[Test, Ignore("Don't pre-serialize into Utc")]
 		public void UtcDateTime_Is_Deserialized_As_Kind_Utc()
 		{
