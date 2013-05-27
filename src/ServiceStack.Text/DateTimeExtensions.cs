@@ -43,15 +43,17 @@ namespace ServiceStack.Text
         private static TimeZone LocalTimeZone = TimeZone.CurrentTimeZone;
         public static long ToUnixTimeMs(this DateTime dateTime)
         {
-            var dtUtc = dateTime;
-            if (dateTime.Kind != DateTimeKind.Utc)
-            {
-                dtUtc = dateTime.Kind == DateTimeKind.Unspecified
-                    ? DateTime.SpecifyKind(dateTime.Subtract(LocalTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
-                    : dateTime.ToStableUniversalTime();
-            }
+           return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
+	    
+            //var dtUtc = dateTime;
+            //if (dateTime.Kind != DateTimeKind.Utc)
+            //{
+            //    dtUtc = dateTime.Kind == DateTimeKind.Unspecified
+            //        ? DateTime.SpecifyKind(dateTime.Subtract(LocalTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
+            //        : dateTime.ToStableUniversalTime();
+            //}
 
-            return (long)(dtUtc.Subtract(UnixEpochDateTimeUtc)).TotalMilliseconds;
+            //return (long)(dtUtc.Subtract(UnixEpochDateTimeUtc)).TotalMilliseconds;
         }
 
         public static long ToUnixTimeMs(this long ticks)
