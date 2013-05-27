@@ -64,5 +64,32 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromJson["B"].ToString(), Is.EqualTo(h["B"].ToString()));
 	    }
 
+	    [Test]
+	    public void Can_serialize_delegate()
+	    {
+            Action x = () => { };
+
+            Assert.That(x.ToJson(), Is.Null);
+            Assert.That(x.ToJsv(), Is.Null);
+            Assert.That(x.Dump(), Is.Not.Null);
+	    }
+
+        string MethodWithArgs(int id, string name)
+        {
+            return null;
+        }
+        
+	    [Test]
+	    public void Does_dump_delegate_info()
+	    {
+            Action d = Can_Serialize_ByteArray;
+            Assert.That(d.Dump(), Is.EqualTo("Void Can_Serialize_ByteArray()"));
+
+	        Func<int, string, string> methodWithArgs = MethodWithArgs;
+            Assert.That(methodWithArgs.Dump(), Is.EqualTo("String MethodWithArgs(Int32 arg1, String arg2)"));
+
+            Action x = () => { };
+            Assert.That(x.Dump(), Is.EqualTo("Void <Does_dump_delegate_info>b__4()"));
+        }
 	}
 }

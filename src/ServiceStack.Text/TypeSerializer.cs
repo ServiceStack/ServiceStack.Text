@@ -78,7 +78,7 @@ namespace ServiceStack.Text
 
 		public static string SerializeToString<T>(T value)
 		{
-			if (value == null) return null;
+			if (value == null || value is Delegate) return null;
 			if (typeof(T) == typeof(string)) return value as string;
             if (typeof(T) == typeof(object) || typeof(T).IsAbstract() || typeof(T).IsInterface())
             {
@@ -239,9 +239,30 @@ namespace ServiceStack.Text
 
 		public static string SerializeAndFormat<T>(this T instance)
 		{
+		    var fn = instance as Delegate;
+		    if (fn != null)
+                return Dump(fn);
+
 			var dtoStr = SerializeToString(instance);
 			var formatStr = JsvFormatter.Format(dtoStr);
 			return formatStr;
 		}
+
+        public static string Dump(this Delegate fn)
+        {
+            var method = fn.GetType().GetMethod("Invoke");
+            var sb = new StringBuilder();
+            foreach (var param in method.GetParameters())
+            {
+                if (sb.Length > 0)
+                    sb.Append(", ");
+
+                sb.AppendFormat("{0} {1}", param.ParameterType.Name, param.Name);
+            }
+
+            var info = "{0} {1}({2})".Fmt(method.ReturnType.Name, fn.Method.Name, sb);
+            return info;
+        }
+
 	}
 }

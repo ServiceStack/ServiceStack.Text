@@ -54,7 +54,7 @@ namespace ServiceStack.Text
 
 		public static string SerializeToString<T>(T value)
 		{
-			if (value == null) return null;
+            if (value == null || value is Delegate) return null;
             if (typeof(T) == typeof(object) || typeof(T).IsAbstract() || typeof(T).IsInterface())
             {
                 if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = true;
