@@ -213,5 +213,14 @@ namespace ServiceStack.Text.Tests.Utils
         {
 			Assert.That(toDateTime.ToStableUniversalTime().RoundToMs(), Is.EqualTo(dateTime.ToStableUniversalTime().RoundToMs()), which);
         }
+
+        [Test]
+        public void Can_Serialize_new_DateTime()
+        {
+            var newDateTime = new DateTime();
+            var convertedUnixTimeMs = newDateTime.ToUnixTimeMs();
+            Assert.That(convertedUnixTimeMs.FromUnixTimeMs(), Is.EqualTo(newDateTime));
+        }
+
 	}
 }

@@ -24,6 +24,7 @@ namespace ServiceStack.Text
         public const long UnixEpoch = 621355968000000000L;
         private static readonly DateTime UnixEpochDateTimeUtc = new DateTime(UnixEpoch, DateTimeKind.Utc);
         private static readonly DateTime UnixEpochDateTimeUnspecified = new DateTime(UnixEpoch, DateTimeKind.Unspecified);
+        private static readonly DateTime MinDateTimeUtc = new DateTime(1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static long ToUnixTime(this DateTime dateTime)
         {
@@ -146,6 +147,8 @@ namespace ServiceStack.Text
         {
             if (dateTime.Kind == DateTimeKind.Utc)
                 return dateTime;
+            if (dateTime == DateTime.MinValue)
+                return MinDateTimeUtc;
 
 #if SILVERLIGHT
 			// Silverlight 3, 4 and 5 all work ok with DateTime.ToUniversalTime, but have no TimeZoneInfo.ConverTimeToUtc implementation.
