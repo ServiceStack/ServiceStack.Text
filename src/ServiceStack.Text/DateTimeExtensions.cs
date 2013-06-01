@@ -41,7 +41,7 @@ namespace ServiceStack.Text
             return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
         }
 
-        private static TimeZone LocalTimeZone = TimeZone.CurrentTimeZone;
+        private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
         public static long ToUnixTimeMs(this DateTime dateTime)
         {
             var dtUtc = dateTime;
