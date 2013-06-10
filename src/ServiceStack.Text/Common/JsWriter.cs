@@ -7,6 +7,7 @@ using System.Linq;
 
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
+using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
 {
@@ -235,6 +236,21 @@ namespace ServiceStack.Text.Common
             }
 #endif
         }
+
+
+        internal static IDictionary<object,string> CreateEnumDataContractMap(Type type)
+        {
+            var mapping = type.GetMembers().Where(x => x.IsDefined(typeof(EnumMemberAttribute), false))
+                .ToDictionary(
+                //Key: the enum value
+                    x => Enum.Parse(type, x.Name),
+                //Value: the EnumMember value to write
+                    x =>
+                        x.GetCustomAttributes(typeof(EnumMemberAttribute), false)
+                        .Cast<EnumMemberAttribute>()
+                        .Single().Value);
+            return mapping;
+        }
     }
 
     internal class JsWriter<TSerializer>
@@ -313,17 +329,29 @@ namespace ServiceStack.Text.Common
                 return Serializer.WriteDecimal;
 
             if (type.IsUnderlyingEnum())
-                return type.FirstAttribute<FlagsAttribute>(false) != null
-                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
-                    : Serializer.WriteEnum;
+                return GetEnumToStringMethod(type);
 
             Type nullableType;
             if ((nullableType = Nullable.GetUnderlyingType(type)) != null && nullableType.IsEnum())
-                return nullableType.FirstAttribute<FlagsAttribute>(false) != null
-                    ? (WriteObjectDelegate)Serializer.WriteEnumFlags
-                    : Serializer.WriteEnum;
+                return GetEnumToStringMethod(nullableType);
 
             return Serializer.WriteObjectString;
+        }
+
+        internal WriteObjectDelegate GetEnumToStringMethod(Type type)
+        {
+            if (type.FirstAttribute<FlagsAttribute>(false) != null)
+            {
+                return (WriteObjectDelegate)Serializer.WriteEnumFlags;
+            }
+            else if (type.FirstAttribute<System.Runtime.Serialization.DataContractAttribute>(false) != null)
+            {
+                return Serializer.EnumDataContractDelegate(type);
+            }
+            else
+            {
+                return Serializer.WriteEnum;
+            }
         }
 
         internal WriteObjectDelegate GetWriteFn<T>()

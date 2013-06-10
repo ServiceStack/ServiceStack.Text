@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Linq;
 
 namespace ServiceStack.Text.Common
 {
@@ -30,6 +32,27 @@ namespace ServiceStack.Text.Common
 
             if (type.IsEnum())
             {
+				if (type.FirstAttribute<DataContractAttribute>() != null)
+				{
+					var mapping = type.GetMembers().Where(x => x.IsDefined(typeof(EnumMemberAttribute), false))
+						.ToDictionary(
+							//Key: the EnumMember value
+							x =>
+								x.GetCustomAttributes(typeof(EnumMemberAttribute), false)
+								.Cast<EnumMemberAttribute>()
+								.Single().Value,
+							//Value: the enum value
+							x => Enum.Parse(type, x.Name));
+					var typename = type.Name;
+
+					return x =>
+					{
+						var key = Serializer.UnescapeSafeString(x);
+						if (!mapping.ContainsKey(key)) 
+							throw new ArgumentException(string.Format("The value '{0}' is not valid for {1}", key, typename));
+						return mapping[key];
+					};
+				}
                 return x => Enum.Parse(type, Serializer.UnescapeSafeString(x), true);
             }
 
