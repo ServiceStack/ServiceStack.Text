@@ -227,6 +227,17 @@ namespace ServiceStack.Text.Jsv
 				writer.Write(enumValue.ToString());
 		}
 
+        public WriteObjectDelegate EnumDataContractDelegate(Type type)
+        {
+            var mapping = JsWriter.CreateEnumDataContractMap(type);
+            return (writer, enumValue) =>
+            {
+                if (enumValue == null) return;
+                else if (!mapping.ContainsKey(enumValue)) throw new ArgumentException("Illegal enum value");
+                writer.Write(mapping[enumValue]);
+            };
+        }
+
         public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
 			JsWriter.WriteEnumFlags(writer, enumFlagValue);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -26,12 +27,23 @@ namespace ServiceStack.Text.Tests
             Two = 2
         }
 
+        [DataContract(Namespace = "urn:example")]
+        public enum EnumWithContract
+        {
+            NotPresentInContract,
+            [EnumMember(Value="contract field 1")]
+            ContractField1,
+            [EnumMember(Value = "contract field 2")]
+            ContractField2,
+        }
+
         public class ClassWithEnums
         {
             public EnumWithFlags FlagsEnum { get; set; }
             public EnumWithoutFlags NoFlagsEnum { get; set; }
             public EnumWithFlags? NullableFlagsEnum { get; set; }
             public EnumWithoutFlags? NullableNoFlagsEnum { get; set; }
+            public EnumWithContract ContractEnum { get; set; }
         }
 
         [Test]
@@ -42,10 +54,11 @@ namespace ServiceStack.Text.Tests
                 FlagsEnum = EnumWithFlags.One,
                 NoFlagsEnum = EnumWithoutFlags.One,
                 NullableFlagsEnum = EnumWithFlags.Two,
-                NullableNoFlagsEnum = EnumWithoutFlags.Two
+                NullableNoFlagsEnum = EnumWithoutFlags.Two,
+                ContractEnum = EnumWithContract.ContractField1
             };
 
-            const string expected = "{\"FlagsEnum\":1,\"NoFlagsEnum\":\"One\",\"NullableFlagsEnum\":2,\"NullableNoFlagsEnum\":\"Two\"}";
+            const string expected = "{\"FlagsEnum\":1,\"NoFlagsEnum\":\"One\",\"NullableFlagsEnum\":2,\"NullableNoFlagsEnum\":\"Two\",\"ContractEnum\":\"contract field 1\"}";
             var text = JsonSerializer.SerializeToString(item);
 
             Assert.AreEqual(expected, text);
@@ -80,6 +93,38 @@ namespace ServiceStack.Text.Tests
 
             Assert.AreEqual("0", val);
         }
+
+        [Test]
+        public void CanSerializeDataContract()
+        {
+            var val = JsonSerializer.SerializeToString(EnumWithContract.ContractField2);
+            Assert.AreEqual("\"contract field 2\"", val);
+        }
+
+        [Test]
+        public void CanDeserializeDataContract()
+        {
+            var val = JsonSerializer.DeserializeFromString("\"contract field 2\"", typeof(EnumWithContract));
+            Assert.AreEqual(val, EnumWithContract.ContractField2);
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CanThrowOnDeserializeWhenEnumValueNotInContract()
+        {
+            //should throw ArgumentException (like Enum.Parse)
+            var val = JsonSerializer.DeserializeFromString("\"NotPresentInContract\"", typeof(EnumWithContract));
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CanThrowOnSerializeWhenEnumValueNotInContract()
+        {
+            //should throw ArgumentException (the XML serializer throws SerializationException, would this be preferrable?)
+            var val = JsonSerializer.SerializeToString(EnumWithContract.NotPresentInContract);
+        }
+
 
         [Flags]
         public enum FlagEnum

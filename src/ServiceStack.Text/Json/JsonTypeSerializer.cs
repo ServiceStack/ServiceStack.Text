@@ -299,6 +299,18 @@ namespace ServiceStack.Text.Json
 			JsWriter.WriteEnumFlags(writer, enumFlagValue);
         }
 
+        public WriteObjectDelegate EnumDataContractDelegate(Type type)
+        {
+            var mapping = JsWriter.CreateEnumDataContractMap(type);
+            return (writer, enumValue) =>
+            {
+                if (enumValue == null) return;
+                else if (!mapping.ContainsKey(enumValue)) throw new ArgumentException("Illegal enum value");
+                WriteRawString(writer, mapping[enumValue]);
+            };
+        }
+
+
         public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
         {
 #if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID

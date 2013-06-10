@@ -42,6 +42,7 @@ namespace ServiceStack.Text.Common
         void WriteDouble(TextWriter writer, object doubleValue);
         void WriteDecimal(TextWriter writer, object decimalValue);
         void WriteEnum(TextWriter writer, object enumValue);
+        WriteObjectDelegate EnumDataContractDelegate(Type type);
         void WriteEnumFlags(TextWriter writer, object enumFlagValue);
         void WriteLinqBinary(TextWriter writer, object linqBinaryValue);
 
