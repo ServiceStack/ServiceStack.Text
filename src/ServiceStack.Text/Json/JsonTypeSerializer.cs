@@ -288,10 +288,10 @@ namespace ServiceStack.Text.Json
         public void WriteEnum(TextWriter writer, object enumValue)
         {
             if (enumValue == null) return;
-			if (JsConfig.TreatEnumAsInteger)
-				JsWriter.WriteEnumFlags(writer, enumValue);
-			else
-				WriteRawString(writer, enumValue.ToString());
+            if (JsConfig.TreatEnumAsInteger)
+                JsWriter.WriteEnumFlags(writer, enumValue);
+            else
+                writer.Write(enumValue);
         }
 
         public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
