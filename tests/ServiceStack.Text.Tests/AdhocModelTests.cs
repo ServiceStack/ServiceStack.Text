@@ -526,6 +526,37 @@ namespace ServiceStack.Text.Tests
             Assert.That(json, Is.EqualTo("[\"Enum1\",\"Enum2\",\"Enum3\"]"));
         }
 
+        public class DictionaryEnumType
+        {
+            public Dictionary<EnumValues, Test> DictEnumType { get; set; }
+        }
+
+        [Test]
+        public void Can_Serialize_Dictionary_With_Enums()
+        {
+
+            Dictionary<EnumValues, Test> dictEnumType =
+                new Dictionary<EnumValues, Test> 
+                {
+                    {
+                        EnumValues.Enum1, new Test { Val = "A Value" }
+                    }
+                };
+
+            var item = new DictionaryEnumType
+            {
+                DictEnumType = dictEnumType
+            };
+            const string expected = "{\"DictEnumType\":{\"Enum1\":{\"Val\":\"A Value\"}}}";
+
+            var jsonItem = JsonSerializer.SerializeToString(item);
+            //Log(jsonItem);
+            Assert.That(jsonItem, Is.EqualTo(expected));
+
+            var deserializedItem = JsonSerializer.DeserializeFromString<DictionaryEnumType>(jsonItem);
+            Assert.That(deserializedItem, Is.TypeOf<DictionaryEnumType>());
+        }
+
         [Test]
         public void Can_Serialize_Array_of_chars()
         {
