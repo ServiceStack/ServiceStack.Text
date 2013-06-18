@@ -534,7 +534,6 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Serialize_Dictionary_With_Enums()
         {
-
             Dictionary<EnumValues, Test> dictEnumType =
                 new Dictionary<EnumValues, Test> 
                 {

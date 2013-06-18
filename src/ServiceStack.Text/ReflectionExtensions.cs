@@ -150,6 +150,11 @@ namespace ServiceStack.Text
         {
             if (type == null) return false;
 
+            if (type.IsEnum) //TypeCode can be TypeCode.Int32
+            {
+                return JsConfig.TreatEnumAsInteger || type.IsEnumFlags();
+            }
+
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
@@ -172,7 +177,7 @@ namespace ServiceStack.Text
                     }
                     if (type.IsEnum)
                     {
-                        return type.IsEnumFlags();
+                        return JsConfig.TreatEnumAsInteger || type.IsEnumFlags();
                     }
                     return false;
             }

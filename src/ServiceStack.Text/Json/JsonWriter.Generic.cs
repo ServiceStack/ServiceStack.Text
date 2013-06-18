@@ -130,8 +130,9 @@ namespace ServiceStack.Text.Json
 
 	internal class TypeInfo
 	{
-		internal bool EncodeMapKey;
-	}
+        internal bool EncodeMapKey;
+        internal bool IsNumeric;
+    }
 
 	/// <summary>
 	/// Implement the serializer using a more static approach
@@ -163,8 +164,10 @@ namespace ServiceStack.Text.Json
 
 		static JsonWriter()
 		{
+		    var isNumeric = typeof(T).IsNumericType();
 			TypeInfo = new TypeInfo {
-                EncodeMapKey = typeof(T) == typeof(bool) || typeof(T).IsNumericType()
+                EncodeMapKey = typeof(T) == typeof(bool) || isNumeric,
+                IsNumeric = isNumeric
 			};
 
             CacheFn = typeof(T) == typeof(object) 
