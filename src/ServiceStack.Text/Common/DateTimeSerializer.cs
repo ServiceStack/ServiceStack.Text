@@ -402,6 +402,11 @@ namespace ServiceStack.Text.Common
         private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
         public static void WriteWcfJsonDate(TextWriter writer, DateTime dateTime)
         {
+            if (JsConfig.AssumeUtc && dateTime.Kind == DateTimeKind.Unspecified)
+            {
+                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+            }
+
             if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
             {
                 writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
