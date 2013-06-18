@@ -45,6 +45,7 @@ namespace ServiceStack.Text
             Func<string, Type> typeFinder = null,
 			bool? treatEnumAsInteger = null,
             bool? alwaysUseUtc = null,
+            bool? assumeUtc = null,
             bool? escapeUnicode = null,
             bool? includePublicFields = null,
             int? maxDepth = null,
@@ -67,6 +68,7 @@ namespace ServiceStack.Text
                 TypeFinder = typeFinder ?? sTypeFinder,
                 TreatEnumAsInteger = treatEnumAsInteger ?? sTreatEnumAsInteger,
                 AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
+                AssumeUtc = assumeUtc ?? sAssumeUtc,
                 EscapeUnicode = escapeUnicode ?? sEscapeUnicode,
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 MaxDepth = maxDepth ?? sMaxDepth,
@@ -383,6 +385,25 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
+        /// Gets or sets a value indicating if the framework should always assume <see cref="DateTime"/> is in UTC format if Kind is Unspecified. 
+        /// </summary>
+        private static bool? sAssumeUtc;
+        public static bool AssumeUtc
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.AssumeUtc : null)
+                    ?? sAssumeUtc
+                    ?? false;
+            }
+            set
+            {
+                if (!sAssumeUtc.HasValue) sAssumeUtc = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating if unicode symbols should be serialized as "\uXXXX".
         /// </summary>
         private static bool? sEscapeUnicode;
@@ -510,6 +531,7 @@ namespace ServiceStack.Text
             sTypeFinder = null;
 			sTreatEnumAsInteger = null;
             sAlwaysUseUtc = null;
+            sAssumeUtc = null;
             sEscapeUnicode = null;
             sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();
