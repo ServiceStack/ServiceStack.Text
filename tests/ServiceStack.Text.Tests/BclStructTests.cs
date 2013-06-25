@@ -97,7 +97,7 @@ namespace ServiceStack.Text.Tests
             var dtoTrue = "{\"favorite\":true}".FromJson<Item>();
             Assert.That(dtoTrue.IsFavorite, Is.True);
 
-            var dtoFalse = "{\"favorite\":0}".FromJson<Item>();
+            var dtoFalse = "{\"favorite\":false}".FromJson<Item>();
             Assert.That(dtoFalse.IsFavorite, Is.False);
         }
     }
