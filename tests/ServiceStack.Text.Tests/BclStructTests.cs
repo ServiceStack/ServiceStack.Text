@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Common;
 
@@ -76,5 +77,28 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(deserialized.Enum, Is.EqualTo(ExampleEnum.One | ExampleEnum.Four));
         }
-	}
+
+        [DataContract]
+        public class Item
+        {
+            [DataMember(Name = "favorite")]
+            public bool IsFavorite { get; set; }
+        }
+
+        [Test]
+        public void Can_customize_bool_deserialization()
+        {
+            var dto1 = "{\"favorite\":1}".FromJson<Item>();
+            Assert.That(dto1.IsFavorite, Is.True);
+
+            var dto0 = "{\"favorite\":0}".FromJson<Item>();
+            Assert.That(dto0.IsFavorite, Is.False);
+
+            var dtoTrue = "{\"favorite\":true}".FromJson<Item>();
+            Assert.That(dtoTrue.IsFavorite, Is.True);
+
+            var dtoFalse = "{\"favorite\":0}".FromJson<Item>();
+            Assert.That(dtoFalse.IsFavorite, Is.False);
+        }
+    }
 }
