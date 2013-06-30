@@ -57,6 +57,7 @@ namespace ServiceStack.Text
 
         public bool? ConvertObjectTypesIntoStringDictionary { get; set; }
         public bool? TryToParsePrimitiveTypeValues { get; set; }
+		public bool? TryToParseNumericType { get; set; }
         public bool? IncludeNullValues { get; set; }
         public bool? TreatEnumAsInteger { get; set; }
         public bool? ExcludeTypeInfo { get; set; }

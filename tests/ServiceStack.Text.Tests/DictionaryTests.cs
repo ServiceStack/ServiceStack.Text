@@ -179,7 +179,8 @@ namespace ServiceStack.Text.Tests
                 { "a", "text" },
                 { "b", 32 },
                 { "c", false },
-                { "d", new[] {1, 2, 3} }
+                { "d", new[] {1, 2, 3} },
+				{ "e", 1m },
             };
 		}
 
@@ -242,6 +243,118 @@ namespace ServiceStack.Text.Tests
 			var deserializedDict = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
 			Assert.AreEqual("text", deserializedDict["a"]);
 			Assert.AreEqual(new List<int> {1, 2, 3}, deserializedDict["d"]);                
+		}
+
+		
+		[Test]
+		public void deserizes_to_decimal_by_default()
+		{
+			JsConfig.TryToParsePrimitiveTypeValues = true;
+			
+			var dict = SetupDict();
+			var json = JsonSerializer.SerializeToString(dict);
+			var deserializedDict = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
+			Assert.That(deserializedDict["e"], Is.TypeOf<decimal>());
+			Assert.That(deserializedDict["e"],Is.EqualTo(1m));
+			
+		}
+		class NumericType
+		{
+
+			public NumericType(decimal max, Type type)
+				: this(0,max,type)
+			{
+
+			}
+			public NumericType(decimal min,decimal max,Type type)
+			{
+				Min = min;
+				Max = max;
+				Type = type;
+			}
+
+			public decimal Min { get; private set; }		
+			public decimal Max { get; private set; }		
+			public Type Type { get; private set; }		
+		}
+
+		[Test]
+		public void deserizes_signed_bytes_into_to_best_fit_numeric()
+		{
+			JsConfig.TryToParsePrimitiveTypeValues = true;
+			JsConfig.TryToParseNumericType = true;
+
+			var deserializedDict = JsonSerializer.DeserializeFromString<IDictionary<string, object>>("{\"min\":-128,\"max\":127}");
+			Assert.That(deserializedDict["min"], Is.TypeOf<sbyte>());
+			Assert.That(deserializedDict["min"], Is.EqualTo(sbyte.MinValue));
+			//it seemed strange having zero return as a signed byte
+			Assert.That(deserializedDict["max"], Is.TypeOf<byte>());
+			Assert.That(deserializedDict["max"], Is.EqualTo(sbyte.MaxValue));
+		}
+
+		[Test]
+		public void deserizes_signed_types_into_to_best_fit_numeric()
+		{
+			var unsignedTypes = new[]
+				{
+					new NumericType(Int16.MinValue,Int16.MaxValue, typeof (Int16)),
+					new NumericType(Int32.MinValue,Int32.MaxValue, typeof (Int32)),
+					new NumericType(Int64.MinValue,Int64.MaxValue, typeof (Int64)),
+				};
+
+			JsConfig.TryToParsePrimitiveTypeValues = true;
+			JsConfig.TryToParseNumericType = true;
+
+
+			foreach (var signedType in unsignedTypes)
+			{
+				var dict = new Dictionary<string, object>
+				{
+					{"min",signedType.Min},
+					{"max",signedType.Max},
+				};
+
+				var json = JsonSerializer.SerializeToString(dict);
+				var deserializedDict = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
+				Assert.That(deserializedDict["min"], Is.TypeOf(signedType.Type));
+				Assert.That(deserializedDict["min"], Is.EqualTo(signedType.Min));
+				Assert.That(deserializedDict["max"], Is.TypeOf(signedType.Type));
+				Assert.That(deserializedDict["max"], Is.EqualTo(signedType.Max));
+				
+			}
+		}
+
+		[Test]
+		public void deserizes_unsigned_types_into_to_best_fit_numeric()
+		{
+			var unsignedTypes = new[]
+				{
+					new NumericType(byte.MinValue,byte.MaxValue, typeof (byte)),
+					new NumericType(UInt16.MaxValue, typeof (UInt16)),
+					new NumericType(UInt32.MaxValue, typeof (UInt32)),
+					new NumericType(UInt64.MaxValue, typeof (UInt64)),
+				};
+
+			JsConfig.TryToParsePrimitiveTypeValues = true;
+			JsConfig.TryToParseNumericType = true;
+
+
+			foreach (var unsignedType in unsignedTypes)
+			{
+				var dict = new Dictionary<string, object>
+				{
+					{"min",unsignedType.Min},
+					{"max",unsignedType.Max},
+				};
+
+				var json = JsonSerializer.SerializeToString(dict);
+				var deserializedDict = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
+				Assert.That(deserializedDict["min"], Is.EqualTo(0));
+				Assert.That(deserializedDict["min"], Is.TypeOf<byte>());
+				Assert.That(deserializedDict["max"], Is.TypeOf(unsignedType.Type));	
+				Assert.That(deserializedDict["max"], Is.EqualTo(unsignedType.Max));
+				
+			}
 		}
 
 		[Test]
