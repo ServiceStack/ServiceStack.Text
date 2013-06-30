@@ -161,19 +161,19 @@ namespace ServiceStack.Text.Common
             decimal decimalValue;
             if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue))
             {
+	            if (!JsConfig.TryToParseNumericType)
+		            return decimalValue;
+
                 if (decimalValue == decimal.Truncate(decimalValue))
-                {
-                    if (decimalValue <= ulong.MaxValue && decimalValue >= 0) return (ulong)decimalValue;
-                    if (decimalValue <= long.MaxValue && decimalValue >= long.MinValue)
-                    {
-                        var longValue = (long)decimalValue;
-                        if (longValue <= sbyte.MaxValue && longValue >= sbyte.MinValue) return (sbyte)longValue;
-                        if (longValue <= byte.MaxValue && longValue >= byte.MinValue) return (byte)longValue;
-                        if (longValue <= short.MaxValue && longValue >= short.MinValue) return (short)longValue;
-                        if (longValue <= ushort.MaxValue && longValue >= ushort.MinValue) return (ushort)longValue;
-                        if (longValue <= int.MaxValue && longValue >= int.MinValue) return (int)longValue;
-                        if (longValue <= uint.MaxValue && longValue >= uint.MinValue) return (uint)longValue;
-                    }
+				{
+					if (decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
+					if (decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
+					if (decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
+					if (decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
+					if (decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
+					if (decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
+					if (decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
+					if (decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
                 }
                 return decimalValue;
             }
