@@ -31,6 +31,7 @@ namespace ServiceStack.Text
         public static JsConfigScope With(
             bool? convertObjectTypesIntoStringDictionary = null,
             bool? tryToParsePrimitiveTypeValues = null,
+			bool? tryToParseNumericType = null,
             bool? includeNullValues = null,
             bool? excludeTypeInfo = null,
             bool? includeTypeInfo = null,
@@ -54,6 +55,7 @@ namespace ServiceStack.Text
             return new JsConfigScope {
                 ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary,
                 TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
+                TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
                 ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
                 IncludeTypeInfo = includeTypeInfo ?? sIncludeTypeInfo,
@@ -105,6 +107,21 @@ namespace ServiceStack.Text
                 if (!sTryToParsePrimitiveTypeValues.HasValue) sTryToParsePrimitiveTypeValues = value;
             }
         }
+
+		private static bool? sTryToParseNumericType;
+		public static bool TryToParseNumericType
+		{
+			get
+			{
+				return (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParseNumericType : null)
+					?? sTryToParseNumericType
+					?? false;
+			}
+			set
+			{
+				if (!sTryToParseNumericType.HasValue) sTryToParseNumericType = value;
+			}
+		}
 
         private static bool? sIncludeNullValues;
         public static bool IncludeNullValues
@@ -506,7 +523,8 @@ namespace ServiceStack.Text
             }
         }
 
-        public static void Reset()
+
+	    public static void Reset()
         {
             foreach (var rawSerializeType in HasSerializeFn.ToArray())
             {
@@ -515,6 +533,7 @@ namespace ServiceStack.Text
 
             sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
             sTryToParsePrimitiveTypeValues = null;
+		    sTryToParseNumericType = null;
             sConvertObjectTypesIntoStringDictionary = null;
             sIncludeNullValues = null;
             sExcludeTypeInfo = null;
