@@ -916,6 +916,16 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
+        /// Define custome after serialization hook
+        /// </summary>
+        private static Action<T> onSerializedFn;
+        public static Action<T> OnSerializedFn
+        {
+            get { return onSerializedFn; }
+            set { onSerializedFn = value; }
+        }
+
+        /// <summary>
         /// Exclude specific properties of this type from being serialized
         /// </summary>
         public static string[] ExcludePropertyNames;
