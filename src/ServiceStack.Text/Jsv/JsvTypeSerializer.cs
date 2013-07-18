@@ -28,6 +28,11 @@ namespace ServiceStack.Text.Jsv
             get { return false; } //Doesn't support null values, treated as "null" string literal
 	    }
 
+        public bool IncludeEmptyStrings
+        {
+            get { return JsConfig.IncludeEmptyStrings; }
+        }
+
         public string TypeAttrInObject
         {
             get { return JsConfig.JsvTypeAttrInObject; }
@@ -57,7 +62,7 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteRawString(TextWriter writer, string value)
 		{
-			writer.Write(value.EncodeJsv());
+            writer.Write(value.EncodeJsv(IncludeEmptyStrings));
 		}
 
 		public void WritePropertyName(TextWriter writer, string value)
@@ -74,7 +79,7 @@ namespace ServiceStack.Text.Jsv
 		{
 			if (value != null)
 			{
-				writer.Write(value.ToString().EncodeJsv());
+                writer.Write(value.ToString().EncodeJsv(IncludeEmptyStrings));
 			}
 		}
 
@@ -85,7 +90,7 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteString(TextWriter writer, string value)
 		{
-			writer.Write(value.EncodeJsv());
+			writer.Write(value.EncodeJsv(IncludeEmptyStrings));
 		}
 
 		public void WriteDateTime(TextWriter writer, object oDateTime)

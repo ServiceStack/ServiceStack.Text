@@ -7,6 +7,7 @@ namespace ServiceStack.Text.Common
     internal interface ITypeSerializer
     {
         bool IncludeNullValues { get; }
+        bool IncludeEmptyStrings { get; }
         string TypeAttrInObject { get; }
 
         WriteObjectDelegate GetWriteFn<T>();

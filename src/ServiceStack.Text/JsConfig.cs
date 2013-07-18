@@ -138,6 +138,21 @@ namespace ServiceStack.Text
             }
         }
 
+        private static bool? sIncludeEmptyStrings;
+        public static bool IncludeEmptyStrings
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeEmptyStrings : null)
+                    ?? sIncludeEmptyStrings
+                    ?? false;
+            }
+            set
+            {
+                if (!sIncludeEmptyStrings.HasValue) sIncludeEmptyStrings = value;
+            }
+        }
+
         private static bool? sTreatEnumAsInteger;
         public static bool TreatEnumAsInteger
         {

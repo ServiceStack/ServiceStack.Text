@@ -28,6 +28,11 @@ namespace ServiceStack.Text.Json
             get { return JsConfig.IncludeNullValues; }
         }
 
+        public bool IncludeEmptyStrings
+        {
+            get { return JsConfig.IncludeEmptyStrings; }
+        }
+
         public string TypeAttrInObject
         {
             get { return JsConfig.JsonTypeAttrInObject; }
