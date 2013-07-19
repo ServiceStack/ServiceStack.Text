@@ -114,9 +114,9 @@ namespace ServiceStack.Text.Tests
             Type type = typeof(T);
             System.Reflection.MethodInfo[] typeMethods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var onSerializingMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnSerializingAttribute), true).Length > 0);
-		    var OnDeserializedMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnDeserializedAttribute), true).Length > 0 );
-		    var OnSerializedMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnSerializedAttribute), true).Length > 0);
-		    Object[] Parameters = {null};
+            var OnDeserializedMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnDeserializedAttribute), true).Length > 0 );
+            var OnSerializedMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnSerializedAttribute), true).Length > 0);
+            Object[] Parameters = {null};
 
             if (onSerializingMethods.Any())
             {
