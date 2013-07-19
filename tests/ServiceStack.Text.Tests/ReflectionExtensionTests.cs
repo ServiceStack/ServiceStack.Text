@@ -52,5 +52,15 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(model);
 		}
+
+		[Test]
+		public void Deals_with_abstract_types()
+		{
+			var t = typeof (IList<TestModel>);
+
+			ReflectionExtensions.GetConstructorMethodToCache(t);
+
+			Assert.Pass();
+		}
 	}
 }
