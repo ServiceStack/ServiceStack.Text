@@ -73,7 +73,7 @@ namespace ServiceStack.Text.Common
             }
 
             if (dateTimeStr.Length == XsdDateTimeFormatSeconds.Length)
-                return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null, DateTimeStyles.AssumeUniversal).Prepare(parsedAsUtc:true); 
+                return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null, DateTimeStyles.AdjustToUniversal).Prepare(parsedAsUtc:true); 
 
             if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
                 && dateTimeStr.Length <= XsdDateTimeFormat.Length
