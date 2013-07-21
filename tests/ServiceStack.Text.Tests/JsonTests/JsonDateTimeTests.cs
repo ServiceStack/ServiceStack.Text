@@ -72,7 +72,10 @@ namespace ServiceStack.Text.Tests.JsonTests
 			var dateTime1 = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson1 = JsonSerializer.SerializeToString(dateTime1);
 
-            Assert.That(ssJson1, Is.EqualTo(@"""\/Date(785653200000-0000)\/"""));
+            var offsetSpan = TimeZoneInfo.Local.GetUtcOffset(dateTime1);
+            var ticks = 785635200000 - offsetSpan.TotalMilliseconds;
+
+            Assert.That(ssJson1, Is.EqualTo(@"""\/Date(" + ticks + @"-0000)\/"""));
 			JsConfig.Reset();
 		}
         
