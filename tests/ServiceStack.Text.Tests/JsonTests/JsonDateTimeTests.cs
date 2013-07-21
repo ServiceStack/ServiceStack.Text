@@ -309,6 +309,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_iso8601_withZOffset_asUtc()
 		{
+		    JsConfig.AlwaysUseUtc = true;
 			JsConfig.DateHandler = JsonDateHandler.ISO8601;
 
 			const string json = @"""1994-11-24T12:34:56Z""";

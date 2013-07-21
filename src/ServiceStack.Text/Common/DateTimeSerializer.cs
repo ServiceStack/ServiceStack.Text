@@ -41,12 +41,13 @@ namespace ServiceStack.Text.Common
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        private static DateTime Prepare(this DateTime dateTime)
+        private static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc=false)
         {
-            if (JsConfig.AlwaysUseUtc && dateTime.Kind != DateTimeKind.Utc)
-                return dateTime.ToStableUniversalTime();
-            else
-                return dateTime;
+            if (JsConfig.AlwaysUseUtc)
+            {
+                return dateTime.Kind != DateTimeKind.Utc ? dateTime.ToStableUniversalTime() : dateTime;
+            }
+            return parsedAsUtc ? dateTime.ToLocalTime() : dateTime;
         }
 
         public static DateTime? ParseShortestNullableXsdDateTime(string dateTimeStr)
@@ -72,7 +73,7 @@ namespace ServiceStack.Text.Common
             }
 
             if (dateTimeStr.Length == XsdDateTimeFormatSeconds.Length)
-                return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null, DateTimeStyles.AdjustToUniversal);
+                return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null, DateTimeStyles.AdjustToUniversal).Prepare(parsedAsUtc:true); 
 
             if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
                 && dateTimeStr.Length <= XsdDateTimeFormat.Length

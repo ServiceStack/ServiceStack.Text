@@ -1,4 +1,5 @@
 using System;
+using System.Xml;
 using NUnit.Framework;
 using ServiceStack.Text.Common;
 
@@ -123,7 +124,7 @@ namespace ServiceStack.Text.Tests.Utils
 
             serialized = TypeSerializer.SerializeToString(dateWithoutMillisecondsUtc);
             deserialized = TypeSerializer.DeserializeFromString<DateTime>(serialized);
-            Assert.AreEqual(dateWithoutMillisecondsUtc, deserialized);
+            Assert.AreEqual(dateWithoutMillisecondsUtc.ToLocalTime(), deserialized);
 
             serialized = TypeSerializer.SerializeToString(dateWithoutMillisecondsLocal);
             deserialized = TypeSerializer.DeserializeFromString<DateTime>(serialized);
@@ -163,7 +164,7 @@ namespace ServiceStack.Text.Tests.Utils
         [TestCase(0)]
         [TestCase(1)]
         [TestCase(2)]
-        [TestCase(3)]
+        //[TestCase(3)] //.NET Date BUG see: Test_MS_Dates
         [TestCase(4)]
         [TestCase(5)]
         [TestCase(6)]
@@ -222,5 +223,79 @@ namespace ServiceStack.Text.Tests.Utils
             Assert.That(convertedUnixTimeMs.FromUnixTimeMs(), Is.EqualTo(newDateTime));
         }
 
-	}
+        [Explicit("Test .NET Date Serialization behavior")]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        [TestCase(6)]
+        [TestCase(7)]
+        [TestCase(8)]
+        public void Test_MS_Dates(int whichDate)
+        {
+            var dateTime = _dateTimeTests[whichDate];
+            var dateTimeStr = XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);
+            dateTimeStr.Print(); //1972-03-24T05:00:00Z
+
+	        var fromStr = DateTime.Parse(dateTimeStr);
+
+            fromStr.ToString().Print();
+
+	        AssertDatesAreEqual(fromStr, dateTime);
+	    }
+    }
+
+    [TestFixture]
+    public class DateTimeISO8601Tests
+        : TestBase
+    {
+        public class TestObject
+        {
+            public DateTime Date { get; set; }
+        }
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+        }
+
+        [TestFixtureTearDown]
+        public void TestFixtureTearDown()
+        {
+            JsConfig.Reset();            
+        }
+
+        [Test]
+        public void DateTime_Is_Serialized_As_Utc_and_Deserialized_as_local()
+        {
+            var testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 1, DateTimeKind.Utc)
+            };
+
+            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+
+            //Can change default behavior with config
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+
+            testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            };
+
+            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+
+            //Can change default behavior with config
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+        }        
+    }
 }
