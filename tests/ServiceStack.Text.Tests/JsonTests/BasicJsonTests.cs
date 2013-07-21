@@ -121,6 +121,21 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(item.DateTime, Is.Null, "datetime");
         }
 
+        [Test]
+        public void Can_parse_mixed_list_nulls()
+        {
+            Assert.That(JsonSerializer.DeserializeFromString<List<string>>("[\"abc\",null,\"cde\",null]"), 
+                Is.EqualTo(new string[] { "abc", null, "cde", null }));
+        }
+
+        [Test]
+        public void Can_parse_mixed_enumarable_nulls()
+        {
+            Assert.That(JsonSerializer.DeserializeFromString<IEnumerable<string>>("[\"abc\",null,\"cde\",null]"),
+                Is.EqualTo(new string[] { "abc", null, "cde", null }));
+        }
+
+
 		[Test]
 		public void Can_handle_json_primitives()
 		{

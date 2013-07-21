@@ -166,13 +166,16 @@ namespace ServiceStack.Text.Common
                             }
                         }
 
-                        if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i)
-                            && i == valueLength)
+                        if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i) && i == valueLength)
                         {
                             // If we ate a separator and we are at the end of the value, 
                             // it means the last element is empty => add default
                             to.Add(default(T));
+                            continue;
                         }
+
+                        if (listValue == null)
+                            to.Add(default(T));
                     }
 
                 }

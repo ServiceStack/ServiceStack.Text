@@ -29,13 +29,13 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_parse_array_with_null()
         {
-            Assert.That(JsonArrayObjects.Parse("[null]"), Is.Empty);
+            Assert.That(JsonArrayObjects.Parse("[null]"), Is.EqualTo(new string[]{null}));
         }
 
         [Test]
         public void Can_parse_array_with_nulls()
         {
-            Assert.That(JsonArrayObjects.Parse("[null,null]"), Is.Empty);
+            Assert.That(JsonArrayObjects.Parse("[null,null]"), Is.EqualTo(new string[]{null, null}));
         }
 
         [Test]

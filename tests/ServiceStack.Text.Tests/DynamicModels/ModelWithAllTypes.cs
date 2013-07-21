@@ -50,7 +50,7 @@ namespace ServiceStack.Text.Tests.DynamicModels
 				ByteValue = i,
 				CharValue = (char)i,
 				CustomException = new CustomException("CustomException " + i),
-				DateTimeValue = new DateTime(i),
+				DateTimeValue = new DateTime(2000, 1, 1 + i),
 				DecimalValue = i,
 				DoubleValue = i,
 				Exception = new Exception("Exception " + i),
