@@ -204,6 +204,7 @@
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />
     <Compile Include="MessagingTests.cs" />
     <Compile Include="NullableTypesTests.cs" />
+    <Compile Include="SerializationHookTests.cs" />
     <Compile Include="StringConverterUtilsTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="StructTests.cs" />

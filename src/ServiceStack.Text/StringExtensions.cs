@@ -121,11 +121,16 @@ namespace ServiceStack.Text
 
         public static string EncodeJsv(this string value)
         {
+            return EncodeJsv(value, false);
+        }
+
+        public static string EncodeJsv(this string value, bool includeEmpty)
+        {
             if (JsState.QueryStringMode)
             {
                 return UrlEncode(value);
             }
-            return String.IsNullOrEmpty(value) || !JsWriter.HasAnyEscapeChars(value)
+            return (String.IsNullOrEmpty(value) || !JsWriter.HasAnyEscapeChars(value)) && (!includeEmpty || value != String.Empty)
                 ? value
                 : String.Concat
                     (

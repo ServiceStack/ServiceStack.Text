@@ -79,7 +79,7 @@ namespace ServiceStack.Text.Common
 
 #if NET40
             if (typeof (T).IsAssignableFrom(typeof (System.Dynamic.IDynamicMetaObjectProvider)) ||
-	            typeof (T).HasInterface(typeof (System.Dynamic.IDynamicMetaObjectProvider))) 
+                typeof (T).HasInterface(typeof (System.Dynamic.IDynamicMetaObjectProvider))) 
             {
                 return DeserializeDynamic<TSerializer>.Parse;
             }

@@ -13,6 +13,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -39,11 +40,17 @@ namespace ServiceStack.Text.Common
                 {
                     return ParseHashtable;
                 }
+
+                if (typeof(OrderedDictionary).IsAssignableFrom(type))
+                {
+                    return value => ParseOrderedDictionaryType(value, type);
+                }
 #endif
                 if (type == typeof(IDictionary))
                 {
                     return GetParseMethod(typeof(Dictionary<object, object>));
                 }
+                
                 throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
             }
 
@@ -123,6 +130,76 @@ namespace ServiceStack.Text.Common
             }
 
             return result;
+        }
+
+        private static Dictionary<string, ParseOrderedDictionaryDelegate> ParseOrderedDictionaryDelegateCache
+            = new Dictionary<string, ParseOrderedDictionaryDelegate>();
+
+        private delegate object ParseOrderedDictionaryDelegate(string value);
+
+        public static object ParseOrderedDictionaryType(string value, Type classType)
+        {
+            ParseOrderedDictionaryDelegate parseDelegate;
+            var key = classType.FullName;
+            if (ParseOrderedDictionaryDelegateCache.TryGetValue(key, out parseDelegate))
+                return parseDelegate(value);
+
+            var mi = typeof(DeserializeDictionary<TSerializer>).GetPublicStaticMethod("ParseOrderedDictionary");
+            var genericMi = mi.MakeGenericMethod(classType);
+            parseDelegate = (ParseOrderedDictionaryDelegate)genericMi.MakeDelegate(typeof(ParseOrderedDictionaryDelegate));
+
+            Dictionary<string, ParseOrderedDictionaryDelegate> snapshot, newCache;
+            do
+            {
+                snapshot = ParseOrderedDictionaryDelegateCache;
+                newCache = new Dictionary<string, ParseOrderedDictionaryDelegate>(ParseOrderedDictionaryDelegateCache);
+                newCache[key] = parseDelegate;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref ParseOrderedDictionaryDelegateCache, newCache, snapshot), snapshot));
+
+            return parseDelegate(value);
+        }
+
+        public static TResult ParseOrderedDictionary<TResult>(string value) where TResult : OrderedDictionary, new()
+        {
+            if (value == null) return null;
+
+            var index = VerifyAndGetStartIndex(value, typeof(TResult));
+
+            var valueParseMethod = Serializer.GetParseFn(typeof(object));
+            if (valueParseMethod == null) return null;
+
+            var to = new TResult();
+
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return to;
+
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementStartIndex = index;
+                var elementValue = Serializer.EatTypeValue(value, ref index);
+                if (keyValue == null) continue;
+
+                object mapKey = valueParseMethod(keyValue);
+                
+                if (elementStartIndex < valueLength)
+                {
+                    Serializer.EatWhitespace(value, ref elementStartIndex);
+                    to[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
+                }
+                else
+                {
+                    to[mapKey] = valueParseMethod(elementValue);
+                }
+                
+
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
+
+            return to;
         }
 #endif
 

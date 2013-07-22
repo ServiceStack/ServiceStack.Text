@@ -28,6 +28,11 @@ namespace ServiceStack.Text.Json
             get { return JsConfig.IncludeNullValues; }
         }
 
+        public bool IncludeEmptyStrings
+        {
+            get { return JsConfig.IncludeEmptyStrings; }
+        }
+
         public string TypeAttrInObject
         {
             get { return JsConfig.JsonTypeAttrInObject; }
@@ -51,7 +56,7 @@ namespace ServiceStack.Text.Json
         public WriteObjectDelegate GetWriteFn<T>()
         {
             return JsonWriter<T>.WriteFn();
-		}
+        }
 
         public WriteObjectDelegate GetWriteFn(Type type)
         {
@@ -296,7 +301,7 @@ namespace ServiceStack.Text.Json
 
         public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
-			JsWriter.WriteEnumFlags(writer, enumFlagValue);
+            JsWriter.WriteEnumFlags(writer, enumFlagValue);
         }
 
         public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
@@ -339,7 +344,7 @@ namespace ServiceStack.Text.Json
             if (json[index] != JsonUtils.QuoteChar)
                 throw new Exception("Invalid unquoted string starting with: " + json.SafeSubstring(50));
 
-        	var startIndex = ++index;
+            var startIndex = ++index;
             do
             {
                 char c = json[index];
@@ -536,7 +541,7 @@ namespace ServiceStack.Text.Json
                                 (char) (utf32 % 0x0400 + 0xDC00)});
         }
 
-    	public string EatTypeValue(string value, ref int i)
+        public string EatTypeValue(string value, ref int i)
         {
             return EatValue(value, ref i);
         }
