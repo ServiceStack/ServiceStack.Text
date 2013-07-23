@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Windows;
 using NUnit.Framework;
 using ServiceStack.Text.Common;
 
@@ -252,6 +256,23 @@ namespace ServiceStack.Text.Tests
             ParseStringDelegate ret = null;
             Assert.DoesNotThrow(() => ret = StaticParseMethod<DangerousText2>.Parse);
             Assert.IsNull(ret);
+        }
+
+        [Test]
+        [TestCase("en")]
+        [TestCase("en-US")]
+        [TestCase("de-CH")]
+        [TestCase("de")]
+        public void test_rect_different_cultures(string culture)
+        {
+            var currentCulture = CultureInfo.GetCultureInfo(culture);
+            Thread.CurrentThread.CurrentCulture = currentCulture;
+            Thread.CurrentThread.CurrentUICulture = currentCulture;
+            var s = new JsonSerializer<Rect>();
+            var r = new Rect(23, 34, 1024, 768);
+            var interim = s.SerializeToString(r);
+            var r2 = s.DeserializeFromString(interim);
+            Assert.AreEqual(r, r2);
         }
     }
 

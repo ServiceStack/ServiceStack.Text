@@ -108,6 +108,12 @@ namespace ServiceStack.Text.Json
             JsonUtils.WriteString(writer, value != null ? value.ToString() : null);
         }
 
+        public void WriteFormattableObjectString(TextWriter writer, object value)
+        {
+            var formattable = value as IFormattable;
+            JsonUtils.WriteString(writer, formattable != null ? formattable.ToString(null, CultureInfo.InvariantCulture) : null);
+        }
+
         public void WriteException(TextWriter writer, object value)
         {
             WriteString(writer, ((Exception)value).Message);

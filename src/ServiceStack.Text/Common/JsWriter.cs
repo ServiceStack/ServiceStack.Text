@@ -323,6 +323,9 @@ namespace ServiceStack.Text.Common
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
+            if (type.HasInterface(typeof (IFormattable)))
+                return Serializer.WriteFormattableObjectString;
+
             return Serializer.WriteObjectString;
         }
 
