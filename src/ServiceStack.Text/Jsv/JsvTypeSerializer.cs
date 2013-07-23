@@ -88,7 +88,13 @@ namespace ServiceStack.Text.Jsv
 			writer.Write(value.EncodeJsv());
 		}
 
-		public void WriteDateTime(TextWriter writer, object oDateTime)
+	    public void WriteFormattableObjectString(TextWriter writer, object value)
+	    {
+	        var f = (IFormattable)value;
+	        writer.Write(f.ToString(null,CultureInfo.InvariantCulture).EncodeJsv());
+	    }
+
+	    public void WriteDateTime(TextWriter writer, object oDateTime)
 		{
 			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)oDateTime));
 		}
