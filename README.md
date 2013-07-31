@@ -2,9 +2,10 @@
 follow [@demisbellot](http://twitter.com/demisbellot) and [@ServiceStack](http://twitter.com/servicestack)
 for twitter updates.
 
-# The Home of [.NET's fastest JSON](http://www.servicestack.net/mythz_blog/?p=344), [JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers.
+# Home of [JSON](http://www.servicestack.net/mythz_blog/?p=344), [JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers used in [servicestack.net](http://www.servicestack.net).
+_Note: the source code is provided as-is - there is no commercial support available for ServiceStack_
 
-ServiceStack.Text is an **independent, dependency-free** serialization library that contains all of ServiceStack's text processing functionality, including:
+ServiceStack.Text is an **independent, dependency-free** serialization library that contains ServiceStack's text processing functionality, including:
 
 * [JsonSerializer](http://www.servicestack.net/mythz_blog/?p=344)
 * [TypeSerializer (JSV-Format)](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format)
@@ -13,13 +14,9 @@ ServiceStack.Text is an **independent, dependency-free** serialization library t
 * StringExtensions - Xml/Json/Csv/Url encoding, BaseConvert, Rot13, Hex escape, etc.
 * Stream, Reflection, List, DateTime, etc extensions and utils
 
-Supports custom builds for: .NET 3.5+, Mono, MonoTouch/MonoDroid, Silverlight 4/5, XBOX, Windows Phone 7
-
-All in a single **144kb** dependency-free ServiceStack.Text.dll
-
 # Simple API
 
-Like most of the interfaces in Service Stack, the API is simple and descriptive. In most cases these are the only methods that you would commonly use:
+Like most of the interfaces in Service Stack, the API is simple. Methods that you would commonly use include:
 
     string TypeSerializer.SerializeToString<T>(T value)
     void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer)
@@ -73,9 +70,9 @@ String Utils:
     string SafeSubstring()
     string ToUtf8Bytes() / FromUtf8Bytes()
     
-and many more String, Reflection, List, Dictionary, DateTime extensions...    
+more String, Reflection, List, Dictionary, DateTime extensions...    
 
-### Supports Dynamic JSON as well
+### Supports Dynamic JSON
 
 Although usually used to (de)serialize C#/.NET POCO types, it also includes a flexible API allowing you to deserialize any 
 JSON payload without it's concrete type, see these real-world examples:
@@ -93,6 +90,7 @@ project. It provides a dynamic, but more succinct API than the above options.
 
 ![Install-Pacakage ServiceStack.Text](http://servicestack.net/img/nuget-servicestack.text.png)
 
+_Note: the binary packages are provided as-is - there is no commercial support available for ServiceStack_
 
 ## ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET
 For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/?p=344) I decided to re-use *TypeSerializer's* text processing-core to create ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET.
