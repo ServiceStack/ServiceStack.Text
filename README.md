@@ -1,8 +1,7 @@
-[Join the new google group](http://groups.google.com/group/servicestack) or
-follow [@demisbellot](http://twitter.com/demisbellot) and [@ServiceStack](http://twitter.com/servicestack)
-for twitter updates.
+[Join the ServiceStack Google+ group](http://groups.google.com/group/servicestack) or
+follow [@ServiceStack](http://twitter.com/servicestack) for project updates.
 
-# Home of [JSON](http://www.servicestack.net/mythz_blog/?p=344), [JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers used in [servicestack.net](http://www.servicestack.net).
+# [JSON](http://www.servicestack.net/mythz_blog/?p=344), [JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers used in [servicestack.net](http://www.servicestack.net).
 _Note: the source code is provided as-is - there is no commercial support available for ServiceStack_
 
 ServiceStack.Text is an **independent, dependency-free** serialization library that contains ServiceStack's text processing functionality, including:
