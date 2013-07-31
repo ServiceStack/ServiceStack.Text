@@ -136,13 +136,6 @@ Another useful library to have in your .NET toolbox is the [T.Dump() Extension M
 		}
 	}
 
-
-# Download
-### ServiceStack.Text is included with [ServiceStack.zip](https://github.com/ServiceStack/ServiceStack/downloads) 
-### or available to download separately in a standalone [ServiceStack.Text.zip](https://github.com/ServiceStack/ServiceStack.Text/downloads). 
-
-<hr />
-
 # ServiceStack's JsonSerializer
 
 ServiceStack's JsonSerializer is optimized for serializing C# POCO types in and out of JSON as fast, compact and cleanly as possible. In most cases C# objects serializes as you would expect them to without added json extensions or serializer-specific artefacts.
