@@ -2,7 +2,7 @@
 follow [@ServiceStack](http://twitter.com/servicestack) for project updates.
 
 # [JSON](http://www.servicestack.net/mythz_blog/?p=344), [JSV](http://www.servicestack.net/mythz_blog/?p=176) and CSV Text Serializers used in [servicestack.net](http://www.servicestack.net).
-_Note: the source code is provided as-is - there is no commercial support available for ServiceStack_
+_Note: the source code is provided as-is - no direct or commercial support is available for ServiceStack_
 
 ServiceStack.Text is an **independent, dependency-free** serialization library that contains ServiceStack's text processing functionality, including:
 
