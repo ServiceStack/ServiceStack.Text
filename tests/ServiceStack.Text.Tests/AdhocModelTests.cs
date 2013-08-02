@@ -334,6 +334,95 @@ namespace ServiceStack.Text.Tests
             Assert.That(dto.ToJsv(), Is.EqualTo("{Key:Value}"));
         }
 
+        [Test]
+        public void Can_exclude_properties_scoped() {
+            var dto = new Exclude {Id = 1, Key = "Value"};
+            using (var config = JsConfig.BeginScope()) {
+                config.ExcludePropertyNames = new[] {"Exclude.Id"};
+                Assert.That(dto.ToJson(), Is.EqualTo("{\"Key\":\"Value\"}"));
+                Assert.That(dto.ToJsv(), Is.EqualTo("{Key:Value}"));
+            }
+        }
+        
+        public class IncludeExclude {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public Exclude Obj { get; set; }
+        }
+
+        [Test]
+        public void Can_include_nested_only() {
+            var dto = new IncludeExclude {
+                Id = 1234,
+                Name = "TEST",
+                Obj = new Exclude {
+                    Id = 1,
+                    Key = "Value"
+                }
+            };
+
+            using (var config = JsConfig.BeginScope()) {
+                config.ExcludePropertyNames = new[] { "Exclude.Id", "IncludeExclude.Id", "IncludeExclude.Name" };
+                Assert.That(dto.ToJson(), Is.EqualTo("{\"Obj\":{\"Key\":\"Value\"}}"));
+                Assert.That(dto.ToJsv(), Is.EqualTo("{Obj:{Key:Value}}"));
+            }
+            Assert.That(JsConfig.ExcludePropertyNames, Is.EqualTo(null));
+
+        }
+
+        [Test]
+        public void Exclude_all_nested()
+        {
+            var dto = new IncludeExclude
+            {
+                Id = 1234,
+                Name = "TEST",
+                Obj = new Exclude
+                {   
+                    Id = 1,
+                    Key = "Value"
+                }
+            };
+            
+            using (var config = JsConfig.BeginScope())
+            {
+                config.ExcludePropertyNames = new[] { "Exclude.Id", "Exclude.Key" };
+                Assert.AreEqual(2, config.ExcludePropertyNames.Length);
+
+                var actual = dto.ToJson();
+                Assert.That(actual, Is.EqualTo("{\"Id\":1234,\"Name\":\"TEST\",\"Obj\":{}}"));
+                Assert.That(dto.ToJsv(), Is.EqualTo("{Id:1234,Name:TEST,Obj:{}}"));
+            }
+        }
+
+        public class ExcludeList {
+            public int Id { get; set; }
+            public List<Exclude> Excludes { get; set; }
+        }
+
+        [Test]
+        public void Exclude_List_Scope() {
+            var dto = new ExcludeList {
+                Id = 1234,
+                Excludes = new List<Exclude>() {
+                    new Exclude {
+                        Id = 2345,
+                        Key = "Value"
+                    },
+                    new Exclude {
+                        Id = 3456,
+                        Key = "Value"
+                    }
+                }
+            };
+            using (var config = JsConfig.BeginScope())
+            {
+                config.ExcludePropertyNames = new[] { "ExcludeList.Id", "Exclude.Id" };
+                Assert.That(dto.ToJson(), Is.EqualTo("{\"Excludes\":[{\"Key\":\"Value\"},{\"Key\":\"Value\"}]}"));
+                Assert.That(dto.ToJsv(), Is.EqualTo("{Excludes:[{Key:Value},{Key:Value}]}"));
+            }
+        }
+
         public class HasIndex
         {
             public int Id { get; set; }

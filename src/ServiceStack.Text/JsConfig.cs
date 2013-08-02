@@ -50,7 +50,8 @@ namespace ServiceStack.Text
             bool? escapeUnicode = null,
             bool? includePublicFields = null,
             int? maxDepth = null,
-            EmptyCtorFactoryDelegate modelFactory = null)
+            EmptyCtorFactoryDelegate modelFactory = null,
+            string[] excludePropertyNames = null)
         {
             return new JsConfigScope {
                 ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary,
@@ -75,6 +76,7 @@ namespace ServiceStack.Text
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
+                ExcludePropertyNames = excludePropertyNames ?? sExcludePropertyNames
             };
         }
 
@@ -523,8 +525,22 @@ namespace ServiceStack.Text
             }
         }
 
-
-	    public static void Reset()
+        /// <summary>
+        /// Set this so that you can exclude properties in scope.
+        /// The list should be the name of the object and the property.
+        /// Object Example, Property Id = "Example.Id"
+        /// </summary>
+        private static string[] sExcludePropertyNames;
+        public static string[] ExcludePropertyNames {
+            get {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludePropertyNames : null)
+                       ??
+                       sExcludePropertyNames;
+            }
+            set { if (sExcludePropertyNames != null) sExcludePropertyNames = value; }
+        }
+        
+        public static void Reset()
         {
             foreach (var rawSerializeType in HasSerializeFn.ToArray())
             {
@@ -556,6 +572,7 @@ namespace ServiceStack.Text
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
+            sExcludePropertyNames = null;
         }
 
         public static void Reset(Type cachesForType)
