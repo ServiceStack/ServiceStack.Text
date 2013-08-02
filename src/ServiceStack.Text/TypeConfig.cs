@@ -45,15 +45,13 @@ namespace ServiceStack.Text
 		static TypeConfig()
 		{
 			config = new TypeConfig(typeof(T));
-			
 			var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? new string[0];
-
             var properties = excludedProperties.Any()
-                ? config.Type.GetSerializableProperties().Where(x => !excludedProperties.Contains(x.Name))
-                : config.Type.GetSerializableProperties();
+                                     ? config.Type.GetSerializableProperties()
+                                             .Where(x => !excludedProperties.Contains(x.Name))
+                                     : config.Type.GetSerializableProperties();		        
             Properties = properties.Where(x => x.GetIndexParameters().Length == 0).ToArray();
-
-			Fields = config.Type.GetSerializableFields().ToArray();
+		    Fields = config.Type.GetSerializableFields().ToArray();
 		}
 
 		internal static TypeConfig GetState()
