@@ -79,5 +79,6 @@ namespace ServiceStack.Text
         public bool? IncludePublicFields { get; set; }
         public int? MaxDepth { get; set; }
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }
+        public string[] ExcludePropertyReferences { get; set; }
     }
 }
