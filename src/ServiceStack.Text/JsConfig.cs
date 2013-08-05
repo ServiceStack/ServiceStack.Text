@@ -50,7 +50,8 @@ namespace ServiceStack.Text
             bool? escapeUnicode = null,
             bool? includePublicFields = null,
             int? maxDepth = null,
-            EmptyCtorFactoryDelegate modelFactory = null)
+            EmptyCtorFactoryDelegate modelFactory = null,
+            string[] excludePropertyReferences = null)
         {
             return new JsConfigScope {
                 ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary,
@@ -75,6 +76,7 @@ namespace ServiceStack.Text
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
+                ExcludePropertyReferences = excludePropertyReferences ?? sExcludePropertyReferences
             };
         }
 
@@ -523,6 +525,16 @@ namespace ServiceStack.Text
             }
         }
 
+        private static string[] sExcludePropertyReferences;
+        public static string[] ExcludePropertyReferences {
+            get {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludePropertyReferences : null)
+                       ?? sExcludePropertyReferences;
+            }
+            set {
+                if (sExcludePropertyReferences != null) sExcludePropertyReferences = value;
+            }
+        }
 
 	    public static void Reset()
         {
@@ -556,6 +568,7 @@ namespace ServiceStack.Text
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
+            sExcludePropertyReferences = null;
         }
 
         public static void Reset(Type cachesForType)
