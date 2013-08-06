@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using System.Windows;
 using NUnit.Framework;
 using ServiceStack.Text.Common;
 
@@ -280,5 +279,39 @@ namespace ServiceStack.Text.Tests
     {
         public int Id { get; set; }
         public string Name { get; set; }
+    }
+
+    public struct Rect : IFormattable
+    {
+        double x;
+        double y;
+        double width;
+        double height;
+
+        public Rect(double x, double y, double width, double height)
+        {
+            if (width < 0 || height < 0)
+                throw new ArgumentException("width and height must be non-negative.");
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            return "{0},{1},{2},{3}".Fmt(x, y, width, height);
+        }
+
+        public static Rect Parse(string input)
+        {
+            var parts = input.Split(',');
+            return new Rect(
+                double.Parse(parts[0]),
+                double.Parse(parts[1]),
+                double.Parse(parts[2]),
+                double.Parse(parts[3])
+            );
+        }
     }
 }

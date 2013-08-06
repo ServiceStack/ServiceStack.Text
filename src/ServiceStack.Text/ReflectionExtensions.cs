@@ -88,6 +88,22 @@ namespace ServiceStack.Text
             return null;
         }
 
+        public static Type GetTypeWithGenericTypeDefinitionOfAny(this Type type, params Type[] genericTypeDefinitions)
+        {
+            foreach (var genericTypeDefinition in genericTypeDefinitions)
+            {
+                var genericType = type.GetTypeWithGenericTypeDefinitionOf(genericTypeDefinition);
+                if (genericType == null && type == genericTypeDefinition)
+                {
+                    genericType = type;
+                }
+
+                if (genericType != null)
+                    return genericType;
+            }
+            return null;
+        }
+
         public static bool IsOrHasGenericInterfaceTypeOf(this Type type, Type genericTypeDefinition)
         {
             return (type.GetTypeWithGenericTypeDefinitionOf(genericTypeDefinition) != null)
@@ -367,6 +383,37 @@ namespace ServiceStack.Text
 
         public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
         {
+            if (type.IsInterface)
+            {
+                if (type.HasGenericType())
+                {
+                    var genericType = type.GetTypeWithGenericTypeDefinitionOfAny(
+                        typeof(IDictionary<,>));
+
+                    if (genericType != null)
+                    {
+                        var keyType = genericType.GenericTypeArguments()[0];
+                        var valueType = genericType.GenericTypeArguments()[1];
+                        return GetConstructorMethodToCache(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+                    }
+
+                    genericType = type.GetTypeWithGenericTypeDefinitionOfAny(
+                        typeof(IEnumerable<>),
+                        typeof(ICollection<>),
+                        typeof(IList<>));
+
+                    if (genericType != null)
+                    {
+                        var elementType = genericType.GenericTypeArguments()[0];
+                        return GetConstructorMethodToCache(typeof(List<>).MakeGenericType(elementType));
+                    }
+                }
+            }
+            else if (type.IsArray)
+            {
+                return () => Array.CreateInstance(type.GetElementType(), 0);
+            }
+
             var emptyCtor = type.GetEmptyConstructor();
             if (emptyCtor != null)
             {
