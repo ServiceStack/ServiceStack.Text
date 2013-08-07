@@ -27,30 +27,30 @@ namespace ServiceStack.Text.Tests.Support
 			this.Genres = new List<string>();
 		}
 
-		[DataMember]
-		[AutoIncrement]
+        [DataMember(Order = 1, EmitDefaultValue = false, IsRequired = false)]
+        [AutoIncrement]
 		public int Id { get; set; }
 
-		[DataMember]
-		public string ImdbId { get; set; }
+        [DataMember(Order = 3, EmitDefaultValue = false, IsRequired = false)]
+        public string ImdbId { get; set; }
 
-		[DataMember]
-		public string Title { get; set; }
+        [DataMember(Order = 2, EmitDefaultValue = false, IsRequired = false)]
+        public string Title { get; set; }
 
-		[DataMember]
-		public decimal Rating { get; set; }
+        [DataMember(Order = 4, EmitDefaultValue = false, IsRequired = false)]
+        public decimal Rating { get; set; }
 
-		[DataMember]
-		public string Director { get; set; }
+        [DataMember(Order = 5, EmitDefaultValue = false, IsRequired = false)]
+        public string Director { get; set; }
 
-		[DataMember]
-		public DateTime ReleaseDate { get; set; }
+        [DataMember(Order = 6, EmitDefaultValue = false, IsRequired = false)]
+        public DateTime ReleaseDate { get; set; }
 
-		[DataMember]
-		public string TagLine { get; set; }
+        [DataMember(Order = 7, EmitDefaultValue = false, IsRequired = false)]
+        public string TagLine { get; set; }
 
-		[DataMember]
-		public List<string> Genres { get; set; }
+        [DataMember(Order = 8, EmitDefaultValue = false, IsRequired = false)]
+        public List<string> Genres { get; set; }
 
 		#region AutoGen ReSharper code, only required by tests
 		public bool Equals(Movie other)
