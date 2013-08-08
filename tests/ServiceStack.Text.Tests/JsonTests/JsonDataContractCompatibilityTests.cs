@@ -33,7 +33,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             using (var x = JsConfig.BeginScope())
             {
-                x.IncludeNullValues = false;
+                x.IncludeNullValues = true;
 
                 var jsonModel = new Movie { Genres = null };
 
