@@ -54,7 +54,7 @@ namespace ServiceStack.Text.Common
 #endif
             if (typeof (T) == typeof (IEnumerable) || typeof(T) == typeof(ICollection))
             {
-                GetEnumerableParseFn();
+                return GetEnumerableParseFn();
             }
 
             return GetGenericEnumerableParseFn();
