@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Xml;
 using NUnit.Framework;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Text.Jsv;
@@ -710,7 +711,39 @@ namespace ServiceStack.Text.Tests
             };
 
             var from = Serialize(dto, includeXml: false);
+            Assert.IsNotNull(from.Blah);
             from.PrintDump();
+        }
+
+        public class BreakerCollection
+        {
+            public ICollection Blah { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_ICollection()
+        {
+            var dto = new BreakerCollection
+            {
+                Blah = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+            };
+            
+            var from = Serialize(dto, includeXml: false);
+            Assert.IsNotNull(from.Blah);
+            Assert.AreEqual(dto.Blah.Count, from.Blah.Count);
+            from.PrintDump();
+        }
+
+        public class XmlAny
+        {
+            public XmlElement[] Any { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_Specialized_IEnumerable()
+        {
+            var getParseFn = JsvReader.GetParseFn(typeof (XmlAny));
+            Assert.IsNotNull(getParseFn);
         }
     }
 }
