@@ -712,5 +712,17 @@ namespace ServiceStack.Text.Tests
             var from = Serialize(dto, includeXml: false);
             from.PrintDump();
         }
+        
+        public class XmlAny
+        {
+            public XmlElement[] Any { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_Specialized_IEnumerable()
+        {
+            var getParseFn = JsvReader.GetParseFn(typeof (XmlAny));
+            Assert.IsNotNull(getParseFn);
+        }
     }
 }
