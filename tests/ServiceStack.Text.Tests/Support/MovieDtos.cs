@@ -27,7 +27,7 @@ namespace ServiceStack.Text.Tests.Support
 			this.Genres = new List<string>();
 		}
 
-        [DataMember(Order = 1, EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
         [AutoIncrement]
 		public int Id { get; set; }
 
@@ -40,13 +40,13 @@ namespace ServiceStack.Text.Tests.Support
         [DataMember(Order = 4, EmitDefaultValue = false, IsRequired = false)]
         public decimal Rating { get; set; }
 
-        [DataMember(Order = 5, EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(Order = 5, EmitDefaultValue = true, IsRequired = false)]
         public string Director { get; set; }
 
         [DataMember(Order = 6, EmitDefaultValue = false, IsRequired = false)]
         public DateTime ReleaseDate { get; set; }
 
-        [DataMember(Order = 7, EmitDefaultValue = false, IsRequired = false)]
+        [DataMember(Order = 6, EmitDefaultValue = false, IsRequired = false)]
         public string TagLine { get; set; }
 
         [DataMember(Order = 8, EmitDefaultValue = false, IsRequired = false)]

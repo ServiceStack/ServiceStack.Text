@@ -28,6 +28,22 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(ssJson, Is.EqualTo(wcfJson));
         }
 
+        [Test]
+        public void Respects_EmitDefaultValue()
+        {
+            using (var x = JsConfig.BeginScope())
+            {
+                x.IncludeNullValues = false;
+
+                var jsonModel = new Movie { Genres = null };
+
+                var ssJson = JsonSerializer.SerializeToString(jsonModel);
+                var wcfJson = BclJsonDataContractSerializer.Instance.Parse(jsonModel);
+
+                Assert.That(ssJson, Is.EqualTo(wcfJson));
+            }
+        }
+
 		[Test]
 		public void Can_deserialize_empty_type()
 		{
