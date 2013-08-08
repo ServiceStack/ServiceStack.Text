@@ -413,7 +413,7 @@ namespace ServiceStack.Text.Common
                 }
             }
 
-            var isDictionary = typeof(T) != typeof(IEnumerable) 
+            var isDictionary = typeof(T) != typeof(IEnumerable) && typeof(T) != typeof(ICollection)
                 && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
             if (isDictionary)
             {
