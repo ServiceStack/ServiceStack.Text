@@ -581,6 +581,18 @@ namespace ServiceStack.Text
             return dataMember;
         }
 
+        public static DataMemberAttribute GetDataMember(this FieldInfo pi)
+        {
+            var dataMember = pi.CustomAttributes(typeof(DataMemberAttribute), false)
+                .FirstOrDefault() as DataMemberAttribute;
+
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+            if (dataMember == null && Env.IsMono)
+                return pi.GetWeakDataMember();
+#endif
+            return dataMember;
+        }
+
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
         public static DataContractAttribute GetWeakDataContract(this Type type)
         {
@@ -620,6 +632,36 @@ namespace ServiceStack.Text
 
                 var newAttr = new DataMemberAttribute {
                     Name = (string) accessor[attr, "Name"],
+                    EmitDefaultValue = (bool)accessor[attr, "EmitDefaultValue"],
+                    IsRequired = (bool)accessor[attr, "IsRequired"],
+                };
+
+                var order = (int)accessor[attr, "Order"];
+                if (order >= 0)
+                    newAttr.Order = order; //Throws Exception if set to -1
+
+                return newAttr;
+            }
+            return null;
+        }
+
+        public static DataMemberAttribute GetWeakDataMember(this FieldInfo pi)
+        {
+            var attr = pi.CustomAttributes().FirstOrDefault(x => x.GetType().Name == DataMember);
+            if (attr != null)
+            {
+                var attrType = attr.GetType();
+
+                FastMember.TypeAccessor accessor;
+                lock (typeAccessorMap)
+                {
+                    if (!typeAccessorMap.TryGetValue(attrType, out accessor))
+                        typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
+                }
+
+                var newAttr = new DataMemberAttribute
+                {
+                    Name = (string)accessor[attr, "Name"],
                     EmitDefaultValue = (bool)accessor[attr, "EmitDefaultValue"],
                     IsRequired = (bool)accessor[attr, "IsRequired"],
                 };
