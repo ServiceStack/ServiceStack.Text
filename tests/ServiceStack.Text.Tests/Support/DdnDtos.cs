@@ -448,17 +448,17 @@ namespace ServiceStack.Text.Tests.Support
 			this.Errors = new List<ResponseError>();
 		}
 
-		[DataMember]
+		[DataMember(EmitDefaultValue = false, IsRequired = false)]
 		public string ErrorCode { get; set; }
 
-		[DataMember]
-		public string Message { get; set; }
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        public string Message { get; set; }
 
-		[DataMember]
-		public string StackTrace { get; set; }
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        public string StackTrace { get; set; }
 
-		[DataMember]
-		public List<ResponseError> Errors { get; set; }
+        [DataMember(EmitDefaultValue = false, IsRequired = false)]
+        public List<ResponseError> Errors { get; set; }
 
 
 		public bool IsSuccess
