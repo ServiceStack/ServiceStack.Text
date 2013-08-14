@@ -403,14 +403,14 @@ namespace ServiceStack.Text.Common
 
                     return (w, x) => writeFn(w, x, keyWriteFn, valueWriteFn);
                 }
+            }
 
-                var enumerableInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
-                if (enumerableInterface != null)
-                {
-                    var elementType = enumerableInterface.GenericTypeArguments()[0];
-                    var writeFn = WriteListsOfElements<TSerializer>.GetGenericWriteEnumerable(elementType);
-                    return writeFn;
-                }
+            var enumerableInterface = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
+            if (enumerableInterface != null)
+            {
+                var elementType = enumerableInterface.GenericTypeArguments()[0];
+                var writeFn = WriteListsOfElements<TSerializer>.GetGenericWriteEnumerable(elementType);
+                return writeFn;
             }
 
             var isDictionary = typeof(T) != typeof(IEnumerable) && typeof(T) != typeof(ICollection)

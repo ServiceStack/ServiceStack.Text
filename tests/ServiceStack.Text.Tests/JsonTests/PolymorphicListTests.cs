@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 #if !MONOTOUCH
 using System.Runtime.Serialization.Json;
 #endif
-using System.Text;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
-using ServiceStack.Text.Common;
+using System.Linq;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
@@ -74,6 +74,41 @@ namespace ServiceStack.Text.Tests.JsonTests
 			set;
 		}
 	}
+
+    public interface ITerm { }
+
+    public class FooTerm : ITerm { }
+
+    public class Terms : IEnumerable<ITerm>
+    {
+        private readonly List<ITerm> _list = new List<ITerm>();
+
+        public Terms()
+            : this(Enumerable.Empty<ITerm>())
+        {
+
+        }
+
+        public Terms(IEnumerable<ITerm> terms)
+        {
+            _list.AddRange(terms);
+        }
+
+        public IEnumerator<ITerm> GetEnumerator()
+        {
+            return _list.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Add(ITerm term)
+        {
+            _list.Add(term);
+        }
+    }
 
 	[TestFixture]
 	public class PolymorphicListTests : TestBase
@@ -455,6 +490,17 @@ namespace ServiceStack.Text.Tests.JsonTests
 		    Assert.That(deserialized.Dog.Name, Is.EqualTo("Lassie"));
 		    Assert.That(((Collie)deserialized.Dog).IsLassie, Is.True);
 		}
+
+	    [Test]
+	    public void polymorphic_serialization_of_class_implementing_generic_ienumerable_works_correctly()
+	    {
+	        var terms = new Terms {new FooTerm()};
+            var output = JsonSerializer.SerializeToString(terms);
+            Log(output);
+	        Assert.IsTrue(output.Contains("__type"));
+            var terms2 = JsonSerializer.DeserializeFromString<Terms>(output);
+	        Assert.IsAssignableFrom<FooTerm>(terms2.First());
+	    }
 
 	}
 }
