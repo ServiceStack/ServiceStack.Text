@@ -317,7 +317,10 @@ namespace ServiceStack.Text.Common
             {
                 var len = PropertyWriters.Length;
                 var exclude = JsConfig.ExcludePropertyReferences ?? new string[0];
-                exclude = Array.ConvertAll(exclude, x => x.ToUpper());
+                for (var z = 0; z < exclude.Length; ++z)
+                {
+                    exclude[z] = exclude[z].ToUpper();
+                }
                 for (int index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
