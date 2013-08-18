@@ -413,10 +413,6 @@ namespace ServiceStack.Text.Common
             }
         }
 
-        /// <summary>
-        /// Converts all string values in <c>strArray</c> to uppercase
-        /// </summary>
-        /// <param name="strArray"></param>
         private static void ConvertToUpper(string[] strArray)
         {
             for (var i = 0; i < strArray.Length; ++i)
