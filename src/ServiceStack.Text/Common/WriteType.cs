@@ -317,7 +317,7 @@ namespace ServiceStack.Text.Common
             {
                 var len = PropertyWriters.Length;
                 var exclude = JsConfig.ExcludePropertyReferences ?? new string[0];
-                exclude = Array.ConvertAll(exclude, x => x.ToUpper());
+                ConvertToUpper(exclude);
                 for (int index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
@@ -410,6 +410,19 @@ namespace ServiceStack.Text.Common
             finally
             {
                 JsState.QueryStringMode = false;
+            }
+        }
+
+        /// <summary>
+        /// Converts all string values in <c>strArray</c> to uppercase
+        /// </summary>
+        /// <param name="strArray"></param>
+        private static void ConvertToUpper(string[] strArray)
+        {
+            for (var i = 0; i < strArray.Length; ++i)
+            {
+                if (strArray[i] != null)
+                    strArray[i] = strArray[i].ToUpper();
             }
         }
     }
