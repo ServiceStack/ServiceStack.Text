@@ -34,15 +34,15 @@ namespace ServiceStack.Text.Common
             if (typeof(T) == typeof(bool))
                 return value => value.Length == 1 ? value == "1" : bool.Parse(value); 
             if (typeof(T) == typeof(byte))
-                return value => byte.Parse(value);
+                return value => byte.Parse(value, CultureInfo.InvariantCulture);
             if (typeof(T) == typeof(sbyte))
-                return value => sbyte.Parse(value);
+                return value => sbyte.Parse(value, CultureInfo.InvariantCulture);
             if (typeof(T) == typeof(short))
-                return value => short.Parse(value);
+                return value => short.Parse(value, CultureInfo.InvariantCulture);
             if (typeof(T) == typeof(int))
-                return value => int.Parse(value);
+                return value => int.Parse(value, CultureInfo.InvariantCulture);
             if (typeof(T) == typeof(long))
-                return value => long.Parse(value);
+                return value => long.Parse(value, CultureInfo.InvariantCulture);
             if (typeof(T) == typeof(float))
                 return value => float.Parse(value, CultureInfo.InvariantCulture);
             if (typeof(T) == typeof(double))
