@@ -310,7 +310,7 @@ namespace ServiceStack.Text
             foreach (var uriComponent in uriComponents)
             {
                 if (i++ > 0) sb.Append('/');
-                sb.Append(uriComponent.UrlEncode());
+                sb.Append(uriComponent);
             }
             return sb.ToString();
         }
