@@ -314,6 +314,19 @@ namespace ServiceStack.Text
             }
             return sb.ToString();
         }
+
+        public static string AppendUrlPathsRaw(this string uri, params string[] uriComponents)
+        {
+            var sb = new StringBuilder(uri.WithTrailingSlash());
+            var i = 0;
+            foreach (var uriComponent in uriComponents)
+            {
+                if (i++ > 0) sb.Append('/');
+                sb.Append(uriComponent);
+            }
+            return sb.ToString();
+        }
+
 #if !SILVERLIGHT
         public static string FromAsciiBytes(this byte[] bytes)
         {
