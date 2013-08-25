@@ -257,6 +257,7 @@ namespace ServiceStack.Text.Tests
             Assert.IsNull(ret);
         }
 
+        [Explicit("Ensure this test has proven to work, before adding it to the test suite")]
         [Test]
         [TestCase("en")]
         [TestCase("en-US")]
