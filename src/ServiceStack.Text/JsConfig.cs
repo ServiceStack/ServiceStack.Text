@@ -47,6 +47,7 @@ namespace ServiceStack.Text
 			bool? treatEnumAsInteger = null,
             bool? alwaysUseUtc = null,
             bool? assumeUtc = null,
+            bool? appendUtcOffset = null,
             bool? escapeUnicode = null,
             bool? includePublicFields = null,
             int? maxDepth = null,
@@ -72,6 +73,7 @@ namespace ServiceStack.Text
                 TreatEnumAsInteger = treatEnumAsInteger ?? sTreatEnumAsInteger,
                 AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
                 AssumeUtc = assumeUtc ?? sAssumeUtc,
+                AppendUtcOffset = appendUtcOffset ?? sAppendUtcOffset,
                 EscapeUnicode = escapeUnicode ?? sEscapeUnicode,
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 MaxDepth = maxDepth ?? sMaxDepth,
@@ -423,6 +425,26 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
+        /// Gets or sets whether we should append the Utc offset when we serialize Utc dates. Defaults to no.
+        /// Only supported for when the JsConfig.DateHandler == JsonDateHandler.TimestampOffset
+        /// </summary>
+        private static bool? sAppendUtcOffset;
+        public static bool? AppendUtcOffset
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.AppendUtcOffset : null)
+                    ?? sAppendUtcOffset
+                    ?? null;
+            }
+            set
+            {
+                if (sAppendUtcOffset == null) sAppendUtcOffset = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating if unicode symbols should be serialized as "\uXXXX".
         /// </summary>
         private static bool? sEscapeUnicode;
@@ -563,6 +585,7 @@ namespace ServiceStack.Text
 			sTreatEnumAsInteger = null;
             sAlwaysUseUtc = null;
             sAssumeUtc = null;
+            sAppendUtcOffset = null;
             sEscapeUnicode = null;
             sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();

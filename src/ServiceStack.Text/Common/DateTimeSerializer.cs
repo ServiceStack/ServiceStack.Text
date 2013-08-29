@@ -35,6 +35,7 @@ namespace ServiceStack.Text.Common
         public const string WcfJsonPrefix = "/Date(";
         public const char WcfJsonSuffix = ')';
         public const string UnspecifiedOffset = "-0000";
+        public const string UtcOffset = "+0000";
 
         /// <summary>
         /// If AlwaysUseUtc is set to true then convert all DateTime to UTC.
@@ -422,6 +423,13 @@ namespace ServiceStack.Text.Common
                     offset = UnspecifiedOffset;
                 else
                     offset = LocalTimeZone.GetUtcOffset(dateTime).ToTimeOffsetString();
+            }
+            else
+            {
+                // Normally the JsonDateHandler.TimestampOffset doesn't append an offset for Utc dates, but if
+                // the JsConfig.AppendUtcOffset is set then we will
+                if (JsConfig.DateHandler == JsonDateHandler.TimestampOffset && JsConfig.AppendUtcOffset.HasValue && JsConfig.AppendUtcOffset.Value)
+                    offset = UtcOffset;
             }
 
             writer.Write(EscapedWcfJsonPrefix);
