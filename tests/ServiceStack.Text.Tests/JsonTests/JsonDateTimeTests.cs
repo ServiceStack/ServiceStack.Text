@@ -134,6 +134,19 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig.Reset();
         }
 
+        [Test]
+        public void Can_serialize_json_date_timestampOffset_unspecified_appendUtcOffset()
+        {
+            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            JsConfig.AppendUtcOffset = true;
+
+            var dateTime = DateTime.SpecifyKind(DateTime.Parse("2013-06-14 19:43:37.663"), DateTimeKind.Utc);
+            var ssJson = JsonSerializer.SerializeToString(dateTime);
+            Assert.That(ssJson, Is.EqualTo(@"""\/Date(1371239017663+0000)\/"""));
+            
+            JsConfig.Reset();
+        }
+
 		#endregion
 
         #region TimeSpan Tests
@@ -252,6 +265,19 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(ssJson, Is.EqualTo(@"""\/Date(1371239017663)\/"""));
             JsConfig.Reset();
         }
+
+        [Test]
+        public void Can_serialize_json_date_dcjsCompatible_unspecified_appendUtcOffset()
+        {
+            JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+            JsConfig.AppendUtcOffset = true;
+
+            var dateTime = DateTime.SpecifyKind(DateTime.Parse("2013-06-14 19:43:37.663"), DateTimeKind.Utc);
+            var ssJson = JsonSerializer.SerializeToString(dateTime);
+            Assert.That(ssJson, Is.EqualTo(@"""\/Date(1371239017663)\/"""));
+
+            JsConfig.Reset();
+        }
 #endif
 		#endregion
 
@@ -365,6 +391,19 @@ namespace ServiceStack.Text.Tests.JsonTests
             var ssJson = JsonSerializer.SerializeToString(dateTime);
 
             Assert.That(ssJson, Is.EqualTo(@"""2013-06-14T19:43:37.6630000Z"""));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_serialize_json_date_iso8601_unspecified_appendUtcOffset()
+        {
+            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.AppendUtcOffset = true;
+
+            var dateTime = DateTime.SpecifyKind(DateTime.Parse("2013-06-14 19:43:37.663"), DateTimeKind.Utc);
+            var ssJson = JsonSerializer.SerializeToString(dateTime);
+            Assert.That(ssJson, Is.EqualTo(@"""2013-06-14T19:43:37.6630000Z"""));
+
             JsConfig.Reset();
         }
 
