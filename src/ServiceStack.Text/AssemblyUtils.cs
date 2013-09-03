@@ -217,6 +217,8 @@ namespace ServiceStack.Text
             var codeBase = assembly.GetName().CodeBase;
 #elif NETFX_CORE
             var codeBase = assembly.GetName().FullName;
+#elif SILVERLIGHT
+            var codeBase = assembly.FullName;
 #else
             var codeBase = assembly.CodeBase;
 #endif
