@@ -617,6 +617,15 @@ namespace ServiceStack.Text.Json
 
             return success;
         }
+		
+		public bool EatListEndChar(string value, ref int i)
+	    {
+            if (i == value.Length) return false;
+	        var success = value[i] == JsWriter.ListEndChar;
+            if (success)
+                i++;
+	        return success;
+	    }
 
         public void EatWhitespace(string value, ref int i)
         {
