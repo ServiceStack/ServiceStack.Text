@@ -148,6 +148,7 @@ namespace ServiceStack.Text.Common
                 result[mapKey] = mapValue;
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+				Serializer.EatListEndChar(value, ref index);
             }
 
             return result;

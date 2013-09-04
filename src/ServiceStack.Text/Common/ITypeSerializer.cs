@@ -62,5 +62,6 @@ namespace ServiceStack.Text.Common
         void EatWhitespace(string value, ref int i);
         string EatValue(string value, ref int i);
         bool EatItemSeperatorOrMapEndChar(string value, ref int i);
+		bool EatListEndChar(string value, ref int i);
     }
 }
