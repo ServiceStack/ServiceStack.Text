@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
@@ -81,6 +82,12 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(response.Values, Has.Count.EqualTo(9));
 		}
-		
+
+	    [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+	    public void DeserializeFromString_For_Dictionary_Passing_In_List_Throws_InvalidOperationException()
+	    {
+	        TypeSerializer.DeserializeFromString<Dictionary<string, string>>("[{PropA:0}]");
+	    }
 	}
 }
