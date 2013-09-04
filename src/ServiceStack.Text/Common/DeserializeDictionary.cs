@@ -227,6 +227,9 @@ namespace ServiceStack.Text.Common
         private static int VerifyAndGetStartIndex(string value, Type createMapType)
         {
             var index = 0;
+            if(Serializer.EatListStartChar(value, ref index))
+                throw new InvalidOperationException(String.Format("Map definitions are not expected to be lists."));
+
             if (!Serializer.EatMapStartChar(value, ref index))
             {
                 //Don't throw ex because some KeyValueDataContractDeserializer don't have '{}'

@@ -358,6 +358,15 @@ namespace ServiceStack.Text.Jsv
 			i++;
 			return success;
 		}
+		
+		public bool EatListStartChar(string value, ref int i)
+	    {
+            if (i == value.Length) return false;
+	        var success = value[i] == JsWriter.ListStartChar;
+            if (success)
+                i++;
+	        return success;
+	    }
 
         public void EatWhitespace(string value, ref int i)
         {
