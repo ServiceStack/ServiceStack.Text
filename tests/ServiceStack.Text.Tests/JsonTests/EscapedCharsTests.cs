@@ -252,7 +252,16 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(fromJson.Name, Is.EqualTo("JříАбвĀašū"));
         }
 
+        [Test]
+        public void Can_serialize_array_of_control_chars_and_unicode()
+        {
+            // we want to ensure control chars are escaped, but other unicode is fine to be serialized
+            Assert.IsFalse(JsConfig.EscapeUnicode, "for this test, JsConfig.EscapeUnicode must be false");
 
+            var array = new[] { ((char)0x18).ToString(), "Ω" };
+            var json = JsonSerializer.SerializeToString(array);
+            Assert.That(json, Is.EqualTo(@"[""\u0018"",""Ω""]"));
+        }
 
         public class Model
         {
