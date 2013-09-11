@@ -84,7 +84,8 @@ namespace ServiceStack.Text.Json
                     continue;
                 }
 
-                if (JsConfig.EscapeUnicode)
+                // http://json.org/ spec requires any control char to be escaped
+                if (JsConfig.EscapeUnicode || char.IsControl(value[i]))
                 {
                     // Default, turn into a \uXXXX sequence
                     IntToHex(value[i], hexSeqBuffer);
