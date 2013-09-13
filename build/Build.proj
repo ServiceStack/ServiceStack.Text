@@ -3,11 +3,11 @@
     xmlns='http://schemas.microsoft.com/developer/msbuild/2003' ToolsVersion="4.0">
   <Import Project="$(MSBuildProjectDirectory)/Build.tasks" />
 
-    <PropertyGroup>
-        <MajorVersion>3</MajorVersion>
-        <MinorVersion>9</MinorVersion>
-        <PatchVersion>$(BUILD_NUMBER)</PatchVersion>
-    </PropertyGroup>
+  <PropertyGroup>
+    <MajorVersion Condition="$(MajorVersion) == ''">3</MajorVersion>
+    <MinorVersion Condition="$(MinorVersion) == ''">9</MinorVersion>
+    <PatchVersion Condition="$(PatchVersion) == ''">$(BUILD_NUMBER)</PatchVersion>
+  </PropertyGroup>
 
   <PropertyGroup>
     <BuildSolutionDir>$(MSBuildProjectDirectory)/..</BuildSolutionDir>
@@ -51,14 +51,14 @@
 
   <Target Name="BuildSolutions">
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
-   Properties="Configuration=$(Configuration)" />
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.Net40/ServiceStack.Text.Net40.sln" Targets="Build"
-   Properties="Configuration=$(Configuration)" />
+      Properties="Configuration=$(Configuration)" />
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.SL5.sln" Targets="Build"
+      Properties="Configuration=$(Configuration)" />
   </Target>
 
   <Target Name="NuGetPack">
 
-    <!-- Update Versino -->
+    <!-- Update Version -->
     <ItemGroup>
         <RegexTransform Include="$(SourcesDir)/**/AssemblyInfo.cs">
             <Find>\d+\.\d+\.\d+\.\d+</Find>
@@ -78,15 +78,11 @@
              Targets="Build"
              Properties="BuildPackage=true;Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/net35;Configuration=$(Configuration)" />
 
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.Net40/ServiceStack.Text.Net40.csproj"
-             Targets="Build"
-             Properties="BuildPackage=true;Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/net40;Configuration=$(Configuration)" />
-
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.SL5/ServiceStack.Text.SL5.csproj"
              Targets="Build"
              Properties="BuildPackage=true;Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/sl5;Configuration=$(Configuration)" />
  
-    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDescription)&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion)"
+    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDescription)&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
             LogStandardErrorAsError="true" />
 
   </Target>
