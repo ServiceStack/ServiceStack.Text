@@ -17,8 +17,8 @@
     <NuGetPackageDir>$(BuildSolutionDir)/NuGet/</NuGetPackageDir>
     <NuGetBasePath>$(MSBuildProjectDirectory)</NuGetBasePath>
     <NuGetPackageLibDir>$(BuildSolutionDir)/NuGet/lib</NuGetPackageLibDir>
-    <NuGetPackageDescription>$(BuildSolutionDir)/NuGet/stackexpress.text.nuspec</NuGetPackageDescription>
-    <Version>$(MajorVersion).$(MinorVersion).$(PatchVersion).0</Version>
+    <NuGetPackageDescription>$(BuildSolutionDir)/NuGet/servicestack.text.nuspec</NuGetPackageDescription>
+    <Version>$(MajorVersion).$(MinorVersion).$(PatchVersion)</Version>
     <UnstableTag Condition="$(RELEASE) == ''">-unstable</UnstableTag>
     <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)$(UnstableTag)</PackageVersion>
     <EnvVersion>$(MajorVersion).$(MinorVersion)$(PatchVersion)</EnvVersion>
