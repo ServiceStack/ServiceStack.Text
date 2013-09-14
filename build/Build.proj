@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <BuildSolutionDir>$(MSBuildProjectDirectory)/..</BuildSolutionDir>
-    <SourcesDir>$(BuildSolutionDir)/src</SourcesDir>
+    <SrcDir>$(BuildSolutionDir)/src</SrcDir>
     <Configuration Condition="$(Configuration) == ''">Release</Configuration>
     <NuGetPath>$(BuildSolutionDir)/src/.nuget/nuget.exe</NuGetPath>
     <NuGetPackageDir>$(BuildSolutionDir)/NuGet/</NuGetPackageDir>
@@ -36,6 +36,11 @@
 
   <Target Name="Default" DependsOnTargets="$(DoBuildSolutionsDependsOn)" />
 
+  <Target Name="TeamCityBuild">
+    <!--<Copy SourceFiles="$(BuildSolutionDir)/tests/ServiceStack.Common.Tests/ci.app.config" DestinationFiles="$(BuildSolutionDir)/tests/ServiceStack.Common.Tests/app.config" />-->
+    <CallTarget Targets="Default" />
+  </Target>
+
   <Target Name="BeforeBuildSolutions">
     <Message Text="*****Before building solution*****" Importance="high"/>
     <!--<Copy SourceFiles="Test/ci.app.config" DestinationFiles="Test/app.config" />-->
@@ -57,11 +62,11 @@
 
     <!-- Update Version -->
     <ItemGroup>
-        <RegexTransform Include="$(SourcesDir)/**/AssemblyInfo.cs">
+        <RegexTransform Include="$(SrcDir)/**/AssemblyInfo.cs">
             <Find>\d+\.\d+\.\d+\.\d+</Find>
             <ReplaceWith>$(Version)</ReplaceWith>
         </RegexTransform>
-        <RegexTransform Include="$(SourcesDir)/ServiceStack.Text/Env.cs">
+        <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
             <Find>ServiceStackVersion = \d+\.\d+m;</Find>
             <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
         </RegexTransform>
