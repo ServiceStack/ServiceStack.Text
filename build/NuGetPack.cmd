@@ -1,1 +1,0 @@
-nuget pack ..\NuGet\servicestack.text.nuspec -symbols
