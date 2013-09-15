@@ -76,15 +76,26 @@
 
     <Delete Files="@(NugetPackageFilesToDelete)" />
 
+    <ItemGroup>
+      <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/ServiceStack.Text.*"></TextFiles>
+      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text.SL5/bin/$(Configuration)/ServiceStack.Text.*"></TextSl5Files>
+    </ItemGroup>
+
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
              Targets="Build"
-             Properties="Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/net35;Configuration=$(Configuration)" />
+             Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
 
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net35" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net35')" />
+    <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net35" />
+    
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.SL5/ServiceStack.Text.SL5.csproj"
              Targets="Build"
-             Properties="Version=$(PackageVersion);OutputPath=$(NuGetPackageDir)/lib/sl5;Configuration=$(Configuration)" />
+             Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
+
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/sl5" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/sl5')" />
+    <Copy SourceFiles="%(TextSl5Files.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/sl5" />
  
-    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
+    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
             LogStandardErrorAsError="true" />
 
   </Target>
