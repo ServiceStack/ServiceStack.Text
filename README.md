@@ -85,13 +85,23 @@ Also a thin **.NET 4.0 Dynamic JSON** wrapper around ServiceStack's JSON library
 [ServiceStack.Razor](https://github.com/ServiceStack/ServiceStack/blob/master/src/ServiceStack.Razor/DynamicJson.cs) 
 project. It provides a dynamic, but more succinct API than the above options.
 
-## NuGet ServiceStack.Text
+## Install ServiceStack.Text
 
-![Install-Pacakage ServiceStack.Text](http://servicestack.net/img/nuget-servicestack.text.png)
+    PM> Install-Pacakage ServiceStack.Text
 
-_Note: the binary packages are provided as-is - there is no commercial support available for ServiceStack_
+_Commercial support will be available for ServiceStack, contact team@servicestack.net for details_
+
+## Copying
+
+Since September 2013, ServiceStack source code is available under GNU Affero General Public License/FOSS License Exception, see license.txt in the source. Alternative commercial licensing is also available, contact team@servicestack.net for details.
+
+## Contributing
+
+Commits should be made to the **v3-fixes** branch so they can be merged into both **v3** and **master** (v4) release branches. 
+Contributors need to approve the [Contributor License Agreement](https://docs.google.com/forms/d/16Op0fmKaqYtxGL4sg7w_g-cXXyCoWjzppgkuqzOeKyk/viewform) before any code will be reviewed, see the [Contributing wiki](https://github.com/ServiceStack/ServiceStack/wiki/Contributing) for more details. 
 
 ## ServiceStack.JsonSerializer
+
 For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/?p=344) I decided to re-use *TypeSerializer's* text processing-core to create ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET.
 Based on the [Northwind Benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.100000-times.2010-08-17.html) it's *3.6x* faster than .NET's BCL JsonDataContractSerializer and *3x* faster then the previous fastest JSON serializer benchmarked - [JSON.NET](http://json.codeplex.com/).
 
