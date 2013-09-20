@@ -124,10 +124,9 @@ namespace ServiceStack.Text.Common
         {
             if (string.IsNullOrEmpty(value)) return null;
 
-#if NET40
             Guid guidValue;
             if (Guid.TryParse(value, out guidValue)) return guidValue;
-#endif
+
             if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix, StringComparison.Ordinal) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix, StringComparison.Ordinal))
             {
                 return DateTimeSerializer.ParseWcfJsonDate(value);

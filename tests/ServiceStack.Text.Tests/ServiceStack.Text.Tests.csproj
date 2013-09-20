@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServiceStack.Text.Tests</RootNamespace>
     <AssemblyName>ServiceStack.Text.Tests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -100,6 +100,7 @@
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="ServiceStack">
       <HintPath>..\..\lib\tests\ServiceStack.dll</HintPath>
     </Reference>
@@ -171,10 +172,12 @@
     <Compile Include="CsvTests\DictionaryTests.cs" />
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DateTimeExtensionsTests.cs" />
+    <Compile Include="DynamicJsonTests.cs" />
     <Compile Include="DynamicModels\GoogleMapsApiTests.cs" />
     <Compile Include="DateTimeOffsetAndTimeSpanTests.cs" />
     <Compile Include="DynamicModels\ModelWithComplexTypes.cs" />
     <Compile Include="EnumTests.cs" />
+    <Compile Include="ExpandoTests.cs" />
     <Compile Include="JsonTests\BasicPropertiesTests.cs" />
     <Compile Include="JsonObjectTests.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />

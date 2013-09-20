@@ -77,13 +77,11 @@ namespace ServiceStack.Text.Common
                     return DeserializeEnumerable<T, TSerializer>.Parse;
             }
 
-#if NET40
-            if (typeof (T).IsAssignableFrom(typeof (System.Dynamic.IDynamicMetaObjectProvider)) ||
-	            typeof (T).HasInterface(typeof (System.Dynamic.IDynamicMetaObjectProvider))) 
+            if (typeof(T).IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+                typeof(T).HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.Parse;
             }
-#endif
 
             var isDictionary = typeof(T) != typeof(IEnumerable) && typeof(T) != typeof(ICollection)
                 && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));

@@ -1,5 +1,4 @@
-﻿#if NET40
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
@@ -28,4 +27,3 @@ namespace ServiceStack.Text.Tests
         }
     }
 }
-#endif

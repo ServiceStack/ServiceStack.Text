@@ -10,7 +10,6 @@ namespace ServiceStack.Text
 		    string platformName = null;
 
 #if NETFX_CORE
-            IsWinRT = true;
             platformName = "WinRT";
 #else
             var platform = (int)Environment.OSVersion.Platform;
@@ -34,7 +33,7 @@ namespace ServiceStack.Text
                 + (IsWinRT ? ".NET WinRT" : "");
 		}
 
-		public static decimal ServiceStackVersion = 3.960m;
+		public static decimal ServiceStackVersion = 4.001m;
 
 		public static bool IsUnix { get; set; }
 
