@@ -1,5 +1,4 @@
-﻿#if NET40
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using NUnit.Framework;
@@ -184,4 +183,3 @@ namespace ServiceStack.Text.Tests
         }
     }
 }
-#endif

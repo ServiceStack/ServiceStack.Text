@@ -492,7 +492,6 @@ namespace ServiceStack.Text.Tests
             Assert.That(d["Id"], Is.EqualTo("1"));
         }
 
-#if NET40
         [Test]
         public void Nongeneric_implementors_of_IDictionary_K_V_Should_serialize_like_Dictionary_K_V()
         {
@@ -501,7 +500,6 @@ namespace ServiceStack.Text.Tests
             IDictionary<string, object> dict = expando;
             Assert.AreEqual(dict.Dump(), new Dictionary<string, object>(dict).Dump());
         }
-#endif
-	}
+    }
 
 }

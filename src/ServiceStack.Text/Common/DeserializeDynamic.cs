@@ -1,15 +1,6 @@
-//
-// https://github.com/ServiceStack/ServiceStack.Text
-// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
-//
-// Authors:
-//   Demis Bellot (demis.bellot@gmail.com)
-//
-// Copyright 2012 ServiceStack Ltd.
-//
-// Licensed under the same terms of ServiceStack: new BSD license.
-//
-#if NET40
+//Copyright (c) Service Stack. All Rights Reserved.
+//License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
+
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -17,21 +8,21 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-	internal static class DeserializeDynamic<TSerializer>
-		where TSerializer : ITypeSerializer
-	{
-		private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+    internal static class DeserializeDynamic<TSerializer>
+        where TSerializer : ITypeSerializer
+    {
+        private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-		private static readonly ParseStringDelegate CachedParseFn;
-		static DeserializeDynamic()
-		{
-			CachedParseFn = ParseDynamic;
-		}
+        private static readonly ParseStringDelegate CachedParseFn;
+        static DeserializeDynamic()
+        {
+            CachedParseFn = ParseDynamic;
+        }
 
-		public static ParseStringDelegate Parse
-		{
-			get { return CachedParseFn; }
-		}
+        public static ParseStringDelegate Parse
+        {
+            get { return CachedParseFn; }
+        }
 
         public static IDynamicMetaObjectProvider ParseDynamic(string value)
         {
@@ -41,7 +32,7 @@ namespace ServiceStack.Text.Common
 
             if (JsonTypeSerializer.IsEmptyMap(value)) return result;
 
-            var container = (IDictionary<String, Object>) result;
+            var container = (IDictionary<String, Object>)result;
 
             var tryToParsePrimitiveTypes = JsConfig.TryToParsePrimitiveTypeValues;
 
@@ -54,13 +45,20 @@ namespace ServiceStack.Text.Common
 
                 var mapKey = Serializer.UnescapeString(keyValue);
 
-                if (JsonUtils.IsJsObject(elementValue)) {
+                if (JsonUtils.IsJsObject(elementValue))
+                {
                     container[mapKey] = ParseDynamic(elementValue);
-                } else if (JsonUtils.IsJsArray(elementValue)) {
+                }
+                else if (JsonUtils.IsJsArray(elementValue))
+                {
                     container[mapKey] = DeserializeList<List<object>, TSerializer>.Parse(elementValue);
-                } else if (tryToParsePrimitiveTypes) {
+                }
+                else if (tryToParsePrimitiveTypes)
+                {
                     container[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue) ?? Serializer.UnescapeString(elementValue);
-                } else {
+                }
+                else
+                {
                     container[mapKey] = Serializer.UnescapeString(elementValue);
                 }
 
@@ -70,17 +68,16 @@ namespace ServiceStack.Text.Common
             return result;
         }
 
-		private static int VerifyAndGetStartIndex(string value, Type createMapType)
-		{
-			var index = 0;
-			if (!Serializer.EatMapStartChar(value, ref index))
-			{
-				//Don't throw ex because some KeyValueDataContractDeserializer don't have '{}'
-				Tracer.Instance.WriteDebug("WARN: Map definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
-					JsWriter.MapStartChar, createMapType != null ? createMapType.Name : "Dictionary<,>", value.Substring(0, value.Length < 50 ? value.Length : 50));
-			}
-			return index;
-		}
-	}
+        private static int VerifyAndGetStartIndex(string value, Type createMapType)
+        {
+            var index = 0;
+            if (!Serializer.EatMapStartChar(value, ref index))
+            {
+                //Don't throw ex because some KeyValueDataContractDeserializer don't have '{}'
+                Tracer.Instance.WriteDebug("WARN: Map definitions should start with a '{0}', expecting serialized type '{1}', got string starting with: {2}",
+                    JsWriter.MapStartChar, createMapType != null ? createMapType.Name : "Dictionary<,>", value.Substring(0, value.Length < 50 ? value.Length : 50));
+            }
+            return index;
+        }
+    }
 }
-#endif
