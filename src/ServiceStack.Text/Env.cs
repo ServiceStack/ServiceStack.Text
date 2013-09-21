@@ -1,5 +1,6 @@
 
 using System;
+using System.IO;
 
 namespace ServiceStack.Text
 {
@@ -48,5 +49,26 @@ namespace ServiceStack.Text
 		public static bool SupportsEmit { get; set; }
 
 		public static string ServerUserAgent { get; set; }
-	}
+
+        private static string referenceAssembyPath;
+        public static string ReferenceAssembyPath
+        {
+            get
+            {
+                if (!IsMono && referenceAssembyPath == null)
+                {
+                    var programFilesPath = Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
+                    var netFxReferenceBasePath = programFilesPath + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\";
+                    if (Directory.Exists(netFxReferenceBasePath + @"v4.0\"))
+                        referenceAssembyPath = netFxReferenceBasePath + @"v4.0\";
+                    if (Directory.Exists(netFxReferenceBasePath + @"v4.5\"))
+                        referenceAssembyPath = netFxReferenceBasePath + @"v4.5\";
+                    else
+                        throw new FileNotFoundException("Could not infer .NET Reference Assemblies path, e.g '{0}'. Provide path manually 'Evaluator.ReferenceAssembyPath'.".Fmt(netFxReferenceBasePath + @"v4.0\"));
+                }
+                return referenceAssembyPath;
+            }
+            set { referenceAssembyPath = value; }
+        }
+    }
 }
