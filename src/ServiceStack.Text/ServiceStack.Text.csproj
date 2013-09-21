@@ -279,7 +279,7 @@
     <Compile Include="TypeSerializer.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WebRequestExtensions.cs" />
+    <Compile Include="HttpUtilExtensions.cs" />
     <Compile Include="XmlSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

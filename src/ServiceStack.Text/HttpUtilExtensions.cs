@@ -10,23 +10,69 @@ using System.Text;
 
 namespace ServiceStack.Text
 {
-    public static class WebRequestExtensions
+    public static class HttpUtilExtensions
     {
-        public const string Json = "application/json";
-        public const string Xml = "application/xml";
-        public const string FormUrlEncoded = "application/x-www-form-urlencoded";
-        public const string MultiPartFormData = "multipart/form-data";
+        public static string AddQueryParam(this string url, string key, object val, bool encode = true)
+        {
+            return url.AddQueryParam(key, val.ToString(), encode);
+        }
+
+        public static string AddQueryParam(this string url, object key, string val, bool encode = true)
+        {
+            return AddQueryParam(url, (key ?? "").ToString(), val, encode);
+        }
+
+        public static string AddQueryParam(this string url, string key, string val, bool encode = true)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+            var prefix = url.IndexOf('?') == -1 ? "?" : "&";
+            return url + prefix + key + "=" + (encode ? val.UrlEncode() : val);
+        }
+
+        public static string SetQueryParam(this string url, string key, string val)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+            var qsPos = url.IndexOf('?');
+            if (qsPos != -1)
+            {
+                var existingKeyPos = url.IndexOf(key, qsPos, StringComparison.InvariantCulture);
+                if (existingKeyPos != -1)
+                {
+                    var endPos = url.IndexOf('&', existingKeyPos);
+                    if (endPos == -1) endPos = url.Length;
+
+                    var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + val.UrlEncode()
+                        + url.Substring(endPos);
+                    return newUrl;
+                }
+            }
+            var prefix = qsPos == -1 ? "?" : "&";
+            return url + prefix + key + "=" + val.UrlEncode();
+        }
+
+        public static string AddHashParam(this string url, string key, object val)
+        {
+            return url.AddHashParam(key, val.ToString());
+        }
+
+        public static string AddHashParam(this string url, string key, string val)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+            var prefix = url.IndexOf('#') == -1 ? "#" : "/";
+            return url + prefix + key + "=" + val.UrlEncode();
+        }
 
         public static string GetJsonFromUrl(this string url,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return url.GetStringFromUrl(Json, requestFilter, responseFilter);
+            return url.GetStringFromUrl(MimeTypes.Json, requestFilter, responseFilter);
         }
 
         public static string GetXmlFromUrl(this string url,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return url.GetStringFromUrl(Xml, requestFilter, responseFilter);
+            return url.GetStringFromUrl(MimeTypes.Xml, requestFilter, responseFilter);
         }
 
         public static string GetStringFromUrl(this string url, string accept = "*/*",
@@ -48,7 +94,7 @@ namespace ServiceStack.Text
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "POST",
-                contentType: FormUrlEncoded, requestBody: formData,
+                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -58,28 +104,28 @@ namespace ServiceStack.Text
             string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
             return SendStringToUrl(url, method: "POST",
-                contentType: FormUrlEncoded, requestBody: postFormData,
+                contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PostJsonToUrl(this string url, string json,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "POST", requestBody: json, contentType: Json, accept: Json,
+            return SendStringToUrl(url, method: "POST", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PostJsonToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "POST", requestBody: data.ToJson(), contentType: Json, accept: Json,
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PostXmlToUrl(this string url, string xml,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "POST", requestBody: xml, contentType: Xml, accept: Xml,
+            return SendStringToUrl(url, method: "POST", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -87,7 +133,7 @@ namespace ServiceStack.Text
         public static string PostXmlToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: Xml, accept: Xml,
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 #endif
@@ -105,7 +151,7 @@ namespace ServiceStack.Text
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "PUT",
-                contentType: FormUrlEncoded, requestBody: formData,
+                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -115,28 +161,28 @@ namespace ServiceStack.Text
             string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
             return SendStringToUrl(url, method: "PUT",
-                contentType: FormUrlEncoded, requestBody: postFormData,
+                contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PutJsonToUrl(this string url, string json,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "PUT", requestBody: json, contentType: Json, accept: Json,
+            return SendStringToUrl(url, method: "PUT", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PutJsonToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: Json, accept: Json,
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PutXmlToUrl(this string url, string xml,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "PUT", requestBody: xml, contentType: Xml, accept: Xml,
+            return SendStringToUrl(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -144,7 +190,7 @@ namespace ServiceStack.Text
         public static string PutXmlToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
-            return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: Xml, accept: Xml,
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 #endif
