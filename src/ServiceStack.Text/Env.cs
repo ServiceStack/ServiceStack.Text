@@ -65,8 +65,8 @@ namespace ServiceStack.Text
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.5\";
                     else
                         throw new FileNotFoundException(
-                            "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n" +
-                            "Provide path manually 'Env.ReferenceAssembyPath'.".Fmt(netFxReferenceBasePath + @"v4.0\"));
+                            "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n".Fmt(netFxReferenceBasePath + @"v4.0\") +
+                            "Provide path manually 'Env.ReferenceAssembyPath'.");
                 }
                 return referenceAssembyPath;
             }
