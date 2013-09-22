@@ -24,16 +24,19 @@ namespace ServiceStack.Text
 			}
 		}
 
-		public static IEnumerable<string> ReadLines(this StreamReader reader)
+        public static IEnumerable<string> ReadLines(this Stream stream)
 		{
-			if (reader == null)
-				throw new ArgumentNullException("reader");
+            if (stream == null)
+                throw new ArgumentNullException("stream");
 
-			string line;
-			while ((line = reader.ReadLine()) != null)
-			{
-				yield return line;
-			}
+            using (var reader = new StreamReader(stream))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    yield return line;
+                }
+            }
 		}
 
 		/// <summary>
