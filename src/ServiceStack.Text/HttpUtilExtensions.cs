@@ -438,7 +438,11 @@ namespace ServiceStack.Text
             using (var stream = webRes.GetResponseStream())
             using (var reader = new StreamReader(stream))
             {
-                return reader.ReadLines();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    yield return line;
+                }
             }
         }
 
