@@ -101,6 +101,12 @@ namespace ServiceStack.Text.Common
             return WriteProperties;
         }
 
+        static Func<T, bool> GetShouldSerializeMethod(MemberInfo member)
+        {
+            var method = member.DeclaringType.GetMethod("ShouldSerialize" + member.Name, BindingFlags.Instance | BindingFlags.Public,
+                null, Type.EmptyTypes, null);
+            return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T,bool>)Delegate.CreateDelegate(typeof(Func<T,bool>), method);
+        }
         private static bool Init()
         {
             if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
@@ -130,7 +136,7 @@ namespace ServiceStack.Text.Common
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
-
+                var shouldSerialize = GetShouldSerializeMethod(propertyInfo);
                 if (isDataContract)
                 {
                     var dcsDataMember = propertyInfo.GetDataMember();
@@ -163,7 +169,8 @@ namespace ServiceStack.Text.Common
                     propertySuppressDefaultAttribute,
                     propertyInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
-                    propertyType.GetDefaultValue()
+                    propertyType.GetDefaultValue(),
+                    shouldSerialize
                 );
             }
 
@@ -177,7 +184,7 @@ namespace ServiceStack.Text.Common
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
-
+                var shouldSerialize = GetShouldSerializeMethod(fieldInfo);
                 if (isDataContract)
                 {
                     var dcsDataMember = fieldInfo.GetDataMember();
@@ -209,7 +216,8 @@ namespace ServiceStack.Text.Common
                     propertySuppressDefaultAttribute,
                     fieldInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
-                    defaultValue
+                    defaultValue,
+                    shouldSerialize
                 );
             }
             PropertyWriters = PropertyWriters.OrderBy(x => x.propertyOrder).ToArray();
@@ -240,9 +248,10 @@ namespace ServiceStack.Text.Common
             internal readonly Func<T, object> GetterFn;
             internal readonly WriteObjectDelegate WriteFn;
             internal readonly object DefaultValue;
+            internal readonly Func<T, bool> shouldSerialize;
 
             public TypePropertyWriter(string propertyName, string propertyReflectedName, string propertyNameCLSFriendly, string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig,bool propertySuppressDefaultAttribute,
-                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue)
+                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, Func<T, bool> shouldSerialize)
             {
                 this.propertyName = propertyName;
                 this.propertyOrder = propertyOrder;
@@ -255,6 +264,7 @@ namespace ServiceStack.Text.Common
                 this.GetterFn = getterFn;
                 this.WriteFn = writeFn;
                 this.DefaultValue = defaultValue;
+                this.shouldSerialize = shouldSerialize;
             }
         }
 
@@ -321,10 +331,13 @@ namespace ServiceStack.Text.Common
                 for (int index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
+
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) continue;
+
                     var propertyValue = value != null
                         ? propertyWriter.GetterFn((T)value)
                         : null;
-
+                    
                     if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
                     {
                         continue;
