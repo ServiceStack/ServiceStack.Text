@@ -413,6 +413,16 @@ namespace ServiceStack.Text
             {
                 return () => Array.CreateInstance(type.GetElementType(), 0);
             }
+            else if (type.IsGenericTypeDefinition)
+            {
+                var genericArgs = type.GetGenericArguments();
+                var typeArgs = new Type[genericArgs.Length];
+                for (var i=0; i<genericArgs.Length; i++)
+                    typeArgs[i] = typeof(object);
+
+                var realizedType = type.MakeGenericType(typeArgs);
+                return realizedType.CreateInstance;
+            }
 
             var emptyCtor = type.GetEmptyConstructor();
             if (emptyCtor != null)
@@ -464,10 +474,41 @@ namespace ServiceStack.Text
             return TypeMeta<T>.EmptyCtorFn();
         }
 
+        /// <summary>
+        /// Creates a new instance of type. 
+        /// First looks at JsConfig.ModelFactory before falling back to CreateInstance
+        /// </summary>
+        public static T New<T>(this Type type)
+        {
+            var factoryFn = JsConfig.ModelFactory(type)
+                ?? GetConstructorMethod(type);
+            return (T)factoryFn();
+        }
+
+        /// <summary>
+        /// Creates a new instance of type. 
+        /// First looks at JsConfig.ModelFactory before falling back to CreateInstance
+        /// </summary>
+        public static object New(this Type type)
+        {
+            var factoryFn = JsConfig.ModelFactory(type)
+                ?? GetConstructorMethod(type);
+            return factoryFn();
+        }
+
+        /// <summary>
+        /// Creates a new instance from the default constructor of type
+        /// </summary>
         public static object CreateInstance(this Type type)
         {
             var ctorFn = GetConstructorMethod(type);
             return ctorFn();
+        }
+
+        public static T CreateInstance<T>(this Type type)
+        {   
+            var ctorFn = GetConstructorMethod(type);
+            return (T)ctorFn();
         }
 
         public static object CreateInstance(string typeName)

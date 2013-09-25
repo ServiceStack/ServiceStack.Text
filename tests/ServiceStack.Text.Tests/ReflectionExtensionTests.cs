@@ -63,5 +63,24 @@ namespace ServiceStack.Text.Tests
             Assert.That(typeof(IDictionary<int, TestModel>).CreateInstance() as IDictionary<int, TestModel>, Is.Not.Null);
             Assert.That(typeof(TestModel[]).CreateInstance() as TestModel[], Is.Not.Null);
         }
+
+        [Test]
+        public void Can_create_intances_of_generic_types()
+        {
+            Assert.That(typeof(GenericType<>).CreateInstance(), Is.Not.Null);
+            Assert.That(typeof(GenericType<,>).CreateInstance(), Is.Not.Null);
+            Assert.That(typeof(GenericType<,,>).CreateInstance(), Is.Not.Null);
+            Assert.That(typeof(GenericType<GenericType<object>>).CreateInstance(), Is.Not.Null);
+        }
+
+        [Test]
+        public void Can_create_intances_of_recursive_generic_type()
+        {
+            //Assert.That(typeof(GenericType<>).MakeGenericType(new[] { typeof(GenericType<>) }).CreateInstance(), Is.Not.Null);
+        }
     }
+
+    public class GenericType<T> { }
+    public class GenericType<T1, T2> { }
+    public class GenericType<T1, T2, T3> { }
 }
