@@ -1,8 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
+using Funq;
 using NUnit.Framework;
+using ServiceStack.ServiceHost;
+using ServiceStack.ServiceInterface.Testing;
+using ServiceStack.WebHost.Endpoints;
+using ServiceStack.WebHost.Endpoints.Support.Mocks;
 
 namespace ServiceStack.Text.Tests
 {
@@ -116,6 +124,69 @@ namespace ServiceStack.Text.Tests
                 "[AA,BB,CC]"));
 	    }
 
+        [Test]
+        public void Can_serialize_quoted_strings()
+        {
+            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content\"" }), Is.EqualTo("Property=%22%22quoted%20content%22%22"));
+            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content, and with a comma\"" }), Is.EqualTo("Property=%22%22quoted%20content,%20and%20with%20a%20comma%22%22"));
+        }
+
+        private T StringToPoco<T>(string str)
+        {
+            var testAppHost = new TestAppHost(new Container(), GetType().Assembly);
+            NameValueCollection queryString = HttpUtility.ParseQueryString(str);
+            var restPath = new RestPath(typeof(T), "/query", "GET, POST");
+            var restHandler = new RestHandler()
+            {
+                RestPath = restPath
+            };
+            var httpReq = new HttpRequestMock("query", "GET", "application/json", "query", queryString,
+                                              new MemoryStream(), new NameValueCollection());
+            var request = (T)restHandler.CreateRequest(httpReq, "query");
+            return request;
+        }
+
+        [Test]
+        public void Can_deserialize_quoted_strings()
+        {
+            Assert.That(StringToPoco<B>("Property=%22%22quoted%20content%22%22").Property, Is.EqualTo("\"quoted content\""));
+            Assert.That(StringToPoco<B>("Property=%22%22quoted%20content,%20and%20with%20a%20comma%22%22").Property, Is.EqualTo("\"quoted content, and with a comma\""));
+        }
+
+        [Test]
+        public void Can_serialize_with_comma_in_property_in_list()
+        {
+            var testPocos = new TestPocos
+                {
+                    ListOfA = new List<A> {new A {ListOfB = new List<B> {new B {Property = "Doe, John", Property2 = "Doe", Property3 = "John"}}}}
+                };
+            Assert.That(QueryStringSerializer.SerializeToString(testPocos), Is.EqualTo("ListOfA={ListOfB:[{Property:%22Doe,%20John%22,Property2:Doe,Property3:John}]}"));
+        }
+
+        [Test]
+        public void Can_deserialize_with_comma_in_property_in_list_from_QueryStringSerializer()
+        {
+            var testPocos = new TestPocos
+            {
+                ListOfA = new List<A> { new A { ListOfB = new List<B> { new B { Property = "Doe, John", Property2 = "Doe", Property3 = "John" } } } }
+            };
+            var str = QueryStringSerializer.SerializeToString(testPocos);
+            var poco = StringToPoco<TestPocos>(str);
+            Assert.That(poco.ListOfA[0].ListOfB[0].Property, Is.EqualTo("Doe, John"));
+            Assert.That(poco.ListOfA[0].ListOfB[0].Property2, Is.EqualTo("Doe"));
+            Assert.That(poco.ListOfA[0].ListOfB[0].Property3, Is.EqualTo("John"));
+        }
+
+        [Test]
+        public void Can_deserialize_with_comma_in_property_in_list_from_static()
+        {
+            var str = "ListOfA={ListOfB:[{Property:\"Doe,%20John\",Property2:Doe,Property3:John}]}";
+            var poco = StringToPoco<TestPocos>(str);
+            Assert.That(poco.ListOfA[0].ListOfB[0].Property, Is.EqualTo("Doe, John"));
+            Assert.That(poco.ListOfA[0].ListOfB[0].Property2, Is.EqualTo("Doe"));
+            Assert.That(poco.ListOfA[0].ListOfB[0].Property3, Is.EqualTo("John"));
+        }
+
 	    public class TestPocos
         {
             public List<A> ListOfA { get; set; }
@@ -129,6 +200,8 @@ namespace ServiceStack.Text.Tests
         public class B
         {
             public string Property { get; set; }
+            public string Property2 { get; set; }
+            public string Property3 { get; set; }
         }
     }
 }
