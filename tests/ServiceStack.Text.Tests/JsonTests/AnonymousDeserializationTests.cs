@@ -29,10 +29,10 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Assert.That(item.StringValue, Is.EqualTo("Foo"));
 		}
 
-		private static T DeserializeAnonymousType<T>(T template, string json) where T : class
+		private static T DeserializeAnonymousType<T>(T template, string json) 
 		{
 			TypeConfig<T>.EnableAnonymousFieldSetters = true;
-			return JsonSerializer.DeserializeFromString(json, template.GetType()) as T;
+			return (T)JsonSerializer.DeserializeFromString(json, template.GetType());
 		}
 	}
 }
