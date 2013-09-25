@@ -191,7 +191,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                         return obj;
                     };
                 }
-                return () => type.CreateInstance();
+                return type.CreateInstance;
             }))
             {
                 var dto = new Dto { Name = "Foo" };

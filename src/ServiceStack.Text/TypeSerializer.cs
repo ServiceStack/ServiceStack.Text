@@ -191,7 +191,6 @@ namespace ServiceStack.Text
 		/// </summary>
 		/// <returns></returns>
 		public static Dictionary<string, string> ToStringDictionary<T>(this T obj)
-			where T : class
 		{
 			var jsv = SerializeToString(obj);
 			var map = DeserializeFromString<Dictionary<string, string>>(jsv);
