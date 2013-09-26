@@ -48,6 +48,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             public double? Double { get; set; }
             public bool? Boolean { get; set; }
             public DateTime? DateTime { get; set; }
+            public DateTimeOffset? DateTimeOffset { get; set; }
         }
 
 		[SetUp]
@@ -79,12 +80,13 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(item.Double, Is.Null, "double");
             Assert.That(item.Boolean, Is.Null, "boolean");
             Assert.That(item.DateTime, Is.Null, "datetime");
+            Assert.That(item.DateTimeOffset, Is.Null, "datetimeoffset");
 	    }
 
         [Test]
         public void Can_parse_json_with_nullable_valuetypes_that_has_included_null_values()
         {
-            var json = "{\"Int\":null,\"Long\":null,\"Decimal\":null,\"Double\":null,\"Boolean\":null,\"DateTime\":null}";
+            var json = "{\"Int\":null,\"Long\":null,\"Decimal\":null,\"Double\":null,\"Boolean\":null,\"DateTime\":null,\"DateTimeOffset\":null}";
 
             var item = JsonSerializer.DeserializeFromString<NullableValueTypes>(json);
 
@@ -94,6 +96,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(item.Double, Is.Null, "double");
             Assert.That(item.Boolean, Is.Null, "boolean");
             Assert.That(item.DateTime, Is.Null, "datetime");
+            Assert.That(item.DateTimeOffset, Is.Null, "datetimeoffset");
         }
 
 		[Test]
