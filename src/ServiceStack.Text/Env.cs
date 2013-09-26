@@ -57,6 +57,7 @@ namespace ServiceStack.Text
         {
             get
             {
+#if !SILVERLIGHT
                 if (!IsMono && referenceAssembyPath == null)
                 {
                     var programFilesPath = Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
@@ -70,6 +71,7 @@ namespace ServiceStack.Text
                             "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n".Fmt(netFxReferenceBasePath + @"v4.0\") +
                             "Provide path manually 'Env.ReferenceAssembyPath'.");
                 }
+#endif
                 return referenceAssembyPath;
             }
             set { referenceAssembyPath = value; }
