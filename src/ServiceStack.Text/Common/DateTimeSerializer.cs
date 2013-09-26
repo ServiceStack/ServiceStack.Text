@@ -208,6 +208,14 @@ namespace ServiceStack.Text.Common
             return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormat, null);
         }
 
+        public static DateTimeOffset? ParseNullableDateTimeOffset(string dateTimeOffsetStr)
+        {
+            if (dateTimeOffsetStr == null)
+                return null;
+
+            return ParseDateTimeOffset(dateTimeOffsetStr);
+        }
+
         public static DateTimeOffset ParseDateTimeOffset(string dateTimeOffsetStr)
         {
             if (string.IsNullOrEmpty(dateTimeOffsetStr)) return default(DateTimeOffset);
