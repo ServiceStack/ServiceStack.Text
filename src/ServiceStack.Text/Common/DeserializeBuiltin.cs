@@ -57,7 +57,7 @@ namespace ServiceStack.Text.Common
             if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
                 return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
             if ( typeof(T) == typeof(DateTimeOffset?))
-                return value => DateTimeSerializer.ParesNullableDateTimeOffset(value);
+                return value => DateTimeSerializer.ParseNullableDateTimeOffset(value);
             if (typeof(T) == typeof(DateTimeOffset))
                 return value => DateTimeSerializer.ParseDateTimeOffset(value);
             if (typeof(T) == typeof(TimeSpan))
