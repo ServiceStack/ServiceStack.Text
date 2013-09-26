@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using NUnit.Framework;
-using ServiceStack.Common.Extensions;
 
 namespace ServiceStack.Text.Tests.UseCases
 {
@@ -169,7 +168,7 @@ namespace ServiceStack.Text.Tests.UseCases
 			var gitHubResponse = JsonSerializer.DeserializeFromString<GitHubResponse>(JsonGitResponse);
 
 			Console.WriteLine(gitHubResponse.Dump()); //See what's been parsed
-			Assert.That(gitHubResponse.pulls.SelectMany(p => p.discussion).ConvertAll(x => x.type),
+			Assert.That(gitHubResponse.pulls.SelectMany(p => p.discussion).Map(x => x.type),
 				Is.EquivalentTo(new[] { "IssueComment", "Commit" }));
 		}
 

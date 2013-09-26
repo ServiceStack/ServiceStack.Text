@@ -6,7 +6,6 @@ using NUnit.Framework;
 #if !MONOTOUCH
 using System.ComponentModel.DataAnnotations;
 using Northwind.Common.ComplexModel;
-using ServiceStack.Common.Extensions;
 using ServiceStack.Common.Tests.Models;
 #endif
 using ServiceStack.Text.Common;

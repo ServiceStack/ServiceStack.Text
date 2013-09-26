@@ -1,8 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-#if !MONOTOUCH
-using ServiceStack.ServiceModel.Serialization;
-#endif
+using ServiceStack.Serialization;
 
 namespace ServiceStack.Text.Tests
 {

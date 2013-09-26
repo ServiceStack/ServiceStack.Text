@@ -28,7 +28,7 @@ namespace ServiceStack.Text.Tests
 
 			var dtoString = TypeSerializer.SerializeToString(dto);
 
-			Assert.That(dtoString, Is.EqualTo("{Errors:[]}"));
+			Assert.That(dtoString, Is.EqualTo("{}"));
 
 			Console.WriteLine(dtoString);
 		}

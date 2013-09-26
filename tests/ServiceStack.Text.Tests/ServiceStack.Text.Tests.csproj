@@ -110,10 +110,6 @@
     <Reference Include="ServiceStack.Common">
       <HintPath>..\..\lib\tests\ServiceStack.Common.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Common.Tests, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\tests\ServiceStack.Common.Tests.dll</HintPath>
-    </Reference>
     <Reference Include="ServiceStack.Interfaces">
       <HintPath>..\..\lib\tests\ServiceStack.Interfaces.dll</HintPath>
     </Reference>
@@ -209,6 +205,31 @@
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />
     <Compile Include="MessagingTests.cs" />
     <Compile Include="NullableTypesTests.cs" />
+    <Compile Include="Shared\IModelFactory.cs" />
+    <Compile Include="Shared\ModelFactoryBase.cs" />
+    <Compile Include="Shared\ModelWithComplexTypes.cs" />
+    <Compile Include="Shared\ModelWithComplexTypesFactory.cs" />
+    <Compile Include="Shared\ModelWithCompositeIndexFields.cs" />
+    <Compile Include="Shared\ModelWithFieldsOfDifferentAndNullableTypes.cs" />
+    <Compile Include="Shared\ModelWithFieldsOfDifferentAndNullableTypesFactory.cs" />
+    <Compile Include="Shared\ModelWithFieldsOfDifferentTypes.cs" />
+    <Compile Include="Shared\ModelWithFieldsOfDifferentTypesFactory.cs" />
+    <Compile Include="Shared\ModelWithFieldsOfNullableTypes.cs" />
+    <Compile Include="Shared\ModelWithFieldsOfNullableTypesFactory.cs" />
+    <Compile Include="Shared\ModelWithIdAndName.cs" />
+    <Compile Include="Shared\ModelWithIdOnly.cs" />
+    <Compile Include="Shared\ModelWithIndexFields.cs" />
+    <Compile Include="Shared\ModelWithLongIdAndStringFields.cs" />
+    <Compile Include="Shared\ModelWithMapAndList.cs" />
+    <Compile Include="Shared\ModelWithNamedCompositeIndex.cs" />
+    <Compile Include="Shared\ModelWithOnlyStringFields.cs" />
+    <Compile Include="Shared\Movie.cs" />
+    <Compile Include="Shared\PerfTestBase.cs" />
+    <Compile Include="Shared\Poco.cs" />
+    <Compile Include="Shared\SampleOrderLine.cs" />
+    <Compile Include="Shared\Shipper.cs" />
+    <Compile Include="Shared\ShipperFactory.cs" />
+    <Compile Include="Shared\TaskQueue.cs" />
     <Compile Include="StringConverterUtilsTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="StructTests.cs" />
@@ -234,7 +255,6 @@
     <Compile Include="UseCases\GitHubRestTests.cs" />
     <Compile Include="UseCases\GithubV3ApiTests.cs" />
     <Compile Include="Utils\DateTimeSerializerTests.cs" />
-    <Compile Include="DdnContentIngestTests.cs" />
     <Compile Include="Support\DdnDtos.cs" />
     <Compile Include="DdnDtoTests.cs" />
     <Compile Include="DynamicModels\ComplexObjectGraphTest.cs" />

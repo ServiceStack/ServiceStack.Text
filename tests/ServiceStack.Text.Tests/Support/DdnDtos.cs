@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using ServiceStack.DataAnnotations;
-using ServiceStack.DesignPatterns.Model;
+using ServiceStack.Model;
 
 namespace ServiceStack.Text.Tests.Support
 {
@@ -343,17 +343,6 @@ namespace ServiceStack.Text.Tests.Support
 			get;
 			set;
 		}
-	}
-
-	[CollectionDataContract(Namespace = "http://schemas.ddnglobal.com/types/", ItemName = "Id")]
-	public class ArrayOfStringId : List<string>
-	{
-		public ArrayOfStringId() { }
-		public ArrayOfStringId(IEnumerable<string> collection) : base(collection) { }
-
-		//TODO: allow params[] constructor, fails on: o.TranslateTo<ArrayOfStringId>() 
-		public static ArrayOfStringId New(params string[] ids) { return new ArrayOfStringId(ids); }
-		//public ArrayOfStringId(params string[] ids) : base(ids) { }
 	}
 
 	public enum FlowPostType

@@ -2,9 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-#if !MONOTOUCH
-using ServiceStack.ServiceInterface.ServiceModel;
-#endif
 
 namespace ServiceStack.Text.Tests
 {

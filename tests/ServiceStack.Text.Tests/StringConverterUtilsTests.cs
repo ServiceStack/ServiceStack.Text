@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-#if !MONOTOUCH
-using ServiceStack.ServiceInterface.ServiceModel;
-#endif
 using ServiceStack.Text;
 
 namespace ServiceStack.ServiceModel.Tests
