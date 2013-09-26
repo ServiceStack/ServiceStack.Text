@@ -74,7 +74,10 @@ namespace ServiceStack.Text.Jsv
 		{
 			if (value != null)
 			{
-				writer.Write(value.ToString().EncodeJsv());
+                if(value is string)
+                    WriteString(writer, value as string);
+                else
+				    writer.Write(value.ToString().EncodeJsv());
 			}
 		}
 
@@ -85,6 +88,11 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteString(TextWriter writer, string value)
 		{
+            if(JsState.QueryStringMode && !string.IsNullOrEmpty(value) && value.StartsWith(JsWriter.QuoteString) && value.EndsWith(JsWriter.QuoteString))
+                value = String.Concat(JsWriter.QuoteChar, value, JsWriter.QuoteChar);
+		    else if (JsState.QueryStringMode && !string.IsNullOrEmpty(value) && value.Contains(JsWriter.ItemSeperatorString))
+		        value = String.Concat(JsWriter.QuoteChar, value, JsWriter.QuoteChar);
+            
 			writer.Write(value.EncodeJsv());
 		}
 
