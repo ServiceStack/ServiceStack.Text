@@ -2,47 +2,42 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Web;
-using Funq;
 using NUnit.Framework;
-using ServiceStack.ServiceHost;
-using ServiceStack.ServiceInterface.Testing;
-using ServiceStack.WebHost.Endpoints;
-using ServiceStack.WebHost.Endpoints.Support.Mocks;
+using ServiceStack.Host;
+using ServiceStack.Testing;
 
 namespace ServiceStack.Text.Tests
 {
-	public class C
-	{
-		public int? A { get; set; }
-		public int? B { get; set; }
-	}
+    public class C
+    {
+        public int? A { get; set; }
+        public int? B { get; set; }
+    }
 
-	[TestFixture]
-	public class QueryStringSerializerTests
-	{
+    [TestFixture]
+    public class QueryStringSerializerTests
+    {
         class D
         {
             public string A { get; set; }
             public string B { get; set; }
         }
 
-		[Test]
-		public void Can_serialize_query_string()
-		{
-			Assert.That(QueryStringSerializer.SerializeToString(new C { A = 1, B = 2 }),
-				Is.EqualTo("A=1&B=2"));
+        [Test]
+        public void Can_serialize_query_string()
+        {
+            Assert.That(QueryStringSerializer.SerializeToString(new C { A = 1, B = 2 }),
+                Is.EqualTo("A=1&B=2"));
 
-			Assert.That(QueryStringSerializer.SerializeToString(new C { A = null, B = 2 }),
-				Is.EqualTo("B=2"));
-		}
+            Assert.That(QueryStringSerializer.SerializeToString(new C { A = null, B = 2 }),
+                Is.EqualTo("B=2"));
+        }
 
         [Test]
         public void Can_Serialize_Unicode_Query_String()
         {
-            Assert.That(QueryStringSerializer.SerializeToString(new D { A = "믬㼼摄䰸蠧蛛㙷뇰믓堐锗멮ᙒ덃", B = "八敁喖䉬ڵẀ똦⌀羭䥀主䧒蚭㾐타" }), 
+            Assert.That(QueryStringSerializer.SerializeToString(new D { A = "믬㼼摄䰸蠧蛛㙷뇰믓堐锗멮ᙒ덃", B = "八敁喖䉬ڵẀ똦⌀羭䥀主䧒蚭㾐타" }),
                 Is.EqualTo("A=%eb%af%ac%e3%bc%bc%e6%91%84%e4%b0%b8%e8%a0%a7%e8%9b%9b%e3%99%b7%eb%87%b0%eb%af%93%e5%a0" +
                 "%90%e9%94%97%eb%a9%ae%e1%99%92%eb%8d%83&B=%e5%85%ab%e6%95%81%e5%96%96%e4%89%ac%da%b5%e1%ba%80%eb%98%a6%e2%8c%80%e7%be%ad%e4" +
                 "%a5%80%e4%b8%bb%e4%a7%92%e8%9a%ad%e3%be%90%ed%83%80"));
@@ -51,7 +46,7 @@ namespace ServiceStack.Text.Tests
                 Is.EqualTo("A=%e5%b4%91%e2%a8%b9%e5%a0%a1%ea%81%80%e1%a2%96%e3%a4%b9%c3%ac%e3%ad%a1%ec%a4%aa%e9%8a%ac"));
         }
 
-        class Empty {}
+        class Empty { }
 
         [Test]
         public void Can_serialize_empty_object()
@@ -59,11 +54,11 @@ namespace ServiceStack.Text.Tests
             Assert.That(QueryStringSerializer.SerializeToString(new Empty()), Is.Empty);
         }
 
-	    [Test]
-	    public void Can_serialize_newline()
-	    {
-            Assert.That(QueryStringSerializer.SerializeToString(new {newline = "\r\n"}), Is.EqualTo("newline=%0d%0a"));
-	    }
+        [Test]
+        public void Can_serialize_newline()
+        {
+            Assert.That(QueryStringSerializer.SerializeToString(new { newline = "\r\n" }), Is.EqualTo("newline=%0d%0a"));
+        }
 
         [Test]
         public void Can_serialize_array_of_strings_with_colon()
@@ -74,55 +69,55 @@ namespace ServiceStack.Text.Tests
             Assert.That(QueryStringSerializer.SerializeToString(new { list = t }), Is.EqualTo("list=Foo%3aBar,Get%3aOut"));
         }
 
-	    [Test]
-	    public void Can_serialize_tab()
-	    {
+        [Test]
+        public void Can_serialize_tab()
+        {
             Assert.That(QueryStringSerializer.SerializeToString(new { tab = "\t" }), Is.EqualTo("tab=%09"));
-	    }
+        }
 
-		// NOTE: QueryStringSerializer doesn't have Deserialize, but this is how QS is parsed in ServiceStack
-	    [Test]
-	    public void Can_deserialize_query_string_nullableInt_null_yields_null()
-	    {
-	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(null), Is.EqualTo(null));
-	    }
+        // NOTE: QueryStringSerializer doesn't have Deserialize, but this is how QS is parsed in ServiceStack
+        [Test]
+        public void Can_deserialize_query_string_nullableInt_null_yields_null()
+        {
+            Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(null), Is.EqualTo(null));
+        }
 
-	    [Test]
-	    public void Can_deserialize_query_string_nullableInt_empty_yields_null()
-	    {
-	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(string.Empty), Is.EqualTo(null));
-	    }
+        [Test]
+        public void Can_deserialize_query_string_nullableInt_empty_yields_null()
+        {
+            Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(string.Empty), Is.EqualTo(null));
+        }
 
-	    [Test]
-	    public void Can_deserialize_query_string_nullableInt_intValues_yields_null()
-	    {
-	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(int.MaxValue.ToString()), Is.EqualTo(int.MaxValue));
+        [Test]
+        public void Can_deserialize_query_string_nullableInt_intValues_yields_null()
+        {
+            Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(int.MaxValue.ToString()), Is.EqualTo(int.MaxValue));
             Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(int.MinValue.ToString()), Is.EqualTo(int.MinValue));
-	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(0.ToString()), Is.EqualTo(0));
-	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse((-1).ToString()), Is.EqualTo(-1));
-	    	Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(1.ToString()), Is.EqualTo(1));
-	    }
+            Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(0.ToString()), Is.EqualTo(0));
+            Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse((-1).ToString()), Is.EqualTo(-1));
+            Assert.That(ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse(1.ToString()), Is.EqualTo(1));
+        }
 
-	    [Test]
-	    public void Can_deserialize_query_string_nullableInt_NaN_throws()
-	    {
-	    	Assert.Throws(typeof(FormatException), delegate { ServiceStack.Text.Common.DeserializeBuiltin<int?>.Parse("NaN"); });
-    	}
+        [Test]
+        public void Can_deserialize_query_string_nullableInt_NaN_throws()
+        {
+            Assert.Throws(typeof(FormatException), () => Common.DeserializeBuiltin<int?>.Parse("NaN"));
+        }
 
-	    [Test]
-	    public void Deos_serialize_QueryStrings()
-	    {
+        [Test]
+        public void Deos_serialize_QueryStrings()
+        {
             var testPocos = new TestPocos { ListOfA = new List<A> { new A { ListOfB = new List<B> { new B { Property = "prop1" }, new B { Property = "prop2" } } } } };
 
             Assert.That(QueryStringSerializer.SerializeToString(testPocos), Is.EqualTo(
                 "ListOfA={ListOfB:[{Property:prop1},{Property:prop2}]}"));
-            
+
             Assert.That(QueryStringSerializer.SerializeToString(new[] { 1, 2, 3 }), Is.EqualTo(
                 "[1,2,3]"));
 
             Assert.That(QueryStringSerializer.SerializeToString(new[] { "AA", "BB", "CC" }), Is.EqualTo(
                 "[AA,BB,CC]"));
-	    }
+        }
 
         [Test]
         public void Can_serialize_quoted_strings()
@@ -133,17 +128,19 @@ namespace ServiceStack.Text.Tests
 
         private T StringToPoco<T>(string str)
         {
-            var testAppHost = new TestAppHost();
-            NameValueCollection queryString = HttpUtility.ParseQueryString(str);
-            var restPath = new RestPath(typeof(T), "/query", "GET, POST");
-            var restHandler = new RestHandler()
+            using (new BasicAppHost().Init())
             {
-                RestPath = restPath
-            };
-            var httpReq = new HttpRequestMock("query", "GET", "application/json", "query", queryString,
-                                              new MemoryStream(), new NameValueCollection());
-            var request = (T)restHandler.CreateRequest(httpReq, "query");
-            return request;
+                NameValueCollection queryString = HttpUtility.ParseQueryString(str);
+                var restPath = new RestPath(typeof(T), "/query", "GET, POST");
+                var restHandler = new RestHandler
+                {
+                    RestPath = restPath
+                };
+                var httpReq = new MockHttpRequest("query", "GET", "application/json", "query", queryString,
+                                                  new MemoryStream(), new NameValueCollection());
+                var request = (T)restHandler.CreateRequest(httpReq, "query");
+                return request;
+            }
         }
 
         [Test]
@@ -158,7 +155,7 @@ namespace ServiceStack.Text.Tests
         {
             var testPocos = new TestPocos
                 {
-                    ListOfA = new List<A> {new A {ListOfB = new List<B> {new B {Property = "Doe, John", Property2 = "Doe", Property3 = "John"}}}}
+                    ListOfA = new List<A> { new A { ListOfB = new List<B> { new B { Property = "Doe, John", Property2 = "Doe", Property3 = "John" } } } }
                 };
             Assert.That(QueryStringSerializer.SerializeToString(testPocos), Is.EqualTo("ListOfA={ListOfB:[{Property:%22Doe,%20John%22,Property2:Doe,Property3:John}]}"));
         }
@@ -187,11 +184,11 @@ namespace ServiceStack.Text.Tests
             Assert.That(poco.ListOfA[0].ListOfB[0].Property3, Is.EqualTo("John"));
         }
 
-	    public class TestPocos
+        public class TestPocos
         {
             public List<A> ListOfA { get; set; }
         }
-        
+
         public class A
         {
             public List<B> ListOfB { get; set; }
