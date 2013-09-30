@@ -82,6 +82,8 @@
     <Compile Include="AssemblyUtils.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AutoMappingUtils.cs" />
+    <Compile Include="Build.Silverlight.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Common\DeserializeKeyValuePair.cs" />
     <Compile Include="Common\DeserializeDynamic.cs" />
@@ -235,6 +237,7 @@
     <Compile Include="Marc\Link.cs" />
     <Compile Include="Marc\ObjectAccessor.cs" />
     <Compile Include="Marc\TypeAccessor.cs" />
+    <Compile Include="PathUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryStringSerializer.cs">
       <SubType>Code</SubType>
@@ -279,7 +282,7 @@
     <Compile Include="TypeSerializer.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="HttpUtilExtensions.cs" />
+    <Compile Include="HttpUtils.cs" />
     <Compile Include="XmlSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

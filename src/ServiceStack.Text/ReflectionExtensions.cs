@@ -28,30 +28,6 @@ namespace ServiceStack.Text
 
     public static class ReflectionExtensions
     {
-        private static Dictionary<Type, object> DefaultValueTypes = new Dictionary<Type, object>();
-
-        public static object GetDefaultValue(this Type type)
-        {
-            if (!type.IsValueType()) return null;
-
-            object defaultValue;
-            if (DefaultValueTypes.TryGetValue(type, out defaultValue)) return defaultValue;
-
-            defaultValue = Activator.CreateInstance(type);
-
-            Dictionary<Type, object> snapshot, newCache;
-            do
-            {
-                snapshot = DefaultValueTypes;
-                newCache = new Dictionary<Type, object>(DefaultValueTypes);
-                newCache[type] = defaultValue;
-
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref DefaultValueTypes, newCache, snapshot), snapshot));
-
-            return defaultValue;
-        }
-
         public static bool IsInstanceOf(this Type type, Type thisOrBaseType)
         {
             while (type != null)

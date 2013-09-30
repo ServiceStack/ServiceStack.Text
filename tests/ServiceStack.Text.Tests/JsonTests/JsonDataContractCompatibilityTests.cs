@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using ServiceStack.Client;
 using ServiceStack.Text.Tests.Support;
 
 namespace ServiceStack.Text.Tests.JsonTests

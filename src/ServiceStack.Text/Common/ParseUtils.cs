@@ -11,8 +11,6 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace ServiceStack.Text.Common
 {
@@ -20,7 +18,7 @@ namespace ServiceStack.Text.Common
     {
         public static object NullValueType(Type type)
         {
-            return ReflectionExtensions.GetDefaultValue(type);
+            return type.GetDefaultValue();
         }
 
         public static object ParseObject(string value)

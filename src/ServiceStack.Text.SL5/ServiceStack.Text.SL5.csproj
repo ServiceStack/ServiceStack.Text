@@ -60,6 +60,12 @@
     <Compile Include="..\ServiceStack.Text\AssemblyUtils.cs">
       <Link>AssemblyUtils.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\AutoMappingUtils.cs">
+      <Link>AutoMappingUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\ServiceStack.Text\Build.Silverlight.cs">
+      <Link>Build.Silverlight.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\CollectionExtensions.cs">
       <Link>CollectionExtensions.cs</Link>
     </Compile>
@@ -162,6 +168,9 @@
     <Compile Include="..\ServiceStack.Text\Env.cs">
       <Link>Env.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\HttpUtils.cs">
+      <Link>HttpUtils.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\ITracer.cs">
       <Link>ITracer.cs</Link>
     </Compile>
@@ -228,6 +237,9 @@
     <Compile Include="..\ServiceStack.Text\Marc\TypeAccessor.cs">
       <Link>Marc\TypeAccessor.cs</Link>
     </Compile>
+    <Compile Include="..\ServiceStack.Text\PathUtils.cs">
+      <Link>PathUtils.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\QueryStringSerializer.cs">
       <Link>QueryStringSerializer.cs</Link>
     </Compile>
@@ -290,7 +302,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="579b3fdb-cdad-44e1-8417-885c38e49a0e" />
+      <UserProperties ProjectLinkReference="579b3fdb-cdad-44e1-8417-885c38e49a0e" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
