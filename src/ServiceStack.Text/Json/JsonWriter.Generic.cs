@@ -177,6 +177,8 @@ namespace ServiceStack.Text.Json
 
         public static void WriteObject(TextWriter writer, object value)
         {
+            LicenseUtils.AssertEvaluationLicense();
+
 #if MONOTOUCH
 			if (writer == null) return;
 #endif

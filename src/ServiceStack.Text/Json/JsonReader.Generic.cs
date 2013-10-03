@@ -66,6 +66,8 @@ namespace ServiceStack.Text.Json
 
 		public static object Parse(string value)
 		{
+            LicenseUtils.AssertEvaluationLicense();
+
 			if (ReadFn == null)
 			{
                 if (typeof(T).IsAbstract() || typeof(T).IsInterface())
