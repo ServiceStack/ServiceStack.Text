@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -546,11 +547,11 @@ namespace ServiceStack.Text
                     ? publicReadableProperties.Where(attr => 
                         attr.IsDefined(typeof(DataMemberAttribute), false)).ToArray()
                     : publicReadableProperties.Where(attr => 
-                        attr.CustomAttributes(false).Any(x => x.GetType().Name == DataMember)).ToArray();
+                        attr.AllAttributes(false).Any(x => x.GetType().Name == DataMember)).ToArray();
             }
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicReadableProperties.Where(prop => !prop.CustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
+            return publicReadableProperties.Where(prop => prop.AllAttributes(false).All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
         }
 
         public static FieldInfo[] GetSerializableFields(this Type type)
@@ -562,14 +563,9 @@ namespace ServiceStack.Text
             var publicFields = type.GetPublicFields();
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicFields.Where(prop => !prop.CustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
+            return publicFields.Where(prop => prop.AllAttributes(false).All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
         }
-
-        public static bool HasAttr<T>(this Type type) where T : Attribute
-        {
-            return type.HasAttribute<T>();
-        }
-
+        
 #if !SILVERLIGHT && !MONOTOUCH 
         static readonly Dictionary<Type, FastMember.TypeAccessor> typeAccessorMap 
             = new Dictionary<Type, FastMember.TypeAccessor>();
@@ -588,7 +584,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetDataMember(this PropertyInfo pi)
         {
-            var dataMember = pi.CustomAttributes(typeof(DataMemberAttribute), false)
+            var dataMember = pi.AllAttributes(typeof(DataMemberAttribute), false)
                 .FirstOrDefault() as DataMemberAttribute;
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
@@ -600,7 +596,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetDataMember(this FieldInfo pi)
         {
-            var dataMember = pi.CustomAttributes(typeof(DataMemberAttribute), false)
+            var dataMember = pi.AllAttributes(typeof(DataMemberAttribute), false)
                 .FirstOrDefault() as DataMemberAttribute;
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
@@ -613,7 +609,7 @@ namespace ServiceStack.Text
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
         public static DataContractAttribute GetWeakDataContract(this Type type)
         {
-            var attr = type.CustomAttributes().FirstOrDefault(x => x.GetType().Name == DataContract);
+            var attr = type.AllAttributes().FirstOrDefault(x => x.GetType().Name == DataContract);
             if (attr != null)
             {
                 var attrType = attr.GetType();
@@ -635,7 +631,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetWeakDataMember(this PropertyInfo pi)
         {
-            var attr = pi.CustomAttributes().FirstOrDefault(x => x.GetType().Name == DataMember);
+            var attr = pi.AllAttributes().FirstOrDefault(x => x.GetType().Name == DataMember);
             if (attr != null)
             {
                 var attrType = attr.GetType();
@@ -664,7 +660,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetWeakDataMember(this FieldInfo pi)
         {
-            var attr = pi.CustomAttributes().FirstOrDefault(x => x.GetType().Name == DataMember);
+            var attr = pi.AllAttributes().FirstOrDefault(x => x.GetType().Name == DataMember);
             if (attr != null)
             {
                 var attrType = attr.GetType();
@@ -857,12 +853,12 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static bool HasAttribute<T>(this Type type, bool inherit = true) where T : Attribute
+        public static bool HasAttribute<T>(this Type type, bool inherit = true)
         {
-            return type.CustomAttributes(inherit).Any(x => x.GetType() == typeof(T));
+            return type.AllAttributes(inherit).Any(x => x.GetType() == typeof(T));
         }
 
-        public static IEnumerable<T> AttributesOfType<T>(this Type type, bool inherit = true) where T : Attribute
+        public static IEnumerable<T> AttributesOfType<T>(this Type type, bool inherit = true)
         {
 #if NETFX_CORE
             return type.GetTypeInfo().GetCustomAttributes<T>(inherit);
@@ -913,7 +909,7 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static object[] CustomAttributes(this PropertyInfo propertyInfo, bool inherit = true)
+        public static object[] AllAttributes(this PropertyInfo propertyInfo, bool inherit = true)
         {
 #if NETFX_CORE
             return propertyInfo.GetCustomAttributes(inherit).ToArray();
@@ -922,7 +918,7 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static object[] CustomAttributes(this PropertyInfo propertyInfo, Type attrType, bool inherit = true)
+        public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType, bool inherit = true)
         {
 #if NETFX_CORE
             return propertyInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
@@ -931,7 +927,7 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static object[] CustomAttributes(this FieldInfo fieldInfo, bool inherit = true)
+        public static object[] AllAttributes(this FieldInfo fieldInfo, bool inherit = true)
         {
 #if NETFX_CORE
             return fieldInfo.GetCustomAttributes(inherit).ToArray();
@@ -940,7 +936,16 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static object[] CustomAttributes(this FieldInfo fieldInfo, Type attrType, bool inherit = true)
+        public static object[] AllAttributes(this MemberInfo meberInfo, Type attrType, bool inherit = true)
+        {
+#if NETFX_CORE
+            return meberInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
+#else
+            return meberInfo.GetCustomAttributes(attrType, inherit);
+#endif
+        }
+
+        public static object[] AllAttributes(this FieldInfo fieldInfo, Type attrType, bool inherit = true)
         {
 #if NETFX_CORE
             return fieldInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
@@ -949,7 +954,7 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static object[] CustomAttributes(this Type type, bool inherit = true)
+        public static object[] AllAttributes(this Type type, bool inherit = true)
         {
 #if NETFX_CORE
             return type.GetTypeInfo().GetCustomAttributes(inherit).ToArray();
@@ -958,44 +963,72 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static object[] CustomAttributes(this Type type, Type attrType, bool inherit = true)
+        public static object[] AllAttributes(this Type type, Type attrType, bool inherit = true)
         {
 #if NETFX_CORE
             return type.GetTypeInfo().GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
-#else
+#elif SILVERLIGHT
             return type.GetCustomAttributes(attrType, inherit);
+#else
+            return TypeDescriptor.GetAttributes(type).OfType<Attribute>().ToArray();
 #endif
         }
 
-        public static TAttr FirstAttribute<TAttr>(this Type type, bool inherit = true) where TAttr : Attribute
+        public static TAttr[] AllAttributes<TAttr>(this MemberInfo mi)
+        {
+            return mi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
+        }
+
+        public static TAttr[] AllAttributes<TAttr>(this FieldInfo fi)
+        {
+            return fi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
+        }
+
+        public static TAttr[] AllAttributes<TAttr>(this PropertyInfo pi)
+        {
+            return pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
+        }
+
+        public static TAttr[] AllAttributes<TAttr>(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), inherit)
-                .FirstOrDefault() as TAttr;
+            return type.GetTypeInfo().GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
+#elif SILVERLIGHT
+            return type.GetCustomAttributes(typeof(TAttr), true).Cast<TAttr>().ToArray();
 #else
-            return type.GetCustomAttributes(typeof(TAttr), inherit)
-                   .FirstOrDefault() as TAttr;
+            return TypeDescriptor.GetAttributes(type).OfType<TAttr>().ToArray();
+#endif
+        }
+
+        public static TAttr FirstAttribute<TAttr>(this Type type, bool inherit = true) 
+        {
+#if NETFX_CORE
+            return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), inherit)
+                    .FirstOrDefault();
+#elif SILVERLIGHT
+            return (TAttr)type.GetCustomAttributes(typeof(TAttr), inherit)
+                   .FirstOrDefault();
+#else
+            return TypeDescriptor.GetAttributes(type).OfType<TAttr>().FirstOrDefault();
 #endif
         }
         
         public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo)
-            where TAttribute : Attribute
         {
             return propertyInfo.FirstAttribute<TAttribute>(true);
         }
 
         public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo, bool inherit)
-            where TAttribute : Attribute
         {
 #if NETFX_CORE
             var attrs = propertyInfo.GetCustomAttributes<TAttribute>(inherit);
             return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
-#else
+#else 
             var attrs = propertyInfo.GetCustomAttributes(typeof(TAttribute), inherit);
             return (TAttribute)(attrs.Length > 0 ? attrs[0] : null);
 #endif
         }
-
+        
         public static Type FirstGenericTypeDefinition(this Type type)
         {
             while (type != null)

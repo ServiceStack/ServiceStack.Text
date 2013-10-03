@@ -41,11 +41,6 @@ namespace ServiceStack
             }
         }
 
-        public static List<T> ToAttributes<T>(this Type type) where T : Attribute
-        {
-            return type.CustomAttributes().Cast<T>().ToList();
-        }
-
 #if !SILVERLIGHT
         public static string GetAssemblyPath(this Type source)
         {
@@ -516,7 +511,7 @@ namespace ServiceStack
             return false;
         }
 
-        public static IEnumerable<KeyValuePair<PropertyInfo, T>> GetPropertyAttributes<T>(Type fromType) where T : Attribute
+        public static IEnumerable<KeyValuePair<PropertyInfo, T>> GetPropertyAttributes<T>(Type fromType)
         {
             var attributeType = typeof(T);
             var baseType = fromType;
@@ -630,7 +625,7 @@ namespace ServiceStack
         public void PopulateFromPropertiesWithAttribute(object to, object from, Type attributeType)
         {
             var hasAttributePredicate = (Func<PropertyInfo, bool>)
-                (x => x.CustomAttributes(attributeType).Length > 0);
+                (x => x.AllAttributes(attributeType).Length > 0);
             Populate(to, from, hasAttributePredicate, null);
         }
 
