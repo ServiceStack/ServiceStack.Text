@@ -692,7 +692,7 @@ namespace ServiceStack.Text
             var sb = new StringBuilder(value.Length);
             foreach (var t in value)
             {
-                if (Char.IsLower(t) || t == '_')
+                if (Char.IsDigit(t) || (Char.IsLetter(t) && Char.IsLower(t)) || t == '_')
                 {
                     sb.Append(t);
                 }
