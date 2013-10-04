@@ -37,7 +37,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             };
 
             var json = dto.ToJson();
-            
+
             Assert.That(json, Is.EqualTo(
                 "{\"id\":1,\"title\":\"The Shawshank Redemption\",\"imdb_id\":\"tt0111161\",\"rating\":9.2,\"director\":\"Frank Darabont\",\"release_date\":\"\\/Date(792979200000)\\/\",\"tag_line\":\"Fear can hold you prisoner. Hope can set you free.\",\"genres\":[\"Crime\",\"Drama\"]}"));
 
@@ -55,14 +55,21 @@ namespace ServiceStack.Text.Tests.JsonTests
 
         class WithUnderscore
         {
-            public int ? user_id { get; set; }
+            public int? user_id { get; set; }
+        }
+        class WithUnderscoreDigits
+        {
+            public int? user_id_0 { get; set; }
         }
 
         [Test]
         public void Should_not_put_double_underscore()
         {
-            var t = new WithUnderscore {user_id = 0};
+            var t = new WithUnderscore { user_id = 0 };
             Assert.That(t.ToJson(), Is.EqualTo("{\"user_id\":0}"));
+
+            var u = new WithUnderscoreDigits { user_id_0 = 0 };
+            Assert.That(u.ToJson(), Is.EqualTo("{\"user_id_0\":0}"));
         }
 
         [Test]
@@ -75,6 +82,19 @@ namespace ServiceStack.Text.Tests.JsonTests
             };
             Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,name:Abc}"));
             Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"name\":\"Abc\"}"));
+        }
+
+
+        class WithUnderscoreSeveralDigits
+        {
+            public int? user_id_00_11 { get; set; }
+        }
+
+        [Test]
+        public void Should_not_split_digits()
+        {
+            var u = new WithUnderscoreSeveralDigits { user_id_00_11 = 0 };
+            Assert.That(u.ToJson(), Is.EqualTo("{\"user_id_00_11\":0}"));
         }
     }
 }
