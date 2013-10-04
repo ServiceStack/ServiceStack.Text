@@ -5,9 +5,9 @@
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2012 ServiceStack Ltd.
+// Copyright 2012 Service Stack LLC. All Rights Reserved.
 //
-// Licensed under the same terms of ServiceStack: new BSD license.
+// Licensed under the same terms of ServiceStack.
 //
 
 using System;
@@ -858,13 +858,28 @@ namespace ServiceStack.Text
             return type.AllAttributes(inherit).Any(x => x.GetType() == typeof(T));
         }
 
-        public static IEnumerable<T> AttributesOfType<T>(this Type type, bool inherit = true)
+        public static bool HasAttributeNamed(this Type type, string name, bool inherit = true)
         {
-#if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes<T>(inherit);
-#else
-            return type.GetCustomAttributes(inherit).OfType<T>();
-#endif
+            var normalizedAttr = name.Replace("Attribute", "").ToLower();
+            return type.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+        }
+
+        public static bool HasAttributeNamed(this PropertyInfo pi, string name, bool inherit = true)
+        {
+            var normalizedAttr = name.Replace("Attribute", "").ToLower();
+            return pi.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+        }
+
+        public static bool HasAttributeNamed(this FieldInfo fi, string name, bool inherit = true)
+        {
+            var normalizedAttr = name.Replace("Attribute", "").ToLower();
+            return fi.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+        }
+
+        public static bool HasAttributeNamed(this MemberInfo mi, string name, bool inherit = true)
+        {
+            var normalizedAttr = name.Replace("Attribute", "").ToLower();
+            return mi.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
         }
 
         const string DataContract = "DataContractAttribute";
@@ -936,6 +951,15 @@ namespace ServiceStack.Text
 #endif
         }
 
+        public static object[] AllAttributes(this MemberInfo memberInfo, bool inherit = true)
+        {
+#if NETFX_CORE
+            return memberInfo.GetCustomAttributes(inherit).ToArray();
+#else
+            return memberInfo.GetCustomAttributes(inherit);
+#endif
+        }
+
         public static object[] AllAttributes(this MemberInfo meberInfo, Type attrType, bool inherit = true)
         {
 #if NETFX_CORE
@@ -989,14 +1013,14 @@ namespace ServiceStack.Text
             return pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
         }
 
-        public static TAttr[] AllAttributes<TAttr>(this Type type)
+        public static TAttr[] AllAttributes<TAttr>(this Type type, bool inherit = true)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
+            return type.GetTypeInfo().GetCustomAttributes<T>(inherit).ToArray();
 #elif SILVERLIGHT
             return type.GetCustomAttributes(typeof(TAttr), true).Cast<TAttr>().ToArray();
 #else
-            return TypeDescriptor.GetAttributes(type).OfType<TAttr>().ToArray();
+            return type.GetCustomAttributes(inherit).OfType<TAttr>().ToArray();
 #endif
         }
 

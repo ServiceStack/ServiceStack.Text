@@ -8,7 +8,7 @@
 //
 // Copyright 2012 Liquidbit Ltd.
 //
-// Licensed under the same terms of ServiceStack: new BSD license.
+// Licensed under the same terms of ServiceStack.
 //
 
 using System;
