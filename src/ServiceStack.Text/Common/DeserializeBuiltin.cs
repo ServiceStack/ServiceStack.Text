@@ -45,15 +45,15 @@ namespace ServiceStack.Text.Common
                     case TypeCode.Int16:
                         return value => short.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.UInt16:
-                        return value => ushort.Parse(value);
+                        return value => ushort.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Int32:
                         return value => int.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.UInt32:
-                        return value => uint.Parse(value);
+                        return value => uint.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Int64:
                         return value => long.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.UInt64:
-                        return value => ulong.Parse(value);
+                        return value => ulong.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Single:
                         return value => float.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Double:
@@ -86,21 +86,21 @@ namespace ServiceStack.Text.Common
                     case TypeCode.Boolean:
                         return value => string.IsNullOrEmpty(value) ? (bool?)null : value.Length == 1 ? value == "1" : bool.Parse(value);
                     case TypeCode.Byte:
-                        return value => string.IsNullOrEmpty(value) ? (byte?)null : byte.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (byte?)null : byte.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.SByte:
-                        return value => string.IsNullOrEmpty(value) ? (sbyte?)null : sbyte.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (sbyte?)null : sbyte.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Int16:
-                        return value => string.IsNullOrEmpty(value) ? (short?)null : short.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (short?)null : short.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.UInt16:
-                        return value => string.IsNullOrEmpty(value) ? (ushort?)null : ushort.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (ushort?)null : ushort.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Int32:
-                        return value => string.IsNullOrEmpty(value) ? (int?)null : int.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (int?)null : int.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.UInt32:
-                        return value => string.IsNullOrEmpty(value) ? (uint?)null : uint.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (uint?)null : uint.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Int64:
-                        return value => string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (long?)null : long.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.UInt64:
-                        return value => string.IsNullOrEmpty(value) ? (ulong?)null : ulong.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? (ulong?)null : ulong.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Single:
                         return value => string.IsNullOrEmpty(value) ? (float?)null : float.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Double:
