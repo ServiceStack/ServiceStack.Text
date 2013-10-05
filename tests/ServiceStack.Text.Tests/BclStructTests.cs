@@ -6,41 +6,41 @@ using ServiceStack.Common;
 
 namespace ServiceStack.Text.Tests
 {
-	public class BclStructTests : TestBase
-	{
-		static BclStructTests()
-		{
-			JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
-			JsConfig<Color>.DeSerializeFn = Color.FromName;
-		}
+    public class BclStructTests : TestBase
+    {
+        static BclStructTests()
+        {
+            JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
+            JsConfig<Color>.DeSerializeFn = Color.FromName;
+        }
 
-		[Test]
-		public void Can_serialize_Color()
-		{
-			var color = Color.Red;
+        [Test]
+        public void Can_serialize_Color()
+        {
+            var color = Color.Red;
 
-			var fromColor = Serialize(color);
+            var fromColor = Serialize(color);
 
-			Assert.That(fromColor, Is.EqualTo(color));
-		}
+            Assert.That(fromColor, Is.EqualTo(color));
+        }
 
-		public enum MyEnum
-		{
-			Enum1,
-			Enum2,
-			Enum3,
-		}
+        public enum MyEnum
+        {
+            Enum1,
+            Enum2,
+            Enum3,
+        }
 
-		[Test]
-		public void Can_serialize_arrays_of_enums()
-		{
-			var enums = new[] { MyEnum.Enum1, MyEnum.Enum2, MyEnum.Enum3 };
-			var fromEnums = Serialize(enums);
+        [Test]
+        public void Can_serialize_arrays_of_enums()
+        {
+            var enums = new[] { MyEnum.Enum1, MyEnum.Enum2, MyEnum.Enum3 };
+            var fromEnums = Serialize(enums);
 
-			Assert.That(fromEnums[0], Is.EqualTo(MyEnum.Enum1));
-			Assert.That(fromEnums[1], Is.EqualTo(MyEnum.Enum2));
-			Assert.That(fromEnums[2], Is.EqualTo(MyEnum.Enum3));
-		}
+            Assert.That(fromEnums[0], Is.EqualTo(MyEnum.Enum1));
+            Assert.That(fromEnums[1], Is.EqualTo(MyEnum.Enum2));
+            Assert.That(fromEnums[2], Is.EqualTo(MyEnum.Enum3));
+        }
 
         [Flags]
         public enum ExampleEnum
@@ -99,6 +99,21 @@ namespace ServiceStack.Text.Tests
 
             var dtoFalse = "{\"favorite\":false}".FromJson<Item>();
             Assert.That(dtoFalse.IsFavorite, Is.False);
+        }
+
+        [Test]
+        public void GetUnderlyingTypeCode_tests()
+        {
+            Assert.That(Type.GetTypeCode(typeof(int)), Is.EqualTo(TypeCode.Int32));
+            Assert.That(Type.GetTypeCode(typeof(int?)), Is.EqualTo(TypeCode.Object));
+            Assert.That(Type.GetTypeCode(typeof(string)), Is.EqualTo(TypeCode.String));
+            Assert.That(Type.GetTypeCode(typeof(TypeCode)), Is.EqualTo(TypeCode.Int32)); //enum
+
+            Assert.That(typeof(int).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Int32));
+            Assert.That(typeof(int?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Int32));
+            Assert.That(typeof(float?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Single));
+            Assert.That(typeof(double?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Double));
+            Assert.That(typeof(decimal?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Decimal));
         }
     }
 }

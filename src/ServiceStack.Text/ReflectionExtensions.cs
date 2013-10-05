@@ -139,6 +139,11 @@ namespace ServiceStack.Text
             return true;
         }
 
+        public static TypeCode GetUnderlyingTypeCode(this Type type)
+        {
+            return Type.GetTypeCode(Nullable.GetUnderlyingType(type) ?? type);
+        }
+
         public static bool IsNumericType(this Type type)
         {
             if (type == null) return false;
