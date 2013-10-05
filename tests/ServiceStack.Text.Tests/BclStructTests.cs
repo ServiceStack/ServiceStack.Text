@@ -114,6 +114,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(typeof(float?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Single));
             Assert.That(typeof(double?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Double));
             Assert.That(typeof(decimal?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Decimal));
+            Assert.That(typeof(DateTime?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.DateTime));
         }
     }
 }

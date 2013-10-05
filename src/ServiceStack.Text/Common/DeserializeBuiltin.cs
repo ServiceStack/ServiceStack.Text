@@ -60,6 +60,8 @@ namespace ServiceStack.Text.Common
                         return value => double.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Decimal:
                         return value => decimal.Parse(value, CultureInfo.InvariantCulture);
+                    case TypeCode.DateTime:
+                        return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
                     case TypeCode.Char:
                         char cValue;
                         return value => char.TryParse(value, out cValue) ? cValue : '\0';
@@ -67,8 +69,6 @@ namespace ServiceStack.Text.Common
 
                 if (typeof(T) == typeof(Guid))
                     return value => new Guid(value);
-                if (typeof(T) == typeof(DateTime))
-                    return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
                 if (typeof(T) == typeof(DateTimeOffset))
                     return value => DateTimeSerializer.ParseDateTimeOffset(value);
                 if (typeof(T) == typeof(TimeSpan))
@@ -107,13 +107,13 @@ namespace ServiceStack.Text.Common
                         return value => string.IsNullOrEmpty(value) ? (double?)null : double.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.Decimal:
                         return value => string.IsNullOrEmpty(value) ? (decimal?)null : decimal.Parse(value, CultureInfo.InvariantCulture);
+                    case TypeCode.DateTime:
+                        return value => DateTimeSerializer.ParseShortestNullableXsdDateTime(value);
                     case TypeCode.Char:
                         char cValue;
                         return value => string.IsNullOrEmpty(value) ? (char?)null : char.TryParse(value, out cValue) ? cValue : '\0';
                 }
 
-                if (typeof(T) == typeof(DateTime?))
-                    return value => DateTimeSerializer.ParseShortestNullableXsdDateTime(value);
                 if (typeof(T) == typeof(TimeSpan?))
                     return value => DateTimeSerializer.ParseNullableTimeSpan(value);
                 if (typeof(T) == typeof(Guid?))
