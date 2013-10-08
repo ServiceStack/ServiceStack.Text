@@ -313,13 +313,13 @@ namespace ServiceStack.Text.Common
                 return Serializer.WriteDecimal;
 
             if (type.IsUnderlyingEnum())
-                return type.FirstAttribute<FlagsAttribute>(false) != null
+                return type.FirstAttribute<FlagsAttribute>() != null
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
             Type nullableType;
             if ((nullableType = Nullable.GetUnderlyingType(type)) != null && nullableType.IsEnum())
-                return nullableType.FirstAttribute<FlagsAttribute>(false) != null
+                return nullableType.FirstAttribute<FlagsAttribute>() != null
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 

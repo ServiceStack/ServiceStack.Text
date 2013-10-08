@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -181,7 +182,7 @@ namespace ServiceStack.Text
             }
             return false;
         }
-        
+
         public static bool IsIntegerType(this Type type)
         {
             if (type == null) return false;
@@ -233,7 +234,7 @@ namespace ServiceStack.Text
         {
             foreach (var t in type.GetTypeInterfaces())
             {
-                if (t.IsGeneric() && t.GetGenericTypeDefinition() == genericInterfaceType) 
+                if (t.IsGeneric() && t.GetGenericTypeDefinition() == genericInterfaceType)
                     return t;
             }
 
@@ -399,7 +400,7 @@ namespace ServiceStack.Text
             {
                 var genericArgs = type.GetGenericArguments();
                 var typeArgs = new Type[genericArgs.Length];
-                for (var i=0; i<genericArgs.Length; i++)
+                for (var i = 0; i < genericArgs.Length; i++)
                     typeArgs[i] = typeof(object);
 
                 var realizedType = type.MakeGenericType(typeArgs);
@@ -488,7 +489,7 @@ namespace ServiceStack.Text
         }
 
         public static T CreateInstance<T>(this Type type)
-        {   
+        {
             var ctorFn = GetConstructorMethod(type);
             return (T)ctorFn();
         }
@@ -549,9 +550,9 @@ namespace ServiceStack.Text
             if (type.IsDto())
             {
                 return !Env.IsMono
-                    ? publicReadableProperties.Where(attr => 
+                    ? publicReadableProperties.Where(attr =>
                         attr.IsDefined(typeof(DataMemberAttribute), false)).ToArray()
-                    : publicReadableProperties.Where(attr => 
+                    : publicReadableProperties.Where(attr =>
                         attr.AllAttributes().Any(x => x.GetType().Name == DataMember)).ToArray();
             }
 
@@ -561,18 +562,19 @@ namespace ServiceStack.Text
 
         public static FieldInfo[] GetSerializableFields(this Type type)
         {
-            if (type.IsDto()) {
+            if (type.IsDto())
+            {
                 return new FieldInfo[0];
             }
-            
+
             var publicFields = type.GetPublicFields();
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicFields.Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
         }
-        
-#if !SILVERLIGHT && !MONOTOUCH 
-        static readonly Dictionary<Type, FastMember.TypeAccessor> typeAccessorMap 
+
+#if !SILVERLIGHT && !MONOTOUCH
+        static readonly Dictionary<Type, FastMember.TypeAccessor> typeAccessorMap
             = new Dictionary<Type, FastMember.TypeAccessor>();
 #endif
 
@@ -626,7 +628,8 @@ namespace ServiceStack.Text
                         typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
                 }
 
-                return new DataContractAttribute {
+                return new DataContractAttribute
+                {
                     Name = (string)accessor[attr, "Name"],
                     Namespace = (string)accessor[attr, "Namespace"],
                 };
@@ -648,8 +651,9 @@ namespace ServiceStack.Text
                         typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
                 }
 
-                var newAttr = new DataMemberAttribute {
-                    Name = (string) accessor[attr, "Name"],
+                var newAttr = new DataMemberAttribute
+                {
+                    Name = (string)accessor[attr, "Name"],
                     EmitDefaultValue = (bool)accessor[attr, "EmitDefaultValue"],
                     IsRequired = (bool)accessor[attr, "IsRequired"],
                 };
@@ -929,12 +933,97 @@ namespace ServiceStack.Text
 #endif
         }
 
+        static readonly Dictionary<string, List<Attribute>> propertyAttributesMap
+            = new Dictionary<string, List<Attribute>>();
+
+        internal static string UniqueKey(this PropertyInfo pi)
+        {
+            if (pi.DeclaringType == null)
+                throw new ArgumentException("Property '{0}' has no DeclaringType".Fmt(pi.Name));
+
+            return pi.DeclaringType.Namespace + "." + pi.DeclaringType.Name + "." + pi.Name;
+        }
+
+        public static void AddAttributes(this Type type, params Attribute[] attrs)
+        {
+#if NETFX_CORE || SILVERLIGHT
+            throw new NotSupportedException("Adding Attributes at runtime is not supported on this platform");
+#else
+            TypeDescriptor.AddAttributes(type, attrs);
+#endif
+        }
+
+        /// <summary>
+        /// Add a Property attribute at runtime. 
+        /// <para>Not threadsafe, should only add attributes on Startup.</para>
+        /// </summary>
+        public static void AddAttributes(this PropertyInfo propertyInfo, params Attribute[] attrs)
+        {
+            List<Attribute> propertyAttrs;
+            var key = propertyInfo.UniqueKey();
+            if (!propertyAttributesMap.TryGetValue(key, out propertyAttrs))
+            {
+                propertyAttributesMap[key] = propertyAttrs = new List<Attribute>();
+            }
+
+            propertyAttrs.AddRange(attrs);
+        }
+
+        /// <summary>
+        /// Add a Property attribute at runtime. 
+        /// <para>Not threadsafe, should only add attributes on Startup.</para>
+        /// </summary>
+        public static void ReplaceAttribute(this PropertyInfo propertyInfo, Attribute attr)
+        {
+            var key = propertyInfo.UniqueKey();
+
+            List<Attribute> propertyAttrs;
+            if (!propertyAttributesMap.TryGetValue(key, out propertyAttrs))
+            {
+                propertyAttributesMap[key] = propertyAttrs = new List<Attribute>();
+            }
+
+            propertyAttrs.RemoveAll(x => x.GetType() == attr.GetType());
+
+            propertyAttrs.Add(attr);
+        }
+
+        public static List<TAttr> GetAttributes<TAttr>(this PropertyInfo propertyInfo)
+        {
+            List<Attribute> propertyAttrs;
+            return !propertyAttributesMap.TryGetValue(propertyInfo.UniqueKey(), out propertyAttrs)
+                ? new List<TAttr>()
+                : propertyAttrs.OfType<TAttr>().ToList();
+        }
+
+        public static List<Attribute> GetAttributes(this PropertyInfo propertyInfo)
+        {
+            List<Attribute> propertyAttrs;
+            return !propertyAttributesMap.TryGetValue(propertyInfo.UniqueKey(), out propertyAttrs)
+                ? new List<Attribute>()
+                : propertyAttrs.ToList();
+        }
+
+        public static List<Attribute> GetAttributes(this PropertyInfo propertyInfo, Type attrType)
+        {
+            List<Attribute> propertyAttrs;
+            return !propertyAttributesMap.TryGetValue(propertyInfo.UniqueKey(), out propertyAttrs)
+                ? new List<Attribute>()
+                : propertyAttrs.Where(x => x.GetType() == attrType).ToList();
+        }
+
         public static object[] AllAttributes(this PropertyInfo propertyInfo)
         {
 #if NETFX_CORE
             return propertyInfo.GetCustomAttributes(true).ToArray();
 #else
-            return propertyInfo.GetCustomAttributes(true);
+            var attrs = propertyInfo.GetCustomAttributes(true);
+            var runtimeAttrs = propertyInfo.GetAttributes();
+            if (runtimeAttrs.Count == 0)
+                return attrs;
+
+            runtimeAttrs.AddRange(attrs.Cast<Attribute>());
+            return runtimeAttrs.Cast<object>().ToArray();
 #endif
         }
 
@@ -943,7 +1032,13 @@ namespace ServiceStack.Text
 #if NETFX_CORE
             return propertyInfo.GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
 #else
-            return propertyInfo.GetCustomAttributes(attrType, true);
+            var attrs = propertyInfo.GetCustomAttributes(attrType, true);
+            var runtimeAttrs = propertyInfo.GetAttributes(attrType);
+            if (runtimeAttrs.Count == 0)
+                return attrs;
+
+            runtimeAttrs.AddRange(attrs.Cast<Attribute>());
+            return runtimeAttrs.Cast<object>().ToArray();
 #endif
         }
 
@@ -1020,46 +1115,40 @@ namespace ServiceStack.Text
             return pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
         }
 
-        public static TAttr[] AllAttributes<TAttr>(this Type type, bool inherit = true)
+        public static TAttr[] AllAttributes<TAttr>(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes<T>(inherit).ToArray();
+            return type.GetTypeInfo().GetCustomAttributes<T>(true).ToArray();
 #elif SILVERLIGHT
             return type.GetCustomAttributes(typeof(TAttr), true).Cast<TAttr>().ToArray();
 #else
-            return type.GetCustomAttributes(inherit).OfType<TAttr>().ToArray();
+            return TypeDescriptor.GetAttributes(type).OfType<TAttr>().ToArray();
 #endif
         }
 
-        public static TAttr FirstAttribute<TAttr>(this Type type, bool inherit = true) 
+        public static TAttr FirstAttribute<TAttr>(this Type type)
         {
 #if NETFX_CORE
-            return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), inherit)
+            return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
                     .FirstOrDefault();
 #elif SILVERLIGHT
-            return (TAttr)type.GetCustomAttributes(typeof(TAttr), inherit)
+            return (TAttr)type.GetCustomAttributes(typeof(TAttr), true)
                    .FirstOrDefault();
 #else
             return TypeDescriptor.GetAttributes(type).OfType<TAttr>().FirstOrDefault();
 #endif
         }
-        
-        public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo)
-        {
-            return propertyInfo.FirstAttribute<TAttribute>(true);
-        }
 
-        public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo, bool inherit)
+        public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo)
         {
 #if NETFX_CORE
             var attrs = propertyInfo.GetCustomAttributes<TAttribute>(inherit);
             return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
-#else 
-            var attrs = propertyInfo.GetCustomAttributes(typeof(TAttribute), inherit);
-            return (TAttribute)(attrs.Length > 0 ? attrs[0] : null);
+#else
+            return propertyInfo.AllAttributes<TAttribute>().FirstOrDefault();
 #endif
         }
-        
+
         public static Type FirstGenericTypeDefinition(this Type type)
         {
             while (type != null)
@@ -1132,7 +1221,7 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static Delegate MakeDelegate(this MethodInfo mi, Type delegateType, bool throwOnBindFailure=true)
+        public static Delegate MakeDelegate(this MethodInfo mi, Type delegateType, bool throwOnBindFailure = true)
         {
 #if NETFX_CORE
             return mi.CreateDelegate(delegateType);
@@ -1167,7 +1256,7 @@ namespace ServiceStack.Text
             return type.IsAssignableFrom(fromType);
 #endif
         }
-        
+
         public static bool IsStandardClass(this Type type)
         {
 #if NETFX_CORE
@@ -1240,7 +1329,7 @@ namespace ServiceStack.Text
             return type.IsInstanceOfType(instance);
 #endif
         }
-        
+
         public static bool IsClass(this Type type)
         {
 #if NETFX_CORE
@@ -1264,7 +1353,7 @@ namespace ServiceStack.Text
 #if NETFX_CORE
             return type.GetTypeInfo().IsEnum && type.FirstAttribute<FlagsAttribute>(false) != null;
 #else
-            return type.IsEnum && type.FirstAttribute<FlagsAttribute>(false) != null;
+            return type.IsEnum && type.FirstAttribute<FlagsAttribute>() != null;
 #endif
         }
 
@@ -1306,8 +1395,8 @@ namespace ServiceStack.Text
             return result;
         }
 #endif
- 
-    
+
+
     }
 
 }
