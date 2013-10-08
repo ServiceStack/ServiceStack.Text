@@ -552,11 +552,11 @@ namespace ServiceStack.Text
                     ? publicReadableProperties.Where(attr => 
                         attr.IsDefined(typeof(DataMemberAttribute), false)).ToArray()
                     : publicReadableProperties.Where(attr => 
-                        attr.AllAttributes(false).Any(x => x.GetType().Name == DataMember)).ToArray();
+                        attr.AllAttributes().Any(x => x.GetType().Name == DataMember)).ToArray();
             }
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicReadableProperties.Where(prop => prop.AllAttributes(false).All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
+            return publicReadableProperties.Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
         }
 
         public static FieldInfo[] GetSerializableFields(this Type type)
@@ -568,7 +568,7 @@ namespace ServiceStack.Text
             var publicFields = type.GetPublicFields();
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicFields.Where(prop => prop.AllAttributes(false).All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
+            return publicFields.Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
         }
         
 #if !SILVERLIGHT && !MONOTOUCH 
@@ -589,7 +589,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetDataMember(this PropertyInfo pi)
         {
-            var dataMember = pi.AllAttributes(typeof(DataMemberAttribute), false)
+            var dataMember = pi.AllAttributes(typeof(DataMemberAttribute))
                 .FirstOrDefault() as DataMemberAttribute;
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
@@ -601,7 +601,7 @@ namespace ServiceStack.Text
 
         public static DataMemberAttribute GetDataMember(this FieldInfo pi)
         {
-            var dataMember = pi.AllAttributes(typeof(DataMemberAttribute), false)
+            var dataMember = pi.AllAttributes(typeof(DataMemberAttribute))
                 .FirstOrDefault() as DataMemberAttribute;
 
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
@@ -858,33 +858,33 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static bool HasAttribute<T>(this Type type, bool inherit = true)
+        public static bool HasAttribute<T>(this Type type)
         {
-            return type.AllAttributes(inherit).Any(x => x.GetType() == typeof(T));
+            return type.AllAttributes().Any(x => x.GetType() == typeof(T));
         }
 
-        public static bool HasAttributeNamed(this Type type, string name, bool inherit = true)
+        public static bool HasAttributeNamed(this Type type, string name)
         {
             var normalizedAttr = name.Replace("Attribute", "").ToLower();
-            return type.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+            return type.AllAttributes().Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
         }
 
-        public static bool HasAttributeNamed(this PropertyInfo pi, string name, bool inherit = true)
+        public static bool HasAttributeNamed(this PropertyInfo pi, string name)
         {
             var normalizedAttr = name.Replace("Attribute", "").ToLower();
-            return pi.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+            return pi.AllAttributes().Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
         }
 
-        public static bool HasAttributeNamed(this FieldInfo fi, string name, bool inherit = true)
+        public static bool HasAttributeNamed(this FieldInfo fi, string name)
         {
             var normalizedAttr = name.Replace("Attribute", "").ToLower();
-            return fi.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+            return fi.AllAttributes().Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
         }
 
-        public static bool HasAttributeNamed(this MemberInfo mi, string name, bool inherit = true)
+        public static bool HasAttributeNamed(this MemberInfo mi, string name)
         {
             var normalizedAttr = name.Replace("Attribute", "").ToLower();
-            return mi.AllAttributes(inherit).Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+            return mi.AllAttributes().Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
         }
 
         const string DataContract = "DataContractAttribute";
@@ -929,75 +929,77 @@ namespace ServiceStack.Text
 #endif
         }
 
-        public static object[] AllAttributes(this PropertyInfo propertyInfo, bool inherit = true)
+        public static object[] AllAttributes(this PropertyInfo propertyInfo)
         {
 #if NETFX_CORE
-            return propertyInfo.GetCustomAttributes(inherit).ToArray();
+            return propertyInfo.GetCustomAttributes(true).ToArray();
 #else
-            return propertyInfo.GetCustomAttributes(inherit);
+            return propertyInfo.GetCustomAttributes(true);
 #endif
         }
 
-        public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType, bool inherit = true)
+        public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType)
         {
 #if NETFX_CORE
-            return propertyInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
+            return propertyInfo.GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
 #else
-            return propertyInfo.GetCustomAttributes(attrType, inherit);
+            return propertyInfo.GetCustomAttributes(attrType, true);
 #endif
         }
 
-        public static object[] AllAttributes(this FieldInfo fieldInfo, bool inherit = true)
+        public static object[] AllAttributes(this FieldInfo fieldInfo)
         {
 #if NETFX_CORE
-            return fieldInfo.GetCustomAttributes(inherit).ToArray();
+            return fieldInfo.GetCustomAttributes(true).ToArray();
 #else
-            return fieldInfo.GetCustomAttributes(inherit);
+            return fieldInfo.GetCustomAttributes(true);
 #endif
         }
 
-        public static object[] AllAttributes(this MemberInfo memberInfo, bool inherit = true)
+        public static object[] AllAttributes(this MemberInfo memberInfo)
         {
 #if NETFX_CORE
-            return memberInfo.GetCustomAttributes(inherit).ToArray();
+            return memberInfo.GetCustomAttributes(true).ToArray();
 #else
-            return memberInfo.GetCustomAttributes(inherit);
+            return memberInfo.GetCustomAttributes(true);
 #endif
         }
 
-        public static object[] AllAttributes(this MemberInfo meberInfo, Type attrType, bool inherit = true)
+        public static object[] AllAttributes(this MemberInfo meberInfo, Type attrType)
         {
 #if NETFX_CORE
-            return meberInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
+            return meberInfo.GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
 #else
-            return meberInfo.GetCustomAttributes(attrType, inherit);
+            return meberInfo.GetCustomAttributes(attrType, true);
 #endif
         }
 
-        public static object[] AllAttributes(this FieldInfo fieldInfo, Type attrType, bool inherit = true)
+        public static object[] AllAttributes(this FieldInfo fieldInfo, Type attrType)
         {
 #if NETFX_CORE
-            return fieldInfo.GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
+            return fieldInfo.GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
 #else
-            return fieldInfo.GetCustomAttributes(attrType, inherit);
+            return fieldInfo.GetCustomAttributes(attrType, true);
 #endif
         }
 
-        public static object[] AllAttributes(this Type type, bool inherit = true)
+        public static object[] AllAttributes(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(inherit).ToArray();
-#else
-            return type.GetCustomAttributes(inherit);
-#endif
-        }
-
-        public static object[] AllAttributes(this Type type, Type attrType, bool inherit = true)
-        {
-#if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes(inherit).Where(x => x.GetType() == attrType).ToArray();
+            return type.GetTypeInfo().GetCustomAttributes(true).ToArray();
 #elif SILVERLIGHT
-            return type.GetCustomAttributes(attrType, inherit);
+            return type.GetCustomAttributes(true);
+#else
+            return TypeDescriptor.GetAttributes(type).Cast<object>().ToArray();
+#endif
+        }
+
+        public static object[] AllAttributes(this Type type, Type attrType)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
+#elif SILVERLIGHT
+            return type.GetCustomAttributes(attrType, true);
 #else
             return TypeDescriptor.GetAttributes(type).OfType<Attribute>().ToArray();
 #endif
