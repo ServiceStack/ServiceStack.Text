@@ -243,6 +243,15 @@ namespace ServiceStack.Text.Common
 #endif
         }
 
+        public static string ToLocalXsdDateTimeString(DateTime dateTime)
+        {
+#if NETFX_CORE
+            return XmlConvert.ToString(dateTime, XsdDateTimeFormat);
+#else
+            return XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.Local);
+#endif
+        }
+
         public static string ToXsdTimeSpanString(TimeSpan timeSpan)
         {
             var r = XmlConvert.ToString(timeSpan);
