@@ -96,5 +96,17 @@ namespace ServiceStack.Text.Tests.JsonTests
             var u = new WithUnderscoreSeveralDigits { user_id_00_11 = 0 };
             Assert.That(u.ToJson(), Is.EqualTo("{\"user_id_00_11\":0}"));
         }
+
+        private class WithAbbreviationAndDigit
+        {
+            public string DigestHa1Hash { get; set; }
+        }
+
+        [Test]
+        public void Converts_non_uppercase_acronyms_nicely()
+        {
+            var a = new WithAbbreviationAndDigit { DigestHa1Hash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" };
+            Assert.That(a.ToJson(), Is.EqualTo("{\"digest_ha1_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"));
+        }
     }
 }
