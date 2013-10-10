@@ -99,14 +99,14 @@ namespace ServiceStack.Text.Tests.JsonTests
 
         private class WithAbbreviationAndDigit
         {
-            public string DigestHA1Hash { get; set; }
+            public string DigestHa1Hash { get; set; }
         }
 
         [Test]
-        public void Should_split_digit_after_abbreviation()
+        public void Converts_non_uppercase_acronyms_nicely()
         {
-            var a = new WithAbbreviationAndDigit() { DigestHA1Hash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" };
-            Assert.That(a.ToJson(), Is.EqualTo("{\"digest_h_a_1_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"));
+            var a = new WithAbbreviationAndDigit { DigestHa1Hash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" };
+            Assert.That(a.ToJson(), Is.EqualTo("{\"digest_ha1_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"));
         }
     }
 }
