@@ -680,6 +680,16 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_deserialize_case_insensitive_names()
+        {
+            var dto = "{\"vALUE\":\"B\"}".FromJson<A>();
+            Assert.That(dto.Value, Is.EqualTo("B"));
+            
+            dto = "{vALUE:B}".FromJsv<A>();
+            Assert.That(dto.Value, Is.EqualTo("B"));
+        }
+
+        [Test]
         public void Deserialize_array_with_null_elements()
         {
             var json = "[{\"Value\": \"a\"},null,{\"Value\": \"b\"}]";

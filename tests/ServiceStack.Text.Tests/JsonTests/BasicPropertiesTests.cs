@@ -4,160 +4,173 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 
-namespace ServiceStack.Text.Tests.JsonTests {
-	#region Test case types
+namespace ServiceStack.Text.Tests.JsonTests
+{
+    public class ContainsIDictionary
+    {
+        public IDictionary Container { get; set; }
+    }
+    public class ContainsGenericStringDictionary
+    {
+        public Dictionary<string, string> Container { get; set; }
+    }
 
-	public class ContainsIDictionary {
-		public IDictionary Container { get; set; }
-	}
-	public class ContainsGenericStringDictionary {
-		public Dictionary<string, string> Container { get; set; }
-	}
+    public class SeveralTypesOfDictionary
+    {
+        public IDictionary GuidToInt { get; set; }
+        public IDictionary DateTimeTo_DictStrStr { get; set; }
+    }
 
-	public class SeveralTypesOfDictionary {
-		public IDictionary GuidToInt { get; set; }
-		public IDictionary DateTimeTo_DictStrStr { get; set; }
-	}
-
-	#endregion
-
-	[TestFixture]
-	public class BasicPropertiesTests {
-		[Test]
-		public void Generic_dictionary_backed_IDictionary_round_trips_ok () {
-			var original = new ContainsIDictionary {
-				Container = new Dictionary<string, string>
+    [TestFixture]
+    public class BasicPropertiesTests
+    {
+        [Test]
+        public void Generic_dictionary_backed_IDictionary_round_trips_ok()
+        {
+            var original = new ContainsIDictionary
+            {
+                Container = new Dictionary<string, string>
                 {
                     {"one", "header one"},
                     {"two", "header two"}
                 }
-			};
+            };
 
-			var str = JsonSerializer.SerializeToString(original);
-			var obj = JsonSerializer.DeserializeFromString<ContainsIDictionary>(str);
+            var str = JsonSerializer.SerializeToString(original);
+            var obj = JsonSerializer.DeserializeFromString<ContainsIDictionary>(str);
 
-			Console.WriteLine(DictStr(obj.Container));
-			Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
-		}
+            Console.WriteLine(DictStr(obj.Container));
+            Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
+        }
 
-		[Test]
-		public void Generic_dictionary_backed_IDictionary_deserialises_to_generic_dictionary () {
-			var original = new ContainsIDictionary // Using IDictionary backing
-			{
-				Container = new Dictionary<string, string>
+        [Test]
+        public void Generic_dictionary_backed_IDictionary_deserialises_to_generic_dictionary()
+        {
+            var original = new ContainsIDictionary // Using IDictionary backing
+            {
+                Container = new Dictionary<string, string>
                 {
                     {"one", "header one"},
                     {"two", "header two"}
                 }
-			};
+            };
 
-			var str = JsonSerializer.SerializeToString(original);
-			var obj = JsonSerializer.DeserializeFromString<ContainsGenericStringDictionary>(str); // decoding to Dictionary<,>
+            var str = JsonSerializer.SerializeToString(original);
+            var obj = JsonSerializer.DeserializeFromString<ContainsGenericStringDictionary>(str); // decoding to Dictionary<,>
 
-			Console.WriteLine(DictStr(obj.Container));
-			Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
-		}
+            Console.WriteLine(DictStr(obj.Container));
+            Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
+        }
 
-		[Test]
-		public void Generic_dictionary_deserialises_to_IDictionary () {
-			var original = new ContainsGenericStringDictionary // Using Dictionary<,> backing
-			{
-				Container = new Dictionary<string, string>
+        [Test]
+        public void Generic_dictionary_deserialises_to_IDictionary()
+        {
+            var original = new ContainsGenericStringDictionary // Using Dictionary<,> backing
+            {
+                Container = new Dictionary<string, string>
                 {
                     {"one", "header one"},
                     {"two", "header two"}
                 }
-			};
+            };
 
-			var str = JsonSerializer.SerializeToString(original);
-			var obj = JsonSerializer.DeserializeFromString<ContainsIDictionary>(str); // decoding to IDictionary
+            var str = JsonSerializer.SerializeToString(original);
+            var obj = JsonSerializer.DeserializeFromString<ContainsIDictionary>(str); // decoding to IDictionary
 
-			Console.WriteLine(DictStr(obj.Container));
-			Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
-		}
+            Console.WriteLine(DictStr(obj.Container));
+            Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
+        }
 
-		[Test]
-		public void Generic_dictionary_round_trips_ok () {
-			var original = new ContainsGenericStringDictionary {
-				Container = new Dictionary<string, string>
+        [Test]
+        public void Generic_dictionary_round_trips_ok()
+        {
+            var original = new ContainsGenericStringDictionary
+            {
+                Container = new Dictionary<string, string>
                 {
                     {"one", "header one"},
                     {"two", "header two"}
                 }
-			};
+            };
 
-			var str = JsonSerializer.SerializeToString(original);
-			var obj = JsonSerializer.DeserializeFromString<ContainsGenericStringDictionary>(str);
+            var str = JsonSerializer.SerializeToString(original);
+            var obj = JsonSerializer.DeserializeFromString<ContainsGenericStringDictionary>(str);
 
-			Console.WriteLine(DictStr(obj.Container));
-			Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
-		}
+            Console.WriteLine(DictStr(obj.Container));
+            Assert.That(DictStr(obj.Container), Is.EqualTo(DictStr(original.Container)));
+        }
 
-		[Test]
-		public void Generic_dictionary_and_IDictionary_serialise_the_same () {
-			JsConfig.PreferInterfaces = true;
-			JsConfig.ExcludeTypeInfo = false;
-			JsConfig.ConvertObjectTypesIntoStringDictionary = false;
+        [Test]
+        public void Generic_dictionary_and_IDictionary_serialise_the_same()
+        {
+            JsConfig.PreferInterfaces = true;
+            JsConfig.ExcludeTypeInfo = false;
+            JsConfig.ConvertObjectTypesIntoStringDictionary = false;
 
-			var genericStringDictionary = new ContainsGenericStringDictionary {
-				Container = new Dictionary<string, string>
+            var genericStringDictionary = new ContainsGenericStringDictionary
+            {
+                Container = new Dictionary<string, string>
                 {
                     {"one", "header one"},
                     {"two", "header two"}
                 }
-			};
-			var iDictionary = new ContainsIDictionary {
-				Container = new Dictionary<string, string>
+            };
+            var iDictionary = new ContainsIDictionary
+            {
+                Container = new Dictionary<string, string>
                 {
                     {"one", "header one"},
                     {"two", "header two"}
                 }
-			};
+            };
 
-			var genDict = genericStringDictionary.ToJson();
-			var iDict = iDictionary.ToJson();
+            var genDict = genericStringDictionary.ToJson();
+            var iDict = iDictionary.ToJson();
 
-			Console.WriteLine("Dictionary<string,string> --> " + genDict);
-			Console.WriteLine();
-			Console.WriteLine("IDictionary               --> " + iDict);
+            Console.WriteLine("Dictionary<string,string> --> " + genDict);
+            Console.WriteLine();
+            Console.WriteLine("IDictionary               --> " + iDict);
 
-			Assert.That(genDict, Is.EqualTo(iDict));
-		}
+            Assert.That(genDict, Is.EqualTo(iDict));
+        }
 
-		[Test]
-		[Ignore("Very complex mappings, not needed for most tasks.")]
-		public void Complex_dictionaries_round_trip () {
-			var original = new SeveralTypesOfDictionary {
-				GuidToInt = new Dictionary<Guid, int>
+        [Test]
+        [Ignore("Very complex mappings, not needed for most tasks.")]
+        public void Complex_dictionaries_round_trip()
+        {
+            var original = new SeveralTypesOfDictionary
+            {
+                GuidToInt = new Dictionary<Guid, int>
                 {
                     {Guid.Empty, 10},
                     {Guid.NewGuid(), 25}
                 },
-				DateTimeTo_DictStrStr = new Dictionary<DateTime, Dictionary<string, string>> {
+                DateTimeTo_DictStrStr = new Dictionary<DateTime, Dictionary<string, string>> {
 					{DateTime.Today, new Dictionary<string, string> {{"a","b"},{"c","d"}}},
 					{DateTime.Now, new Dictionary<string, string> {{"a","b"},{"c","d"}}}
 				}
-			};
-			// see WriteDictionary.cs line 105
-			// Problems:
-			//   - Int is turning into String on Deserialise
-			//   - Dictionary of dictionaries is totally failing on Deserialise
-			var string_a = original.ToJson();
-			var copy_a = string_a.FromJson<SeveralTypesOfDictionary>();
-			var string_b = copy_a.ToJson();
-			var copy_b = string_b.FromJson<SeveralTypesOfDictionary>();
+            };
+            // see WriteDictionary.cs line 105
+            // Problems:
+            //   - Int is turning into String on Deserialise
+            //   - Dictionary of dictionaries is totally failing on Deserialise
+            var string_a = original.ToJson();
+            var copy_a = string_a.FromJson<SeveralTypesOfDictionary>();
+            var string_b = copy_a.ToJson();
+            var copy_b = string_b.FromJson<SeveralTypesOfDictionary>();
 
-			Console.WriteLine(string_a);
-			Console.WriteLine(string_b);
-			Assert.That(copy_a.GuidToInt[Guid.Empty], Is.EqualTo(10), "First copy was incorrect");
-			Assert.That(copy_b.GuidToInt[Guid.Empty], Is.EqualTo(10), "Second copy was incorrect");
-			Assert.That(string_a, Is.EqualTo(string_b), "Serialised forms not same");
-		}
+            Console.WriteLine(string_a);
+            Console.WriteLine(string_b);
+            Assert.That(copy_a.GuidToInt[Guid.Empty], Is.EqualTo(10), "First copy was incorrect");
+            Assert.That(copy_b.GuidToInt[Guid.Empty], Is.EqualTo(10), "Second copy was incorrect");
+            Assert.That(string_a, Is.EqualTo(string_b), "Serialised forms not same");
+        }
 
-		static string DictStr (IDictionary d) {
-			var sb = new StringBuilder();
-			foreach (var key in d.Keys) { sb.AppendLine(key + " = " + d[key]); }
-			return sb.ToString();
-		}
-	}
+        static string DictStr(IDictionary d)
+        {
+            var sb = new StringBuilder();
+            foreach (var key in d.Keys) { sb.AppendLine(key + " = " + d[key]); }
+            return sb.ToString();
+        }
+    }
 }
