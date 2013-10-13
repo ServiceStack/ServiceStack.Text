@@ -15,14 +15,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Linq;
+using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
 	public static class QueryStringSerializer
 	{

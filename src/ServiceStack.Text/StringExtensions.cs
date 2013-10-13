@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Support;
 #if NETFX_CORE
@@ -31,7 +32,7 @@ using ServiceStack.Text.WP;
 #endif
 #endif
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
     public static class StringExtensions
     {

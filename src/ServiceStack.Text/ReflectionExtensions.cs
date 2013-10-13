@@ -19,11 +19,17 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
 using ServiceStack.Text.Support;
+
+using ServiceStack.Text;
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+using FastMember = ServiceStack.Text.FastMember;
+#endif
+
 #if WINDOWS_PHONE
 using System.Linq.Expressions;
 #endif
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
     public delegate EmptyCtorDelegate EmptyCtorFactoryDelegate(Type type);
     public delegate object EmptyCtorDelegate();

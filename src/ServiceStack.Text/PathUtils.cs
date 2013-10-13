@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ServiceStack.Text;
 
 namespace ServiceStack
 {
@@ -21,8 +20,8 @@ namespace ServiceStack
 
                 // Escape the assembly bin directory to the hostname directory
                 var hostDirectoryPath = appendPartialPathModifier != null
-                                            ? assemblyDirectoryPath + appendPartialPathModifier
-                                            : assemblyDirectoryPath;
+                    ? assemblyDirectoryPath + appendPartialPathModifier
+                    : assemblyDirectoryPath;
 
                 return Path.GetFullPath(relativePath.Replace("~", hostDirectoryPath));
             }
@@ -63,7 +62,7 @@ namespace ServiceStack
         /// <remarks>Assumes static content is in the parent folder of the /bin/ directory</remarks>
         public static string MapHostAbsolutePath(this string relativePath)
         {
-            var mapPath = MapAbsolutePath(relativePath, string.Format("{0}..", Text.StringExtensions.DirSeparatorChar));
+            var mapPath = MapAbsolutePath(relativePath, string.Format("{0}..", StringExtensions.DirSeparatorChar));
             return mapPath;
         }
 

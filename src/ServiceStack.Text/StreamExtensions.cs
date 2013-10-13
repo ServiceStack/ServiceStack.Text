@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
     public static class StreamExtensions
     {

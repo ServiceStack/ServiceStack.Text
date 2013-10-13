@@ -12,9 +12,10 @@
 
 using System;
 using System.Collections.Generic;
+using ServiceStack.Text;
 using ServiceStack.Text.Common;
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
 	public static class TextExtensions
 	{

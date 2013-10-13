@@ -4,7 +4,7 @@ using ServiceStack.Text.WP;
 using System;
 using System.Collections.Generic;
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
     public static class CollectionExtensions
     {

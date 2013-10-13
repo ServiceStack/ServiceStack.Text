@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Text;
 using ServiceStack.Text.Common;
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
 	public static class MapExtensions
 	{
