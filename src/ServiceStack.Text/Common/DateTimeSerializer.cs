@@ -233,6 +233,13 @@ namespace ServiceStack.Text.Common
 
             return DateTimeOffset.Parse(dateTimeOffsetStr, CultureInfo.InvariantCulture);
         }
+		
+        public static DateTimeOffset? ParseDateTimeOffsetNullable(string dateTimeOffsetStr)
+        {
+            if (string.IsNullOrEmpty(dateTimeOffsetStr)) return null;
+
+            return ParseDateTimeOffset(dateTimeOffsetStr);
+        }
 
         public static string ToXsdDateTimeString(DateTime dateTime)
         {
