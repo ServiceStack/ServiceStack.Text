@@ -119,7 +119,7 @@ namespace ServiceStack.Text.Common
                 if (typeof(T) == typeof(Guid?))
                     return value => string.IsNullOrEmpty(value) ? (Guid?)null : new Guid(value);
                 if (typeof(T) == typeof(DateTimeOffset?))
-                    return value => DateTimeSerializer.ParseDateTimeOffset(value);
+                    return value => DateTimeSerializer.ParseNullableDateTimeOffset(value);
             }
 
             return null;
