@@ -13,8 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using ServiceStack.Text.Common;
 
@@ -111,16 +109,30 @@ namespace ServiceStack.Text.Json
 				return;
 			}
 
-			var type = value.GetType();
-			var writeFn = type == typeof(object)
-				? WriteType<object, JsonTypeSerializer>.WriteObjectType
-				: GetWriteFn(type);
+            try
+            {
+                if (++JsState.Depth > JsConfig.MaxDepth)
+                {
+                    Tracer.Instance.WriteError("Exceeded MaxDepth limit of {0} attempting to serialize {1}"
+                        .Fmt(JsConfig.MaxDepth, value.GetType().Name));
+                    return;
+                }
 
-			var prevState = JsState.IsWritingDynamic;
-			JsState.IsWritingDynamic = true;
-			writeFn(writer, value);
-			JsState.IsWritingDynamic = prevState;
-		}
+			    var type = value.GetType();
+			    var writeFn = type == typeof(object)
+				    ? WriteType<object, JsonTypeSerializer>.WriteObjectType
+				    : GetWriteFn(type);
+
+			    var prevState = JsState.IsWritingDynamic;
+			    JsState.IsWritingDynamic = true;
+			    writeFn(writer, value);
+			    JsState.IsWritingDynamic = prevState;
+            }
+            finally
+            {
+                JsState.Depth--;
+            }
+        }
 
 		public static WriteObjectDelegate GetValueTypeToStringMethod(Type type)
 		{
@@ -185,7 +197,11 @@ namespace ServiceStack.Text.Json
             try
             {
                 if (++JsState.Depth > JsConfig.MaxDepth)
+                {
+                    Tracer.Instance.WriteError("Exceeded MaxDepth limit of {0} attempting to serialize {1}"
+                        .Fmt(JsConfig.MaxDepth, value.GetType().Name));
                     return;
+                }
 
                 CacheFn(writer, value);
             }

@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Runtime.Serialization;
 using NUnit.Framework;
-using ServiceStack.Common;
 
 namespace ServiceStack.Text.Tests
 {

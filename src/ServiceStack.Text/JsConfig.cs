@@ -592,6 +592,7 @@ namespace ServiceStack.Text
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
             sExcludePropertyReferences = null;
+	        sMaxDepth = 50;
         }
 
         public static void Reset(Type cachesForType)
