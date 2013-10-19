@@ -548,17 +548,34 @@ namespace ServiceStack.Text
         }
 
         private static string[] sExcludePropertyReferences;
-        public static string[] ExcludePropertyReferences {
-            get {
+        public static string[] ExcludePropertyReferences
+        {
+            get
+            {
                 return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludePropertyReferences : null)
                        ?? sExcludePropertyReferences;
             }
-            set {
+            set
+            {
                 if (sExcludePropertyReferences != null) sExcludePropertyReferences = value;
             }
         }
 
-	    public static void Reset()
+        private static HashSet<Type> sExcludeTypes;
+        public static HashSet<Type> ExcludeTypes
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypes : null)
+                       ?? sExcludeTypes;
+            }
+            set
+            {
+                if (sExcludePropertyReferences != null) sExcludeTypes = value;
+            }
+        }
+
+        public static void Reset()
         {
             foreach (var rawSerializeType in HasSerializeFn.ToArray())
             {
@@ -592,6 +609,7 @@ namespace ServiceStack.Text
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
             sExcludePropertyReferences = null;
+            sExcludeTypes = new HashSet<Type> { typeof(Stream) };
 	        sMaxDepth = 50;
         }
 

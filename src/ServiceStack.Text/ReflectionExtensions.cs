@@ -563,7 +563,10 @@ namespace ServiceStack
             }
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicReadableProperties.Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
+            return publicReadableProperties
+                .Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember))
+                .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.PropertyType))
+                .ToArray();
         }
 
         public static FieldInfo[] GetSerializableFields(this Type type)
@@ -576,7 +579,10 @@ namespace ServiceStack
             var publicFields = type.GetPublicFields();
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicFields.Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember)).ToArray();
+            return publicFields
+                .Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember))
+                .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.FieldType))
+                .ToArray();
         }
 
 #if !SILVERLIGHT && !MONOTOUCH
