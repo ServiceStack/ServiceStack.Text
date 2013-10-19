@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 
-namespace ServiceStack
+namespace ServiceStack.Text
 {
     public static partial class StringExtensions
     {
