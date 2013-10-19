@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using NUnit.Framework;
 using ServiceStack.Client;
 using ServiceStack.Text.Tests.Support;
@@ -225,6 +227,34 @@ namespace ServiceStack.Text.Tests
         public void AssertUnescapes(string expected, string given)
         {
             Assert.AreEqual(expected, JsonSerializer.DeserializeFromString<string>(given));
+        }
+    }
+
+    [TestFixture]
+    public class StripHtmlTests
+    {
+        [Test]
+        public void HtmlStrips()
+        {
+            foreach(var value in Enumerable.Range(ushort.MinValue, ushort.MaxValue).Select(i => (ushort)i))
+            {
+                var expected = ((char)value).ToString(CultureInfo.InvariantCulture);
+
+                var decimalNotation = String.Format("&#{0};", value);
+                var decimalActual = decimalNotation.StripHtml(unescapeHtmlCharacterCodes: true);
+                Assert.AreEqual(expected, decimalActual);
+
+                var hexNotation = String.Format("&#x{0:X};", value);
+                var hexActual = hexNotation.StripHtml(unescapeHtmlCharacterCodes: true);
+                Assert.AreEqual(expected, hexActual);
+            }
+
+            foreach (var htmlNotation in StringExtensions.HtmlCharacterCodes)
+            {
+                var actual = htmlNotation.Key.StripHtml(unescapeHtmlCharacterCodes: true);
+                var expected = htmlNotation.Value;
+                Assert.AreEqual(expected, actual);
+            }
         }
     }
 }
