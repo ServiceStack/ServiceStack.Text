@@ -14,6 +14,9 @@ namespace ServiceStack
 {
     public static class HttpUtils
     {
+        [ThreadStatic]
+        public static IHttpResultsFilter ResultsFilter;
+
         public static string AddQueryParam(this string url, string key, object val, bool encode = true)
         {
             return url.AddQueryParam(key, val.ToString(), encode);
@@ -234,6 +237,11 @@ namespace ServiceStack
                 requestFilter(webReq);
             }
 
+            if (ResultsFilter != null)
+            {
+                return ResultsFilter.GetString(webReq);
+            }
+
             if (requestBody != null)
             {
                 using (var reqStream = webReq.GetRequestStream())
@@ -295,6 +303,11 @@ namespace ServiceStack
             if (requestFilter != null)
             {
                 requestFilter(webReq);
+            }
+
+            if (ResultsFilter != null)
+            {
+                return ResultsFilter.GetBytes(webReq);
             }
 
             if (requestBody != null)
@@ -478,6 +491,9 @@ namespace ServiceStack
                 webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "POST");
             }
 
+            if (ResultsFilter != null)
+                return null;
+
             return webReq.GetResponse();
         }
 
@@ -494,6 +510,9 @@ namespace ServiceStack
                 webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "PUT");
             }
 
+            if (ResultsFilter != null)
+                return null;
+
             return webReq.GetResponse();
         }
 
@@ -506,6 +525,9 @@ namespace ServiceStack
 
                 webRequest.UploadFile(fileStream, fileName, uploadFileMimeType);
             }
+
+            if (ResultsFilter != null)
+                return null;
 
             return webRequest.GetResponse();
         }
@@ -540,6 +562,12 @@ namespace ServiceStack
 
             httpReq.ContentLength = fileStream.Length + headerbytes.Length + boundarybytes.Length;
 
+            if (ResultsFilter != null)
+            {
+                ResultsFilter.UploadStream(httpReq, fileStream, fileName);
+                return;
+            }
+
             using (Stream outputStream = httpReq.GetRequestStream())
             {
                 outputStream.Write(headerbytes, 0, headerbytes.Length);
@@ -567,6 +595,61 @@ namespace ServiceStack
                 throw new ArgumentException("Mime-type not found for file: " + fileName);
 
             UploadFile(webRequest, fileStream, fileName, mimeType);
+        }
+    }
+
+    public interface IHttpResultsFilter : IDisposable
+    {
+        string GetString(HttpWebRequest webReq);
+        byte[] GetBytes(HttpWebRequest webReq);
+        void UploadStream(HttpWebRequest webRequest, Stream fileStream, string fileName);
+    }
+
+    public class HttpResultsFilter : IHttpResultsFilter
+    {
+        private readonly IHttpResultsFilter previousFilter;
+
+        public string StringResult { get; set; }
+        public byte[] BytesResult { get; set; }
+
+        public Func<HttpWebRequest, string> StringResultFn { get; set; }
+        public Func<HttpWebRequest, byte[]> BytesResultFn { get; set; }
+        public Action<HttpWebRequest, Stream, string> UploadFileFn { get; set; }
+
+        public HttpResultsFilter(string stringResult=null, byte[] bytesResult=null)
+        {
+            StringResult = stringResult;
+            BytesResult = bytesResult;
+
+            previousFilter = HttpUtils.ResultsFilter;
+            HttpUtils.ResultsFilter = this;
+        }
+
+        public void Dispose()
+        {
+            HttpUtils.ResultsFilter = previousFilter;
+        }
+
+        public string GetString(HttpWebRequest webReq)
+        {
+            return StringResultFn != null
+                ? StringResultFn(webReq)
+                : StringResult;
+        }
+
+        public byte[] GetBytes(HttpWebRequest webReq)
+        {
+            return BytesResultFn != null
+                ? BytesResultFn(webReq)
+                : BytesResult;
+        }
+
+        public void UploadStream(HttpWebRequest webRequest, Stream fileStream, string fileName)
+        {
+            if (UploadFileFn != null)
+            {
+                UploadFileFn(webRequest, fileStream, fileName);
+            }
         }
     }
 

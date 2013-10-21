@@ -170,6 +170,7 @@
     <Compile Include="DynamicModels\ModelWithComplexTypes.cs" />
     <Compile Include="EnumTests.cs" />
     <Compile Include="ExpandoTests.cs" />
+    <Compile Include="HttpUtilsMockTests.cs" />
     <Compile Include="JsonTests\BasicPropertiesTests.cs" />
     <Compile Include="JsonObjectTests.cs" />
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
