@@ -43,6 +43,7 @@ App_Data/
 *.suo
 *.user
 NuGet/
+NuGet.Signed/
 build/
 _NCrunch*/
 *.ncrunchproject
