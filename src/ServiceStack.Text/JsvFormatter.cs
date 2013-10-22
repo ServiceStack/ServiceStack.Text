@@ -27,6 +27,7 @@ namespace ServiceStack.Text
 			var tabCount = 0;
 			var sb = new StringBuilder();
 			var firstKeySeparator = true;
+			var inString = false;
 
 			for (var i = 0; i < serializedText.Length; i++)
 			{
@@ -62,7 +63,14 @@ namespace ServiceStack.Text
 					continue;
 				}
 
-				if (current == JsWriter.ItemSeperator)
+				if (current == JsWriter.QuoteChar)
+				{
+					sb.Append(current);
+					inString = !inString;
+					continue;
+				}
+
+				if (current == JsWriter.ItemSeperator && !inString)
 				{
 					sb.Append(current);
 					AppendTabLine(sb, tabCount);

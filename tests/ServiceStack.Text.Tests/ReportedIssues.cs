@@ -241,6 +241,16 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
+		public void Comma_In_String_Does_Not_Cause_NewLine()
+		{
+			var test = new Test { TestString = "$100,000" };
+
+			var serialized = test.Dump();
+
+			Assert.That(serialized, Is.EqualTo("{\r\n\tTestString: \"$100,000\"\r\n}"));
+		}
+
+		[Test]
 		public void Does_Trailing_Backslashes()
 		{
 			var test = new Test {
