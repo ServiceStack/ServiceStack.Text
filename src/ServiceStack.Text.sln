@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED
 		..\build\build.tasks = ..\build\build.tasks
 		..\build\copy.bat = ..\build\copy.bat
 		..\NuGet\ServiceStack.Text\servicestack.text.nuspec = ..\NuGet\ServiceStack.Text\servicestack.text.nuspec
+		..\NuGet.Signed\ServiceStack.Text\servicestack.text.signed.nuspec = ..\NuGet.Signed\ServiceStack.Text\servicestack.text.signed.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text", "ServiceStack.Text\ServiceStack.Text.csproj", "{579B3FDB-CDAD-44E1-8417-885C38E49A0E}"

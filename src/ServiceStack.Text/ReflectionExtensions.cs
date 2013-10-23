@@ -1054,6 +1054,15 @@ namespace ServiceStack
 #endif
         }
 
+        public static object[] AllAttributes(this ParameterInfo paramInfo)
+        {
+#if NETFX_CORE
+            return paramInfo.GetCustomAttributes(true).ToArray();
+#else
+            return paramInfo.GetCustomAttributes(true);
+#endif
+        }
+
         public static object[] AllAttributes(this FieldInfo fieldInfo)
         {
 #if NETFX_CORE
@@ -1072,12 +1081,21 @@ namespace ServiceStack
 #endif
         }
 
-        public static object[] AllAttributes(this MemberInfo meberInfo, Type attrType)
+        public static object[] AllAttributes(this ParameterInfo paramInfo, Type attrType)
         {
 #if NETFX_CORE
-            return meberInfo.GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
+            return paramInfo.GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
 #else
-            return meberInfo.GetCustomAttributes(attrType, true);
+            return paramInfo.GetCustomAttributes(attrType, true);
+#endif
+        }
+
+        public static object[] AllAttributes(this MemberInfo memberInfo, Type attrType)
+        {
+#if NETFX_CORE
+            return memberInfo.GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
+#else
+            return memberInfo.GetCustomAttributes(attrType, true);
 #endif
         }
 
@@ -1110,6 +1128,11 @@ namespace ServiceStack
 #else
             return TypeDescriptor.GetAttributes(type).OfType<Attribute>().ToArray();
 #endif
+        }
+
+        public static TAttr[] AllAttributes<TAttr>(this ParameterInfo pi)
+        {
+            return pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
         }
 
         public static TAttr[] AllAttributes<TAttr>(this MemberInfo mi)
@@ -1148,6 +1171,26 @@ namespace ServiceStack
                    .FirstOrDefault();
 #else
             return TypeDescriptor.GetAttributes(type).OfType<TAttr>().FirstOrDefault();
+#endif
+        }
+
+        public static TAttribute FirstAttribute<TAttribute>(this MemberInfo memberInfo)
+        {
+#if NETFX_CORE
+            var attrs = memberInfo.GetCustomAttributes<TAttribute>(inherit);
+            return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
+#else
+            return memberInfo.AllAttributes<TAttribute>().FirstOrDefault();
+#endif
+        }
+        
+        public static TAttribute FirstAttribute<TAttribute>(this ParameterInfo paramInfo)
+        {
+#if NETFX_CORE
+            var attrs = paramInfo.GetCustomAttributes<TAttribute>(inherit);
+            return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
+#else
+            return paramInfo.AllAttributes<TAttribute>().FirstOrDefault();
 #endif
         }
 
