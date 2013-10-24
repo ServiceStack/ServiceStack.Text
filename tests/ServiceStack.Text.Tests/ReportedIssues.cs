@@ -251,6 +251,20 @@ namespace ServiceStack.Text.Tests
 		}
 
 		[Test]
+		public void Literal_Quote_In_String_Does_Not_Ignore_Comma()
+		{
+			var test = new
+			{
+				TestString = "test\"",
+				OtherString = "$100,000"
+			};
+
+			var serialized = test.Dump();
+
+			Assert.That(serialized, Is.EqualTo("{\r\n\tTestString: \"test\"\"\",\r\n\tOtherString: \"$100,000\"\r\n}"));
+		}
+
+		[Test]
 		public void Does_Trailing_Backslashes()
 		{
 			var test = new Test {
