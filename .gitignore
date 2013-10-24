@@ -42,8 +42,11 @@ App_Data/
 *.resharper.user
 *.suo
 *.user
+
 NuGet/
 NuGet.Signed/
+*.pfx
+
 build/
 _NCrunch*/
 *.ncrunchproject
