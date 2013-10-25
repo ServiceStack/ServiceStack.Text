@@ -12,20 +12,18 @@
   <PropertyGroup>
     <BuildSolutionDir>$(MSBuildProjectDirectory)/..</BuildSolutionDir>
     <SrcDir>$(BuildSolutionDir)/src</SrcDir>
-    <Configuration Condition="$(Configuration) == ''">Release</Configuration>
+    <Configuration Condition="$(Configuration) == ''">Signed</Configuration>
     <NuGetPath>$(BuildSolutionDir)/src/.nuget/nuget.exe</NuGetPath>
-    <NuGetPackageDir>$(BuildSolutionDir)/NuGet/</NuGetPackageDir>
+    <NuGetPackageDir>$(BuildSolutionDir)/NuGet.Signed/</NuGetPackageDir>
     <Version>$(MajorVersion).$(MinorVersion).$(PatchVersion).0</Version>
     <UnstableTag Condition="$(RELEASE) == ''">-unstable</UnstableTag>
     <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)$(UnstableTag)</PackageVersion>
     <EnvVersion>$(MajorVersion).$(MinorVersion)$(PatchVersion)</EnvVersion>
   </PropertyGroup>
 
-
   <ItemGroup>
       <NugetPackageFilesToDelete Include="$(NuGetPackageDir)/*.nupkg"/>
   </ItemGroup>
-
 
   <PropertyGroup>
     <DoBuildSolutionsDependsOn>
@@ -52,51 +50,48 @@
   </Target>
 
   <Target Name="BuildSolutions">
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
-      Properties="Configuration=$(Configuration)" />
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.SL5.sln" Targets="Build"
-      Properties="Configuration=$(Configuration)" />
+    <!--<MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
+      Properties="Configuration=$(Configuration)" />-->
+  </Target>
+
+  <Target Name="UpdateVersion">
+    <ItemGroup>
+      <!-- Add Version to AssemblyFileVersion -->
+      <RegexTransform Include="$(SrcDir)/**/AssemblyInfo.cs">
+        <Find>AssemblyFileVersion\(\"\d+\.\d+\.\d+\.\d+\"\)</Find>
+        <ReplaceWith>AssemblyFileVersion("$(Version)")</ReplaceWith>
+      </RegexTransform>
+
+      <!-- Keep AssemblyVersion at 4.0.0.0 -->
+      <RegexTransform Include="$(SrcDir)/**/AssemblyInfo.cs">
+        <Find>AssemblyVersion\(\"\d+\.\d+\.\d+\.\d+\"\)</Find>
+        <ReplaceWith>AssemblyVersion("4.0.0.0")</ReplaceWith>
+      </RegexTransform>
+
+      <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
+        <Find>ServiceStackVersion = \d+\.\d+m;</Find>
+        <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
+      </RegexTransform>
+    </ItemGroup>
+
+    <RegexTransform Items="@(RegexTransform)" />
   </Target>
 
   <Target Name="NuGetPack">
 
-    <!-- Update Version -->
-    <ItemGroup>
-        <RegexTransform Include="$(SrcDir)/**/AssemblyInfo.cs">
-            <Find>\d+\.\d+\.\d+\.\d+</Find>
-            <ReplaceWith>$(Version)</ReplaceWith>
-        </RegexTransform>
-        <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
-            <Find>ServiceStackVersion = \d+\.\d+m;</Find>
-            <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
-        </RegexTransform>
-    </ItemGroup>
-
-    <RegexTransform Items="@(RegexTransform)" />
+    <CallTarget Targets="UpdateVersion" />
 
     <Delete Files="@(NugetPackageFilesToDelete)" />
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/ServiceStack.Text.*"></TextFiles>
-      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text.SL5/bin/$(Configuration)/ServiceStack.Text.*"></TextSl5Files>
     </ItemGroup>
 
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
-             Targets="Build"
-             Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Signed.csproj"
+             Targets="Build" Properties="Configuration=$(Configuration)" />
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net40" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net40')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net40" />
     
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.SL5/ServiceStack.Text.SL5.csproj"
-             Targets="Build"
-             Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
-
-    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/sl5" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/sl5')" />
-    <Copy SourceFiles="%(TextSl5Files.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/sl5" />
- 
-    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
-            LogStandardErrorAsError="true" />
-
   </Target>
 </Project>
