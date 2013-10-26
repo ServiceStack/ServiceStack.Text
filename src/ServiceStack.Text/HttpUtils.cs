@@ -1,9 +1,10 @@
 ﻿//Copyright (c) Service Stack LLC. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
-#if !SILVERLIGHT
 using System;
 using System.Collections.Generic;
+
+#if !SILVERLIGHT
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
@@ -652,7 +653,11 @@ namespace ServiceStack
             }
         }
     }
+}
+#endif
 
+namespace ServiceStack
+{
     public static class MimeTypes
     {
         public static Dictionary<string, string> ExtensionMimeTypes = new Dictionary<string, string>();
@@ -928,4 +933,3 @@ namespace ServiceStack
         }
     }
 }
-#endif
