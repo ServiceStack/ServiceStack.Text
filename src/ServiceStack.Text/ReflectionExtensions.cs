@@ -956,20 +956,21 @@ namespace ServiceStack
             return pi.DeclaringType.Namespace + "." + pi.DeclaringType.Name + "." + pi.Name;
         }
 
-        public static void AddAttributes(this Type type, params Attribute[] attrs)
+        public static Type AddAttributes(this Type type, params Attribute[] attrs)
         {
 #if NETFX_CORE || SILVERLIGHT
             throw new NotSupportedException("Adding Attributes at runtime is not supported on this platform");
 #else
             TypeDescriptor.AddAttributes(type, attrs);
 #endif
+            return type;
         }
 
         /// <summary>
         /// Add a Property attribute at runtime. 
         /// <para>Not threadsafe, should only add attributes on Startup.</para>
         /// </summary>
-        public static void AddAttributes(this PropertyInfo propertyInfo, params Attribute[] attrs)
+        public static PropertyInfo AddAttributes(this PropertyInfo propertyInfo, params Attribute[] attrs)
         {
             List<Attribute> propertyAttrs;
             var key = propertyInfo.UniqueKey();
@@ -979,13 +980,15 @@ namespace ServiceStack
             }
 
             propertyAttrs.AddRange(attrs);
+
+            return propertyInfo;
         }
 
         /// <summary>
         /// Add a Property attribute at runtime. 
         /// <para>Not threadsafe, should only add attributes on Startup.</para>
         /// </summary>
-        public static void ReplaceAttribute(this PropertyInfo propertyInfo, Attribute attr)
+        public static PropertyInfo ReplaceAttribute(this PropertyInfo propertyInfo, Attribute attr)
         {
             var key = propertyInfo.UniqueKey();
 
@@ -998,6 +1001,8 @@ namespace ServiceStack
             propertyAttrs.RemoveAll(x => x.GetType() == attr.GetType());
 
             propertyAttrs.Add(attr);
+
+            return propertyInfo;
         }
 
         public static List<TAttr> GetAttributes<TAttr>(this PropertyInfo propertyInfo)
