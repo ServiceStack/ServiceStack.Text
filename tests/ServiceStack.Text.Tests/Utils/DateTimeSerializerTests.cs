@@ -147,6 +147,43 @@ namespace ServiceStack.Text.Tests.Utils
 			Assert.That(deserialized.Kind, Is.EqualTo(DateTimeKind.Utc)); //fails -> is DateTimeKind.Local
 		}
 
+        /// <summary>
+        /// These timestamp strings were pulled from SQLite columns written via OrmLite using SQlite.1.88
+        /// Most of the time, timestamps correctly use the 'T' separator between the date and time,
+        /// but under some (still unknown) scnearios, SQLite will write timestamps using a space instead of a 'T'.
+        /// If that happens, OrmLite will fail to read the row, complaining that: The string '...' is not a valid Xsd value.
+        /// </summary>
+	    private static string[] _problematicXsdStrings = new[] {
+	        "2013-10-10 20:04:04.8773249Z",
+            "2013-10-10 20:04:04Z",
+	    };
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(1)]
+        public void CanParseProblematicXsdStrings(int whichString)
+        {
+            var xsdString = _problematicXsdStrings[whichString];
+
+            var dateTime = DateTimeSerializer.ParseShortestXsdDateTime(xsdString);
+
+            Assert.That(dateTime.Kind, Is.EqualTo(DateTimeKind.Local));
+        }
+
+        [Test]
+        public void CanParseLongAndShortXsdStrings()
+        {
+            var shortXsdString = "2013-10-10T13:40:50Z";
+            var longXsdString = shortXsdString.Substring(0, shortXsdString.Length - 1) + ".0000000" +
+                                shortXsdString.Substring(shortXsdString.Length - 1);
+
+            var dateTimeShort = DateTimeSerializer.ParseShortestXsdDateTime(shortXsdString);
+            var dateTimeLong = DateTimeSerializer.ParseShortestXsdDateTime(longXsdString);
+
+            Assert.That(dateTimeShort.Ticks, Is.EqualTo(dateTimeLong.Ticks));
+            Assert.That(dateTimeShort.Kind, Is.EqualTo(dateTimeLong.Kind));
+        }
+
         private static DateTime[] _dateTimeTests = new[] {
 			DateTime.Now,
 			DateTime.UtcNow,
