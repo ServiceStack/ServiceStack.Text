@@ -660,6 +660,55 @@ namespace ServiceStack.Text
             return new string(newValue);
         }
 
+        public static string ToLowercaseUnderscore(this string value)
+        {
+            return value.ToLowercaseAndDelimited("_");
+        }
+
+        public static string ToLowercaseAndDelimited(this string value, string delimiter)
+        {
+            if (String.IsNullOrEmpty(value)) return value;
+            var sb = new StringBuilder();
+            var firstPart = true;
+            for (var i = 0; i < value.Length; i++)
+            {
+                var c0 = value[i];
+                var c1 = i < value.Length - 1 ? value[i + 1] : Char.MinValue;
+
+                if (Char.IsUpper(c0))
+                {
+                    c0 = Char.ToLowerInvariant(c0);
+                    if (firstPart && Char.IsLower(c1) && c1 != Char.MinValue)
+                        firstPart = false;
+                    if (i != 0 && !firstPart)
+                        sb.Append(delimiter);
+                    sb.Append(c0);
+                    if (Char.IsDigit(c1))
+                        sb.Append(delimiter);
+                }
+                else if (Char.IsDigit(c0))
+                {
+                    sb.Append(c0);
+                    if (firstPart)
+                        firstPart = false;
+                }
+                else if (Char.IsLower(c0))
+                {
+                    sb.Append(c0);
+                    if (Char.IsDigit(c1))
+                        sb.Append(delimiter);
+                    if (firstPart)
+                        firstPart = false;
+                }
+                else
+                {
+                    sb.Append(c0);   
+                }
+            }
+
+            return sb.ToString();
+        }
+
         private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
         public static string ToTitleCase(this string value)
         {
@@ -680,27 +729,6 @@ namespace ServiceStack.Text
 #else
             return TextInfo.ToTitleCase(value).Replace("_", String.Empty);
 #endif
-        }
-
-        public static string ToLowercaseUnderscore(this string value)
-        {
-            if (String.IsNullOrEmpty(value)) return value;
-            value = value.ToCamelCase();
-            
-            var sb = new StringBuilder(value.Length);
-            foreach (var t in value)
-            {
-                if (Char.IsDigit(t) || (Char.IsLetter(t) && Char.IsLower(t)) || t == '_')
-                {
-                    sb.Append(t);
-                }
-                else
-                {
-                    sb.Append("_");
-                    sb.Append(Char.ToLowerInvariant(t));
-                }
-            }
-            return sb.ToString();
         }
 
         public static string SafeSubstring(this string value, int length)

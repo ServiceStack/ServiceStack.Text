@@ -172,6 +172,70 @@ namespace ServiceStack.Text.Tests
             Assert.That(ttc, Is.EqualTo(""));
         }
 
+        [Test]
+        public void Can_ToLowercaseUnderscore_String()
+        {
+            Assert.That("U".ToLowercaseUnderscore(), Is.EqualTo("u"));
+            Assert.That("UU".ToLowercaseUnderscore(), Is.EqualTo("uu"));
+            Assert.That("UUU".ToLowercaseUnderscore(), Is.EqualTo("uuu"));
+            Assert.That("UUUU".ToLowercaseUnderscore(), Is.EqualTo("uuuu"));
+            Assert.That("l".ToLowercaseUnderscore(), Is.EqualTo("l"));
+            Assert.That("ll".ToLowercaseUnderscore(), Is.EqualTo("ll"));
+            Assert.That("lll".ToLowercaseUnderscore(), Is.EqualTo("lll"));
+            Assert.That("llll".ToLowercaseUnderscore(), Is.EqualTo("llll"));
+            Assert.That("Ul".ToLowercaseUnderscore(), Is.EqualTo("ul"));
+            Assert.That("Ull".ToLowercaseUnderscore(), Is.EqualTo("ull"));
+            Assert.That("Ulll".ToLowercaseUnderscore(), Is.EqualTo("ulll"));
+            Assert.That("UUl".ToLowercaseUnderscore(), Is.EqualTo("u_ul"));
+            Assert.That("UUll".ToLowercaseUnderscore(), Is.EqualTo("u_ull"));
+            Assert.That("UUUl".ToLowercaseUnderscore(), Is.EqualTo("uu_ul"));
+            Assert.That("lU".ToLowercaseUnderscore(), Is.EqualTo("l_u"));
+            Assert.That("lUl".ToLowercaseUnderscore(), Is.EqualTo("l_ul"));
+            Assert.That("lUll".ToLowercaseUnderscore(), Is.EqualTo("l_ull"));
+            Assert.That("llU".ToLowercaseUnderscore(), Is.EqualTo("ll_u"));
+            Assert.That("llUl".ToLowercaseUnderscore(), Is.EqualTo("ll_ul"));
+            Assert.That("lllU".ToLowercaseUnderscore(), Is.EqualTo("lll_u"));
+            Assert.That("llUlll".ToLowercaseUnderscore(), Is.EqualTo("ll_ulll"));
+            Assert.That("lllUlll".ToLowercaseUnderscore(), Is.EqualTo("lll_ulll"));
+            Assert.That("lllUUUlll".ToLowercaseUnderscore(), Is.EqualTo("lll_u_u_ulll"));
+            Assert.That("lllUlllUlll".ToLowercaseUnderscore(), Is.EqualTo("lll_ulll_ulll"));
+
+            Assert.That("U1".ToLowercaseUnderscore(), Is.EqualTo("u_1"));
+            Assert.That("UU1".ToLowercaseUnderscore(), Is.EqualTo("uu_1"));
+            Assert.That("UUU1".ToLowercaseUnderscore(), Is.EqualTo("uuu_1"));
+            Assert.That("l1".ToLowercaseUnderscore(), Is.EqualTo("l_1"));
+            Assert.That("ll1".ToLowercaseUnderscore(), Is.EqualTo("ll_1"));
+            Assert.That("lll1".ToLowercaseUnderscore(), Is.EqualTo("lll_1"));
+            Assert.That("U12".ToLowercaseUnderscore(), Is.EqualTo("u_12"));
+            Assert.That("UU12".ToLowercaseUnderscore(), Is.EqualTo("uu_12"));
+            Assert.That("1U".ToLowercaseUnderscore(), Is.EqualTo("1_u"));
+            Assert.That("1UU".ToLowercaseUnderscore(), Is.EqualTo("1_u_u"));
+            Assert.That("1l".ToLowercaseUnderscore(), Is.EqualTo("1l"));
+            Assert.That("1ll".ToLowercaseUnderscore(), Is.EqualTo("1ll"));
+            Assert.That("12U".ToLowercaseUnderscore(), Is.EqualTo("12_u"));
+            Assert.That("12UU".ToLowercaseUnderscore(), Is.EqualTo("12_u_u"));
+            Assert.That("12l".ToLowercaseUnderscore(), Is.EqualTo("12l"));
+            Assert.That("12ll".ToLowercaseUnderscore(), Is.EqualTo("12ll"));
+            Assert.That("U1U".ToLowercaseUnderscore(), Is.EqualTo("u_1_u"));
+            Assert.That("UU1UU".ToLowercaseUnderscore(), Is.EqualTo("uu_1_u_u"));
+            Assert.That("l1l".ToLowercaseUnderscore(), Is.EqualTo("l_1l"));
+            Assert.That("ll1ll".ToLowercaseUnderscore(), Is.EqualTo("ll_1ll"));
+            Assert.That("U12U".ToLowercaseUnderscore(), Is.EqualTo("u_12_u"));
+            Assert.That("UU12UU".ToLowercaseUnderscore(), Is.EqualTo("uu_12_u_u"));
+            Assert.That("l12l".ToLowercaseUnderscore(), Is.EqualTo("l_12l"));
+            Assert.That("ll12ll".ToLowercaseUnderscore(), Is.EqualTo("ll_12ll"));
+            Assert.That("U_1".ToLowercaseUnderscore(), Is.EqualTo("u_1"));
+            Assert.That("UU_1".ToLowercaseUnderscore(), Is.EqualTo("uu_1"));
+            Assert.That("l_1".ToLowercaseUnderscore(), Is.EqualTo("l_1"));
+            Assert.That("ll_1".ToLowercaseUnderscore(), Is.EqualTo("ll_1"));
+            Assert.That("U_12".ToLowercaseUnderscore(), Is.EqualTo("u_12"));
+            Assert.That("UU_12".ToLowercaseUnderscore(), Is.EqualTo("uu_12"));
+            Assert.That("l_12".ToLowercaseUnderscore(), Is.EqualTo("l_12"));
+            Assert.That("ll_12".ToLowercaseUnderscore(), Is.EqualTo("ll_12"));
+            Assert.That("".ToLowercaseUnderscore(), Is.EqualTo(""));
+            Assert.That(((string)null).ToLowercaseUnderscore(), Is.EqualTo((string)null));
+        }
+
 	    [Test]
         public void Can_Url_Encode_Unicode_String()
         {
