@@ -75,6 +75,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -238,6 +239,7 @@
     <Compile Include="Jsv\JsvWriter.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LicenseUtils.cs" />
     <Compile Include="ListExtensions.cs">
       <SubType>Code</SubType>
     </Compile>

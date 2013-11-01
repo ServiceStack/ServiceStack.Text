@@ -36,6 +36,8 @@ namespace ServiceStack.Text
                 + (IsMono ? "/Mono" : "/.NET")
                 + (IsMonoTouch ? " MonoTouch" : "")
                 + (IsWinRT ? ".NET WinRT" : "");
+
+            __releaseDate = DateTime.Parse("2001-01-01");
         }
 
         public static decimal ServiceStackVersion = 4.001m;
@@ -53,6 +55,12 @@ namespace ServiceStack.Text
         public static bool SupportsEmit { get; set; }
 
         public static string ServerUserAgent { get; set; }
+
+        private static readonly DateTime __releaseDate;
+        public static DateTime GetReleaseDate()
+        {
+            return __releaseDate;
+        }
 
         private static string referenceAssembyPath;
         public static string ReferenceAssembyPath
@@ -79,15 +87,4 @@ namespace ServiceStack.Text
             set { referenceAssembyPath = value; }
         }
     }
-
-    public static class LicenseUtils
-    {
-        public static void AssertEvaluationLicense()
-        {
-            if (DateTime.UtcNow > new DateTime(2013, 12, 31))
-                throw new Exception("The evaluation license for this software has expired. " +
-                                    "See http://www.servicestack.net to upgrade to a valid license.");
-        }
-    }
-
 }

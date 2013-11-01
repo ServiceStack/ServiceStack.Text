@@ -66,10 +66,14 @@
             <Find>\d+\.\d+\.\d+\.\d+</Find>
             <ReplaceWith>$(Version)</ReplaceWith>
         </RegexTransform>
-        <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
-            <Find>ServiceStackVersion = \d+\.\d+m;</Find>
-            <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
-        </RegexTransform>
+      <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
+        <Find>ServiceStackVersion = \d+\.\d+m;</Find>
+        <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
+      </RegexTransform>
+      <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
+        <Find>DateTime\.Parse\("[^"]+"\);</Find>
+        <ReplaceWith>DateTime.Parse("$([System.DateTime]::Now.ToString(`yyyy-MM-dd`))");</ReplaceWith>
+      </RegexTransform>
     </ItemGroup>
 
     <RegexTransform Items="@(RegexTransform)" />

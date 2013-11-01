@@ -107,6 +107,7 @@ namespace ServiceStack.Text.Common
                 null, Type.EmptyTypes, null);
             return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T,bool>)Delegate.CreateDelegate(typeof(Func<T,bool>), method);
         }
+
         private static bool Init()
         {
             if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
