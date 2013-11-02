@@ -179,7 +179,7 @@ namespace ServiceStack.Text.Common
             {
                 var fieldInfo = fieldInfos[i];
 
-                string propertyName, propertyNameCLSFriendly, propertyNameLowercaseUnderscore, propertyReflectedName;
+                string propertyName, propertyNameCLSFriendly, propertyNameLowercaseUnderscore, propertyDeclaredTypeName;
                 int propertyOrder = -1;
                 var propertyType = fieldInfo.FieldType;
                 var defaultValue = propertyType.GetDefaultValue();
@@ -194,7 +194,7 @@ namespace ServiceStack.Text.Common
                     propertyName = dcsDataMember.Name ?? fieldInfo.Name;
                     propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
                     propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseUnderscore();
-                    propertyReflectedName = dcsDataMember.Name ?? fieldInfo.ReflectedType.Name;
+                    propertyDeclaredTypeName = fieldInfo.DeclaringType.Name;
                     propertyOrder = dcsDataMember.Order;
                     propertySuppressDefaultAttribute = !dcsDataMember.EmitDefaultValue;
                 }
@@ -203,13 +203,13 @@ namespace ServiceStack.Text.Common
                     propertyName = fieldInfo.Name;
                     propertyNameCLSFriendly = propertyName.ToCamelCase();
                     propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
-                    propertyReflectedName = fieldInfo.ReflectedType.Name;
+                    propertyDeclaredTypeName = fieldInfo.DeclaringType.Name;
                 }
 
                 PropertyWriters[i + propertyNamesLength] = new TypePropertyWriter
                 (
                     propertyName,
-                    propertyReflectedName,
+                    propertyDeclaredTypeName,
                     propertyNameCLSFriendly,
                     propertyNameLowercaseUnderscore,
                     propertyOrder,
@@ -242,8 +242,7 @@ namespace ServiceStack.Text.Common
             internal readonly int propertyOrder;
             internal readonly bool propertySuppressDefaultConfig;
             internal readonly bool propertySuppressDefaultAttribute;
-            internal readonly string propertyReflectedName;
-            internal readonly string propertyCombinedNameUpper;
+            internal readonly string propertyReferenceName;
             internal readonly string propertyNameCLSFriendly;
             internal readonly string propertyNameLowercaseUnderscore;
             internal readonly Func<T, object> GetterFn;
@@ -251,15 +250,15 @@ namespace ServiceStack.Text.Common
             internal readonly object DefaultValue;
             internal readonly Func<T, bool> shouldSerialize;
 
-            public TypePropertyWriter(string propertyName, string propertyReflectedName, string propertyNameCLSFriendly, string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig,bool propertySuppressDefaultAttribute,
+            public TypePropertyWriter(string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly, 
+                string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig,bool propertySuppressDefaultAttribute,
                 Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, Func<T, bool> shouldSerialize)
             {
                 this.propertyName = propertyName;
                 this.propertyOrder = propertyOrder;
                 this.propertySuppressDefaultConfig = propertySuppressDefaultConfig;
                 this.propertySuppressDefaultAttribute = propertySuppressDefaultAttribute;
-                this.propertyReflectedName = propertyReflectedName;
-                this.propertyCombinedNameUpper = propertyReflectedName.ToUpper() + "." + propertyName.ToUpper();
+                this.propertyReferenceName = propertyDeclaredTypeName + "." + propertyName;
                 this.propertyNameCLSFriendly = propertyNameCLSFriendly;
                 this.propertyNameLowercaseUnderscore = propertyNameLowercaseUnderscore;
                 this.GetterFn = getterFn;
@@ -327,8 +326,6 @@ namespace ServiceStack.Text.Common
             if (PropertyWriters != null)
             {
                 var len = PropertyWriters.Length;
-                var exclude = JsConfig.ExcludePropertyReferences ?? new string[0];
-                ConvertToUpper(exclude);
                 for (int index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
@@ -351,7 +348,8 @@ namespace ServiceStack.Text.Common
                         continue;
                     }
 
-                    if (exclude.Any() && exclude.Contains(propertyWriter.propertyCombinedNameUpper)) continue;
+                    if (JsConfig.ExcludePropertyReferences != null
+                        && JsConfig.ExcludePropertyReferences.Contains(propertyWriter.propertyReferenceName)) continue;
 
                     if (i++ > 0)
                         writer.Write(JsWriter.ItemSeperator);
@@ -424,15 +422,6 @@ namespace ServiceStack.Text.Common
             finally
             {
                 JsState.QueryStringMode = false;
-            }
-        }
-
-        private static void ConvertToUpper(string[] strArray)
-        {
-            for (var i = 0; i < strArray.Length; ++i)
-            {
-                if (strArray[i] != null)
-                    strArray[i] = strArray[i].ToUpper();
             }
         }
     }
