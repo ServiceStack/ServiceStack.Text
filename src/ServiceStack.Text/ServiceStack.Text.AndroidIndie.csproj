@@ -193,6 +193,7 @@
     <Compile Include="Jsv\JsvWriter.Generic.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LicenseUtils.cs" />
     <Compile Include="ListExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -213,6 +214,7 @@
     <Compile Include="Reflection\StaticAccessors.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Scrypt.cs" />
     <Compile Include="StreamExtensions.cs">
       <SubType>Code</SubType>
     </Compile>

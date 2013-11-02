@@ -54,8 +54,6 @@
   <Target Name="BuildSolutions">
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
       Properties="Configuration=$(Configuration)" />
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.SL5.sln" Targets="Build"
-      Properties="Configuration=$(Configuration)" />
   </Target>
 
   <Target Name="NuGetPack">
@@ -82,7 +80,7 @@
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/ServiceStack.Text.*"></TextFiles>
-      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text.SL5/bin/$(Configuration)/ServiceStack.Text.*"></TextSl5Files>
+      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/ServiceStack.Text.*"></TextSl5Files>
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"

@@ -260,6 +260,11 @@
     <Compile Include="Reflection\StaticAccessors.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Rsa\BigInteger.cs" />
+    <Compile Include="Rsa\Providers.cs" />
+    <Compile Include="Rsa\RSACryptoServiceProvider.cs" />
+    <Compile Include="Rsa\Scrypt.cs" />
+    <Compile Include="Rsa\Utils.cs" />
     <Compile Include="StreamExtensions.cs">
       <SubType>Code</SubType>
     </Compile>

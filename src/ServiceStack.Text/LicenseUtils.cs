@@ -2,7 +2,6 @@
 // License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
-using System.Configuration;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -94,12 +93,14 @@ namespace ServiceStack
 
         static LicenseUtils()
         {
+#if !(SILVERLIGHT || WP)
             //Automatically register license key stored in <appSettings/>
-            var licenceKeyText = ConfigurationManager.AppSettings[AppSettingsKey];
+            var licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
             if (!string.IsNullOrEmpty(licenceKeyText))
             {
                 RegisterLicense(licenceKeyText);
             }
+#endif
         }
 
         public static class ErrorMessages
@@ -273,15 +274,9 @@ namespace ServiceStack
         {
             try
             {
-                // Create a new instance of RSACryptoServiceProvider using the 
-                // key from RSAParameters.
                 var RSAalg = new RSACryptoServiceProvider();
-
                 RSAalg.ImportParameters(Key);
-
-                // Verify the data using the signature.  Pass a new instance of SHA1CryptoServiceProvider
-                // to specify the use of SHA1 for hashing.
-                return RSAalg.VerifyData(DataToVerify, new SHA1CryptoServiceProvider(), SignedData);
+                return RSAalg.VerifySha1Data(DataToVerify, SignedData);
 
             }
             catch (CryptographicException e)
@@ -323,6 +318,15 @@ namespace ServiceStack
             var signedData = Convert.FromBase64String(key.Hash);
 
             return VerifySignedHash(originalData, signedData, publicKeyParams);
+        }
+
+        public static bool VerifySha1Data(this RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
+        {
+#if !(SILVERLIGHT || WP)          
+                return RSAalg.VerifyData(unsignedData, new SHA1CryptoServiceProvider(), encryptedData);
+#else
+            return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1());
+#endif
         }
     }
 }
