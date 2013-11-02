@@ -145,9 +145,12 @@ namespace ServiceStack
                 cutomerId = parts[0];
 
                 LicenseKey key;
+#if !(SILVERLIGHT || WP)
                 if (!licenseKeyText.VerifyLicenseKeyText(out key))
                     throw new ArgumentException("licenseKeyText");
-
+#else
+            key = licenseKeyText.ToLicenseKey();
+#endif
                 var releaseDate = Env.GetReleaseDate();
                 if (releaseDate > key.Expiry)
                     throw new LicenseException("This license has expired on {0} and is not valid for use with this release."
