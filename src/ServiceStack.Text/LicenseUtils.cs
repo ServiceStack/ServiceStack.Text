@@ -193,7 +193,7 @@ namespace ServiceStack
                 return;
 
             var licensedFeatures = ActivatedLicenseFeatures();
-            if (licensedFeatures == LicenseFeature.All) //Standard Usage
+            if ((LicenseFeature.All & licensedFeatures) == LicenseFeature.All) //Standard Usage
                 return;
 
             //Free Quotas
