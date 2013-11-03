@@ -11,7 +11,6 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -23,6 +22,7 @@ using ServiceStack.Text.Support;
 using ServiceStack.Text;
 #if !SILVERLIGHT && !MONOTOUCH && !XBOX
 using FastMember = ServiceStack.Text.FastMember;
+using System.Collections.Concurrent;
 #endif
 
 #if WINDOWS_PHONE
@@ -34,8 +34,87 @@ namespace ServiceStack
     public delegate EmptyCtorDelegate EmptyCtorFactoryDelegate(Type type);
     public delegate object EmptyCtorDelegate();
 
+#if NETFX_CORE
+
+    public enum TypeCode
+    {
+            Byte,
+            Int16,
+            Int32,
+            Int64,
+            SByte,
+            UInt16,
+            UInt32,
+            UInt64,
+            Single,
+            Double,
+            Char,
+            Boolean,
+            String,
+            DateTime,
+            Decimal,
+            Empty,
+            DBNull, // Never used
+            Object
+    }
+#endif
+
     public static class ReflectionExtensions
     {
+#if NETFX_CORE
+        private static readonly Dictionary<Type, TypeCode> _typeCodeTable =
+        new Dictionary<Type, TypeCode>()
+        {
+                { typeof( Boolean ), TypeCode.Boolean },
+                { typeof( Char ), TypeCode.Char },
+                { typeof( Byte ), TypeCode.Byte },
+                { typeof( Int16 ), TypeCode.Int16 },
+                { typeof( Int32 ), TypeCode.Int32 },
+                { typeof( Int64 ), TypeCode.Int64 },
+                { typeof( SByte ), TypeCode.SByte },
+                { typeof( UInt16 ), TypeCode.UInt16 },
+                { typeof( UInt32 ), TypeCode.UInt32 },
+                { typeof( UInt64 ), TypeCode.UInt64 },
+                { typeof( Single ), TypeCode.Single },
+                { typeof( Double ), TypeCode.Double },
+                { typeof( DateTime ), TypeCode.DateTime },
+                { typeof( Decimal ), TypeCode.Decimal },
+                { typeof( String ), TypeCode.String },
+        };
+
+        public static Type[] GetGenericArguments(this Type type)
+        {
+            return type.GetTypeInfo().GenericTypeArguments;
+        }
+
+
+        public static TypeInfo GetTypeInfo(this Type type)
+        {
+            IReflectableType reflectableType = (IReflectableType)type;
+            return reflectableType.GetTypeInfo();
+        }
+#endif
+
+        public static TypeCode GetTypeCode(Type type)
+        {
+#if NETFX_CORE
+            if (type == null)
+            {
+                return TypeCode.Empty;
+            }
+
+            TypeCode result;
+            if (!_typeCodeTable.TryGetValue(type, out result))
+            {
+                result = TypeCode.Object;
+            }
+
+            return result;
+#else
+            return Type.GetTypeCode(type);
+#endif
+        }
+
         public static bool IsInstanceOf(this Type type, Type thisOrBaseType)
         {
             while (type != null)
@@ -148,19 +227,27 @@ namespace ServiceStack
 
         public static TypeCode GetUnderlyingTypeCode(this Type type)
         {
+#if NETFX_CORE
+            return GetTypeCode(Nullable.GetUnderlyingType(type) ?? type);
+#else
             return Type.GetTypeCode(Nullable.GetUnderlyingType(type) ?? type);
+#endif
         }
 
         public static bool IsNumericType(this Type type)
         {
             if (type == null) return false;
 
+#if NETFX_CORE
+            if (type.IsEnum()) //TypeCode can be TypeCode.Int32
+#else
             if (type.IsEnum) //TypeCode can be TypeCode.Int32
+#endif
             {
                 return JsConfig.TreatEnumAsInteger || type.IsEnumFlags();
             }
 
-            switch (Type.GetTypeCode(type))
+            switch (GetTypeCode(type))
             {
                 case TypeCode.Byte:
                 case TypeCode.Decimal:
@@ -176,11 +263,11 @@ namespace ServiceStack
                     return true;
 
                 case TypeCode.Object:
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
                         return IsNumericType(Nullable.GetUnderlyingType(type));
                     }
-                    if (type.IsEnum)
+                    if (type.IsEnum())
                     {
                         return JsConfig.TreatEnumAsInteger || type.IsEnumFlags();
                     }
@@ -193,7 +280,7 @@ namespace ServiceStack
         {
             if (type == null) return false;
 
-            switch (Type.GetTypeCode(type))
+            switch (GetTypeCode(type))
             {
                 case TypeCode.Byte:
                 case TypeCode.Int16:
@@ -206,7 +293,7 @@ namespace ServiceStack
                     return true;
 
                 case TypeCode.Object:
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
                         return IsNumericType(Nullable.GetUnderlyingType(type));
                     }
@@ -219,7 +306,7 @@ namespace ServiceStack
         {
             if (type == null) return false;
 
-            switch (Type.GetTypeCode(type))
+            switch (GetTypeCode(type))
             {
                 case TypeCode.Decimal:
                 case TypeCode.Double:
@@ -227,7 +314,7 @@ namespace ServiceStack
                     return true;
 
                 case TypeCode.Object:
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
                         return IsNumericType(Nullable.GetUnderlyingType(type));
                     }
@@ -372,7 +459,11 @@ namespace ServiceStack
 
         public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
         {
+#if NETFX_CORE
+            if (type.IsInterface())
+#else
             if (type.IsInterface)
+#endif
             {
                 if (type.HasGenericType())
                 {
@@ -402,7 +493,7 @@ namespace ServiceStack
             {
                 return () => Array.CreateInstance(type.GetElementType(), 0);
             }
-            else if (type.IsGenericTypeDefinition)
+            else if (type.IsGenericTypeDefinition())
             {
                 var genericArgs = type.GetGenericArguments();
                 var typeArgs = new Type[genericArgs.Length];
@@ -962,8 +1053,8 @@ namespace ServiceStack
             throw new NotSupportedException("Adding Attributes at runtime is not supported on this platform");
 #else
             TypeDescriptor.AddAttributes(type, attrs);
-#endif
             return type;
+#endif
         }
 
         /// <summary>
@@ -1155,10 +1246,10 @@ namespace ServiceStack
             return pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
         }
 
-        public static TAttr[] AllAttributes<TAttr>(this Type type)
+        public static TAttr[] AllAttributes<TAttr>(this Type type) where TAttr : Attribute
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().GetCustomAttributes<T>(true).ToArray();
+            return type.GetTypeInfo().GetCustomAttributes<TAttr>(true).Cast<TAttr>().ToArray();
 #elif SILVERLIGHT
             return type.GetCustomAttributes(typeof(TAttr), true).Cast<TAttr>().ToArray();
 #else
@@ -1166,10 +1257,12 @@ namespace ServiceStack
 #endif
         }
 
-        public static TAttr FirstAttribute<TAttr>(this Type type)
+        public static TAttr FirstAttribute<TAttr>(this Type type) where TAttr : class
         {
 #if NETFX_CORE
+
             return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
+                    .Cast<TAttr>()
                     .FirstOrDefault();
 #elif SILVERLIGHT
             return (TAttr)type.GetCustomAttributes(typeof(TAttr), true)
@@ -1181,32 +1274,17 @@ namespace ServiceStack
 
         public static TAttribute FirstAttribute<TAttribute>(this MemberInfo memberInfo)
         {
-#if NETFX_CORE
-            var attrs = memberInfo.GetCustomAttributes<TAttribute>(inherit);
-            return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
-#else
             return memberInfo.AllAttributes<TAttribute>().FirstOrDefault();
-#endif
         }
         
         public static TAttribute FirstAttribute<TAttribute>(this ParameterInfo paramInfo)
         {
-#if NETFX_CORE
-            var attrs = paramInfo.GetCustomAttributes<TAttribute>(inherit);
-            return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
-#else
             return paramInfo.AllAttributes<TAttribute>().FirstOrDefault();
-#endif
         }
 
         public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo)
         {
-#if NETFX_CORE
-            var attrs = propertyInfo.GetCustomAttributes<TAttribute>(inherit);
-            return (TAttribute)(attrs.Count() > 0 ? attrs.ElementAt(0) : null);
-#else
             return propertyInfo.AllAttributes<TAttribute>().FirstOrDefault();
-#endif
         }
 
         public static Type FirstGenericTypeDefinition(this Type type)
@@ -1244,7 +1322,15 @@ namespace ServiceStack
         public static MethodInfo GetPublicStaticMethod(this Type type, string methodName, Type[] types = null)
         {
 #if NETFX_CORE
-            return type.GetRuntimeMethod(methodName, types);
+            foreach (MethodInfo method in type.GetTypeInfo().DeclaredMethods)
+            {
+                if (method.IsStatic && method.Name == methodName)
+                {
+                    return method;
+                }
+            }
+
+            return null;
 #else
             return types == null
                 ? type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static)
@@ -1411,7 +1497,7 @@ namespace ServiceStack
         public static bool IsEnumFlags(this Type type)
         {
 #if NETFX_CORE
-            return type.GetTypeInfo().IsEnum && type.FirstAttribute<FlagsAttribute>(false) != null;
+            return type.GetTypeInfo().IsEnum && type.FirstAttribute<FlagsAttribute>() != null;
 #else
             return type.IsEnum && type.FirstAttribute<FlagsAttribute>() != null;
 #endif
@@ -1443,6 +1529,41 @@ namespace ServiceStack
             return type.GetProperties();
 #endif
         }
+
+        public static bool IsGenericTypeDefinition(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsGenericTypeDefinition;
+#else
+            return type.IsGenericTypeDefinition;
+#endif
+        }
+
+        public static bool IsGenericType(this Type type)
+        {
+#if NETFX_CORE
+            return type.GetTypeInfo().IsGenericType;
+#else
+            return type.IsGenericType;
+#endif
+        }
+
+#if NETFX_CORE
+        public static object GetDefaultValue(this Type type)
+        {
+            return type.GetTypeInfo().IsValueType ? Activator.CreateInstance(type) : null;
+        }
+
+        public static PropertyInfo GetProperty(this Type type, String propertyName)
+        {
+            return type.GetTypeInfo().GetDeclaredProperty(propertyName);
+        }
+
+        public static MethodInfo GetMethod(this Type type, String methodName)
+        {
+            return type.GetTypeInfo().GetDeclaredMethod(methodName);
+        }
+#endif
 
 #if SILVERLIGHT || NETFX_CORE
         public static List<U> ConvertAll<T, U>(this List<T> list, Func<T, U> converter)

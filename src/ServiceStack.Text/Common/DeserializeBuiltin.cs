@@ -33,7 +33,11 @@ namespace ServiceStack.Text.Common
             var nullableType = Nullable.GetUnderlyingType(typeof(T));
             if (nullableType == null)
             {
+#if NETFX_CORE
+                var typeCode = ReflectionExtensions.GetTypeCode(typeof(T));
+#else
                 var typeCode = Type.GetTypeCode(typeof(T));
+#endif
                 switch (typeCode)
                 {
                     case TypeCode.Boolean:
@@ -80,7 +84,11 @@ namespace ServiceStack.Text.Common
             }
             else
             {
-                var typeCode = Type.GetTypeCode(nullableType);
+#if NETFX_CORE
+                var typeCode = ReflectionExtensions.GetTypeCode(typeof(T));
+#else
+                var typeCode = Type.GetTypeCode(typeof(T));
+#endif
                 switch (typeCode)
                 {
                     case TypeCode.Boolean:

@@ -102,9 +102,6 @@
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\ServiceStack\src\ServiceStack.Common\Support\Thread.WinRT.cs">
-      <Link>Support\Thread.WinRT.cs</Link>
-    </Compile>
     <Compile Include="..\ServiceStack.Text\AssemblyUtils.cs">
       <Link>AssemblyUtils.cs</Link>
     </Compile>

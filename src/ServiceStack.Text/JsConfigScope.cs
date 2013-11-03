@@ -1,4 +1,7 @@
-﻿using System;
+﻿#if WINDOWS_PHONE && !WP8
+using ServiceStack.Text.WP;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

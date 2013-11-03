@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if !NETFX_CORE
 using System.Collections.Specialized;
+#endif
 using System.Linq;
 using System.Reflection;
 

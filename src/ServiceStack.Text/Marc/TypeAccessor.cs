@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
+#if !NETFX_CORE
 using System.Reflection.Emit;
+#endif
 using System.Threading;
 //using System.Dynamic;
 

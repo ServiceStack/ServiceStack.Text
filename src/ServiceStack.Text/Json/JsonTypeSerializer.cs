@@ -560,8 +560,6 @@ namespace ServiceStack.Text.Json
 
             var tokenStartPos = i;
             var valueChar = value[i];
-            var withinQuotes = false;
-            var endsToEat = 1;
 
             switch (valueChar)
             {
