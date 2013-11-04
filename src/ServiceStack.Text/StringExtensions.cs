@@ -660,12 +660,7 @@ namespace ServiceStack.Text
             return new string(newValue);
         }
 
-        public static string ToLowercaseUnderscore(this string value)
-        {
-            return value.ToLowercaseAndDelimited("_");
-        }
-
-        public static string ToLowercaseAndDelimited(this string value, string delimiter)
+        public static string ToLowercaseAndDelimited(this string value, string delimiter = "_")
         {
             if (String.IsNullOrEmpty(value)) return value;
             var sb = new StringBuilder();
