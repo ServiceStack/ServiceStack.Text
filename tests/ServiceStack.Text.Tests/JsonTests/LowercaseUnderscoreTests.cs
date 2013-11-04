@@ -97,6 +97,20 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(u.ToJson(), Is.EqualTo("{\"user_id_00_11\":0}"));
         }
 
+        [Test]
+        public void Should_split_trailing_digit()
+        {
+            var u = new { AddressLine1 = "foo" };
+            Assert.That(u.ToJson(), Is.EqualTo("{\"address_line_1\":\"foo\"}"));
+        }
+
+        [Test]
+        public void Should_group_trailing_digits()
+        {
+            var u = new { AddressLine12 = "foo" };
+            Assert.That(u.ToJson(), Is.EqualTo("{\"address_line_12\":\"foo\"}"));
+        }
+
         private class WithAbbreviationAndDigit
         {
             public string DigestHa1Hash { get; set; }

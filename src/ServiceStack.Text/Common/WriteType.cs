@@ -144,7 +144,7 @@ namespace ServiceStack.Text.Common
 
                     propertyName = dcsDataMember.Name ?? propertyInfo.Name;
                     propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
-                    propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseUnderscore();
+                    propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseAndDelimited();
                     propertyReflectedName = dcsDataMember.Name ?? propertyInfo.ReflectedType.Name;
                     propertyOrder = dcsDataMember.Order;
                     propertySuppressDefaultAttribute = !dcsDataMember.EmitDefaultValue;
@@ -153,7 +153,7 @@ namespace ServiceStack.Text.Common
                 {
                     propertyName = propertyInfo.Name;
                     propertyNameCLSFriendly = propertyName.ToCamelCase();
-                    propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
+                    propertyNameLowercaseUnderscore = propertyName.ToLowercaseAndDelimited();
                     propertyReflectedName = propertyInfo.ReflectedType.Name;
                 }
 
@@ -192,7 +192,7 @@ namespace ServiceStack.Text.Common
 
                     propertyName = dcsDataMember.Name ?? fieldInfo.Name;
                     propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
-                    propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseUnderscore();
+                    propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseAndDelimited();
                     propertyReflectedName = dcsDataMember.Name ?? fieldInfo.ReflectedType.Name;
                     propertyOrder = dcsDataMember.Order;
                     propertySuppressDefaultAttribute = !dcsDataMember.EmitDefaultValue;
@@ -201,7 +201,7 @@ namespace ServiceStack.Text.Common
                 {
                     propertyName = fieldInfo.Name;
                     propertyNameCLSFriendly = propertyName.ToCamelCase();
-                    propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
+                    propertyNameLowercaseUnderscore = propertyName.ToLowercaseAndDelimited();
                     propertyReflectedName = fieldInfo.ReflectedType.Name;
                 }
 
