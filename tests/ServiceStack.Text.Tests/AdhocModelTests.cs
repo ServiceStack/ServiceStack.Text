@@ -740,17 +740,5 @@ namespace ServiceStack.Text.Tests
             Assert.AreEqual(dto.Blah.Count, from.Blah.Count);
             from.PrintDump();
         }
-
-        public class XmlAny
-        {
-            public XmlElement[] Any { get; set; }
-        }
-
-        [Test]
-        public void Can_serialize_Specialized_IEnumerable()
-        {
-            var getParseFn = JsvReader.GetParseFn(typeof (XmlAny));
-            Assert.IsNotNull(getParseFn);
-        }
     }
 }

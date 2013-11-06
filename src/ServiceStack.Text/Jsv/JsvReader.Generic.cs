@@ -1,31 +1,20 @@
-//
-// https://github.com/ServiceStack/ServiceStack.Text
-// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
-//
-// Authors:
-//   Demis Bellot (demis.bellot@gmail.com)
-//
-// Copyright 2012 Service Stack LLC. All Rights Reserved.
-//
-// Licensed under the same terms of ServiceStack.
-//
+//Copyright (c) Service Stack LLC. All Rights Reserved.
+//License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
-using System.Linq;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Jsv
 {
-	public static class JsvReader
+    public static class JsvReader
 	{ 
 		internal static readonly JsReader<JsvTypeSerializer> Instance = new JsReader<JsvTypeSerializer>();
 
         private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
-		public static ParseStringDelegate GetParseFn(Type type)
+        public static ParseStringDelegate GetParseFn(Type type)
 		{
 			ParseFactoryDelegate parseFactoryFn;
             ParseFnCache.TryGetValue(type, out parseFactoryFn);
@@ -50,7 +39,7 @@ namespace ServiceStack.Text.Jsv
 		}
 	}
 
-	public static class JsvReader<T>
+    internal static class JsvReader<T>
 	{
 		private static readonly ParseStringDelegate ReadFn;
 

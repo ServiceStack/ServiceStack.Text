@@ -1,14 +1,5 @@
-//
-// https://github.com/ServiceStack/ServiceStack.Text
-// ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
-//
-// Authors:
-//   Demis Bellot (demis.bellot@gmail.com)
-//
-// Copyright 2012 Service Stack LLC. All Rights Reserved.
-//
-// Licensed under the same terms of ServiceStack.
-//
+//Copyright (c) Service Stack LLC. All Rights Reserved.
+//License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
 using System.Collections.Generic;
@@ -37,7 +28,7 @@ namespace ServiceStack.Text.Json
                 Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
         }
 
-		public static WriteObjectDelegate GetWriteFn(Type type)
+	    internal static WriteObjectDelegate GetWriteFn(Type type)
 		{
 			try
 			{
@@ -70,7 +61,7 @@ namespace ServiceStack.Text.Json
 
 		private static Dictionary<Type, TypeInfo> JsonTypeInfoCache = new Dictionary<Type, TypeInfo>();
 
-		public static TypeInfo GetTypeInfo(Type type)
+	    internal static TypeInfo GetTypeInfo(Type type)
 		{
 			try
 			{
@@ -101,7 +92,7 @@ namespace ServiceStack.Text.Json
 			}
 		}
 
-		public static void WriteLateBoundObject(TextWriter writer, object value)
+	    internal static void WriteLateBoundObject(TextWriter writer, object value)
 		{
 			if (value == null)
 			{
@@ -134,7 +125,7 @@ namespace ServiceStack.Text.Json
             }
         }
 
-		public static WriteObjectDelegate GetValueTypeToStringMethod(Type type)
+	    internal static WriteObjectDelegate GetValueTypeToStringMethod(Type type)
 		{
 			return Instance.GetValueTypeToStringMethod(type);
 		}

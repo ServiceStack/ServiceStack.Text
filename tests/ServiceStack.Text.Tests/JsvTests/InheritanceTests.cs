@@ -30,9 +30,8 @@ namespace ServiceStack.Text.Tests.JsvTests
         [Test]
         public void Should_set_property_of_parent_class()
         {
-            var serializer = new JsvSerializer<TestChild>();
-            var serialized = serializer.SerializeToString(new TestChild("Test Value"));
-            var deserialized = serializer.DeserializeFromString(serialized);
+            var serialized = TypeSerializer.SerializeToString(new TestChild("Test Value"));
+            var deserialized = TypeSerializer.DeserializeFromString<TestChild>(serialized);
             Assert.That(deserialized.Parameter, Is.EqualTo("Test Value"));
         }
     }
