@@ -3,7 +3,7 @@
 namespace ServiceStack.Text.Tests
 {
     [TestFixture]
-    public class JsonObjectTests
+    public class JsonObjectTests : TestBase
     {
         private const string JsonCentroid = @"{""place"":{ ""woeid"":12345, ""placeTypeName"":""St\\ate"" } }";
 

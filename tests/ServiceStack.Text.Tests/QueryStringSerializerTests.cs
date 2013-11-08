@@ -16,7 +16,7 @@ namespace ServiceStack.Text.Tests
     }
 
     [TestFixture]
-    public class QueryStringSerializerTests
+    public class QueryStringSerializerTests : TestBase
     {
         class D
         {

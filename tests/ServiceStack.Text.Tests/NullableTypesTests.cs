@@ -8,7 +8,7 @@ using ServiceStack.Common.Tests.Models;
 namespace ServiceStack.Text.Tests
 {
     [TestFixture]
-    public class NullableTypesTests
+    public class NullableTypesTests : TestBase
     {
         [SetUp]
         public void SetUp()
@@ -103,6 +103,14 @@ namespace ServiceStack.Text.Tests
             public bool? BoolValue { get; set; }
             public long? LongValue { get; set; }
             public Guid? GuidValue { get; set; }
+        }
+
+        [Test]
+        public void Test_override_SerializeFn()
+        {
+            JsConfig<bool>.SerializeFn = value => value ? "1" : "0";
+            var dto = new EntityForOverridingDeserialization { BoolValue = true };
+            dto.ToJson().Print();
         }
 
         [Test]
