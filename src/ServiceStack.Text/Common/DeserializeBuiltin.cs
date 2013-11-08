@@ -85,9 +85,9 @@ namespace ServiceStack.Text.Common
             else
             {
 #if NETFX_CORE
-                var typeCode = ReflectionExtensions.GetTypeCode(typeof(T));
+                var typeCode = ReflectionExtensions.GetTypeCode(nullableType);
 #else
-                var typeCode = Type.GetTypeCode(typeof(T));
+                var typeCode = Type.GetTypeCode(nullableType);
 #endif
                 switch (typeCode)
                 {
