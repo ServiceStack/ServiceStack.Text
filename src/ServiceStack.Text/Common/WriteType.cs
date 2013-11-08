@@ -152,7 +152,7 @@ namespace ServiceStack.Text.Common
                     propertyName = dcsDataMember.Name ?? propertyInfo.Name;
                     propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
                     propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseUnderscore();
-                    propertyDeclaredTypeName = propertyType.DeclaringType.Name;
+                    propertyDeclaredTypeName = propertyType.GetDeclaringTypeName();
                     propertyOrder = dcsDataMember.Order;
                     propertySuppressDefaultAttribute = !dcsDataMember.EmitDefaultValue;
                 }
@@ -161,7 +161,7 @@ namespace ServiceStack.Text.Common
                     propertyName = propertyInfo.Name;
                     propertyNameCLSFriendly = propertyName.ToCamelCase();
                     propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
-                    propertyDeclaredTypeName = propertyInfo.DeclaringType.Name;
+                    propertyDeclaredTypeName = propertyInfo.GetDeclaringTypeName();
                 }
 
 
@@ -231,6 +231,7 @@ namespace ServiceStack.Text.Common
                     shouldSerialize
                 );
             }
+
             PropertyWriters = PropertyWriters.OrderBy(x => x.propertyOrder).ToArray();
             return true;
         }

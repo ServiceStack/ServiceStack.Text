@@ -1246,7 +1246,7 @@ namespace ServiceStack
             return pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
         }
 
-        public static TAttr[] AllAttributes<TAttr>(this Type type) where TAttr : Attribute
+        public static TAttr[] AllAttributes<TAttr>(this Type type)
         {
 #if NETFX_CORE
             return type.GetTypeInfo().GetCustomAttributes<TAttr>(true).Cast<TAttr>().ToArray();
@@ -1577,7 +1577,30 @@ namespace ServiceStack
         }
 #endif
 
+        public static string GetDeclaringTypeName(this Type type)
+        {
+            if (type.DeclaringType != null)
+                return type.DeclaringType.Name;
 
+#if !(NETFX_CORE || WP)
+            if (type.ReflectedType != null)
+                return type.ReflectedType.Name;
+#endif
+
+            return null;
+        }
+
+        public static string GetDeclaringTypeName(this MemberInfo mi)
+        {
+            if (mi.DeclaringType != null)
+                return mi.DeclaringType.Name;
+
+#if !(NETFX_CORE || WP)
+            return mi.ReflectedType.Name;
+#endif
+
+            return null;
+        }
     }
 
 }
