@@ -331,7 +331,7 @@ namespace ServiceStack
 
         public static string GetHashKeyToSign(this LicenseKey key)
         {
-            return "{0}:{1}:{2}".Fmt(key.Ref, key.Name, key.Type);
+            return "{0}:{1}:{2}".Fmt(key.Ref, key.Expiry.ToString("yyyy-MM-dd"), key.Type);
         }
 
         public static bool VerifyLicenseKeyText(this string licenseKeyText, out LicenseKey key)

@@ -19,7 +19,7 @@ namespace ServiceStack.Text.Tests
         [TearDown]
         public void TearDown()
         {
-            Licensing.RegisterLicense(LicensingTests.TestBusiness2014Text);
+            Licensing.RegisterLicense(LicensingTests.TestBusiness2013Text);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Allows_serialization_of_21_types()
         {
-            Licensing.RegisterLicense(LicensingTests.TestBusiness2014Text);
+            Licensing.RegisterLicense(LicensingTests.TestBusiness2013Text);
 
             Serialize20();
             Serialize20();
