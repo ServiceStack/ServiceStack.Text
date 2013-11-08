@@ -27,6 +27,8 @@ namespace ServiceStack
     {
         None = 0,
         All = Premium | Text | Client | Common | Redis | OrmLite | ServiceStack | Server | Razor | Admin,
+        RedisSku = Redis | Text,
+        OrmLiteSku = OrmLite | Text,
         Free = None,
         Indie = All,
         Business = All,
@@ -126,7 +128,7 @@ namespace ServiceStack
             public const int TypeFields = 20;
             public const int TextTypes = 20;
             public const int RedisTypes = 20;
-            public const int RedisRequestPerHour = 10000;
+            public const int RedisRequestPerHour = 6000;
             public const int OrmLiteTables = 10;
             public const int PremiumFeature = 0;
         }
