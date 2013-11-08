@@ -10,6 +10,14 @@ namespace ServiceStack.Text
 		internal bool EnableAnonymousFieldSetterses;
 		internal PropertyInfo[] Properties;
 		internal FieldInfo[] Fields;
+	    internal bool IsUserType { get; set; }
+
+        internal void AssertValidUsage()
+        {
+            if (!IsUserType) return;
+
+            LicenseUtils.AssertValidUsage(LicenseFeature.Text, QuotaType.Types, JsConfig.__uniqueTypes.Count);
+        }
 
 		internal TypeConfig(Type type)
 		{
@@ -17,48 +25,80 @@ namespace ServiceStack.Text
 			EnableAnonymousFieldSetterses = false;
 			Properties = new PropertyInfo[0];
 			Fields = new FieldInfo[0];
-		}
+
+            JsConfig.__uniqueTypes.Add(Type);
+        }
 	}
 
 	public static class TypeConfig<T>
 	{
-		private static readonly TypeConfig config;
+		private static TypeConfig config;
+
+	    static TypeConfig Config
+	    {
+            get { return config ?? (config = Init()); }
+	    }
 
 		public static PropertyInfo[] Properties
 		{
-			get { return config.Properties; }
-			set { config.Properties = value; }
+            get { return Config.Properties; }
+            set { Config.Properties = value; }
 		}
 
 		public static FieldInfo[] Fields
 		{
-			get { return config.Fields; }
-			set { config.Fields = value; }
+            get { return Config.Fields; }
+            set { Config.Fields = value; }
 		}
 
-		public static bool EnableAnonymousFieldSetters
-		{
-			get { return config.EnableAnonymousFieldSetterses; }
-			set { config.EnableAnonymousFieldSetterses = value; }
-		}
+        public static bool EnableAnonymousFieldSetters
+        {
+            get { return Config.EnableAnonymousFieldSetterses; }
+            set { Config.EnableAnonymousFieldSetterses = value; }
+        }
+
+        public static bool IsUserType
+        {
+            get { return Config.IsUserType; }
+            set { Config.IsUserType = value; }
+        }
 
 		static TypeConfig()
 		{
-			config = new TypeConfig(typeof(T));
-			
-			var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? new string[0];
-
-            var properties = excludedProperties.Any()
-                ? config.Type.GetSerializableProperties().Where(x => !excludedProperties.Contains(x.Name))
-                : config.Type.GetSerializableProperties();
-            Properties = properties.Where(x => x.GetIndexParameters().Length == 0).ToArray();
-
-			Fields = config.Type.GetSerializableFields().ToArray();
+            config = Init();
 		}
 
-		internal static TypeConfig GetState()
+	    static TypeConfig Init()
+	    {
+	        config = new TypeConfig(typeof(T));
+
+	        var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? new string[0];
+
+	        var properties = excludedProperties.Any()
+	            ? config.Type.GetSerializableProperties().Where(x => !excludedProperties.Contains(x.Name))
+	            : config.Type.GetSerializableProperties();
+	        Properties = properties.Where(x => x.GetIndexParameters().Length == 0).ToArray();
+
+	        Fields = config.Type.GetSerializableFields().ToArray();
+
+	        IsUserType = !typeof (T).IsValueType && typeof (T).Namespace != "System";
+
+            return config;
+	    }
+
+	    public static void Reset()
+        {
+            config = null;
+        }
+
+	    internal static TypeConfig GetState()
 		{
-			return config;
+            return Config;
 		}
+
+        internal static void AssertValidUsage()
+        {
+            Config.AssertValidUsage();
+        }
 	}
 }

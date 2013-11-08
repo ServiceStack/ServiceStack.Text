@@ -180,11 +180,11 @@ namespace ServiceStack.Text.Json
 
         public static void WriteObject(TextWriter writer, object value)
         {
-            LicenseUtils.AssertEvaluationLicense();
-
 #if MONOTOUCH
 			if (writer == null) return;
 #endif
+            TypeConfig<T>.AssertValidUsage();
+
             try
             {
                 if (++JsState.Depth > JsConfig.MaxDepth)
@@ -207,6 +207,8 @@ namespace ServiceStack.Text.Json
 #if MONOTOUCH
 			if (writer == null) return;
 #endif
+            TypeConfig<T>.AssertValidUsage();
+
             JsState.Depth = 0;
             CacheFn(writer, value);
         }

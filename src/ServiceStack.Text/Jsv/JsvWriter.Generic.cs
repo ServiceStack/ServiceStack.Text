@@ -130,6 +130,8 @@ namespace ServiceStack.Text.Jsv
 #if MONOTOUCH
 			if (writer == null) return;
 #endif
+            TypeConfig<T>.AssertValidUsage();
+
             try
             {
                 if (++JsState.Depth > JsConfig.MaxDepth)
@@ -152,6 +154,16 @@ namespace ServiceStack.Text.Jsv
 #if MONOTOUCH
 			if (writer == null) return;
 #endif
+            try
+            {
+                TypeConfig<T>.AssertValidUsage();
+            }
+            catch (Exception ex)
+            {
+                var inner = ex.GetInnerMostException();
+                throw inner;
+            }
+
             JsState.Depth = 0;
             CacheFn(writer, value);
         }

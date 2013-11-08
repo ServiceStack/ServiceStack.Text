@@ -581,6 +581,10 @@ namespace ServiceStack.Text
             {
                 Reset(rawSerializeType);
             }
+            foreach (var uniqueType in __uniqueTypes.ToArray())
+            {
+                Reset(uniqueType);
+            }
 
             sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
             sTryToParsePrimitiveTypeValues = null;
@@ -610,12 +614,14 @@ namespace ServiceStack.Text
             PropertyConvention = JsonPropertyConvention.ExactMatch;
             sExcludePropertyReferences = null;
             sExcludeTypes = new HashSet<Type> { typeof(Stream) };
+            __uniqueTypes = new HashSet<Type>();
 	        sMaxDepth = 50;
         }
 
-        public static void Reset(Type cachesForType)
+        static void Reset(Type cachesForType)
         {
             typeof(JsConfig<>).MakeGenericType(new[] { cachesForType }).InvokeReset();
+            typeof(TypeConfig<>).MakeGenericType(new[] { cachesForType }).InvokeReset();
         }
 
         internal static void InvokeReset(this Type genericType)
@@ -845,6 +851,7 @@ namespace ServiceStack.Text
 
 #endif
 
+        internal static HashSet<Type> __uniqueTypes = new HashSet<Type>(); 
     }
 
 #if MONOTOUCH

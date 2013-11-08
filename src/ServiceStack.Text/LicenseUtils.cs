@@ -11,7 +11,7 @@ namespace ServiceStack
 {
     public class LicenseException : Exception
     {
-        public LicenseException(string message) : base(message) {}
+        public LicenseException(string message) : base(message) { }
     }
 
     public enum LicenseType
@@ -47,6 +47,8 @@ namespace ServiceStack
     {
         Operations,      //ServiceStack
         Types,           //Text, Redis
+        Fields,          //ServiceStack, Text, Redis, OrmLite
+        RequestsPerHour, //Redis
         Tables,          //OrmLite
         PremiumFeature,  //AdminUI, Advanced Redis APIs, etc
     }
@@ -80,6 +82,8 @@ namespace ServiceStack
         public DateTime Expiry { get; set; }
     }
 
+
+
     /// <summary>
     /// Internal Utilities to verify licensing
     /// </summary>
@@ -108,25 +112,24 @@ namespace ServiceStack
             private const string UpgradeInstructions = " Please see http://www.servicestack.net to upgrade to a commercial license.";
             internal const string ExceededTextTypes = "The free-quota limit on '{0} ServiceStack.Text Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisTypes = "The free-quota limit on '{0} Redis Types' has been reached." + UpgradeInstructions;
+            internal const string ExceededRedisRequests = "The free-quota limit on '{0} Redis requests per hour' has been reached." + UpgradeInstructions;
             internal const string ExceededOrmLiteTables = "The free-quota limit on '{0} OrmLite Tables' has been reached." + UpgradeInstructions;
             internal const string ExceededServiceStackOperations = "The free-quota limit on '{0} ServiceStack Operations' has been reached." + UpgradeInstructions;
             internal const string ExceededAdminUi = "The Admin UI is a commerical-only premium feature." + UpgradeInstructions;
             internal const string ExceededPremiumFeature = "Unauthorized use of a commerical-only premium feature." + UpgradeInstructions;
+            internal const string UnauthorizedAccessRequest = "Unauthorized access request of a licensed feature." + UpgradeInstructions;
         }
 
         public static class FreeQuotas
         {
             public const int ServiceStackOperations = 10;
+            public const int TypeFields = 20;
             public const int TextTypes = 20;
             public const int RedisTypes = 10;
+            public const int RedisRequestPerHour = 10000;
             public const int OrmLiteTables = 10;
             public const int PremiumFeature = 0;
         }
-        
-        /// <summary>
-        /// TODO: will be removed during beta
-        /// </summary>
-        public static bool EnforceLicenseRestrictions = true;
 
         public static void AssertEvaluationLicense()
         {
@@ -145,12 +148,16 @@ namespace ServiceStack
                 cutomerId = parts[0];
 
                 LicenseKey key;
+                using (new AccessToken(LicenseFeature.Text))
+                {
 #if !(SILVERLIGHT || WP)
-                if (!licenseKeyText.VerifyLicenseKeyText(out key))
-                    throw new ArgumentException("licenseKeyText");
+                    if (!licenseKeyText.VerifyLicenseKeyText(out key))
+                        throw new ArgumentException("licenseKeyText");
 #else
-            key = licenseKeyText.ToLicenseKey();
+                    key = licenseKeyText.ToLicenseKey();
 #endif
+                }
+
                 var releaseDate = Env.GetReleaseDate();
                 if (releaseDate > key.Expiry)
                     throw new LicenseException("This license has expired on {0} and is not valid for use with this release."
@@ -171,6 +178,11 @@ namespace ServiceStack
             }
         }
 
+        public static void RemoveLicense()
+        {
+            __activatedLicense = null;
+        }
+
         public static LicenseFeature ActivatedLicenseFeatures()
         {
             return __activatedLicense != null ? __activatedLicense.GetLicensedFeatures() : LicenseFeature.None;
@@ -187,14 +199,23 @@ namespace ServiceStack
                 throw new LicenseException(message.Fmt(allowedUsage));
         }
 
+        public static bool HasLicensedFeature(LicenseFeature feature)
+        {
+            var licensedFeatures = ActivatedLicenseFeatures();
+            return (feature & licensedFeatures) == feature;
+        }
+
         public static void AssertValidUsage(LicenseFeature feature, QuotaType quotaType, int count)
         {
-            if (!EnforceLicenseRestrictions) 
-                return;
-
             var licensedFeatures = ActivatedLicenseFeatures();
             if ((LicenseFeature.All & licensedFeatures) == LicenseFeature.All) //Standard Usage
                 return;
+
+            if (AccessTokenScope != null)
+            {
+                if ((feature & AccessTokenScope.tempFeatures) == feature)
+                    return;
+            }
 
             //Free Quotas
             switch (feature)
@@ -204,7 +225,7 @@ namespace ServiceStack
                     {
                         case QuotaType.Types:
                             ApprovedUsage(licensedFeatures, feature, FreeQuotas.TextTypes, count, ErrorMessages.ExceededTextTypes);
-                        return;
+                            return;
                     }
                     break;
 
@@ -213,7 +234,10 @@ namespace ServiceStack
                     {
                         case QuotaType.Types:
                             ApprovedUsage(licensedFeatures, feature, FreeQuotas.RedisTypes, count, ErrorMessages.ExceededRedisTypes);
-                        return;
+                            return;
+                        case QuotaType.RequestsPerHour:
+                            ApprovedUsage(licensedFeatures, feature, FreeQuotas.RedisRequestPerHour, count, ErrorMessages.ExceededRedisRequests);
+                            return;
                     }
                     break;
 
@@ -222,7 +246,7 @@ namespace ServiceStack
                     {
                         case QuotaType.Tables:
                             ApprovedUsage(licensedFeatures, feature, FreeQuotas.OrmLiteTables, count, ErrorMessages.ExceededOrmLiteTables);
-                        return;
+                            return;
                     }
                     break;
 
@@ -231,7 +255,7 @@ namespace ServiceStack
                     {
                         case QuotaType.Operations:
                             ApprovedUsage(licensedFeatures, feature, FreeQuotas.ServiceStackOperations, count, ErrorMessages.ExceededServiceStackOperations);
-                        return;
+                            return;
                     }
                     break;
 
@@ -240,7 +264,7 @@ namespace ServiceStack
                     {
                         case QuotaType.PremiumFeature:
                             ApprovedUsage(licensedFeatures, feature, FreeQuotas.PremiumFeature, count, ErrorMessages.ExceededAdminUi);
-                        return;
+                            return;
                     }
                     break;
 
@@ -249,7 +273,7 @@ namespace ServiceStack
                     {
                         case QuotaType.PremiumFeature:
                             ApprovedUsage(licensedFeatures, feature, FreeQuotas.PremiumFeature, count, ErrorMessages.ExceededPremiumFeature);
-                        return;
+                            return;
                     }
                     break;
             }
@@ -272,7 +296,7 @@ namespace ServiceStack
             }
             throw new ArgumentException("Unknown License Type: " + key.Type);
         }
-        
+
         public static bool VerifySignedHash(byte[] DataToVerify, byte[] SignedData, RSAParameters Key)
         {
             try
@@ -325,11 +349,55 @@ namespace ServiceStack
 
         public static bool VerifySha1Data(this RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
         {
-#if !(SILVERLIGHT || WP)          
-                return RSAalg.VerifyData(unsignedData, new SHA1CryptoServiceProvider(), encryptedData);
+#if !(SILVERLIGHT || WP)
+            return RSAalg.VerifyData(unsignedData, new SHA1CryptoServiceProvider(), encryptedData);
 #else
             return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1());
 #endif
+        }
+
+        public static Exception GetInnerMostException(this Exception ex)
+        {
+            //Extract true exception from static intializers (e.g. LicenseException)
+            while (ex.InnerException != null)
+            {
+                ex = ex.InnerException;
+            }
+            return ex;
+        }
+
+        [ThreadStatic]
+        private static AccessToken AccessTokenScope;
+        private class AccessToken : IDisposable
+        {
+            private readonly AccessToken prevToken;
+            internal readonly LicenseFeature tempFeatures;
+            internal AccessToken(LicenseFeature requested)
+            {
+                prevToken = AccessTokenScope;
+                AccessTokenScope = this;
+                tempFeatures = requested;
+            }
+
+            public void Dispose()
+            {
+                AccessTokenScope = prevToken;
+            }
+        }
+
+        public static IDisposable RequestAccess(object accessToken, LicenseFeature srcFeature, LicenseFeature requestedAccess)
+        {
+            var accessType = accessToken.GetType();
+            if (srcFeature != LicenseFeature.Client || requestedAccess != LicenseFeature.Text
+                || accessToken == null || accessType.FullName != "ServiceStack.ServiceClientBase+AccessToken")
+                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest);
+
+#if !(IOS || ANDROID || SILVERLIGHT || NETFX_CORE || WP)
+            if (accessType.Assembly.ManifestModule.Name != "ServiceStack.Client.dll") //might get merged/mangled on alt platforms
+                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest);
+#endif
+
+            return new AccessToken(requestedAccess);
         }
     }
 }

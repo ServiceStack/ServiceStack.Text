@@ -55,25 +55,26 @@ namespace ServiceStack.Text.Json
 
 		public static object Parse(string value)
 		{
-            LicenseUtils.AssertEvaluationLicense();
+            TypeConfig<T>.AssertValidUsage();
 
-			if (ReadFn == null)
-			{
+            if (ReadFn == null)
+            {
                 if (typeof(T).IsAbstract() || typeof(T).IsInterface())
                 {
-					if (string.IsNullOrEmpty(value)) return null;
-					var concreteType = DeserializeType<JsonTypeSerializer>.ExtractType(value);
-					if (concreteType != null)
-					{
-						return JsonReader.GetParseFn(concreteType)(value);
-					}
-					throw new NotSupportedException("Can not deserialize interface type: "
-						+ typeof(T).Name);
-				}
-			}
-			return value == null 
-			       	? null 
-			       	: ReadFn(value);
-		}
+                    if (string.IsNullOrEmpty(value)) return null;
+                    var concreteType = DeserializeType<JsonTypeSerializer>.ExtractType(value);
+                    if (concreteType != null)
+                    {
+                        return JsonReader.GetParseFn(concreteType)(value);
+                    }
+                    throw new NotSupportedException("Can not deserialize interface type: "
+                        + typeof(T).Name);
+                }
+            }
+
+            return value == null
+                    ? null
+                    : ReadFn(value);
+        }
 	}
 }

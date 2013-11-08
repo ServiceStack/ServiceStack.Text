@@ -55,7 +55,9 @@ namespace ServiceStack.Text.Jsv
 
 		public static object Parse(string value)
 		{
-			if (ReadFn == null)
+            TypeConfig<T>.AssertValidUsage();
+
+            if (ReadFn == null)
 			{
                 if (typeof(T).IsInterface())
                 {

@@ -10,8 +10,6 @@ namespace ServiceStack.Text
     {
         static Env()
         {
-            LicenseUtils.AssertEvaluationLicense();
-
             string platformName = null;
 
 #if NETFX_CORE
