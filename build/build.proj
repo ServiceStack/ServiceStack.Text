@@ -71,6 +71,10 @@
         <Find>DateTime\.Parse.*</Find>
         <ReplaceWith>DateTime.Parse("$([System.DateTime]::Now.ToString(`yyyy-MM-dd`))");</ReplaceWith>
       </RegexTransform>
+      <RegexTransform Include="$(BuildSolutionDir)/tests/**/*.config">
+        <Find>key="servicestack:license".*</Find>
+        <ReplaceWith>key="servicestack:license" value="$([System.IO.File]::ReadAllText($(MSBuildProjectDirectory)/appsettings.license.txt))" /&gt;</ReplaceWith>
+      </RegexTransform>
     </ItemGroup>
 
     <RegexTransform Items="@(RegexTransform)" />

@@ -9,8 +9,6 @@ namespace ServiceStack.Text.Tests
 	{
 		protected TestBase()
 		{
-            Licensing.RegisterLicense(LicensingTests.TestBusiness2013Text);
-
             //Uncomment to run tests under a different Culture 
 			//System.Threading.Thread.CurrentThread.CurrentCulture =
 			//    System.Globalization.CultureInfo.GetCultureInfo("sv-SE");

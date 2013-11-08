@@ -3,6 +3,7 @@
 
 
 using NUnit.Framework;
+using ServiceStack.Configuration;
 
 namespace ServiceStack.Text.Tests
 {
@@ -19,7 +20,7 @@ namespace ServiceStack.Text.Tests
         [TearDown]
         public void TearDown()
         {
-            Licensing.RegisterLicense(LicensingTests.TestBusiness2013Text);
+            Licensing.RegisterLicense(new AppSettings().GetString("servicestack:license"));
         }
 
         [Test]
@@ -82,7 +83,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Allows_serialization_of_21_types()
         {
-            Licensing.RegisterLicense(LicensingTests.TestBusiness2013Text);
+            Licensing.RegisterLicense(new AppSettings().GetString("servicestack:license"));
 
             Serialize20();
             Serialize20();

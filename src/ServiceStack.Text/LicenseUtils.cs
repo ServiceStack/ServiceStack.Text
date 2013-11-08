@@ -125,7 +125,7 @@ namespace ServiceStack
             public const int ServiceStackOperations = 10;
             public const int TypeFields = 20;
             public const int TextTypes = 20;
-            public const int RedisTypes = 10;
+            public const int RedisTypes = 20;
             public const int RedisRequestPerHour = 10000;
             public const int OrmLiteTables = 10;
             public const int PremiumFeature = 0;
