@@ -456,6 +456,12 @@ namespace ServiceStack.Text.Common
                 return;
             }
 
+            if (JsConfig.DateHandler == JsonDateHandler.RFC1123)
+            {
+                writer.Write(dateTime.ToString("R", CultureInfo.InvariantCulture));
+                return;
+            }
+
             var timestamp = dateTime.ToUnixTimeMs();
             string offset = null;
             if (dateTime.Kind != DateTimeKind.Utc)

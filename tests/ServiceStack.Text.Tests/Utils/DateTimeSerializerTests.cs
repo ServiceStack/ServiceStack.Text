@@ -335,4 +335,56 @@ namespace ServiceStack.Text.Tests.Utils
             }
         }        
     }
+
+    [TestFixture]
+    public class DateTimeRFC1123Tests
+        : TestBase
+    {
+        public class TestObject
+        {
+            public DateTime Date { get; set; }
+        }
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+        }
+
+        [TestFixtureTearDown]
+        public void TestFixtureTearDown()
+        {
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void DateTime_Is_Serialized_As_Utc_and_Deserialized_as_local()
+        {
+            var testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 1, DateTimeKind.Utc)
+            };
+
+            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+
+            //Can change default behavior with config
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+
+            testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            };
+
+            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+
+            //Can change default behavior with config
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+        }
+    }
 }

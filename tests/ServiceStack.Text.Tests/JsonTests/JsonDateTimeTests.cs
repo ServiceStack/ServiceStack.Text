@@ -470,6 +470,62 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 		#endregion
 
+        #region RFC1123 Tests
+        [Test]
+        public void When_using_rfc1123_and_serializing_as_Utc_It_should_deserialize_as_Utc()
+        {
+            JsConfig.AlwaysUseUtc = true;
+            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
+            var json = JsonSerializer.SerializeToString(initialDate);
+
+            var deserializedDate = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
+            Assert.AreEqual(initialDate, deserializedDate);
+        }
+
+        [Test]
+        public void Can_serialize_json_date_rfc1123_utc()
+        {
+            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+
+            var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
+            var ssJson = JsonSerializer.SerializeToString(dateTime);
+
+            Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 12:34:56 GMT"""));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_serialize_json_date_rfc1123_local()
+        {
+            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+
+            var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Local);
+            var ssJson = JsonSerializer.SerializeToString(dateTime);
+
+            var offsetSpan = TimeZoneInfo.Local.GetUtcOffset(dateTime);
+            var offset = offsetSpan.ToTimeOffsetString(":");
+
+            Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 12:34:56 GMT"""));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_serialize_json_date_rfc1123_unspecified()
+        {
+            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+
+            var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
+            var ssJson = JsonSerializer.SerializeToString(dateTime);
+
+            Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 12:34:56 GMT"""));
+            JsConfig.Reset();
+        }
+
+        #endregion
+
         #region InteropTests
 
         [Test]
