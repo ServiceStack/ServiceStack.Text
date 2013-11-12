@@ -105,6 +105,13 @@ namespace ServiceStack.Text.Tests.Utils
 			Assert.That (shortDate, Is.EqualTo(new DateTime (2011, 9, 4)), "Day without leading 0");
 		}
 
+        [Test]
+        public void ParseRFC1123DateTime_works()
+        {
+            DateTime rfc1123Date = DateTimeSerializer.ParseRFC1123DateTime("Tue, 12 Nov 2013 14:32:07 GMT");
+            Assert.That(rfc1123Date, Is.EqualTo(new DateTime(2013, 11, 12, 14,32,07)));
+        }
+
 		[Test]
 		public void TestSqlServerDateTime()
 		{

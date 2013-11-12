@@ -63,6 +63,11 @@ namespace ServiceStack.Text.Common
             return ParseShortestXsdDateTime(dateTimeStr);
         }
 
+        public static DateTime ParseRFC1123DateTime(string dateTimeStr)
+        {
+            return DateTime.ParseExact(dateTimeStr, "r", CultureInfo.InvariantCulture);
+        }
+
         public static DateTime ParseShortestXsdDateTime(string dateTimeStr)
         {
             if (string.IsNullOrEmpty(dateTimeStr))

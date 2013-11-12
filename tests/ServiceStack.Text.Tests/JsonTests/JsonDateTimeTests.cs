@@ -524,6 +524,35 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig.Reset();
         }
 
+        [Test]
+        public void Can_deserialize_json_date_rfc1123_local()
+        {
+            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+
+            const string json = @"""Tue, 12 Nov 2013 14:32:07 GMT""";
+            var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            var dateTime = new DateTime(2013, 11, 12, 14, 32, 07, DateTimeKind.Local);
+            Assert.That(fromJson, Is.EqualTo(dateTime));
+            Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_deserialize_json_date_rfc1123_always_utc()
+        {
+            JsConfig.AlwaysUseUtc = true;
+            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+
+            const string json = @"""Tue, 12 Nov 2013 14:32:07 GMT""";
+            var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            var dateTime = new DateTime(2013, 11, 12, 14, 32, 07, DateTimeKind.Utc);
+            Assert.That(fromJson, Is.EqualTo(dateTime));
+            Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+            JsConfig.Reset();
+        }
+
         #endregion
 
         #region InteropTests
