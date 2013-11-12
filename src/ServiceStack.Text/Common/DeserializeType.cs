@@ -147,6 +147,16 @@ namespace ServiceStack.Text.Common
                 }
             }
 
+            if (JsConfig.DateHandler == JsonDateHandler.RFC1123)
+            {
+                // check that we have RFC1123 date:
+                // ddd, dd MMM yyyy HH:mm:ss GMT
+                if (value.Length == 29 && (value.EndsWithInvariant("GMT")))
+                {
+                    return DateTimeSerializer.ParseRFC1123DateTime(value);
+                }
+            }
+
             return Serializer.UnescapeString(value);
         }
 

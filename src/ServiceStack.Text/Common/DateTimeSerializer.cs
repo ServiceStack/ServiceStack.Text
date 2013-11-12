@@ -63,6 +63,11 @@ namespace ServiceStack.Text.Common
             return ParseShortestXsdDateTime(dateTimeStr);
         }
 
+        public static DateTime ParseRFC1123DateTime(string dateTimeStr)
+        {
+            return DateTime.ParseExact(dateTimeStr, "r", CultureInfo.InvariantCulture);
+        }
+
         public static DateTime ParseShortestXsdDateTime(string dateTimeStr)
         {
             if (string.IsNullOrEmpty(dateTimeStr))
@@ -453,6 +458,12 @@ namespace ServiceStack.Text.Common
             if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
             {
                 writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
+                return;
+            }
+
+            if (JsConfig.DateHandler == JsonDateHandler.RFC1123)
+            {
+                writer.Write(dateTime.ToString("R", CultureInfo.InvariantCulture));
                 return;
             }
 
