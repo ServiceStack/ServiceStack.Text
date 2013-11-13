@@ -87,7 +87,7 @@ project. It provides a dynamic, but more succinct API than the above options.
 
 ## Install ServiceStack.Text
 
-    PM> Install-Pacakage ServiceStack.Text
+    PM> Install-Package ServiceStack.Text
 
 _Commercial support will be available for ServiceStack, contact team@servicestack.net for details_
 
