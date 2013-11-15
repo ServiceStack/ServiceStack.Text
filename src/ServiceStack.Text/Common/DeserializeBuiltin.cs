@@ -41,7 +41,14 @@ namespace ServiceStack.Text.Common
                 switch (typeCode)
                 {
                     case TypeCode.Boolean:
-                        return value => value.Length == 1 ? value == "1" : bool.Parse(value);
+                        //Lots of kids like to use '1', HTML checkboxes use 'on' as a soft convention
+                        return value => 
+                            value.Length == 1 ? 
+                              value == "1" 
+                            : value.Length == 2 ? 
+                              value == "on" : 
+                              bool.Parse(value);
+
                     case TypeCode.Byte:
                         return value => byte.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.SByte:
@@ -92,7 +99,14 @@ namespace ServiceStack.Text.Common
                 switch (typeCode)
                 {
                     case TypeCode.Boolean:
-                        return value => string.IsNullOrEmpty(value) ? (bool?)null : value.Length == 1 ? value == "1" : bool.Parse(value);
+                        return value => string.IsNullOrEmpty(value) ? 
+                              (bool?)null 
+                            : value.Length == 1 ?
+                              value == "1"
+                            : value.Length == 2 ?
+                              value == "on" :
+                              bool.Parse(value);
+
                     case TypeCode.Byte:
                         return value => string.IsNullOrEmpty(value) ? (byte?)null : byte.Parse(value, CultureInfo.InvariantCulture);
                     case TypeCode.SByte:
