@@ -815,6 +815,8 @@ namespace ServiceStack
 
         public const string XRealIp = "X-Real-IP";
 
+        public const string XLocation = "X-Location";
+
         public const string Referer = "Referer";
 
         public const string CacheControl = "Cache-Control";
