@@ -77,10 +77,15 @@ namespace ServiceStack.Text.Common
                     return value => DateTimeSerializer.ParseDateTimeOffset(value);
                 if (typeof(T) == typeof(TimeSpan))
                     return value => DateTimeSerializer.ParseTimeSpan(value);
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX && !ANDROID
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX && !ANDROID     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
+				
+#if  PLATFORM_USE_DATA_DLL
                 if (typeof(T) == typeof(System.Data.Linq.Binary))
                     return value => new System.Data.Linq.Binary(Convert.FromBase64String(value));
 #endif
+				
+#endif
+				
             }
             else
             {

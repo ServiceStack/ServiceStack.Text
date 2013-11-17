@@ -22,8 +22,33 @@ namespace ServiceStack.Text
 {
 	public static class TranslateListWithElements
 	{
+		
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		private static object _translateICollectionCache
+            
+			= new Dictionary<Type, ConvertInstanceDelegate>();
+
+                
+		private static Dictionary<Type, ConvertInstanceDelegate> TranslateICollectionCache
+        {
+
+            get {  return (  Dictionary<Type, ConvertInstanceDelegate> ) _translateICollectionCache; }
+
+        }
+
+		
+		
+#else
+	
+				
         private static Dictionary<Type, ConvertInstanceDelegate> TranslateICollectionCache
-            = new Dictionary<Type, ConvertInstanceDelegate>();
+            = new Dictionary<Type, ConvertInstanceDelegate>();		
+		
+		
+#endif
+
 
 		public static object TranslateToGenericICollectionCache(object from, Type toInstanceOfType, Type elementType)
 		{
@@ -42,14 +67,44 @@ namespace ServiceStack.Text
                 newCache = new Dictionary<Type, ConvertInstanceDelegate>(TranslateICollectionCache);
                 newCache[elementType] = translateToFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref TranslateICollectionCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+					
+				Interlocked.CompareExchange(ref _translateICollectionCache, ( object )newCache, ( object )snapshot), snapshot));
+#else
+			
+                
+				Interlocked.CompareExchange(ref TranslateICollectionCache, newCache, snapshot), snapshot));					
+					
+#endif
+			
+
 
 			return translateToFn(from, toInstanceOfType);
 		}
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+        private static object _translateConvertibleICollectionCache
+            = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>();
+
 
         private static Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate> TranslateConvertibleICollectionCache
-            = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>();
+        {
+            get {  return  ( Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate> )  _translateConvertibleICollectionCache ;  }
+
+        }
+		
+		
+#else
+	
+        private static Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate> TranslateConvertibleICollectionCache
+            = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>();		
+		
+		
+#endif
+		
+
 
 		public static object TranslateToConvertibleGenericICollectionCache(
 			object from, Type toInstanceOfType, Type fromElementType)
@@ -70,8 +125,17 @@ namespace ServiceStack.Text
                 newCache = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>(TranslateConvertibleICollectionCache);
                 newCache[typeKey] = translateToFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref TranslateConvertibleICollectionCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+					
+				Interlocked.CompareExchange(ref _translateConvertibleICollectionCache,  ( object )newCache, ( object )snapshot), snapshot));
+#else
+			
+                Interlocked.CompareExchange(ref TranslateConvertibleICollectionCache, newCache, snapshot), snapshot));					
+					
+#endif
+			
+
             
             return translateToFn(from, toInstanceOfType);
 		}

@@ -2,7 +2,7 @@
 //using System.Dynamic;
 
 //Not using it here, but @marcgravell's stuff is too good not to include
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
 namespace ServiceStack.Text.FastMember
 {
     /// <summary>

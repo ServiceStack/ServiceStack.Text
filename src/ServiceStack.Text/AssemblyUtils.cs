@@ -21,9 +21,20 @@ namespace ServiceStack.Text
         private const string DllExt = "dll";
         private const string ExeExt = "dll";
         private const char UriSeperator = '/';
-
+		
+	
+			
+			
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		private static object _typeCache = new Dictionary<string, Type>();	
+		private static Dictionary<string, Type> TypeCache  { get { return  (Dictionary<string, Type> ) _typeCache; }  }	
+		
+#else
         private static Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
-
+		
+#endif
+		
+		
 #if !XBOX
         /// <summary>
         /// Find the type from the name supplied
@@ -54,8 +65,12 @@ namespace ServiceStack.Text
                 newCache[typeName] = type;
 
             } while (!ReferenceEquals(
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 				
+				Interlocked.CompareExchange(ref _typeCache, ( object )newCache, snapshot), ( object )snapshot));
+#else		
                 Interlocked.CompareExchange(ref TypeCache, newCache, snapshot), snapshot));
-
+#endif
+			
             return type;
         }
 #endif

@@ -137,6 +137,10 @@ namespace ServiceStack.Text
 
                 PropertyGetters.Add(propertyInfo.GetValueGetter<T>());
                 var propertyName = propertyInfo.Name;
+				
+				
+#if PLATFORM_USE_SERIALIZATION_DLL
+				
                 if (isDataContract)
                 {
                     var dcsDataMember = propertyInfo.GetDataMember();
@@ -145,6 +149,9 @@ namespace ServiceStack.Text
                         propertyName = dcsDataMember.Name;
                     }
                 }
+				
+#endif
+				
                 Headers.Add(propertyName);
             }
         }

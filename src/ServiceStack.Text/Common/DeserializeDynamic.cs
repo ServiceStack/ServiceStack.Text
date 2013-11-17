@@ -3,11 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+
+#if NET40
 using System.Dynamic;
+#endif
+
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
+	#if NET40
+	
     internal static class DeserializeDynamic<TSerializer>
         where TSerializer : ITypeSerializer
     {
@@ -80,4 +86,8 @@ namespace ServiceStack.Text.Common
             return index;
         }
     }
+	
+	
+#endif
+	
 }

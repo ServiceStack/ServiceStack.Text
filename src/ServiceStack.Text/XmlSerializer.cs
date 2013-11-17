@@ -1,5 +1,9 @@
 
-#if !XBOX360 && !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH
+
+#if PLATFORM_USE_SERIALIZATION_DLL   &&   PLATFORM_USE_XML_DLL 
+
+
+#if !XBOX360 && !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH      &&  !( UNITY3D  && PLATFORM_USE_AOT  )
 using System.IO.Compression;
 #endif
 
@@ -19,7 +23,7 @@ namespace ServiceStack.Text
 
         public static XmlSerializer Instance
             = new XmlSerializer(
-#if !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH
+#if !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
                 new XmlDictionaryReaderQuotas { MaxStringContentLength = 1024 * 1024, }
 #endif
 );
@@ -143,7 +147,7 @@ namespace ServiceStack.Text
         }
 
 
-#if !SILVERLIGHT && !MONOTOUCH
+#if !SILVERLIGHT && !MONOTOUCH     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
         public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
         {
             using (var deflateStream = new DeflateStream(stream, CompressionMode.Compress))
@@ -169,3 +173,6 @@ namespace ServiceStack.Text
     }
 #endif
 }
+
+
+#endif

@@ -40,16 +40,51 @@ namespace ServiceStack.Text
         {
             return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
         }
+		
+		
+		
+		
+#if NET20 || PLATFORM_USE_AOT 
+		
+		//private static  TimeZone  LocalZone = TimeZone.CurrentTimeZone;
+		
+#else
 
-        private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
+		        
+		private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
+		
+#endif
+		
         public static long ToUnixTimeMs(this DateTime dateTime)
         {
             var dtUtc = dateTime;
             if (dateTime.Kind != DateTimeKind.Utc)
             {
-                dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue
+
+				
+				
+#if NET20 || PLATFORM_USE_AOT 
+
+				/**	              
+				dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue
+                    ? DateTime.SpecifyKind(dateTime.Subtract(LocalZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
+                    : dateTime.ToStableUniversalTime();
+				**/
+				
+								dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue
+                    ? DateTime.SpecifyKind(dateTime.Subtract(TimeZone.CurrentTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
+                    : dateTime.ToStableUniversalTime();
+				
+				
+#else
+				
+	              dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue
                     ? DateTime.SpecifyKind(dateTime.Subtract(LocalTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
                     : dateTime.ToStableUniversalTime();
+
+				
+#endif
+				
             }
 
             return (long)(dtUtc.Subtract(UnixEpochDateTimeUtc)).TotalMilliseconds;
@@ -108,6 +143,9 @@ namespace ServiceStack.Text
             return new DateTime((dateTime.Ticks / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond);
         }
 
+		
+#if    PLATFORM_USE_XML_DLL 	
+		
         public static string ToShortestXsdDateTimeString(this DateTime dateTime)
         {
             return DateTimeSerializer.ToShortestXsdDateTimeString(dateTime);
@@ -117,7 +155,8 @@ namespace ServiceStack.Text
         {
             return DateTimeSerializer.ParseShortestXsdDateTime(xsdDateTime);
         }
-
+#endif
+		
         public static bool IsEqualToTheSecond(this DateTime dateTime, DateTime otherDateTime)
         {
             return dateTime.ToStableUniversalTime().RoundToSecond().Equals(otherDateTime.ToStableUniversalTime().RoundToSecond());

@@ -23,10 +23,29 @@ namespace ServiceStack.Text.Common
     internal static class WriteListsOfElements<TSerializer>
         where TSerializer : ITypeSerializer
     {
+		
+
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
+		
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+        static object _listCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+
+        static Dictionary<Type, WriteObjectDelegate> ListCacheFns {
+
+            get {  return  ( Dictionary<Type, WriteObjectDelegate> )  _listCacheFns ; }
+
+        }		
+		
+#else
+	
+		
 
         static Dictionary<Type, WriteObjectDelegate> ListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
-
+		
+		
+#endif
+				
         public static WriteObjectDelegate GetListWriteFn(Type elementType)
         {
             WriteObjectDelegate writeFn;
@@ -43,15 +62,40 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, WriteObjectDelegate>(ListCacheFns);
                 newCache[elementType] = writeFn;
 
-            } while (!ReferenceEquals(
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				Interlocked.CompareExchange(ref _listCacheFns, ( object )newCache, ( object )snapshot), snapshot));	
+#else
                 Interlocked.CompareExchange(ref ListCacheFns, newCache, snapshot), snapshot));
+			
+					
+					
+#endif
+			
 
             return writeFn;
         }
 
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                static object _iListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+                static Dictionary<Type, WriteObjectDelegate> IListCacheFns
+        {
+            get {  return  (Dictionary<Type, WriteObjectDelegate>  ) _iListCacheFns; }
 
-        static Dictionary<Type, WriteObjectDelegate> IListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
-
+        }
+		
+		
+#else
+	
+      static Dictionary<Type, WriteObjectDelegate> IListCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		
+		
+		
+#endif
+		
+  
         public static WriteObjectDelegate GetIListWriteFn(Type elementType)
         {
             WriteObjectDelegate writeFn;
@@ -68,13 +112,42 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, WriteObjectDelegate>(IListCacheFns);
                 newCache[elementType] = writeFn;
 
-            } while (!ReferenceEquals(
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+		 
+				Interlocked.CompareExchange(ref _iListCacheFns, ( object )newCache, ( object )snapshot), snapshot));			
+#else
+			
+			
                 Interlocked.CompareExchange(ref IListCacheFns, newCache, snapshot), snapshot));
+					
+					
+#endif
 
             return writeFn;
         }
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		static object _cacheFns = new Dictionary<Type, WriteObjectDelegate>();
+                
+		static Dictionary<Type, WriteObjectDelegate> CacheFns
+        {
 
+            get { return   ( Dictionary<Type, WriteObjectDelegate> )_cacheFns ; }
+
+
+        }		
+		
+#else
+	
+		
         static Dictionary<Type, WriteObjectDelegate> CacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		
+		
+		
+#endif
 
         public static WriteObjectDelegate GetGenericWriteArray(Type elementType)
         {
@@ -92,13 +165,43 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, WriteObjectDelegate>(CacheFns);
                 newCache[elementType] = writeFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref CacheFns, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+	
+				Interlocked.CompareExchange(ref _cacheFns, ( object )newCache, ( object )snapshot), snapshot));				
+#else
+			
+			
+                Interlocked.CompareExchange(ref CacheFns, newCache, snapshot), snapshot));					
+					
+#endif
+
 
             return writeFn;
         }
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		static object _enumerableCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+                
+		static Dictionary<Type, WriteObjectDelegate> EnumerableCacheFns
+        {
+            get {   return ( Dictionary<Type, WriteObjectDelegate> ) _enumerableCacheFns   ; }
 
+
+        }
+
+		
+		
+#else
+	
+		
+		
         static Dictionary<Type, WriteObjectDelegate> EnumerableCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		
+		
+#endif
 
         public static WriteObjectDelegate GetGenericWriteEnumerable(Type elementType)
         {
@@ -116,13 +219,40 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, WriteObjectDelegate>(EnumerableCacheFns);
                 newCache[elementType] = writeFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref EnumerableCacheFns, newCache, snapshot), snapshot));
-
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				Interlocked.CompareExchange(ref _enumerableCacheFns, ( object )newCache, ( object )snapshot), snapshot));
+					
+#else
+			
+               Interlocked.CompareExchange(ref EnumerableCacheFns, newCache, snapshot), snapshot));
+					
+					
+#endif
+			
+ 
             return writeFn;
         }
-
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		static object   _listValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+                
+		static Dictionary<Type, WriteObjectDelegate> ListValueTypeCacheFns
+        {
+            get  {  return   ( Dictionary<Type, WriteObjectDelegate> ) _listValueTypeCacheFns ; }
+        }
+		
+		
+#else
+	
+		
         static Dictionary<Type, WriteObjectDelegate> ListValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		
+		
+#endif
+		
 
         public static WriteObjectDelegate GetWriteListValueType(Type elementType)
         {
@@ -140,13 +270,42 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, WriteObjectDelegate>(ListValueTypeCacheFns);
                 newCache[elementType] = writeFn;
 
-            } while (!ReferenceEquals(
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+
+				Interlocked.CompareExchange(ref _listValueTypeCacheFns, ( object )newCache, ( object )snapshot), snapshot));	
+					
+#else
+			
+			
                 Interlocked.CompareExchange(ref ListValueTypeCacheFns, newCache, snapshot), snapshot));
+					
+					
+#endif
 
             return writeFn;
         }
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		static object _iListValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+                
+		static Dictionary<Type, WriteObjectDelegate> IListValueTypeCacheFns
+        {
+            get {  return  ( Dictionary<Type, WriteObjectDelegate>  )  _iListValueTypeCacheFns ; }
 
+        }
+
+		
+		
+#else
+	
+		
         static Dictionary<Type, WriteObjectDelegate> IListValueTypeCacheFns = new Dictionary<Type, WriteObjectDelegate>();
+		
+		
+#endif
+		
 
         public static WriteObjectDelegate GetWriteIListValueType(Type elementType)
         {
@@ -165,8 +324,18 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, WriteObjectDelegate>(IListValueTypeCacheFns);
                 newCache[elementType] = writeFn;
 
-            } while (!ReferenceEquals(
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+
+				Interlocked.CompareExchange(ref _iListValueTypeCacheFns, ( object )newCache, ( object )snapshot), snapshot));	
+					
+#else
+			
+			
                 Interlocked.CompareExchange(ref IListValueTypeCacheFns, newCache, snapshot), snapshot));
+					
+					
+#endif
 
             return writeFn;
         }

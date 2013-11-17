@@ -21,6 +21,11 @@ using ServiceStack.Text.WP;
 
 namespace ServiceStack.Text.Common
 {
+	
+        
+	internal delegate object ParseCollectionDelegate(string value, Type createType, ParseStringDelegate parseFn);
+	
+	
     internal static class DeserializeCollection<TSerializer>
         where TSerializer : ITypeSerializer
     {
@@ -71,11 +76,32 @@ namespace ServiceStack.Text.Common
             var items = DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(value, parseFn);
             return CollectionExtensions.CreateAndPopulate(createType, items);
         }
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
 
-        private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache
+                
+		private static object _parseDelegateCache
             = new Dictionary<Type, ParseCollectionDelegate>();
 
-        private delegate object ParseCollectionDelegate(string value, Type createType, ParseStringDelegate parseFn);
+                
+		private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache
+        {
+            get {  return ( Dictionary<Type, ParseCollectionDelegate> ) _parseDelegateCache ; }
+
+        }
+
+		
+		
+		
+#else
+	
+        private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache
+            = new Dictionary<Type, ParseCollectionDelegate>();		
+		
+		
+#endif
+		
+
+
 
         public static object ParseCollectionType(string value, Type createType, Type elementType, ParseStringDelegate parseFn)
         {
@@ -94,8 +120,17 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, ParseCollectionDelegate>(ParseDelegateCache);
                 newCache[elementType] = parseDelegate;
 
-            } while (!ReferenceEquals(
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+					Interlocked.CompareExchange(ref _parseDelegateCache, (object )newCache, (object )snapshot), snapshot));
+#else
+			
+			
                 Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+					
+					
+#endif
 
             return parseDelegate(value, createType, parseFn);
         }

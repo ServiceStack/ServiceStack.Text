@@ -18,13 +18,36 @@ using System.Threading;
 
 namespace ServiceStack.Text.Common
 {
+	
+      internal  delegate object ParseArrayOfElementsDelegate(string value, ParseStringDelegate parseFn);
+	
+	
     internal static class DeserializeArrayWithElements<TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private static Dictionary<Type, ParseArrayOfElementsDelegate> ParseDelegateCache
+		
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+		private static object _parseDelegateCache
             = new Dictionary<Type, ParseArrayOfElementsDelegate>();
 
-        private delegate object ParseArrayOfElementsDelegate(string value, ParseStringDelegate parseFn);
+         private static Dictionary<Type, ParseArrayOfElementsDelegate> ParseDelegateCache  {
+            get  {  return  (Dictionary<Type, ParseArrayOfElementsDelegate>) _parseDelegateCache ; }
+
+        }
+		
+		
+#else
+	
+		
+	        private static Dictionary<Type, ParseArrayOfElementsDelegate> ParseDelegateCache
+            = new Dictionary<Type, ParseArrayOfElementsDelegate>();	
+		
+		
+#endif
+				
+
+
 
         public static Func<string, ParseStringDelegate, object> GetParseFn(Type type)
         {
@@ -47,8 +70,18 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, ParseArrayOfElementsDelegate>(ParseDelegateCache);
                 newCache[type] = parseFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				Interlocked.CompareExchange(ref _parseDelegateCache, (object)newCache, (object )snapshot), snapshot));
+					
+#else
+			
+					
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));			
+					
+#endif
+
 
             return parseFn.Invoke;
         }
@@ -109,7 +142,29 @@ namespace ServiceStack.Text.Common
     internal static class DeserializeArray<TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private static Dictionary<Type, ParseStringDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringDelegate>();
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+				
+		private static object _parseDelegateCache = new Dictionary<Type, ParseStringDelegate>();
+
+		
+		private static Dictionary<Type, ParseStringDelegate> ParseDelegateCache {
+			
+			get { return   ( Dictionary<Type, ParseStringDelegate> ) _parseDelegateCache; }
+
+		
+		}
+						
+		
+#else
+	
+			
+        private static Dictionary<Type, ParseStringDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringDelegate>();	
+		
+		
+#endif
+				
+
 
         public static ParseStringDelegate GetParseFn(Type type)
         {
@@ -130,8 +185,20 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, ParseStringDelegate>(ParseDelegateCache);
                 newCache[type] = parseFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+
+ 	
+				Interlocked.CompareExchange(ref _parseDelegateCache, (object ) newCache, (object ) snapshot), snapshot));			
+
+					
+#else
+			
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));			
+					
+					
+#endif
+
 
             return parseFn;
         }

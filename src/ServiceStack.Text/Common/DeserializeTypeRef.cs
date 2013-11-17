@@ -49,6 +49,8 @@ namespace ServiceStack.Text.Common
                 foreach (var propertyInfo in propertyInfos)
                 {
                     var propertyName = propertyInfo.Name;
+					
+#if PLATFORM_USE_SERIALIZATION_DLL					
                     if (isDataContract)
                     {
                         var dcsDataMember = propertyInfo.GetDataMember();
@@ -57,6 +59,9 @@ namespace ServiceStack.Text.Common
                             propertyName = dcsDataMember.Name;
                         }
                     }
+					
+#endif				
+					
                     map[propertyName] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
                 }
             }

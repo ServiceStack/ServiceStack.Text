@@ -66,8 +66,28 @@ namespace ServiceStack.Text.Common
                 }
             }
         }
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		static object _cacheFns = new Dictionary<MapKey, WriteMapDelegate>();
 
-        static Dictionary<MapKey, WriteMapDelegate> CacheFns = new Dictionary<MapKey, WriteMapDelegate>();
+                
+		static Dictionary<MapKey, WriteMapDelegate> CacheFns  {
+
+            get {  return ( Dictionary<MapKey, WriteMapDelegate> ) _cacheFns ; }
+
+        }
+
+		
+		
+#else
+	
+		
+        static Dictionary<MapKey, WriteMapDelegate> CacheFns = new Dictionary<MapKey, WriteMapDelegate>();		
+		
+		
+#endif
+
 
         public static Action<TextWriter, object, WriteObjectDelegate, WriteObjectDelegate>
             GetWriteGenericDictionary(Type keyType, Type valueType)
@@ -87,8 +107,18 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<MapKey, WriteMapDelegate>(CacheFns);
                 newCache[mapKey] = writeFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref CacheFns, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+
+				Interlocked.CompareExchange(ref _cacheFns, ( object ) newCache, ( object )snapshot), snapshot));					
+#else
+			
+			
+                Interlocked.CompareExchange(ref CacheFns, newCache, snapshot), snapshot));					
+					
+#endif
+
 
             return writeFn.Invoke;
         }

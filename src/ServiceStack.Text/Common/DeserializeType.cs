@@ -10,7 +10,7 @@
 // Licensed under the same terms of ServiceStack.
 //
 
-#if !XBOX && !MONOTOUCH && !SILVERLIGHT
+#if !XBOX && !MONOTOUCH && !SILVERLIGHT     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
 using System.Reflection.Emit;
 #endif
 
@@ -92,7 +92,7 @@ namespace ServiceStack.Text.Common
                     return null;
                 }
 
-#if !SILVERLIGHT && !MONOTOUCH
+#if !SILVERLIGHT && !MONOTOUCH     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
                 if (type.IsInterface || type.IsAbstract)
                 {
                     return DynamicProxy.GetInstanceFor(type).GetType();
@@ -125,8 +125,27 @@ namespace ServiceStack.Text.Common
             if (string.IsNullOrEmpty(value)) return null;
 
             Guid guidValue;
+			
+#if NET4
             if (Guid.TryParse(value, out guidValue)) return guidValue;
+#else
+		    
+			try
+ 			{
+				guidValue =  new Guid (value);
+ 
+             
+				return  guidValue;
 
+            }
+			
+          catch {
+				
+				
+            }
+
+#endif
+			
             if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix, StringComparison.Ordinal) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix, StringComparison.Ordinal))
             {
                 return DateTimeSerializer.ParseWcfJsonDate(value);
@@ -261,7 +280,7 @@ namespace ServiceStack.Text.Common
                 if (fieldInfo == null) return null;
             }
 
-#if SILVERLIGHT || MONOTOUCH || XBOX
+#if SILVERLIGHT || MONOTOUCH || XBOX  ||  ( UNITY3D  && PLATFORM_USE_AOT  )
             if (propertyInfo.CanWrite)
             {
                 var setMethodInfo = propertyInfo.SetMethod();
@@ -276,7 +295,7 @@ namespace ServiceStack.Text.Common
 #endif
         }
 
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
 
         private static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
         {
@@ -338,7 +357,7 @@ namespace ServiceStack.Text.Common
         {
             if (!propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Any()) return null;
 
-#if SILVERLIGHT || MONOTOUCH || XBOX
+#if SILVERLIGHT || MONOTOUCH || XBOX    ||  ( UNITY3D  && PLATFORM_USE_AOT  )
             var setMethodInfo = propertyInfo.SetMethod();
             return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
 #else
@@ -349,7 +368,7 @@ namespace ServiceStack.Text.Common
         internal static SetPropertyDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
         {
 
-#if SILVERLIGHT || MONOTOUCH || XBOX
+#if SILVERLIGHT || MONOTOUCH || XBOX   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
             return (instance, value) => fieldInfo.SetValue(instance, value);
 #else
             return CreateIlFieldSetter(fieldInfo);
@@ -373,7 +392,7 @@ namespace ServiceStack.Text.Common
             if (fieldInfo.ReflectedType() != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
-#if SILVERLIGHT || MONOTOUCH || XBOX
+#if SILVERLIGHT || MONOTOUCH || XBOX   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
             return (instance, value) => fieldInfo.SetValue(instance, value);
 #else
 			return CreateIlFieldSetter(fieldInfo);

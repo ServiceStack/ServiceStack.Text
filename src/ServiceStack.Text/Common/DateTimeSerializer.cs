@@ -14,7 +14,12 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+
+#if    PLATFORM_USE_XML_DLL 	
 using System.Xml;
+#endif
+
+
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
@@ -54,7 +59,10 @@ namespace ServiceStack.Text.Common
             }
             return parsedAsUtc ? dateTime.ToLocalTime() : dateTime;
         }
+		
+	
 
+		
         public static DateTime? ParseShortestNullableXsdDateTime(string dateTimeStr)
         {
             if (dateTimeStr == null)
@@ -82,6 +90,8 @@ namespace ServiceStack.Text.Common
             if (dateTimeStr.Length == XsdDateTimeFormatSeconds.Length)
                 return DateTime.ParseExact(dateTimeStr, XsdDateTimeFormatSeconds, null, DateTimeStyles.AdjustToUniversal).Prepare(parsedAsUtc:true); 
 
+
+			
             if (dateTimeStr.Length >= XsdDateTimeFormat3F.Length
                 && dateTimeStr.Length <= XsdDateTimeFormat.Length
                 && dateTimeStr.EndsWith(XsdUtcSuffix))
@@ -96,11 +106,29 @@ namespace ServiceStack.Text.Common
                 var dateTime = Env.IsMono ? ParseManual(dateTimeStr) : null;
                 if (dateTime != null)
                     return dateTime.Value;
-
+				
+							
+#if    PLATFORM_USE_XML_DLL 	
+				
                 return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc).Prepare(parsedAsUtc:true);
+				
+#else
+										
+				XsdDateTime  xsdDT = new XsdDateTime (  dateTimeStr,   XsdDateTimeFlags.AllXsd );
+
+				DateTime  dt =  ( DateTime ) xsdDT;
+				
+				dt.ToStableUniversalTime( );
+							
+#endif
+				
+				
 #endif
             }
+			
+			
 
+			
             try
             {
                 return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal).Prepare();
@@ -131,7 +159,11 @@ namespace ServiceStack.Text.Common
 
             return dateTimeStr;
         }
+		
+		
 
+		
+		
         public static DateTime? ParseManual(string dateTimeStr)
         {
             if (dateTimeStr == null || dateTimeStr.Length < "YYYY-MM-DD".Length)
@@ -263,33 +295,83 @@ namespace ServiceStack.Text.Common
 
             return ParseDateTimeOffset(dateTimeOffsetStr);
         }
-
+		
+		
+		
         public static string ToXsdDateTimeString(DateTime dateTime)
         {
+			
+			
+#if    PLATFORM_USE_XML_DLL 	
+			
+			
 #if NETFX_CORE
             return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XsdDateTimeFormat);
 #else
             return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);
 #endif
-        }
+			
+#else
+			
+					
+			XsdDateTime  xsdDT = new XsdDateTime( dateTime.ToStableUniversalTime(), XsdDateTimeFlags.AllXsd );
+			
+			return  xsdDT.ToString( );	
+			
+			
+			
+#endif
+			
+			
+		}
 
         public static string ToLocalXsdDateTimeString(DateTime dateTime)
         {
+			
+						
+#if    PLATFORM_USE_XML_DLL 
+			
+			
 #if NETFX_CORE
             return XmlConvert.ToString(dateTime, XsdDateTimeFormat);
 #else
             return XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.Local);
 #endif
+			
+			
+
+#else
+			
+			XsdDateTime  xsdDT = new XsdDateTime( dateTime, XsdDateTimeFlags.AllXsd );
+			
+			return  xsdDT.ToString( );
+			
+			
+#endif
+			
         }
 
         public static string ToXsdTimeSpanString(TimeSpan timeSpan)
         {
+#if    PLATFORM_USE_XML_DLL 	
+			
             var r = XmlConvert.ToString(timeSpan);
 #if __MonoCS__
             // Mono returns DT even if time is 00:00:00
             if (r.EndsWith("DT")) return r.Substring(0, r.Length - 1);
 #endif
             return r;
+			
+#else
+			
+			XsdDuration  duration = new XsdDuration (timeSpan );
+			
+			return  duration.ToString( );
+			
+			
+			
+#endif
+			
         }
 
         public static string ToXsdTimeSpanString(TimeSpan? timeSpan)
@@ -300,26 +382,233 @@ namespace ServiceStack.Text.Common
         public static DateTime ParseXsdDateTime(string dateTimeStr)
         {
             dateTimeStr = RepairXsdTimeSeparator(dateTimeStr);
-
+			
+#if    PLATFORM_USE_XML_DLL 				
+			
 #if NETFX_CORE
             return XmlConvert.ToDateTimeOffset(dateTimeStr).DateTime;
 #else
             return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc);
 #endif
-        }
+        
+#else
+			
+			XsdDateTime  xsdDT = new XsdDateTime (  dateTimeStr,   XsdDateTimeFlags.AllXsd );
+			
+			
+			return  ( DateTime )  xsdDT;
+			
+#endif
+			
+		
+		}
 
-        public static TimeSpan ParseTimeSpan(string dateTimeStr)
+		       
+		public static TimeSpan ParseTimeSpan(string dateTimeStr)
         {
             return dateTimeStr.StartsWith("P", StringComparison.Ordinal) || dateTimeStr.StartsWith("-P", StringComparison.Ordinal)
                 ? ParseXsdTimeSpan(dateTimeStr)
                 : TimeSpan.Parse(dateTimeStr);
         }
+		
+		public static TimeSpan ManulParseXsdTimeSpan(string dateTimeStr)
+		{
+			
+			bool  negative = false;
+			
+			int  strlen =  dateTimeStr.Length;
+			int i=0;
+			
+			if ( strlen < 2 )
+				goto  invalid_format;
+			
+			char c =  dateTimeStr[0];
+			
+			if ( c == '-' )
+			{
+				negative = true;
+				if ( c != 'P' )
+					goto  invalid_format;
+				i = 2;
+			}
+			else if ( c != 'P' )
+				goto  invalid_format;
+			else
+			{
+			
+				i = 1;
+			}
+			
+			int numYear = 0;
+			int numMonth = 0;
+			int  numDay = 0;
+			
+			int numHour = 0;
+			int  numMinute = 0;
+			int  numSecond = 0;
+			
+			int  posT = dateTimeStr.IndexOf('T');
+			
+			int  startNumber = i;
+			int  endNumber = i;
+			
+			int partOneEnd = strlen;
+			
+			if ( posT > 0 )
+			{
+				partOneEnd = posT ;
+				
+			}
+			
+				
+			while ( i <  partOneEnd )
+			{
+				c =  dateTimeStr[ i ];
+				if ( char.IsDigit( c  )  )
+					endNumber = i+1;
+				else
+				{
+					int num;
+					
+					if ( startNumber < endNumber  )
+					{
+						num =  int.Parse(  dateTimeStr.Substring( startNumber,  endNumber - startNumber )  );
+						
+					}
+					else
+						goto  invalid_format;
+					
+					
+					//  YnMnDTnHnMnS
+					switch( c )
+					{
+					case 'Y':
+						
+						numYear = num;
+						break;
+					case 'M':
+						
+						numMonth = num;
+						
+						break;
+					case 'D':
+						
+						numDay = num;
+						break;
+
+					default:
+						
+						goto  invalid_format;
+	
+					}
+					
+				}
+				
+			
+				i++;
+				
+			}
+			
+			
+			if ( posT > 0 )
+			{
+				
+				i = posT + 1;	
+					
+				while ( i <  strlen )
+				{
+					c =  dateTimeStr[ i ];
+					if ( char.IsDigit( c  )  )
+						endNumber = i+1;
+					else
+					{
+						int num;
+						
+						if ( startNumber < endNumber  )
+						{
+							num =  int.Parse(  dateTimeStr.Substring( startNumber,  endNumber - startNumber )  );
+							
+						}
+						else
+							goto  invalid_format;
+						
+						
+						//  YnMnDTnHnMnS
+						switch( c )
+						{
+
+	
+						case 'H':
+							
+							numHour = num;
+							break;
+							
+						case 'M':
+							
+							numMinute = num;
+							break;
+							
+						case 'S':
+							
+							numSecond = num;
+							
+							break;
+						default:
+							
+							goto  invalid_format;
+
+						}
+						
+					}
+					
+				
+					i++;
+					
+				}
+				
+	
+			}
+			
+					
+			int totalDays =   numYear *365 + numMonth * 30 +  numDay;
+			
+			TimeSpan  span =   new TimeSpan (totalDays,  numHour , numMinute, numSecond  );
+		
+			if ( negative )
+				span =  span.Negate( );
+			
+			return  span;
+			
+			
+		invalid_format:
+			throw  new  InvalidDataException("invalid  xml duration data format");			
+			
+		}
+		
 
         public static TimeSpan ParseXsdTimeSpan(string dateTimeStr)
         {
+			
+#if    PLATFORM_USE_XML_DLL 	
+			
             return XmlConvert.ToTimeSpan(dateTimeStr);
+#else
+			
+			//return  ManulParseXsdTimeSpan(dateTimeStr );
+			
+			
+						
+			XsdDuration  duration =  new XsdDuration ( dateTimeStr ) ;
+			
+			return   duration.ToTimeSpan();
+			
+#endif
+			
+			
         }
-
+		
+		
+		
         public static TimeSpan? ParseNullableTimeSpan(string dateTimeStr)
         {
             return string.IsNullOrEmpty(dateTimeStr)
@@ -329,9 +618,23 @@ namespace ServiceStack.Text.Common
 
         public static TimeSpan? ParseXsdNullableTimeSpan(string dateTimeStr)
         {
+#if    PLATFORM_USE_XML_DLL 			
+			
             return String.IsNullOrEmpty(dateTimeStr) ?
                 null :
                 new TimeSpan?(XmlConvert.ToTimeSpan(dateTimeStr));
+			
+#else
+			if ( String.IsNullOrEmpty(dateTimeStr)  )
+				return null;
+			
+			//return  ManulParseXsdTimeSpan(dateTimeStr );
+			
+			XsdDuration  duration =  new XsdDuration ( dateTimeStr ) ;
+			
+			return   duration.ToTimeSpan();
+			
+#endif			
         }
 
         public static string ToShortestXsdDateTimeString(DateTime dateTime)
@@ -350,7 +653,11 @@ namespace ServiceStack.Text.Common
                 ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
                 : ToXsdDateTimeString(dateTime);
         }
+		
 
+		
+
+		
         static readonly char[] TimeZoneChars = new[] { '+', '-' };
 
         /// <summary>
@@ -441,8 +748,22 @@ namespace ServiceStack.Text.Common
             var date = unixTime.FromUnixTimeMs(offset);
             return new DateTimeOffset(date, offset).DateTime;
         }
+		
+		
 
-        private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
+		
+#if NET20 || PLATFORM_USE_AOT 
+		
+		private static  TimeZone  LocalZone = TimeZone.CurrentTimeZone;
+		
+#else
+
+		        
+		private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
+		
+#endif		
+		
+		
         public static void WriteWcfJsonDate(TextWriter writer, DateTime dateTime)
         {
             if (JsConfig.AssumeUtc && dateTime.Kind == DateTimeKind.Unspecified)
@@ -463,7 +784,21 @@ namespace ServiceStack.Text.Common
                 if (JsConfig.DateHandler == JsonDateHandler.TimestampOffset && dateTime.Kind == DateTimeKind.Unspecified)
                     offset = UnspecifiedOffset;
                 else
-                    offset = LocalTimeZone.GetUtcOffset(dateTime).ToTimeOffsetString();
+					
+	
+#if NET20 || PLATFORM_USE_AOT 
+					
+					
+					offset = LocalZone.GetUtcOffset(dateTime).ToTimeOffsetString();		
+					
+#else
+				
+								
+                    
+					offset = LocalTimeZone.GetUtcOffset(dateTime).ToTimeOffsetString();		
+					
+#endif
+
             }
             else
             {

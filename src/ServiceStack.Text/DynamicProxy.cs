@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-#if !SILVERLIGHT && !MONOTOUCH
+#if !SILVERLIGHT && !MONOTOUCH     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
 using System.Reflection.Emit;
 
 namespace ServiceStack.Text {

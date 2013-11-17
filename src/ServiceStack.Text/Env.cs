@@ -19,9 +19,15 @@ namespace ServiceStack.Text
             IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
             platformName = Environment.OSVersion.Platform.ToString();
 #endif
-
+			
+			
+#if   UNITY3D
+				
+			IsMono = false;
+#else
             IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
-
+#endif
+			
             IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null;
 
             IsWinRT = AssemblyUtils.FindType("Windows.ApplicationModel") != null;

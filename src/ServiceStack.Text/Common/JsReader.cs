@@ -78,11 +78,16 @@ namespace ServiceStack.Text.Common
             }
 
 #if !NETFX_CORE
+			
+#if NET40
             if (typeof(T).IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 typeof(T).HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.Parse;
-            }
+	
+			}
+#endif
+			
 #endif
 
             var isDictionary = typeof(T) != typeof(IEnumerable) && typeof(T) != typeof(ICollection)

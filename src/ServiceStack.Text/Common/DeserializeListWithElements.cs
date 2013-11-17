@@ -20,15 +20,42 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
+	
+      internal    delegate object ParseListDelegate(string value, Type createListType, ParseStringDelegate parseFn);
+
+	
+	
     internal static class DeserializeListWithElements<TSerializer>
         where TSerializer : ITypeSerializer
     {
         internal static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
-
-        private static Dictionary<Type, ParseListDelegate> ParseDelegateCache
+		
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		private static object _parseDelegateCache
             = new Dictionary<Type, ParseListDelegate>();
 
-        private delegate object ParseListDelegate(string value, Type createListType, ParseStringDelegate parseFn);
+
+                
+		private static Dictionary<Type, ParseListDelegate> ParseDelegateCache
+        {
+            get { return ( Dictionary<Type, ParseListDelegate>) _parseDelegateCache  ;}
+
+
+        }
+
+		
+		
+#else
+	
+		
+        private static Dictionary<Type, ParseListDelegate> ParseDelegateCache
+            = new Dictionary<Type, ParseListDelegate>();
+		
+		
+#endif
+		
 
         public static Func<string, Type, ParseStringDelegate, object> GetListTypeParseFn(
             Type createListType, Type elementType, ParseStringDelegate parseFn)
@@ -48,8 +75,17 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<Type, ParseListDelegate>(ParseDelegateCache);
                 newCache[elementType] = parseDelegate;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	Interlocked.CompareExchange(ref _parseDelegateCache, (object )newCache, (object )snapshot), snapshot));
+					
+#else
+			
+			
+                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));					
+					
+#endif
+
 
             return parseDelegate.Invoke;
         }

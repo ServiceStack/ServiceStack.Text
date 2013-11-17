@@ -9,7 +9,7 @@ using System.Threading;
 
 //Not using it here, but @marcgravell's stuff is too good not to include
 // http://code.google.com/p/fast-member/ Apache License 2.0
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
 namespace ServiceStack.Text.FastMember
 {
     /// <summary>

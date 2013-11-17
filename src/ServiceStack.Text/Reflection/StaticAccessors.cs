@@ -25,7 +25,7 @@ namespace ServiceStack.Text.Reflection
 			var getMethodInfo = propertyInfo.GetMethod;
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
-#elif (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
+#elif (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
 			var getMethodInfo = propertyInfo.GetGetMethod();
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
@@ -45,7 +45,7 @@ namespace ServiceStack.Text.Reflection
 			var getMethodInfo = propertyInfo.GetMethod;
             if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
-#elif (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
+#elif (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
 			var getMethodInfo = propertyInfo.GetGetMethod();
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
@@ -59,7 +59,7 @@ namespace ServiceStack.Text.Reflection
 
         public static Func<T, object> GetValueGetter<T>(this FieldInfo fieldInfo)
         {
-#if (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX
+#if (SILVERLIGHT && !WINDOWS_PHONE) || MONOTOUCH || XBOX   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
             return x => fieldInfo.GetValue(x);
 #else
             var instance = Expression.Parameter(fieldInfo.DeclaringType, "i");

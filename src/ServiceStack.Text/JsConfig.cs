@@ -635,17 +635,23 @@ namespace ServiceStack.Text
 #endif
         }
 
-#if MONOTOUCH
+#if MONOTOUCH  ||  ( UNITY3D  && PLATFORM_USE_AOT  )
         /// <summary>
         /// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
         /// Just needs to be called once in a static constructor.
         /// </summary>
+
+#if MONOTOUCH 
         [MonoTouch.Foundation.Preserve]
+#endif
 		public static void InitForAot() { 
 		}
 
+#if MONOTOUCH 
         [MonoTouch.Foundation.Preserve]
-        public static void RegisterForAot()
+#endif
+		
+		public static void RegisterForAot()
         {
 			RegisterTypeForAot<Poco>();
 
@@ -693,21 +699,30 @@ namespace ServiceStack.Text
 			RegisterTypeForAot<Guid?>();
         }
 
-		[MonoTouch.Foundation.Preserve]
+#if MONOTOUCH 
+        [MonoTouch.Foundation.Preserve]
+#endif
+		
 		public static void RegisterTypeForAot<T>()
 		{
 			AotConfig.RegisterSerializers<T>();
 		}
 
+#if MONOTOUCH 
         [MonoTouch.Foundation.Preserve]
-        static void RegisterQueryStringWriter()
+#endif
+		
+		static void RegisterQueryStringWriter()
         {
             var i = 0;
             if (QueryStringWriter<Poco>.WriteFn() != null) i++;
         }
 		        
+#if MONOTOUCH 
         [MonoTouch.Foundation.Preserve]
-		internal static int RegisterElement<T, TElement>()
+#endif
+		
+		public static int RegisterElement<T, TElement>()
         {
 			var i = 0;
 			i += AotConfig.RegisterSerializers<TElement>();
@@ -719,7 +734,10 @@ namespace ServiceStack.Text
 		///<summary>
 		/// Class contains Ahead-of-Time (AOT) explicit class declarations which is used only to workaround "-aot-only" exceptions occured on device only. 
 		/// </summary>			
-		[MonoTouch.Foundation.Preserve(AllMembers=true)]
+#if MONOTOUCH 
+        [MonoTouch.Foundation.Preserve]
+#endif
+		
 		internal class AotConfig
 		{
 			internal static JsReader<JsonTypeSerializer> jsonReader;
@@ -796,8 +814,19 @@ namespace ServiceStack.Text
 				//JsConfig<T>.SerializeFn = arg => "";
 				//JsConfig<T>.DeSerializeFn = arg => default(T);
 				if (TypeConfig<T>.Properties != null) i++;
+				
+				
+                 
+				// zhaojh
+				//if (  WriteType<T, TSerializer>.testsAOT != null ) i++;
 
-/*
+                 // AOT for ServiceStack.Text.Common.ParseMethodUtilities+<GetParseFn>
+				Func<string, T>   t =  x =>  default(T);
+				DeserializeType<TSerializer>.ParseAbstractType<T> (null);				
+				
+				
+				
+//*
 				if (WriteType<T, TSerializer>.Write != null) i++;
 				if (WriteType<object, TSerializer>.Write != null) i++;
 				
@@ -810,7 +839,7 @@ namespace ServiceStack.Text
 
 				SpecializedQueueElements<T>.ConvertToQueue(null);
 				SpecializedQueueElements<T>.ConvertToStack(null);
-*/
+//*/
 
 				WriteListsOfElements<T, TSerializer>.WriteList(null, null);
 				WriteListsOfElements<T, TSerializer>.WriteIList(null, null);
@@ -831,6 +860,10 @@ namespace ServiceStack.Text
 			{
 				DeserializeDictionary<TSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
 				DeserializeDictionary<TSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
+				
+				//DeserializeDictionary<TSerializer>.ParseDictionaryDelegate  parseDictDelegate = (value, createMapType, keyParseFn, valueParseFn) =>  { return null; };
+				//parseDictDelegate(null, null, null, null);
+					
 				
 				ToStringDictionaryMethods<T, TElement, TSerializer>.WriteIDictionary(null, null, null, null);
 				ToStringDictionaryMethods<TElement, T, TSerializer>.WriteIDictionary(null, null, null, null);
@@ -854,9 +887,13 @@ namespace ServiceStack.Text
         internal static HashSet<Type> __uniqueTypes = new HashSet<Type>(); 
     }
 
-#if MONOTOUCH
-    [MonoTouch.Foundation.Preserve(AllMembers=true)]
-    internal class Poco
+#if MONOTOUCH   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
+
+#if MONOTOUCH 
+        [MonoTouch.Foundation.Preserve]
+#endif
+		   
+	internal class Poco
     {
         public string Dummy { get; set; }
     }

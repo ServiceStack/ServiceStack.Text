@@ -27,8 +27,26 @@ namespace ServiceStack
 	{
 		internal static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
 
-		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
+		
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+        private static object _writeFnCache = new Dictionary<Type, WriteObjectDelegate>();
+        private static Dictionary<Type, WriteObjectDelegate> WriteFnCache
+        {
 
+            get {  return  ( Dictionary<Type, WriteObjectDelegate> ) _writeFnCache ; }
+
+        }		
+		
+		
+#else
+	
+		
+		
+		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
+		
+#endif
+		
 		internal static WriteObjectDelegate GetWriteFn(Type type)
 		{
 			try
@@ -51,7 +69,19 @@ namespace ServiceStack
                     newCache[type] = writeFn;
 
                 } while (!ReferenceEquals(
-                    Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+					Interlocked.CompareExchange(ref _writeFnCache, ( object ) newCache, ( object )snapshot), snapshot));
+#else
+			
+					
+                   
+					Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));					
+					
+#endif
+					
+
                 
                 return writeFn;
 			}

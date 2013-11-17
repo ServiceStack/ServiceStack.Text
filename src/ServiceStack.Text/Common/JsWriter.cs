@@ -249,9 +249,15 @@ namespace ServiceStack.Text.Common
         		{ typeof(Uri), Serializer.WriteObjectString },
         		{ typeof(Type), WriteType },
         		{ typeof(Exception), Serializer.WriteException },
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
+				
+#if  PLATFORM_USE_DATA_DLL
+				
                 { typeof(System.Data.Linq.Binary), Serializer.WriteLinqBinary },
 #endif
+				
+#endif
+				
         	};
         }
 

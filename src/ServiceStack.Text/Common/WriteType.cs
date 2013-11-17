@@ -18,6 +18,8 @@ using System.Reflection;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Reflection;
 
+using System.Collections.Generic;
+
 namespace ServiceStack.Text.Common
 {
     internal static class WriteType<T, TSerializer>
@@ -124,17 +126,36 @@ namespace ServiceStack.Text.Common
             {
                 return typeof(T).IsDto();
             }
-
+			
+			
+#if PLATFORM_USE_SERIALIZATION_DLL	
+			
             // NOTE: very limited support for DataContractSerialization (DCS)
             //	NOT supporting Serializable
             //	support for DCS is intended for (re)Name of properties and Ignore by NOT having a DataMember present
             var isDataContract = typeof(T).IsDto();
+	
+
+#endif
+			
             for (var i = 0; i < propertyNamesLength; i++)
             {
                 var propertyInfo = propertyInfos[i];
 
                 string propertyName, propertyNameCLSFriendly, propertyNameLowercaseUnderscore, propertyDeclaredTypeName;
+				
+			
+#if PLATFORM_USE_SERIALIZATION_DLL					
                 int propertyOrder = -1;
+				
+				if ( !  isDataContract )
+					propertyOrder =  propertyInfo.MetadataToken; 
+				
+#else
+				int propertyOrder =  propertyInfo.MetadataToken;  // use  MetadataToken as order .
+#endif
+				
+				
                 var propertyType = propertyInfo.PropertyType;
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
@@ -144,8 +165,13 @@ namespace ServiceStack.Text.Common
 #else
                 var shouldSerialize = GetShouldSerializeMethod(propertyInfo);
 #endif
+				
+					
+#if PLATFORM_USE_SERIALIZATION_DLL				
                 if (isDataContract)
                 {
+
+					
                     var dcsDataMember = propertyInfo.GetDataMember();
                     if (dcsDataMember == null) continue;
 
@@ -155,8 +181,12 @@ namespace ServiceStack.Text.Common
                     propertyDeclaredTypeName = propertyType.GetDeclaringTypeName();
                     propertyOrder = dcsDataMember.Order;
                     propertySuppressDefaultAttribute = !dcsDataMember.EmitDefaultValue;
+
+					
                 }
                 else
+					
+#endif					
                 {
                     propertyName = propertyInfo.Name;
                     propertyNameCLSFriendly = propertyName.ToCamelCase();
@@ -186,7 +216,22 @@ namespace ServiceStack.Text.Common
                 var fieldInfo = fieldInfos[i];
 
                 string propertyName, propertyNameCLSFriendly, propertyNameLowercaseUnderscore, propertyDeclaredTypeName;
+                
+				
+#if PLATFORM_USE_SERIALIZATION_DLL					
                 int propertyOrder = -1;
+								
+				if ( !  isDataContract )
+					propertyOrder =  fieldInfo.MetadataToken; 
+				
+#else
+				
+				int propertyOrder =  fieldInfo.MetadataToken;  // use  MetadataToken as order .
+				
+#endif
+				
+				
+				
                 var propertyType = fieldInfo.FieldType;
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
@@ -196,6 +241,11 @@ namespace ServiceStack.Text.Common
 #else
                 var shouldSerialize = GetShouldSerializeMethod(fieldInfo);
 #endif
+				
+	
+									
+#if PLATFORM_USE_SERIALIZATION_DLL	
+				
                 if (isDataContract)
                 {
                     var dcsDataMember = fieldInfo.GetDataMember();
@@ -209,6 +259,8 @@ namespace ServiceStack.Text.Common
                     propertySuppressDefaultAttribute = !dcsDataMember.EmitDefaultValue;
                 }
                 else
+#endif
+					
                 {
                     propertyName = fieldInfo.Name;
                     propertyNameCLSFriendly = propertyName.ToCamelCase();
@@ -231,12 +283,78 @@ namespace ServiceStack.Text.Common
                     shouldSerialize
                 );
             }
+			
+#if  PLATFORM_USE_AOT
+		
+			
+            List<TypePropertyWriter>  results =  new  List<TypePropertyWriter>  ( PropertyWriters );
+ 
+           
 
-            PropertyWriters = PropertyWriters.OrderBy(x => x.propertyOrder).ToArray();
-            return true;
+           // foreach( TypePropertyWriter item in  PropertyWriters )
+           //{
+              
+			//  results.Add( item );
+
+            //}
+
+
+            results.Sort( typePropertyWriterComparerDefault );
+
+            PropertyWriters =  results.ToArray( );	
+			
+			
+			return true;		
+			
+#else
+		
+           
+			PropertyWriters = PropertyWriters.OrderBy(x => x.propertyOrder).ToArray();
+           
+			return true;		
+			
+#endif					
+
+			
+
         }
 
+				
+#if  PLATFORM_USE_AOT
+
+		        
+		static TypePropertyWriterComparer  typePropertyWriterComparerDefault = new   TypePropertyWriterComparer( );
+
+        internal class  TypePropertyWriterComparer : IComparer<TypePropertyWriter>
+        {
+
+
+            public int Compare (TypePropertyWriter x, TypePropertyWriter y)
+            {
+
+                return x.propertyOrder.CompareTo(  y.propertyOrder );
+
+            }
+
+
+
+        }
+
+		
+		
+#endif		
+		
+		
+#if  PLATFORM_USE_AOT 
+		
+		internal class TypePropertyWriter
+		
+#else
+		
         internal struct TypePropertyWriter
+			
+#endif
+			
         {
             internal string PropertyName
             {

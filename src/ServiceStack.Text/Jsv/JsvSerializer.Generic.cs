@@ -12,7 +12,27 @@ namespace ServiceStack.Text.Jsv
 {
     internal class JsvSerializer<T>
 	{
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		object  _deserializerCache = new Dictionary<Type, ParseStringDelegate>();
+                
+		Dictionary<Type, ParseStringDelegate> DeserializerCache {
+
+            get {  return  (Dictionary<Type, ParseStringDelegate> ) _deserializerCache  ;}
+        }
+
+		
+		
+#else
+	
+		
 		Dictionary<Type, ParseStringDelegate> DeserializerCache = new Dictionary<Type, ParseStringDelegate>();
+		
+		
+#endif
+				
+		
 
 		public T DeserializeFromString(string value, Type type)
 		{
@@ -30,8 +50,19 @@ namespace ServiceStack.Text.Jsv
                 newCache = new Dictionary<Type, ParseStringDelegate>(DeserializerCache);
                 newCache[type] = parseFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref DeserializerCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+	
+				Interlocked.CompareExchange(ref _deserializerCache, ( object ) newCache, ( object )snapshot), snapshot));				
+#else
+			
+	               
+				Interlocked.CompareExchange(ref DeserializerCache, newCache, snapshot), snapshot));
+ 				
+					
+#endif
+			
             
             return (T)parseFn(value);
 		}

@@ -12,8 +12,24 @@ namespace ServiceStack.Text.Jsv
 	internal static class JsvWriter
 	{
 		public static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+        private static object _writeFnCache = new Dictionary<Type, WriteObjectDelegate>();
+        private static Dictionary<Type, WriteObjectDelegate> WriteFnCache  {
 
+            get {  return  ( Dictionary<Type, WriteObjectDelegate> ) _writeFnCache  ;  }
+
+        }
+		
+		
+#else
+	
         private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
+		
+		
+		
+#endif
+		
         
         internal static void RemoveCacheFn(Type forType)
         {
@@ -24,8 +40,18 @@ namespace ServiceStack.Text.Jsv
                 newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
                 newCache.Remove(forType);
                 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				Interlocked.CompareExchange(ref _writeFnCache, ( object )newCache, ( object ) snapshot), snapshot));	
+#else
+			
+                
+				Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));					
+					
+#endif
+			
+
         }
 
 		public static WriteObjectDelegate GetWriteFn(Type type)
@@ -48,8 +74,19 @@ namespace ServiceStack.Text.Jsv
                     newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
                     newCache[type] = writeFn;
 
-                } while (!ReferenceEquals(
-                    Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+                } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+	
+					Interlocked.CompareExchange(ref _writeFnCache, ( object ) newCache,  ( object ) snapshot), snapshot));				
+#else
+			
+                    
+					Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));					
+					
+#endif
+			
+
 
                 return writeFn;
 			}
@@ -127,7 +164,7 @@ namespace ServiceStack.Text.Jsv
 
         public static void WriteObject(TextWriter writer, object value)
         {
-#if MONOTOUCH
+#if MONOTOUCH   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
 			if (writer == null) return;
 #endif
             TypeConfig<T>.AssertValidUsage();
@@ -151,9 +188,13 @@ namespace ServiceStack.Text.Jsv
 
         public static void WriteRootObject(TextWriter writer, object value)
         {
-#if MONOTOUCH
+#if MONOTOUCH   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
 			if (writer == null) return;
 #endif
+			
+			
+#if NET40
+			
             try
             {
                 TypeConfig<T>.AssertValidUsage();
@@ -163,7 +204,8 @@ namespace ServiceStack.Text.Jsv
                 var inner = ex.GetInnerMostException();
                 throw inner;
             }
-
+#endif
+			
             JsState.Depth = 0;
             CacheFn(writer, value);
         }

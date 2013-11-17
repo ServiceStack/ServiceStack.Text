@@ -21,6 +21,12 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
+	
+	
+        internal delegate object ParseDictionaryDelegate(string value, Type createMapType,
+            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn);
+
+	
     internal static class DeserializeDictionary<TSerializer>
         where TSerializer : ITypeSerializer
     {
@@ -235,12 +241,30 @@ namespace ServiceStack.Text.Common
             }
             return index;
         }
-
-        private static Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+               
+		private static object  _parseDelegateCache
             = new Dictionary<string, ParseDictionaryDelegate>();
 
-        private delegate object ParseDictionaryDelegate(string value, Type createMapType,
-            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn);
+               
+		private static Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
+        {
+            get { return   (Dictionary<string, ParseDictionaryDelegate> ) _parseDelegateCache ;}
+
+        }
+
+		
+		
+#else
+	
+        private static Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
+            = new Dictionary<string, ParseDictionaryDelegate>();		
+		
+		
+#endif
+		
+
 
         public static object ParseDictionaryType(string value, Type createMapType, Type[] argTypes,
             ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn)
@@ -262,8 +286,19 @@ namespace ServiceStack.Text.Common
                 newCache = new Dictionary<string, ParseDictionaryDelegate>(ParseDelegateCache);
                 newCache[key] = parseDelegate;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				Interlocked.CompareExchange(ref _parseDelegateCache, (object )newCache, (object )snapshot), snapshot));
+					
+#else
+			
+		                
+				Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
+			
+					
+#endif
+			
 
             return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
         }

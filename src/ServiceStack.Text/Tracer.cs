@@ -1,5 +1,7 @@
 using System;
 
+
+
 namespace ServiceStack.Text
 {
 	public class Tracer
@@ -30,6 +32,8 @@ namespace ServiceStack.Text
 			{
 #if NETFX_CORE
 				System.Diagnostics.Debug.WriteLine(error);
+#elif  UNITY3D
+				UnityEngine.Debug.Log(error);
 #else
 				Console.WriteLine(error);
 #endif
@@ -39,6 +43,9 @@ namespace ServiceStack.Text
 			{
 #if NETFX_CORE
                 System.Diagnostics.Debug.WriteLine(format, args);
+				
+#elif  UNITY3D
+				UnityEngine.Debug.Log(string.Format( format, args ) );
 #else
                 Console.WriteLine(format, args);
 #endif
@@ -47,7 +54,10 @@ namespace ServiceStack.Text
 		    public void WriteWarning(string warning)
 		    {
 #if NETFX_CORE
-                System.Diagnostics.Debug.WriteLine(warning);                
+                System.Diagnostics.Debug.WriteLine(warning);  
+				
+#elif  UNITY3D
+				UnityEngine.Debug.LogWarning(warning);
 #else
                 Console.WriteLine(warning);                
 #endif
@@ -57,6 +67,10 @@ namespace ServiceStack.Text
 		    {
 #if NETFX_CORE
                 System.Diagnostics.Debug.WriteLine(format, args);
+				
+#elif  UNITY3D
+				UnityEngine.Debug.LogWarning(string.Format( format, args ) );
+				
 #else
                 Console.WriteLine(format, args);
 #endif
@@ -66,6 +80,10 @@ namespace ServiceStack.Text
 			{
 #if NETFX_CORE
                 System.Diagnostics.Debug.WriteLine(ex);
+
+				
+#elif  UNITY3D
+				UnityEngine.Debug.LogException(ex );
 #else
                 Console.WriteLine(ex);
 #endif
@@ -75,6 +93,9 @@ namespace ServiceStack.Text
 			{
 #if NETFX_CORE
                 System.Diagnostics.Debug.WriteLine(error);
+				
+#elif  UNITY3D
+				UnityEngine.Debug.LogError(error);
 #else
                 Console.WriteLine(error);
 #endif
@@ -84,6 +105,10 @@ namespace ServiceStack.Text
 			{
 #if NETFX_CORE
                 System.Diagnostics.Debug.WriteLine(format, args);
+								
+#elif  UNITY3D
+				UnityEngine.Debug.LogError(string.Format( format, args ) );
+				
 #else
                 Console.WriteLine(format, args);
 #endif

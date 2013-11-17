@@ -298,9 +298,15 @@ namespace ServiceStack.Text.Json
 
         public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
         {
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID
+#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
+			
+#if  PLATFORM_USE_DATA_DLL
+			
             WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
 #endif
+			
+#endif
+			
         }
 
         public ParseStringDelegate GetParseFn<T>()

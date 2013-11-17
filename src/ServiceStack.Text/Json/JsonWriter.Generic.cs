@@ -12,8 +12,27 @@ namespace ServiceStack.Text.Json
 	internal static class JsonWriter
 	{
 		public static readonly JsWriter<JsonTypeSerializer> Instance = new JsWriter<JsonTypeSerializer>();
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
 
+        private static  object _writeFnCache = new Dictionary<Type, WriteObjectDelegate>();
+
+        private static Dictionary<Type, WriteObjectDelegate> WriteFnCache {
+
+            get { return  (Dictionary<Type, WriteObjectDelegate> ) _writeFnCache; }
+
+        }
+
+		
+		
+#else
+	
+		
+			
 		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
+	
+		
+#endif
 
         internal static void RemoveCacheFn(Type forType)
         {
@@ -24,8 +43,17 @@ namespace ServiceStack.Text.Json
                 newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
                 newCache.Remove(forType);
                 
-            } while (!ReferenceEquals(
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+		Interlocked.CompareExchange(ref _writeFnCache, ( object )newCache, ( object )snapshot), snapshot));			
+#else
+			
+			
                 Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+					
+					
+#endif
         }
 
 	    internal static WriteObjectDelegate GetWriteFn(Type type)
@@ -47,8 +75,18 @@ namespace ServiceStack.Text.Json
 					newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
 					newCache[type] = writeFn;
 
-				} while (!ReferenceEquals(
+				} while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				
+					Interlocked.CompareExchange(ref _writeFnCache, ( object )newCache, ( object )snapshot), snapshot));	
+#else
+			
 					Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+					
+					
+#endif
+			
 
 				return writeFn;
 			}
@@ -58,8 +96,25 @@ namespace ServiceStack.Text.Json
 				throw;
 			}
 		}
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+        private static object _jsonTypeInfoCache = new Dictionary<Type, TypeInfo>();
 
+        private static Dictionary<Type, TypeInfo> JsonTypeInfoCache {
+
+            get {  return  ( Dictionary<Type, TypeInfo> ) _jsonTypeInfoCache  ;}
+
+        }
+		
+		
+#else
+	
 		private static Dictionary<Type, TypeInfo> JsonTypeInfoCache = new Dictionary<Type, TypeInfo>();
+		
+		
+		
+#endif
+		
 
 	    internal static TypeInfo GetTypeInfo(Type type)
 		{
@@ -80,8 +135,17 @@ namespace ServiceStack.Text.Json
 					newCache = new Dictionary<Type, TypeInfo>(JsonTypeInfoCache);
 					newCache[type] = writeFn;
 
-				} while (!ReferenceEquals(
+				} while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+					Interlocked.CompareExchange(ref _jsonTypeInfoCache, ( object ) newCache, ( object )snapshot), snapshot));
+#else
+			
 					Interlocked.CompareExchange(ref JsonTypeInfoCache, newCache, snapshot), snapshot));
+					
+					
+#endif
+			
 
 				return writeFn;
 			}
@@ -180,7 +244,7 @@ namespace ServiceStack.Text.Json
 
         public static void WriteObject(TextWriter writer, object value)
         {
-#if MONOTOUCH
+#if MONOTOUCH     ||  ( UNITY3D  && PLATFORM_USE_AOT  )
 			if (writer == null) return;
 #endif
             TypeConfig<T>.AssertValidUsage();
@@ -204,7 +268,7 @@ namespace ServiceStack.Text.Json
 
         public static void WriteRootObject(TextWriter writer, object value)
         {
-#if MONOTOUCH
+#if MONOTOUCH   ||  ( UNITY3D  && PLATFORM_USE_AOT  )
 			if (writer == null) return;
 #endif
             TypeConfig<T>.AssertValidUsage();

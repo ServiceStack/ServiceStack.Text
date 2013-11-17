@@ -116,7 +116,7 @@ namespace ServiceStack.Text
         {
             return base[key];
         }
-#if !SILVERLIGHT && !MONOTOUCH
+#if !SILVERLIGHT && !MONOTOUCH      &&  !( UNITY3D  && PLATFORM_USE_AOT  )
         static readonly Regex NumberRegEx = new Regex(@"^[0-9]*(?:\.[0-9]*)?$", RegexOptions.Compiled);
 #else
         static readonly Regex NumberRegEx = new Regex(@"^[0-9]*(?:\.[0-9]*)?$");

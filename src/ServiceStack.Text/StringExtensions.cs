@@ -478,20 +478,26 @@ namespace ServiceStack
         {
             return CsvSerializer.SerializeToString(obj);
         }
+		
+#if PLATFORM_USE_SERIALIZATION_DLL   &&   PLATFORM_USE_XML_DLL 		
 
-#if !XBOX && !SILVERLIGHT && !MONOTOUCH
+#if !XBOX && !SILVERLIGHT && !MONOTOUCH     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
         public static string ToXml<T>(this T obj)
         {
             return XmlSerializer.SerializeToString(obj);
         }
 #endif
 
-#if !XBOX && !SILVERLIGHT && !MONOTOUCH
+#if !XBOX && !SILVERLIGHT && !MONOTOUCH     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
         public static T FromXml<T>(this string json)
         {
             return XmlSerializer.DeserializeFromString<T>(json);
         }
 #endif
+		
+#endif
+		
+		
         public static string FormatWith(this string text, params object[] args)
         {
             return String.Format(text, args);
@@ -788,7 +794,7 @@ namespace ServiceStack
 #endif
 
 
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
         private const RegexOptions PlatformRegexOptions = RegexOptions.Compiled;
 #else
         private const RegexOptions PlatformRegexOptions = RegexOptions.None;

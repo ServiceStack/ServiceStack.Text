@@ -15,15 +15,25 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+
+#if PLATFORM_USE_SERIALIZATION_DLL
 using System.Runtime.Serialization;
+#endif
+
+
 using System.Threading;
 using ServiceStack.Text.Support;
 
 using ServiceStack.Text;
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
 using FastMember = ServiceStack.Text.FastMember;
+
+#if NET40
 using System.Collections.Concurrent;
 #endif
+
+#endif
+
 
 #if WINDOWS_PHONE
 using System.Linq.Expressions;
@@ -412,8 +422,29 @@ namespace ServiceStack
             }
             return true;
         }
+		
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+		                
+		static object _constructorMethods = new Dictionary<Type, EmptyCtorDelegate>();
 
+                
+		static Dictionary<Type, EmptyCtorDelegate> ConstructorMethods {
+
+            get {  return  ( Dictionary<Type, EmptyCtorDelegate>  ) _constructorMethods; }
+
+        }
+
+		
+#else
+	
+						
+		
         static Dictionary<Type, EmptyCtorDelegate> ConstructorMethods = new Dictionary<Type, EmptyCtorDelegate>();
+		
+		
+#endif
+
         public static EmptyCtorDelegate GetConstructorMethod(Type type)
         {
             EmptyCtorDelegate emptyCtorFn;
@@ -428,13 +459,42 @@ namespace ServiceStack
                 newCache = new Dictionary<Type, EmptyCtorDelegate>(ConstructorMethods);
                 newCache[type] = emptyCtorFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref ConstructorMethods, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				 Interlocked.CompareExchange(ref _constructorMethods,  ( object )newCache, ( object ) snapshot), snapshot));
+			
+#else
+			
+			
+                Interlocked.CompareExchange(ref ConstructorMethods, newCache, snapshot), snapshot));					
+					
+#endif
+
 
             return emptyCtorFn;
         }
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+	
+		static object _typeNamesMap = new Dictionary<string, EmptyCtorDelegate>();
 
-        static Dictionary<string, EmptyCtorDelegate> TypeNamesMap = new Dictionary<string, EmptyCtorDelegate>();
+                
+		static Dictionary<string, EmptyCtorDelegate> TypeNamesMap
+ 		{
+
+            get { return  ( Dictionary<string, EmptyCtorDelegate> ) _typeNamesMap  ; }
+        }
+	
+		
+#else
+	
+			
+        static Dictionary<string, EmptyCtorDelegate> TypeNamesMap = new Dictionary<string, EmptyCtorDelegate>();	
+		
+		
+#endif
+
         public static EmptyCtorDelegate GetConstructorMethod(string typeName)
         {
             EmptyCtorDelegate emptyCtorFn;
@@ -451,8 +511,17 @@ namespace ServiceStack
                 newCache = new Dictionary<string, EmptyCtorDelegate>(TypeNamesMap);
                 newCache[typeName] = emptyCtorFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref TypeNamesMap, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+				Interlocked.CompareExchange(ref _typeNamesMap, ( object )newCache,  ( object ) snapshot), snapshot));	
+#else
+				
+                Interlocked.CompareExchange(ref TypeNamesMap, newCache, snapshot), snapshot));		
+					
+					
+#endif
+
 
             return emptyCtorFn;
         }
@@ -508,7 +577,7 @@ namespace ServiceStack
             if (emptyCtor != null)
             {
 
-#if MONOTOUCH || c|| XBOX || NETFX_CORE
+#if MONOTOUCH || c|| XBOX || NETFX_CORE ||  ( UNITY3D  && PLATFORM_USE_AOT  )
 				return () => Activator.CreateInstance(type);
 #elif WINDOWS_PHONE
                 return Expression.Lambda<EmptyCtorDelegate>(Expression.New(type)).Compile();
@@ -534,9 +603,21 @@ namespace ServiceStack
 #else
             if (type == typeof(string))
                 return () => String.Empty;
-
+			
+			
+			
+#if PLATFORM_USE_SERIALIZATION_DLL			
+			
             //Anonymous types don't have empty constructors
             return () => FormatterServices.GetUninitializedObject(type);
+			
+#else
+	
+			throw  new   InvalidProgramException( "cant found empty constructors");
+			return null;
+#endif
+			
+			
 #endif
         }
 
@@ -644,6 +725,8 @@ namespace ServiceStack
             var publicProperties = GetPublicProperties(type);
             var publicReadableProperties = publicProperties.Where(x => x.PropertyGetMethod() != null);
 
+#if PLATFORM_USE_SERIALIZATION_DLL			
+			
             if (type.IsDto())
             {
                 return !Env.IsMono
@@ -652,7 +735,9 @@ namespace ServiceStack
                     : publicReadableProperties.Where(attr =>
                         attr.AllAttributes().Any(x => x.GetType().Name == DataMember)).ToArray();
             }
-
+			
+#endif
+			
             // else return those properties that are not decorated with IgnoreDataMember
             return publicReadableProperties
                 .Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember))
@@ -676,16 +761,20 @@ namespace ServiceStack
                 .ToArray();
         }
 
-#if !SILVERLIGHT && !MONOTOUCH
+#if !SILVERLIGHT && !MONOTOUCH     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
         static readonly Dictionary<Type, FastMember.TypeAccessor> typeAccessorMap
             = new Dictionary<Type, FastMember.TypeAccessor>();
 #endif
 
+		
+		
+#if PLATFORM_USE_SERIALIZATION_DLL		
+		
         public static DataContractAttribute GetDataContract(this Type type)
         {
             var dataContract = type.FirstAttribute<DataContractAttribute>();
 
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
             if (dataContract == null && Env.IsMono)
                 return type.GetWeakDataContract();
 #endif
@@ -697,7 +786,7 @@ namespace ServiceStack
             var dataMember = pi.AllAttributes(typeof(DataMemberAttribute))
                 .FirstOrDefault() as DataMemberAttribute;
 
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
             if (dataMember == null && Env.IsMono)
                 return pi.GetWeakDataMember();
 #endif
@@ -709,14 +798,14 @@ namespace ServiceStack
             var dataMember = pi.AllAttributes(typeof(DataMemberAttribute))
                 .FirstOrDefault() as DataMemberAttribute;
 
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
             if (dataMember == null && Env.IsMono)
                 return pi.GetWeakDataMember();
 #endif
             return dataMember;
         }
 
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
+#if !SILVERLIGHT && !MONOTOUCH && !XBOX     &&  !( UNITY3D  && PLATFORM_USE_AOT  )
         public static DataContractAttribute GetWeakDataContract(this Type type)
         {
             var attr = type.AllAttributes().FirstOrDefault(x => x.GetType().Name == DataContract);
@@ -800,8 +889,17 @@ namespace ServiceStack
             return null;
         }
 #endif
+		
+		
+		
+#endif
+		
+		
     }
-
+	
+	
+	
+	
     public static class PlatformExtensions //Because WinRT is a POS
     {
         public static bool IsInterface(this Type type)
@@ -997,6 +1095,9 @@ namespace ServiceStack
         const string DataContract = "DataContractAttribute";
         public static bool IsDto(this Type type)
         {
+#if PLATFORM_USE_SERIALIZATION_DLL	
+			
+			
 #if NETFX_CORE
             return type.GetTypeInfo().IsDefined(typeof(DataContractAttribute), false);
 #else
@@ -1004,6 +1105,15 @@ namespace ServiceStack
                    ? type.IsDefined(typeof(DataContractAttribute), false)
                    : type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract);
 #endif
+			
+			
+#else
+			
+			
+			return  false;
+			
+#endif
+			
         }
 
         public static MethodInfo PropertyGetMethod(this PropertyInfo pi, bool nonPublic = false)
@@ -1302,7 +1412,7 @@ namespace ServiceStack
 
         public static bool IsDynamic(this Assembly assembly)
         {
-#if MONOTOUCH || WINDOWS_PHONE || NETFX_CORE
+#if MONOTOUCH || WINDOWS_PHONE || NETFX_CORE  ||  ( UNITY3D  && PLATFORM_USE_AOT  )
             return false;
 #else
             try

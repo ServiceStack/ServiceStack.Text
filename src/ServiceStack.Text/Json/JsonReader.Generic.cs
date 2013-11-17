@@ -11,8 +11,28 @@ namespace ServiceStack.Text.Json
 	internal static class JsonReader
 	{
 		public static readonly JsReader<JsonTypeSerializer> Instance = new JsReader<JsonTypeSerializer>();
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+                
+		private static object _parseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
+                
+		private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache {
+
+            get {  return    (Dictionary<Type, ParseFactoryDelegate> ) _parseFnCache ;}
+
+        }
+
+		
+		
+#else
+	
 		private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
+		
+		
+		
+#endif
+		
 
 	    internal static ParseStringDelegate GetParseFn(Type type)
 		{
@@ -32,9 +52,19 @@ namespace ServiceStack.Text.Json
                 newCache = new Dictionary<Type, ParseFactoryDelegate>(ParseFnCache);
                 newCache[type] = parseFactoryFn;
 
-            } while (!ReferenceEquals(
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+
+				Interlocked.CompareExchange(ref _parseFnCache,  ( object ) newCache,  ( object ) snapshot), snapshot));					
+#else
+			
+			
                 Interlocked.CompareExchange(ref ParseFnCache, newCache, snapshot), snapshot));
-            
+ 					
+					
+#endif
+           
             return parseFactoryFn();
 		}
 	}

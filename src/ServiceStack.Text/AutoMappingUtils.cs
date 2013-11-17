@@ -3,20 +3,37 @@
 
 using System;
 using System.Collections.Generic;
+
+#if NET40
 using System.Collections.Concurrent;
+
+#endif
+
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+
+#if PLATFORM_USE_SERIALIZATION_DLL
 using System.Runtime.Serialization;
+#endif
+
+
 using System.Threading;
 using ServiceStack.Text;
 
 namespace ServiceStack
 {
+	
+	
+#if PLATFORM_USE_SERIALIZATION_DLL
+	
     [DataContract(Namespace = "http://schemas.servicestack.net/types")]
     public class CustomHttpResult { }
-
+	
+#endif
+	
+	
     public static class AutoMappingUtils
     {
         public static T ConvertTo<T>(this object from)
@@ -25,8 +42,13 @@ namespace ServiceStack
             return to.PopulateWith(from);
         }
 
+
+		
+		
         private static readonly Dictionary<Type, List<string>> TypePropertyNamesMap = new Dictionary<Type, List<string>>();
 
+
+		
         public static List<string> GetPropertyNames(this Type type)
         {
             lock (TypePropertyNamesMap)
@@ -77,12 +99,18 @@ namespace ServiceStack
         public static object PopulateWith(object obj)
         {
             if (obj == null) return null;
+			
+			
+#if PLATFORM_USE_SERIALIZATION_DLL   
+			
             var isHttpResult = obj.GetType().GetInterfaces().Any(x => x.Name == "IHttpResult"); // No coupling FTW!
             if (isHttpResult)
             {
                 obj = new CustomHttpResult();
             }
-
+			
+#endif
+			
             var type = obj.GetType();
             if (type.IsArray() || type.IsValueType() || type.IsGeneric())
             {
@@ -119,9 +147,22 @@ namespace ServiceStack
             }
             return obj;
         }
-        
-        private static Dictionary<Type, object> DefaultValueTypes = new Dictionary<Type, object>();
+ 
+		
+				
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		private static object _defaultValueTypes = new Dictionary<Type, object>();
+		
+	
+		private  static Dictionary<Type, object> DefaultValueTypes
+		{ get {  return ( Dictionary<Type, object>)  _defaultValueTypes; } }	
 
+#else
+		
+        private static Dictionary<Type, object> DefaultValueTypes = new Dictionary<Type, object>();
+		
+#endif
+		
         public static object GetDefaultValue(this Type type)
         {
             if (!type.IsValueType()) return null;
@@ -139,19 +180,42 @@ namespace ServiceStack
                 newCache[type] = defaultValue;
 
             } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref DefaultValueTypes, newCache, snapshot), snapshot));
 
+				
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+				
+				Interlocked.CompareExchange (ref _defaultValueTypes, (object )newCache, (object ) snapshot), snapshot));
+	
+#else
+              
+			Interlocked.CompareExchange(ref DefaultValueTypes, newCache, snapshot), snapshot));
+			
+#endif
+			
             return defaultValue;
         }
 
+		
+#if NET4
         private static readonly ConcurrentDictionary<string, AssignmentDefinition> AssignmentDefinitionCache
             = new ConcurrentDictionary<string, AssignmentDefinition>();
-
+#else
+		        
+		private static readonly  Dictionary<string, AssignmentDefinition> AssignmentDefinitionCache
+            = new Dictionary<string, AssignmentDefinition>();
+		
+		private  static object  _assignmentDefinitionCache_Locker =  new object( );
+		
+#endif
+		
         internal static AssignmentDefinition GetAssignmentDefinition(Type toType, Type fromType)
         {
             var cacheKey = toType.FullName + "<" + fromType.FullName;
 
-            return AssignmentDefinitionCache.GetOrAdd(cacheKey, delegate
+			
+#if NET4
+			return AssignmentDefinitionCache.GetOrAdd(cacheKey, delegate
+            
             {
 
                 var definition = new AssignmentDefinition
@@ -174,7 +238,53 @@ namespace ServiceStack
 
                 return definition;
             });
+	
+#else
+			AssignmentDefinition  v;
+			
+			lock( _assignmentDefinitionCache_Locker )  
+			{
+				
+				if ( AssignmentDefinitionCache.TryGetValue( cacheKey, out  v ) )
+					return  v;
+				else
+				{
+	
+					                
+					var definition = new AssignmentDefinition
+	                {
+	                    ToType = toType,
+	                    FromType = fromType,
+	                };
+	
+	                var readMap = GetMembers(fromType, isReadable: true);
+	                var writeMap = GetMembers(toType, isReadable: false);
+	
+	                foreach (var assignmentMember in readMap)
+	                {
+	                    AssignmentMember writeMember;
+	                    if (writeMap.TryGetValue(assignmentMember.Key, out writeMember))
+	                    {
+	                        definition.AddMatch(assignmentMember.Key, assignmentMember.Value, writeMember);
+	                    }
+	                }
+	
+	                return definition;
+					
+					
+				}
+				
+				
+			}
+			
+			
+#endif
+			
+			
+			
+			
         }
+
 
         private static Dictionary<string, AssignmentMember> GetMembers(Type type, bool isReadable)
         {

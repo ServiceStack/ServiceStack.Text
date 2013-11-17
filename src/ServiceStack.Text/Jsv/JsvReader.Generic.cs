@@ -11,8 +11,28 @@ namespace ServiceStack.Text.Jsv
     public static class JsvReader
 	{ 
 		internal static readonly JsReader<JsvTypeSerializer> Instance = new JsReader<JsvTypeSerializer>();
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+		
+		                
+		private static object _parseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
+                
+		private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache
+        {
 
-        private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
+            get { return  (  Dictionary<Type, ParseFactoryDelegate>  ) _parseFnCache  ; }
+
+        }
+
+
+		
+#else
+	
+        private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();		
+		
+		
+#endif
+		
+
 
         public static ParseStringDelegate GetParseFn(Type type)
 		{
@@ -32,8 +52,18 @@ namespace ServiceStack.Text.Jsv
                 newCache = new Dictionary<Type, ParseFactoryDelegate>(ParseFnCache);
                 newCache[type] = parseFactoryFn;
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref ParseFnCache, newCache, snapshot), snapshot));
+            } while (!ReferenceEquals(					
+#if   PLATFORM_NO_USE_INTERLOCKED_COMPARE_EXCHANGE_T 
+	
+			Interlocked.CompareExchange(ref _parseFnCache, (object  ) newCache, (object  ) snapshot), snapshot));		
+#else
+			
+                
+				Interlocked.CompareExchange(ref ParseFnCache, newCache, snapshot), snapshot));
+					
+					
+#endif
+			
             
             return parseFactoryFn();
 		}
