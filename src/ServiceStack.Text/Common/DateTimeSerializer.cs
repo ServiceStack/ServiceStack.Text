@@ -48,7 +48,7 @@ namespace ServiceStack.Text.Common
         /// <returns></returns>
         private static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc=false)
         {
-            if (JsConfig.AlwaysUseUtc || JsConfig.DateHandler == JsonDateHandler.RFC1123)
+            if (JsConfig.AlwaysUseUtc)
             {
                 return dateTime.Kind != DateTimeKind.Utc ? dateTime.ToStableUniversalTime() : dateTime;
             }
