@@ -12,9 +12,12 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using ServiceStack.Text;
@@ -28,6 +31,8 @@ namespace ServiceStack
 		internal static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
 
 		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
+
+        public static WriteComplexTypeDelegate ComplexTypeStrategy { get; set; } 
 
 		internal static WriteObjectDelegate GetWriteFn(Type type)
 		{
@@ -186,5 +191,48 @@ namespace ServiceStack
             }
         }
     }
-	
+
+    public delegate bool WriteComplexTypeDelegate(TextWriter writer, string propertyName, object obj);
+
+    internal class PropertyTypeConfig
+    {
+        public TypeConfig TypeConfig;
+        public string[] PropertyNames;
+        public Action<string, TextWriter, object> WriteFn;
+    }
+
+    internal class PropertyTypeConfig<T>
+    {
+        public static PropertyTypeConfig Config;
+
+        static PropertyTypeConfig()
+        {
+            Config = new PropertyTypeConfig {
+                TypeConfig = TypeConfig<T>.GetState(),
+                WriteFn = WriteType<T, JsvTypeSerializer>.WriteComplexQueryStringProperties,
+            };
+        }
+    }
+
+    public static class QueryStringStrategy
+    {
+        static readonly ConcurrentDictionary<Type, PropertyTypeConfig> typeConfigCache =
+            new ConcurrentDictionary<Type, PropertyTypeConfig>();
+
+        public static bool FormUrlEncoded(TextWriter writer, string propertyName, object obj)
+        {
+            var typeConfig = typeConfigCache.GetOrAdd(obj.GetType(), t =>
+                {
+                    var genericType = typeof (PropertyTypeConfig<>).MakeGenericType(t);
+                    var fi = genericType.GetFields().First(x => x.Name == "Config");;
+
+                    var config = (PropertyTypeConfig)fi.GetValue(null);
+                    return config;
+                });
+
+            typeConfig.WriteFn(propertyName, writer, obj);
+
+            return true;
+        }
+    }
 }

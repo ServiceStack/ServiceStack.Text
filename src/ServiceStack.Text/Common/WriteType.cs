@@ -389,6 +389,51 @@ namespace ServiceStack.Text.Common
 
         private static readonly char[] ArrayBrackets = new[] { '[', ']' };
 
+        public static void WriteComplexQueryStringProperties(string typeName, TextWriter writer, object value)
+        {
+            var i = 0;
+            if (PropertyWriters != null)
+            {
+                var len = PropertyWriters.Length;
+                for (int index = 0; index < len; index++)
+                {
+                    var propertyWriter = PropertyWriters[index];
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) continue;
+
+                    var propertyValue = value != null ? propertyWriter.GetterFn((T)value) : null;
+                    if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
+                        continue;
+
+                    if ((propertyValue == null
+                         || (propertyWriter.propertySuppressDefaultConfig && Equals(propertyWriter.DefaultValue, propertyValue)))
+                        && !Serializer.IncludeNullValues)
+                        continue;
+
+                    if (JsConfig.ExcludePropertyReferences != null
+                        && JsConfig.ExcludePropertyReferences.Contains(propertyWriter.propertyReferenceName)) continue;
+
+                    if (i++ > 0)
+                        writer.Write('&');
+
+                    writer.Write(typeName);
+                    writer.Write('[');
+                    writer.Write(propertyWriter.PropertyName);
+                    writer.Write(']');
+
+                    writer.Write('=');
+
+                    if (propertyValue == null)
+                    {
+                        writer.Write(JsonUtils.Null);
+                    }
+                    else
+                    {
+                        propertyWriter.WriteFn(writer, propertyValue);
+                    }
+                }
+            }
+        }
+
         public static void WriteQueryString(TextWriter writer, object value)
         {
             try
@@ -403,13 +448,20 @@ namespace ServiceStack.Text.Common
                     if (i++ > 0)
                         writer.Write('&');
 
+                    var propertyType = propertyValue.GetType();
+                    var isEnumerable = !(propertyValue is string)
+                        && !(propertyType.IsValueType())
+                        && propertyType.HasInterface(typeof(IEnumerable));
+                    
+                    if (QueryStringSerializer.ComplexTypeStrategy != null
+                        && !isEnumerable && (propertyType.IsUserType() || propertyType.IsInterface()))
+                    {
+                        if (QueryStringSerializer.ComplexTypeStrategy(writer, propertyWriter.PropertyName, propertyValue))
+                            continue;
+                    }
+
                     Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
                     writer.Write('=');
-
-                    var isEnumerable = propertyValue != null
-                        && !(propertyValue is string)
-                        && !(propertyValue.GetType().IsValueType())
-                        && propertyValue.GetType().HasInterface(typeof(IEnumerable));
 
                     if (!isEnumerable)
                     {
