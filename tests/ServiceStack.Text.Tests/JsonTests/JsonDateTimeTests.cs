@@ -532,7 +532,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             const string json = @"""Tue, 12 Nov 2013 14:32:07 GMT""";
             var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
-            var dateTime = new DateTime(2013, 11, 12, 14, 32, 07, DateTimeKind.Local);
+            var dateTime = new DateTime(2013, 11, 12, 14, 32, 07, DateTimeKind.Utc);
             Assert.That(fromJson, Is.EqualTo(dateTime));
             Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
             JsConfig.Reset();

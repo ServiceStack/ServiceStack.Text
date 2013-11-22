@@ -112,8 +112,19 @@ namespace ServiceStack.Text.Json
 
         public void WriteDateTime(TextWriter writer, object oDateTime)
         {
+            var dateTime = (DateTime)oDateTime;
+            switch (JsConfig.DateHandler)
+            {
+                case JsonDateHandler.UnixTime:
+                    writer.Write(dateTime.ToUnixTime());
+                    return;
+                case JsonDateHandler.UnixTimeMs:
+                    writer.Write(dateTime.ToUnixTimeMs());
+                    return;
+            }
+
             writer.Write(JsWriter.QuoteString);
-            DateTimeSerializer.WriteWcfJsonDate(writer, (DateTime)oDateTime);
+            DateTimeSerializer.WriteWcfJsonDate(writer, dateTime);
             writer.Write(JsWriter.QuoteString);
         }
 

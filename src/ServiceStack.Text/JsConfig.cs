@@ -1047,7 +1047,9 @@ namespace ServiceStack.Text
         TimestampOffset,
         DCJSCompatible,
         ISO8601,
-        RFC1123
+        RFC1123,
+        UnixTime,
+        UnixTimeMs,
     }
 
     public enum JsonTimeSpanHandler

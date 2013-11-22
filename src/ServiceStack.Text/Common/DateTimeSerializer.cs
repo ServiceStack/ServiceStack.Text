@@ -48,7 +48,7 @@ namespace ServiceStack.Text.Common
         /// <returns></returns>
         private static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc=false)
         {
-            if (JsConfig.AlwaysUseUtc)
+            if (JsConfig.AlwaysUseUtc || JsConfig.DateHandler == JsonDateHandler.RFC1123)
             {
                 return dateTime.Kind != DateTimeKind.Utc ? dateTime.ToStableUniversalTime() : dateTime;
             }
@@ -80,6 +80,20 @@ namespace ServiceStack.Text.Common
                 || dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
             {
                 return DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture).Prepare();
+            }
+
+            switch (JsConfig.DateHandler)
+            {
+                case JsonDateHandler.UnixTime:
+                    int unixTime;
+                    if (int.TryParse(dateTimeStr, out unixTime))
+                        return unixTime.FromUnixTime();
+                    break;
+                case JsonDateHandler.UnixTimeMs:
+                    long unixTimeMs;
+                    if (long.TryParse(dateTimeStr, out unixTimeMs))
+                        return unixTimeMs.FromUnixTimeMs();
+                    break;
             }
 
             dateTimeStr = RepairXsdTimeSeparator(dateTimeStr);

@@ -26,9 +26,9 @@ namespace ServiceStack.Text
         private static readonly DateTime UnixEpochDateTimeUnspecified = new DateTime(UnixEpoch, DateTimeKind.Unspecified);
         private static readonly DateTime MinDateTimeUtc = new DateTime(1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public static long ToUnixTime(this DateTime dateTime)
+        public static DateTime FromUnixTime(this int unixTime)
         {
-            return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerSecond;
+            return UnixEpochDateTimeUtc + TimeSpan.FromSeconds(unixTime);
         }
 
         public static DateTime FromUnixTime(this double unixTime)
@@ -44,6 +44,17 @@ namespace ServiceStack.Text
         private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
         public static long ToUnixTimeMs(this DateTime dateTime)
         {
+            var universal = ToDateTimeSinceUnixEpoch(dateTime);
+            return (long)universal.TotalMilliseconds;
+        }
+
+        public static long ToUnixTime(this DateTime dateTime)
+        {
+            return (dateTime.ToDateTimeSinceUnixEpoch().Ticks) / TimeSpan.TicksPerSecond;
+        }
+
+        private static TimeSpan ToDateTimeSinceUnixEpoch(this DateTime dateTime)
+        {
             var dtUtc = dateTime;
             if (dateTime.Kind != DateTimeKind.Utc)
             {
@@ -52,7 +63,8 @@ namespace ServiceStack.Text
                     : dateTime.ToStableUniversalTime();
             }
 
-            return (long)(dtUtc.Subtract(UnixEpochDateTimeUtc)).TotalMilliseconds;
+            var universal = dtUtc.Subtract(UnixEpochDateTimeUtc);
+            return universal;
         }
 
         public static long ToUnixTimeMs(this long ticks)
@@ -106,6 +118,11 @@ namespace ServiceStack.Text
         public static DateTime RoundToSecond(this DateTime dateTime)
         {
             return new DateTime((dateTime.Ticks / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond);
+        }
+
+        public static DateTime Truncate(this DateTime dateTime, TimeSpan timeSpan)
+        {
+            return dateTime.AddTicks(-(dateTime.Ticks % timeSpan.Ticks));
         }
 
         public static string ToShortestXsdDateTimeString(this DateTime dateTime)
