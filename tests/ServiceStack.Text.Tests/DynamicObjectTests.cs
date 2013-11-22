@@ -112,7 +112,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_deserialize_object_utc_iso8601_datetime()
         {
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.ConvertObjectTypesIntoStringDictionary = true;
 
@@ -126,7 +126,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_deserialize_object_iso8601_datetime_with_timezone()
         {
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.ConvertObjectTypesIntoStringDictionary = true;
 

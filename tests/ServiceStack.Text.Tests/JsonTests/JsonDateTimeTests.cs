@@ -19,7 +19,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void When_using_TimestampOffset_and_serializing_as_Utc_It_should_deserialize_as_Utc()
         {
-            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            JsConfig.DateHandler = DateHandler.TimestampOffset;
             var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
             var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
 
@@ -32,7 +32,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_timestampOffset_utc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+			JsConfig.DateHandler = DateHandler.TimestampOffset;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -44,7 +44,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_timestampOffset_local()
 		{
-			JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+			JsConfig.DateHandler = DateHandler.TimestampOffset;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -60,7 +60,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_timestampOffset_unspecified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+			JsConfig.DateHandler = DateHandler.TimestampOffset;
 
 			// Unspecified time emits '-0000' offset and treated as local time when parsed
 
@@ -77,7 +77,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_timestampOffset_withoutOffset_asUtc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+			JsConfig.DateHandler = DateHandler.TimestampOffset;
 
 			const string json = @"""\/Date(785635200000)\/""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -91,7 +91,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_timestampOffset_withOffset_asUnspecified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+			JsConfig.DateHandler = DateHandler.TimestampOffset;
 
 			const string json = @"""\/Date(785660400000-0700)\/""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -105,7 +105,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_deserialize_json_date_timestampOffset_withZeroOffset_asUnspecified()
         {
-            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            JsConfig.DateHandler = DateHandler.TimestampOffset;
 
             const string json = @"""\/Date(785635200000+0000)\/""";
             var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -119,7 +119,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_timestampOffset_unspecified_assume_utc()
         {
-            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            JsConfig.DateHandler = DateHandler.TimestampOffset;
             JsConfig.AssumeUtc = true;
 
             var dateTime = DateTime.Parse("2013-06-14 19:43:37.663");
@@ -132,7 +132,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_timestampOffset_unspecified_appendUtcOffset()
         {
-            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            JsConfig.DateHandler = DateHandler.TimestampOffset;
             JsConfig.AppendUtcOffset = true;
 
             var dateTime = DateTime.SpecifyKind(DateTime.Parse("2013-06-14 19:43:37.663"), DateTimeKind.Utc);
@@ -164,7 +164,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
 		public void Can_serialize_json_date_dcjsCompatible_utc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+			JsConfig.DateHandler = DateHandler.DCJSCompatible;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -178,7 +178,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_dcjsCompatible_local()
 		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+			JsConfig.DateHandler = DateHandler.DCJSCompatible;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -191,7 +191,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_dcjsCompatible_unspecified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+			JsConfig.DateHandler = DateHandler.DCJSCompatible;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -206,7 +206,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_dcjsCompatible_utc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+			JsConfig.DateHandler = DateHandler.DCJSCompatible;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -221,7 +221,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_dcjsCompatible_local()
 		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+			JsConfig.DateHandler = DateHandler.DCJSCompatible;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -236,7 +236,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_dcjsCompatible_unspecified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+			JsConfig.DateHandler = DateHandler.DCJSCompatible;
 
 			var dateTime = new DateTime(1994, 11, 24, 0, 0, 0, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -251,7 +251,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_dcjsCompatible_unspecified_assume_utc()
         {
-            JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+            JsConfig.DateHandler = DateHandler.DCJSCompatible;
             JsConfig.AssumeUtc = true;
 
             var dateTime = DateTime.Parse("2013-06-14 19:43:37.663");
@@ -264,7 +264,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_dcjsCompatible_unspecified_appendUtcOffset()
         {
-            JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+            JsConfig.DateHandler = DateHandler.DCJSCompatible;
             JsConfig.AppendUtcOffset = true;
 
             var dateTime = DateTime.SpecifyKind(DateTime.Parse("2013-06-14 19:43:37.663"), DateTimeKind.Utc);
@@ -281,7 +281,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void When_using_ISO8601_and_serializing_as_Utc_It_should_deserialize_as_Utc()
         {
             JsConfig.AlwaysUseUtc = true;
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
             var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
             var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
 
@@ -294,7 +294,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_iso8601_utc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -306,7 +306,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_iso8601_local()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Local);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -321,7 +321,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_date_iso8601_unspecified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
 			var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -334,7 +334,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		public void Can_deserialize_json_date_iso8601_withZOffset_asUtc()
 		{
 		    JsConfig.AlwaysUseUtc = true;
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			const string json = @"""1994-11-24T12:34:56Z""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -348,7 +348,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_iso8601_withoutOffset_asUnspecified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			const string json = @"""1994-11-24T12:34:56""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -362,7 +362,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_date_iso8601_withOffset_asLocal()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Local);
 			var offset = TimeZoneInfo.Local.GetUtcOffset(dateTime).ToTimeOffsetString(":");
@@ -379,7 +379,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_iso8601_unspecified_assume_utc()
         {
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
             JsConfig.AssumeUtc = true;
 
             var dateTime = DateTime.Parse("2013-06-14 19:43:37.663");
@@ -392,7 +392,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_iso8601_unspecified_appendUtcOffset()
         {
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
             JsConfig.AppendUtcOffset = true;
 
             var dateTime = DateTime.SpecifyKind(DateTime.Parse("2013-06-14 19:43:37.663"), DateTimeKind.Utc);
@@ -408,7 +408,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_datetimeoffset_iso8601_utc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.Zero);
 			var ssJson = JsonSerializer.SerializeToString(dateTimeOffset);
@@ -420,7 +420,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_serialize_json_datetimeoffset_iso8601_specified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.FromHours(-7));
 			var ssJson = JsonSerializer.SerializeToString(dateTimeOffset);
@@ -432,7 +432,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_datetimeoffset_iso8601_withZOffset_asUtc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			const string json = @"""1994-11-24T12:34:56Z""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTimeOffset>(json);
@@ -445,7 +445,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_datetimeoffset_iso8601_withoutOffset_asUtc()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			const string json = @"""1994-11-24T12:34:56""";
 			var fromJson = JsonSerializer.DeserializeFromString<DateTimeOffset>(json);
@@ -458,7 +458,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[Test]
 		public void Can_deserialize_json_datetimeoffset_iso8601_withOffset_asSpecified()
 		{
-			JsConfig.DateHandler = JsonDateHandler.ISO8601;
+			JsConfig.DateHandler = DateHandler.ISO8601;
 
 			var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.FromHours(-7));
 
@@ -475,7 +475,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void When_using_rfc1123_and_serializing_as_Utc_It_should_deserialize_as_Utc()
         {
             JsConfig.AlwaysUseUtc = true;
-            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            JsConfig.DateHandler = DateHandler.RFC1123;
             var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
             var json = JsonSerializer.SerializeToString(initialDate);
 
@@ -488,7 +488,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_rfc1123_utc()
         {
-            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            JsConfig.DateHandler = DateHandler.RFC1123;
 
             var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
             var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -500,7 +500,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_rfc1123_local()
         {
-            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            JsConfig.DateHandler = DateHandler.RFC1123;
 
             var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Local);
             var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -515,7 +515,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_json_date_rfc1123_unspecified()
         {
-            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            JsConfig.DateHandler = DateHandler.RFC1123;
 
             var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
             var ssJson = JsonSerializer.SerializeToString(dateTime);
@@ -527,7 +527,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_deserialize_json_date_rfc1123_local()
         {
-            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            JsConfig.DateHandler = DateHandler.RFC1123;
 
             const string json = @"""Tue, 12 Nov 2013 14:32:07 GMT""";
             var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -542,7 +542,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_deserialize_json_date_rfc1123_always_utc()
         {
             JsConfig.AlwaysUseUtc = true;
-            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            JsConfig.DateHandler = DateHandler.RFC1123;
 
             const string json = @"""Tue, 12 Nov 2013 14:32:07 GMT""";
             var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
@@ -562,10 +562,10 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             var dateTimeOffset = new DateTimeOffset(1997, 11, 24, 12, 34, 56, TimeSpan.FromHours(-10));
 
-            JsConfig.DateHandler = JsonDateHandler.TimestampOffset;
+            JsConfig.DateHandler = DateHandler.TimestampOffset;
             var json = ServiceStack.Text.Common.DateTimeSerializer.ToWcfJsonDateTimeOffset(dateTimeOffset);
 
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
             var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
 
             Assert.That(fromJson, Is.EqualTo(dateTimeOffset));
@@ -577,10 +577,10 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             var dateTimeOffset = new DateTimeOffset(1994, 11, 24, 12, 34, 56, TimeSpan.FromHours(-10));
 
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
             var json = ServiceStack.Text.Common.DateTimeSerializer.ToWcfJsonDateTimeOffset(dateTimeOffset);
 
-            JsConfig.DateHandler = JsonDateHandler.DCJSCompatible;
+            JsConfig.DateHandler = DateHandler.DCJSCompatible;
             var fromJson = ServiceStack.Text.Common.DateTimeSerializer.ParseDateTimeOffset(json);
 
             // NOTE: DJCS goes to local, so botches offset

@@ -115,10 +115,10 @@ namespace ServiceStack.Text.Json
             var dateTime = (DateTime)oDateTime;
             switch (JsConfig.DateHandler)
             {
-                case JsonDateHandler.UnixTime:
+                case DateHandler.UnixTime:
                     writer.Write(dateTime.ToUnixTime());
                     return;
-                case JsonDateHandler.UnixTimeMs:
+                case DateHandler.UnixTimeMs:
                     writer.Write(dateTime.ToUnixTimeMs());
                     return;
             }
@@ -153,7 +153,7 @@ namespace ServiceStack.Text.Json
 
         public void WriteTimeSpan(TextWriter writer, object oTimeSpan)
         {
-            var stringValue = JsConfig.TimeSpanHandler == JsonTimeSpanHandler.StandardFormat
+            var stringValue = JsConfig.TimeSpanHandler == TimeSpanHandler.StandardFormat
                 ? oTimeSpan.ToString()
                 : DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan);
             WriteRawString(writer, stringValue);

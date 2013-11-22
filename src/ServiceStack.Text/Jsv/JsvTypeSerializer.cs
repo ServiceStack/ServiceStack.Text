@@ -95,13 +95,24 @@ namespace ServiceStack.Text.Jsv
 
 	    public void WriteDateTime(TextWriter writer, object oDateTime)
 		{
+            var dateTime = (DateTime)oDateTime;
+            switch (JsConfig.DateHandler)
+            {
+                case DateHandler.UnixTime:
+                    writer.Write(dateTime.ToUnixTime());
+                    return;
+                case DateHandler.UnixTimeMs:
+                    writer.Write(dateTime.ToUnixTimeMs());
+                    return;
+            }
+
 			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)oDateTime));
 		}
 
 		public void WriteNullableDateTime(TextWriter writer, object dateTime)
 		{
 			if (dateTime == null) return;
-			writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)dateTime));
+			WriteDateTime(writer, dateTime);
 		}
 
 		public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)

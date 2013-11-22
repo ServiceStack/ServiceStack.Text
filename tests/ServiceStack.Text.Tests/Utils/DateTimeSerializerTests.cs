@@ -304,7 +304,7 @@ namespace ServiceStack.Text.Tests.Utils
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            JsConfig.DateHandler = JsonDateHandler.ISO8601;
+            JsConfig.DateHandler = DateHandler.ISO8601;
         }
 
         [TestFixtureTearDown]
@@ -356,7 +356,7 @@ namespace ServiceStack.Text.Tests.Utils
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            JsConfig.DateHandler = JsonDateHandler.RFC1123;
+            JsConfig.DateHandler = DateHandler.RFC1123;
         }
 
         [TestFixtureTearDown]
@@ -407,7 +407,7 @@ namespace ServiceStack.Text.Tests.Utils
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            JsConfig.DateHandler = JsonDateHandler.UnixTime;
+            JsConfig.DateHandler = DateHandler.UnixTime;
         }
 
         [TestFixtureTearDown]
@@ -454,7 +454,7 @@ namespace ServiceStack.Text.Tests.Utils
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            JsConfig.DateHandler = JsonDateHandler.UnixTimeMs;
+            JsConfig.DateHandler = DateHandler.UnixTimeMs;
         }
 
         [TestFixtureTearDown]

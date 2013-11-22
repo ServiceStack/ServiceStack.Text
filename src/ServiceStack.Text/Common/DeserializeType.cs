@@ -132,7 +132,7 @@ namespace ServiceStack.Text.Common
                 return DateTimeSerializer.ParseWcfJsonDate(value);
             }
 
-            if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
+            if (JsConfig.DateHandler == DateHandler.ISO8601)
             {
                 // check that we have UTC ISO8601 date:
                 // YYYY-MM-DDThh:mm:ssZ
@@ -147,7 +147,7 @@ namespace ServiceStack.Text.Common
                 }
             }
 
-            if (JsConfig.DateHandler == JsonDateHandler.RFC1123)
+            if (JsConfig.DateHandler == DateHandler.RFC1123)
             {
                 // check that we have RFC1123 date:
                 // ddd, dd MMM yyyy HH:mm:ss GMT

@@ -45,10 +45,6 @@ namespace ServiceStack.Text.Common
 
     internal static class DeserializeTypeRefJson
     {
-        public static readonly IPropertyNameResolver DefaultPropertyNameResolver = new DefaultPropertyNameResolver();
-        public static readonly IPropertyNameResolver LenientPropertyNameResolver = new LenientPropertyNameResolver();
-        public static IPropertyNameResolver PropertyNameResolver = DefaultPropertyNameResolver;
-
         private static readonly JsonTypeSerializer Serializer = (JsonTypeSerializer)JsonTypeSerializer.Instance;
 
         internal static object StringToType(
@@ -70,6 +66,10 @@ namespace ServiceStack.Text.Common
             if (JsonTypeSerializer.IsEmptyMap(strType, index)) return ctorFn();
 
             object instance = null;
+
+            var propertyResolver = JsConfig.PropertyConvention == PropertyConvention.Lenient
+                ? ParseUtils.LenientPropertyNameResolver
+                : ParseUtils.DefaultPropertyNameResolver;
 
             var strTypeLength = strType.Length;
             while (index < strTypeLength)
@@ -127,7 +127,7 @@ namespace ServiceStack.Text.Common
 
                 if (instance == null) instance = ctorFn();
 
-                var typeAccessor = PropertyNameResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
+                var typeAccessor = propertyResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
 
                 var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
                 if (propType != null)

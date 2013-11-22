@@ -37,8 +37,9 @@ namespace ServiceStack.Text
             bool? includeTypeInfo = null,
             bool? emitCamelCaseNames = null,
             bool? emitLowercaseUnderscoreNames = null,
-            JsonDateHandler? dateHandler = null,
-            JsonTimeSpanHandler? timeSpanHandler = null,
+            DateHandler? dateHandler = null,
+            TimeSpanHandler? timeSpanHandler = null,
+            PropertyConvention? propertyConvention = null,
             bool? preferInterfaces = null,
             bool? throwOnDeserializationError = null,
             string typeAttr = null,
@@ -65,6 +66,7 @@ namespace ServiceStack.Text
                 EmitLowercaseUnderscoreNames = emitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames,
                 DateHandler = dateHandler ?? sDateHandler,
                 TimeSpanHandler = timeSpanHandler ?? sTimeSpanHandler,
+                PropertyConvention = propertyConvention ?? sPropertyConvention,
                 PreferInterfaces = preferInterfaces ?? sPreferInterfaces,
                 ThrowOnDeserializationError = throwOnDeserializationError ?? sThrowOnDeserializationError,
                 TypeAttr = typeAttr ?? sTypeAttr,
@@ -266,14 +268,14 @@ namespace ServiceStack.Text
             }
         }
 
-        private static JsonDateHandler? sDateHandler;
-        public static JsonDateHandler DateHandler
+        private static DateHandler? sDateHandler;
+        public static DateHandler DateHandler
         {
             get
             {
                 return (JsConfigScope.Current != null ? JsConfigScope.Current.DateHandler: null)
                     ?? sDateHandler 
-                    ?? JsonDateHandler.TimestampOffset;
+                    ?? DateHandler.TimestampOffset;
             }
             set
             {
@@ -284,14 +286,14 @@ namespace ServiceStack.Text
         /// <summary>
         /// Sets which format to use when serializing TimeSpans
         /// </summary>
-        private static JsonTimeSpanHandler? sTimeSpanHandler;
-        public static JsonTimeSpanHandler TimeSpanHandler
+        private static TimeSpanHandler? sTimeSpanHandler;
+        public static TimeSpanHandler TimeSpanHandler
         {
             get
             {
                 return (JsConfigScope.Current != null ? JsConfigScope.Current.TimeSpanHandler : null)
                     ?? sTimeSpanHandler
-                    ?? JsonTimeSpanHandler.DurationFormat;
+                    ?? TimeSpanHandler.DurationFormat;
             }
             set
             {
@@ -345,22 +347,18 @@ namespace ServiceStack.Text
         /// <summary>
         /// Define how property names are mapped during deserialization
         /// </summary>
-        private static JsonPropertyConvention propertyConvention;
-        public static JsonPropertyConvention PropertyConvention
+        private static PropertyConvention? sPropertyConvention;
+        public static PropertyConvention PropertyConvention
         {
-            get { return propertyConvention; }
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.PropertyConvention : null)
+                    ?? sPropertyConvention
+                    ?? PropertyConvention.Strict;
+            }
             set
             {
-                propertyConvention = value;
-                switch (propertyConvention)
-                {
-                    case JsonPropertyConvention.ExactMatch:
-                        DeserializeTypeRefJson.PropertyNameResolver = DeserializeTypeRefJson.DefaultPropertyNameResolver;
-                        break;
-                    case JsonPropertyConvention.Lenient:
-                        DeserializeTypeRefJson.PropertyNameResolver = DeserializeTypeRefJson.LenientPropertyNameResolver;
-                        break;
-                }
+                if (!sPropertyConvention.HasValue) sPropertyConvention = value;
             }
         }
 
@@ -611,7 +609,7 @@ namespace ServiceStack.Text
             sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
-            PropertyConvention = JsonPropertyConvention.ExactMatch;
+            sPropertyConvention = null;
             sExcludePropertyReferences = null;
             sExcludeTypes = new HashSet<Type> { typeof(Stream) };
             __uniqueTypes = new HashSet<Type>();
@@ -1030,19 +1028,19 @@ namespace ServiceStack.Text
         }    
     }
 
-    public enum JsonPropertyConvention
+    public enum PropertyConvention
     {
         /// <summary>
         /// The property names on target types must match property names in the JSON source
         /// </summary>
-        ExactMatch,
+        Strict,
         /// <summary>
         /// The property names on target types may not match the property names in the JSON source
         /// </summary>
         Lenient
     }
 
-    public enum JsonDateHandler
+    public enum DateHandler
     {
         TimestampOffset,
         DCJSCompatible,
@@ -1052,7 +1050,7 @@ namespace ServiceStack.Text
         UnixTimeMs,
     }
 
-    public enum JsonTimeSpanHandler
+    public enum TimeSpanHandler
     {
         /// <summary>
         /// Uses the xsd format like PT15H10M20S

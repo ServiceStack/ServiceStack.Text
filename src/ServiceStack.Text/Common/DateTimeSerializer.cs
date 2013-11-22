@@ -84,12 +84,12 @@ namespace ServiceStack.Text.Common
 
             switch (JsConfig.DateHandler)
             {
-                case JsonDateHandler.UnixTime:
+                case DateHandler.UnixTime:
                     int unixTime;
                     if (int.TryParse(dateTimeStr, out unixTime))
                         return unixTime.FromUnixTime();
                     break;
-                case JsonDateHandler.UnixTimeMs:
+                case DateHandler.UnixTimeMs:
                     long unixTimeMs;
                     if (long.TryParse(dateTimeStr, out unixTimeMs))
                         return unixTimeMs.FromUnixTimeMs();
@@ -407,7 +407,7 @@ namespace ServiceStack.Text.Common
 
             // DCJS ignores the offset and considers it local time if any offset exists
             // REVIEW: DCJS shoves offset in a separate field 'offsetMinutes', we have the offset in the format, so shouldn't we use it?
-            if (JsConfig.DateHandler == JsonDateHandler.DCJSCompatible || timeZone == UnspecifiedOffset)
+            if (JsConfig.DateHandler == DateHandler.DCJSCompatible || timeZone == UnspecifiedOffset)
             {
                 return unixTime.FromUnixTimeMs().ToLocalTime();
             }
@@ -451,7 +451,7 @@ namespace ServiceStack.Text.Common
             }
 
             // DCJS ignores the offset and considers it local time if any offset exists
-            if (JsConfig.DateHandler == JsonDateHandler.DCJSCompatible || timeZone == UnspecifiedOffset)
+            if (JsConfig.DateHandler == DateHandler.DCJSCompatible || timeZone == UnspecifiedOffset)
             {
                 return unixTime.FromUnixTimeMs().ToLocalTime();
             }
@@ -469,13 +469,13 @@ namespace ServiceStack.Text.Common
                 dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
             }
 
-            if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
+            if (JsConfig.DateHandler == DateHandler.ISO8601)
             {
                 writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
                 return;
             }
 
-            if (JsConfig.DateHandler == JsonDateHandler.RFC1123)
+            if (JsConfig.DateHandler == DateHandler.RFC1123)
             {
                 writer.Write(dateTime.ToString("R", CultureInfo.InvariantCulture));
                 return;
@@ -485,7 +485,7 @@ namespace ServiceStack.Text.Common
             string offset = null;
             if (dateTime.Kind != DateTimeKind.Utc)
             {
-                if (JsConfig.DateHandler == JsonDateHandler.TimestampOffset && dateTime.Kind == DateTimeKind.Unspecified)
+                if (JsConfig.DateHandler == DateHandler.TimestampOffset && dateTime.Kind == DateTimeKind.Unspecified)
                     offset = UnspecifiedOffset;
                 else
                     offset = LocalTimeZone.GetUtcOffset(dateTime).ToTimeOffsetString();
@@ -494,7 +494,7 @@ namespace ServiceStack.Text.Common
             {
                 // Normally the JsonDateHandler.TimestampOffset doesn't append an offset for Utc dates, but if
                 // the JsConfig.AppendUtcOffset is set then we will
-                if (JsConfig.DateHandler == JsonDateHandler.TimestampOffset && JsConfig.AppendUtcOffset.HasValue && JsConfig.AppendUtcOffset.Value)
+                if (JsConfig.DateHandler == DateHandler.TimestampOffset && JsConfig.AppendUtcOffset.HasValue && JsConfig.AppendUtcOffset.Value)
                     offset = UtcOffset;
             }
 
@@ -519,7 +519,7 @@ namespace ServiceStack.Text.Common
 
         public static void WriteWcfJsonDateTimeOffset(TextWriter writer, DateTimeOffset dateTimeOffset)
         {
-            if (JsConfig.DateHandler == JsonDateHandler.ISO8601)
+            if (JsConfig.DateHandler == DateHandler.ISO8601)
             {
                 writer.Write(dateTimeOffset.ToString("o", CultureInfo.InvariantCulture));
                 return;

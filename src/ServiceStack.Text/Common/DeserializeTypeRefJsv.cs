@@ -30,6 +30,10 @@ namespace ServiceStack.Text.Common
 
             object instance = null;
 
+            var propertyResolver = JsConfig.PropertyConvention == PropertyConvention.Lenient
+                ? ParseUtils.LenientPropertyNameResolver
+                : ParseUtils.DefaultPropertyNameResolver;
+
             var strTypeLength = strType.Length;
             while (index < strTypeLength)
             {
@@ -85,8 +89,7 @@ namespace ServiceStack.Text.Common
 
                 if (instance == null) instance = ctorFn();
 
-                TypeAccessor typeAccessor;
-                typeAccessorMap.TryGetValue(propertyName, out typeAccessor);
+                var typeAccessor = propertyResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
 
                 var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
                 if (propType != null)
