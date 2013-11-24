@@ -10,7 +10,7 @@ namespace ServiceStack.Text.Tests.UseCases
         public StripeSerializationTests()
         {
             JsConfig.DateHandler = DateHandler.UnixTime;
-            JsConfig.PropertyConvention = PropertyConvention.Lenient;            
+            JsConfig.PropertyConvention = PropertyConvention.Lenient;
             JsConfig.EmitLowercaseUnderscoreNames = true;
             QueryStringSerializer.ComplexTypeStrategy = QueryStringStrategy.FormUrlEncoded;
         }
@@ -51,7 +51,19 @@ namespace ServiceStack.Text.Tests.UseCases
             var qs = QueryStringSerializer.SerializeToString(dto);
             qs.Print();
         }
-        
+
+        [Test]
+        public void QueryString_Params_uses_DataMember_alias()
+        {
+            var dto = new CancelStripeSubscription { CustomerId = "cid", AtPeriodEnd = true };
+
+            Assert.That(dto.ToGetUrl(), Is.EqualTo("/customers/cid/subscription?at_period_end=True"));
+
+            var dto2 = new GetUpcomingStripeInvoice { Customer = "cid" };
+
+            Assert.That(dto2.ToGetUrl(), Is.EqualTo("/invoices/upcoming?customer=cid"));
+        }
+
         [Test]
         public void Can_convert_Stripe_Invoice()
         {

@@ -274,7 +274,7 @@ namespace ServiceStack.Stripe
     [Route("/invoices/upcoming")]
     public class GetUpcomingStripeInvoice : IReturn<StripeInvoice>
     {
-        public string customer { get; set; }
+        public string Customer { get; set; }
     }
 
     public class StripeErrors
