@@ -1000,5 +1000,19 @@ namespace ServiceStack
 
             return value.Length == pos;
         }
+
+        public static string TrimPrefixes(this string fromString, params string[] prefixes)
+        {
+            if (string.IsNullOrEmpty(fromString))
+                return fromString;
+
+            foreach (var prefix in prefixes)
+            {
+                if (fromString.StartsWith(prefix))
+                    return fromString.Substring(prefix.Length);
+            }
+
+            return fromString;
+        }
     }
 }

@@ -186,5 +186,16 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(decoded, Is.EqualTo(text));
         }
+
+	    [Test]
+	    public void Can_trim_prefixes()
+	    {
+            Assert.That("/www_deploy/path/info".TrimPrefixes("/www_deploy", "~/www_deploy"),
+                Is.EqualTo("/path/info"));
+            Assert.That("~/www_deploy/path/info".TrimPrefixes("/www_deploy", "~/www_deploy"),
+                Is.EqualTo("/path/info"));
+            Assert.That("/path/info".TrimPrefixes("/www_deploy", "~/www_deploy"),
+                Is.EqualTo("/path/info"));
+        }
 	}
 }
