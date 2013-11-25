@@ -15,13 +15,11 @@ namespace ServiceStack.Stripe
 
         public TimeSpan Timeout { get; set; }
 
-        private string apiKey;
         public ICredentials Credentials { get; set; }
         private string UserAgent { get; set; }
 
         public StripeGateway(string apiKey)
         {
-            this.apiKey = apiKey;
             Credentials = new NetworkCredential(apiKey, "");
             Timeout = TimeSpan.FromSeconds(60);
             UserAgent = "servicestack .net stripe v1";
@@ -32,7 +30,6 @@ namespace ServiceStack.Stripe
             try
             {
                 var url = BaseUrl.CombineWith(relativeUrl);
-
                 var response = url.SendStringToUrl(method: method, requestBody: body, requestFilter: req =>
                 {
                     req.Accept = MimeTypes.Json;
@@ -40,7 +37,7 @@ namespace ServiceStack.Stripe
                     req.Credentials = Credentials;
                     req.PreAuthenticate = true;
                     req.Timeout = (int)Timeout.TotalMilliseconds;
-                    if (method == HttpMethods.Post)
+                    if (method == HttpMethods.Post || method == HttpMethods.Put)
                         req.ContentType = MimeTypes.FormUrlEncoded;
                 });
 
@@ -48,16 +45,12 @@ namespace ServiceStack.Stripe
             }
             catch (WebException ex)
             {
-                string errorBody = ex.GetResponseBody();
+                var errorBody = ex.GetResponseBody();
                 var errorStatus = ex.GetStatus() ?? HttpStatusCode.BadRequest;
-
                 if (ex.IsAny400())
                 {
                     var result = errorBody.FromJson<StripeErrors>();
-                    throw new StripeException(result.Error)
-                    {
-                        StatusCode = errorStatus
-                    };
+                    throw new StripeException(result.Error) { StatusCode = errorStatus };
                 }
 
                 throw;
@@ -67,13 +60,13 @@ namespace ServiceStack.Stripe
         class ConfigScope : IDisposable
         {
             private readonly WriteComplexTypeDelegate holdQsStrategy;
-            private readonly JsConfigScope jsConfigScope;
+            private readonly JsConfigScope scope;
 
             public ConfigScope()
             {
-                jsConfigScope = JsConfig.With(dateHandler: DateHandler.UnixTime,
-                                              propertyConvention: PropertyConvention.Lenient,
-                                              emitLowercaseUnderscoreNames: true);
+                scope = JsConfig.With(dateHandler: DateHandler.UnixTime,
+                                      propertyConvention: PropertyConvention.Lenient,
+                                      emitLowercaseUnderscoreNames: true);
 
                 holdQsStrategy = QueryStringSerializer.ComplexTypeStrategy;
                 QueryStringSerializer.ComplexTypeStrategy = QueryStringStrategy.FormUrlEncoded;
@@ -82,7 +75,7 @@ namespace ServiceStack.Stripe
             public void Dispose()
             {
                 QueryStringSerializer.ComplexTypeStrategy = holdQsStrategy;
-                jsConfigScope.Dispose();
+                scope.Dispose();
             }
         }
 
@@ -94,8 +87,6 @@ namespace ServiceStack.Stripe
                 var body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
 
                 var json = Send(relativeUrl, method, body);
-
-                "JSON:\n{0}".Print(json);
 
                 var response = json.FromJson<T>();
                 return response;
@@ -207,7 +198,7 @@ namespace ServiceStack.Stripe
     }
 
     [Route("/plans")]
-    public class GetStripePlans : IReturn<StripeCollection<StripePlan>>
+    public class GetStripePlans : IReturn<StripeResults<StripePlan>>
     {
         public int? Count { get; set; }
         public int? Offset { get; set; }
@@ -239,7 +230,7 @@ namespace ServiceStack.Stripe
     }
 
     [Route("/coupons")]
-    public class GetStripeCoupons : IReturn<StripeCollection<StripeCoupon>>
+    public class GetStripeCoupons : IReturn<StripeResults<StripeCoupon>>
     {
         public int? Count { get; set; }
         public int? Offset { get; set; }
@@ -311,12 +302,12 @@ namespace ServiceStack.Stripe
         public bool Deleted { get; set; }
     }
 
-    public class StripeObject
+    public class StripeEntity
     {
         public StripeType Object { get; set; }
     }
 
-    public class StripeId : StripeObject
+    public class StripeId : StripeEntity
     {
         public string Id { get; set; }
     }
@@ -347,7 +338,7 @@ namespace ServiceStack.Stripe
         public DateTime Date { get; set; }
         public DateTime PeriodStart { get; set; }
         public DateTime PeriodEnd { get; set; }
-        public StripeCollection<StripeLineItem> Lines { get; set; }
+        public StripeResults<StripeLineItem> Lines { get; set; }
         public int Subtotal { get; set; }
         public int Total { get; set; }
         public string Customer { get; set; }
@@ -366,7 +357,7 @@ namespace ServiceStack.Stripe
         public int? ApplicationFee { get; set; }
     }
 
-    public class StripeCollection<T> : StripeId
+    public class StripeResults<T> : StripeId
     {
         public string Url { get; set; }
         public int Count { get; set; }
@@ -449,7 +440,7 @@ namespace ServiceStack.Stripe
         public StripeSubscription Subscription { get; set; }
         public StripeDiscount Discount { get; set; }
         public int AccountBalance { get; set; }
-        public StripeCollection<StripeCard> Cards { get; set; }
+        public StripeResults<StripeCard> Cards { get; set; }
         public bool Deleted { get; set; }
         public string DefaultCard { get; set; }
     }
@@ -592,7 +583,7 @@ namespace ServiceStack.Stripe
         public Dictionary<string, string> Metadata { get; set; }
     }
 
-    public class StripeRefund : StripeObject
+    public class StripeRefund : StripeEntity
     {
         public int Amount { get; set; }
         public DateTime Created { get; set; }
@@ -600,7 +591,7 @@ namespace ServiceStack.Stripe
         public string BalanceTransaction { get; set; }
     }
 
-    public class StripeDispute : StripeObject
+    public class StripeDispute : StripeEntity
     {
         public StripeDisputeStatus Status { get; set; }
         public string Evidence { get; set; }

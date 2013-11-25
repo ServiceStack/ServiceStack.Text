@@ -111,6 +111,7 @@ namespace ServiceStack.Text.Tests
             JsConfig<bool>.SerializeFn = value => value ? "1" : "0";
             var dto = new EntityForOverridingDeserialization { BoolValue = true };
             dto.ToJson().Print();
+            JsConfig<bool>.SerializeFn = null;
         }
 
         [Test]
