@@ -811,7 +811,11 @@ namespace ServiceStack
 
         public const string XUserAuthId = "X-UAId";
 
-        public const string XForwardedFor = "X-Forwarded-For";
+        public const string XForwardedFor = "X-Forwarded-For"; // IP Address
+
+        public const string XForwardedPort = "X-Forwarded-Port";  // 80
+
+        public const string XForwardedProtocol = "X-Forwarded-Proto"; // http or https
 
         public const string XRealIp = "X-Real-IP";
 
