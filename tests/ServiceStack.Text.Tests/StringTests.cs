@@ -187,6 +187,20 @@ namespace ServiceStack.Text.Tests
 			var fromXml = xml.FromXml<OrderModel>();
 			Assert.That(fromXml.OrderType, Is.EqualTo(orderModel.OrderType));
 		}
-		
+
+        public class CharDataTypeTest
+        {
+            public char Code { get; set; }
+        }
+
+        [Test]
+        public void SerializesCharDataType()
+        {
+            var charDataTypeTest = new CharDataTypeTest { Code = '\"' };
+            string jsonString = JsonSerializer.SerializeToString(charDataTypeTest);
+            //should be {"Code":"\""} but is serializing as invalid json with {"Code":"""}
+            string correctJSON = @"{""Code"":""\""""}";
+            Assert.That(jsonString, Is.EqualTo(correctJSON));
+        }	
 	}
 }
