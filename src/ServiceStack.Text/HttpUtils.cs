@@ -811,6 +811,8 @@ namespace ServiceStack
 
         public const string XUserAuthId = "X-UAId";
 
+        public const string XTrigger = "X-Trigger"; // Trigger Events on UserAgent
+
         public const string XForwardedFor = "X-Forwarded-For"; // IP Address
 
         public const string XForwardedPort = "X-Forwarded-Port";  // 80
