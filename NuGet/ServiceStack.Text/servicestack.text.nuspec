@@ -4,8 +4,8 @@
     <id>ServiceStack.Text</id>
     <title>.NET's fastest JSON Serializer by ServiceStack</title>
     <version>4.0.0</version> 
-    <authors>Demis Bellot</authors> 
-    <owners>Demis Bellot</owners>
+    <authors>Service Stack</authors> 
+    <owners>Service Stack</owners>
     <summary>.NET's fastest JSON, JSV and CSV Text Serializers</summary>
     <description>
         .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
