@@ -95,7 +95,7 @@ namespace ServiceStack
         public const string RuntimePublicKey = "<RSAKeyValue><Modulus>nkqwkUAcuIlVzzOPENcQ+g5ALCe4LyzzWv59E4a7LuOM1Nb+hlNlnx2oBinIkvh09EyaxIX2PmaY0KtyDRIh+PoItkKeJe/TydIbK/bLa0+0Axuwa0MFShE6HdJo/dynpODm64+Sg1XfhICyfsBBSxuJMiVKjlMDIxu9kDg7vEs=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
         private const string LicensePublicKey = "<RSAKeyValue><Modulus>w2fTTfr2SrGCclwLUkrbH0XsIUpZDJ1Kei2YUwYGmIn5AUyCPLTUv3obDBUBFJKLQ61Khs7dDkXlzuJr5tkGQ0zS0PYsmBPAtszuTum+FAYRH4Wdhmlfqu1Z03gkCIo1i11TmamN5432uswwFCVH60JU3CpaN97Ehru39LA1X9E=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
 
-        private const string ContactDetails = " Please see www.servicestack.net or contact team@servicestack.net for more details.";
+        private const string ContactDetails = " Please see servicestack.net or contact team@servicestack.net for more details.";
 
         static LicenseUtils()
         {
@@ -111,7 +111,7 @@ namespace ServiceStack
 
         public static class ErrorMessages
         {
-            private const string UpgradeInstructions = " Please see http://www.servicestack.net to upgrade to a commercial license.";
+            private const string UpgradeInstructions = " Please see https://servicestack.net to upgrade to a commercial license.";
             internal const string ExceededTextTypes = "The free-quota limit on '{0} ServiceStack.Text Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisTypes = "The free-quota limit on '{0} Redis Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisRequests = "The free-quota limit on '{0} Redis requests per hour' has been reached." + UpgradeInstructions;
@@ -137,7 +137,7 @@ namespace ServiceStack
         {
             if (DateTime.UtcNow > new DateTime(2013, 12, 31))
                 throw new LicenseException("The evaluation license for this software has expired. " +
-                    "See http://www.servicestack.net to upgrade to a valid license.");
+                    "See https://servicestack.net to upgrade to a valid license.");
         }
 
         private static LicenseKey __activatedLicense;
