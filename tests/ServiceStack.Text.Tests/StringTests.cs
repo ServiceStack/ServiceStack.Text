@@ -132,6 +132,20 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromDto.Name, Is.EqualTo(dto.Name));
 	    }
 
+        public class CharDataTypeTest
+        {
+            public char Code { get; set; }
+        }
+
+        [Test]
+        public void Quotes_Inside_Char_Field_In_Poco()
+        {
+            var charDataTypeTest = new CharDataTypeTest { Code = '\"' };
+            string jsonString = JsonSerializer.SerializeToString(charDataTypeTest);
+            string correctJSON = @"{""Code"":""\""""}";  //should be {"Code":"\""} 
+            Assert.That(jsonString, Is.EqualTo(correctJSON));
+        }	
+        
 		Movie dto = new Movie {
 			ImdbId = "tt0111161",
 			Title = "The Shawshank Redemption",

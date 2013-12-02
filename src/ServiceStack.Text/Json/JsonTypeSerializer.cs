@@ -188,7 +188,7 @@ namespace ServiceStack.Text.Json
             if (charValue == null)
                 writer.Write(JsonUtils.Null);
             else
-                WriteRawString(writer, ((char)charValue).ToString());
+                WriteString(writer, ((char)charValue).ToString());
         }
 
         public void WriteByte(TextWriter writer, object byteValue)
