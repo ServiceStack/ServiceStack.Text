@@ -10,6 +10,9 @@ namespace ServiceStack.Text
     {
         static Env()
         {
+            if (PclExport.Instance == null)
+                throw new ArgumentException("PclExport.Instance needs to be initialized");
+
             var platformName = PclExport.Instance.PlatformName;
 
             IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
