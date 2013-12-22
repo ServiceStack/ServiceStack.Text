@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using NUnit.Framework;
-#if !MONOTOUCH
+#if !IOS
 using System.ComponentModel.DataAnnotations;
 using Northwind.Common.ComplexModel;
 using ServiceStack.Common.Tests.Models;
@@ -391,7 +391,7 @@ namespace ServiceStack.Text.Tests
 			return fromJsonModel;
 		}
 
-#if !MONOTOUCH
+#if !IOS
 		public class TestClass
 		{
 			[Required]

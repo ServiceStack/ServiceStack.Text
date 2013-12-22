@@ -180,7 +180,7 @@ namespace ServiceStack.Text.Json
 
         public static void WriteObject(TextWriter writer, object value)
         {
-#if MONOTOUCH
+#if IOS
 			if (writer == null) return;
 #endif
             TypeConfig<T>.AssertValidUsage();
@@ -204,7 +204,7 @@ namespace ServiceStack.Text.Json
 
         public static void WriteRootObject(TextWriter writer, object value)
         {
-#if MONOTOUCH
+#if IOS
 			if (writer == null) return;
 #endif
             TypeConfig<T>.AssertValidUsage();

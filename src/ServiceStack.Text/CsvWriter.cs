@@ -6,9 +6,6 @@ using System.Runtime.Serialization;
 using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Reflection;
-#if WINDOWS_PHONE && !WP8
-using ServiceStack.Text.WP;
-#endif
 
 namespace ServiceStack.Text
 {

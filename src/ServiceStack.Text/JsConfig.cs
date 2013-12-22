@@ -6,10 +6,6 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
-#if WINDOWS_PHONE && !WP8
-using ServiceStack.Text.WP;
-#endif
-
 namespace ServiceStack.Text
 {
     public static class
@@ -624,18 +620,13 @@ namespace ServiceStack.Text
 
         internal static void InvokeReset(this Type genericType)
         {
-#if NETFX_CORE
-            MethodInfo methodInfo = genericType.GetTypeInfo().GetType().GetMethodInfo("Reset");
+            var methodInfo = genericType.GetPublicStaticMethod("Reset");
             methodInfo.Invoke(null, null);
-#else
-            var methodInfo = genericType.GetMethod("Reset", BindingFlags.Static | BindingFlags.Public);
-            methodInfo.Invoke(null, null);
-#endif
         }
 
-#if MONOTOUCH
+#if IOS
         /// <summary>
-        /// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
+        /// Provide hint to IOS AOT compiler to pre-compile generic classes for all your DTOs.
         /// Just needs to be called once in a static constructor.
         /// </summary>
         [MonoTouch.Foundation.Preserve]
@@ -834,7 +825,7 @@ namespace ServiceStack.Text
 				ToStringDictionaryMethods<TElement, T, TSerializer>.WriteIDictionary(null, null, null, null);
 				
 				// Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
-				// No idea why this is happening because there is no visible exception raised.  Suspect MonoTouch is swallowing an AOT exception somewhere.
+				// No idea why this is happening because there is no visible exception raised.  Suspect IOS is swallowing an AOT exception somewhere.
 				DeserializeArrayWithElements<TElement, TSerializer>.ParseGenericArray(null, null);
 				DeserializeListWithElements<TElement, TSerializer>.ParseGenericList(null, null, null);
 				
@@ -852,7 +843,7 @@ namespace ServiceStack.Text
         internal static HashSet<Type> __uniqueTypes = new HashSet<Type>(); 
     }
 
-#if MONOTOUCH
+#if IOS
     [MonoTouch.Foundation.Preserve(AllMembers=true)]
     internal class Poco
     {

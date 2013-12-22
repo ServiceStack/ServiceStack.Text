@@ -1,4 +1,4 @@
-#if !MONO && !MONOTOUCH
+#if !MONO && !IOS
 using System;
 using System.Collections.Generic;
 using Northwind.Common.ComplexModel;

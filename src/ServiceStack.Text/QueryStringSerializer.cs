@@ -224,7 +224,7 @@ namespace ServiceStack
             var typeConfig = typeConfigCache.GetOrAdd(obj.GetType(), t =>
                 {
                     var genericType = typeof (PropertyTypeConfig<>).MakeGenericType(t);
-                    var fi = genericType.GetFields().First(x => x.Name == "Config");;
+                    var fi = genericType.Fields().First(x => x.Name == "Config");;
 
                     var config = (PropertyTypeConfig)fi.GetValue(null);
                     return config;

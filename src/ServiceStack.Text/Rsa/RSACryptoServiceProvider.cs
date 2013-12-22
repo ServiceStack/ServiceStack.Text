@@ -1,4 +1,4 @@
-﻿#if SILVERLIGHT || WP
+﻿#if SL5 || WP
 
 // From: http://scrypt.codeplex.com/
 // License: http://scrypt.codeplex.com/license

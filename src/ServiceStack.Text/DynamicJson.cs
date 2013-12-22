@@ -68,6 +68,11 @@ namespace ServiceStack.Text
             return false;
         }
 
+        internal static string Underscored(string pascalCase)
+        {
+            return Underscored(pascalCase.ToCharArray());
+        }
+
         internal static string Underscored(IEnumerable<char> pascalCase)
         {
             var sb = new StringBuilder();

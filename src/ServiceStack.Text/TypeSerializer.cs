@@ -211,11 +211,7 @@ namespace ServiceStack.Text
         /// </summary>
         public static void PrintDump<T>(this T instance)
         {
-#if NETFX_CORE
-            System.Diagnostics.Debug.WriteLine(SerializeAndFormat(instance));
-#else
-            Console.WriteLine(SerializeAndFormat(instance));
-#endif
+            PclExport.Instance.WriteLine(SerializeAndFormat(instance));
         }
 
         /// <summary>
@@ -223,17 +219,10 @@ namespace ServiceStack.Text
         /// </summary>
         public static void Print(this string text, params object[] args)
         {
-#if NETFX_CORE
             if (args.Length > 0)
-                System.Diagnostics.Debug.WriteLine(text, args);
+                PclExport.Instance.WriteLine(text, args);
             else
-                System.Diagnostics.Debug.WriteLine(text);
-#else
-            if (args.Length > 0)
-                Console.WriteLine(text, args);
-            else
-                Console.WriteLine(text);
-#endif
+                PclExport.Instance.WriteLine(text);
         }
 
 		public static string SerializeAndFormat<T>(this T instance)
@@ -259,11 +248,7 @@ namespace ServiceStack.Text
                 sb.AppendFormat("{0} {1}", param.ParameterType.Name, param.Name);
             }
 
-#if NETFX_CORE
-            var methodName = fn.GetMethodInfo().Name;
-#else
-            var methodName = fn.Method.Name;
-#endif
+            var methodName = fn.Method().Name;
             var info = "{0} {1}({2})".Fmt(method.ReturnType.Name, methodName, sb);
             return info;
         }

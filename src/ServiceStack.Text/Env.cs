@@ -10,21 +10,19 @@ namespace ServiceStack.Text
     {
         static Env()
         {
-            string platformName = null;
-
-#if NETFX_CORE
-            platformName = "WinRT";
-#else
-            var platform = (int)Environment.OSVersion.Platform;
-            IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
-            platformName = Environment.OSVersion.Platform.ToString();
-#endif
+            var platformName = PclExport.Instance.PlatformName;
 
             IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
             IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null;
 
+            IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
+
             IsWinRT = AssemblyUtils.FindType("Windows.ApplicationModel") != null;
+
+            IsWindowsPhone = AssemblyUtils.FindType("Microsoft.Phone.Info.DeviceStatus") != null;
+
+            IsSilverlight = AssemblyUtils.FindType("System.Windows.Interop.SilverlightHost") != null;
 
             SupportsExpressions = SupportsEmit = !IsMonoTouch;
 
@@ -32,8 +30,11 @@ namespace ServiceStack.Text
                 ServiceStackVersion + " "
                 + platformName
                 + (IsMono ? "/Mono" : "/.NET")
-                + (IsMonoTouch ? " MonoTouch" : "")
-                + (IsWinRT ? ".NET WinRT" : "");
+                + (IsMonoTouch ? " IOS" : "")
+                + (IsAndroid ? " Android" : "")
+                + (IsSilverlight ? " Silverlight" : "")
+                + (IsWindowsPhone ? " WindowsPhone" : "")
+                + (IsWinRT ? " WinRT" : "");
 
             __releaseDate = DateTime.Parse("2001-01-01");
         }
@@ -46,7 +47,13 @@ namespace ServiceStack.Text
 
         public static bool IsMonoTouch { get; set; }
 
+        public static bool IsAndroid { get; set; }
+
         public static bool IsWinRT { get; set; }
+
+        public static bool IsSilverlight { get; set; }
+
+        public static bool IsWindowsPhone { get; set; }
 
         public static bool SupportsExpressions { get; set; }
 
@@ -65,14 +72,14 @@ namespace ServiceStack.Text
         {
             get
             {
-#if !SILVERLIGHT
+#if !SL5
                 if (!IsMono && referenceAssembyPath == null)
                 {
-                    var programFilesPath = Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
+                    var programFilesPath = PclExport.Instance.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
                     var netFxReferenceBasePath = programFilesPath + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\";
-                    if (Directory.Exists(netFxReferenceBasePath + @"v4.0\"))
+                    if ((netFxReferenceBasePath + @"v4.0\").DirectoryExists())
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.0\";
-                    if (Directory.Exists(netFxReferenceBasePath + @"v4.5\"))
+                    if ((netFxReferenceBasePath + @"v4.5\").DirectoryExists())
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.5\";
                     else
                         throw new FileNotFoundException(

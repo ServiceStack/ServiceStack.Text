@@ -167,14 +167,7 @@ namespace ServiceStack.Text
             if (dateTime == DateTime.MinValue)
                 return MinDateTimeUtc;
 
-#if SILVERLIGHT
-			// Silverlight 3, 4 and 5 all work ok with DateTime.ToUniversalTime, but have no TimeZoneInfo.ConverTimeToUtc implementation.
-			return dateTime.ToUniversalTime();
-#else
-            // .Net 2.0 - 3.5 has an issue with DateTime.ToUniversalTime, but works ok with TimeZoneInfo.ConvertTimeToUtc.
-            // .Net 4.0+ does this under the hood anyway.
-            return TimeZoneInfo.ConvertTimeToUtc(dateTime);
-#endif
+            return PclExport.Instance.ToStableUniversalTime(dateTime);
         }
 
         public static string FmtSortableDate(this DateTime from)

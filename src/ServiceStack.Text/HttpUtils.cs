@@ -4,12 +4,10 @@
 using System;
 using System.Collections.Generic;
 
-#if !SILVERLIGHT
-using System.Collections.Specialized;
+#if !(SL5)
 using System.IO;
 using System.Net;
-using System.Text;
-using ServiceStack.Text;
+using System.Threading.Tasks;
 
 namespace ServiceStack
 {
@@ -41,7 +39,7 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                var existingKeyPos = url.IndexOf(key, qsPos, StringComparison.InvariantCulture);
+                var existingKeyPos = url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison);
                 if (existingKeyPos != -1)
                 {
                     var endPos = url.IndexOf('&', existingKeyPos);
@@ -135,15 +133,6 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-#if !XBOX && !SILVERLIGHT && !MONOTOUCH
-        public static string PostXmlToUrl(this string url, object data,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-#endif
-
         public static string PutStringToUrl(this string url, string requestBody = null,
             string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
@@ -192,15 +181,6 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-#if !XBOX && !SILVERLIGHT && !MONOTOUCH
-        public static string PutXmlToUrl(this string url, object data,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-#endif
-
         public static string DeleteFromUrl(this string url, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -230,8 +210,7 @@ namespace ServiceStack
                 webReq.ContentType = contentType;
 
             webReq.Accept = accept;
-            webReq.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip,deflate");
-            webReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            PclExport.Instance.AddCompression(webReq);
 
             if (requestFilter != null)
             {
@@ -245,14 +224,14 @@ namespace ServiceStack
 
             if (requestBody != null)
             {
-                using (var reqStream = webReq.GetRequestStream())
+                using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
                 using (var writer = new StreamWriter(reqStream))
                 {
                     writer.Write(requestBody);
                 }
             }
 
-            using (var webRes = webReq.GetResponse())
+            using (var webRes = PclExport.Instance.GetResponse(webReq))
             using (var stream = webRes.GetResponseStream())
             using (var reader = new StreamReader(stream))
             {
@@ -298,8 +277,7 @@ namespace ServiceStack
                 webReq.ContentType = contentType;
 
             webReq.Accept = accept;
-            webReq.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip,deflate");
-            webReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            PclExport.Instance.AddCompression(webReq);
 
             if (requestFilter != null)
             {
@@ -313,13 +291,13 @@ namespace ServiceStack
 
             if (requestBody != null)
             {
-                using (var req = webReq.GetRequestStream())
+                using (var req = PclExport.Instance.GetRequestStream(webReq))
                 {
                     req.Write(requestBody, 0, requestBody.Length);
                 }
             }
 
-            using (var webRes = webReq.GetResponse())
+            using (var webRes = PclExport.Instance.GetResponse(webReq))
             {
                 if (responseFilter != null)
                     responseFilter((HttpWebResponse)webRes);
@@ -379,7 +357,7 @@ namespace ServiceStack
             try
             {
                 var webReq = (HttpWebRequest)WebRequest.Create(url);
-                using (var webRes = webReq.GetResponse())
+                using (var webRes = PclExport.Instance.GetResponse(webReq))
                 {
                     var httpRes = webRes as HttpWebResponse;
                     return httpRes != null ? httpRes.StatusCode : (HttpStatusCode?)null;
@@ -411,7 +389,11 @@ namespace ServiceStack
         public static string GetResponseBody(this Exception ex)
         {
             var webEx = ex as WebException;
-            if (webEx == null || webEx.Status != WebExceptionStatus.ProtocolError) return null;
+            if (webEx == null
+#if !PCL
+                || webEx.Status != WebExceptionStatus.ProtocolError
+#endif
+            ) return null;
 
             var errorResponse = ((HttpWebResponse)webEx.Response);
             using (var reader = new StreamReader(errorResponse.GetResponseStream()))
@@ -419,28 +401,6 @@ namespace ServiceStack
                 return reader.ReadToEnd();
             }
         }
-
-#if !SILVERLIGHT
-        public static string ToFormUrlEncoded(this NameValueCollection queryParams)
-        {
-            var sb = new StringBuilder();
-            foreach (string key in queryParams)
-            {
-                var values = queryParams.GetValues(key);
-                if (values == null) continue;
-
-                foreach (var value in values)
-                {
-                    if (sb.Length > 0)
-                        sb.Append('&');
-
-                    sb.AppendFormat("{0}={1}", key.UrlEncode(), value.UrlEncode());
-                }
-            }
-
-            return sb.ToString();
-        }
-#endif
 
         public static string ReadToEnd(this WebResponse webRes)
         {
@@ -469,7 +429,7 @@ namespace ServiceStack
             try
             {
                 var webReq = WebRequest.Create(url);
-                var webRes = webReq.GetResponse();
+                var webRes = PclExport.Instance.GetResponse(webReq);
                 var strRes = webRes.ReadToEnd();
                 return null;
             }
@@ -479,68 +439,84 @@ namespace ServiceStack
             }
         }
 
-        public static WebResponse PostFileToUrl(this string url,
-            FileInfo uploadFileInfo, string uploadFileMimeType,
-            string accept = null,
-            Action<HttpWebRequest> requestFilter = null)
+        public static Task<Stream> GetRequestStreamAsync(this WebRequest request)
         {
-            var webReq = (HttpWebRequest)WebRequest.Create(url);
-            using (var fileStream = uploadFileInfo.OpenRead())
-            {
-                var fileName = uploadFileInfo.Name;
-
-                webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "POST");
-            }
-
-            if (ResultsFilter != null)
-                return null;
-
-            return webReq.GetResponse();
+            return GetRequestStreamAsync((HttpWebRequest) request);
         }
 
-        public static WebResponse PutFileToUrl(this string url,
-            FileInfo uploadFileInfo, string uploadFileMimeType,
-            string accept = null,
-            Action<HttpWebRequest> requestFilter = null)
+        public static Task<Stream> GetRequestStreamAsync(this HttpWebRequest request)
         {
-            var webReq = (HttpWebRequest)WebRequest.Create(url);
-            using (var fileStream = uploadFileInfo.OpenRead())
-            {
-                var fileName = uploadFileInfo.Name;
+            var tcs = new TaskCompletionSource<Stream>();
 
-                webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "PUT");
+            try
+            {
+                request.BeginGetRequestStream(iar =>
+                {
+                    try
+                    {
+                        var response = request.EndGetRequestStream(iar);
+                        tcs.SetResult(response);
+                    }
+                    catch (Exception exc)
+                    {
+                        tcs.SetException(exc);
+                    }
+                }, null);
+            }
+            catch (Exception exc)
+            {
+                tcs.SetException(exc);
             }
 
-            if (ResultsFilter != null)
-                return null;
-
-            return webReq.GetResponse();
+            return tcs.Task;
         }
 
-        public static WebResponse UploadFile(this WebRequest webRequest,
-            FileInfo uploadFileInfo, string uploadFileMimeType)
+        public static Task<TBase> ConvertTo<TDerived, TBase>(this Task<TDerived> task) where TDerived : TBase
         {
-            using (var fileStream = uploadFileInfo.OpenRead())
-            {
-                var fileName = uploadFileInfo.Name;
+            var tcs = new TaskCompletionSource<TBase>();
+            task.ContinueWith(t => tcs.SetResult(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+            task.ContinueWith(t => tcs.SetException(t.Exception.InnerExceptions), TaskContinuationOptions.OnlyOnFaulted);
+            task.ContinueWith(t => tcs.SetCanceled(), TaskContinuationOptions.OnlyOnCanceled);
+            return tcs.Task;
+        }
 
-                webRequest.UploadFile(fileStream, fileName, uploadFileMimeType);
+        public static Task<WebResponse> GetResponseAsync(this WebRequest request)
+        {
+            return GetResponseAsync((HttpWebRequest)request).ConvertTo<HttpWebResponse, WebResponse>();
+        }
+
+        public static Task<HttpWebResponse> GetResponseAsync(this HttpWebRequest request)
+        {
+            var tcs = new TaskCompletionSource<HttpWebResponse>();
+
+            try
+            {
+                request.BeginGetResponse(iar =>
+                {
+                    try
+                    {
+                        var response = (HttpWebResponse)request.EndGetResponse(iar);
+                        tcs.SetResult(response);
+                    }
+                    catch (Exception exc)
+                    {
+                        tcs.SetException(exc);
+                    }
+                }, null);
+            }
+            catch (Exception exc)
+            {
+                tcs.SetException(exc);
             }
 
-            if (ResultsFilter != null)
-                return null;
-
-            return webRequest.GetResponse();
+            return tcs.Task;
         }
 
         public static void UploadFile(this WebRequest webRequest, Stream fileStream, string fileName, string mimeType,
             string accept = null, Action<HttpWebRequest> requestFilter = null, string method = "POST")
         {
             var httpReq = (HttpWebRequest)webRequest;
-            httpReq.UserAgent = Env.ServerUserAgent;
             httpReq.Method = method;
-            httpReq.AllowAutoRedirect = false;
-            httpReq.KeepAlive = false;
 
             if (accept != null)
                 httpReq.Accept = accept;
@@ -552,16 +528,18 @@ namespace ServiceStack
 
             httpReq.ContentType = "multipart/form-data; boundary=" + boundary;
 
-            var boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+            var boundarybytes = ("\r\n--" + boundary + "\r\n").ToAsciiBytes();
 
             var headerTemplate = "\r\n--" + boundary +
                                  "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\nContent-Type: {1}\r\n\r\n";
 
             var header = string.Format(headerTemplate, fileName, mimeType);
 
-            var headerbytes = Encoding.ASCII.GetBytes(header);
+            var headerbytes = header.ToAsciiBytes();
 
-            httpReq.ContentLength = fileStream.Length + headerbytes.Length + boundarybytes.Length;
+            var contentLength = fileStream.Length + headerbytes.Length + boundarybytes.Length;
+            PclExport.Instance.InitHttpWebRequest(httpReq,
+                contentLength:contentLength, allowAutoRedirect: false, keepAlive: false);
 
             if (ResultsFilter != null)
             {
@@ -569,11 +547,11 @@ namespace ServiceStack
                 return;
             }
 
-            using (Stream outputStream = httpReq.GetRequestStream())
+            using (var outputStream = PclExport.Instance.GetRequestStream(httpReq))
             {
                 outputStream.Write(headerbytes, 0, headerbytes.Length);
 
-                byte[] buffer = new byte[4096];
+                var buffer = new byte[4096];
                 int byteCount;
 
                 while ((byteCount = fileStream.Read(buffer, 0, 4096)) > 0)
@@ -583,7 +561,7 @@ namespace ServiceStack
 
                 outputStream.Write(boundarybytes, 0, boundarybytes.Length);
 
-                outputStream.Close();
+                PclExport.Instance.CloseStream(outputStream);
             }
         }
 
@@ -597,6 +575,22 @@ namespace ServiceStack
 
             UploadFile(webRequest, fileStream, fileName, mimeType);
         }
+
+#if !XBOX
+        public static string PostXmlToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutXmlToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+#endif
     }
 
     public interface IHttpResultsFilter : IDisposable

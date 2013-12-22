@@ -1,4 +1,5 @@
-﻿//
+﻿#if (NETFX_CORE || WP)
+//
 // https://github.com/ServiceStack/ServiceStack.Text
 // ServiceStack.Text: .NET C# POCO JSON, JSV and CSV Text Serializers.
 //
@@ -16,11 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-#if NETFX_CORE
-namespace ServiceStack.Text.WinRT
-#else
-namespace ServiceStack.Text.WP
-#endif
+namespace ServiceStack.Text
 {
     ///<summary>
     /// A hashset implementation that uses an IDictionary
@@ -90,3 +87,4 @@ namespace ServiceStack.Text.WP
         }
     }
 }
+#endif

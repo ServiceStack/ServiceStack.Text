@@ -33,11 +33,7 @@ namespace ServiceStack.Text.Common
             var nullableType = Nullable.GetUnderlyingType(typeof(T));
             if (nullableType == null)
             {
-#if NETFX_CORE
-                var typeCode = ReflectionExtensions.GetTypeCode(typeof(T));
-#else
-                var typeCode = Type.GetTypeCode(typeof(T));
-#endif
+                var typeCode = typeof(T).GetTypeCode();
                 switch (typeCode)
                 {
                     case TypeCode.Boolean:
@@ -84,18 +80,14 @@ namespace ServiceStack.Text.Common
                     return value => DateTimeSerializer.ParseDateTimeOffset(value);
                 if (typeof(T) == typeof(TimeSpan))
                     return value => DateTimeSerializer.ParseTimeSpan(value);
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX && !ANDROID
+#if !(IOS || SL5 || XBOX || ANDROID || PCL)
                 if (typeof(T) == typeof(System.Data.Linq.Binary))
                     return value => new System.Data.Linq.Binary(Convert.FromBase64String(value));
 #endif
             }
             else
             {
-#if NETFX_CORE
-                var typeCode = ReflectionExtensions.GetTypeCode(nullableType);
-#else
-                var typeCode = Type.GetTypeCode(nullableType);
-#endif
+                var typeCode = nullableType.GetTypeCode();
                 switch (typeCode)
                 {
                     case TypeCode.Boolean:

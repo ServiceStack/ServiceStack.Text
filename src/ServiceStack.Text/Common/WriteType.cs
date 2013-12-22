@@ -101,14 +101,11 @@ namespace ServiceStack.Text.Common
             return WriteProperties;
         }
 
-#if !NETFX_CORE
         static Func<T, bool> GetShouldSerializeMethod(MemberInfo member)
         {
-            var method = member.DeclaringType.GetMethod("ShouldSerialize" + member.Name, BindingFlags.Instance | BindingFlags.Public,
-                null, Type.EmptyTypes, null);
-            return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T,bool>)Delegate.CreateDelegate(typeof(Func<T,bool>), method);
+            var method = member.DeclaringType.GetPublicInstanceMethod("ShouldSerialize" + member.Name);
+            return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T, bool>)method.CreateDelegate(typeof(Func<T, bool>));
         }
-#endif
 
         private static bool Init()
         {
@@ -139,11 +136,8 @@ namespace ServiceStack.Text.Common
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
-#if NETFX_CORE
-                var shouldSerialize = (Func<T, bool>)null;
-#else
+
                 var shouldSerialize = GetShouldSerializeMethod(propertyInfo);
-#endif
                 if (isDataContract)
                 {
                     var dcsDataMember = propertyInfo.GetDataMember();
@@ -191,7 +185,7 @@ namespace ServiceStack.Text.Common
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
-#if NETFX_CORE
+#if (NETFX_CORE)
                 var shouldSerialize = (Func<T, bool>)null;
 #else
                 var shouldSerialize = GetShouldSerializeMethod(fieldInfo);

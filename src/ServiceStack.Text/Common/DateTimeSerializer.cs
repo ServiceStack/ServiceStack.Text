@@ -46,7 +46,7 @@ namespace ServiceStack.Text.Common
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        private static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc=false)
+        public static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc=false)
         {
             if (JsConfig.AlwaysUseUtc)
             {
@@ -105,19 +105,11 @@ namespace ServiceStack.Text.Common
                 && dateTimeStr.Length <= XsdDateTimeFormat.Length
                 && dateTimeStr.EndsWith(XsdUtcSuffix))
             {
-#if NETFX_CORE
-                var dateTimeType = JsConfig.DateHandler != JsonDateHandler.ISO8601
-                    ? "yyyy-MM-ddTHH:mm:sszzzzzzz"
-                        : "yyyy-MM-ddTHH:mm:sszzzzzzz";
-
-                return XmlConvert.ToDateTimeOffset(dateTimeStr, dateTimeType).DateTime.Prepare();
-#else
                 var dateTime = Env.IsMono ? ParseManual(dateTimeStr) : null;
                 if (dateTime != null)
                     return dateTime.Value;
 
-                return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc).Prepare(parsedAsUtc:true);
-#endif
+                return PclExport.Instance.ParseXsdDateTimeAsUtc(dateTimeStr);
             }
 
             try
@@ -267,10 +259,11 @@ namespace ServiceStack.Text.Common
             if (dateTimeOffsetStr.LastIndexOfAny(TimeZoneChars) < 10)
             {
                 if (!dateTimeOffsetStr.EndsWith(XsdUtcSuffix)) dateTimeOffsetStr += XsdUtcSuffix;
-#if __MonoCS__
-                // Without that Mono uses a Local timezone))
-                dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00"; 
-#endif
+                if (Env.IsMono)
+                {
+                    // Without that Mono uses a Local timezone))
+                    dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00";                     
+                }
             }
 
             return DateTimeOffset.Parse(dateTimeOffsetStr, CultureInfo.InvariantCulture);
@@ -285,29 +278,22 @@ namespace ServiceStack.Text.Common
 
         public static string ToXsdDateTimeString(DateTime dateTime)
         {
-#if NETFX_CORE
-            return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XsdDateTimeFormat);
-#else
-            return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);
-#endif
+            return PclExport.Instance.ToXsdDateTimeString(dateTime);
         }
 
         public static string ToLocalXsdDateTimeString(DateTime dateTime)
         {
-#if NETFX_CORE
-            return XmlConvert.ToString(dateTime, XsdDateTimeFormat);
-#else
-            return XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.Local);
-#endif
+            return PclExport.Instance.ToLocalXsdDateTimeString(dateTime);
         }
 
         public static string ToXsdTimeSpanString(TimeSpan timeSpan)
         {
             var r = XmlConvert.ToString(timeSpan);
-#if __MonoCS__
-            // Mono returns DT even if time is 00:00:00
-            if (r.EndsWith("DT")) return r.Substring(0, r.Length - 1);
-#endif
+            if (Env.IsMono)
+            {
+                // Mono returns DT even if time is 00:00:00
+                if (r.EndsWith("DT")) return r.Substring(0, r.Length - 1);
+            }
             return r;
         }
 
@@ -319,12 +305,7 @@ namespace ServiceStack.Text.Common
         public static DateTime ParseXsdDateTime(string dateTimeStr)
         {
             dateTimeStr = RepairXsdTimeSeparator(dateTimeStr);
-
-#if NETFX_CORE
-            return XmlConvert.ToDateTimeOffset(dateTimeStr).DateTime;
-#else
-            return XmlConvert.ToDateTime(dateTimeStr, XmlDateTimeSerializationMode.Utc);
-#endif
+            return PclExport.Instance.ParseXsdDateTime(dateTimeStr);
         }
 
         public static TimeSpan ParseTimeSpan(string dateTimeStr)
@@ -367,7 +348,7 @@ namespace ServiceStack.Text.Common
 
             return dateTime.Kind != DateTimeKind.Utc
                 ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
-                : ToXsdDateTimeString(dateTime);
+                : PclExport.Instance.ToXsdDateTimeString(dateTime);
         }
 
         static readonly char[] TimeZoneChars = new[] { '+', '-' };

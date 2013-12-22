@@ -97,7 +97,7 @@ namespace ServiceStack.Text.Tests
 
 			SerializeAndCompare(userStat);
 		}
-#if !MONOTOUCH
+#if !IOS
 		[Test]
 		public void Can_serialize_UserStats_list()
 		{

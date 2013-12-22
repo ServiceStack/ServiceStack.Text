@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-#if !MONOTOUCH
+#if !IOS
 using ServiceStack.Common.Tests.Models;
 #endif
 
@@ -16,7 +16,7 @@ namespace ServiceStack.Text.Tests
             JsConfig.Reset();
         }
 
-#if !MONOTOUCH
+#if !IOS
         [Test]
         public void Can_Serialize_populated_model_of_NullableTypes()
         {

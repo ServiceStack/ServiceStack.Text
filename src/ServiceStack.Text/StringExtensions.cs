@@ -13,24 +13,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Support;
-#if NETFX_CORE
-using System.Threading.Tasks;
-#endif
-
-#if WINDOWS_PHONE
-using System.IO.IsolatedStorage;
-#if  !WP8
-using ServiceStack.Text.WP;
-#endif
-#endif
 
 namespace ServiceStack
 {
@@ -55,7 +42,6 @@ namespace ServiceStack
         {
             return TypeSerializer.DeserializeFromString(value, type);
         }
-
 
         /// <summary>
         /// Converts from base: 0 - 62
@@ -198,39 +184,11 @@ namespace ServiceStack
                     bytes.Add((byte)c);
                 }
             }
-#if SILVERLIGHT
+
             byte[] byteArray = bytes.ToArray();
             return Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
-#else
-            return Encoding.UTF8.GetString(bytes.ToArray());
-#endif
         }
 
-#if !XBOX
-        public static string HexEscape(this string text, params char[] anyCharOf)
-        {
-            if (String.IsNullOrEmpty(text)) return text;
-            if (anyCharOf == null || anyCharOf.Length == 0) return text;
-
-            var encodeCharMap = new HashSet<char>(anyCharOf);
-
-            var sb = new StringBuilder();
-            var textLength = text.Length;
-            for (var i = 0; i < textLength; i++)
-            {
-                var c = text[i];
-                if (encodeCharMap.Contains(c))
-                {
-                    sb.Append('%' + ((int)c).ToString("x"));
-                }
-                else
-                {
-                    sb.Append(c);
-                }
-            }
-            return sb.ToString();
-        }
-#endif
         public static string HexUnescape(this string text, params char[] anyCharOf)
         {
             if (String.IsNullOrEmpty(text)) return null;
@@ -328,18 +286,6 @@ namespace ServiceStack
             return sb.ToString();
         }
 
-#if !SILVERLIGHT
-        public static string FromAsciiBytes(this byte[] bytes)
-        {
-            return bytes == null ? null
-                : Encoding.ASCII.GetString(bytes, 0, bytes.Length);
-        }
-
-        public static byte[] ToAsciiBytes(this string value)
-        {
-            return Encoding.ASCII.GetBytes(value);
-        }
-#endif
         public static string FromUtf8Bytes(this byte[] bytes)
         {
             return bytes == null ? null
@@ -432,22 +378,17 @@ namespace ServiceStack
             return extPos > dirPos ? filePath.Substring(0, extPos) : filePath;
         }
 
-#if NETFX_CORE
-        private static readonly char DirSep = '\\';//Path.DirectorySeparatorChar;
-        private static readonly char AltDirSep = '/';//Path.DirectorySeparatorChar == '/' ? '\\' : '/';
-#else
-        private static readonly char DirSep = Path.DirectorySeparatorChar;
-        private static readonly char AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
-#endif
         static readonly char[] DirSeps = new[] { '\\', '/' };
 
         public static string ParentDirectory(this string filePath)
         {
             if (String.IsNullOrEmpty(filePath)) return null;
 
-            var dirSep = filePath.IndexOf(DirSep) != -1
-                         ? DirSep
-                         : filePath.IndexOf(AltDirSep) != -1 ? AltDirSep : (char)0;
+            var dirSep = filePath.IndexOf(PclExport.Instance.DirSep) != -1
+                         ? PclExport.Instance.DirSep
+                         : filePath.IndexOf(PclExport.Instance.AltDirSep) != -1
+                            ? PclExport.Instance.AltDirSep 
+                            : (char)0;
 
             return dirSep == 0 ? null : filePath.TrimEnd(dirSep).SplitOnLast(dirSep)[0];
         }
@@ -479,19 +420,6 @@ namespace ServiceStack
             return CsvSerializer.SerializeToString(obj);
         }
 
-#if !XBOX && !SILVERLIGHT && !MONOTOUCH
-        public static string ToXml<T>(this T obj)
-        {
-            return XmlSerializer.SerializeToString(obj);
-        }
-#endif
-
-#if !XBOX && !SILVERLIGHT && !MONOTOUCH
-        public static T FromXml<T>(this string json)
-        {
-            return XmlSerializer.DeserializeFromString<T>(json);
-        }
-#endif
         public static string FormatWith(this string text, params object[] args)
         {
             return String.Format(text, args);
@@ -504,58 +432,35 @@ namespace ServiceStack
 
         public static bool StartsWithIgnoreCase(this string text, string startsWith)
         {
-#if NETFX_CORE
             return text != null
-                && text.StartsWith(startsWith, StringComparison.CurrentCultureIgnoreCase);
-#else
-            return text != null
-                && text.StartsWith(startsWith, StringComparison.InvariantCultureIgnoreCase);
-#endif
+                && text.StartsWith(startsWith, PclExport.Instance.InvariantComparisonIgnoreCase);
         }
 
         public static bool EndsWithIgnoreCase(this string text, string endsWith)
         {
-#if NETFX_CORE
             return text != null
-                && text.EndsWith(endsWith, StringComparison.CurrentCultureIgnoreCase);
-#else
-            return text != null
-                && text.EndsWith(endsWith, StringComparison.InvariantCultureIgnoreCase);
-#endif
+                && text.EndsWith(endsWith, PclExport.Instance.InvariantComparisonIgnoreCase);
         }
 
         public static string ReadAllText(this string filePath)
         {
-#if XBOX && !SILVERLIGHT
-            using( var fileStream = new FileStream( filePath, FileMode.Open, FileAccess.Read ) )
-            {
-                return new StreamReader( fileStream ).ReadToEnd( ) ;
-            }
-#elif NETFX_CORE
-            var task = Windows.Storage.StorageFile.GetFileFromPathAsync(filePath);
-            task.AsTask().Wait();
-
-            var file = task.GetResults();
-            
-            var streamTask = file.OpenStreamForReadAsync();
-            streamTask.Wait();
-
-            var fileStream = streamTask.Result;
-
-            return new StreamReader( fileStream ).ReadToEnd( ) ;
-#elif WINDOWS_PHONE
-            using (var isoStore = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                using (var fileStream = isoStore.OpenFile(filePath, FileMode.Open))
-                {
-                    return new StreamReader(fileStream).ReadToEnd();
-                }
-            }
-#else
-            return File.ReadAllText(filePath);
-#endif
+            return PclExport.Instance.ReadAllText(filePath);
         }
 
+        public static bool FileExists(this string filePath)
+        {
+            return PclExport.Instance.FileExists(filePath);
+        }
+
+        public static bool DirectoryExists(this string dirPath)
+        {
+            return PclExport.Instance.DirectoryExists(dirPath);
+        }
+
+        public static void CreateDirectory(this string dirPath)
+        {
+            PclExport.Instance.CreateDirectory(dirPath);
+        }
 
         public static int IndexOfAny(this string text, params string[] needles)
         {
@@ -604,23 +509,16 @@ namespace ServiceStack
             return fromText.Substring(startPos, endPos - startPos);
         }
 
-#if XBOX && !SILVERLIGHT
-        static readonly Regex StripHtmlRegEx = new Regex(@"<(.|\n)*?>", RegexOptions.Compiled);
-#else
-        static readonly Regex StripHtmlRegEx = new Regex(@"<(.|\n)*?>");
-#endif
+        static readonly Regex StripHtmlRegEx = new Regex(@"<(.|\n)*?>", PclExport.Instance.RegexOptions);
+
         public static string StripHtml(this string html)
         {
             return String.IsNullOrEmpty(html) ? null : StripHtmlRegEx.Replace(html, "");
         }
 
-#if XBOX && !SILVERLIGHT
-        static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]", RegexOptions.Compiled);
-        static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)", RegexOptions.Compiled);
-#else
-        static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]");
-        static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)");
-#endif
+        static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]", PclExport.Instance.RegexOptions);
+        static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)", PclExport.Instance.RegexOptions);
+
         public static string StripMarkdownMarkup(this string markdown)
         {
             if (String.IsNullOrEmpty(markdown)) return null;
@@ -663,26 +561,9 @@ namespace ServiceStack
             return new string(newValue);
         }
 
-        private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
         public static string ToTitleCase(this string value)
         {
-#if SILVERLIGHT || __MonoCS__
-            string[] words = value.Split('_');
-
-            for (int i = 0; i <= words.Length - 1; i++)
-            {
-                if ((!object.ReferenceEquals(words[i], string.Empty)))
-                {
-                    string firstLetter = words[i].Substring(0, 1);
-                    string rest = words[i].Substring(1);
-                    string result = firstLetter.ToUpper() + rest.ToLower();
-                    words[i] = result;
-                }
-            }
-            return String.Join("", words);
-#else
-            return TextInfo.ToTitleCase(value).Replace("_", String.Empty);
-#endif
+            return PclExport.Instance.ToTitleCase(value);
         }
 
         public static string ToLowercaseUnderscore(this string value)
@@ -691,7 +572,7 @@ namespace ServiceStack
             value = value.ToCamelCase();
 
             var sb = new StringBuilder(value.Length);
-            foreach (var t in value)
+            foreach (char t in value)
             {
                 if (Char.IsDigit(t) || (Char.IsLetter(t) && Char.IsLower(t)) || t == '_')
                 {
@@ -727,77 +608,23 @@ namespace ServiceStack
             if (type == null)
                 throw new ArgumentNullException("type");
 
-            // HACK: The only way to detect anonymous types right now.
-#if NETFX_CORE
-            return type.IsGeneric() && type.Name.Contains("AnonymousType")
-                && (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal));
-#else
-            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                && type.IsGeneric() && type.Name.Contains("AnonymousType")
-                && (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal))
-                && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
-#endif
+            return PclExport.Instance.IsAnonymousType(type);
         }
 
         public static int CompareIgnoreCase(this string strA, string strB)
         {
-            return String.Compare(strA, strB, InvariantComparisonIgnoreCase());
+            return String.Compare(strA, strB, PclExport.Instance.InvariantComparisonIgnoreCase);
         }
 
         public static bool EndsWithInvariant(this string str, string endsWith)
         {
-            return str.EndsWith(endsWith, InvariantComparison());
+            return str.EndsWith(endsWith, PclExport.Instance.InvariantComparison);
         }
 
-#if NETFX_CORE
-        public static char DirSeparatorChar = '\\';
-        public static StringComparison InvariantComparison()
-        {
-            return StringComparison.CurrentCulture;
-        }
-        public static StringComparison InvariantComparisonIgnoreCase()
-        {
-            return StringComparison.CurrentCultureIgnoreCase;
-        }
-        public static StringComparer InvariantComparer()
-        {
-            return StringComparer.CurrentCulture;
-        }
-        public static StringComparer InvariantComparerIgnoreCase()
-        {
-            return StringComparer.CurrentCultureIgnoreCase;
-        }
-#else
-        public static char DirSeparatorChar = Path.DirectorySeparatorChar;
-        public static StringComparison InvariantComparison()
-        {
-            return StringComparison.InvariantCulture;
-        }
-        public static StringComparison InvariantComparisonIgnoreCase()
-        {
-            return StringComparison.InvariantCultureIgnoreCase;
-        }
-        public static StringComparer InvariantComparer()
-        {
-            return StringComparer.InvariantCulture;
-        }
-        public static StringComparer InvariantComparerIgnoreCase()
-        {
-            return StringComparer.InvariantCultureIgnoreCase;
-        }
-#endif
-
-
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
-        private const RegexOptions PlatformRegexOptions = RegexOptions.Compiled;
-#else
-        private const RegexOptions PlatformRegexOptions = RegexOptions.None;
-#endif
-
-        private static readonly Regex InvalidVarCharsRegex = new Regex(@"[^A-Za-z0-9]", PlatformRegexOptions);
-        private static readonly Regex SplitCamelCaseRegex = new Regex("([A-Z]|[0-9]+)", PlatformRegexOptions);
+        private static readonly Regex InvalidVarCharsRegex = new Regex(@"[^A-Za-z0-9]", PclExport.Instance.RegexOptions);
+        private static readonly Regex SplitCamelCaseRegex = new Regex("([A-Z]|[0-9]+)", PclExport.Instance.RegexOptions);
         private static readonly Regex HttpRegex = new Regex(@"^http://",
-            PlatformRegexOptions | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+            PclExport.Instance.RegexOptions | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
         public static T ToEnum<T>(this string value)
         {
@@ -817,11 +644,7 @@ namespace ServiceStack
 
         public static string ToInvariantUpper(this char value)
         {
-#if NETFX_CORE
-            return value.ToString().ToUpperInvariant();
-#else
-            return value.ToString(CultureInfo.InvariantCulture).ToUpper();
-#endif
+            return PclExport.Instance.ToInvariantUpper(value);
         }
 
         public static string ToEnglish(this string camelCase)
@@ -1014,5 +837,53 @@ namespace ServiceStack
 
             return fromString;
         }
+
+        public static string FromAsciiBytes(this byte[] bytes)
+        {
+            return bytes == null ? null
+                : PclExport.Instance.GetAsciiString(bytes);
+        }
+
+        public static byte[] ToAsciiBytes(this string value)
+        {
+            return PclExport.Instance.GetAsciiBytes(value);
+        }
+
+#if !XBOX
+        public static string HexEscape(this string text, params char[] anyCharOf)
+        {
+            if (String.IsNullOrEmpty(text)) return text;
+            if (anyCharOf == null || anyCharOf.Length == 0) return text;
+
+            var encodeCharMap = new HashSet<char>(anyCharOf);
+
+            var sb = new StringBuilder();
+            var textLength = text.Length;
+            for (var i = 0; i < textLength; i++)
+            {
+                var c = text[i];
+                if (encodeCharMap.Contains(c))
+                {
+                    sb.Append('%' + ((int)c).ToString("x"));
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string ToXml<T>(this T obj)
+        {
+            return XmlSerializer.SerializeToString(obj);
+        }
+
+        public static T FromXml<T>(this string json)
+        {
+            return XmlSerializer.DeserializeFromString<T>(json);
+        }
+#endif
+
     }
 }

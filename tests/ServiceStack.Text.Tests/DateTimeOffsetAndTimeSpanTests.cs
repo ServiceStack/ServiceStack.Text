@@ -7,7 +7,7 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class DateTimeOffsetAndTimeSpanTests : TestBase
     {
-#if !MONOTOUCH
+#if !IOS
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {

@@ -10,10 +10,6 @@
 // Licensed under the same terms of ServiceStack.
 //
 
-#if !XBOX && !MONOTOUCH && !SILVERLIGHT
-using System.Reflection.Emit;
-#endif
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -92,14 +88,7 @@ namespace ServiceStack.Text.Common
                     return null;
                 }
 
-#if !SILVERLIGHT && !MONOTOUCH
-                if (type.IsInterface || type.IsAbstract)
-                {
-                    return DynamicProxy.GetInstanceFor(type).GetType();
-                }
-#endif
-
-                return type;
+                return PclExport.Instance.UseType(type);
             }
             return null;
         }
@@ -271,101 +260,20 @@ namespace ServiceStack.Text.Common
                 if (fieldInfo == null) return null;
             }
 
-#if SILVERLIGHT || MONOTOUCH || XBOX
-            if (propertyInfo.CanWrite)
-            {
-                var setMethodInfo = propertyInfo.SetMethod();
-                return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
-            }
-            if (fieldInfo == null) return null;
-            return (instance, value) => fieldInfo.SetValue(instance, value);
-#else
-            return propertyInfo.CanWrite
-                ? CreateIlPropertySetter(propertyInfo)
-                : CreateIlFieldSetter(fieldInfo);
-#endif
+            return PclExport.Instance.GetSetMethod(propertyInfo, fieldInfo);
         }
-
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
-
-        private static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
-        {
-            var propSetMethod = propertyInfo.GetSetMethod(true);
-            if (propSetMethod == null)
-                return null;
-
-            var setter = CreateDynamicSetMethod(propertyInfo);
-
-            var generator = setter.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
-            generator.Emit(OpCodes.Ldarg_1);
-
-            generator.Emit(propertyInfo.PropertyType.IsClass
-                ? OpCodes.Castclass
-                : OpCodes.Unbox_Any,
-                propertyInfo.PropertyType);
-
-            generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
-            generator.Emit(OpCodes.Ret);
-
-            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-        }
-
-        private static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
-        {
-            var setter = CreateDynamicSetMethod(fieldInfo);
-
-            var generator = setter.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
-            generator.Emit(OpCodes.Ldarg_1);
-
-            generator.Emit(fieldInfo.FieldType.IsClass
-                ? OpCodes.Castclass
-                : OpCodes.Unbox_Any,
-                fieldInfo.FieldType);
-
-            generator.Emit(OpCodes.Stfld, fieldInfo);
-            generator.Emit(OpCodes.Ret);
-
-            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-        }
-
-        private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
-        {
-            var args = new[] { typeof(object), typeof(object) };
-            var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
-            var returnType = typeof(void);
-
-            return !memberInfo.DeclaringType.IsInterface
-                ? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
-                : new DynamicMethod(name, returnType, args, memberInfo.Module, true);
-        }
-#endif
 
         internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
         {
             if (!propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Any()) return null;
 
-#if SILVERLIGHT || MONOTOUCH || XBOX
-            var setMethodInfo = propertyInfo.SetMethod();
-            return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
-#else
-            return CreateIlPropertySetter(propertyInfo);
-#endif
+            return PclExport.Instance.GetSetPropertyMethod(propertyInfo);
         }
 
         internal static SetPropertyDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
         {
-
-#if SILVERLIGHT || MONOTOUCH || XBOX
-            return (instance, value) => fieldInfo.SetValue(instance, value);
-#else
-            return CreateIlFieldSetter(fieldInfo);
-#endif
+            return PclExport.Instance.GetSetFieldMethod(fieldInfo);
         }
-
 
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
         {
@@ -375,7 +283,6 @@ namespace ServiceStack.Text.Common
                 GetProperty = serializer.GetParseFn(fieldInfo.FieldType),
                 SetProperty = GetSetFieldMethod(typeConfig, fieldInfo),
             };
-            
         }
 
 		private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
@@ -383,11 +290,7 @@ namespace ServiceStack.Text.Common
             if (fieldInfo.ReflectedType() != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
-#if SILVERLIGHT || MONOTOUCH || XBOX
-            return (instance, value) => fieldInfo.SetValue(instance, value);
-#else
-			return CreateIlFieldSetter(fieldInfo);
-#endif
+		    return PclExport.Instance.GetSetFieldMethod(fieldInfo);
 		}
     }
 }

@@ -96,7 +96,7 @@ namespace ServiceStack
             {
                 CopyTo(input, tempStream, buffer);
                 // No need to copy the buffer if it's the right size
-#if !NETFX_CORE
+#if !(NETFX_CORE || PCL)
                 if (tempStream.Length == tempStream.GetBuffer().Length)
                 {
                     return tempStream.GetBuffer();

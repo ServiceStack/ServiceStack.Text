@@ -1,0 +1,359 @@
+﻿//Copyright (c) Service Stack LLC. All Rights Reserved.
+//License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
+using ServiceStack.Text;
+using ServiceStack.Text.Common;
+
+namespace ServiceStack
+{
+    public abstract class PclExport
+    {
+        public static PclExport Instance
+#if PCL
+          /*attempts to be inferred otherwise needs to be set explicitly by host project*/
+#elif SL5
+          = new Sl5PclExport()
+#elif NETFX_CORE
+          = new WinRtPclExport()
+#elif WP
+          = new WpPclExport()
+#elif XBOX
+          = new XboxPclExport()
+#elif IOS
+          = new IosPclExport()
+#elif ANDROID
+          = new AndroidPclExport()
+#else
+          = new Net40PclExport()
+#endif
+        ;
+
+        static PclExport()
+        {
+            if (Instance != null) 
+                return;
+
+            if (Env.IsMonoTouch)
+                Instance = AssemblyUtils.FindType("ServiceStack.IosPclExport").CreateInstance() as PclExport;
+            else if (Env.IsAndroid)
+                Instance = AssemblyUtils.FindType("ServiceStack.AndroidPclExport").CreateInstance() as PclExport;
+            else if (Env.IsWinRT)
+                Instance = AssemblyUtils.FindType("ServiceStack.WinRtPclExport").CreateInstance() as PclExport;
+            else if (Env.IsWindowsPhone)
+                Instance = AssemblyUtils.FindType("ServiceStack.WpPclExport").CreateInstance() as PclExport;
+            else if (Env.IsSilverlight)
+                Instance = AssemblyUtils.FindType("ServiceStack.Sl5PclExport").CreateInstance() as PclExport;
+            else
+                Instance = AssemblyUtils.FindType("ServiceStack.Net40PclExport").CreateInstance() as PclExport;
+        }
+
+        public bool SupportsExpression;
+
+        public bool SupportsEmit;
+
+        public char DirSep = '\\';
+
+        public char AltDirSep = '/';
+
+        public string PlatformName = "Unknown";
+
+        public TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
+
+        public RegexOptions RegexOptions = RegexOptions.None;
+
+        public StringComparison InvariantComparison = StringComparison.CurrentCulture;
+
+        public StringComparison InvariantComparisonIgnoreCase = StringComparison.CurrentCultureIgnoreCase;
+
+        public StringComparer InvariantComparer = StringComparer.CurrentCulture;
+
+        public StringComparer InvariantComparerIgnoreCase = StringComparer.CurrentCultureIgnoreCase;
+
+        public abstract string ReadAllText(string filePath);
+
+        public virtual string ToTitleCase(string value)
+        {
+            string[] words = value.Split('_');
+
+            for (int i = 0; i <= words.Length - 1; i++)
+            {
+                if ((!object.ReferenceEquals(words[i], string.Empty)))
+                {
+                    string firstLetter = words[i].Substring(0, 1);
+                    string rest = words[i].Substring(1);
+                    string result = firstLetter.ToUpper() + rest.ToLower();
+                    words[i] = result;
+                }
+            }
+            return string.Join("", words);
+        }
+
+        // HACK: The only way to detect anonymous types right now.
+        public virtual bool IsAnonymousType(Type type)
+        {
+            return type.IsGeneric() && type.Name.Contains("AnonymousType")
+                && (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal));
+        }
+
+        public virtual string ToInvariantUpper(char value)
+        {
+            return value.ToString().ToUpperInvariant();
+        }
+
+        public virtual bool FileExists(string filePath)
+        {
+            return false;
+        }
+
+        public virtual bool DirectoryExists(string dirPath)
+        {
+            return false;
+        }
+
+        public virtual void CreateDirectory(string dirPath)
+        {
+        }
+
+        public virtual void RegisterLicenseFromConfig()
+        {            
+        }
+
+        public virtual string GetEnvironmentVariable(string name)
+        {
+            return null;
+        }
+
+        public virtual void WriteLine(string line)
+        {
+        }
+
+        public virtual void WriteLine(string line, params object[] args)
+        {
+        }
+
+        public virtual void AddCompression(WebRequest webRequest)
+        {
+        }
+
+        public virtual Stream GetRequestStream(WebRequest webRequest)
+        {
+            var async = webRequest.GetRequestStreamAsync();
+            async.Wait();
+            return async.Result;
+        }
+
+        public virtual WebResponse GetResponse(WebRequest webRequest)
+        {
+            var async = webRequest.GetResponseAsync();
+            async.Wait();
+            return async.Result;
+        }
+
+        public virtual bool IsDebugBuild(Assembly assembly)
+        {
+            return assembly.AllAttributes()
+                .OfType<DebuggableAttribute>()
+                .Any();
+        }
+
+        public virtual string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
+        {
+            return relativePath;
+        }
+
+        public virtual Assembly LoadAssembly(string assemblyPath)
+        {
+            return Assembly.Load(new AssemblyName(assemblyPath));
+        }
+
+        public virtual Assembly[] GetAllAssemblies()
+        {
+            return new Assembly[0];
+        }
+
+        public virtual Type FindType(string typeName, string assemblyName)
+        {
+            return null;
+        }
+
+        public virtual string GetAssemblyCodeBase(Assembly assembly)
+        {
+            return assembly.FullName;
+        }
+
+        public virtual string GetAssemblyPath(Type source)
+        {
+            return null;
+        }
+
+        public virtual string GetAsciiString(byte[] bytes)
+        {
+            return GetAsciiString(bytes, 0, bytes.Length);
+        }
+
+        public virtual string GetAsciiString(byte[] bytes, int index, int count)
+        {
+            return Encoding.UTF8.GetString(bytes, index, count);
+        }
+
+        public virtual byte[] GetAsciiBytes(string str)
+        {
+            return Encoding.UTF8.GetBytes(str);
+        }
+
+        public virtual SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
+        {
+            var setMethodInfo = propertyInfo.SetMethod();
+            return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+        }
+
+        public virtual SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
+        {
+            return fieldInfo.SetValue;
+        }
+
+        public virtual SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        {
+            if (propertyInfo.CanWrite)
+            {
+                var setMethodInfo = propertyInfo.SetMethod();
+                return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+            }
+            if (fieldInfo == null) return null;
+            return fieldInfo.SetValue;
+        }
+
+        public virtual Type UseType(Type type)
+        {
+            return type;
+        }
+
+        public virtual bool InSameAssembly(Type t1, Type t2)
+        {
+            return t1.AssemblyQualifiedName != null && t1.AssemblyQualifiedName.Equals(t2.AssemblyQualifiedName);
+        }
+
+        public virtual Type GetGenericCollectionType(Type type)
+        {
+            return type.GetTypeInterfaces()
+                .FirstOrDefault(t => t.IsGenericType()
+                && t.GetGenericTypeDefinition() == typeof(ICollection<>));
+        }
+
+        public virtual PropertySetterDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
+        {
+            var propertySetMethod = propertyInfo.SetMethod();
+            if (propertySetMethod == null) return null;
+
+            return (o, convertedValue) =>
+                propertySetMethod.Invoke(o, new[] { convertedValue });
+        }
+
+        public virtual PropertyGetterDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
+        {
+            var getMethodInfo = propertyInfo.GetMethodInfo();
+            if (getMethodInfo == null) return null;
+
+            return o => propertyInfo.GetMethodInfo().Invoke(o, new object[] { });
+        }
+
+        public virtual string ToXsdDateTimeString(DateTime dateTime)
+        {
+            return XmlConvert.ToString(dateTime.ToStableUniversalTime(), DateTimeSerializer.XsdDateTimeFormat);
+        }
+
+        public virtual string ToLocalXsdDateTimeString(DateTime dateTime)
+        {
+            return XmlConvert.ToString(dateTime, DateTimeSerializer.XsdDateTimeFormat);
+        }
+
+        public virtual DateTime ParseXsdDateTime(string dateTimeStr)
+        {
+            return XmlConvert.ToDateTimeOffset(dateTimeStr).DateTime;
+        }
+
+        public virtual DateTime ParseXsdDateTimeAsUtc(string dateTimeStr)
+        {
+            var dateTimeType = "yyyy-MM-ddTHH:mm:sszzzzzzz";
+            return XmlConvert.ToDateTimeOffset(dateTimeStr, dateTimeType).DateTime.Prepare();
+        }
+
+        public virtual DateTime ToStableUniversalTime(DateTime dateTime)
+        {
+            // Silverlight 3, 4 and 5 all work ok with DateTime.ToUniversalTime, but have no TimeZoneInfo.ConverTimeToUtc implementation.
+            return dateTime.ToUniversalTime();
+        }
+
+        internal virtual ParseStringDelegate GetDictionaryParseMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
+        internal virtual ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
+        public virtual XmlSerializer NewXmlSerializer()
+        {
+            return new XmlSerializer();
+        }
+
+        public virtual void InitHttpWebRequest(HttpWebRequest httpReq,
+            long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
+        {            
+        }
+
+        public virtual void CloseStream(Stream stream)
+        {
+            stream.Flush();
+        }
+
+        public virtual LicenseKey VerifyLicenseKeyText(string licenseKeyText)
+        {
+            return licenseKeyText.ToLicenseKey();
+        }
+
+        public virtual void VerifyInAssembly(Type accessType, string assemblyName)
+        {
+        }
+
+        public virtual void BeginThreadAffinity()
+        {
+        }
+
+        public virtual void EndThreadAffinity()
+        {
+        }
+
+        public DataContractAttribute GetWeakDataContract(Type type)
+        {
+            return null;
+        }
+
+        public DataMemberAttribute GetWeakDataMember(PropertyInfo pi)
+        {
+            return null;
+        }
+
+        public DataMemberAttribute GetWeakDataMember(FieldInfo pi)
+        {
+            return null;
+        }
+    }
+
+}

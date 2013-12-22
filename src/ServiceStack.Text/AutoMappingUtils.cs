@@ -4,9 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -41,32 +39,14 @@ namespace ServiceStack
             }
         }
 
-#if !SILVERLIGHT
         public static string GetAssemblyPath(this Type source)
         {
-            var assemblyUri =
-                new Uri(source.Assembly.EscapedCodeBase);
-
-            return assemblyUri.LocalPath;
+            return PclExport.Instance.GetAssemblyPath(source);
         }
-#endif
 
         public static bool IsDebugBuild(this Assembly assembly)
         {
-#if NETFX_CORE
-            return assembly.GetCustomAttributes()
-                .OfType<DebuggableAttribute>()
-                .Any();
-#elif WINDOWS_PHONE || SILVERLIGHT
-            return assembly.GetCustomAttributes(false)
-                .OfType<DebuggableAttribute>()
-                .Any();
-#else
-            return assembly.GetCustomAttributes(false)
-                .OfType<DebuggableAttribute>()
-                .Select(attr => attr.IsJITTrackingEnabled)
-                .FirstOrDefault();
-#endif
+            return PclExport.Instance.IsDebugBuild(assembly);
         }
 
         /// <summary>
@@ -77,7 +57,7 @@ namespace ServiceStack
         public static object PopulateWith(object obj)
         {
             if (obj == null) return null;
-            var isHttpResult = obj.GetType().GetInterfaces().Any(x => x.Name == "IHttpResult"); // No coupling FTW!
+            var isHttpResult = obj.GetType().Interfaces().Any(x => x.Name == "IHttpResult"); // No coupling FTW!
             if (isHttpResult)
             {
                 obj = new CustomHttpResult();
@@ -198,7 +178,7 @@ namespace ServiceStack
                     }
                     else
                     {
-                        if (propertyInfo.CanWrite && propertyInfo.GetSetMethod() != null)
+                        if (propertyInfo.CanWrite && propertyInfo.SetMethod() != null)
                         {
                             map[info.Name] = new AssignmentMember(propertyInfo.PropertyType, propertyInfo);
                             continue;
@@ -328,31 +308,14 @@ namespace ServiceStack
 
         public static bool IsUnsettableValue(FieldInfo fieldInfo, PropertyInfo propertyInfo)
         {
-#if NETFX_CORE
-            if (propertyInfo != null)
-            {
-                // Properties on non-user defined classes should not be set
-                // Currently we define those properties as properties declared on
-                // types defined in mscorlib
+            // Properties on non-user defined classes should not be set
+            // Currently we define those properties as properties declared on
+            // types defined in mscorlib
 
-                if (propertyInfo.DeclaringType.AssemblyQualifiedName.Equals(typeof(object).AssemblyQualifiedName))
-                {
-                    return true;
-                }
-            }
-#else
-            if (propertyInfo != null && propertyInfo.ReflectedType != null)
+            if (propertyInfo != null && propertyInfo.ReflectedType() != null)
             {
-                // Properties on non-user defined classes should not be set
-                // Currently we define those properties as properties declared on
-                // types defined in mscorlib
-
-                if (propertyInfo.DeclaringType.Assembly == typeof(object).Assembly)
-                {
-                    return true;
-                }
+                return PclExport.Instance.InSameAssembly(propertyInfo.DeclaringType, typeof(object));
             }
-#endif
 
             return false;
         }
@@ -378,7 +341,7 @@ namespace ServiceStack
 
             if (type.IsEnum())
             {
-#if SILVERLIGHT4 || WINDOWS_PHONE
+#if SL5 || WP
                 return Enum.ToObject(type, 0);
 #else
                 return Enum.GetValues(type).GetValue(0);
@@ -419,14 +382,11 @@ namespace ServiceStack
                 {
                     var value = constructorInfo.Invoke(new object[0]);
 
-#if !SILVERLIGHT && !MONOTOUCH && !XBOX
-
-                    var genericCollectionType = GetGenericCollectionType(type);
+                    var genericCollectionType = PclExport.Instance.GetGenericCollectionType(type);
                     if (genericCollectionType != null)
                     {
                         SetGenericCollection(genericCollectionType, value, recursionInfo);
                     }
-#endif
 
                     //when the object might have nested properties such as enums with non-0 values, etc
                     return PopulateObjectInternal(value, recursionInfo);
@@ -437,25 +397,6 @@ namespace ServiceStack
             {
                 recursionInfo[type] = recurseLevel;
             }
-        }
-
-        private static Type GetGenericCollectionType(Type type)
-        {
-#if NETFX_CORE
-            var genericCollectionType =
-                type.GetTypeInfo().ImplementedInterfaces
-                    .FirstOrDefault(t => t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeof (ICollection<>));
-#elif WINDOWS_PHONE || SILVERLIGHT
-            var genericCollectionType =
-                type.GetInterfaces()
-                    .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof (ICollection<>));
-#else
-            var genericCollectionType = type.FindInterfaces((t, critera) =>
-                t.IsGenericType
-                && t.GetGenericTypeDefinition() == typeof(ICollection<>), null).FirstOrDefault();
-#endif
-
-            return genericCollectionType;
         }
 
         public static void SetGenericCollection(Type realisedListType, object genericObj, Dictionary<Type, int> recursionInfo)
@@ -521,9 +462,9 @@ namespace ServiceStack
                 foreach (var propertyInfo in propertyInfos)
                 {
                     var attributes = propertyInfo.GetCustomAttributes(attributeType, true);
-                    foreach (T attribute in attributes)
+                    foreach (var attribute in attributes)
                     {
-                        yield return new KeyValuePair<PropertyInfo, T>(propertyInfo, attribute);
+                        yield return new KeyValuePair<PropertyInfo, T>(propertyInfo, (T)(object)attribute);
                     }
                 }
             }
@@ -582,13 +523,9 @@ namespace ServiceStack
             if (FieldInfo != null)
                 return o => FieldInfo.GetValue(o);
             if (MethodInfo != null)
-#if NETFX_CORE
                 return (PropertyGetterDelegate)
                     MethodInfo.CreateDelegate(typeof(PropertyGetterDelegate));
-#else
-                return (PropertyGetterDelegate)
-                    Delegate.CreateDelegate(typeof(PropertyGetterDelegate), MethodInfo);
-#endif
+
             return null;
         }
 
@@ -632,7 +569,7 @@ namespace ServiceStack
         public void PopulateWithNonDefaultValues(object to, object from)
         {
             var nonDefaultPredicate = (Func<object, Type, bool>)((x, t) =>
-                    x != null && !Equals(x, AutoMappingUtils.GetDefaultValue(t))
+                    x != null && !Equals(x, t.GetDefaultValue())
                 );
 
             Populate(to, from, null, nonDefaultPredicate);
@@ -718,63 +655,12 @@ namespace ServiceStack
     {
         public static PropertySetterDelegate GetPropertySetterFn(this PropertyInfo propertyInfo)
         {
-            var propertySetMethod = propertyInfo.SetMethod();
-            if (propertySetMethod == null) return null;
-
-#if MONOTOUCH || SILVERLIGHT || XBOX
-            return (o, convertedValue) =>
-            {
-                propertySetMethod.Invoke(o, new[] { convertedValue });
-                return;
-            };
-#else
-            var instance = Expression.Parameter(typeof(object), "i");
-            var argument = Expression.Parameter(typeof(object), "a");
-
-            var instanceParam = Expression.Convert(instance, propertyInfo.ReflectedType);
-            var valueParam = Expression.Convert(argument, propertyInfo.PropertyType);
-
-            var setterCall = Expression.Call(instanceParam, propertyInfo.GetSetMethod(), valueParam);
-
-            return Expression.Lambda<PropertySetterDelegate>(setterCall, instance, argument).Compile();
-#endif
+            return PclExport.Instance.GetPropertySetterFn(propertyInfo);
         }
 
         public static PropertyGetterDelegate GetPropertyGetterFn(this PropertyInfo propertyInfo)
         {
-            var getMethodInfo = propertyInfo.GetMethodInfo();
-            if (getMethodInfo == null) return null;
-
-#if MONOTOUCH || SILVERLIGHT || XBOX
-#if NETFX_CORE
-            return o => propertyInfo.GetMethod.Invoke(o, new object[] { });
-#else
-            return o => propertyInfo.GetGetMethod().Invoke(o, new object[] { });
-#endif
-#else
-            try
-            {
-                var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
-                var instanceParam = Expression.Convert(oInstanceParam, propertyInfo.ReflectedType); //propertyInfo.DeclaringType doesn't work on Proxy types
-
-                var exprCallPropertyGetFn = Expression.Call(instanceParam, getMethodInfo);
-                var oExprCallPropertyGetFn = Expression.Convert(exprCallPropertyGetFn, typeof(object));
-
-                var propertyGetFn = Expression.Lambda<PropertyGetterDelegate>
-                    (
-                        oExprCallPropertyGetFn,
-                        oInstanceParam
-                    ).Compile();
-
-                return propertyGetFn;
-
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex.Message);
-                throw;
-            }
-#endif
+            return PclExport.Instance.GetPropertyGetterFn(propertyInfo);
         }
     }
 }

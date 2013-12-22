@@ -6,7 +6,7 @@ namespace ServiceStack.Text.Tests
 	[TestFixture]
 	public class AotTests
 	{
-#if SILVERLIGHT || MONOTOUCH
+#if SL5 || IOS
 		[Test]
 		public void Can_Register_AOT()
 		{

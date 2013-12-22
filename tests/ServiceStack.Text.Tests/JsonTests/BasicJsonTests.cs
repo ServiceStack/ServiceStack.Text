@@ -6,7 +6,7 @@ using NUnit.Framework;
 using ServiceStack.Text.Json;
 
 
-#if !MONOTOUCH
+#if !IOS
 using ServiceStack.Common.Tests.Models;
 #endif
 
@@ -53,7 +53,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		[SetUp]
 		public void Setup ()
 		{
-#if MONOTOUCH
+#if IOS
 			JsConfig.Reset();
 			JsConfig.RegisterTypeForAot<ExampleEnumWithoutFlagsAttribute>();
 			JsConfig.RegisterTypeForAot<ExampleEnum>();
@@ -275,7 +275,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 			}
 		}
 
-#if !MONOTOUCH
+#if !IOS
 		[DataContract]
 		class Person
 		{

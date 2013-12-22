@@ -309,7 +309,7 @@ namespace ServiceStack.Text.Json
 
         public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
         {
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID
+#if !(IOS || SL5 || XBOX || ANDROID || PCL)
             WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
 #endif
         }

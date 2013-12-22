@@ -15,9 +15,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Linq;
-#if WINDOWS_PHONE && !WP8
-using ServiceStack.Text.WP;
-#endif
 
 namespace ServiceStack.Text.Common
 {

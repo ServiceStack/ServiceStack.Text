@@ -169,7 +169,7 @@ namespace ServiceStack.Text.Tests
             public Byte Icon { get; set; }
             public Boolean Canceled { get; set; }
         }
-#if !MONOTOUCH
+#if !IOS
         public class BookResponse : IHasResponseStatus
         {
             public Book Book { get; set; }

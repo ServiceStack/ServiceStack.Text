@@ -58,7 +58,7 @@ namespace ServiceStack.Text.Tests
         [TestFixtureSetUp]
         public void SetUp()
         {
-#if MONOTOUCH
+#if IOS
             JsConfig.RegisterTypeForAot<Text> ();
             JsConfig.RegisterTypeForAot<Foo> ();
             JsConfig.RegisterTypeForAot<PersonStatus> ();
@@ -208,7 +208,7 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(dto.ToJsv(),
                 Is.EqualTo("{Id:1,Name:foo}"));
-#if !XBOX && !SILVERLIGHT && !MONOTOUCH
+#if !XBOX && !SL5 && !IOS
             Assert.That(dto.ToXml(),
                 Is.EqualTo("<?xml version=\"1.0\" encoding=\"utf-8\"?><UserStruct xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.datacontract.org/2004/07/ServiceStack.Text.Tests\"><Id>1</Id><Name>foo</Name></UserStruct>"));
 #endif

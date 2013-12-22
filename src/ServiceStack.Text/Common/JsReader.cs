@@ -77,8 +77,8 @@ namespace ServiceStack.Text.Common
                     return DeserializeEnumerable<T, TSerializer>.Parse;
             }
 
-#if !NETFX_CORE
-            if (typeof(T).IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+#if !(NETFX_CORE || WP)
+            if (typeof(T).AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 typeof(T).HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.Parse;

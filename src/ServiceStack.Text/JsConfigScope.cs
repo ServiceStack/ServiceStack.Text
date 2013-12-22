@@ -1,7 +1,4 @@
-﻿#if WINDOWS_PHONE && !WP8
-using ServiceStack.Text.WP;
-#endif
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +17,8 @@ namespace ServiceStack.Text
 
         internal JsConfigScope()
         {
-#if !SILVERLIGHT
-            Thread.BeginThreadAffinity();
-#endif
+            PclExport.Instance.BeginThreadAffinity();
+
             parent = head;
             head = this;
         }
@@ -48,13 +44,11 @@ namespace ServiceStack.Text
             if (!disposed)
             {
                 disposed = true;
-
                 Debug.Assert(this == head, "Disposed out of order.");
 
                 head = parent;
-#if !SILVERLIGHT
-                Thread.EndThreadAffinity();
-#endif
+
+                PclExport.Instance.EndThreadAffinity();
             }
         }
 

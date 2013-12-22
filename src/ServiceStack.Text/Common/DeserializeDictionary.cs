@@ -34,12 +34,10 @@ namespace ServiceStack.Text.Common
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
             if (mapInterface == null)
             {
-#if !SILVERLIGHT
-                if (type == typeof(Hashtable))
-                {
-                    return ParseHashtable;
-                }
-#endif
+                var fn = PclExport.Instance.GetDictionaryParseMethod<TSerializer>(type);
+                if (fn != null)
+                    return fn;
+
                 if (type == typeof(IDictionary))
                 {
                     return GetParseMethod(typeof(Dictionary<object, object>));
@@ -96,35 +94,6 @@ namespace ServiceStack.Text.Common
 
             return result;
         }
-
-#if !SILVERLIGHT
-        public static Hashtable ParseHashtable(string value)
-        {
-            var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
-
-            var result = new Hashtable();
-
-            if (JsonTypeSerializer.IsEmptyMap(value, index)) return result;
-
-            var valueLength = value.Length;
-            while (index < valueLength)
-            {
-                var keyValue = Serializer.EatMapKey(value, ref index);
-                Serializer.EatMapKeySeperator(value, ref index);
-                var elementValue = Serializer.EatValue(value, ref index);
-                if (keyValue == null) continue;
-
-                var mapKey = keyValue;
-                var mapValue = elementValue;
-
-                result[mapKey] = mapValue;
-
-                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
-            }
-
-            return result;
-        }
-#endif
 
         public static Dictionary<string, string> ParseStringDictionary(string value)
         {

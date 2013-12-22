@@ -1,8 +1,4 @@
-
-#if !XBOX360 && !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH
-using System.IO.Compression;
-#endif
-
+#if !XBOX
 using System;
 using System.IO;
 using System.Runtime.Serialization;
@@ -11,45 +7,32 @@ using System.Xml;
 
 namespace ServiceStack.Text
 {
-#if !XBOX
     public class XmlSerializer
     {
         private readonly XmlDictionaryReaderQuotas quotas;
-        private static readonly XmlWriterSettings XSettings = new XmlWriterSettings();
+        private static readonly XmlWriterSettings XWSettings = new XmlWriterSettings();
+        private static readonly XmlReaderSettings XRSettings = new XmlReaderSettings();
 
-        public static XmlSerializer Instance
-            = new XmlSerializer(
-#if !SILVERLIGHT && !WINDOWS_PHONE && !MONOTOUCH
-                new XmlDictionaryReaderQuotas { MaxStringContentLength = 1024 * 1024, }
-#endif
-);
+        public static XmlSerializer Instance = PclExport.Instance.NewXmlSerializer();
 
-        public XmlSerializer(XmlDictionaryReaderQuotas quotas=null, bool omitXmlDeclaration = false)
+        public XmlSerializer(XmlDictionaryReaderQuotas quotas = null, bool omitXmlDeclaration = false)
         {
             this.quotas = quotas;
-            XSettings.Encoding = new UTF8Encoding(false);
-            XSettings.OmitXmlDeclaration = omitXmlDeclaration;
+            XWSettings.Encoding = new UTF8Encoding(false);
+            XWSettings.OmitXmlDeclaration = omitXmlDeclaration;
+            XRSettings.MaxCharactersInDocument = 1024 * 1024;
         }
 
         private static object Deserialize(string xml, Type type, XmlDictionaryReaderQuotas quotas)
         {
             try
             {
-#if WINDOWS_PHONE
-                StringReader stringReader = new StringReader(xml);
-                using (var reader = XmlDictionaryReader.Create(stringReader))
+                var stringReader = new StringReader(xml);
+                using (var reader = XmlReader.Create(stringReader, XRSettings))
                 {
                     var serializer = new DataContractSerializer(type);
                     return serializer.ReadObject(reader);
                 }
-#else
-                var bytes = Encoding.UTF8.GetBytes(xml);
-                using (var reader = XmlDictionaryReader.CreateTextReader(bytes, quotas))
-                {
-                    var serializer = new DataContractSerializer(type);
-                    return serializer.ReadObject(reader);
-                }
-#endif
             }
             catch (Exception ex)
             {
@@ -92,7 +75,7 @@ namespace ServiceStack.Text
             {
                 using (var ms = new MemoryStream())
                 {
-                    using (var xw = XmlWriter.Create(ms, XSettings))
+                    using (var xw = XmlWriter.Create(ms, XWSettings))
                     {
                         var serializer = new DataContractSerializer(from.GetType());
                         serializer.WriteObject(xw, from);
@@ -113,11 +96,7 @@ namespace ServiceStack.Text
         {
             try
             {
-#if !SILVERLIGHT
-				using (var xw = new XmlTextWriter(writer))
-#else
                 using (var xw = XmlWriter.Create(writer))
-#endif
                 {
                     var serializer = new DataContractSerializer(value.GetType());
                     serializer.WriteObject(xw, value);
@@ -131,41 +110,12 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object obj, Stream stream)
         {
-#if !SILVERLIGHT
-            using (var xw = new XmlTextWriter(stream, Encoding.UTF8))
-#else
-            using (var xw = XmlWriter.Create(stream))
-#endif
+            using (var xw = XmlWriter.Create(stream, new XmlWriterSettings { Encoding = Encoding.UTF8 }))
             {
                 var serializer = new DataContractSerializer(obj.GetType());
                 serializer.WriteObject(xw, obj);
             }
         }
-
-
-#if !SILVERLIGHT && !MONOTOUCH
-        public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
-        {
-            using (var deflateStream = new DeflateStream(stream, CompressionMode.Compress))
-            using (var xw = new XmlTextWriter(deflateStream, Encoding.UTF8))
-            {
-                var serializer = new DataContractSerializer(from.GetType());
-                serializer.WriteObject(xw, from);
-                xw.Flush();
-            }
-        }
-
-        public static byte[] Compress<TXmlDto>(TXmlDto from)
-        {
-            using (var ms = new MemoryStream())
-            {
-                CompressToStream(from, ms);
-
-                return ms.ToArray();
-            }
-        }
-#endif
-
     }
-#endif
 }
+#endif

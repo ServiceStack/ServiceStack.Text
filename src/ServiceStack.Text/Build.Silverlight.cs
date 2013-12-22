@@ -1,4 +1,4 @@
-﻿#if SILVERLIGHT
+﻿#if SL5
 /*  
  Copyright 2008 The 'A Concurrent Hashtable' development team  
  (http://www.codeplex.com/CH/People/ProjectPeople.aspx)

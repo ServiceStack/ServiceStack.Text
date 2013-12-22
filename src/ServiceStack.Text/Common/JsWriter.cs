@@ -113,100 +113,15 @@ namespace ServiceStack.Text.Common
             throw new NotSupportedException(typeof(TSerializer).Name);
         }
 
-#if NETFX_CORE
-        private static readonly Type[] knownTypes = new Type[] {
-                typeof(bool), typeof(char), typeof(sbyte), typeof(byte),
-                typeof(short), typeof(ushort), typeof(int), typeof(uint),
-                typeof(long), typeof(ulong), typeof(float), typeof(double),
-                typeof(decimal), typeof(string),
-                typeof(DateTime), typeof(TimeSpan), typeof(Guid), typeof(Uri),
-                typeof(byte[]), typeof(System.Type)};
-
-        private static readonly ServiceStackTypeCode[] knownCodes = new ServiceStackTypeCode[] {
-            ServiceStackTypeCode.Boolean, ServiceStackTypeCode.Char, ServiceStackTypeCode.SByte, ServiceStackTypeCode.Byte,
-            ServiceStackTypeCode.Int16, ServiceStackTypeCode.UInt16, ServiceStackTypeCode.Int32, ServiceStackTypeCode.UInt32,
-            ServiceStackTypeCode.Int64, ServiceStackTypeCode.UInt64, ServiceStackTypeCode.Single, ServiceStackTypeCode.Double,
-            ServiceStackTypeCode.Decimal, ServiceStackTypeCode.String,
-            ServiceStackTypeCode.DateTime, ServiceStackTypeCode.TimeSpan, ServiceStackTypeCode.Guid, ServiceStackTypeCode.Uri,
-            ServiceStackTypeCode.ByteArray, ServiceStackTypeCode.Type
-        };
-
-        internal enum ServiceStackTypeCode
-        {
-            Empty = 0,
-            Unknown = 1, // maps to TypeCode.Object
-            Boolean = 3,
-            Char = 4,
-            SByte = 5,
-            Byte = 6,
-            Int16 = 7,
-            UInt16 = 8,
-            Int32 = 9,
-            UInt32 = 10,
-            Int64 = 11,
-            UInt64 = 12,
-            Single = 13,
-            Double = 14,
-            Decimal = 15,
-            DateTime = 16,
-            String = 18,
-
-            // additions
-            TimeSpan = 100,
-            ByteArray = 101,
-            Guid = 102,
-            Uri = 103,
-            Type = 104
-        }
-
-        private static ServiceStackTypeCode GetTypeCode(Type type)
-        {
-            int idx = Array.IndexOf<Type>(knownTypes, type);
-            if (idx >= 0) return knownCodes[idx];
-            return type == null ? ServiceStackTypeCode.Empty : ServiceStackTypeCode.Unknown;
-        }
-#endif
-
         public static void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
             if (enumFlagValue == null) return;
-#if NETFX_CORE
-            var typeCode = GetTypeCode(Enum.GetUnderlyingType(enumFlagValue.GetType()));
 
-            switch (typeCode)
-            {
-                case ServiceStackTypeCode.Byte:
-                    writer.Write((byte)enumFlagValue);
-                    break;
-                case ServiceStackTypeCode.Int16:
-                    writer.Write((short)enumFlagValue);
-                    break;
-                case ServiceStackTypeCode.UInt16:
-                    writer.Write((ushort)enumFlagValue);
-                    break;
-                case ServiceStackTypeCode.Int32:
-                    writer.Write((int)enumFlagValue);
-                    break;
-                case ServiceStackTypeCode.UInt32:
-                    writer.Write((uint)enumFlagValue);
-                    break;
-                case ServiceStackTypeCode.Int64:
-                    writer.Write((long)enumFlagValue);
-                    break;
-                case ServiceStackTypeCode.UInt64:
-                    writer.Write((ulong)enumFlagValue);
-                    break;
-                default:
-                    writer.Write((int)enumFlagValue);
-                    break;
-            }
-#else
-            var typeCode = Type.GetTypeCode(Enum.GetUnderlyingType(enumFlagValue.GetType()));
-
+            var typeCode = Enum.GetUnderlyingType(enumFlagValue.GetType()).GetTypeCode();
             switch (typeCode)
             {
                 case TypeCode.SByte:
-                    writer.Write((sbyte) enumFlagValue);
+                    writer.Write((sbyte)enumFlagValue);
                     break;
                 case TypeCode.Byte:
                     writer.Write((byte)enumFlagValue);
@@ -233,7 +148,6 @@ namespace ServiceStack.Text.Common
                     writer.Write((int)enumFlagValue);
                     break;
             }
-#endif
         }
     }
 
@@ -249,7 +163,7 @@ namespace ServiceStack.Text.Common
         		{ typeof(Uri), Serializer.WriteObjectString },
         		{ typeof(Type), WriteType },
         		{ typeof(Exception), Serializer.WriteException },
-#if !MONOTOUCH && !SILVERLIGHT && !XBOX  && !ANDROID
+#if !(IOS || SL5 || XBOX || ANDROID || PCL)
                 { typeof(System.Data.Linq.Binary), Serializer.WriteLinqBinary },
 #endif
         	};

@@ -13,7 +13,7 @@ namespace ServiceStack.Text.Tests
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
-#if MONOTOUCH
+#if IOS
 			JsConfig.RegisterTypeForAot<Dictionary<string, int>> ();
 			JsConfig.RegisterTypeForAot<KeyValuePair<int, string>> ();
 

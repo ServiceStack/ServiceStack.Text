@@ -81,7 +81,7 @@ namespace ServiceStack.Text
 
             Fields = config.Type.GetSerializableFields().ToArray();
 
-            IsUserType = !typeof(T).IsValueType && typeof(T).Namespace != "System";
+            IsUserType = !typeof(T).IsValueType() && typeof(T).Namespace != "System";
 
             return config;
         }

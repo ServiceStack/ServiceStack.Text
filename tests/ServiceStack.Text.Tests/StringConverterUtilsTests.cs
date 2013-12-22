@@ -32,7 +32,7 @@ namespace ServiceStack.ServiceModel.Tests
 			}
 
 		}
-#if !MONOTOUCH
+#if !IOS
 		[Test]
 		public void Create_super_list_type_of_int_from_string()
 		{

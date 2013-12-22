@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ServiceStack.Text;
 
 namespace ServiceStack
 {
@@ -13,20 +14,7 @@ namespace ServiceStack
     {
         public static string MapAbsolutePath(this string relativePath, string appendPartialPathModifier)
         {
-#if !SILVERLIGHT
-            if (relativePath.StartsWith("~"))
-            {
-                var assemblyDirectoryPath = Path.GetDirectoryName(new Uri(typeof(PathUtils).Assembly.EscapedCodeBase).LocalPath);
-
-                // Escape the assembly bin directory to the hostname directory
-                var hostDirectoryPath = appendPartialPathModifier != null
-                    ? assemblyDirectoryPath + appendPartialPathModifier
-                    : assemblyDirectoryPath;
-
-                return Path.GetFullPath(relativePath.Replace("~", hostDirectoryPath));
-            }
-#endif
-            return relativePath;
+            return PclExport.Instance.MapAbsolutePath(relativePath, appendPartialPathModifier);
         }
 
         /// <summary>
@@ -38,7 +26,7 @@ namespace ServiceStack
         /// eg. in a unit test scenario  the assembly would be in /bin/Debug/.</remarks>
         public static string MapProjectPath(this string relativePath)
         {
-            var mapPath = MapAbsolutePath(relativePath, string.Format("{0}..{0}..", StringExtensions.DirSeparatorChar));
+            var mapPath = MapAbsolutePath(relativePath, string.Format("{0}..{0}..", PclExport.Instance.DirSep));
             return mapPath;
         }
 
@@ -62,7 +50,7 @@ namespace ServiceStack
         /// <remarks>Assumes static content is in the parent folder of the /bin/ directory</remarks>
         public static string MapHostAbsolutePath(this string relativePath)
         {
-            var mapPath = MapAbsolutePath(relativePath, string.Format("{0}..", StringExtensions.DirSeparatorChar));
+            var mapPath = MapAbsolutePath(relativePath, string.Format("{0}..", PclExport.Instance.DirSep));
             return mapPath;
         }
 
@@ -89,8 +77,8 @@ namespace ServiceStack
 
         public static string AssertDir(this string dirPath)
         {
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
+            if (!dirPath.DirectoryExists())
+                dirPath.CreateDirectory();
             return dirPath;
         }
 

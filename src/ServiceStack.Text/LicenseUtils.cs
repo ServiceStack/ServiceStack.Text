@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using ServiceStack.Text;
 
@@ -67,10 +66,10 @@ namespace ServiceStack
 
         public static void RegisterLicenseFromFile(string filePath)
         {
-            if (!File.Exists(filePath))
+            if (!filePath.FileExists())
                 throw new LicenseException("License file does not exist: " + filePath);
 
-            var licenseKeyText = File.ReadAllText(filePath);
+            var licenseKeyText = filePath.ReadAllText();
             LicenseUtils.RegisterLicense(licenseKeyText);
         }
     }
@@ -84,29 +83,19 @@ namespace ServiceStack
         public DateTime Expiry { get; set; }
     }
 
-
-
     /// <summary>
     /// Internal Utilities to verify licensing
     /// </summary>
     public static class LicenseUtils
     {
-        public const string AppSettingsKey = "servicestack:license";
         public const string RuntimePublicKey = "<RSAKeyValue><Modulus>nkqwkUAcuIlVzzOPENcQ+g5ALCe4LyzzWv59E4a7LuOM1Nb+hlNlnx2oBinIkvh09EyaxIX2PmaY0KtyDRIh+PoItkKeJe/TydIbK/bLa0+0Axuwa0MFShE6HdJo/dynpODm64+Sg1XfhICyfsBBSxuJMiVKjlMDIxu9kDg7vEs=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
-        private const string LicensePublicKey = "<RSAKeyValue><Modulus>w2fTTfr2SrGCclwLUkrbH0XsIUpZDJ1Kei2YUwYGmIn5AUyCPLTUv3obDBUBFJKLQ61Khs7dDkXlzuJr5tkGQ0zS0PYsmBPAtszuTum+FAYRH4Wdhmlfqu1Z03gkCIo1i11TmamN5432uswwFCVH60JU3CpaN97Ehru39LA1X9E=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
+        public const string LicensePublicKey = "<RSAKeyValue><Modulus>w2fTTfr2SrGCclwLUkrbH0XsIUpZDJ1Kei2YUwYGmIn5AUyCPLTUv3obDBUBFJKLQ61Khs7dDkXlzuJr5tkGQ0zS0PYsmBPAtszuTum+FAYRH4Wdhmlfqu1Z03gkCIo1i11TmamN5432uswwFCVH60JU3CpaN97Ehru39LA1X9E=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
 
         private const string ContactDetails = " Please see servicestack.net or contact team@servicestack.net for more details.";
 
         static LicenseUtils()
         {
-#if !(SILVERLIGHT || WP)
-            //Automatically register license key stored in <appSettings/>
-            var licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
-            if (!string.IsNullOrEmpty(licenceKeyText))
-            {
-                RegisterLicense(licenceKeyText);
-            }
-#endif
+            PclExport.Instance.RegisterLicenseFromConfig();
         }
 
         public static class ErrorMessages
@@ -152,18 +141,13 @@ namespace ServiceStack
                 LicenseKey key;
                 using (new AccessToken(LicenseFeature.Text))
                 {
-#if !(SILVERLIGHT || WP)
-                    if (!licenseKeyText.VerifyLicenseKeyText(out key))
-                        throw new ArgumentException("licenseKeyText");
-#else
-                    key = licenseKeyText.ToLicenseKey();
-#endif
+                    key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
                 }
 
                 var releaseDate = Env.GetReleaseDate();
                 if (releaseDate > key.Expiry)
                     throw new LicenseException("This license has expired on {0} and is not valid for use with this release."
-                        .Fmt(key.Expiry.ToShortDateString()) + ContactDetails);
+                        .Fmt(key.Expiry.ToString("d")) + ContactDetails);
 
                 __activatedLicense = key;
             }
@@ -299,23 +283,6 @@ namespace ServiceStack
             throw new ArgumentException("Unknown License Type: " + key.Type);
         }
 
-        public static bool VerifySignedHash(byte[] DataToVerify, byte[] SignedData, RSAParameters Key)
-        {
-            try
-            {
-                var RSAalg = new RSACryptoServiceProvider();
-                RSAalg.ImportParameters(Key);
-                return RSAalg.VerifySha1Data(DataToVerify, SignedData);
-
-            }
-            catch (CryptographicException e)
-            {
-                Console.WriteLine(e.Message);
-
-                return false;
-            }
-        }
-
         public static LicenseKey ToLicenseKey(this string licenseKeyText)
         {
             licenseKeyText = Regex.Replace(licenseKeyText, @"\s+", "");
@@ -334,28 +301,6 @@ namespace ServiceStack
         public static string GetHashKeyToSign(this LicenseKey key)
         {
             return "{0}:{1}:{2}:{3}".Fmt(key.Ref, key.Name, key.Expiry.ToString("yyyy-MM-dd"), key.Type);
-        }
-
-        public static bool VerifyLicenseKeyText(this string licenseKeyText, out LicenseKey key)
-        {
-            var publicRsaProvider = new RSACryptoServiceProvider();
-            publicRsaProvider.FromXmlString(LicensePublicKey);
-            var publicKeyParams = publicRsaProvider.ExportParameters(false);
-
-            key = licenseKeyText.ToLicenseKey();
-            var originalData = key.GetHashKeyToSign().ToUtf8Bytes();
-            var signedData = Convert.FromBase64String(key.Hash);
-
-            return VerifySignedHash(originalData, signedData, publicKeyParams);
-        }
-
-        public static bool VerifySha1Data(this RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
-        {
-#if !(SILVERLIGHT || WP)
-            return RSAalg.VerifyData(unsignedData, new SHA1CryptoServiceProvider(), encryptedData);
-#else
-            return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1());
-#endif
         }
 
         public static Exception GetInnerMostException(this Exception ex)
@@ -394,10 +339,7 @@ namespace ServiceStack
                 || accessToken == null || accessType.FullName != "ServiceStack.ServiceClientBase+AccessToken")
                 throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest);
 
-#if !(IOS || ANDROID || SILVERLIGHT || NETFX_CORE || WP)
-            if (accessType.Assembly.ManifestModule.Name != "ServiceStack.Client.dll") //might get merged/mangled on alt platforms
-                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest);
-#endif
+            PclExport.Instance.VerifyInAssembly(accessType, "ServiceStack.Client.dll");
 
             return new AccessToken(requestedAccess);
         }

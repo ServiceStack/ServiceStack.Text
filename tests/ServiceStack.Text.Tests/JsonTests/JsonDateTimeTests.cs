@@ -202,7 +202,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 #endif
 
-#if !MONOTOUCH
+#if !IOS
 		[Test]
 		public void Can_deserialize_json_date_dcjsCompatible_utc()
 		{
