@@ -110,7 +110,7 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object obj, Stream stream)
         {
-            using (var xw = XmlWriter.Create(stream, new XmlWriterSettings { Encoding = Encoding.UTF8 }))
+            using (var xw = XmlWriter.Create(stream, XWSettings))
             {
                 var serializer = new DataContractSerializer(obj.GetType());
                 serializer.WriteObject(xw, obj);
