@@ -24,17 +24,17 @@ namespace ServiceStack.Text
 
             IsSilverlight = AssemblyUtils.FindType("System.Windows.Interop.SilverlightHost") != null;
 
-            SupportsExpressions = SupportsEmit = !IsMonoTouch;
+#if PCL
+            IsUnix = IsMono;
+#else
+            var platform = (int)Environment.OSVersion.Platform;
+            IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
+#endif
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
                 + platformName
-                + (IsMono ? "/Mono" : "/.NET")
-                + (IsMonoTouch ? " IOS" : "")
-                + (IsAndroid ? " Android" : "")
-                + (IsSilverlight ? " Silverlight" : "")
-                + (IsWindowsPhone ? " WindowsPhone" : "")
-                + (IsWinRT ? " WinRT" : "");
+                + (IsMono ? "/Mono" : "/.NET");
 
             __releaseDate = DateTime.Parse("2001-01-01");
         }

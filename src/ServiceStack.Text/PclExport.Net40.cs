@@ -43,8 +43,6 @@ namespace ServiceStack
             this.InvariantComparer = StringComparer.InvariantCulture;
             this.InvariantComparerIgnoreCase = StringComparer.InvariantCultureIgnoreCase;
 
-            var platform = (int)Environment.OSVersion.Platform;
-            Env.IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
             this.PlatformName = Environment.OSVersion.Platform.ToString();
         }
 
@@ -465,6 +463,7 @@ namespace ServiceStack
         static IosPclExport()
         {
             Provider = new IosPclExport();
+            PlatformName = "IOS";
         }
 
         public IosPclExport()
@@ -484,6 +483,7 @@ namespace ServiceStack
         static AndroidPclExport()
         {
             Provider = new AndroidPclExport();
+            PlatformName = "Android";
         }
 
         public override void VerifyInAssembly(Type accessType, string assemblyName)
