@@ -175,7 +175,11 @@ namespace ServiceStack
 
         public virtual Assembly LoadAssembly(string assemblyPath)
         {
+#if PCL
             return Assembly.Load(new AssemblyName(assemblyPath));
+#else
+            return null;
+#endif
         }
 
         public virtual Assembly[] GetAllAssemblies()

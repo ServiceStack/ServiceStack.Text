@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 
-#if !(SL5)
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -390,7 +389,7 @@ namespace ServiceStack
         {
             var webEx = ex as WebException;
             if (webEx == null
-#if !PCL
+#if !(SL5 || PCL)
                 || webEx.Status != WebExceptionStatus.ProtocolError
 #endif
             ) return null;
@@ -648,7 +647,6 @@ namespace ServiceStack
         }
     }
 }
-#endif
 
 namespace ServiceStack
 {
