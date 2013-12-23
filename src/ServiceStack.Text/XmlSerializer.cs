@@ -9,21 +9,19 @@ namespace ServiceStack.Text
 {
     public class XmlSerializer
     {
-        private readonly XmlDictionaryReaderQuotas quotas;
         private static readonly XmlWriterSettings XWSettings = new XmlWriterSettings();
         private static readonly XmlReaderSettings XRSettings = new XmlReaderSettings();
 
         public static XmlSerializer Instance = PclExport.Instance.NewXmlSerializer();
 
-        public XmlSerializer(XmlDictionaryReaderQuotas quotas = null, bool omitXmlDeclaration = true)
+        public XmlSerializer(bool omitXmlDeclaration = false, int maxCharsInDocument = 1024 * 1024)
         {
-            this.quotas = quotas;
             XWSettings.Encoding = new UTF8Encoding(false);
             XWSettings.OmitXmlDeclaration = omitXmlDeclaration;
-            XRSettings.MaxCharactersInDocument = 1024 * 1024;
+            XRSettings.MaxCharactersInDocument = maxCharsInDocument;
         }
 
-        private static object Deserialize(string xml, Type type, XmlDictionaryReaderQuotas quotas)
+        private static object Deserialize(string xml, Type type)
         {
             try
             {
@@ -42,13 +40,13 @@ namespace ServiceStack.Text
 
         public static object DeserializeFromString(string xml, Type type)
         {
-            return Deserialize(xml, type, Instance.quotas);
+            return Deserialize(xml, type);
         }
 
         public static T DeserializeFromString<T>(string xml)
         {
             var type = typeof(T);
-            return (T)Deserialize(xml, type, Instance.quotas);
+            return (T)Deserialize(xml, type);
         }
 
         public static T DeserializeFromReader<T>(TextReader reader)
@@ -96,7 +94,7 @@ namespace ServiceStack.Text
         {
             try
             {
-                using (var xw = XmlWriter.Create(writer))
+                using (var xw = XmlWriter.Create(writer, XWSettings))
                 {
                     var serializer = new DataContractSerializer(value.GetType());
                     serializer.WriteObject(xw, value);

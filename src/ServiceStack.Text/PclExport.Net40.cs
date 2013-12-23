@@ -338,7 +338,7 @@ namespace ServiceStack
 
         public override XmlSerializer NewXmlSerializer()
         {
-            return new XmlSerializer(new XmlDictionaryReaderQuotas { MaxStringContentLength = 1024 * 1024, });
+            return new XmlSerializer();
         }
 
         public virtual void InitHttpWebRequest(HttpWebRequest httpReq,
