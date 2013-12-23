@@ -15,7 +15,7 @@ namespace ServiceStack.Text
 
         public static XmlSerializer Instance = PclExport.Instance.NewXmlSerializer();
 
-        public XmlSerializer(XmlDictionaryReaderQuotas quotas = null, bool omitXmlDeclaration = false)
+        public XmlSerializer(XmlDictionaryReaderQuotas quotas = null, bool omitXmlDeclaration = true)
         {
             this.quotas = quotas;
             XWSettings.Encoding = new UTF8Encoding(false);

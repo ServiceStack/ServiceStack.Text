@@ -15,3 +15,5 @@ COPY ..\src\ServiceStack.Text.SL5\bin\%BUILD%\*.* ..\..\ServiceStack\lib\sl5
 
 MD ..\NuGet\lib\net35
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\*.* ..\NuGet\lib\net35
+
+COPY ..\src\ServiceStack.Text\bin\Pcl\*.* ..\..\ServiceStack\lib\pcl
