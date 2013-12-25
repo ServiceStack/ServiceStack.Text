@@ -668,8 +668,8 @@ namespace ServiceStack
         public const string FormUrlEncoded = "application/x-www-form-urlencoded";
         public const string MultiPartFormData = "multipart/form-data";
         public const string JsonReport = "text/jsonreport";
-        public const string Soap11 = " text/xml; charset=utf-8";
-        public const string Soap12 = " application/soap+xml";
+        public const string Soap11 = "text/xml; charset=utf-8";
+        public const string Soap12 = "application/soap+xml";
         public const string Yaml = "application/yaml";
         public const string YamlText = "text/yaml";
         public const string PlainText = "text/plain";
@@ -815,6 +815,8 @@ namespace ServiceStack
 
         public const string XLocation = "X-Location";
 
+        public const string XStatus = "X-Status";
+
         public const string Referer = "Referer";
 
         public const string CacheControl = "Cache-Control";
@@ -860,6 +862,8 @@ namespace ServiceStack
         public const string ContentRange = "Content-Range";
 
         public const string Range = "Range";
+
+        public const string SOAPAction = "SOAPAction";
     }
 
     public static class HttpMethods
