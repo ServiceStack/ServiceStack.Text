@@ -306,7 +306,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HttpUtils.cs" />
-    <Compile Include="PclExport.WinRT.cs" />
+    <Compile Include="PclExport.WinStore.cs" />
     <Compile Include="PclExport.WP.cs" />
     <Compile Include="PclExport.Xbox.cs" />
     <Compile Include="XmlSerializer.cs">

@@ -4,7 +4,7 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-    internal interface ITypeSerializer
+    public interface ITypeSerializer
     {
         bool IncludeNullValues { get; }
         string TypeAttrInObject { get; }

@@ -20,7 +20,7 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-    internal static class DeserializeListWithElements<TSerializer>
+    public static class DeserializeListWithElements<TSerializer>
         where TSerializer : ITypeSerializer
     {
         internal static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
@@ -54,7 +54,7 @@ namespace ServiceStack.Text.Common
             return parseDelegate.Invoke;
         }
 
-        internal static string StripList(string value)
+        public static string StripList(string value)
         {
             if (string.IsNullOrEmpty(value))
                 return null;

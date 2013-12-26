@@ -487,7 +487,7 @@ namespace ServiceStack
             if (emptyCtor != null)
             {
 
-#if IOS || XBOX || NETFX_CORE
+#if __IOS__ || XBOX || NETFX_CORE
 				return () => Activator.CreateInstance(type);
 #elif WP || PCL
                 return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(
@@ -1265,7 +1265,7 @@ namespace ServiceStack
 
         public static bool IsDynamic(this Assembly assembly)
         {
-#if IOS || WP || NETFX_CORE || PCL
+#if __IOS__ || WP || NETFX_CORE || PCL
             return false;
 #else
             try

@@ -12,7 +12,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
@@ -24,7 +23,10 @@ using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 
+#if !__IOS__
+using System.Reflection.Emit;
 using FastMember = ServiceStack.Text.FastMember;
+#endif
 
 namespace ServiceStack
 {
@@ -87,12 +89,16 @@ namespace ServiceStack
         public const string AppSettingsKey = "servicestack:license";
         public override void RegisterLicenseFromConfig()
         {
+#if ANDROID
+#elif __IOS__
+#else
             //Automatically register license key stored in <appSettings/>
             var licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
             if (!string.IsNullOrEmpty(licenceKeyText))
             {
                 LicenseUtils.RegisterLicense(licenceKeyText);
             }
+#endif
         }
 
         public override string GetEnvironmentVariable(string name)
@@ -199,33 +205,6 @@ namespace ServiceStack
             return Encoding.ASCII.GetBytes(str);
         }
 
-        public virtual SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
-        {
-            return CreateIlPropertySetter(propertyInfo);
-        }
-
-        public virtual SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
-        {
-            return CreateIlFieldSetter(fieldInfo);
-        }
-
-        public override SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
-        {
-            return propertyInfo.CanWrite
-                ? CreateIlPropertySetter(propertyInfo)
-                : CreateIlFieldSetter(fieldInfo);
-        }
-
-        public override Type UseType(Type type)
-        {
-            if (type.IsInterface || type.IsAbstract)
-            {
-                return DynamicProxy.GetInstanceFor(type).GetType();
-            }
-
-            return type;
-        }
-
         public override bool InSameAssembly(Type t1, Type t2)
         {
             return t1.GetAssembly() == t2.GetAssembly();
@@ -318,7 +297,7 @@ namespace ServiceStack
             return TimeZoneInfo.ConvertTimeToUtc(dateTime);
         }
 
-        internal override ParseStringDelegate GetDictionaryParseMethod<TSerializer>(Type type)
+        public override ParseStringDelegate GetDictionaryParseMethod<TSerializer>(Type type)
         {
             if (type == typeof(Hashtable))
             {
@@ -327,7 +306,7 @@ namespace ServiceStack
             return null;
         }
 
-        internal override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+        public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))
             {
@@ -384,6 +363,33 @@ namespace ServiceStack
             Thread.EndThreadAffinity();
         }
 
+#if !__IOS__
+        public virtual SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
+        {
+            return CreateIlPropertySetter(propertyInfo);
+        }
+
+        public virtual SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
+        {
+            return CreateIlFieldSetter(fieldInfo);
+        }
+
+        public override SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        {
+            return propertyInfo.CanWrite
+                ? CreateIlPropertySetter(propertyInfo)
+                : CreateIlFieldSetter(fieldInfo);
+        }
+
+        public override Type UseType(Type type)
+        {
+            if (type.IsInterface || type.IsAbstract)
+            {
+                return DynamicProxy.GetInstanceFor(type).GetType();
+            }
+            return type;
+        }
+
         public DataContractAttribute GetWeakDataContract(Type type)
         {
             return type.GetWeakDataContract();
@@ -398,8 +404,6 @@ namespace ServiceStack
         {
             return pi.GetWeakDataMember();
         }
-
-
 
         public static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
         {
@@ -455,19 +459,20 @@ namespace ServiceStack
                        ? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
                        : new DynamicMethod(name, returnType, args, memberInfo.Module, true);
         }
+#endif
     }
 
-#if IOS
+#if __IOS__
     public class IosPclExport : Net40PclExport
     {
         static IosPclExport()
         {
             Provider = new IosPclExport();
-            PlatformName = "IOS";
         }
 
         public IosPclExport()
         {
+            PlatformName = "IOS";
             SupportsEmit = SupportsExpression = false;
         }
 
@@ -483,6 +488,10 @@ namespace ServiceStack
         static AndroidPclExport()
         {
             Provider = new AndroidPclExport();
+        }
+
+        public AndroidPclExport()
+        {
             PlatformName = "Android";
         }
 
@@ -492,6 +501,7 @@ namespace ServiceStack
     }
 #endif
 
+#if !__IOS__
     public static class DynamicProxy
     {
         public static T GetInstanceFor<T>()
@@ -633,6 +643,7 @@ namespace ServiceStack
             propertyBuilder.SetSetMethod(backingSet);
         }
     }
+#endif
 
     internal class SerializerUtils<TSerializer>
         where TSerializer : ITypeSerializer
@@ -834,6 +845,7 @@ namespace ServiceStack
             //return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1()); 
         }
 
+#if !__IOS__
         //ReflectionExtensions
         const string DataContract = "DataContractAttribute";
 
@@ -913,8 +925,11 @@ namespace ServiceStack
             }
             return null;
         }
+#endif
     }
 }
+
+#if !__IOS__
 
 //Not using it here, but @marcgravell's stuff is too good not to include
 // http://code.google.com/p/fast-member/ Apache License 2.0
@@ -1300,5 +1315,6 @@ namespace ServiceStack.Text.FastMember
         }
     }
 }
+#endif
 
 #endif

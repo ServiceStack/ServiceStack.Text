@@ -624,7 +624,7 @@ namespace ServiceStack.Text
             methodInfo.Invoke(null, null);
         }
 
-#if IOS
+#if __IOS__
         /// <summary>
         /// Provide hint to IOS AOT compiler to pre-compile generic classes for all your DTOs.
         /// Just needs to be called once in a static constructor.
@@ -843,7 +843,7 @@ namespace ServiceStack.Text
         internal static HashSet<Type> __uniqueTypes = new HashSet<Type>(); 
     }
 
-#if IOS
+#if __IOS__
     [MonoTouch.Foundation.Preserve(AllMembers=true)]
     internal class Poco
     {

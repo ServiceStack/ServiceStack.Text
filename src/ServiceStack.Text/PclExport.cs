@@ -31,7 +31,7 @@ namespace ServiceStack
           = new WpPclExport()
 #elif XBOX
           = new XboxPclExport()
-#elif IOS
+#elif __IOS__
           = new IosPclExport()
 #elif ANDROID
           = new AndroidPclExport()
@@ -300,13 +300,13 @@ namespace ServiceStack
             return dateTime.ToUniversalTime();
         }
 
-        internal virtual ParseStringDelegate GetDictionaryParseMethod<TSerializer>(Type type)
+        public virtual ParseStringDelegate GetDictionaryParseMethod<TSerializer>(Type type)
             where TSerializer : ITypeSerializer
         {
             return null;
         }
 
-        internal virtual ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+        public virtual ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
             where TSerializer : ITypeSerializer
         {
             return null;

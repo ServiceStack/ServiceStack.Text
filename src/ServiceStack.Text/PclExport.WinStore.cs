@@ -3,18 +3,20 @@
 
 #if NETFX_CORE
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace ServiceStack
 {
-    public class WinRtPclExport : PclExport
+    public class WinStorePclExport : PclExport
     {
-        public new static WinRtPclExport Instance = new WinRtPclExport();
+        public new static WinStorePclExport Instance = new WinStorePclExport();
 
-        public WinRtPclExport()
+        public WinStorePclExport()
         {
-            this.PlatformName = "WinRT";
+            this.PlatformName = "WindowsStore";
         }
 
         public override string ReadAllText(string filePath)
@@ -30,11 +32,6 @@ namespace ServiceStack
             var fileStream = streamTask.Result;
 
             return new StreamReader(fileStream).ReadToEnd();
-        }
-
-        public override string ToTitleCase(string value)
-        {
-            return TextInfo.ToTitleCase(value).Replace("_", String.Empty);
         }
 
         public override bool FileExists(string filePath)
@@ -54,12 +51,12 @@ namespace ServiceStack
 
         public override void WriteLine(string line)
         {
-            Diagnostics.Debug.WriteLine(line);
+            System.Diagnostics.Debug.WriteLine(line);
         }
 
         public override void WriteLine(string format, params object[] args)
         {
-            Diagnostics.Debug.WriteLine(format, args);
+            System.Diagnostics.Debug.WriteLine(format, args);
         }
 
         public override Assembly[] GetAllAssemblies()
@@ -86,7 +83,7 @@ namespace ServiceStack
             {
                 var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
  
-                List<Assembly> assemblies = new List<Assembly>();
+                var assemblies = new List<Assembly>();
                 foreach (Windows.Storage.StorageFile file in await folder.GetFilesAsync())
                 {
                     if (file.FileType == ".dll" || file.FileType == ".exe")

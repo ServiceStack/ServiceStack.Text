@@ -250,7 +250,7 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
         {
-#if !(IOS || SL5 || XBOX || ANDROID || PCL)
+#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL)
             WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
 #endif
         }

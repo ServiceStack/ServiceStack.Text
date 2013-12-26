@@ -102,7 +102,7 @@ namespace ServiceStack.Text.Common
                 || type == typeof(decimal) || type == typeof(decimal?);
         }
 
-        internal static ITypeSerializer GetTypeSerializer<TSerializer>()
+        public static ITypeSerializer GetTypeSerializer<TSerializer>()
         {
             if (typeof(TSerializer) == typeof(JsvTypeSerializer))
                 return JsvTypeSerializer.Instance;
@@ -163,7 +163,7 @@ namespace ServiceStack.Text.Common
         		{ typeof(Uri), Serializer.WriteObjectString },
         		{ typeof(Type), WriteType },
         		{ typeof(Exception), Serializer.WriteException },
-#if !(IOS || SL5 || XBOX || ANDROID || PCL)
+#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL)
                 { typeof(System.Data.Linq.Binary), Serializer.WriteLinqBinary },
 #endif
         	};

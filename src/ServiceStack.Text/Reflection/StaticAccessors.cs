@@ -25,7 +25,7 @@ namespace ServiceStack.Text.Reflection
 			var getMethodInfo = propertyInfo.GetMethod;
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
-#elif (SL5 && !WP) || IOS || XBOX
+#elif (SL5 && !WP) || __IOS__ || XBOX
 			var getMethodInfo = propertyInfo.GetGetMethod();
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
@@ -45,7 +45,7 @@ namespace ServiceStack.Text.Reflection
 			var getMethodInfo = propertyInfo.GetMethod;
             if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
-#elif (SL5 && !WP) || IOS || XBOX
+#elif (SL5 && !WP) || __IOS__ || XBOX
 			var getMethodInfo = propertyInfo.GetGetMethod();
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
@@ -59,7 +59,7 @@ namespace ServiceStack.Text.Reflection
 
         public static Func<T, object> GetValueGetter<T>(this FieldInfo fieldInfo)
         {
-#if (SL5 && !WP) || IOS || XBOX
+#if (SL5 && !WP) || __IOS__ || XBOX
             return x => fieldInfo.GetValue(x);
 #else
             var instance = Expression.Parameter(fieldInfo.DeclaringType, "i");

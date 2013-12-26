@@ -108,7 +108,7 @@ namespace ServiceStack
             internal const string ExceededServiceStackOperations = "The free-quota limit on '{0} ServiceStack Operations' has been reached." + UpgradeInstructions;
             internal const string ExceededAdminUi = "The Admin UI is a commerical-only premium feature." + UpgradeInstructions;
             internal const string ExceededPremiumFeature = "Unauthorized use of a commerical-only premium feature." + UpgradeInstructions;
-            internal const string UnauthorizedAccessRequest = "Unauthorized access request of a licensed feature." + UpgradeInstructions;
+            public const string UnauthorizedAccessRequest = "Unauthorized access request of a licensed feature." + UpgradeInstructions;
         }
 
         public static class FreeQuotas
@@ -130,7 +130,7 @@ namespace ServiceStack
         }
 
         private static LicenseKey __activatedLicense;
-        internal static void RegisterLicense(string licenseKeyText)
+        public static void RegisterLicense(string licenseKeyText)
         {
             string cutomerId = null;
             try

@@ -127,7 +127,7 @@ namespace ServiceStack.Text.Jsv
 
         public static void WriteObject(TextWriter writer, object value)
         {
-#if IOS
+#if __IOS__
 			if (writer == null) return;
 #endif
             TypeConfig<T>.AssertValidUsage();
@@ -151,7 +151,7 @@ namespace ServiceStack.Text.Jsv
 
         public static void WriteRootObject(TextWriter writer, object value)
         {
-#if IOS
+#if __IOS__
 			if (writer == null) return;
 #endif
             try
