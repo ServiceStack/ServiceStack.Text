@@ -25,6 +25,7 @@ namespace ServiceStack.Text
         private static readonly DateTime UnixEpochDateTimeUtc = new DateTime(UnixEpoch, DateTimeKind.Utc);
         private static readonly DateTime UnixEpochDateTimeUnspecified = new DateTime(UnixEpoch, DateTimeKind.Unspecified);
         private static readonly DateTime MinDateTimeUtc = new DateTime(1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime MaxDateTimeUtc = new DateTime(9999, 12, 31, 11, 59, 59, DateTimeKind.Utc);
 
         public static DateTime FromUnixTime(this int unixTime)
         {
@@ -58,7 +59,7 @@ namespace ServiceStack.Text
             var dtUtc = dateTime;
             if (dateTime.Kind != DateTimeKind.Utc)
             {
-                dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue
+                dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue && dateTime < DateTime.MaxValue 
                     ? DateTime.SpecifyKind(dateTime.Subtract(LocalTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
                     : dateTime.ToStableUniversalTime();
             }
@@ -166,6 +167,8 @@ namespace ServiceStack.Text
                 return dateTime;
             if (dateTime == DateTime.MinValue)
                 return MinDateTimeUtc;
+            if (dateTime == DateTime.MaxValue)
+                return MaxDateTimeUtc;
 
             return PclExport.Instance.ToStableUniversalTime(dateTime);
         }
