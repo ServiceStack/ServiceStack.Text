@@ -113,12 +113,12 @@ namespace ServiceStack
             return assembly.GetName().FullName;
         }
 
-        public override DateTime ToStableUniversalTime(DateTime dateTime)
-        {
-            // .Net 2.0 - 3.5 has an issue with DateTime.ToUniversalTime, but works ok with TimeZoneInfo.ConvertTimeToUtc.
-            // .Net 4.0+ does this under the hood anyway.
-            return TimeZoneInfo.ConvertTimeToUtc(dateTime);
-        }
+        //public override DateTime ToStableUniversalTime(DateTime dateTime)
+        //{
+        //    // .Net 2.0 - 3.5 has an issue with DateTime.ToUniversalTime, but works ok with TimeZoneInfo.ConvertTimeToUtc.
+        //    // .Net 4.0+ does this under the hood anyway.
+        //    return TimeZoneInfo.ConvertTimeToUtc(dateTime);
+        //}
     }
 }
 

@@ -162,6 +162,11 @@ namespace ServiceStack
             return Assembly.LoadFrom(assemblyPath);
         }
 
+        public virtual void AddHeader(WebRequest webReq, string name, string value)
+        {
+            webReq.Headers.Add(name, value);
+        }
+
         public override Assembly[] GetAllAssemblies()
         {
             return AppDomain.CurrentDomain.GetAssemblies();
@@ -361,6 +366,14 @@ namespace ServiceStack
         public virtual void EndThreadAffinity()
         {
             Thread.EndThreadAffinity();
+        }
+
+        public override void Config(HttpWebRequest webReq, bool? allowAutoRedirect = null, TimeSpan? timeout = null, TimeSpan? readWriteTimeout = null)
+        {
+            webReq.MaximumResponseHeadersLength = int.MaxValue; //throws "The message length limit was exceeded" exception
+            if (allowAutoRedirect.HasValue) webReq.AllowAutoRedirect = allowAutoRedirect.Value;
+            if (readWriteTimeout.HasValue) webReq.ReadWriteTimeout = (int)readWriteTimeout.Value.TotalMilliseconds;
+            if (timeout.HasValue) webReq.Timeout = (int)timeout.Value.TotalMilliseconds;
         }
 
 #if !__IOS__

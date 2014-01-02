@@ -26,7 +26,7 @@ namespace ServiceStack
 #elif SL5
           = new Sl5PclExport()
 #elif NETFX_CORE
-          = new WinRtPclExport()
+          = new WinStorePclExport()
 #elif WP
           = new WpPclExport()
 #elif XBOX
@@ -50,7 +50,7 @@ namespace ServiceStack
             else if (Env.IsAndroid)
                 Instance = AssemblyUtils.FindType("ServiceStack.AndroidPclExport").CreateInstance() as PclExport;
             else if (Env.IsWinRT)
-                Instance = AssemblyUtils.FindType("ServiceStack.WinRtPclExport").CreateInstance() as PclExport;
+                Instance = AssemblyUtils.FindType("ServiceStack.WinStorePclExport").CreateInstance() as PclExport;
             else if (Env.IsWindowsPhone)
                 Instance = AssemblyUtils.FindType("ServiceStack.WpPclExport").CreateInstance() as PclExport;
             else if (Env.IsSilverlight)
@@ -180,6 +180,11 @@ namespace ServiceStack
 #else
             return null;
 #endif
+        }
+
+        public virtual void AddHeader(WebRequest webReq, string name, string value)
+        {
+            webReq.Headers[name] = value;
         }
 
         public virtual Assembly[] GetAllAssemblies()
@@ -357,6 +362,13 @@ namespace ServiceStack
         public DataMemberAttribute GetWeakDataMember(FieldInfo pi)
         {
             return null;
+        }
+
+        public virtual void Config(HttpWebRequest webReq,
+            bool? allowAutoRedirect = null,
+            TimeSpan? timeout = null,
+            TimeSpan? readWriteTimeout = null)
+        {
         }
     }
 

@@ -34,12 +34,26 @@
     <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\ServiceStack\src\ServiceStack.Client\Pcl.NameValueCollectionWrapper.cs">
+      <Link>Pcl.NameValueCollectionWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\ServiceStack\src\ServiceStack.Client\PclExportClient.Ios.cs">
+      <Link>PclExportClient.Ios.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text\PclExport.Net40.cs">
       <Link>PclExport.Net40.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\ServiceStack\src\ServiceStack.Client\ServiceStack.Client.PCL.csproj">
+      <Project>{135808a7-ce69-4c32-be30-25a8ffbf4a58}</Project>
+      <Name>ServiceStack.Client.PCL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.PCL.csproj">
+      <Project>{42e1c8c0-a163-44cc-92b1-8f416f2c0b01}</Project>
+      <Name>ServiceStack.Interfaces.PCL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServiceStack.Text\ServiceStack.Text.PCL.csproj">
       <Project>{579b3fdb-cdad-44e1-8417-885c38e49a0e}</Project>
       <Name>ServiceStack.Text.PCL</Name>

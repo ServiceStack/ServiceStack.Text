@@ -907,6 +907,15 @@ namespace ServiceStack
 #endif
         }
 
+        public static MethodInfo GetNonPublicInstanceMethod(this Type type, string methodName)
+        {
+#if (NETFX_CORE || PCL)
+            return type.GetTypeInfo().GetType().GetMethodInfo(methodName);
+#else
+            return type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+#endif
+        }
+
         public static MethodInfo Method(this Delegate fn)
         {
 #if NETFX_CORE || PCL
@@ -1436,6 +1445,15 @@ namespace ServiceStack
             return type.IsInstanceOf(instance.GetType());
 #else
             return type.IsInstanceOfType(instance);
+#endif
+        }
+
+        public static bool IsAssignableFromType(this Type type, Type fromType)
+        {
+#if (NETFX_CORE || PCL)
+            return type.GetTypeInfo().IsAssignableFrom(fromType.GetTypeInfo());
+#else
+            return type.IsAssignableFrom(fromType);
 #endif
         }
 
