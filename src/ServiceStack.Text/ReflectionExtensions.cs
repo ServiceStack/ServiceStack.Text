@@ -1591,6 +1591,15 @@ namespace ServiceStack
             return Delegate.CreateDelegate(delegateType, methodInfo);
 #endif
         }
+
+        public static Delegate CreateDelegate(this MethodInfo methodInfo, Type delegateType, object target)
+        {
+#if PCL
+            return methodInfo.CreateDelegate(delegateType, target);
+#else
+            return Delegate.CreateDelegate(delegateType, target, methodInfo);
+#endif
+        }
     }
 
 }
