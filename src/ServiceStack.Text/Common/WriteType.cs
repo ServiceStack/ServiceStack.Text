@@ -103,7 +103,7 @@ namespace ServiceStack.Text.Common
 
         static Func<T, bool> GetShouldSerializeMethod(MemberInfo member)
         {
-            var method = member.DeclaringType.GetPublicInstanceMethod("ShouldSerialize" + member.Name);
+            var method = member.DeclaringType.GetInstanceMethod("ShouldSerialize" + member.Name);
             return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T, bool>)method.CreateDelegate(typeof(Func<T, bool>));
         }
 

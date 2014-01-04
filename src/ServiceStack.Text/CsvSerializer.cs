@@ -25,7 +25,7 @@ namespace ServiceStack.Text
                 if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
 
                 var genericType = typeof(CsvSerializer<>).MakeGenericType(type);
-                var mi = genericType.GetPublicStaticMethod("WriteFn");
+                var mi = genericType.GetStaticMethod("WriteFn");
                 var writeFactoryFn = (Func<WriteObjectDelegate>)mi.MakeDelegate(
                     typeof(Func<WriteObjectDelegate>));
 
@@ -220,7 +220,7 @@ namespace ServiceStack.Text
         private static WriteObjectDelegate CreateCsvWriterFn(Type elementType, string methodName)
         {
             var genericType = typeof(CsvWriter<>).MakeGenericType(elementType);
-            var mi = genericType.GetPublicStaticMethod(methodName);
+            var mi = genericType.GetStaticMethod(methodName);
             var writeFn = (WriteObjectDelegate)mi.MakeDelegate(typeof(WriteObjectDelegate));
             return writeFn;
         }

@@ -889,30 +889,21 @@ namespace ServiceStack
 #endif
         }
 
-        public static MethodInfo GetPublicStaticMethod(this Type type, string methodName)
+        public static MethodInfo GetStaticMethod(this Type type, string methodName)
         {
 #if (NETFX_CORE || PCL)
-            return type.GetTypeInfo().GetType().GetMethodInfo(methodName);
+            return type.GetMethodInfo(methodName);
 #else
-            return type.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
+            return type.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 #endif
         }
 
-        public static MethodInfo GetPublicInstanceMethod(this Type type, string methodName)
+        public static MethodInfo GetInstanceMethod(this Type type, string methodName)
         {
 #if (NETFX_CORE || PCL)
-            return type.GetTypeInfo().GetType().GetMethodInfo(methodName);
+            return type.GetMethodInfo(methodName);
 #else
-            return type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public);
-#endif
-        }
-
-        public static MethodInfo GetNonPublicInstanceMethod(this Type type, string methodName)
-        {
-#if (NETFX_CORE || PCL)
-            return type.GetTypeInfo().GetType().GetMethodInfo(methodName);
-#else
-            return type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            return type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 #endif
         }
 
@@ -1291,7 +1282,7 @@ namespace ServiceStack
 #endif
         }
 
-        public static MethodInfo GetPublicStaticMethod(this Type type, string methodName, Type[] types = null)
+        public static MethodInfo GetStaticMethod(this Type type, string methodName, Type[] types = null)
         {
 #if (NETFX_CORE || PCL)
             foreach (MethodInfo method in type.GetTypeInfo().DeclaredMethods)
@@ -1313,7 +1304,7 @@ namespace ServiceStack
         public static MethodInfo GetMethodInfo(this Type type, string methodName, Type[] types = null)
         {
 #if (NETFX_CORE || PCL)
-            return type.GetRuntimeMethods().First(p => p.Name.Equals(methodName));
+            return type.GetRuntimeMethods().FirstOrDefault(p => p.Name.Equals(methodName));
 #else
             return types == null
                 ? type.GetMethod(methodName)

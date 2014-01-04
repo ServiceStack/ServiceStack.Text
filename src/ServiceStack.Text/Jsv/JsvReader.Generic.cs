@@ -22,7 +22,7 @@ namespace ServiceStack.Text.Jsv
             if (parseFactoryFn != null) return parseFactoryFn();
 
             var genericType = typeof(JsvReader<>).MakeGenericType(type);
-            var mi = genericType.GetPublicStaticMethod("GetParseFn");
+            var mi = genericType.GetStaticMethod("GetParseFn");
             parseFactoryFn = (ParseFactoryDelegate)mi.MakeDelegate(typeof(ParseFactoryDelegate));
 
             Dictionary<Type, ParseFactoryDelegate> snapshot, newCache;

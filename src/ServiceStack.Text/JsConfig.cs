@@ -620,7 +620,7 @@ namespace ServiceStack.Text
 
         internal static void InvokeReset(this Type genericType)
         {
-            var methodInfo = genericType.GetPublicStaticMethod("Reset");
+            var methodInfo = genericType.GetStaticMethod("Reset");
             methodInfo.Invoke(null, null);
         }
 

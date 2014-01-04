@@ -33,7 +33,7 @@ namespace ServiceStack.Text.Common
             if (ListCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("WriteList");
+            var mi = genericType.GetStaticMethod("WriteList");
             writeFn = (WriteObjectDelegate)mi.MakeDelegate(typeof(WriteObjectDelegate));
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -58,7 +58,7 @@ namespace ServiceStack.Text.Common
             if (IListCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("WriteIList");
+            var mi = genericType.GetStaticMethod("WriteIList");
             writeFn = (WriteObjectDelegate)mi.MakeDelegate(typeof(WriteObjectDelegate));
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -82,7 +82,7 @@ namespace ServiceStack.Text.Common
             if (CacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("WriteArray");
+            var mi = genericType.GetStaticMethod("WriteArray");
             writeFn = (WriteObjectDelegate)mi.MakeDelegate(typeof(WriteObjectDelegate));
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -106,7 +106,7 @@ namespace ServiceStack.Text.Common
             if (EnumerableCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("WriteEnumerable");
+            var mi = genericType.GetStaticMethod("WriteEnumerable");
             writeFn = (WriteObjectDelegate)mi.MakeDelegate(typeof(WriteObjectDelegate));
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -130,7 +130,7 @@ namespace ServiceStack.Text.Common
             if (ListValueTypeCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("WriteListValueType");
+            var mi = genericType.GetStaticMethod("WriteListValueType");
             writeFn = (WriteObjectDelegate)mi.MakeDelegate(typeof(WriteObjectDelegate));
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -155,7 +155,7 @@ namespace ServiceStack.Text.Common
             if (IListValueTypeCacheFns.TryGetValue(elementType, out writeFn)) return writeFn;
 
             var genericType = typeof(WriteListsOfElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("WriteIListValueType");
+            var mi = genericType.GetStaticMethod("WriteIListValueType");
             writeFn = (WriteObjectDelegate)mi.MakeDelegate(typeof(WriteObjectDelegate));
 
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;

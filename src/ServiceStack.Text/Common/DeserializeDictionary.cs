@@ -220,7 +220,7 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-            var mi = typeof(DeserializeDictionary<TSerializer>).GetPublicStaticMethod("ParseDictionary");
+            var mi = typeof(DeserializeDictionary<TSerializer>).GetStaticMethod("ParseDictionary");
             var genericMi = mi.MakeGenericMethod(argTypes);
             parseDelegate = (ParseDictionaryDelegate)genericMi.MakeDelegate(typeof(ParseDictionaryDelegate));
 

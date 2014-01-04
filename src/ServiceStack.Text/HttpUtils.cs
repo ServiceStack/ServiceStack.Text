@@ -388,7 +388,7 @@ namespace ServiceStack
         public static string GetResponseBody(this Exception ex)
         {
             var webEx = ex as WebException;
-            if (webEx == null
+            if (webEx == null || webEx.Response == null
 #if !(SL5 || PCL)
                 || webEx.Status != WebExceptionStatus.ProtocolError
 #endif

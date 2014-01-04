@@ -72,7 +72,7 @@ namespace ServiceStack.Text.Common
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
             var elementType = enumerableInterface.GenericTypeArguments()[0];
             var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
-            var mi = genericType.GetPublicStaticMethod("ConvertToQueue");
+            var mi = genericType.GetStaticMethod("ConvertToQueue");
             var convertToQueue = (ConvertObjectDelegate)mi.MakeDelegate(typeof(ConvertObjectDelegate));
 
             var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseFn();
@@ -98,7 +98,7 @@ namespace ServiceStack.Text.Common
             
             var elementType = enumerableInterface.GenericTypeArguments()[0];
             var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
-            var mi = genericType.GetPublicStaticMethod("ConvertToStack");
+            var mi = genericType.GetStaticMethod("ConvertToStack");
             var convertToQueue = (ConvertObjectDelegate)mi.MakeDelegate(typeof(ConvertObjectDelegate));
 
             var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseFn();

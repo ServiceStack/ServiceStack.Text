@@ -38,7 +38,7 @@ namespace ServiceStack.Text.Common
                 return parseDelegate.Invoke;
 
             var genericType = typeof(DeserializeListWithElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("ParseGenericList");
+            var mi = genericType.GetStaticMethod("ParseGenericList");
             parseDelegate = (ParseListDelegate)mi.MakeDelegate(typeof(ParseListDelegate));
 
             Dictionary<Type, ParseListDelegate> snapshot, newCache;

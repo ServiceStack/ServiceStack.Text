@@ -32,7 +32,7 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn.Invoke;
 
             var genericType = typeof(DeserializeArrayWithElements<,>).MakeGenericType(type, typeof(TSerializer));
-            var mi = genericType.GetPublicStaticMethod("ParseGenericArray");
+            var mi = genericType.GetStaticMethod("ParseGenericArray");
             parseFn = (ParseArrayOfElementsDelegate)mi.CreateDelegate(typeof(ParseArrayOfElementsDelegate));
 
             Dictionary<Type, ParseArrayOfElementsDelegate> snapshot, newCache;
@@ -113,7 +113,7 @@ namespace ServiceStack.Text.Common
 
             var genericType = typeof(DeserializeArray<,>).MakeGenericType(type, typeof(TSerializer));
 
-            var mi = genericType.GetPublicStaticMethod("GetParseFn");
+            var mi = genericType.GetStaticMethod("GetParseFn");
             var parseFactoryFn = (Func<ParseStringDelegate>)mi.MakeDelegate(
                 typeof(Func<ParseStringDelegate>));
             parseFn = parseFactoryFn();

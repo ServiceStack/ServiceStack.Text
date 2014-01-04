@@ -80,7 +80,7 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
                 return parseDelegate(value, createType, parseFn);
 
-            var mi = typeof(DeserializeCollection<TSerializer>).GetPublicStaticMethod("ParseCollection");
+            var mi = typeof(DeserializeCollection<TSerializer>).GetStaticMethod("ParseCollection");
             var genericMi = mi.MakeGenericMethod(new[] { elementType });
             parseDelegate = (ParseCollectionDelegate)genericMi.MakeDelegate(typeof(ParseCollectionDelegate));
 
