@@ -7,7 +7,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -46,6 +45,11 @@ namespace ServiceStack
             this.InvariantComparerIgnoreCase = StringComparer.InvariantCultureIgnoreCase;
 
             this.PlatformName = Environment.OSVersion.Platform.ToString();
+        }
+
+        public static void Configure()
+        {
+            Instance = Provider;
         }
 
         public override string ReadAllText(string filePath)
@@ -478,10 +482,7 @@ namespace ServiceStack
 #if __IOS__
     public class IosPclExport : Net40PclExport
     {
-        static IosPclExport()
-        {
-            Provider = new IosPclExport();
-        }
+        public static new IosPclExport Provider = new IosPclExport();
 
         public IosPclExport()
         {
@@ -492,16 +493,18 @@ namespace ServiceStack
         public override void VerifyInAssembly(Type accessType, string assemblyName)
         {
         }
+
+        public static new void Configure()
+        {
+            Instance = Provider;
+        }
     }
 #endif
 
 #if ANDROID
     public class AndroidPclExport : Net40PclExport
     {
-        static AndroidPclExport()
-        {
-            Provider = new AndroidPclExport();
-        }
+        public static new AndroidPclExport Provider = new AndroidPclExport();
 
         public AndroidPclExport()
         {
@@ -510,6 +513,11 @@ namespace ServiceStack
 
         public override void VerifyInAssembly(Type accessType, string assemblyName)
         {
+        }
+
+        public static new void Configure()
+        {
+            Instance = Provider;
         }
     }
 #endif
@@ -801,13 +809,17 @@ namespace ServiceStack
         //XmlSerializer
         public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
         {
-            using (var deflateStream = new DeflateStream(stream, CompressionMode.Compress))
+#if __IOS__ || ANDROID
+            throw new NotImplementedException("Compression is not supported on this platform");
+#else
+            using (var deflateStream = new System.IO.Compression.DeflateStream(stream, System.IO.Compression.CompressionMode.Compress))
             using (var xw = new XmlTextWriter(deflateStream, Encoding.UTF8))
             {
                 var serializer = new DataContractSerializer(from.GetType());
                 serializer.WriteObject(xw, from);
                 xw.Flush();
             }
+#endif
         }
 
         public static byte[] Compress<TXmlDto>(TXmlDto from)

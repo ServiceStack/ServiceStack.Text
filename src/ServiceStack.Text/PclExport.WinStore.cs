@@ -12,11 +12,16 @@ namespace ServiceStack
 {
     public class WinStorePclExport : PclExport
     {
-        public new static WinStorePclExport Instance = new WinStorePclExport();
+        public new static WinStorePclExport Provider = new WinStorePclExport();
 
         public WinStorePclExport()
         {
             this.PlatformName = "WindowsStore";
+        }
+
+        public static void Configure()
+        {
+            Instance = Provider;
         }
 
         public override string ReadAllText(string filePath)
