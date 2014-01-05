@@ -21,7 +21,7 @@ namespace ServiceStack
 
         public static void Configure()
         {
-            Instance = Provider;
+            Configure(Provider);
         }
 
         public override string ReadAllText(string filePath)

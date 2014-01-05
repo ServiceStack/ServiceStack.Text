@@ -59,6 +59,11 @@ namespace ServiceStack
             //    Instance = AssemblyUtils.FindType("ServiceStack.Net40PclExport").CreateInstance() as PclExport;
         }
 
+        public static void Configure(PclExport instance)
+        {
+            Instance = instance ?? Instance;
+        }
+
         public bool SupportsExpression;
 
         public bool SupportsEmit;

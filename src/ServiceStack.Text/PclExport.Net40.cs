@@ -49,7 +49,7 @@ namespace ServiceStack
 
         public static void Configure()
         {
-            Instance = Provider;
+            Configure(Provider);
         }
 
         public override string ReadAllText(string filePath)
@@ -494,9 +494,9 @@ namespace ServiceStack
         {
         }
 
-        public static new void Configure()
+        public new static void Configure()
         {
-            Instance = Provider;
+            Configure(Provider);
         }
     }
 #endif
@@ -515,9 +515,9 @@ namespace ServiceStack
         {
         }
 
-        public static new void Configure()
+        public new static void Configure()
         {
-            Instance = Provider;
+            Configure(Provider);
         }
     }
 #endif
