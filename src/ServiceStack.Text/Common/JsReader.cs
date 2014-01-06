@@ -77,13 +77,9 @@ namespace ServiceStack.Text.Common
                     return DeserializeEnumerable<T, TSerializer>.Parse;
             }
 
-#if !(NETFX_CORE || WP)
-            if (typeof(T).AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
-                typeof(T).HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
-            {
-                return DeserializeDynamic<TSerializer>.Parse;
-            }
-#endif
+			var pclParseFn = PclExport.Instance.GetJsReaderParseMethod(typeof(T));
+			if (pclParseFn != null)
+				return pclParseFn;
 
             var isDictionary = typeof(T) != typeof(IEnumerable) && typeof(T) != typeof(ICollection)
                 && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
