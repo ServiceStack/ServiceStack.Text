@@ -329,17 +329,18 @@ namespace ServiceStack
             return null;
         }
 
-		public virtual ParseStringDelegate GetJsReaderParseMethod(Type type)
-		{
+        public virtual ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
 #if !PCL
-			if (typeof(T).AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
-				typeof(T).HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
-			{
-				return DeserializeDynamic<TSerializer>.Parse;
-			}
+            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
+            {
+	            return DeserializeDynamic<TSerializer>.Parse;
+            }
 #endif
-			return null;
-		}
+	        return null;
+        }
 
         public virtual XmlSerializer NewXmlSerializer()
         {

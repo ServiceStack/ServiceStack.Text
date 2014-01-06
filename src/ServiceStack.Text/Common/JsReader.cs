@@ -77,7 +77,7 @@ namespace ServiceStack.Text.Common
                     return DeserializeEnumerable<T, TSerializer>.Parse;
             }
 
-			var pclParseFn = PclExport.Instance.GetJsReaderParseMethod(typeof(T));
+			var pclParseFn = PclExport.Instance.GetJsReaderParseMethod<TSerializer>(typeof(T));
 			if (pclParseFn != null)
 				return pclParseFn;
 
