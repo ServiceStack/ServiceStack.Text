@@ -636,11 +636,8 @@ namespace ServiceStack
 
             if (type.IsDto())
             {
-                return !Env.IsMono
-                    ? publicReadableProperties.Where(attr =>
-                        attr.IsDefined(typeof(DataMemberAttribute), false)).ToArray()
-                    : publicReadableProperties.Where(attr =>
-                        attr.AllAttributes().Any(x => x.GetType().Name == DataMember)).ToArray();
+                return publicReadableProperties.Where(attr =>
+                    attr.HasAttribute<DataMemberAttribute>()).ToArray();
             }
 
             // else return those properties that are not decorated with IgnoreDataMember
@@ -921,6 +918,16 @@ namespace ServiceStack
             return type.AllAttributes().Any(x => x.GetType() == typeof(T));
         }
 
+        public static bool HasAttribute<T>(this PropertyInfo pi)
+        {
+            return pi.AllAttributes().Any(x => x.GetType() == typeof(T));
+        }
+
+        public static bool HasAttribute<T>(this FieldInfo fi)
+        {
+            return fi.AllAttributes().Any(x => x.GetType() == typeof(T));
+        }
+
         public static bool HasAttributeNamed(this Type type, string name)
         {
             var normalizedAttr = name.Replace("Attribute", "").ToLower();
@@ -949,10 +956,10 @@ namespace ServiceStack
         public static bool IsDto(this Type type)
         {
 #if (NETFX_CORE || PCL)
-            return type.GetTypeInfo().IsDefined(typeof(DataContractAttribute), false);
+            return type.HasAttribute<DataContractAttribute>();
 #else
             return !Env.IsMono
-                   ? type.IsDefined(typeof(DataContractAttribute), false)
+                   ? type.HasAttribute<DataContractAttribute>()
                    : type.GetCustomAttributes(true).Any(x => x.GetType().Name == DataContract);
 #endif
         }

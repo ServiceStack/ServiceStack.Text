@@ -161,9 +161,16 @@ namespace ServiceStack
 
         public virtual WebResponse GetResponse(WebRequest webRequest)
         {
-            var async = webRequest.GetResponseAsync();
-            async.Wait();
-            return async.Result;
+            try
+            {
+                var async = webRequest.GetResponseAsync();
+                async.Wait();
+                return async.Result;
+            }
+            catch (Exception ex)
+            {
+                throw ex.UnwrapIfSingleException();
+            }
         }
 
         public virtual bool IsDebugBuild(Assembly assembly)
