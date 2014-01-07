@@ -43,6 +43,11 @@ namespace ServiceStack
             return type.GetInterfaces()
                 .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
+
+        public static void Configure()
+        {
+            Configure(Provider);
+        }
     }
 }
 
