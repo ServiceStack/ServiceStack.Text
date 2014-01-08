@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>ServiceStack.Text.Pcl</id>
+    <title>PCL ServiceStack.Text</title>
+    <version>4.0.0</version> 
+    <authors>Service Stack</authors> 
+    <owners>Service Stack</owners>
+    <summary>.NET's fastest JSON, JSV and CSV Text Serializers</summary>
+    <description>
+        .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
+        Benchmarks at: http://servicestack.net/benchmarks/
+        Includes the String and Stream functionality for all the ServiceStack projects including: 
+          - T.Dump() generic extension method for easy dbugging and introspection of types
+          - WebRequest, List, Dictionary and DateTime extensions
+    </description> 
+    <projectUrl>https://github.com/ServiceStack/ServiceStack.Text</projectUrl>
+    <licenseUrl>https://servicestack.net/terms</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
+    <tags>JSON Text Serializer CSV JSV Dump PrettyPrint Fast</tags>
+    <language>en-US</language> 
+    <copyright>ServiceStack 2013 and contributors</copyright>
+  </metadata>
+  <files>
+    <file src="lib\**\*.*" target="lib" />
+    <file src="..\..\src\ServiceStack.Text\**\*.cs" target="src" />
+  </files>
+</package>
+
