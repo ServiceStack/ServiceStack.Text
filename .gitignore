@@ -44,6 +44,7 @@ App_Data/
 *.user
 
 NuGet/
+NuGet.Pcl/
 NuGet.Signed/
 *.pfx
 
