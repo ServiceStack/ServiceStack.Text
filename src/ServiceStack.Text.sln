@@ -4,6 +4,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED-EAFF-4839-935A-5BB4A4158245}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\appsettings.license.txt = ..\build\appsettings.license.txt
+		..\build\build-pcl.proj = ..\build\build-pcl.proj
 		..\build\build-sn.proj = ..\build\build-sn.proj
 		..\build\build.bat = ..\build\build.bat
 		..\build\build.proj = ..\build\build.proj
