@@ -88,7 +88,7 @@
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Pcl.csproj"
-             Targets="Build" Properties="Configuration=$(Configuration)" />
+             Targets="Build" Properties="Configuration=$(Configuration);OutputPath=bin/$(Configuration)" />
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid" />
