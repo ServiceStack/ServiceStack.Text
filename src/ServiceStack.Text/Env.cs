@@ -42,7 +42,7 @@ namespace ServiceStack.Text
             __releaseDate = DateTime.Parse("2001-01-01");
         }
 
-        public static decimal ServiceStackVersion = 4.001m;
+        public static decimal ServiceStackVersion = 4.00m;
 
         public static bool IsUnix { get; set; }
 

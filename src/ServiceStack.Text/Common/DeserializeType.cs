@@ -19,12 +19,12 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-    internal static class DeserializeType<TSerializer>
+    public static class DeserializeType<TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        public static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
+        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
         {
             var type = typeConfig.Type;
 

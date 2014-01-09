@@ -103,7 +103,7 @@
     <Compile Include="Build.Silverlight.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Common\DeserializeKeyValuePair.cs" />
-    <Compile Include="Common\DeserializeDynamic.cs" />
+    <Compile Include="Pcl.Dynamic.cs" />
     <Compile Include="Common\DateTimeSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -190,7 +190,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CsvAttribute.cs" />
-    <Compile Include="DynamicJson.cs" />
     <Compile Include="Env.cs">
       <SubType>Code</SubType>
     </Compile>

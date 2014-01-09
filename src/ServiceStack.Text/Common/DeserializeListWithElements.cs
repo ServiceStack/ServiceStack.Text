@@ -187,7 +187,7 @@ namespace ServiceStack.Text.Common
         }
     }
 
-    internal static class DeserializeList<T, TSerializer>
+    public static class DeserializeList<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
         private readonly static ParseStringDelegate CacheFn;
