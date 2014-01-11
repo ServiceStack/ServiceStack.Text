@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 
 namespace ServiceStack
@@ -42,6 +43,15 @@ namespace ServiceStack
         {
             return type.GetInterfaces()
                 .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>));
+        }
+
+        public override HttpWebRequest CreateWebRequest(string requestUri, bool? emulateHttpViaPost = null)
+        {
+            var creator = emulateHttpViaPost.GetValueOrDefault()
+                ? System.Net.Browser.WebRequestCreator.BrowserHttp
+                : System.Net.Browser.WebRequestCreator.ClientHttp;
+
+            return (HttpWebRequest)creator.Create(new Uri(requestUri));
         }
 
         public static void Configure()

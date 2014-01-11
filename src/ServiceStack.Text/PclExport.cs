@@ -148,6 +148,18 @@ namespace ServiceStack
         {
         }
 
+        public virtual HttpWebRequest CreateWebRequest(string requestUri, bool? emulateHttpViaPost = null)
+        {
+            return (HttpWebRequest)WebRequest.Create(requestUri);
+        }
+
+        public virtual void Config(HttpWebRequest webReq,
+            bool? allowAutoRedirect = null,
+            TimeSpan? timeout = null,
+            TimeSpan? readWriteTimeout = null)
+        {
+        }
+
         public virtual void AddCompression(WebRequest webRequest)
         {
         }
@@ -357,6 +369,11 @@ namespace ServiceStack
             stream.Flush();
         }
 
+        public virtual void ResetStream(Stream stream)
+        {
+            stream.Position = 0;
+        }
+
         public virtual LicenseKey VerifyLicenseKeyText(string licenseKeyText)
         {
             return licenseKeyText.ToLicenseKey();
@@ -387,13 +404,6 @@ namespace ServiceStack
         public DataMemberAttribute GetWeakDataMember(FieldInfo pi)
         {
             return null;
-        }
-
-        public virtual void Config(HttpWebRequest webReq,
-            bool? allowAutoRedirect = null,
-            TimeSpan? timeout = null,
-            TimeSpan? readWriteTimeout = null)
-        {
         }
     }
 
