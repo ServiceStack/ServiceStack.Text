@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.SL5", "ServiceStack.Text\ServiceStack.Text.SL5.csproj", "{579B3FDB-CDAD-44E1-8417-885C38E49A0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.SL5.Tests", "..\tests\ServiceStack.Text.SL5.Tests\ServiceStack.Text.SL5.Tests.csproj", "{227ABF79-D20A-4655-870D-3BBE10894A99}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SL5TestApp", "..\tests\SL5TestApp\SL5TestApp.csproj", "{B1AEE2FB-39FF-478D-A321-5009E170090B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SL5TestApp.Web", "..\tests\SL5TestApp.Web\SL5TestApp.Web.csproj", "{625C985F-C7DD-4227-9DEB-93F1648F345C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,18 +13,6 @@ Global
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{227ABF79-D20A-4655-870D-3BBE10894A99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{227ABF79-D20A-4655-870D-3BBE10894A99}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{227ABF79-D20A-4655-870D-3BBE10894A99}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{227ABF79-D20A-4655-870D-3BBE10894A99}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1AEE2FB-39FF-478D-A321-5009E170090B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1AEE2FB-39FF-478D-A321-5009E170090B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1AEE2FB-39FF-478D-A321-5009E170090B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1AEE2FB-39FF-478D-A321-5009E170090B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{625C985F-C7DD-4227-9DEB-93F1648F345C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{625C985F-C7DD-4227-9DEB-93F1648F345C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{625C985F-C7DD-4227-9DEB-93F1648F345C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{625C985F-C7DD-4227-9DEB-93F1648F345C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
