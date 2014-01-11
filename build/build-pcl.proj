@@ -85,6 +85,7 @@
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/Pcl/ServiceStack.Text.*"></TextFiles>
+      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text/bin/SL5/ServiceStack.Text.*"></TextSl5Files>
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Pcl.csproj"
@@ -92,7 +93,16 @@
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid" />
- 
+
+    <!-- Silverlight -->
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.SL5.csproj"
+             Targets="Build"
+             Properties="Version=$(PackageVersion);Configuration=$(Configuration);DefineConstants=SL5;Platform=x86;PlatformTarget=x86;OutputPath=bin/SL5" />
+
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/sl5" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/sl5')" />
+    <Copy SourceFiles="%(TextSl5Files.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/sl5" />
+
+
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text.Pcl/servicestack.text.pcl.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
             LogStandardErrorAsError="true" />
     
