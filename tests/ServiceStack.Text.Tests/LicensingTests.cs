@@ -77,7 +77,7 @@ namespace ServiceStack.Text.Tests
                 LicenseUtils.ApprovedUsage(LicenseFeature.None, licenseUseCase.Feature, licenseUseCase.AllowedLimit, int.MaxValue, "Failed"));
         }
 
-        [Test]
+        [Test, Explicit("Licenses are expired")]
         public void Can_register_Text_License()
         {
             Licensing.RegisterLicense(TestText2013Text);
