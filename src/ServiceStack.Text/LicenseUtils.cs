@@ -18,7 +18,10 @@ namespace ServiceStack
         Free,
         Indie,
         Business,
-        Enterprise
+        Enterprise,
+        Text,
+        OrmLite,
+        Redis
     }
 
     [Flags]
@@ -279,6 +282,12 @@ namespace ServiceStack
                     return LicenseFeature.Business;
                 case LicenseType.Enterprise:
                     return LicenseFeature.Enterprise;
+                case LicenseType.Text:
+                    return LicenseFeature.Text;
+                case LicenseType.OrmLite:
+                    return LicenseFeature.OrmLite;
+                case LicenseType.Redis:
+                    return LicenseFeature.Redis;
             }
             throw new ArgumentException("Unknown License Type: " + key.Type);
         }
