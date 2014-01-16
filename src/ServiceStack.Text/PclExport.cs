@@ -44,19 +44,6 @@ namespace ServiceStack
         {
             if (Instance != null) 
                 return;
-
-            //if (Env.IsMonoTouch)
-            //    Instance = AssemblyUtils.FindType("ServiceStack.IosPclExport").CreateInstance() as PclExport;
-            //else if (Env.IsAndroid)
-            //    Instance = AssemblyUtils.FindType("ServiceStack.AndroidPclExport").CreateInstance() as PclExport;
-            //else if (Env.IsWinRT)
-            //    Instance = AssemblyUtils.FindType("ServiceStack.WinStorePclExport").CreateInstance() as PclExport;
-            //else if (Env.IsWindowsPhone)
-            //    Instance = AssemblyUtils.FindType("ServiceStack.WpPclExport").CreateInstance() as PclExport;
-            //else if (Env.IsSilverlight)
-            //    Instance = AssemblyUtils.FindType("ServiceStack.Sl5PclExport").CreateInstance() as PclExport;
-            //else
-            //    Instance = AssemblyUtils.FindType("ServiceStack.Net40PclExport").CreateInstance() as PclExport;
         }
 
         public static void Configure(PclExport instance)
@@ -153,10 +140,12 @@ namespace ServiceStack
             return (HttpWebRequest)WebRequest.Create(requestUri);
         }
 
-        public virtual void Config(HttpWebRequest webReq,
+        public virtual void Config(HttpWebRequest req,
             bool? allowAutoRedirect = null,
             TimeSpan? timeout = null,
-            TimeSpan? readWriteTimeout = null)
+            TimeSpan? readWriteTimeout = null,
+            string userAgent = null,
+            bool? preAuthenticate = null)
         {
         }
 

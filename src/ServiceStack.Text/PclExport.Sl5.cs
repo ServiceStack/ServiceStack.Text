@@ -45,6 +45,17 @@ namespace ServiceStack
                 .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
+        public override void Config(HttpWebRequest req,
+            bool? allowAutoRedirect = null,
+            TimeSpan? timeout = null,
+            TimeSpan? readWriteTimeout = null,
+            string userAgent = null,
+            bool? preAuthenticate = null)
+        {
+            if (allowAutoRedirect.HasValue) req.AllowAutoRedirect = allowAutoRedirect.Value;
+            if (userAgent != null) req.UserAgent = userAgent;
+        }
+
         public override HttpWebRequest CreateWebRequest(string requestUri, bool? emulateHttpViaPost = null)
         {
             var creator = emulateHttpViaPost.GetValueOrDefault()
