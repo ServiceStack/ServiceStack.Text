@@ -44,6 +44,34 @@ namespace ServiceStack
         {
             if (Instance != null) 
                 return;
+
+            try
+            {
+                if (ConfigureProvider("ServiceStack.IosPclExportClient, ServiceStack.Pcl.iOS"))
+                    return;
+                if (ConfigureProvider("ServiceStack.AndroidPclExportClient, ServiceStack.Pcl.Android"))
+                    return;
+                if (ConfigureProvider("ServiceStack.WinStorePclExportClient, ServiceStack.Pcl.WinStore"))
+                    return;
+                if (ConfigureProvider("ServiceStack.Net40PclExportClient, ServiceStack.Pcl.Net45"))
+                    return;
+            }
+            catch (Exception /*ignore*/) {}
+        }
+
+        public static bool ConfigureProvider(string typeName)
+        {
+            var type = Type.GetType(typeName);
+            if (type == null)
+                return false;
+
+            var mi = type.GetMethod("Configure");
+            if (mi != null)
+            {
+                mi.Invoke(null, new object[0]);
+            }
+
+            return true;
         }
 
         public static void Configure(PclExport instance)
