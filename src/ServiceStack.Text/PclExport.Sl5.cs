@@ -21,6 +21,12 @@ namespace ServiceStack
             this.PlatformName = "Silverlight5";
         }
 
+        public static PclExport Configure()
+        {
+            Configure(Provider);
+            return Provider;
+        }
+
         public override string ReadAllText(string filePath)
         {
             return File.ReadAllText(filePath);
@@ -63,11 +69,6 @@ namespace ServiceStack
                 : System.Net.Browser.WebRequestCreator.ClientHttp;
 
             return (HttpWebRequest)creator.Create(new Uri(requestUri));
-        }
-
-        public static void Configure()
-        {
-            Configure(Provider);
         }
     }
 }

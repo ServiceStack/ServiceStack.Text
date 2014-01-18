@@ -8,11 +8,17 @@ namespace ServiceStack
 {
     public class XboxPclExport : PclExport
     {
-        public new static XboxPclExport Instance = new XboxPclExport();
+        public static XboxPclExport Provider = new XboxPclExport();
 
         public XboxPclExport()
         {
             this.PlatformName = "XBOX";
+        }
+
+        public static PclExport Configure()
+        {
+            Configure(Provider);
+            return Provider;
         }
 
         public override string ReadAllText(string filePath)

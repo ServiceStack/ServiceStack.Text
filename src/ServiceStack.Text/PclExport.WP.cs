@@ -13,11 +13,17 @@ namespace ServiceStack
 {
     public class WpPclExport : PclExport
     {
-        public new static WpPclExport Instance = new WpPclExport();
+        public static WpPclExport Provider = new WpPclExport();
 
         public WpPclExport()
         {
             this.PlatformName = "WindowsPhone";
+        }
+
+        public static PclExport Configure()
+        {
+            Configure(Provider);
+            return Provider;
         }
 
         public override string ReadAllText(string filePath)
