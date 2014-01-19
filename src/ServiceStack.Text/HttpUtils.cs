@@ -675,6 +675,7 @@ namespace ServiceStack
         public const string PlainText = "text/plain";
         public const string MarkdownText = "text/markdown";
         public const string MsgPack = "application/x-msgpack";
+        public const string NetSerializer = "application/x-netserializer";
         public const string Bson = "application/bson";
         public const string Binary = "application/octet-stream";
 
