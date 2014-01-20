@@ -377,7 +377,7 @@ namespace ServiceStack.Text.Jsv
 		{
 			var tokenStartPos = i;
 			var valueLength = value.Length;
-			if (i == valueLength) return null;
+			if (i == valueLength) return string.Empty;
 
 			var valueChar = value[i];
 			var withinQuotes = false;
@@ -388,7 +388,7 @@ namespace ServiceStack.Text.Jsv
 				//If we are at the end, return.
 				case JsWriter.ItemSeperator:
 				case JsWriter.MapEndChar:
-					return null;
+					return string.Empty;
 
 				//Is Within Quotes, i.e. "..."
 				case JsWriter.QuoteChar:
