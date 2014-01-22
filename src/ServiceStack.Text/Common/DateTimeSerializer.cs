@@ -338,10 +338,13 @@ namespace ServiceStack.Text.Common
         {
             var timeOfDay = dateTime.TimeOfDay;
 
-            if (IsStartOfDay(timeOfDay))
+            var isStartOfDay = timeOfDay.Ticks == 0;
+            if (isStartOfDay)
                 return dateTime.ToString(ShortDateTimeFormat);
 
-            if (!HasFractionalSeconds(timeOfDay))
+            var hasFractionalSecs = (timeOfDay.Milliseconds != 0) 
+                || ((timeOfDay.Ticks%TimeSpan.TicksPerMillisecond) != 0);
+            if (!hasFractionalSecs)
                 return dateTime.Kind != DateTimeKind.Utc
                     ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
                     : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
@@ -349,16 +352,6 @@ namespace ServiceStack.Text.Common
             return dateTime.Kind != DateTimeKind.Utc
                 ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
                 : PclExport.Instance.ToXsdDateTimeString(dateTime);
-        }
-
-        private static bool IsStartOfDay(TimeSpan timeOfDay)
-        {
-            return timeOfDay.Ticks == 0;
-        }
-
-        private static bool HasFractionalSeconds(TimeSpan timeOfDay)
-        {
-            return (timeOfDay.Milliseconds != 0) || ((timeOfDay.Ticks % TimeSpan.TicksPerMillisecond) != 0);
         }
 
         static readonly char[] TimeZoneChars = new[] { '+', '-' };
