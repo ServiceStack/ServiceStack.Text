@@ -202,7 +202,8 @@ namespace ServiceStack.Text.Tests.Utils
 			new DateTime(1979, 5, 9, 0, 0, 0, 1),
 			new DateTime(2010, 10, 20, 10, 10, 10, 1),
 			new DateTime(2010, 11, 22, 11, 11, 11, 1),
-            new DateTime(622119282055250000)
+            new DateTime(622119282055250000),
+            new DateTime(622119282050000001, DateTimeKind.Utc),
         };
 
         [Test]
@@ -215,6 +216,8 @@ namespace ServiceStack.Text.Tests.Utils
         [TestCase(6)]
         [TestCase(7)]
         [TestCase(8)]
+        [TestCase(9)]
+        [TestCase(10)]
         public void AssertDateIsEqual(int whichDate)
         {
             DateTime dateTime = DateTimeTests[whichDate];
@@ -245,6 +248,8 @@ namespace ServiceStack.Text.Tests.Utils
 
             var toDateTime = DateTimeSerializer.ParseShortestXsdDateTime(shortestDateStr);
             AssertDatesAreEqual(toDateTime, dateTime, "shortestDate");
+
+            Assert.That(toDateTime.ToStableUniversalTime().TimeOfDay.TotalSeconds, Is.EqualTo(dateTime.ToStableUniversalTime().TimeOfDay.TotalSeconds), "shortestDate: Fractional seconds differ");
 
             var unixTime = dateTime.ToUnixTimeMs();
             var fromUnixTime = DateTimeExtensions.FromUnixTimeMs(unixTime);
