@@ -219,6 +219,7 @@
     <Compile Include="JsonTests\PolymorphicListTests.cs" />
     <Compile Include="JsonTests\PropertyConventionTests.cs" />
     <Compile Include="JsonTests\ThrowOnDeserializeErrorTest.cs" />
+    <Compile Include="JsvTests\JsvCollectionTests.cs" />
     <Compile Include="JsvTests\JsvDeserializeTypeTest.cs" />
     <Compile Include="LicenseUsageTests.cs" />
     <Compile Include="LicensingTests.cs" />

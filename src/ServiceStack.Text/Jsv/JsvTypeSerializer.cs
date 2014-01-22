@@ -63,12 +63,17 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteObjectString(TextWriter writer, object value)
 		{
-			if (value != null)
+            if (value != null)
 			{
-                if(value is string)
-                    WriteString(writer, value as string);
+                var strValue = value as string;
+                if (strValue != null)
+                {
+                    WriteString(writer, strValue);
+                }
                 else
-				    writer.Write(value.ToString().EncodeJsv());
+                {
+                    writer.Write(value.ToString().EncodeJsv());
+                }
 			}
 		}
 
@@ -79,12 +84,12 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteString(TextWriter writer, string value)
 		{
-            if(JsState.QueryStringMode && !string.IsNullOrEmpty(value) && value.StartsWith(JsWriter.QuoteString) && value.EndsWith(JsWriter.QuoteString))
+		    if(JsState.QueryStringMode && !string.IsNullOrEmpty(value) && value.StartsWith(JsWriter.QuoteString) && value.EndsWith(JsWriter.QuoteString))
                 value = String.Concat(JsWriter.QuoteChar, value, JsWriter.QuoteChar);
 		    else if (JsState.QueryStringMode && !string.IsNullOrEmpty(value) && value.Contains(JsWriter.ItemSeperatorString))
 		        value = String.Concat(JsWriter.QuoteChar, value, JsWriter.QuoteChar);
-            
-			writer.Write(value.EncodeJsv());
+
+		    writer.Write(value == "" ? "\"\"" : value.EncodeJsv());
 		}
 
 	    public void WriteFormattableObjectString(TextWriter writer, object value)
