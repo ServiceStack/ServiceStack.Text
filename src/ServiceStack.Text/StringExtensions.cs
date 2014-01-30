@@ -150,6 +150,10 @@ namespace ServiceStack
                 {
                     sb.Append((char)charCode);
                 }
+                else if(charCode == 32)
+                {
+                    sb.Append('+');
+                }
                 else
                 {
                     sb.Append('%' + charCode.ToString("x2"));
