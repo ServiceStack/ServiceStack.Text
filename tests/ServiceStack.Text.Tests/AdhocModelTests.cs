@@ -99,24 +99,24 @@ namespace ServiceStack.Text.Tests
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
                 return other.Id == Id
-                    && Equals(other.Urn, Urn) 
-                    && other.UserId.Equals(UserId) 
-                    && other.DateAdded.RoundToMs().Equals(DateAdded.RoundToMs()) 
-                    && other.DateModified.RoundToMs().Equals(DateModified.RoundToMs()) 
-                    && other.TargetUserId.Equals(TargetUserId) 
-                    && other.ForwardedPostId.Equals(ForwardedPostId) 
-                    && other.OriginUserId.Equals(OriginUserId) 
+                    && Equals(other.Urn, Urn)
+                    && other.UserId.Equals(UserId)
+                    && other.DateAdded.RoundToMs().Equals(DateAdded.RoundToMs())
+                    && other.DateModified.RoundToMs().Equals(DateModified.RoundToMs())
+                    && other.TargetUserId.Equals(TargetUserId)
+                    && other.ForwardedPostId.Equals(ForwardedPostId)
+                    && other.OriginUserId.Equals(OriginUserId)
                     && Equals(other.OriginUserName, OriginUserName)
-                    && other.SourceUserId.Equals(SourceUserId) 
+                    && other.SourceUserId.Equals(SourceUserId)
                     && Equals(other.SourceUserName, SourceUserName)
-                    && Equals(other.SubjectUrn, SubjectUrn) 
-                    && Equals(other.ContentUrn, ContentUrn) 
-                    && TrackUrns.EquivalentTo(other.TrackUrns) 
+                    && Equals(other.SubjectUrn, SubjectUrn)
+                    && Equals(other.ContentUrn, ContentUrn)
+                    && TrackUrns.EquivalentTo(other.TrackUrns)
                     && Equals(other.Caption, Caption)
-                    && other.CaptionUserId.Equals(CaptionUserId) 
-                    && Equals(other.CaptionSourceName, CaptionSourceName) 
-                    && Equals(other.ForwardedPostUrn, ForwardedPostUrn) 
-                    && Equals(other.PostType, PostType) 
+                    && other.CaptionUserId.Equals(CaptionUserId)
+                    && Equals(other.CaptionSourceName, CaptionSourceName)
+                    && Equals(other.ForwardedPostUrn, ForwardedPostUrn)
+                    && Equals(other.PostType, PostType)
                     && other.OnBehalfOfUserId.Equals(OnBehalfOfUserId);
             }
 
@@ -352,33 +352,46 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Can_exclude_properties_scoped() {
-            var dto = new Exclude {Id = 1, Key = "Value"};
-            using (var config = JsConfig.BeginScope()) {
-                config.ExcludePropertyReferences = new[] {"Exclude.Id"};
+        public void Can_exclude_properties_scoped()
+        {
+            var dto = new Exclude { Id = 1, Key = "Value" };
+            using (var config = JsConfig.BeginScope())
+            {
+                config.ExcludePropertyReferences = new[] { "Exclude.Id" };
+                Assert.That(dto.ToJson(), Is.EqualTo("{\"Key\":\"Value\"}"));
+                Assert.That(dto.ToJsv(), Is.EqualTo("{Key:Value}"));
+            }
+
+            using (JsConfig.With(excludePropertyReferences: new[] { "Exclude.Id" }))
+            {
                 Assert.That(dto.ToJson(), Is.EqualTo("{\"Key\":\"Value\"}"));
                 Assert.That(dto.ToJsv(), Is.EqualTo("{Key:Value}"));
             }
         }
-        
-        public class IncludeExclude {
+
+        public class IncludeExclude
+        {
             public int Id { get; set; }
             public string Name { get; set; }
             public Exclude Obj { get; set; }
         }
 
         [Test]
-        public void Can_include_nested_only() {
-            var dto = new IncludeExclude {
+        public void Can_include_nested_only()
+        {
+            var dto = new IncludeExclude
+            {
                 Id = 1234,
                 Name = "TEST",
-                Obj = new Exclude {
+                Obj = new Exclude
+                {
                     Id = 1,
                     Key = "Value"
                 }
             };
 
-            using (var config = JsConfig.BeginScope()) {
+            using (var config = JsConfig.BeginScope())
+            {
                 config.ExcludePropertyReferences = new[] { "Exclude.Id", "IncludeExclude.Id", "IncludeExclude.Name" };
                 Assert.That(dto.ToJson(), Is.EqualTo("{\"Obj\":{\"Key\":\"Value\"}}"));
                 Assert.That(dto.ToJsv(), Is.EqualTo("{Obj:{Key:Value}}"));
@@ -395,12 +408,12 @@ namespace ServiceStack.Text.Tests
                 Id = 1234,
                 Name = "TEST",
                 Obj = new Exclude
-                {   
+                {
                     Id = 1,
                     Key = "Value"
                 }
             };
-            
+
             using (var config = JsConfig.BeginScope())
             {
                 config.ExcludePropertyReferences = new[] { "Exclude.Id", "Exclude.Key" };
@@ -412,14 +425,17 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-        public class ExcludeList {
+        public class ExcludeList
+        {
             public int Id { get; set; }
             public List<Exclude> Excludes { get; set; }
         }
 
         [Test]
-        public void Exclude_List_Scope() {
-            var dto = new ExcludeList {
+        public void Exclude_List_Scope()
+        {
+            var dto = new ExcludeList
+            {
                 Id = 1234,
                 Excludes = new List<Exclude>() {
                     new Exclude {
@@ -703,7 +719,7 @@ namespace ServiceStack.Text.Tests
         {
             var dto = "{\"vALUE\":\"B\"}".FromJson<A>();
             Assert.That(dto.Value, Is.EqualTo("B"));
-            
+
             dto = "{vALUE:B}".FromJsv<A>();
             Assert.That(dto.Value, Is.EqualTo("B"));
         }
@@ -753,7 +769,7 @@ namespace ServiceStack.Text.Tests
             {
                 Blah = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
             };
-            
+
             var from = Serialize(dto, includeXml: false);
             Assert.IsNotNull(from.Blah);
             Assert.AreEqual(dto.Blah.Count, from.Blah.Count);
