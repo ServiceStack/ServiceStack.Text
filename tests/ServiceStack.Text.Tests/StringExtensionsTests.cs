@@ -116,7 +116,7 @@ namespace ServiceStack.Text.Tests
             var encoded = text.UrlEncode();
 
             Assert.That(encoded, 
-                Is.EqualTo("This%20string%20%26%20has%20%25%20unsafe%20%3f%20characters%20for%20%29%5f%28%2a%26%5e%25%24%24%5e%24%40%23%20a%20query%20string"));
+                Is.EqualTo("This+string+%26+has+%25+unsafe+%3f+characters+for+%29%5f%28%2a%26%5e%25%24%24%5e%24%40%23+a+query+string"));
 
             var decoded = encoded.UrlDecode();
 
@@ -179,8 +179,8 @@ namespace ServiceStack.Text.Tests
 
             var encoded = text.UrlEncode();
 
-            Assert.That(encoded, Is.EqualTo("This%20string%20%26%20has%20%25%20%e6%9d%83%eb%9c%91%e7%b0%92%e3%ae%90%e1%be%9f" +
-                "%e4%97%9a%e7%92%a5%e8%b6%ae%e2%9a%a6%e4%ad%8c%e4%b3%85%e6%b5%9d%e4%95%8c%e0%a8%a5%e2%a4%a7%e7%ac%ab%20characters"));
+            Assert.That(encoded, Is.EqualTo("This+string+%26+has+%25+%e6%9d%83%eb%9c%91%e7%b0%92%e3%ae%90%e1%be%9f" +
+                "%e4%97%9a%e7%92%a5%e8%b6%ae%e2%9a%a6%e4%ad%8c%e4%b3%85%e6%b5%9d%e4%95%8c%e0%a8%a5%e2%a4%a7%e7%ac%ab+characters"));
 
             var decoded = encoded.UrlDecode();
 

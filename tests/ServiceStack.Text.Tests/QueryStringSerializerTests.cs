@@ -122,8 +122,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialize_quoted_strings()
         {
-            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content\"" }), Is.EqualTo("Property=%22%22quoted%20content%22%22"));
-            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content, and with a comma\"" }), Is.EqualTo("Property=%22%22quoted%20content,%20and%20with%20a%20comma%22%22"));
+            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content\"" }), Is.EqualTo("Property=%22%22quoted+content%22%22"));
+            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content, and with a comma\"" }), Is.EqualTo("Property=%22%22quoted+content,+and+with+a+comma%22%22"));
         }
 
         private T StringToPoco<T>(string str)
@@ -157,7 +157,7 @@ namespace ServiceStack.Text.Tests
                 {
                     ListOfA = new List<A> { new A { ListOfB = new List<B> { new B { Property = "Doe, John", Property2 = "Doe", Property3 = "John" } } } }
                 };
-            Assert.That(QueryStringSerializer.SerializeToString(testPocos), Is.EqualTo("ListOfA={ListOfB:[{Property:%22Doe,%20John%22,Property2:Doe,Property3:John}]}"));
+            Assert.That(QueryStringSerializer.SerializeToString(testPocos), Is.EqualTo("ListOfA={ListOfB:[{Property:%22Doe,+John%22,Property2:Doe,Property3:John}]}"));
         }
 
         [Test]
