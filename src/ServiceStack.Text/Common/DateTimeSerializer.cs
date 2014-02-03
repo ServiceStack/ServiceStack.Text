@@ -57,7 +57,7 @@ namespace ServiceStack.Text.Common
 
         public static DateTime? ParseShortestNullableXsdDateTime(string dateTimeStr)
         {
-            if (dateTimeStr == null)
+            if (string.IsNullOrEmpty(dateTimeStr))
                 return null;
 
             return ParseShortestXsdDateTime(dateTimeStr);

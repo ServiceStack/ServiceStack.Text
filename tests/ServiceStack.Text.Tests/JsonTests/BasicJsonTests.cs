@@ -479,6 +479,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(keyValuePair, Is.EqualTo(new KeyValuePair<string, string>("foo", "bar")));
         }
 
+        public class Foo
+        {
+            public string Bar { get; set; }
+        }
+
         [Test]
         public void Can_parse_empty_object_with_leading_whitespace()
         {
@@ -497,9 +502,18 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(foo.Bar, Is.EqualTo("baz"));
         }
 
-        public class Foo
+        public class ModelWithDate
         {
-            public string Bar { get; set; }
+            public DateTime? Date { get; set; }
         }
-	}
+
+        [Test]
+        public void Empty_string_converts_to_null_DateTime()
+        {
+            var json = "{\"Date\":\"\"}";
+            var dto = json.FromJson<ModelWithDate>();
+
+            Assert.That(dto.Date, Is.Null);
+        }
+    }
 }
