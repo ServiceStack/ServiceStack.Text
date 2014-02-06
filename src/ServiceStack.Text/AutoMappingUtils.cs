@@ -2,6 +2,7 @@
 // License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace ServiceStack
 
     public static class AutoMappingUtils
     {
-        public static T ConvertTo<T>(this object from)
+        public static T ConvertTo<T>(this object from) 
         {
             var to = typeof(T).CreateInstance<T>();
             return to.PopulateWith(from);
@@ -521,7 +522,7 @@ namespace ServiceStack
             if (PropertyInfo != null)
                 return PropertyInfo.GetPropertyGetterFn();
             if (FieldInfo != null)
-                return o => FieldInfo.GetValue(o);
+                return FieldInfo.GetFieldGetterFn();
             if (MethodInfo != null)
                 return (PropertyGetterDelegate)
                     MethodInfo.CreateDelegate(typeof(PropertyGetterDelegate));
@@ -534,7 +535,7 @@ namespace ServiceStack
             if (PropertyInfo != null)
                 return PropertyInfo.GetPropertySetterFn();
             if (FieldInfo != null)
-                return (o, v) => FieldInfo.SetValue(o, v);
+                return FieldInfo.GetFieldSetterFn();
             if (MethodInfo != null)
                 return (PropertySetterDelegate)MethodInfo.MakeDelegate(typeof(PropertySetterDelegate));
 
@@ -623,7 +624,7 @@ namespace ServiceStack
                                 fromValue = Enum.ToObject(genericArg, fromValue);
                             }
                         }
-                        else
+                        else if (typeof(IEnumerable).IsAssignableFrom(fromMember.Type))
                         {
                             var listResult = TranslateListWithElements.TryTranslateToGenericICollection(
                                 fromMember.Type, toMember.Type, fromValue);
@@ -632,6 +633,12 @@ namespace ServiceStack
                             {
                                 fromValue = listResult;
                             }
+                        }
+                        else
+                        {
+                            var toValue = toMember.Type.CreateInstance();
+                            toValue.PopulateWith(fromValue);
+                            fromValue = toValue;
                         }
                     }
 
@@ -661,6 +668,19 @@ namespace ServiceStack
         public static PropertyGetterDelegate GetPropertyGetterFn(this PropertyInfo propertyInfo)
         {
             return PclExport.Instance.GetPropertyGetterFn(propertyInfo);
+        }
+    }
+
+    internal static class FieldInvoker
+    {
+        public static PropertySetterDelegate GetFieldSetterFn(this FieldInfo fieldInfo)
+        {
+            return PclExport.Instance.GetFieldSetterFn(fieldInfo);
+        }
+
+        public static PropertyGetterDelegate GetFieldGetterFn(this FieldInfo fieldInfo)
+        {
+            return PclExport.Instance.GetFieldGetterFn(fieldInfo);
         }
     }
 }

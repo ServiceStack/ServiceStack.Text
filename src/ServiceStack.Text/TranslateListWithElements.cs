@@ -85,7 +85,7 @@ namespace ServiceStack.Text
 			{
 				return TranslateToGenericICollectionCache(
 					fromValue, toPropertyType, args[0]);
-			}
+			} 
 
 			var varArgs = typeof(ICollection<>).GetGenericArgumentsIfBothHaveConvertibleGenericDefinitionTypeAndArguments(
 			fromPropertyType, toPropertyType);

@@ -179,6 +179,7 @@
     <Compile Include="AdhocModelTests.cs" />
     <Compile Include="AnonymousTypes.cs" />
     <Compile Include="AotTests.cs" />
+    <Compile Include="AutoMappingBenchmarks.cs" />
     <Compile Include="BasicStringSerializerTests.cs" />
     <Compile Include="BclStructTests.cs" />
     <Compile Include="CsvTests\DictionaryTests.cs" />

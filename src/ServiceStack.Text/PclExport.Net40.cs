@@ -280,6 +280,103 @@ namespace ServiceStack
             }
         }
 
+        private static readonly MethodInfo setFieldMethod =
+            typeof(Net40PclExport).GetStaticMethod("SetField");
+
+        internal static void SetField<TValue>(ref TValue field, TValue newValue)
+        {
+            field = newValue;
+        }
+        
+        public override PropertySetterDelegate GetFieldSetterFn(FieldInfo fieldInfo)
+        {
+            if (!SupportsExpression)
+                return base.GetFieldSetterFn(fieldInfo);
+
+            var fieldDeclaringType = fieldInfo.DeclaringType;
+
+            var sourceParameter = Expression.Parameter(typeof(object), "source");
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+
+            var sourceExpression = this.GetCastOrConvertExpression(sourceParameter, fieldDeclaringType);
+
+            var fieldExpression = Expression.Field(sourceExpression, fieldInfo);
+
+            var valueExpression = this.GetCastOrConvertExpression(valueParameter, fieldExpression.Type);
+
+            var genericSetFieldMethodInfo = setFieldMethod.MakeGenericMethod(fieldExpression.Type);
+
+            var setFieldMethodCallExpression = Expression.Call(
+                null, genericSetFieldMethodInfo, fieldExpression, valueExpression);
+
+            var setterFn = Expression.Lambda<PropertySetterDelegate>(
+                setFieldMethodCallExpression, sourceParameter, valueParameter).Compile();
+
+            return setterFn;
+        }
+
+        public override PropertyGetterDelegate GetFieldGetterFn(FieldInfo fieldInfo)
+        {
+            if (!SupportsExpression)
+                return base.GetFieldGetterFn(fieldInfo);
+
+            try
+            {
+                var fieldDeclaringType = fieldInfo.DeclaringType;
+
+                var oInstanceParam = Expression.Parameter(typeof(object), "source");
+                var instanceParam = this.GetCastOrConvertExpression(oInstanceParam, fieldDeclaringType);
+
+                var exprCallFieldGetFn = Expression.Field(instanceParam, fieldInfo);
+                //var oExprCallFieldGetFn = this.GetCastOrConvertExpression(exprCallFieldGetFn, typeof(object));
+                var oExprCallFieldGetFn = Expression.Convert(exprCallFieldGetFn, typeof(object));
+
+                var fieldGetterFn = Expression.Lambda<PropertyGetterDelegate>
+                    (
+                        oExprCallFieldGetFn, 
+                        oInstanceParam
+                    )
+                    .Compile();
+
+                return fieldGetterFn;
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                throw;
+            }
+        }
+
+        private Expression GetCastOrConvertExpression(Expression expression, Type targetType)
+        {
+            Expression result;
+            var expressionType = expression.Type;
+
+            if (targetType.IsAssignableFrom(expressionType))
+            {
+                result = expression;
+            }
+            else
+            {
+                // Check if we can use the as operator for casting or if we must use the convert method
+                if (targetType.IsValueType && !IsNullableType(targetType))
+                {
+                    result = Expression.Convert(expression, targetType);
+                }
+                else
+                {
+                    result = Expression.TypeAs(expression, targetType);
+                }
+            }
+
+            return result;
+        }
+
+        public static bool IsNullableType(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
         public override string ToXsdDateTimeString(DateTime dateTime)
         {
             return XmlConvert.ToString(dateTime.ToStableUniversalTime(), XmlDateTimeSerializationMode.Utc);

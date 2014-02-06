@@ -319,6 +319,16 @@ namespace ServiceStack
             return o => propertyInfo.GetMethodInfo().Invoke(o, new object[] { });
         }
 
+        public virtual PropertySetterDelegate GetFieldSetterFn(FieldInfo fieldInfo)
+        {
+            return fieldInfo.SetValue;
+        }
+
+        public virtual PropertyGetterDelegate GetFieldGetterFn(FieldInfo fieldInfo)
+        {
+            return fieldInfo.GetValue;
+        }
+
         public virtual string ToXsdDateTimeString(DateTime dateTime)
         {
             return XmlConvert.ToString(dateTime.ToStableUniversalTime(), DateTimeSerializer.XsdDateTimeFormat);
