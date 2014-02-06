@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
@@ -34,5 +36,29 @@ namespace ServiceStack.Text.Tests.JsonTests
 			TypeConfig<T>.EnableAnonymousFieldSetters = true;
 			return (T)JsonSerializer.DeserializeFromString(json, template.GetType());
 		}
+
+        [Test]
+        public void Deserialize_dynamic_json()
+        {
+            var json = "{\"Id\":\"fb1d17c7298c448cb7b91ab7041e9ff6\",\"Name\":\"John\",\"DateOfBirth\":\"\\/Date(317433600000-0000)\\/\"}";
+
+            var obj = JsonObject.Parse(json);
+            obj.Get<Guid>("Id").ToString().Print();
+            obj.Get<string>("Name").Print();
+            obj.Get<DateTime>("DateOfBirth").ToLongDateString().Print();
+
+            dynamic dyn = DynamicJson.Deserialize(json);
+            string id = dyn.Id;
+            string name = dyn.Name;
+            string dob = dyn.DateOfBirth;
+            "DynamicJson: {0}, {1}, {2}".Print(id, name, dob);
+
+            using (JsConfig.With(convertObjectTypesIntoStringDictionary: true))
+            {
+                "Object Dictionary".Print();
+                var map = (Dictionary<string, object>)json.FromJson<object>();
+                map.PrintDump();
+            }
+        }
 	}
 }
