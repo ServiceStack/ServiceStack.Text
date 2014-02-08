@@ -89,7 +89,9 @@ project. It provides a dynamic, but more succinct API than the above options.
 
     PM> Install-Package ServiceStack.Text
 
-_Commercial support will be available for ServiceStack, contact team@servicestack.net for details_
+_Commercial support is now available for ServiceStack, see https://servicestack.net/pricing for details_
+
+### [Docs and Downloads for v3](https://github.com/ServiceStackV3/ServiceStackV3)
 
 ## Copying
 
