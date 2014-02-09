@@ -69,5 +69,52 @@ namespace ServiceStack.Text.Tests.DynamicModels
 			};
 		}
 
+        public override bool Equals(object obj)
+        {
+            var to = obj as ModelWithAllTypes;
+            if (to == null)
+                return false;
+
+            if (ByteValue != to.ByteValue)
+                return false;
+            if (CharValue != to.CharValue)
+                return false;
+            if (CustomException.Message != to.CustomException.Message)
+                return false;
+            if (DateTimeValue != to.DateTimeValue)
+                return false;
+            if (DecimalValue != to.DecimalValue)
+                return false;
+            if (DoubleValue != to.DoubleValue)
+                return false;
+            if (Exception.Message != to.Exception.Message)
+                return false;
+            if (FloatValue != to.FloatValue)
+                return false;
+            if (IntValue != to.IntValue)
+                return false;
+            if (LongValue != to.LongValue)
+                return false;
+            if (SByteValue != to.SByteValue)
+                return false;
+            if (ShortValue != to.ShortValue)
+                return false;
+            if (TimeSpanValue != to.TimeSpanValue)
+                return false;
+            if (TypeValue != to.TypeValue)
+                return false;
+            if (UIntValue != to.UIntValue)
+                return false;
+            if (ULongValue != to.ULongValue)
+                return false;
+            if (UriValue.ToString() != to.UriValue.ToString())
+                return false;
+            if (UShortValue != to.UShortValue)
+                return false;
+            if (GuidValue != to.GuidValue)
+                return false;
+
+            return true;
+        }
 	}
 }

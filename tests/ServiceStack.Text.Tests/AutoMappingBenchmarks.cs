@@ -170,6 +170,7 @@ namespace ServiceStack.Common.Tests
         {
             var from = new BenchSource();
             var to = from.ConvertTo<BenchDestination>();
+            to = from.ConvertTo<BenchDestination>();
 
             using (JsConfig.With(includePublicFields: true))
             {

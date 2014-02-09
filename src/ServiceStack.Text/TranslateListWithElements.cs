@@ -76,19 +76,19 @@ namespace ServiceStack.Text
             return translateToFn(from, toInstanceOfType);
 		}
 
-		public static object TryTranslateToGenericICollection(Type fromPropertyType, Type toPropertyType, object fromValue)
+        public static object TryTranslateCollections(Type fromPropertyType, Type toPropertyType, object fromValue)
 		{
-			var args = typeof(ICollection<>).GetGenericArgumentsIfBothHaveSameGenericDefinitionTypeAndArguments(
+            var args = typeof(IEnumerable<>).GetGenericArgumentsIfBothHaveSameGenericDefinitionTypeAndArguments(
 				fromPropertyType, toPropertyType);
 
-			if (args != null)
+            if (args != null)
 			{
 				return TranslateToGenericICollectionCache(
 					fromValue, toPropertyType, args[0]);
-			} 
+			}
 
-			var varArgs = typeof(ICollection<>).GetGenericArgumentsIfBothHaveConvertibleGenericDefinitionTypeAndArguments(
-			fromPropertyType, toPropertyType);
+            var varArgs = typeof(IEnumerable<>).GetGenericArgumentsIfBothHaveConvertibleGenericDefinitionTypeAndArguments(
+			    fromPropertyType, toPropertyType);
 
 			if (varArgs != null)
 			{
@@ -150,16 +150,16 @@ namespace ServiceStack.Text
 				if (toInstanceOfType.HasAnyTypeDefinitionsOf(
 					typeof(ICollection<>), typeof(IList<>)))
 				{
-					return ReflectionExtensions.CreateInstance(typeof(List<T>));
+					return typeof(List<T>).CreateInstance();
 				}
 			}
 
-			return ReflectionExtensions.CreateInstance(toInstanceOfType);
+			return toInstanceOfType.CreateInstance();
 		}
 
 		public static IList TranslateToIList(IList fromList, Type toInstanceOfType)
 		{
-			var to = (IList)ReflectionExtensions.CreateInstance(toInstanceOfType);
+			var to = (IList)toInstanceOfType.CreateInstance();
 			foreach (var item in fromList)
 			{
 				to.Add(item);
@@ -170,7 +170,15 @@ namespace ServiceStack.Text
 		public static object LateBoundTranslateToGenericICollection(
 			object fromList, Type toInstanceOfType)
 		{
-			if (fromList == null) return null; //AOT
+			if (fromList == null) 
+                return null; //AOT
+
+            if (toInstanceOfType.IsArray)
+            {
+                var result = TranslateToGenericICollection(
+                    (ICollection<T>)fromList, typeof(List<T>));
+                return result.ToArray();
+            }
 
 			return TranslateToGenericICollection(
 				(ICollection<T>)fromList, toInstanceOfType);

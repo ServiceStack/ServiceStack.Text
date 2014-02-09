@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using NUnit.Framework;
-using ServiceStack.Text;
+using ServiceStack.Text.Tests.DynamicModels;
 
 namespace ServiceStack.Text.Tests
 {
@@ -120,13 +118,34 @@ namespace ServiceStack.Text.Tests
         public int Color { get; set; }
     }
 
+    public class ModelWithEnumerable
+    {
+        public IEnumerable<User> Collection { get; set; }
+    }
+
+    public class ModelWithList
+    {
+        public List<User> Collection { get; set; }
+    }
+
+    public class ModelWithArray
+    {
+        public User[] Collection { get; set; }
+    }
+
+    public class ModelWithHashSet
+    {
+        public HashSet<User> Collection { get; set; }
+    }
+
     [TestFixture]
     public class AutoMappingTests
     {
         [Test]
         public void Does_populate()
         {
-            var user = new User() {
+            var user = new User()
+            {
                 FirstName = "Demis",
                 LastName = "Bellot",
                 Car = new Car() { Name = "BMW X6", Age = 3 }
@@ -142,7 +161,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_translate()
         {
-            var user = new User() {
+            var user = new User()
+            {
                 FirstName = "Demis",
                 LastName = "Bellot",
                 Car = new Car() { Name = "BMW X6", Age = 3 }
@@ -218,7 +238,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_translate_from_properties_to_fields()
         {
-            var user = new User {
+            var user = new User
+            {
                 FirstName = "Demis",
                 LastName = "Bellot",
                 Car = new Car { Name = "BMW X6", Age = 3 }
@@ -234,7 +255,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_translate_from_fields_to_properties()
         {
-            var user = new UserFields {
+            var user = new UserFields
+            {
                 FirstName = "Demis",
                 LastName = "Bellot",
                 Car = new Car { Name = "BMW X6", Age = 3 }
@@ -250,7 +272,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_translate_from_inherited_propeties()
         {
-            var user = new SubUser {
+            var user = new SubUser
+            {
                 FirstName = "Demis",
                 LastName = "Bellot",
                 Car = new Car { Name = "BMW X6", Age = 3 }
@@ -266,7 +289,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_translate_to_inherited_propeties()
         {
-            var user = new User {
+            var user = new User
+            {
                 FirstName = "Demis",
                 LastName = "Bellot",
                 Car = new Car { Name = "BMW X6", Age = 3 }
@@ -282,11 +306,12 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_coerce_from_BclTypes_to_strings()
         {
-            var from = new BclTypes {
+            var from = new BclTypes
+            {
                 Int = 1,
                 Long = 2,
                 Double = 3.3,
-                Decimal = 4.4m,                
+                Decimal = 4.4m,
             };
 
             var to = from.ConvertTo<BclTypeStrings>();
@@ -299,7 +324,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_coerce_from_strings_to_BclTypes()
         {
-            var from = new BclTypeStrings {
+            var from = new BclTypeStrings
+            {
                 Int = "1",
                 Long = "2",
                 Double = "3.3",
@@ -316,7 +342,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_map_only_properties_with_specified_Attribute()
         {
-            var user = new User {
+            var user = new User
+            {
                 FirstName = "Demis",
                 LastName = "Bellot",
                 Car = new Car { Name = "BMW X6", Age = 3 }
@@ -328,6 +355,65 @@ namespace ServiceStack.Text.Tests
             Assert.That(to.LastName, Is.EqualTo(user.LastName));
             Assert.That(to.FirstName, Is.Null);
             Assert.That(to.Car, Is.Null);
+        }
+
+        [Test]
+        public void Does_convert_ModelWithAllTypes()
+        {
+            var to = ModelWithAllTypes.Create(1);
+            var from = to.ConvertTo<ModelWithAllTypes>();
+
+            Assert.That(to.Equals(from));
+        }
+
+        public bool MatchesUsers(IEnumerable<User> u1s, IEnumerable<User> u2s)
+        {
+            if (u1s == null || u2s == null)
+                return false;
+
+            var u1sList = u1s.ToList();
+            var u2sList = u2s.ToList();
+
+            if (u1sList.Count != u2sList.Count)
+                return false;
+
+            for (var i = 0; i < u1sList.Count; i++)
+            {
+                var u1 = u1sList[i];
+                var u2 = u2sList[i];
+
+                if (u1.FirstName != u2.FirstName)
+                    return false;
+                if (u1.LastName != u2.LastName)
+                    return false;
+                if (u1.Car.Name != u2.Car.Name)
+                    return false;
+                if (u1.Car.Age != u2.Car.Age)
+                    return false;
+            }
+
+            return true;
+        }
+
+        [Test]
+        public void Does_convert_models_with_collections()
+        {
+            var from = new ModelWithEnumerable {
+                Collection = new[] {
+                    new User { FirstName = "First1", LastName = "Last1", Car = new Car { Name = "Car1", Age = 1} },
+                    new User { FirstName = "First2", LastName = "Last2", Car = new Car { Name = "Car2", Age = 2} },
+                }
+            };
+
+            Assert.That(MatchesUsers(from.Collection, from.ConvertTo<ModelWithEnumerable>().Collection));
+            Assert.That(MatchesUsers(from.Collection, from.ConvertTo<ModelWithList>().Collection));
+            Assert.That(MatchesUsers(from.Collection, from.ConvertTo<ModelWithArray>().Collection));
+            Assert.That(MatchesUsers(from.Collection, from.ConvertTo<ModelWithHashSet>().Collection));
+
+            Assert.That(MatchesUsers(from.Collection, from.Collection.ConvertTo<IEnumerable<User>>()));
+            Assert.That(MatchesUsers(from.Collection, from.Collection.ConvertTo<List<User>>()));
+            Assert.That(MatchesUsers(from.Collection, from.Collection.ConvertTo<User[]>()));
+            Assert.That(MatchesUsers(from.Collection, from.Collection.ConvertTo<HashSet<User>>()));
         }
     }
 }
