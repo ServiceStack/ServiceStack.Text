@@ -21,6 +21,16 @@ namespace ServiceStack
     {
         public static T ConvertTo<T>(this object from)
         {
+            if (from.GetType() == typeof(T))
+            {
+                return (T)from;
+            }
+
+            if (from.GetType().IsValueType)
+            {
+                return (T)Convert.ChangeType(from, typeof(T));
+            }
+
             if (typeof(IEnumerable).IsAssignableFromType(typeof(T)))
             {
                 var listResult = TranslateListWithElements.TryTranslateCollections(
@@ -750,7 +760,7 @@ namespace ServiceStack
         }
     }
 
-    internal class TypeConverter<From, To> 
+    internal class TypeConverter<From, To>
     {
         static TypeConverter()
         {

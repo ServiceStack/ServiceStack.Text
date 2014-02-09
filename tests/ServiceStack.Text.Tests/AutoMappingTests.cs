@@ -304,6 +304,16 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_convert_BclTypes()
+        {
+            Assert.That("from".ConvertTo<string>(), Is.EqualTo("from"));
+            Assert.That(1.ConvertTo<long>(), Is.EqualTo(1L));
+            Assert.That(2L.ConvertTo<int>(), Is.EqualTo(2));
+            Assert.That(3.3d.ConvertTo<float>(), Is.EqualTo(3.3f));
+            Assert.That(4.4d.ConvertTo<decimal>(), Is.EqualTo(4.4m));
+        }
+
+        [Test]
         public void Does_coerce_from_BclTypes_to_strings()
         {
             var from = new BclTypes
