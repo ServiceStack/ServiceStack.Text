@@ -644,7 +644,8 @@ namespace ServiceStack
                                 fromValue = listResult;
                             }
                         }
-                        else if (!toMember.Type.IsNullableType())
+                        else if (!(toMember.Type.IsValueType()
+                                || toMember.Type.IsNullableType()))
                         {
                             var toValue = toMember.Type.CreateInstance();
                             toValue.PopulateWith(fromValue);
