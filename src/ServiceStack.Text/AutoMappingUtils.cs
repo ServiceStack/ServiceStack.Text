@@ -615,13 +615,23 @@ namespace ServiceStack
                         {
                             fromValue = TypeSerializer.SerializeToString(fromValue);
                         }
-                        else if (toMember.Type.IsGeneric()
-                            && toMember.Type.GenericTypeDefinition() == typeof(Nullable<>))
+                        else if (toMember.Type.IsEnum() || fromMember.Type.IsEnum())
                         {
-                            Type genericArg = toMember.Type.GenericTypeArguments()[0];
-                            if (genericArg.IsEnum())
+                            if (toMember.Type.IsEnum() && fromMember.Type.IsEnum())
                             {
-                                fromValue = Enum.ToObject(genericArg, fromValue);
+                                fromValue = Enum.Parse(toMember.Type, fromValue.ToString());
+                            }
+                            else if (toMember.Type.IsNullableType())
+                            {
+                                var genericArg = toMember.Type.GenericTypeArguments()[0];
+                                if (genericArg.IsEnum())
+                                {
+                                    fromValue = Enum.ToObject(genericArg, fromValue);
+                                }
+                            }
+                            else if (toMember.Type.IsIntegerType())
+                            {
+                                fromValue = Enum.ToObject(fromMember.Type, fromValue);
                             }
                         }
                         else if (typeof(IEnumerable).IsAssignableFrom(fromMember.Type))
@@ -634,7 +644,7 @@ namespace ServiceStack
                                 fromValue = listResult;
                             }
                         }
-                        else
+                        else if (!toMember.Type.IsNullableType())
                         {
                             var toValue = toMember.Type.CreateInstance();
                             toValue.PopulateWith(fromValue);

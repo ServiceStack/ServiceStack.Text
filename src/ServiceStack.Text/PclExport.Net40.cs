@@ -359,7 +359,7 @@ namespace ServiceStack
             else
             {
                 // Check if we can use the as operator for casting or if we must use the convert method
-                if (targetType.IsValueType && !IsNullableType(targetType))
+                if (targetType.IsValueType && !targetType.IsNullableType())
                 {
                     result = Expression.Convert(expression, targetType);
                 }
@@ -370,11 +370,6 @@ namespace ServiceStack
             }
 
             return result;
-        }
-
-        public static bool IsNullableType(Type type)
-        {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public override string ToXsdDateTimeString(DateTime dateTime)

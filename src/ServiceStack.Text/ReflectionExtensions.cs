@@ -216,6 +216,11 @@ namespace ServiceStack
             return true;
         }
 
+        public static bool IsNullableType(this Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
         public static TypeCode GetUnderlyingTypeCode(this Type type)
         {
             return GetTypeCode(Nullable.GetUnderlyingType(type) ?? type);
@@ -246,7 +251,7 @@ namespace ServiceStack
                     return true;
 
                 case TypeCode.Object:
-                    if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    if (type.IsNullableType())
                     {
                         return IsNumericType(Nullable.GetUnderlyingType(type));
                     }
@@ -276,7 +281,7 @@ namespace ServiceStack
                     return true;
 
                 case TypeCode.Object:
-                    if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    if (type.IsNullableType())
                     {
                         return IsNumericType(Nullable.GetUnderlyingType(type));
                     }
@@ -297,7 +302,7 @@ namespace ServiceStack
                     return true;
 
                 case TypeCode.Object:
-                    if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    if (type.IsNullableType())
                     {
                         return IsNumericType(Nullable.GetUnderlyingType(type));
                     }
