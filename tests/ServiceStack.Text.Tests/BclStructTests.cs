@@ -9,8 +9,8 @@ namespace ServiceStack.Text.Tests
     {
         static BclStructTests()
         {
-            JsConfig<Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
-            JsConfig<Color>.DeSerializeFn = Color.FromName;
+            JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
+            JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
         }
 
         [Test]

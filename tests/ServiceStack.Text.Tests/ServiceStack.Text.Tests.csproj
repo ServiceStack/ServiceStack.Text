@@ -180,6 +180,7 @@
     <Compile Include="AnonymousTypes.cs" />
     <Compile Include="AotTests.cs" />
     <Compile Include="AutoMappingBenchmarks.cs" />
+    <Compile Include="AutoMappingTests.cs" />
     <Compile Include="BasicStringSerializerTests.cs" />
     <Compile Include="BclStructTests.cs" />
     <Compile Include="CsvTests\DictionaryTests.cs" />
