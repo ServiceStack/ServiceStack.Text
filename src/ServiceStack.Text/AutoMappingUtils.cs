@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
 using ServiceStack.Text;
-using ServiceStack.Text.Json;
 
 namespace ServiceStack
 {
@@ -505,6 +504,7 @@ namespace ServiceStack
         public AssignmentMember To;
         public PropertyGetterDelegate GetValueFn;
         public PropertySetterDelegate SetValueFn;
+        public PropertyGetterDelegate ConvertValueFn;
 
         public AssignmentEntry(string name, AssignmentMember @from, AssignmentMember to)
         {
@@ -514,6 +514,7 @@ namespace ServiceStack
 
             GetValueFn = From.GetGetValueFn();
             SetValueFn = To.GetSetValueFn();
+            ConvertValueFn = TypeConverter.CreateTypeConverter(From.Type, To.Type);
         }
     }
 
@@ -632,13 +633,9 @@ namespace ServiceStack
                         if (!valuePredicate(fromValue, fromMember.PropertyInfo.PropertyType)) continue;
                     }
 
-                    if (fromType != toType)
+                    if (assignmentEntry.ConvertValueFn != null)
                     {
-                        var converterFn = TypeConverter.GetTypeConverter(fromType, toType);
-                        if (converterFn != null)
-                        {
-                            fromValue = converterFn(fromValue);
-                        }
+                        fromValue = assignmentEntry.ConvertValueFn(fromValue);
                     }
 
                     var setterFn = assignmentEntry.SetValueFn;
@@ -685,17 +682,6 @@ namespace ServiceStack
 
     internal static class TypeConverter
     {
-        internal static ConcurrentDictionary<string, PropertyGetterDelegate> TypeConvertersCache
-            = new ConcurrentDictionary<string, PropertyGetterDelegate>();
-
-        public static PropertyGetterDelegate GetTypeConverter(Type fromType, Type toType)
-        {
-            var cacheKey = AutoMappingUtils.CreateCacheKey(fromType, toType);
-
-            return TypeConvertersCache.GetOrAdd(cacheKey,
-                (Func<string, PropertyGetterDelegate>)(key => CreateTypeConverter(fromType, toType)));
-        }
-
         public static PropertyGetterDelegate CreateTypeConverter(Type fromType, Type toType)
         {
             if (fromType == toType)
@@ -760,17 +746,4 @@ namespace ServiceStack
         }
     }
 
-    internal class TypeConverter<From, To>
-    {
-        static TypeConverter()
-        {
-            ConvertFn = TypeConverter.CreateTypeConverter(typeof(From), typeof(To));
-        }
-
-        public static PropertyGetterDelegate ConvertFn;
-        public PropertyGetterDelegate GetConvertFn()
-        {
-            return ConvertFn;
-        }
-    }
 }
