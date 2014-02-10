@@ -218,7 +218,7 @@ namespace ServiceStack
 
         public static bool IsNullableType(this Type type)
         {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public static TypeCode GetUnderlyingTypeCode(this Type type)
