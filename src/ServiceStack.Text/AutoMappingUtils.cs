@@ -25,7 +25,7 @@ namespace ServiceStack
                 return (T)from;
             }
 
-            if (from.GetType().IsValueType)
+            if (from.GetType().IsValueType())
             {
                 return (T)Convert.ChangeType(from, typeof(T));
             }
