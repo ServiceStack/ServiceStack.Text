@@ -27,7 +27,7 @@ namespace ServiceStack
 
             if (from.GetType().IsValueType())
             {
-                return (T)Convert.ChangeType(from, typeof(T));
+                return (T)Convert.ChangeType(from, typeof(T), provider:null);
             }
 
             if (typeof(IEnumerable).IsAssignableFromType(typeof(T)))
@@ -699,7 +699,7 @@ namespace ServiceStack
             {
                 if (toType.IsEnum() && fromType.IsEnum())
                 {
-                    return fromValue => Enum.Parse(toType, fromValue.ToString());
+                    return fromValue => Enum.Parse(toType, fromValue.ToString(), ignoreCase:true);
                 }
                 if (toType.IsNullableType())
                 {
@@ -730,7 +730,7 @@ namespace ServiceStack
             }
             else if (toType.IsValueType())
             {
-                return fromValue => Convert.ChangeType(fromValue, toType);
+                return fromValue => Convert.ChangeType(fromValue, toType, provider:null);
             }
             else
             {
