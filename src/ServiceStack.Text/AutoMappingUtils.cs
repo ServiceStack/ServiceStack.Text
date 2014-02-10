@@ -718,7 +718,7 @@ namespace ServiceStack
             {
                 return null;
             }
-            else if (typeof(IEnumerable).IsAssignableFrom(fromType))
+            else if (typeof(IEnumerable).IsAssignableFromType(fromType))
             {
                 return fromValue =>
                 {
