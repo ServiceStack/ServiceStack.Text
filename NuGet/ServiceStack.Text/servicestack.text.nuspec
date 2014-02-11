@@ -13,6 +13,8 @@
         Includes the String and Stream functionality for all the ServiceStack projects including: 
           - T.Dump() generic extension method for easy dbugging and introspection of types
           - WebRequest, List, Dictionary and DateTime extensions
+
+      To revert back to the previous BSD ServiceStack v3, see https://github.com/ServiceStackV3/ServiceStackV3
     </description> 
     <projectUrl>https://github.com/ServiceStack/ServiceStack.Text</projectUrl>
     <licenseUrl>https://servicestack.net/terms</licenseUrl>
