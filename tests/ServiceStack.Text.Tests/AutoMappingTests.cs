@@ -424,6 +424,18 @@ namespace ServiceStack.Text.Tests
             Assert.That(MatchesUsers(from.Collection, from.Collection.ConvertTo<List<User>>()));
             Assert.That(MatchesUsers(from.Collection, from.Collection.ConvertTo<User[]>()));
             Assert.That(MatchesUsers(from.Collection, from.Collection.ConvertTo<HashSet<User>>()));
+
+            var array = from.Collection.ToArray();
+            Assert.That(MatchesUsers(array, from.Collection.ConvertTo<IEnumerable<User>>()));
+            Assert.That(MatchesUsers(array, from.Collection.ConvertTo<List<User>>()));
+            Assert.That(MatchesUsers(array, from.Collection.ConvertTo<User[]>()));
+            Assert.That(MatchesUsers(array, from.Collection.ConvertTo<HashSet<User>>()));
+
+            var hashset = from.Collection.ToHashSet();
+            Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<IEnumerable<User>>()));
+            Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<List<User>>()));
+            Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<User[]>()));
+            Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<HashSet<User>>()));
         }
     }
 }
