@@ -198,6 +198,7 @@
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
     <Compile Include="JsonTests\ConditionalSerializationTests.cs" />
     <Compile Include="JsonTests\DictionaryDeserializationTests.cs" />
+    <Compile Include="JsonTests\JsonSerializerTests.cs" />
     <Compile Include="JsonTests\RouteValueDictionaryTests.cs" />
     <Compile Include="JsonTests\CustomRawSerializerTests.cs" />
     <Compile Include="JsonTests\CustomSerializerTests.cs" />

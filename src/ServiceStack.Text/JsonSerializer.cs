@@ -100,7 +100,7 @@ namespace ServiceStack.Text
 			if (value == null) return;
 			if (typeof(T) == typeof(string))
 			{
-				writer.Write(value);
+				JsonUtils.WriteString(writer, value as string);
 				return;
 			}
             if (typeof(T) == typeof(object) || typeof(T).IsAbstract() || typeof(T).IsInterface())
@@ -119,7 +119,7 @@ namespace ServiceStack.Text
 			if (value == null) return;
 			if (type == typeof(string))
 			{
-				writer.Write(value);
+				JsonUtils.WriteString(writer, value as string);
 				return;
 			}
 
