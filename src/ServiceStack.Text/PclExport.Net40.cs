@@ -463,7 +463,7 @@ namespace ServiceStack
 
         public override void VerifyInAssembly(Type accessType, string assemblyName)
         {
-            if (accessType.Assembly.ManifestModule.Name != assemblyName) //might get merged/mangled on alt platforms
+            if (!assemblyName.EqualsIgnoreCase(accessType.Assembly.ManifestModule.Name)) //might get merged/mangled on alt platforms
                 throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest);
         }
 
