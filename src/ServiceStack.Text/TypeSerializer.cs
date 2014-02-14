@@ -252,6 +252,23 @@ namespace ServiceStack.Text
             var info = "{0} {1}({2})".Fmt(method.ReturnType.Name, methodName, sb);
             return info;
         }
-
 	}
+
+    public class JsvStringSerializer : IStringSerializer
+    {
+        public To DeserializeFromString<To>(string serializedText)
+        {
+            return TypeSerializer.DeserializeFromString<To>(serializedText);
+        }
+
+        public object DeserializeFromString(string serializedText, Type type)
+        {
+            return TypeSerializer.DeserializeFromString(serializedText, type);
+        }
+
+        public string SerializeToString<TFrom>(TFrom @from)
+        {
+            return TypeSerializer.SerializeToString(@from);
+        }
+    }
 }

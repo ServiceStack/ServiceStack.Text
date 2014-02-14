@@ -97,6 +97,7 @@
     <Compile Include="Build.Silverlight.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Common\DeserializeKeyValuePair.cs" />
+    <Compile Include="IStringSerializer.cs" />
     <Compile Include="Pcl.Dynamic.cs" />
     <Compile Include="Common\DateTimeSerializer.cs">
       <SubType>Code</SubType>
