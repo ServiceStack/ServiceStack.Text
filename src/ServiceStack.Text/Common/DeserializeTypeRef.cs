@@ -36,16 +36,16 @@ namespace ServiceStack.Text.Common
         internal static Dictionary<string, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
+            var isDataContract = type.IsDto();
 
             var propertyInfos = type.GetSerializableProperties();
-            var fieldInfos = JsConfig.IncludePublicFields ? type.GetSerializableFields() : new FieldInfo[0];
+            var fieldInfos = JsConfig.IncludePublicFields || isDataContract ? type.GetSerializableFields() : new FieldInfo[0];
             if (propertyInfos.Length == 0 && fieldInfos.Length == 0) return null;
 
             var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
 
             if (propertyInfos.Length != 0)
             {
-                var isDataContract = type.IsDto();
                 foreach (var propertyInfo in propertyInfos)
                 {
                     var propertyName = propertyInfo.Name;

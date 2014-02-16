@@ -539,7 +539,10 @@ namespace ServiceStack.Text
         public static FieldInfo[] GetSerializableFields(this Type type)
         {
             if (type.IsDto()) {
-                return new FieldInfo[0];
+                var allFields = type.GetAllFields();
+
+                // The contract must be honered 
+                return allFields.Where(prop => prop.CustomAttributes(false).Any(attr => attr.GetType().Name == DataMember)).ToArray();
             }
             
             var publicFields = type.GetPublicFields();
@@ -796,6 +799,21 @@ namespace ServiceStack.Text
             return type.GetRuntimeProperties().ToArray();
 #else
             return type.GetProperties();
+#endif
+        }
+
+        public static FieldInfo[] GetAllFields(this Type type)
+        {
+            if (type.IsInterface())
+            {
+                return new FieldInfo[0];
+            }
+
+#if NETFX_CORE
+            return type.GetRuntimeFields().Where(p => !p.IsStatic).ToArray();
+#else
+            return type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .ToArray();
 #endif
         }
 
