@@ -299,6 +299,31 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 #endif
 
+#if !MONOTOUCH
+        [DataContract]
+        class PersonDTO
+        {
+            [DataMember]
+            public int Id;
+
+            [DataMember]
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Should_honor_datamember_attribute()
+        {
+            var person = new PersonDTO
+            {
+                Id = 123,
+                Name = "Abc"
+            };
+
+            Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{Id:123,Name:Abc}"));
+            Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"Id\":123,\"Name\":\"Abc\"}"));
+        }
+#endif
+
         [Flags]
         public enum ExampleEnum : ulong
         {

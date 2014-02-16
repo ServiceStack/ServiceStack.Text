@@ -23,6 +23,7 @@ namespace ServiceStack.Text.Common
     internal static class WriteType<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
+        private const int DataMemberOrderNotSet = -1;
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
         private static readonly WriteObjectDelegate CacheFn;
@@ -111,8 +112,9 @@ namespace ServiceStack.Text.Common
         {
             if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
 
+            var isDataContract = typeof(T).IsDto();
             var propertyInfos = TypeConfig<T>.Properties;
-            var fieldInfos = JsConfig.IncludePublicFields ? TypeConfig<T>.Fields : new FieldInfo[0];
+            var fieldInfos = JsConfig.IncludePublicFields || isDataContract ? TypeConfig<T>.Fields : new FieldInfo[0];
             var propertyNamesLength = propertyInfos.Length;
             var fieldNamesLength = fieldInfos.Length;
             PropertyWriters = new TypePropertyWriter[propertyNamesLength + fieldNamesLength];
@@ -125,7 +127,7 @@ namespace ServiceStack.Text.Common
             // NOTE: very limited support for DataContractSerialization (DCS)
             //	NOT supporting Serializable
             //	support for DCS is intended for (re)Name of properties and Ignore by NOT having a DataMember present
-            var isDataContract = typeof(T).IsDto();
+            
             for (var i = 0; i < propertyNamesLength; i++)
             {
                 var propertyInfo = propertyInfos[i];
@@ -146,7 +148,9 @@ namespace ServiceStack.Text.Common
                     propertyNameCLSFriendly = dcsDataMember.Name ?? propertyName.ToCamelCase();
                     propertyNameLowercaseUnderscore = dcsDataMember.Name ?? propertyName.ToLowercaseUnderscore();
                     propertyReflectedName = dcsDataMember.Name ?? propertyInfo.ReflectedType.Name;
-                    propertyOrder = dcsDataMember.Order;
+
+                    // Fields tend to be at topp, push down properties to make it more like common.
+                    propertyOrder = dcsDataMember.Order == DataMemberOrderNotSet ? 0 : dcsDataMember.Order;
                     propertySuppressDefaultAttribute = !dcsDataMember.EmitDefaultValue;
                 }
                 else
