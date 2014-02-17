@@ -99,7 +99,7 @@ Since September 2013, ServiceStack source code is available under GNU Affero Gen
 
 ## Contributing
 
-Commits should be made to the **v3-fixes** branch so they can be merged into both **v3** and **master** (v4) release branches. 
+Commits can be made to either the **master** (v4) or **v3** release branches. 
 Contributors need to approve the [Contributor License Agreement](https://docs.google.com/forms/d/16Op0fmKaqYtxGL4sg7w_g-cXXyCoWjzppgkuqzOeKyk/viewform) before any code will be reviewed, see the [Contributing wiki](https://github.com/ServiceStack/ServiceStack/wiki/Contributing) for more details. 
 
 ## ServiceStack.JsonSerializer
