@@ -862,7 +862,7 @@ namespace ServiceStack
             }
 
 #if (NETFX_CORE || PCL)
-            return type.GetRuntimeFields().Where(p => !p.isStatic).ToArray();
+            return type.GetRuntimeFields().ToArray();
 #else
             return type.GetPublicFields();
 #endif
