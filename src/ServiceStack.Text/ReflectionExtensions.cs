@@ -656,8 +656,12 @@ namespace ServiceStack
         {
             if (type.IsDto())
             {
-                return new FieldInfo[0];
+                return type.GetAllFields().Where(attr =>
+                    attr.HasAttribute<DataMemberAttribute>()).ToArray();
             }
+
+            if (!JsConfig.IncludePublicFields)
+                return new FieldInfo[0];
 
             var publicFields = type.GetPublicFields();
 
@@ -847,6 +851,20 @@ namespace ServiceStack
             return type.GetRuntimeProperties().ToArray();
 #else
             return type.GetProperties();
+#endif
+        }
+
+        public static FieldInfo[] GetAllFields(this Type type)
+        {
+            if (type.IsInterface())
+            {
+                return new FieldInfo[0];
+            }
+
+#if (NETFX_CORE || PCL)
+            return type.GetRuntimeFields().Where(p => !p.isStatic).ToArray();
+#else
+            return type.GetPublicFields();
 #endif
         }
 

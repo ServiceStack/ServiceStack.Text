@@ -112,7 +112,7 @@ namespace ServiceStack.Text.Common
             if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
 
             var propertyInfos = TypeConfig<T>.Properties;
-            var fieldInfos = JsConfig.IncludePublicFields ? TypeConfig<T>.Fields : new FieldInfo[0];
+            var fieldInfos = TypeConfig<T>.Fields;
             var propertyNamesLength = propertyInfos.Length;
             var fieldNamesLength = fieldInfos.Length;
             PropertyWriters = new TypePropertyWriter[propertyNamesLength + fieldNamesLength];

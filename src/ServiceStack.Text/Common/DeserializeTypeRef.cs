@@ -38,7 +38,7 @@ namespace ServiceStack.Text.Common
             var type = typeConfig.Type;
 
             var propertyInfos = type.GetSerializableProperties();
-            var fieldInfos = JsConfig.IncludePublicFields ? type.GetSerializableFields() : new FieldInfo[0];
+            var fieldInfos = type.GetSerializableFields();
             if (propertyInfos.Length == 0 && fieldInfos.Length == 0) return null;
 
             var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
