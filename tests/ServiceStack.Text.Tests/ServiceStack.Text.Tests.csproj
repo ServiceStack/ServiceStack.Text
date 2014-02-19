@@ -198,6 +198,7 @@
     <Compile Include="JsonTests\AnonymousDeserializationTests.cs" />
     <Compile Include="JsonTests\ConditionalSerializationTests.cs" />
     <Compile Include="JsonTests\DictionaryDeserializationTests.cs" />
+    <Compile Include="JsonTests\ResponseStatusErrorTests.cs" />
     <Compile Include="JsonTests\RouteValueDictionaryTests.cs" />
     <Compile Include="JsonTests\CustomRawSerializerTests.cs" />
     <Compile Include="JsonTests\CustomSerializerTests.cs" />
@@ -335,6 +336,11 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="_error.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
