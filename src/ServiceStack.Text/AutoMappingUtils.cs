@@ -734,8 +734,11 @@ namespace ServiceStack
             }
             else
             {
-                return fromValue =>
+                return fromValue => 
                 {
+                    if (fromValue == null) 
+                        return fromValue;
+
                     var toValue = toType.CreateInstance();
                     toValue.PopulateWith(fromValue);
                     return toValue;

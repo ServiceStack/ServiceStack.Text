@@ -408,7 +408,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_convert_models_with_collections()
         {
-            var from = new ModelWithEnumerable {
+            var from = new ModelWithEnumerable
+            {
                 Collection = new[] {
                     new User { FirstName = "First1", LastName = "Last1", Car = new Car { Name = "Car1", Age = 1} },
                     new User { FirstName = "First2", LastName = "Last2", Car = new Car { Name = "Car2", Age = 2} },
@@ -436,6 +437,46 @@ namespace ServiceStack.Text.Tests
             Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<List<User>>()));
             Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<User[]>()));
             Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<HashSet<User>>()));
+        }
+
+
+        public class Customer
+        {
+            public CompanyInfo CompanyInfo { get; set; }
+            // other properties
+        }
+
+        public class CustomerDto
+        {
+            public CompanyInfoDto CompanyInfo { get; set; }
+        }
+
+        public class CompanyInfo
+        {
+            public int Id { get; set; }
+            public string ITN { get; set; }
+        }
+
+        public class CompanyInfoDto
+        {
+            public int Id { get; set; }
+            public string ITN { get; set; }
+        }
+
+        [Test]
+        public void Does_retain_null_properties()
+        {
+            var user = new User { FirstName = "Foo" };
+            var userDto = user.ConvertTo<UserFields>();
+
+            Assert.That(userDto.FirstName, Is.EqualTo("Foo"));
+            Assert.That(userDto.LastName, Is.Null);
+            Assert.That(userDto.Car, Is.Null);
+
+            var customer = new Customer { CompanyInfo = null };
+            var dto = customer.ConvertTo<CustomerDto>();
+
+            Assert.That(dto.CompanyInfo, Is.Null);
         }
     }
 }
