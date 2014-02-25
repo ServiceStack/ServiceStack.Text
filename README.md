@@ -17,57 +17,71 @@ ServiceStack.Text is an **independent, dependency-free** serialization library t
 
 Like most of the interfaces in Service Stack, the API is simple. Methods that you would commonly use include:
 
-    string TypeSerializer.SerializeToString<T>(T value)
-    void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer)
+```csharp
+string TypeSerializer.SerializeToString<T>(T value)
+void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer)
 
-    T TypeSerializer.DeserializeFromString<T>(string value)
-    T TypeSerializer.DeserializeFromReader<T>(TextReader reader)
+T TypeSerializer.DeserializeFromString<T>(string value)
+T TypeSerializer.DeserializeFromReader<T>(TextReader reader)
+```
     
 Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
     
 ### Dynamic JSON parsing API
 
-    JsonObject.Parse()
-    JsonArrayObjects.Parse()
+```csharp
+JsonObject.Parse()
+JsonArrayObjects.Parse()
+```
 	
 ### Extension Methods
 
-    T FromJson()
-    string ToJson(T)
+```csharp
+T FromJson()
+string ToJson(T)
 
-    T FromJsv()
-    string ToJsv(T)
+T FromJsv()
+string ToJsv(T)
+```
     
 Dump / Diagnostic Extensions:
 
-    T Dump()
-    T Print()
-    T PrintDump()
-    string Fmt(args)
+```csharp
+T Dump()
+T Print()
+T PrintDump()
+string Fmt(args)
+```
     
 URL Extensions:
 
-    string GetStringFromUrl()
-    string GetJsonFromUrl()
-    string GetResponseStatus()
-    string UrlEncode() / UrlDecode()
-    string HexEscape() / HexUnescape()
-    string UrlFormat() / AppendPath() / AppendPaths() / WithTrailingSlash()    
-    string WithoutExtension() / ParentDirectory() / ReadAllText()
+```csharp
+string GetStringFromUrl()
+string GetJsonFromUrl()
+string GetResponseStatus()
+string UrlEncode() / UrlDecode()
+string HexEscape() / HexUnescape()
+string UrlFormat() / AppendPath() / AppendPaths() / WithTrailingSlash()    
+string WithoutExtension() / ParentDirectory() / ReadAllText()
+```
     
 Stream Extensions:
 
-    Stream WriteTo(Stream) / CopyTo()
-    StreamReader ReadLines()
-    Stream ReadFully() / ReadExactly()
+```csharp
+Stream WriteTo(Stream) / CopyTo()
+StreamReader ReadLines()
+Stream ReadFully() / ReadExactly()
+```
     
 String Utils:
 
-    string SplitOnFirst() / SplitOnLast()
-    string IndexOfAny()
-    string StripHtml() / ToCamelCase()
-    string SafeSubstring()
-    string ToUtf8Bytes() / FromUtf8Bytes()
+```csharp
+string SplitOnFirst() / SplitOnLast()
+string IndexOfAny()
+string StripHtml() / ToCamelCase()
+string SafeSubstring()
+string ToUtf8Bytes() / FromUtf8Bytes()
+```
     
 more String, Reflection, List, Dictionary, DateTime extensions...    
 
@@ -89,9 +103,9 @@ project. It provides a dynamic, but more succinct API than the above options.
 
     PM> Install-Package ServiceStack.Text
 
-_Commercial support is now available for ServiceStack, see https://servicestack.net/pricing for details_
+_Latest v4+ release on NuGet is a commercial library with [free quotas](https://servicestack.net/download#free-quotas), see https://servicestack.net/pricing for details._
 
-### [Docs and Downloads for v3](https://github.com/ServiceStackV3/ServiceStackV3)
+### [Docs and Downloads for older v3 BSD releases](https://github.com/ServiceStackV3/ServiceStackV3)
 
 ## Copying
 
@@ -118,35 +132,37 @@ Included in this project is `TypeSerializer` - A fast and compact text-based ser
 ## T.Dump() Extension method
 Another useful library to have in your .NET toolbox is the [T.Dump() Extension Method](http://www.servicestack.net/mythz_blog/?p=202). Under the hood it uses a *Pretty Print* Output of the JSV Format to recursively dump the contents of any .NET object. Example usage and output: 
 
-	var model = new TestModel();
-	Console.WriteLine(model.Dump());
+```csharp
+var model = new TestModel();
+model.PrintDump();
 
-	//Example Output
-	{
-		Int: 1,
-		String: One,
-		DateTime: 2010-04-11,
-		Guid: c050437f6fcd46be9b2d0806a0860b3e,
-		EmptyIntList: [],
-		IntList:
-		[
-			1,
-			2,
-			3
-		],
-		StringList:
-		[
-			one,
-			two,
-			three
-		],
-		StringIntMap:
-		{
-			a: 1,
-			b: 2,
-			c: 3
-		}
-	}
+//Example Output
+{
+    Int: 1,
+    String: One,
+    DateTime: 2010-04-11,
+    Guid: c050437f6fcd46be9b2d0806a0860b3e,
+    EmptyIntList: [],
+    IntList:
+    [
+        1,
+        2,
+        3
+    ],
+    StringList:
+    [
+        one,
+        two,
+        three
+    ],
+    StringIntMap:
+    {
+        a: 1,
+        b: 2,
+        c: 3
+    }
+}
+```
 
 # ServiceStack's JsonSerializer
 
@@ -156,31 +172,39 @@ JsonSerializer provides a simple API that allows you to serialize any .NET gener
 
 ### Serialization API
 
-	string SerializeToString<T>(T)
-	void SerializeToWriter<T>(T, TextWriter)
-	void SerializeToStream<T>(T, Stream)
-	string SerializeToString(object, Type)
-	void SerializeToWriter(object, Type, TextWriter)
-	void SerializeToStream(object, Type, Stream)
+```csharp
+string SerializeToString<T>(T)
+void SerializeToWriter<T>(T, TextWriter)
+void SerializeToStream<T>(T, Stream)
+string SerializeToString(object, Type)
+void SerializeToWriter(object, Type, TextWriter)
+void SerializeToStream(object, Type, Stream)
+```
 
 ### Deserialization API
 
-	T DeserializeFromString<T>(string)
-	T DeserializeFromReader<T>(TextReader)
-	object DeserializeFromString(string, Type)
-	object DeserializeFromReader(reader, Type)
-	object DeserializeFromStream(Type, Stream)
-	T DeserializeFromStream<T>(Stream)
+```csharp
+T DeserializeFromString<T>(string)
+T DeserializeFromReader<T>(TextReader)
+object DeserializeFromString(string, Type)
+object DeserializeFromReader(reader, Type)
+object DeserializeFromStream(Type, Stream)
+T DeserializeFromStream<T>(Stream)
+```
 
 ### Extension methods
 
-	string ToJson<T>(this T)
-	T FromJson<T>(this string)
+```csharp
+string ToJson<T>(this T)
+T FromJson<T>(this string)
+```
 
 Convenient **ToJson/FromJson** extension methods are also included reducing the amount of code required, e.g:
 
-	new []{ 1, 2, 3 }.ToJson()   //= [1,2,3]
-	"[1,2,3]".FromJson<int[]>()  //= int []{ 1, 2, 3 }
+```csharp
+new []{ 1, 2, 3 }.ToJson()   //= [1,2,3]
+"[1,2,3]".FromJson<int[]>()  //= int []{ 1, 2, 3 }
+```
 
 ## JSON Format 
 
@@ -206,7 +230,9 @@ All C# boolean and numeric data types are stored as-is without quotes.
 
 For the most compact output null values are omitted from the serialized by default. If you want to include null values set the global configuration:
 
-	JsConfig.IncludeNullValues = true;
+```csharp
+JsConfig.IncludeNullValues = true;
+```
 
 ### string type
 
@@ -220,7 +246,7 @@ Because a C# struct is a value type whose public properties are normally just co
 
 Any List, Queue, Stack, Array, Collection, Enumerables including custom enumerable types are stored in exactly the same way as a JavaScript array literal, i.e:
 
-	[1,2,3,4,5]
+    [1,2,3,4,5]
 
 All elements in an array must be of the same type. If a custom type is both an IEnumerable and has properties it will be treated as an array and the extra properties will be ignored.
 
@@ -230,13 +256,13 @@ The JSON object type is the most flexible and is how most complex .NET types are
 
 Any IDictionary is serialized into a standard JSON object, i.e:
 
-	{"A":1,"B":2,"C":3,"D":4}
+    {"A":1,"B":2,"C":3,"D":4}
 
 Which happens to be the same as C# POCO types (inc. Interfaces) with the values:
 
 `new MyClass { A=1, B=2, C=3, D=4 }`
 
-	{"A":1,"B":2,"C":3,"D":4}
+    {"A":1,"B":2,"C":3,"D":4}
 
 Only public properties on reference types are serialized with the C# Property Name used for object key and the Property Value as the value. At the moment it is not possible to customize the Property Name.
 
@@ -244,7 +270,7 @@ JsonSerializer also supports serialization of anonymous types in much the same w
 
 `new { A=1, B=2, C=3, D=4 }`
 
-	{"A":1,"B":2,"C":3,"D":4}
+    {"A":1,"B":2,"C":3,"D":4}
 
 
 ## Custom Serialization
@@ -257,80 +283,92 @@ This makes it possible to customize the serialization routine and provide an eve
 
 E.g. Instead of using a JSON object to represent a point 
 
-	{ Width=20, Height=10 }
+    { Width=20, Height=10 }
 	
 You could use a struct and reduce it to just: 
 
-	"20x10" 
+    "20x10" 
 
 By overriding **ToString()** and providing a static **Size ParseJson()** method:
 
-	public struct Size
-	{
-		public double Width { get; set; }
-		public double Height { get; set; }
+```csharp
+public struct Size
+{
+    public double Width { get; set; }
+    public double Height { get; set; }
 
-		public override string ToString()
-		{
-			return Width + "x" + Height;
-		}
+    public override string ToString()
+    {
+        return Width + "x" + Height;
+    }
 
-		public static Size ParseJson(string json)
-		{
-			var size = json.Split('x');
-			return new Size { 
-				Width = double.Parse(size[0]), 
-				Height = double.Parse(size[1]) 
-			};
-		}
-	}
+    public static Size ParseJson(string json)
+    {
+        var size = json.Split('x');
+        return new Size { 
+            Width = double.Parse(size[0]), 
+            Height = double.Parse(size[1]) 
+        };
+    }
+}
+```
 
 Which would change it to the more compact JSON output:
 
-	new Size { Width = 20, Height = 10 }.ToJson() // = "20x10"
+```csharp
+    new Size { Width = 20, Height = 10 }.ToJson() // = "20x10"
+```
 
 That allows you to deserialize it back in the same way:
 
-	var size = "20x10".FromJson<Size>(); 
+```csharp
+    var size = "20x10".FromJson<Size>(); 
+```
 
 ### Using Custom IEnumerable class to serialize a JSON array
 
 In addition to using a Struct you can optionally use a custom C# IEnumerable type to provide a strong-typed wrapper around a JSON array:
 
-	public class Point : IEnumerable
-	{
-		double[] points = new double[2];
-	
-		public double X 
-		{
-			get { return points[0]; }
-			set { points[0] = value; }
-		}
-	
-		public double Y
-		{
-			get { return points[1]; }
-			set { points[1] = value; }
-		}
-	
-		public IEnumerator GetEnumerator()
-		{
-			foreach (var point in points) 
-				yield return point;
-		}
-	}
+```csharp
+public class Point : IEnumerable
+{
+    double[] points = new double[2];
+
+    public double X 
+    {
+        get { return points[0]; }
+        set { points[0] = value; }
+    }
+
+    public double Y
+    {
+        get { return points[1]; }
+        set { points[1] = value; }
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        foreach (var point in points) 
+            yield return point;
+    }
+}
+```
 
 Which serializes the Point into a compact JSON array:
 
-	new Point { X = 1, Y = 2 }.ToJson() // = [1,2]
+```csharp
+    new Point { X = 1, Y = 2 }.ToJson() // = [1,2]
+```
 
 ### Custom Serialization Routines
 
 If you can't change the definition of a ValueType (e.g. because its in the BCL), you can assign a custom serialization /
 deserialization routine to use instead. E.g. here's how you can add support for `System.Drawing.Color`:
 
-    JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
-    JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
+```csharp
+JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
+JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
+```
 
 ## Custom Deserialization
 
@@ -412,22 +450,24 @@ Microsoft's JavaScriptSerializer was also benchmarked but excluded as it was up 
 Type Serializer uses a hybrid CSV-style escaping + JavaScript-like text-based format that is optimized for both size and speed. I'm naming this JSV-format (i.e. JSON + CSV) 
 
 In many ways it is similar to JavaScript, e.g. any List, Array, Collection of ints, longs, etc are stored in exactly the same way, i.e:
-	[1,2,3,4,5]
+
+    [1,2,3,4,5]
 
 Any IDictionary is serialized like JavaScript, i.e:
-	{A:1,B:2,C:3,D:4}
+
+    {A:1,B:2,C:3,D:4}
 
 Which also happens to be the same as C# POCO class with the values 
 
 `new MyClass { A=1, B=2, C=3, D=4 }`
 
-	{A:1,B:2,C:3,D:4}
+    {A:1,B:2,C:3,D:4}
 
 JSV is *white-space significant*, which means normal string values can be serialized without quotes, e.g: 
 
 `new MyClass { Foo="Bar", Greet="Hello World!"}` is serialized as:
 
-	{Foo:Bar,Greet:Hello World!}
+    {Foo:Bar,Greet:Hello World!}
 
 
 ### CSV escaping
@@ -436,14 +476,14 @@ Any string with any of the following characters: `[]{},"`
 is escaped using CSV-style escaping where the value is wrapped in double quotes, e.g:
 
 `new MyClass { Name = "Me, Junior" }` is serialized as:
-	
-	{Name:"Me, Junior"}
+
+    {Name:"Me, Junior"}
 
 A value with a double-quote is escaped with another double quote e.g:
 
 `new MyClass { Size = "2\" x 1\"" }` is serialized as:
 
-	{Size:"2"" x 1"""}
+    {Size:"2"" x 1"""}
 
 
 ## Rich support for resilience and schema versioning
