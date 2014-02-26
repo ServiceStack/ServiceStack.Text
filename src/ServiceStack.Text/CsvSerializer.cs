@@ -119,7 +119,7 @@ namespace ServiceStack.Text
         }
     }
 
-    internal static class CsvSerializer<T>
+    public static class CsvSerializer<T>
     {
         private static readonly WriteObjectDelegate CacheFn;
 

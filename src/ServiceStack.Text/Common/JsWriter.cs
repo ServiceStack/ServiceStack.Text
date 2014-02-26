@@ -243,7 +243,7 @@ namespace ServiceStack.Text.Common
             return Serializer.WriteObjectString;
         }
 
-        internal WriteObjectDelegate GetWriteFn<T>()
+        public WriteObjectDelegate GetWriteFn<T>()
         {
             if (typeof(T) == typeof(string))
             {

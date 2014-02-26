@@ -100,7 +100,7 @@ namespace ServiceStack.Text.Jsv
 	/// Implement the serializer using a more static approach
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	internal static class JsvWriter<T>
+	public static class JsvWriter<T>
 	{
 		private static WriteObjectDelegate CacheFn;
         

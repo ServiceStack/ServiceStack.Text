@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace ServiceStack.Text.Common
 {
-    internal static class WriteListsOfElements<TSerializer>
+    public static class WriteListsOfElements<TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();

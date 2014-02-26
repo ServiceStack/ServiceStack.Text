@@ -141,7 +141,7 @@ namespace ServiceStack.Text.Json
 	/// Implement the serializer using a more static approach
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	internal static class JsonWriter<T>
+	public static class JsonWriter<T>
 	{
 		internal static TypeInfo TypeInfo;
 		private static WriteObjectDelegate CacheFn;

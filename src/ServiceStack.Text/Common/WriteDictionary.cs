@@ -164,7 +164,7 @@ namespace ServiceStack.Text.Common
         }
     }
 
-    internal static class ToStringDictionaryMethods<TKey, TValue, TSerializer>
+    public static class ToStringDictionaryMethods<TKey, TValue, TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
