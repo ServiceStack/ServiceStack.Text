@@ -689,14 +689,14 @@ namespace ServiceStack
         }
 
         [MonoTouch.Foundation.Preserve]
-        static void RegisterQueryStringWriter()
+        public static void RegisterQueryStringWriter()
         {
             var i = 0;
             if (QueryStringWriter<Poco>.WriteFn() != null) i++;
         }
 
         [MonoTouch.Foundation.Preserve]
-        internal static int RegisterElement<T, TElement>()
+        public static int RegisterElement<T, TElement>()
         {
             var i = 0;
             i += AotConfig.RegisterSerializers<TElement>();
