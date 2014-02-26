@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace ServiceStack.Text.Common
 {
-    internal class JsReader<TSerializer>
+    public class JsReader<TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();

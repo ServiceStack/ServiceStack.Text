@@ -9,7 +9,7 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Jsv
 {
-	internal class JsvTypeSerializer
+    public class JsvTypeSerializer
 		: ITypeSerializer
 	{
 		public static ITypeSerializer Instance = new JsvTypeSerializer();
