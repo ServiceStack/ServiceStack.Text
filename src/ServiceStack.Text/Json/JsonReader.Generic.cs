@@ -8,7 +8,7 @@ using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Json
 {
-	internal static class JsonReader
+    public static class JsonReader
 	{
 		public static readonly JsReader<JsonTypeSerializer> Instance = new JsReader<JsonTypeSerializer>();
 
@@ -39,7 +39,7 @@ namespace ServiceStack.Text.Json
 		}
 	}
 
-    internal static class JsonReader<T>
+    public static class JsonReader<T>
 	{
 		private static readonly ParseStringDelegate ReadFn;
 

@@ -100,7 +100,7 @@ namespace ServiceStack.Text
         }
     }
 
-    internal class CsvWriter<T>
+    public class CsvWriter<T>
     {
         public const char DelimiterChar = ',';
 

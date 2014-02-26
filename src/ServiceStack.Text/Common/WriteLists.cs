@@ -193,7 +193,7 @@ namespace ServiceStack.Text.Common
         }
     }
 
-    internal static class WriteListsOfElements<T, TSerializer>
+    public static class WriteListsOfElements<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly WriteObjectDelegate ElementWriteFn;

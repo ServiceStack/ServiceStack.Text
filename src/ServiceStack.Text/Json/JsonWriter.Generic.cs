@@ -9,7 +9,7 @@ using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Json
 {
-	internal static class JsonWriter
+    public static class JsonWriter
 	{
 		public static readonly JsWriter<JsonTypeSerializer> Instance = new JsWriter<JsonTypeSerializer>();
 
