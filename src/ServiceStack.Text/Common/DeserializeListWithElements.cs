@@ -110,7 +110,7 @@ namespace ServiceStack.Text.Common
         }
     }
 
-    internal static class DeserializeListWithElements<T, TSerializer>
+    public static class DeserializeListWithElements<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
