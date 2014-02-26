@@ -432,6 +432,10 @@ namespace ServiceStack
         {
             return null;
         }
+
+        public virtual void RegisterForAot()
+        {            
+        }
     }
 
 }
