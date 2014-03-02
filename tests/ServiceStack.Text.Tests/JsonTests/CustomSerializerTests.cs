@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
@@ -203,6 +204,32 @@ namespace ServiceStack.Text.Tests.JsonTests
                 var fromDto1 = dto1.ToJson().FromJson<DtoV1>();
                 Assert.That(fromDto1.Version, Is.EqualTo(1));
                 Assert.That(fromDto1.Name, Is.EqualTo("Foo 1"));
+            }
+        }
+
+        public class ErrorPoco
+        {
+            public string ErrorCode { get; set; }
+            public string ErrorDescription { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_json_with_underscores()
+        {
+            var json = "{\"error_code\":\"anErrorCode\",\"error_description\",\"the description\"}";
+
+            var dto = json.FromJson<ErrorPoco>();
+
+            Assert.That(dto.ErrorCode, Is.Null);
+
+            using (JsConfig.With(propertyConvention: PropertyConvention.Lenient))
+            {
+                dto = json.FromJson<ErrorPoco>();
+
+                Assert.That(dto.ErrorCode, Is.EqualTo("anErrorCode"));
+                Assert.That(dto.ErrorDescription, Is.EqualTo("the description"));
+
+                dto.PrintDump();
             }
         }
     }
