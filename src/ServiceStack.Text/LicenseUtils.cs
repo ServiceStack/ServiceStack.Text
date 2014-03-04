@@ -75,6 +75,15 @@ namespace ServiceStack
             var licenseKeyText = filePath.ReadAllText();
             LicenseUtils.RegisterLicense(licenseKeyText);
         }
+
+        public static void RegisterLicenseFromFileIfExists(string filePath)
+        {
+            if (!filePath.FileExists())
+                return;
+
+            var licenseKeyText = filePath.ReadAllText();
+            LicenseUtils.RegisterLicense(licenseKeyText);
+        }
     }
 
     public class LicenseKey
