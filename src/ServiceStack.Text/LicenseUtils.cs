@@ -356,7 +356,7 @@ namespace ServiceStack
             internal static readonly HashSet<string> __tokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "ServiceStack.ServiceClientBase+AccessToken",
-                "ServiceStack.Messaging.RedisMessageProducer+AccessToken",
+                "ServiceStack.RabbitMq.RabbitMqProducer+AccessToken",
                 "ServiceStack.Messaging.RedisMessageQueueClient+AccessToken",
                 "ServiceStack.Messaging.RedisMessageProducer+AccessToken",
             };
