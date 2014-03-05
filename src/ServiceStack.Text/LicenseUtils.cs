@@ -2,6 +2,7 @@
 // License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using ServiceStack.Text;
@@ -350,14 +351,32 @@ namespace ServiceStack
             }
         }
 
+        static class _approved
+        {
+            internal static readonly HashSet<string> __tokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "ServiceStack.ServiceClientBase+AccessToken",
+                "ServiceStack.Messaging.RedisMessageProducer+AccessToken",
+                "ServiceStack.Messaging.RedisMessageQueueClient+AccessToken",
+                "ServiceStack.Messaging.RedisMessageProducer+AccessToken",
+            };
+
+            internal static readonly HashSet<string> __dlls = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "ServiceStack.Client.dll",
+                "ServiceStack.RabbitMq.dll",
+            };
+        }
+
         public static IDisposable RequestAccess(object accessToken, LicenseFeature srcFeature, LicenseFeature requestedAccess)
         {
             var accessType = accessToken.GetType();
+
             if (srcFeature != LicenseFeature.Client || requestedAccess != LicenseFeature.Text
-                || accessToken == null || accessType.FullName != "ServiceStack.ServiceClientBase+AccessToken")
+                || accessToken == null || !_approved.__tokens.Contains(accessType.FullName))
                 throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest);
 
-            PclExport.Instance.VerifyInAssembly(accessType, "ServiceStack.Client.dll");
+            PclExport.Instance.VerifyInAssembly(accessType, _approved.__dlls);
 
             return new AccessToken(requestedAccess);
         }

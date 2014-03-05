@@ -406,7 +406,7 @@ namespace ServiceStack
             return licenseKeyText.ToLicenseKey();
         }
 
-        public virtual void VerifyInAssembly(Type accessType, string assemblyName)
+        public virtual void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
         {
         }
 
