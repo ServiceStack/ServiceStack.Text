@@ -197,5 +197,36 @@ namespace ServiceStack.Text.Tests
             Assert.That("/path/info".TrimPrefixes("/www_deploy", "~/www_deploy"),
                 Is.EqualTo("/path/info"));
         }
+
+        public class TestObject
+        {
+            public int Index { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialise_with_type()
+        {
+            string json = "{\"Index\":1}";
+            string objType = "\"ServiceStack.Text.Tests.StringExtensionsTests+TestObject, ServiceStack.Text.Tests\"";
+
+            Type t = objType.To<Type>();
+            object result = json.To(t);
+
+            Assert.That(((TestObject)result).Index, Is.EqualTo("1"));
+        }
+
+        [Test]
+        public void Can_deserialise_with_type_using_serialiser()
+        {
+            TestObject testObject = new TestObject() { Index = 1 };
+
+            string json = testObject.ToJson();
+            string objType = testObject.GetType().ToJson();
+
+            Type t = objType.To<Type>();
+            object result = json.To(t);
+
+            Assert.That(((TestObject)result).Index, Is.EqualTo("1"));
+        }
 	}
 }
