@@ -1,6 +1,7 @@
 #if !MONO && !IOS
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Northwind.Common.ComplexModel;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
@@ -49,6 +50,17 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(dto);
 		}
+
+        [Test]
+        public void Can_serialize_null_object_to_Stream()
+        {
+            using (var ms = new MemoryStream())
+            {
+                JsonSerializer.SerializeToStream((object)null, ms);
+                TypeSerializer.SerializeToStream((object)null, ms);
+                XmlSerializer.SerializeToStream((object)null, ms);
+            }
+        }
 
 	}
 }

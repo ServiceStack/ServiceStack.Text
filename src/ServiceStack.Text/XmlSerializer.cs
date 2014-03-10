@@ -108,6 +108,7 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object obj, Stream stream)
         {
+            if (obj == null) return;
             using (var xw = XmlWriter.Create(stream, XWSettings))
             {
                 var serializer = new DataContractSerializer(obj.GetType());
