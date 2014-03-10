@@ -473,14 +473,17 @@ namespace ServiceStack
 
         public static int IndexOfAny(this string text, int startIndex, params string[] needles)
         {
-            if (text == null) return -1;
-
             var firstPos = -1;
-            foreach (var needle in needles)
+            if (text != null)
             {
-                var pos = text.IndexOf(needle);
-                if (firstPos == -1 || pos < firstPos) firstPos = pos;
+                foreach (var needle in needles)
+                {
+                    var pos = text.IndexOf(needle, startIndex);
+                    if (firstPos == -1 || pos < firstPos)
+                        firstPos = pos;
+                }
             }
+
             return firstPos;
         }
 

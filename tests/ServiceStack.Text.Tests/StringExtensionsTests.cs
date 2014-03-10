@@ -86,7 +86,6 @@ namespace ServiceStack.Text.Tests
 		{
 			var text = "text with /* and <!--";
 			var pos = text.IndexOfAny("<!--", "/*");
-			//Console.WriteLine(text.Substring(pos));
 			Assert.That(pos, Is.EqualTo("text with ".Length));
 		}
 
