@@ -46,7 +46,6 @@ namespace ServiceStack.Text
             return (dateTime.ToStableUniversalTime().Ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
         }
 
-        private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
         public static long ToUnixTimeMs(this DateTime dateTime)
         {
             var universal = ToDateTimeSinceUnixEpoch(dateTime);
@@ -64,7 +63,7 @@ namespace ServiceStack.Text
             if (dateTime.Kind != DateTimeKind.Utc)
             {
                 dtUtc = dateTime.Kind == DateTimeKind.Unspecified && dateTime > DateTime.MinValue
-                    ? DateTime.SpecifyKind(dateTime.Subtract(LocalTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
+                    ? DateTime.SpecifyKind(dateTime.Subtract(DateTimeSerializer.LocalTimeZone.GetUtcOffset(dateTime)), DateTimeKind.Utc)
                     : dateTime.ToStableUniversalTime();
             }
 

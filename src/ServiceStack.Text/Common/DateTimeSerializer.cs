@@ -445,7 +445,20 @@ namespace ServiceStack.Text.Common
             return new DateTimeOffset(date, offset).DateTime;
         }
 
-        private static TimeZoneInfo LocalTimeZone = TimeZoneInfo.Local;
+        public static TimeZoneInfo GetLocalTimeZoneInfo()
+        {
+            try
+            {
+                return TimeZoneInfo.Local;
+            }
+            catch (Exception)
+            {
+                return TimeZoneInfo.Utc; //Fallback for Mono on Windows.
+            }
+        }
+
+        internal static TimeZoneInfo LocalTimeZone = GetLocalTimeZoneInfo();
+
         public static void WriteWcfJsonDate(TextWriter writer, DateTime dateTime)
         {
             if (JsConfig.AssumeUtc && dateTime.Kind == DateTimeKind.Unspecified)
