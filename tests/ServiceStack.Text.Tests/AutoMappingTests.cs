@@ -93,6 +93,11 @@ namespace ServiceStack.Text.Tests
         public Color Color { get; set; }
     }
 
+    public class ReallyNullableEnumConversion
+    {
+        public Color? Color { get; set; }
+    }
+
     public class EnumConversion
     {
         public Color Color { get; set; }
@@ -209,7 +214,6 @@ namespace ServiceStack.Text.Tests
             var conversionDto = conversion.ConvertTo<NullableEnumConversionDto>();
 
             Assert.That(conversionDto.Color, Is.EqualTo(OtherColor.Green));
-
         }
 
         [Test]
@@ -219,6 +223,33 @@ namespace ServiceStack.Text.Tests
             var conversionDto = conversion.ConvertTo<EnumConversionDto>();
 
             Assert.That(conversionDto.Color, Is.EqualTo(OtherColor.Green));
+        }
+
+        [Test]
+        public void Does_ReallyEnumnullableconversion_translate()
+        {
+            var conversion = new ReallyNullableEnumConversion { Color = Color.Green };
+            var conversionDto = conversion.ConvertTo<NullableEnumConversionDto>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo(OtherColor.Green));
+        }
+
+        [Test]
+        public void Does_RealyEnumconversion_translate()
+        {
+            var conversion = new ReallyNullableEnumConversion { Color = Color.Green };
+            var conversionDto = conversion.ConvertTo<EnumConversionDto>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo(OtherColor.Green));
+        }
+
+        [Test]
+        public void Does_Enumconversion_translateFromNull()
+        {
+            var conversion = new ReallyNullableEnumConversion { Color = null };
+            var conversionDto = conversion.ConvertTo<EnumConversionDto>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo(default(OtherColor)));
         }
 
         [Test]
