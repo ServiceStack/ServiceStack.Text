@@ -84,6 +84,9 @@ namespace ServiceStack
 
         public static string CombineWith(this string path, params string[] thesePaths)
         {
+            if (path == null)
+                path = "";
+
             if (thesePaths.Length == 1 && thesePaths[0] == null) return path;
             var startPath = path.Length > 1 ? path.TrimEnd('/', '\\') : path;
             return CombinePaths(new StringBuilder(startPath), thesePaths);
