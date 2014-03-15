@@ -286,6 +286,18 @@ namespace ServiceStack
             return to;
         }
 
+        public static To PopulateFromPropertiesWithoutAttribute<To, From>(this To to, From from,
+            Type attributeType)
+        {
+            if (Equals(to, default(To)) || Equals(from, default(From))) return default(To);
+
+            var assignmentDefinition = GetAssignmentDefinition(to.GetType(), from.GetType());
+
+            assignmentDefinition.PopulateFromPropertiesWithoutAttribute(to, from, attributeType);
+
+            return to;
+        }
+
         public static void SetProperty(this PropertyInfo propertyInfo, object obj, object value)
         {
             if (!propertyInfo.CanWrite)
@@ -590,6 +602,13 @@ namespace ServiceStack
         {
             var hasAttributePredicate = (Func<PropertyInfo, bool>)
                 (x => x.AllAttributes(attributeType).Length > 0);
+            Populate(to, from, hasAttributePredicate, null);
+        }
+
+        public void PopulateFromPropertiesWithoutAttribute(object to, object from, Type attributeType)
+        {
+            var hasAttributePredicate = (Func<PropertyInfo, bool>)
+                (x => x.AllAttributes(attributeType).Length == 0);
             Populate(to, from, hasAttributePredicate, null);
         }
 

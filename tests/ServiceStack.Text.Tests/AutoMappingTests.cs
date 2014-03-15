@@ -143,6 +143,17 @@ namespace ServiceStack.Text.Tests
         public HashSet<User> Collection { get; set; }
     }
 
+    public class ModelWithIgnoredFields
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        [ReadOnly]
+        public int Ignored { get; set; }
+    }
+
+    public class ReadOnlyAttribute : AttributeBase {}
+
     [TestFixture]
     public class AutoMappingTests
     {
@@ -509,5 +520,24 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(dto.CompanyInfo, Is.Null);
         }
+
+        [Test]
+        public void Does_ignore_properties_without_attributes()
+        {
+            var model = new ModelWithIgnoredFields
+            {
+                Id = 1, 
+                Name = "Foo", 
+                Ignored = 2
+            };
+
+            var dto = new ModelWithIgnoredFields { Ignored = 10 }
+                .PopulateFromPropertiesWithoutAttribute(model, typeof(ReadOnlyAttribute));
+
+            Assert.That(dto.Id, Is.EqualTo(model.Id));
+            Assert.That(dto.Name, Is.EqualTo(model.Name));
+            Assert.That(dto.Ignored, Is.EqualTo(10));
+        }
+
     }
 }
