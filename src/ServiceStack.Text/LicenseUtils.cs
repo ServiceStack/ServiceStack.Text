@@ -20,9 +20,12 @@ namespace ServiceStack
         Indie,
         Business,
         Enterprise,
-        Text,
-        OrmLite,
-        Redis
+        TextIndie,
+        TextBusiness,
+        OrmLiteIndie,
+        OrmLiteBusiness,
+        RedisIndie,
+        RedisBusiness,
     }
 
     [Flags]
@@ -33,9 +36,6 @@ namespace ServiceStack
         RedisSku = Redis | Text,
         OrmLiteSku = OrmLite | Text,
         Free = None,
-        Indie = All,
-        Business = All,
-        Enterprise = All,
         Premium = 1 << 0,
         Text = 1 << 1,
         Client = 1 << 2,
@@ -286,18 +286,23 @@ namespace ServiceStack
             {
                 case LicenseType.Free:
                     return LicenseFeature.Free;
+                
                 case LicenseType.Indie:
-                    return LicenseFeature.Indie;
                 case LicenseType.Business:
-                    return LicenseFeature.Business;
                 case LicenseType.Enterprise:
-                    return LicenseFeature.Enterprise;
-                case LicenseType.Text:
+                    return LicenseFeature.All;
+
+                case LicenseType.TextIndie:
+                case LicenseType.TextBusiness:
                     return LicenseFeature.Text;
-                case LicenseType.OrmLite:
-                    return LicenseFeature.OrmLite;
-                case LicenseType.Redis:
-                    return LicenseFeature.Redis;
+                
+                case LicenseType.OrmLiteIndie:
+                case LicenseType.OrmLiteBusiness:
+                    return LicenseFeature.OrmLiteSku;
+                
+                case LicenseType.RedisIndie:
+                case LicenseType.RedisBusiness:
+                    return LicenseFeature.RedisSku;
             }
             throw new ArgumentException("Unknown License Type: " + key.Type);
         }
