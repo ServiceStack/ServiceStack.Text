@@ -77,8 +77,7 @@ namespace ServiceStack.Text.Tests.Utils
 		public void Can_DumpModel()
 		{
 			var model = new TestModel();
-			Console.WriteLine(model.Dump());
+            model.PrintDump();
 		}
-
 	}
 }

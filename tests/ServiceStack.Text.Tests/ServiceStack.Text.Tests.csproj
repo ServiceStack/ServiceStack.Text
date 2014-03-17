@@ -280,6 +280,7 @@
     <Compile Include="UseCases\StripeJsonData.cs" />
     <Compile Include="UseCases\StripeGateway.cs" />
     <Compile Include="UseCases\StripeSerializationTests.cs" />
+    <Compile Include="UseCases\ServiceStack_Text_UseCase.cs" />
     <Compile Include="Utils\DateTimeSerializerTests.cs" />
     <Compile Include="Support\DdnDtos.cs" />
     <Compile Include="DdnDtoTests.cs" />
