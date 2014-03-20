@@ -80,10 +80,12 @@ namespace ServiceStack.Text
                 {
                     var programFilesPath = PclExport.Instance.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
                     var netFxReferenceBasePath = programFilesPath + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\";
-                    if ((netFxReferenceBasePath + @"v4.0\").DirectoryExists())
-                        referenceAssembyPath = netFxReferenceBasePath + @"v4.0\";
-                    if ((netFxReferenceBasePath + @"v4.5\").DirectoryExists())
+                    if ((netFxReferenceBasePath + @"v4.5.1\").DirectoryExists())
+                        referenceAssembyPath = netFxReferenceBasePath + @"v4.5.1\";
+                    else if ((netFxReferenceBasePath + @"v4.5\").DirectoryExists())
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.5\";
+                    else if ((netFxReferenceBasePath + @"v4.0\").DirectoryExists())
+                        referenceAssembyPath = netFxReferenceBasePath + @"v4.0\";
                     else
                         throw new FileNotFoundException(
                             "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n".Fmt(netFxReferenceBasePath + @"v4.0\") +
