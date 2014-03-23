@@ -244,6 +244,7 @@
     <Compile Include="PclExport.Net40.cs" />
     <Compile Include="PathUtils.cs" />
     <Compile Include="PclExport.cs" />
+    <Compile Include="PerfUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryStringSerializer.cs">
       <SubType>Code</SubType>
