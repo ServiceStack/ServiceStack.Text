@@ -69,7 +69,7 @@ Stream Extensions:
 
 ```csharp
 Stream WriteTo(Stream) / CopyTo()
-StreamReader ReadLines()
+Stream ReadLines()
 Stream ReadFully() / ReadExactly()
 ```
     
