@@ -801,6 +801,39 @@ namespace ServiceStack
             return Int64.TryParse(text, out ret) ? ret : defaultValue;
         }
 
+        public static float ToFloat(this string text)
+        {
+            return text == null ? default(float) : float.Parse(text);
+        }
+
+        public static float ToFloat(this string text, float defaultValue)
+        {
+            float ret;
+            return float.TryParse(text, out ret) ? ret : defaultValue;
+        }
+
+        public static double ToDouble(this string text)
+        {
+            return text == null ? default(double) : double.Parse(text);
+        }
+
+        public static double ToDouble(this string text, double defaultValue)
+        {
+            double ret;
+            return double.TryParse(text, out ret) ? ret : defaultValue;
+        }
+
+        public static decimal ToDecimal(this string text)
+        {
+            return text == null ? default(decimal) : decimal.Parse(text);
+        }
+
+        public static decimal ToDecimal(this string text, decimal defaultValue)
+        {
+            decimal ret;
+            return decimal.TryParse(text, out ret) ? ret : defaultValue;
+        }
+
         public static bool Glob(this string value, string pattern)
         {
             int pos;
