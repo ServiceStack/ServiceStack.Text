@@ -72,6 +72,20 @@ namespace ServiceStack.Text.Tests.JsonTests
             json = JsonSerializer.SerializeToString(test);
             // Assert:
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":\"AQIDBAU=\"}"));
-        }        
+        }
+
+        [Test]
+        public void Can_override_Guid_serialization_format()
+        {
+            var guid = new Guid("ADFA988B-01F6-490D-B65B-63750F869496");
+
+            Assert.That(guid.ToJson().Trim('"'), Is.EqualTo("adfa988b01f6490db65b63750f869496"));
+            Assert.That(guid.ToJsv(), Is.EqualTo("adfa988b01f6490db65b63750f869496"));
+
+            JsConfig<Guid>.RawSerializeFn = x => x.ToString();
+
+            Assert.That(guid.ToJson().Trim('"'), Is.EqualTo("adfa988b-01f6-490d-b65b-63750f869496"));
+            Assert.That(guid.ToJsv(), Is.EqualTo("adfa988b-01f6-490d-b65b-63750f869496"));
+        }
     }
 }
