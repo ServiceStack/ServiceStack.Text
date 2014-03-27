@@ -144,18 +144,14 @@ namespace ServiceStack.Text.Jsv
 
 		public void WriteGuid(TextWriter writer, object oValue)
 		{
-		    writer.Write(JsConfig<Guid>.RawSerializeFn != null
-		        ? JsConfig<Guid>.RawSerializeFn((Guid) oValue)
-		        : ((Guid) oValue).ToString("N"));
+			writer.Write(((Guid)oValue).ToString("N"));
 		}
 
-        public void WriteNullableGuid(TextWriter writer, object oValue)
+		public void WriteNullableGuid(TextWriter writer, object oValue)
 		{
 			if (oValue == null) return;
-            writer.Write(JsConfig<Guid>.RawSerializeFn != null
-                ? JsConfig<Guid>.RawSerializeFn((Guid)oValue)
-                : ((Guid)oValue).ToString("N"));
-        }
+			writer.Write(((Guid)oValue).ToString("N"));
+		}
 
 		public void WriteBytes(TextWriter writer, object oByteValue)
 		{
