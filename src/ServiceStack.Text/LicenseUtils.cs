@@ -370,6 +370,7 @@ namespace ServiceStack
             {
                 "ServiceStack.Client.dll",
                 "ServiceStack.RabbitMq.dll",
+                "<Unknown>"
             };
         }
 

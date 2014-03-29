@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections;
+using System.IO;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -140,6 +142,16 @@ namespace ServiceStack.Text.Tests
                 ex.Message.Print();
                 Assert.That(ex.Message, Is.StringStarting("This license has expired"));
             }
+        }
+
+        [Explicit,Test]
+        public void Test_dynamically_loaded_assemblies()
+        {
+            var dllBytes = File.ReadAllBytes("~/ServiceStack.Client.dll".MapAbsolutePath());
+
+            var assembly = Assembly.Load(dllBytes);
+
+            Assert.That(assembly.ManifestModule.Name, Is.EqualTo("<Unknown>"));
         }
     }
 }
