@@ -20,6 +20,9 @@ namespace ServiceStack
     {
         public static T ConvertTo<T>(this object from)
         {
+            if (from == null)
+                return default(T);
+
             if (from.GetType() == typeof(T))
             {
                 return (T)from;
