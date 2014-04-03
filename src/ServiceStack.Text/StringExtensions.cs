@@ -13,6 +13,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using ServiceStack.Text;
@@ -887,6 +889,31 @@ namespace ServiceStack
         public static byte[] ToAsciiBytes(this string value)
         {
             return PclExport.Instance.GetAsciiBytes(value);
+        }
+
+        public static Dictionary<string,string> ParseKeyValueText(this string text, string delimiter=":")
+        {
+            var to = new Dictionary<string, string>();
+            if (text == null) return to;
+
+            foreach (var parts in text.ReadLines().Select(line => line.SplitOnFirst(delimiter)))
+            {
+                var key = parts[0].Trim();
+                if (key.Length == 0) continue;
+                to[key] = parts.Length == 2 ? parts[1].Trim() : null;
+            }
+
+            return to;
+        }
+
+        public static IEnumerable<string> ReadLines(this string text)
+        {
+            string line;
+            var reader = new StringReader(text ?? "");
+            while ((line = reader.ReadLine()) != null)
+            {
+                yield return line;
+            }
         }
 
 #if !XBOX

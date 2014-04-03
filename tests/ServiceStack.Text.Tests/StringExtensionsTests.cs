@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -195,6 +196,31 @@ namespace ServiceStack.Text.Tests
                 Is.EqualTo("/path/info"));
             Assert.That("/path/info".TrimPrefixes("/www_deploy", "~/www_deploy"),
                 Is.EqualTo("/path/info"));
+        }
+
+	    [Test]
+	    public void Can_read_lines()
+	    {
+            Assert.That((null as string).ReadLines().Count(), Is.EqualTo(0));
+            Assert.That("".ReadLines().Count(), Is.EqualTo(0));
+            Assert.That("a".ReadLines().Count(), Is.EqualTo(1));
+            Assert.That("a\nb".ReadLines().Count(), Is.EqualTo(2));
+            Assert.That("a\r\nb".ReadLines().Count(), Is.EqualTo(2));
+	    }
+
+	    [Test]
+	    public void Can_ParseKeyValueText()
+	    {
+            Assert.That("".ParseKeyValueText().Count, Is.EqualTo(0));
+            Assert.That("a".ParseKeyValueText().Count, Is.EqualTo(1));
+            Assert.That("a".ParseKeyValueText()["a"], Is.Null);
+            Assert.That("a:".ParseKeyValueText().Count, Is.EqualTo(1));
+            Assert.That("a:".ParseKeyValueText()["a"], Is.EqualTo(""));
+            Assert.That("a:b".ParseKeyValueText()["a"], Is.EqualTo("b"));
+            Assert.That("a:b:c".ParseKeyValueText()["a"], Is.EqualTo("b:c"));
+            Assert.That("a : b:c ".ParseKeyValueText()["a"], Is.EqualTo("b:c"));
+            Assert.That("a:b\nc:d".ParseKeyValueText()["c"], Is.EqualTo("d"));
+            Assert.That("a:b\r\nc:d".ParseKeyValueText()["c"], Is.EqualTo("d"));
         }
 	}
 }
