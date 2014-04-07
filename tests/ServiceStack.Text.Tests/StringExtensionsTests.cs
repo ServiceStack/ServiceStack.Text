@@ -82,15 +82,19 @@ namespace ServiceStack.Text.Tests
 			Assert.That("path/to/file.ext".WithoutExtension(), Is.EqualTo("path/to/file"));
 		}
 
-		[Test]
-		public void Does_find_IndexOfAny_strings()
+        //         0         1
+        //         01234567890123456789
+        [TestCase("text with /* and <!--", "<!--", "/*", 10)]
+        [TestCase("text with /* and <!--", "<!--x", "/*", 10)]
+        [TestCase("text with /* and <!--", "<!--", "/*x", 17)]
+        [TestCase("text with /* and <!--", "<!--x", "/*x", -1)]
+        public void Does_find_IndexOfAny_strings(string text, string needle1, string needle2, int expectedPos)
 		{
-			var text = "text with /* and <!--";
-			var pos = text.IndexOfAny("<!--", "/*");
-			Assert.That(pos, Is.EqualTo("text with ".Length));
+			var pos = text.IndexOfAny(needle1, needle2);
+			Assert.That(pos, Is.EqualTo(expectedPos));
 		}
 
-		[Test]
+        [Test]
 		public void Does_ExtractContent_first_pattern_from_Document_without_marker()
 		{
 			var text = "text with random <!--comment--> and Contents: <!--Contents--> are here";
