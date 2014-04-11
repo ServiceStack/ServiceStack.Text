@@ -858,6 +858,16 @@ namespace ServiceStack
 
         public const string AllowCredentials = "Access-Control-Allow-Credentials";
 
+        public const string ExposeHeaders = "Access-Control-Expose-Headers";
+
+        public const string AccessControlMaxAge = "Access-Control-Max-Age";
+
+        public const string Origin = "Origin";
+
+        public const string RequestMethod = "Access-Control-Request-Method";
+
+        public const string RequestHeaders = "Access-Control-Request-Headers";
+
         public const string AcceptRanges = "Accept-Ranges";
 
         public const string ContentRange = "Content-Range";
