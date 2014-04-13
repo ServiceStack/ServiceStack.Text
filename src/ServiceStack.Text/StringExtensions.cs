@@ -313,6 +313,11 @@ namespace ServiceStack
             return FastToUtf8Bytes(longVal.ToString());
         }
 
+        public static byte[] ToUtf8Bytes(this ulong ulongVal)
+        {
+            return FastToUtf8Bytes(ulongVal.ToString());
+        }
+
         public static byte[] ToUtf8Bytes(this double doubleVal)
         {
             var doubleStr = doubleVal.ToString(CultureInfo.InvariantCulture.NumberFormat);
