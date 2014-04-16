@@ -179,39 +179,6 @@ namespace ServiceStack.Text.Tests
 			Assert.That("7,7.1".ToCsvField(), Is.EqualTo("\"7,7.1\""));
 			Assert.That("\"7,7.1\"".ToCsvField(), Is.EqualTo("\"\"\"7,7.1\"\"\""));
 		}
-
-        [Test]
-        public void Can_convert_to_csv_field_from_datetime_respecting_configured_datetimeformat()
-        {
-            var dateTime = DateTime.Now;
-            var testCases = new[] { "yyyy-MM-ddTHH:mm:ss.fff zzzz", "MM/dd/yyyy", "dd/MM/yyyy", "HH:mm:ss", "arbitrary string" };
-            foreach (var format in testCases)
-            {
-                CsvConfig.DateTimeFormatString = format;
-                Assert.That(dateTime.ToCsvField(),Is.EqualTo("\"" + dateTime.ToString(format) + "\""));
-            }
-        }
-
-        [Test]
-        public void Can_convert_to_csv_field_from_nullabledatetime_respecting_configured_datetimeformat()
-        {
-            DateTime? dateTime = DateTime.Now;
-            var testCases = new[] { "yyyy-MM-ddTHH:mm:ss.fff zzzz", "MM/dd/yyyy", "dd/MM/yyyy", "HH:mm:ss", "arbitrary string" };
-            foreach (var format in testCases)
-            {
-                CsvConfig.DateTimeFormatString = format;
-                Assert.That(dateTime.ToCsvField(), Is.EqualTo("\"" + dateTime.Value.ToString(format) + "\""));
-            }
-            DateTime? nullDateTime = null;
-            Assert.That(nullDateTime.ToCsvField(), Is.EqualTo(null));
-        }
-
-        [Test]
-        public void Can_convert_to_csv_field_from_datetime_without_a_configured_datetimeformat()
-        {
-            CsvConfig.Reset();
-            Assert.That(DateTime.Now.ToCsvField(), Is.EqualTo("\"" + DateTime.Now + "\""));
-        }
         
 		[Test]
 		public void Can_convert_to_csv_field_pipe_separator()

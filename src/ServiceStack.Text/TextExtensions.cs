@@ -31,23 +31,6 @@ namespace ServiceStack
                              );
         }
 
-        public static string ToCsvField(this DateTime value)
-        {
-            return !JsWriter.HasAnyEscapeChars(value.ToString())
-                        ? value.ToString(CsvConfig.DateTimeFormatString)
-                        : string.Concat
-                                (
-                                    JsWriter.QuoteString,
-                                    value.ToString(CsvConfig.DateTimeFormatString).Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
-                                    JsWriter.QuoteString
-                                );
-        }
-
-        public static string ToCsvField(this DateTime? value)
-        {
-	        return value.HasValue ? value.Value.ToCsvField() : null;
-        }
-
         public static object ToCsvField(this object text)
         {
             return text == null || !JsWriter.HasAnyEscapeChars(text.ToString())
