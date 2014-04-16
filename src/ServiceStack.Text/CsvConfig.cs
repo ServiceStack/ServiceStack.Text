@@ -110,23 +110,7 @@ namespace ServiceStack.Text
                 ResetEscapeStrings();
 			}
 		}
-
-		[ThreadStatic] 
-		private static string tsDateTimeFormatString;
-		private static string sDateTimeFormatString;
-		public static string DateTimeFormatString
-		{
-			get
-			{
-				return tsDateTimeFormatString ?? sDateTimeFormatString ?? "";
-			}
-			set
-			{
-				tsDateTimeFormatString = value;
-				if (sDateTimeFormatString == null) sDateTimeFormatString = value;
-			}
-		}
-
+       
 		public static void Reset()
 		{
 			tsItemSeperatorString = sItemSeperatorString = null;
@@ -134,7 +118,6 @@ namespace ServiceStack.Text
 			tsEscapedItemDelimiterString = sEscapedItemDelimiterString = null;
 			tsRowSeparatorString = sRowSeparatorString = null;
 		    tsEscapeStrings = sEscapeStrings = null;
-            tsDateTimeFormatString = sDateTimeFormatString = null;
 		}
 
     }
