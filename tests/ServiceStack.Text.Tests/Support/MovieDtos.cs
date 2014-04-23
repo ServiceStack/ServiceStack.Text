@@ -40,13 +40,13 @@ namespace ServiceStack.Text.Tests.Support
         public decimal Rating { get; set; }
 
         [DataMember(Order = 5, EmitDefaultValue = true, IsRequired = false)]
-        public string Director { get; set; }
+        public string Director;
 
         [DataMember(Order = 6, EmitDefaultValue = false, IsRequired = false)]
         public DateTime ReleaseDate { get; set; }
 
         [DataMember(Order = 6, EmitDefaultValue = false, IsRequired = false)]
-        public string TagLine { get; set; }
+        public string TagLine;
 
         [DataMember(Order = 8, EmitDefaultValue = false, IsRequired = false)]
         public List<string> Genres { get; set; }

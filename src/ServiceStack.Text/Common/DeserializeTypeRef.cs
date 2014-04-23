@@ -36,6 +36,7 @@ namespace ServiceStack.Text.Common
         internal static Dictionary<string, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
+            var isDataContract = type.IsDto();
 
             var propertyInfos = type.GetSerializableProperties();
             var fieldInfos = type.GetSerializableFields();
@@ -45,7 +46,6 @@ namespace ServiceStack.Text.Common
 
             if (propertyInfos.Length != 0)
             {
-                var isDataContract = type.IsDto();
                 foreach (var propertyInfo in propertyInfos)
                 {
                     var propertyName = propertyInfo.Name;
@@ -66,6 +66,14 @@ namespace ServiceStack.Text.Common
                 foreach (var fieldInfo in fieldInfos)
                 {
                     var field = fieldInfo.Name;
+                    if (isDataContract)
+                    {
+                        var dcsDataMember = fieldInfo.GetDataMember();
+                        if (dcsDataMember != null && dcsDataMember.Name != null)
+                        {
+                            field = dcsDataMember.Name;
+                        }
+                    }
                     map[field] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
                 }
             }
