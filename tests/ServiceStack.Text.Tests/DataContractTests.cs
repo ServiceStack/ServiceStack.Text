@@ -188,6 +188,13 @@ namespace ServiceStack.Text.Tests
             public string Title { get; set; }
         }
 
+        [DataContract]
+        public class ClassFour
+        {
+            [DataMember(Name = "some-title")]
+            public string Title;
+        }
+
         [Test]
         public void Csv_Serialize_Should_Respects_DataContract_Name()
         {
@@ -215,6 +222,13 @@ namespace ServiceStack.Text.Tests
         public void Json_Serialize_Should_Respects_DataContract_Name_When_Deserialize()
         {
             var t = JsonSerializer.DeserializeFromString<ClassThree>("{\"some-title\": \"right\", \"Title\": \"wrong\"}");
+            Assert.That(t.Title, Is.EqualTo("right"));
+        }
+
+        [Test]
+        public void Json_Serialize_Should_Respects_DataContract_Field_Name_When_Deserialize()
+        {
+            var t = JsonSerializer.DeserializeFromString<ClassFour>("{\"some-title\": \"right\", \"Title\": \"wrong\"}");
             Assert.That(t.Title, Is.EqualTo("right"));
         }
 
