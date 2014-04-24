@@ -5,16 +5,29 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class JsonObjectTests : TestBase
     {
-        private const string JsonCentroid = @"{""place"":{ ""woeid"":12345, ""placeTypeName"":""St\\ate"" } }";
+        private const string JsonCentroid = @"{""place"":{ ""woeid"":12345, ""placeTypeName"":""St\\a\/te"" } }";
 
         [Test]
         public void Can_dynamically_parse_JSON_with_escape_chars()
         {
             var placeTypeName = JsonObject.Parse(JsonCentroid).Object("place").Get("placeTypeName");
-            Assert.That(placeTypeName, Is.EqualTo("St\\ate"));
+            Assert.That(placeTypeName, Is.EqualTo("St\\a/te"));
 
             placeTypeName = JsonObject.Parse(JsonCentroid).Object("place").Get<string>("placeTypeName");
-            Assert.That(placeTypeName, Is.EqualTo("St\\ate"));
+            Assert.That(placeTypeName, Is.EqualTo("St\\a/te"));
+        }
+
+        private const string JsonEscapedByteArray = @"{""universalId"":""09o4bFTeBq3hTKhoJVCkzSLRG\/o1SktTPqxgZ3L3Xss=""}";
+
+        [Test]
+        public void Can_dynamically_parse_JSON_with_escape_byte_array()
+        {
+            var parsed = JsonObject.Parse(JsonEscapedByteArray).Get<byte[]>("universalId");
+            Assert.That(parsed, Is.EqualTo(new byte[] {
+                0xd3, 0xda, 0x38, 0x6c, 0x54, 0xde, 0x06, 0xad,
+                0xe1, 0x4c, 0xa8, 0x68, 0x25, 0x50, 0xa4, 0xcd,
+                0x22, 0xd1, 0x1b, 0xfa, 0x35, 0x4a, 0x4b, 0x53,
+                0x3e, 0xac, 0x60, 0x67, 0x72, 0xf7, 0x5e, 0xcb}));
         }
 
         [Test]
