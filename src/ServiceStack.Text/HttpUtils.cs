@@ -346,14 +346,12 @@ namespace ServiceStack
             }
 
             var taskWebRes = webReq.GetResponseAsync();
-
             return taskWebRes.ContinueWith(task =>
             {
                 var webRes = task.Result;
-
                 if (responseFilter != null)
                 {
-                    responseFilter(webRes);
+                    responseFilter((HttpWebResponse)webRes);
                 }
 
                 using (var stream = webRes.GetResponseStream())
