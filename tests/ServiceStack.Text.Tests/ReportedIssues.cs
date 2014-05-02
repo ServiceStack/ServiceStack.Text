@@ -203,7 +203,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_serialize_sweedish_chars()
 		{
-			var dto = new TextTags { Text = "Olle �r en �L �l", Tags = new[] { "�l", "�l", "m�l" } };
+			var dto = new TextTags { Text = "Olle är en ÖL ål", Tags = new[] { "öl", "ål", "mål" } };
 			Serialize(dto);
 		}
 
