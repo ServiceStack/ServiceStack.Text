@@ -203,7 +203,7 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_serialize_sweedish_chars()
 		{
-			var dto = new TextTags { Text = "Olle är en ÖL ål", Tags = new[] { "öl", "ål", "mål" } };
+			var dto = new TextTags { Text = "Olle Ã¤r en Ã–L Ã¥l", Tags = new[] { "Ã¶l", "Ã¥l", "mÃ¥l" } };
 			Serialize(dto);
 		}
 
@@ -246,8 +246,9 @@ namespace ServiceStack.Text.Tests
 			var test = new Test { TestString = "$100,000" };
 
 			var serialized = test.Dump();
+			var lf = Environment.NewLine;
 
-			Assert.That(serialized, Is.EqualTo("{\r\n\tTestString: \"$100,000\"\r\n}"));
+			Assert.That(serialized, Is.EqualTo("{"+lf+"\tTestString: \"$100,000\""+lf+"}"));
 		}
 
 		[Test]
@@ -260,8 +261,9 @@ namespace ServiceStack.Text.Tests
 			};
 
 			var serialized = test.Dump();
+			var lf = Environment.NewLine;
 
-			Assert.That(serialized, Is.EqualTo("{\r\n\tTestString: \"test\"\"\",\r\n\tOtherString: \"$100,000\"\r\n}"));
+			Assert.That(serialized, Is.EqualTo("{"+lf+"\tTestString: \"test\"\"\","+lf+"\tOtherString: \"$100,000\""+lf+"}"));
 		}
 
 		[Test]
