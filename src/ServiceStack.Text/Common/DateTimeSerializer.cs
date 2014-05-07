@@ -205,7 +205,7 @@ namespace ServiceStack.Text.Common
                 var dateTime = new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]), int.Parse(dateParts[2]), hh, min, ss, ms, dateKind);
                 if (subMs != 0)
                 {
-                    dateTime.AddMilliseconds(subMs);
+                    dateTime=dateTime.AddMilliseconds(subMs);
                 }
 
                 if (offsetMultiplier != 0 && timeOffset != null)
