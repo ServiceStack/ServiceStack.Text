@@ -59,7 +59,7 @@ namespace ServiceStack
             bool? preAuthenticate = null)
         {
             if (allowAutoRedirect.HasValue) req.AllowAutoRedirect = allowAutoRedirect.Value;
-            if (userAgent != null) req.UserAgent = userAgent;
+            // if (userAgent != null) req.UserAgent = userAgent; //throws NotImplementedException
         }
 
         public override HttpWebRequest CreateWebRequest(string requestUri, bool? emulateHttpViaPost = null)
