@@ -52,7 +52,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Mock_UploadFile()
         {
-            const string tempTextPath = @"c:\Windows\Temp\test.txt";
+            string tempTextPath = Path.Combine (Path.GetTempPath (), "test.txt");
             using (File.CreateText(tempTextPath)){}
 
             var fileNamesUploaded = new List<string>();
