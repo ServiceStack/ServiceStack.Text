@@ -346,8 +346,11 @@ namespace ServiceStack
 
         public virtual DateTime ParseXsdDateTimeAsUtc(string dateTimeStr)
         {
-            var dateTimeType = "yyyy-MM-ddTHH:mm:sszzzzzzz";
-            return XmlConvert.ToDateTimeOffset(dateTimeStr, dateTimeType).DateTime.Prepare();
+            var knownDateTime = DateTimeSerializer.ParseManual(dateTimeStr);
+            if (knownDateTime == null)
+                throw new ArgumentException("Unable to parse unknown format: {0}".Fmt(dateTimeStr));
+
+            return knownDateTime.Value;
         }
 
         public virtual DateTime ToStableUniversalTime(DateTime dateTime)
