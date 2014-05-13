@@ -60,6 +60,14 @@ namespace ServiceStack
         {
             if (allowAutoRedirect.HasValue) req.AllowAutoRedirect = allowAutoRedirect.Value;
             // if (userAgent != null) req.UserAgent = userAgent; //throws NotImplementedException
+
+            //Methods others than GET and POST are only supported by Client request creator, see
+            //http://msdn.microsoft.com/en-us/library/cc838250(v=vs.95).aspx
+            if (req.Method != "GET" && req.Method != "POST")
+            {
+                req.Headers[HttpHeaders.XHttpMethodOverride] = req.Method;
+                req.Method = "POST";
+            }
         }
 
         public override HttpWebRequest CreateWebRequest(string requestUri, bool? emulateHttpViaPost = null)
