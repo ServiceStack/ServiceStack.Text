@@ -24,7 +24,6 @@ namespace ServiceStack.Text.Tests
             };
 
             var csv = dtos.ToCsv();
-            csv.Print();
             Assert.That(csv, Is.EqualTo("Id|Name\n\n1|Value\n\n2|`Value|Escaped`\n\n"));
 
             var maps = new List<Dictionary<string, object>>()
@@ -34,21 +33,11 @@ namespace ServiceStack.Text.Tests
             };
 
             csv = maps.ToCsv();
-            csv.Print();
             Assert.That(csv, Is.EqualTo("Id|Name\n\n1|Value\n\n2|`Value|Escaped`\n\n"));
 
             CsvConfig.ItemSeperatorString = JsWriter.ItemSeperatorString;
             CsvConfig.ItemDelimiterString = JsWriter.QuoteString;
             CsvConfig.RowSeparatorString = Environment.NewLine;
-        }
-
-        [Test]
-        public void Does_use_CsvConfig_for_Dictionary_object()
-        {
-            CsvConfig.ItemSeperatorString = "|";
-            CsvConfig.ItemDelimiterString = "`";
-            CsvConfig.RowSeparatorString = "\n\n";
-
         }
     }
 }
