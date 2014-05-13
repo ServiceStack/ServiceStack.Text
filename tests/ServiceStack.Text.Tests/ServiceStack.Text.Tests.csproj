@@ -183,6 +183,7 @@
     <Compile Include="AutoMappingTests.cs" />
     <Compile Include="BasicStringSerializerTests.cs" />
     <Compile Include="BclStructTests.cs" />
+    <Compile Include="CsvSerializerConfigTests.cs" />
     <Compile Include="CsvTests\DictionaryTests.cs" />
     <Compile Include="CyclicalDependencyTests.cs" />
     <Compile Include="DateTimeExtensionsTests.cs" />

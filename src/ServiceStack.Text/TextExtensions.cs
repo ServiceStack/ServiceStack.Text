@@ -33,13 +33,13 @@ namespace ServiceStack
 
         public static object ToCsvField(this object text)
         {
-            return text == null || !JsWriter.HasAnyEscapeChars(text.ToString())
+            return text == null || !CsvWriter.HasAnyEscapeChars(text.ToString())
                        ? text
                        : string.Concat
                              (
-                                 JsWriter.QuoteString,
-                                 text.ToString().Replace(JsWriter.QuoteString, TypeSerializer.DoubleQuoteString),
-                                 JsWriter.QuoteString
+                                 CsvConfig.ItemDelimiterString,
+                                 text.ToString().Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
+                                 CsvConfig.ItemDelimiterString
                              );
         }
 

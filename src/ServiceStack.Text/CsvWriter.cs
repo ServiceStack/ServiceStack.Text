@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Reflection;
 
@@ -28,11 +26,11 @@ namespace ServiceStack.Text
             var ranOnce = false;
             foreach (var field in row)
             {
-                JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
+                CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
                 writer.Write(field.ToCsvField());
             }
-            writer.WriteLine();
+            writer.Write(CsvConfig.RowSeparatorString);
         }
 
         public static void Write(TextWriter writer, IEnumerable<Dictionary<string, object>> records)
@@ -298,7 +296,7 @@ namespace ServiceStack.Text
 
                 writer.Write(field.ToCsvField());
             }
-            writer.WriteLine();
+            writer.Write(CsvConfig.RowSeparatorString);
         }
 
         public static void Write(TextWriter writer, IEnumerable<List<string>> rows)
