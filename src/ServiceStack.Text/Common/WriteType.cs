@@ -443,7 +443,8 @@ namespace ServiceStack.Text.Common
                         writer.Write('&');
 
                     var propertyType = propertyValue.GetType();
-                    var isEnumerable = !(propertyValue is string)
+                    var strValue = propertyValue as string;
+                    var isEnumerable = strValue == null
                         && !(propertyType.IsValueType())
                         && propertyType.HasInterface(typeof(IEnumerable));
                     
@@ -457,7 +458,11 @@ namespace ServiceStack.Text.Common
                     Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
                     writer.Write('=');
 
-                    if (!isEnumerable)
+                    if (strValue != null)
+                    {
+                        writer.Write(strValue.UrlEncode());
+                    }
+                    else if (!isEnumerable)
                     {
                         propertyWriter.WriteFn(writer, propertyValue);
                     }

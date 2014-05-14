@@ -122,8 +122,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialize_quoted_strings()
         {
-            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content\"" }), Is.EqualTo("Property=%22%22quoted+content%22%22"));
-            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content, and with a comma\"" }), Is.EqualTo("Property=%22%22quoted+content,+and+with+a+comma%22%22"));
+            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content\"" }), Is.EqualTo("Property=%22quoted+content%22"));
+            Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content, and with a comma\"" }), Is.EqualTo("Property=%22quoted+content,+and+with+a+comma%22"));
         }
 
         private T StringToPoco<T>(string str)
@@ -182,6 +182,24 @@ namespace ServiceStack.Text.Tests
             Assert.That(poco.ListOfA[0].ListOfB[0].Property, Is.EqualTo("Doe, John"));
             Assert.That(poco.ListOfA[0].ListOfB[0].Property2, Is.EqualTo("Doe"));
             Assert.That(poco.ListOfA[0].ListOfB[0].Property3, Is.EqualTo("John"));
+        }
+
+        [Test]
+        public void Can_serialize_Poco_with_comma_in_string()
+        {
+            var dto = new B { Property = "Foo,Bar" };
+            var qs = QueryStringSerializer.SerializeToString(dto);
+
+            Assert.That(qs, Is.EqualTo("Property=Foo,Bar"));
+        }
+
+        [Test]
+        public void Does_urlencode_Poco_with_escape_char()
+        {
+            var dto = new B { Property = "Foo&Bar" };
+            var qs = QueryStringSerializer.SerializeToString(dto);
+
+            Assert.That(qs, Is.EqualTo("Property=Foo%26Bar"));
         }
 
         public class TestPocos
