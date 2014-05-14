@@ -63,6 +63,7 @@ namespace ServiceStack
 
             //Methods others than GET and POST are only supported by Client request creator, see
             //http://msdn.microsoft.com/en-us/library/cc838250(v=vs.95).aspx
+            if (req.GetType().Name != "BrowserHttpWebRequest") return;
             if (req.Method != "GET" && req.Method != "POST")
             {
                 req.Headers[HttpHeaders.XHttpMethodOverride] = req.Method;
