@@ -58,8 +58,9 @@ namespace ServiceStack
             string userAgent = null,
             bool? preAuthenticate = null)
         {
-            if (allowAutoRedirect.HasValue) req.AllowAutoRedirect = allowAutoRedirect.Value;
-            // if (userAgent != null) req.UserAgent = userAgent; //throws NotImplementedException
+            //throws NotImplementedException in both BrowserHttp + ClientHttp
+            //if (allowAutoRedirect.HasValue) req.AllowAutoRedirect = allowAutoRedirect.Value;
+            //if (userAgent != null) req.UserAgent = userAgent; 
 
             //Methods others than GET and POST are only supported by Client request creator, see
             //http://msdn.microsoft.com/en-us/library/cc838250(v=vs.95).aspx
