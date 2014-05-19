@@ -31,11 +31,12 @@ namespace ServiceStack.Text.Common
 
         private static bool IsIncluded
         {
-            get { return (JsConfig.IncludeTypeInfo || JsConfig<T>.IncludeTypeInfo); }
+            get { return (JsConfig<T>.IncludeTypeInfo.GetValueOrDefault(JsConfig.IncludeTypeInfo)); }
         }
+
         private static bool IsExcluded
         {
-            get { return (JsConfig.ExcludeTypeInfo || JsConfig<T>.ExcludeTypeInfo); }
+            get { return (JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault(JsConfig.ExcludeTypeInfo)); }
         }
 
         static WriteType()
@@ -236,9 +237,9 @@ namespace ServiceStack.Text.Common
             {
                 get
                 {
-                    return (JsConfig<T>.EmitCamelCaseNames || JsConfig.EmitCamelCaseNames)
+                    return (JsConfig<T>.EmitCamelCaseNames.GetValueOrDefault(JsConfig.EmitCamelCaseNames))
                         ? propertyNameCLSFriendly
-                        : (JsConfig<T>.EmitLowercaseUnderscoreNames || JsConfig.EmitLowercaseUnderscoreNames)
+                        : (JsConfig<T>.EmitLowercaseUnderscoreNames.GetValueOrDefault(JsConfig.EmitLowercaseUnderscoreNames))
                             ? propertyNameLowercaseUnderscore
                             : propertyName;
                 }
@@ -308,9 +309,9 @@ namespace ServiceStack.Text.Common
             }
 
             var writeFn = Serializer.GetWriteFn(valueType);
-            if (!JsConfig<T>.ExcludeTypeInfo) JsState.IsWritingDynamic = true;
+            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = true;
             writeFn(writer, value);
-            if (!JsConfig<T>.ExcludeTypeInfo) JsState.IsWritingDynamic = false;
+            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
         }
 
         public static void WriteProperties(TextWriter writer, object value)

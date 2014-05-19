@@ -632,12 +632,12 @@ namespace ServiceStack.Text
         /// <summary>
         /// Always emit type info for this type.  Takes precedence over ExcludeTypeInfo
         /// </summary>
-        public static bool IncludeTypeInfo = false;
+        public static bool? IncludeTypeInfo = null;
 
         /// <summary>
         /// Never emit type info for this type
         /// </summary>
-        public static bool ExcludeTypeInfo = false;
+        public static bool? ExcludeTypeInfo = null;
 
         /// <summary>
         /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
@@ -645,9 +645,9 @@ namespace ServiceStack.Text
         /// to support user-friendly serialized formats, ie emitting camelCasing for JSON
         /// and parsing member names and enum values in a case-insensitive manner.
         /// </summary>
-        public static bool EmitCamelCaseNames = false;
+        public static bool? EmitCamelCaseNames = null;
 
-        public static bool EmitLowercaseUnderscoreNames = false;
+        public static bool? EmitLowercaseUnderscoreNames = null;
 
         /// <summary>
         /// Define custom serialization fn for BCL Structs
