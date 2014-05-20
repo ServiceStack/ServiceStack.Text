@@ -20,6 +20,12 @@ namespace ServiceStack
 {
     public abstract class PclExport
     {
+        public const string WindowsStore = "WindowsStore";
+        public const string Android = "Android";
+        public const string IOS = "IOS";
+        public const string WindowsStore = "WindowsStore";
+        public const string Silverlight5 = "Silverlight5";
+
         public static PclExport Instance
 #if PCL
           /*attempts to be inferred otherwise needs to be set explicitly by host project*/

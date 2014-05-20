@@ -14,18 +14,25 @@ namespace ServiceStack.Text
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
             var platformName = PclExport.Instance.PlatformName;
+            if (platformName != "WindowsStore")
+            {
+                IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
-            IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
+                IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null;
 
-            IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null;
+                IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
 
-            IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
+                //Throws unhandled exception if not called from the main thread
+                //IsWinRT = AssemblyUtils.FindType("Windows.ApplicationModel") != null;
 
-            IsWinRT = AssemblyUtils.FindType("Windows.ApplicationModel") != null;
+                IsWindowsPhone = AssemblyUtils.FindType("Microsoft.Phone.Info.DeviceStatus") != null;
 
-            IsWindowsPhone = AssemblyUtils.FindType("Microsoft.Phone.Info.DeviceStatus") != null;
-
-            IsSilverlight = AssemblyUtils.FindType("System.Windows.Interop.SilverlightHost") != null;
+                IsSilverlight = AssemblyUtils.FindType("System.Windows.Interop.SilverlightHost") != null;
+            }
+            else
+            {
+                IsWinRT = true;
+            }
 
 #if PCL
             IsUnix = IsMono;
