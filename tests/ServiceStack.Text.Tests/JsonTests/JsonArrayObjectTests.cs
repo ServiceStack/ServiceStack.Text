@@ -69,5 +69,58 @@ namespace ServiceStack.Text.Tests.JsonTests
             var oPretty = prettyJson.FromJson<NamesTest>();
             Assert.That(oPretty.Names.Count, Is.EqualTo(0));
         }
+
+        public class CustomAuth
+        {
+            public string City { get; set; }
+            public int Country { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string ScreenName { get; set; }
+            public long Uid { get; set; }
+        }
+
+        public class CustomAuthResponse
+        {
+            public List<CustomAuth> Response { get; set; }
+        }
+
+        [Test]
+        public void Can_parse_custom_AuthResponse()
+        {
+            var json = @"{ 
+  ""response"" : [ 
+    { ""city"" : 56,
+    ""country"" : 1,
+    ""first_name"" : ""Rouslan"",
+    ""last_name"" : ""Grabar"",
+    ""screen_name"" : ""iamruss2"",
+    ""uid"" : 180423804
+    }
+] 
+}";
+
+            var dto = JsonObject.Parse(json)
+                .ArrayObjects("response")[0].ConvertTo(x =>
+                    new CustomAuth
+                    {
+                        City = x["city"],
+                        Country = x.Get<int>("country"),
+                        FirstName = x["first_name"],
+                        LastName = x["last_name"],
+                        ScreenName = x["screen_name"],
+                        Uid = x.Get<long>("uid"),
+                    });
+
+            dto.PrintDump();
+
+            using (JsConfig.With(
+                emitLowercaseUnderscoreNames: true, 
+                propertyConvention: PropertyConvention.Lenient))
+            {
+                var response = json.FromJson<CustomAuthResponse>();
+                response.PrintDump();
+            }
+        }
     }
 }
