@@ -16,7 +16,7 @@ namespace ServiceStack.Text
         {
             if (!IsUserType) return;
 
-            LicenseUtils.AssertValidUsage(LicenseFeature.Text, QuotaType.Types, JsConfig.__uniqueTypes.Count);
+            LicenseUtils.AssertValidUsage(LicenseFeature.Text, QuotaType.Types, JsConfig.__uniqueTypesCount);
         }
 
         internal TypeConfig(Type type)
@@ -26,7 +26,7 @@ namespace ServiceStack.Text
             Properties = new PropertyInfo[0];
             Fields = new FieldInfo[0];
 
-            JsConfig.__uniqueTypes.Add(Type);
+            JsConfig.AddUniqueType(Type);
         }
     }
 

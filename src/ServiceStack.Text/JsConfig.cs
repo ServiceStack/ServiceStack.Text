@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
@@ -624,7 +625,24 @@ namespace ServiceStack.Text
             methodInfo.Invoke(null, null);
         }
 
-        internal static HashSet<Type> __uniqueTypes = new HashSet<Type>(); 
+        internal static HashSet<Type> __uniqueTypes = new HashSet<Type>();
+        internal static int __uniqueTypesCount = 0;
+
+        internal static void AddUniqueType(Type type)
+        {
+            if (__uniqueTypes.Contains(type))
+                return;
+
+            HashSet<Type> newTypes, snapshot;
+            do
+            {
+                snapshot = __uniqueTypes;
+                newTypes = new HashSet<Type>(__uniqueTypes) { type };
+                __uniqueTypesCount = newTypes.Count;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref __uniqueTypes, newTypes, snapshot), snapshot));
+        }
     }
 
     public class JsConfig<T>
