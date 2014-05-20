@@ -17,7 +17,7 @@ namespace ServiceStack
 
         public WpPclExport()
         {
-            this.PlatformName = "WindowsPhone";
+            this.PlatformName = Platforms.WindowsPhone;
         }
 
         public static PclExport Configure()

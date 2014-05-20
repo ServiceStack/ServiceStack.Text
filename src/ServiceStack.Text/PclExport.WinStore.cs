@@ -16,7 +16,7 @@ namespace ServiceStack
 
         public WinStorePclExport()
         {
-            this.PlatformName = "WindowsStore";
+            this.PlatformName = Platforms.WindowsStore;
         }
 
         public static PclExport Configure()

@@ -50,13 +50,6 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class SerializEmitLowerCaseUnderscoreNamesTests
     {
-        //[SetUp]
-        //public void Reset()
-        //{
-        //    JsConfig.EmitLowercaseUnderscoreNames = false;
-        //    JsConfig<TestObject>.EmitLowercaseUnderscoreNames = null;
-        //}
-
         [Test]
         public void TestJsonDataWithJsConfigScope()
         {

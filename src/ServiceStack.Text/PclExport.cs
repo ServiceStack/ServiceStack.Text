@@ -20,10 +20,14 @@ namespace ServiceStack
 {
     public abstract class PclExport
     {
-        public const string WindowsStore = "WindowsStore";
-        public const string Android = "Android";
-        public const string IOS = "IOS";
-        public const string Silverlight5 = "Silverlight5";
+        public static class Platforms
+        {
+            public const string WindowsStore = "WindowsStore";
+            public const string Android = "Android";
+            public const string IOS = "IOS";
+            public const string Silverlight5 = "Silverlight5";
+            public const string WindowsPhone = "WindowsPhone";
+        }
 
         public static PclExport Instance
 #if PCL

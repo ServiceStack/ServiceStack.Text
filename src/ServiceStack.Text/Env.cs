@@ -14,7 +14,7 @@ namespace ServiceStack.Text
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
             var platformName = PclExport.Instance.PlatformName;
-            if (platformName != "WindowsStore")
+            if (platformName != PclExport.Platforms.WindowsStore)
             {
                 IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
@@ -31,7 +31,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                IsWinRT = true;
+                IsWindowsStore = true;
             }
 
 #if PCL
@@ -59,7 +59,7 @@ namespace ServiceStack.Text
 
         public static bool IsAndroid { get; set; }
 
-        public static bool IsWinRT { get; set; }
+        public static bool IsWindowsStore { get; set; }
 
         public static bool IsSilverlight { get; set; }
 

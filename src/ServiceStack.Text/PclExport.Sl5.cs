@@ -18,7 +18,7 @@ namespace ServiceStack
 
         public Sl5PclExport()
         {
-            this.PlatformName = "Silverlight5";
+            this.PlatformName = Platforms.Silverlight5;
         }
 
         public static PclExport Configure()
