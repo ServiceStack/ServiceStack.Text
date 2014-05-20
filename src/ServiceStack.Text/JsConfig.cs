@@ -792,6 +792,8 @@ namespace ServiceStack.Text
         {
             RawSerializeFn = null;
             DeSerializeFn = null;
+            ExcludePropertyNames = null;
+            EmitCamelCaseNames = EmitLowercaseUnderscoreNames = IncludeTypeInfo = ExcludeTypeInfo = null;
         }    
     }
 
