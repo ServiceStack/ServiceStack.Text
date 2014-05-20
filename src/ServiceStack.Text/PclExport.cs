@@ -23,7 +23,6 @@ namespace ServiceStack
         public const string WindowsStore = "WindowsStore";
         public const string Android = "Android";
         public const string IOS = "IOS";
-        public const string WindowsStore = "WindowsStore";
         public const string Silverlight5 = "Silverlight5";
 
         public static PclExport Instance
