@@ -601,11 +601,9 @@ namespace ServiceStack
             return sb.ToString();
         }
 
-        public static string SafeSubstring(this string value, int length)
+        public static string SafeSubstring(this string value, int startIndex)
         {
-            return String.IsNullOrEmpty(value)
-                ? String.Empty
-                : value.Substring(Math.Min(length, value.Length));
+            return SafeSubstring(value, startIndex, value.Length);
         }
 
         public static string SafeSubstring(this string value, int startIndex, int length)
