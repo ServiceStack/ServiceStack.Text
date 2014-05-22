@@ -186,5 +186,24 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(decoded, Is.EqualTo(text));
         }
+        
+            [Test]
+          public void Can_SafeSubstring_with_no_length {
+          
+          	var input = "TestString";
+          	Assert.That(input.SafeSubstring(0), Is.EqualTo("TestString"));
+          	Assert.That(input.SafeSubstring(2), Is.EqualTo("stString"));
+          	Assert.That(input.SafeSubstring(20), Is.EqualTo(""));
+          }
+          
+          [Test]
+          public void Can_SafeSubstring_with_length {
+          	var input = "TestString";
+          	Assert.That(input.SafeSubstring(0,4), Is.EqualTo("Test"));
+          	Assert.That(input.SafeSubstring(2,4), Is.EqualTo("stSt"));
+          	Assert.That(input.SafeSubstring(20,4), Is.EqualTo(""));
+          	Assert.That(input.SafeSubstring(0,20), Is.EqualTo("TestString"));
+          	
+          }
 	}
 }
