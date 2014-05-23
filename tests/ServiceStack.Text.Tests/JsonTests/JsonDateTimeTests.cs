@@ -633,5 +633,32 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(dates.All(x => x.ToUnixTimeMs() == x.ToUnixTimeMsAlt()));
 	    }
 
+        [Test]
+        public void Does_deserialize_UTC_dates_as_UTC()
+        {
+            JsConfig.AlwaysUseUtc = true;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Utc);
+
+            var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
+            var deserializedDate = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
+            Assert.AreEqual(initialDate, deserializedDate);
+        }
+
+        [Test]
+        public void Does_deserialize_Local_dates_as_UTC()
+        {
+            JsConfig.AlwaysUseUtc = true;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Local);
+
+            var json = JsonSerializer.SerializeToString(initialDate); //"2012-07-25T16:17:00.0000000Z"
+            var deserializedDate = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            var expected = initialDate.ToUniversalTime(); //Convert to UTC
+
+            Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
+            Assert.AreEqual(expected, deserializedDate);
+        }
     }
 }
