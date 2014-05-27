@@ -111,6 +111,12 @@ namespace ServiceStack
             PclExport.Instance.RegisterLicenseFromConfig();
         }
 
+        private static bool hasInit;
+        public static void Init()
+        {
+            hasInit = true; //Dummy method to init static constructor
+        }
+
         public static class ErrorMessages
         {
             private const string UpgradeInstructions = " Please see https://servicestack.net to upgrade to a commercial license or visit https://github.com/ServiceStackV3/ServiceStackV3 to revert back to the free ServiceStack v3.";
