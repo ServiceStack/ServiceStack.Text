@@ -176,6 +176,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StaticAccessorTests.cs" />
     <Compile Include="AdhocModelTests.cs" />
     <Compile Include="AnonymousTypes.cs" />
     <Compile Include="AotTests.cs" />

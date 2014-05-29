@@ -17,6 +17,7 @@ using System.Linq.Expressions;
 #endif
 namespace ServiceStack.Text.Reflection
 {
+    //Also exists in ServiceStack.Common in ServiceStack.Reflection namespace
     public static class StaticAccessors
     {
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
