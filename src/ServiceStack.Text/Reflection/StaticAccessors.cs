@@ -72,7 +72,7 @@ namespace ServiceStack.Text.Reflection
 #if !XBOX
         public static Action<T, object> GetValueSetter<T>(this PropertyInfo propertyInfo)
         {
-            if (typeof(T) != propertyInfo.DeclaringType)
+            if (typeof(T) != propertyInfo.DeclaringType && !typeof(T).IsSubclassOf(propertyInfo.DeclaringType))
             {
                 throw new ArgumentException();
             }
