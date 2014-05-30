@@ -15,6 +15,7 @@ namespace ServiceStack.Text.Tests
 
         public enum EnumWithoutFlags
         {
+            Zero = 0,
             One = 1,
             Two = 2
         }
@@ -22,6 +23,7 @@ namespace ServiceStack.Text.Tests
         [Flags]
         public enum EnumWithFlags
         {
+            Zero = 0,
             One = 1,
             Two = 2
         }
@@ -49,6 +51,24 @@ namespace ServiceStack.Text.Tests
             var text = JsonSerializer.SerializeToString(item);
 
             Assert.AreEqual(expected, text);
+        }
+
+        [Test]
+        public void Can_exclude_default_enums()
+        {
+            var item = new ClassWithEnums
+            {
+                FlagsEnum = EnumWithFlags.Zero,
+                NoFlagsEnum = EnumWithoutFlags.One,
+            };
+
+            Assert.That(item.ToJson(), Is.EqualTo("{\"FlagsEnum\":0,\"NoFlagsEnum\":\"One\"}"));
+
+            JsConfig.IncludeDefaultEnums = false;
+
+            Assert.That(item.ToJson(), Is.EqualTo("{\"NoFlagsEnum\":\"One\"}"));
+
+            JsConfig.Reset();
         }
 
         public void Should_deserialize_enum()
@@ -114,7 +134,6 @@ namespace ServiceStack.Text.Tests
             var map = json.FromJson<Dictionary<AnEnum, int>>();
             Assert.That(map[AnEnum.This], Is.EqualTo(1));
         }
-
     }
 }
 

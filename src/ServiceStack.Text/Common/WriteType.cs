@@ -172,7 +172,8 @@ namespace ServiceStack.Text.Common
                     propertyInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
                     propertyType.GetDefaultValue(),
-                    shouldSerialize
+                    shouldSerialize,
+                    propertyType.IsEnum()
                 );
             }
 
@@ -223,7 +224,8 @@ namespace ServiceStack.Text.Common
                     fieldInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
                     defaultValue,
-                    shouldSerialize
+                    shouldSerialize,
+                    propertyType.IsEnum()
                 );
             }
 
@@ -255,10 +257,11 @@ namespace ServiceStack.Text.Common
             internal readonly WriteObjectDelegate WriteFn;
             internal readonly object DefaultValue;
             internal readonly Func<T, bool> shouldSerialize;
+            internal readonly bool isEnum;
 
             public TypePropertyWriter(string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly, 
                 string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig,bool propertySuppressDefaultAttribute,
-                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, Func<T, bool> shouldSerialize)
+                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, Func<T, bool> shouldSerialize, bool isEnum)
             {
                 this.propertyName = propertyName;
                 this.propertyOrder = propertyOrder;
@@ -271,6 +274,25 @@ namespace ServiceStack.Text.Common
                 this.WriteFn = writeFn;
                 this.DefaultValue = defaultValue;
                 this.shouldSerialize = shouldSerialize;
+                this.isEnum = isEnum;
+            }
+
+            public bool ShouldWriteProperty(object propertyValue)
+            {
+                if (propertySuppressDefaultAttribute && Equals(DefaultValue, propertyValue))
+                    return false;
+
+                if (!Serializer.IncludeNullValues
+                    && (propertyValue == null
+                        || (propertySuppressDefaultConfig && Equals(DefaultValue, propertyValue))))
+                {
+                    return false;
+                }
+
+                if (isEnum && !JsConfig.IncludeDefaultEnums && Equals(DefaultValue, propertyValue))
+                    return false;
+
+                return true;
             }
         }
 
@@ -336,23 +358,15 @@ namespace ServiceStack.Text.Common
                 {
                     var propertyWriter = PropertyWriters[index];
 
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) continue;
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) 
+                        continue;
 
                     var propertyValue = value != null
                         ? propertyWriter.GetterFn((T)value)
                         : null;
                     
-                    if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
-                    {
+                    if (!propertyWriter.ShouldWriteProperty(propertyValue))
                         continue;
-                    }
-                    if ((propertyValue == null 
-                         || (propertyWriter.propertySuppressDefaultConfig && Equals(propertyWriter.DefaultValue, propertyValue)))
-                        && !Serializer.IncludeNullValues
-                        )
-                    {
-                        continue;
-                    }
 
                     if (JsConfig.ExcludePropertyReferences != null
                         && JsConfig.ExcludePropertyReferences.Contains(propertyWriter.propertyReferenceName)) continue;

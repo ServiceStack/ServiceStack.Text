@@ -31,6 +31,7 @@ namespace ServiceStack.Text
             bool? tryToParsePrimitiveTypeValues = null,
 			bool? tryToParseNumericType = null,
             bool? includeNullValues = null,
+            bool? includeDefaultEnums = null,
             bool? excludeTypeInfo = null,
             bool? includeTypeInfo = null,
             bool? emitCamelCaseNames = null,
@@ -58,6 +59,7 @@ namespace ServiceStack.Text
                 TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
                 TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
+                IncludeDefaultEnums = includeDefaultEnums ?? sIncludeDefaultEnums,
                 ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
                 IncludeTypeInfo = includeTypeInfo ?? sIncludeTypeInfo,
                 EmitCamelCaseNames = emitCamelCaseNames ?? sEmitCamelCaseNames,
@@ -132,13 +134,28 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValues: null)
-                    ?? sIncludeNullValues 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValues : null)
+                    ?? sIncludeNullValues
                     ?? false;
             }
             set
             {
                 if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
+            }
+        }
+
+        private static bool? sIncludeDefaultEnums;
+        public static bool IncludeDefaultEnums
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeDefaultEnums : null)
+                    ?? sIncludeDefaultEnums
+                    ?? true;
+            }
+            set
+            {
+                if (!sIncludeDefaultEnums.HasValue) sIncludeDefaultEnums = value;
             }
         }
 
