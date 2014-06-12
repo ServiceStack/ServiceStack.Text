@@ -102,13 +102,13 @@ namespace ServiceStack
 
         public RegexOptions RegexOptions = RegexOptions.None;
 
-        public StringComparison InvariantComparison = StringComparison.CurrentCulture;
+        public StringComparison InvariantComparison = StringComparison.Ordinal;
 
-        public StringComparison InvariantComparisonIgnoreCase = StringComparison.CurrentCultureIgnoreCase;
+        public StringComparison InvariantComparisonIgnoreCase = StringComparison.OrdinalIgnoreCase;
 
-        public StringComparer InvariantComparer = StringComparer.CurrentCulture;
+        public StringComparer InvariantComparer = StringComparer.Ordinal;
 
-        public StringComparer InvariantComparerIgnoreCase = StringComparer.CurrentCultureIgnoreCase;
+        public StringComparer InvariantComparerIgnoreCase = StringComparer.OrdinalIgnoreCase;
 
         public abstract string ReadAllText(string filePath);
 
