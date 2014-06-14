@@ -312,6 +312,14 @@ namespace ServiceStack.Text.Json
 #endif
         }
 
+        public void WriteJsonValue(TextWriter writer, object value)
+        {
+            if (value == null)
+                writer.Write(JsonUtils.Null);
+            else
+                writer.Write(value.ToString());
+        }
+
         public ParseStringDelegate GetParseFn<T>()
         {
             return JsonReader.Instance.GetParseFn<T>();

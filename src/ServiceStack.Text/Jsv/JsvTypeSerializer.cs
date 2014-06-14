@@ -253,6 +253,12 @@ namespace ServiceStack.Text.Jsv
 #endif
         }
 
+	    public void WriteJsonValue(TextWriter writer, object value)
+	    {
+            if (value == null) return;
+	        writer.Write(value.ToString().EncodeJsv());
+	    }
+
 		public object EncodeMapKey(object value)
 		{
 			return value;

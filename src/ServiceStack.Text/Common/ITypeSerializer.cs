@@ -45,7 +45,7 @@ namespace ServiceStack.Text.Common
         void WriteEnum(TextWriter writer, object enumValue);
         void WriteEnumFlags(TextWriter writer, object enumFlagValue);
         void WriteLinqBinary(TextWriter writer, object linqBinaryValue);
-
+        void WriteJsonValue(TextWriter writer, object jsonValue);
         //object EncodeMapKey(object value);
 
         ParseStringDelegate GetParseFn<T>();
