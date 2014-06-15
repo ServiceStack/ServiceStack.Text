@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServiceStack
 {
@@ -64,7 +66,7 @@ namespace ServiceStack
 
             //Methods others than GET and POST are only supported by Client request creator, see
             //http://msdn.microsoft.com/en-us/library/cc838250(v=vs.95).aspx
-            if (req.GetType().Name != "BrowserHttpWebRequest") return;
+            if (!IsBrowserHttp(req)) return;
             if (req.Method != "GET" && req.Method != "POST")
             {
                 req.Headers[HttpHeaders.XHttpMethodOverride] = req.Method;
@@ -79,6 +81,19 @@ namespace ServiceStack
                 : System.Net.Browser.WebRequestCreator.ClientHttp;
 
             return (HttpWebRequest)creator.Create(new Uri(requestUri));
+        }
+
+        private static bool IsBrowserHttp(WebRequest req)
+        {
+            return req.GetType().Name == "BrowserHttpWebRequest";
+        }
+
+        public override WebResponse GetResponse(WebRequest webRequest)
+        {
+            var task = webRequest.GetResponseAsync();
+            task.Wait();
+            var webRes = task.Result;
+            return webRes;
         }
     }
 }
