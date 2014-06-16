@@ -9,22 +9,26 @@ namespace ServiceStack
 {
     public static class StreamExtensions
     {
-        public static void WriteTo(this Stream inStream, Stream outStream)
+        public static long WriteTo(this Stream inStream, Stream outStream)
         {
             var memoryStream = inStream as MemoryStream;
             if (memoryStream != null)
             {
                 memoryStream.WriteTo(outStream);
-                return;
+                return memoryStream.Position;
             }
 
             var data = new byte[4096];
+            long total = 0;
             int bytesRead;
 
             while ((bytesRead = inStream.Read(data, 0, data.Length)) > 0)
             {
                 outStream.Write(data, 0, bytesRead);
+                total += bytesRead;
             }
+
+            return total;
         }
 
         public static IEnumerable<string> ReadLines(this Stream stream)
@@ -110,22 +114,22 @@ namespace ServiceStack
         /// <summary>
         /// Copies all the data from one stream into another.
         /// </summary>
-        public static void CopyTo(this Stream input, Stream output)
+        public static long CopyTo(this Stream input, Stream output)
         {
-            CopyTo(input, output, DefaultBufferSize);
+            return CopyTo(input, output, DefaultBufferSize);
         }
 
         /// <summary>
         /// Copies all the data from one stream into another, using a buffer
         /// of the given size.
         /// </summary>
-        public static void CopyTo(this Stream input, Stream output, int bufferSize)
+        public static long CopyTo(this Stream input, Stream output, int bufferSize)
         {
             if (bufferSize < 1)
             {
                 throw new ArgumentOutOfRangeException("bufferSize");
             }
-            CopyTo(input, output, new byte[bufferSize]);
+            return CopyTo(input, output, new byte[bufferSize]);
         }
 
         /// <summary>
@@ -133,7 +137,7 @@ namespace ServiceStack
         /// buffer for transferring data. Note that the current contents of 
         /// the buffer is ignored, so the buffer needn't be cleared beforehand.
         /// </summary>
-        public static void CopyTo(this Stream input, Stream output, byte[] buffer)
+        public static long CopyTo(this Stream input, Stream output, byte[] buffer)
         {
             if (buffer == null)
             {
@@ -151,11 +155,14 @@ namespace ServiceStack
             {
                 throw new ArgumentException("Buffer has length of 0");
             }
+            long total = 0;
             int read;
             while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
             {
                 output.Write(buffer, 0, read);
+                total += read;
             }
+            return total;
         }
 
         /// <summary>
