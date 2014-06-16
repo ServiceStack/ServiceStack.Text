@@ -76,24 +76,77 @@ namespace ServiceStack.Text
 			return DeserializeFromString(reader.ReadToEnd(), type);
 		}
 
+        [ThreadStatic] //Reuse the thread static StringBuilder when serializing to strings
+        private static StringBuilderWriter LastWriter;
+
+        internal class StringBuilderWriter : IDisposable
+        {
+            protected StringBuilder sb;
+            protected StringWriter writer;
+
+            public StringWriter Writer
+            {
+                get { return writer; }
+            }
+
+            public StringBuilderWriter()
+            {
+                this.sb = new StringBuilder();
+                this.writer = new StringWriter(sb, CultureInfo.InvariantCulture);
+            }
+
+            public static StringBuilderWriter Create()
+            {
+                var ret = LastWriter;
+                if (JsConfig.ReuseStringBuffer && ret != null)
+                {
+                    LastWriter = null;
+                    ret.sb.Clear();
+                    return ret;
+                }
+
+                return new StringBuilderWriter();
+            }
+
+            public override string ToString()
+            {
+                return sb.ToString();
+            }
+
+            public void Dispose()
+            {
+                if (JsConfig.ReuseStringBuffer)
+                {
+                    LastWriter = this;
+                }
+                else
+                {
+                    Writer.Dispose();
+                }
+            }
+        }
+
 		public static string SerializeToString<T>(T value)
 		{
-			if (value == null || value is Delegate) return null;
-			if (typeof(T) == typeof(string)) return value as string;
-            if (typeof(T) == typeof(object) || typeof(T).IsAbstract() || typeof(T).IsInterface())
+            if (value == null || value is Delegate) return null;
+            if (typeof(T) == typeof(object))
             {
-                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = true;
+                return SerializeToString(value, value.GetType());
+            }
+            if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            {
+                JsState.IsWritingDynamic = true;
                 var result = SerializeToString(value, value.GetType());
-                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = false;
+                JsState.IsWritingDynamic = false;
                 return result;
             }
 
-			var sb = new StringBuilder();
-			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
-			{
-                JsvWriter<T>.WriteRootObject(writer, value);
-			}
-			return sb.ToString();
+            using (var sb = StringBuilderWriter.Create())
+            {
+                JsvWriter<T>.WriteRootObject(sb.Writer, value);
+
+                return sb.ToString();
+            }
 		}
 
 		public static string SerializeToString(object value, Type type)
@@ -101,12 +154,12 @@ namespace ServiceStack.Text
 			if (value == null) return null;
 			if (type == typeof(string)) return value as string;
 
-			var sb = new StringBuilder();
-			using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
-			{
-				JsvWriter.GetWriteFn(type)(writer, value);
-			}
-			return sb.ToString();
+            using (var sb = StringBuilderWriter.Create())
+            {
+                JsvWriter.GetWriteFn(type)(sb.Writer, value);
+
+                return sb.ToString();
+            }
 		}
 
 		public static void SerializeToWriter<T>(T value, TextWriter writer)
@@ -115,17 +168,21 @@ namespace ServiceStack.Text
 			if (typeof(T) == typeof(string))
 			{
 				writer.Write(value);
-				return;
 			}
-			if (typeof(T) == typeof(object))
-			{
-                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = true;
+            else if (typeof(T) == typeof(object))
+            {
                 SerializeToWriter(value, value.GetType(), writer);
-                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = false;
-                return;
-			}
-
-            JsvWriter<T>.WriteRootObject(writer, value);
+            }
+            else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            {
+                JsState.IsWritingDynamic = false;
+                SerializeToWriter(value, value.GetType(), writer);
+                JsState.IsWritingDynamic = true;
+            }
+            else
+            {
+                JsvWriter<T>.WriteRootObject(writer, value);
+            }
 		}
 
 		public static void SerializeToWriter(object value, Type type, TextWriter writer)
@@ -143,17 +200,22 @@ namespace ServiceStack.Text
 		public static void SerializeToStream<T>(T value, Stream stream)
 		{
 			if (value == null) return;
-			if (typeof(T) == typeof(object))
-			{
-                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = true;
+            if (typeof(T) == typeof(object))
+            {
                 SerializeToStream(value, value.GetType(), stream);
-                if (typeof(T).IsAbstract() || typeof(T).IsInterface()) JsState.IsWritingDynamic = false;
-                return;
-			}
-
-			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
-            JsvWriter<T>.WriteRootObject(writer, value);
-			writer.Flush();
+            }
+            else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            {
+                JsState.IsWritingDynamic = false;
+                SerializeToStream(value, value.GetType(), stream);
+                JsState.IsWritingDynamic = true;
+            }
+            else
+            {
+                var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+                JsvWriter<T>.WriteRootObject(writer, value);
+                writer.Flush();
+            }
 		}
 
 		public static void SerializeToStream(object value, Type type, Stream stream)
