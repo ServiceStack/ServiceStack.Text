@@ -42,6 +42,7 @@
     <Compile Include="AutoMappingUtils.cs" />
     <Compile Include="Build.Silverlight.cs" />
     <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="Common\DeserializeCustomGenericType.cs" />
     <Compile Include="Common\DeserializeKeyValuePair.cs" />
     <Compile Include="IStringSerializer.cs" />
     <Compile Include="Pcl.Dynamic.cs" />

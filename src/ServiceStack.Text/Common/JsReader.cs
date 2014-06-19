@@ -75,6 +75,10 @@ namespace ServiceStack.Text.Common
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
                     return DeserializeEnumerable<T, TSerializer>.Parse;
+
+                var customFn = DeserializeCustomGenericType<TSerializer>.GetParseMethod(type);
+                if (customFn != null)
+                    return customFn;
             }
 
 			var pclParseFn = PclExport.Instance.GetJsReaderParseMethod<TSerializer>(typeof(T));
