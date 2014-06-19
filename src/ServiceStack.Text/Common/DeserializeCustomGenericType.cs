@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
@@ -40,7 +41,8 @@ namespace ServiceStack.Text.Common
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
             }
 
-            var ctor = tupleType.GetConstructor(genericArgs);
+            var ctor = tupleType.DeclaredConstructors()
+                .First(x => x.GetParameters().Length == genericArgs.Length);
             return ctor.Invoke(argValues);
         }
     }
