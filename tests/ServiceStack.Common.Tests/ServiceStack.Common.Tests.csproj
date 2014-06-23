@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3FA9197A-462D-44CC-9AB3-61AF414D0B45}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ServiceStack.Common.Tests</RootNamespace>
+    <AssemblyName>ServiceStack.Common.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'STATIC_ONLY NO_EXPRESSIONS|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>bin\monotouch\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STATIC_ONLY NO_EXPRESSIONS</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MonoTouch|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>bin\MonoTouch\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STATIC_ONLY NO_EXPRESSIONS</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Moq">
+      <HintPath>..\..\lib\tests\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Redis">
+      <HintPath>..\..\lib\ServiceStack.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\lib\tests\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\..\lib\ServiceStack.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="Northwind.Common">
+      <HintPath>..\..\lib\tests\Northwind.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data.Sqlite">
+      <HintPath>..\..\lib\tests\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite">
+      <HintPath>..\..\lib\ServiceStack.OrmLite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.Sqlite">
+      <HintPath>..\..\lib\ServiceStack.OrmLite.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.SqlServer">
+      <HintPath>..\..\lib\ServiceStack.OrmLite.SqlServer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\AppSettingsTests.cs" />
+    <Compile Include="CryptUtilTest.cs" />
+    <Compile Include="EndpointHandlerBaseTests.cs" />
+    <Compile Include="FluentValidation\ErrorCodeTests.cs" />
+    <Compile Include="FunqTests.cs" />
+    <Compile Include="MappingTests.cs" />
+    <Compile Include="MessagingTests.cs" />
+    <Compile Include="Messaging\RedisMqServerTests.cs" />
+    <Compile Include="Models\ModelWithNamedCompositeIndex.cs" />
+    <Compile Include="Models\DdnContentIngest.cs" />
+    <Compile Include="EnumerableExtensionsTests.cs" />
+    <Compile Include="IdUtilsTests.cs" />
+    <Compile Include="Models\IModelFactory.cs" />
+    <Compile Include="Models\ModelFactoryBase.cs" />
+    <Compile Include="Models\ModelWithComplexTypesFactory.cs" />
+    <Compile Include="Models\ModelWithFieldsOfDifferentAndNullableTypesFactory.cs" />
+    <Compile Include="Models\ModelWithFieldsOfDifferentTypesFactory.cs" />
+    <Compile Include="Models\ModelWithFieldsOfNullableTypesFactory.cs" />
+    <Compile Include="Models\ModelWithMapAndList.cs" />
+    <Compile Include="Models\Movie.cs" />
+    <Compile Include="Models\Poco.cs" />
+    <Compile Include="Models\Shipper.cs" />
+    <Compile Include="Models\ShipperFactory.cs" />
+    <Compile Include="Models\BuiltInsFactory.cs" />
+    <Compile Include="OAuth\OAuthUserSessionTests.cs" />
+    <Compile Include="OAuth\OrmLiteUserAuthTests.cs" />
+    <Compile Include="OAuth\RegistrationServiceTests.cs" />
+    <Compile Include="OAuth\CredentialsServiceTests.cs" />
+    <Compile Include="OAuth\MockAuthHttpGateway.cs" />
+    <Compile Include="OAuth\OAuthUserSessionWithoutTestSourceTests.cs" />
+    <Compile Include="OAuth\RequiredRolesTests.cs" />
+    <Compile Include="Perf\DateTimePerf.cs" />
+    <Compile Include="Perf\IdUtilsPerf.cs" />
+    <Compile Include="Perf\PropertyAccessorPerf.cs" />
+    <Compile Include="Perf\ReflectionTests.cs" />
+    <Compile Include="Perf\TextSerializerComparisons.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="QueryStringSerializerTests.cs" />
+    <Compile Include="ReflectionExtensionsTests.cs" />
+    <Compile Include="Reflection\PropertyAccessorTests.cs" />
+    <Compile Include="Expressions\DelegateFactoryTests.cs" />
+    <Compile Include="Expressions\ExpressionTests.cs" />
+    <Compile Include="Models\ModelWithComplexTypes.cs" />
+    <Compile Include="Models\ModelWithCompositeIndexFields.cs" />
+    <Compile Include="Models\ModelWithFieldsOfDifferentAndNullableTypes.cs" />
+    <Compile Include="Models\ModelWithFieldsOfDifferentTypes.cs" />
+    <Compile Include="Models\ModelWithFieldsOfNullableTypes.cs" />
+    <Compile Include="Models\ModelWithIdAndName.cs" />
+    <Compile Include="Models\ModelWithIdOnly.cs" />
+    <Compile Include="Models\ModelWithIndexFields.cs" />
+    <Compile Include="Models\ModelWithLongIdAndStringFields.cs" />
+    <Compile Include="Models\ModelWithOnlyStringFields.cs" />
+    <Compile Include="Models\SampleOrderLine.cs" />
+    <Compile Include="Models\TaskQueue.cs" />
+    <Compile Include="Perf\AdhocFastPerfTests.cs" />
+    <Compile Include="Perf\ToStringPerf.cs" />
+    <Compile Include="PerfTestBase.cs" />
+    <Compile Include="Perf\StringParsePerf.cs" />
+    <Compile Include="ServiceClient.Web\HtmlServiceClient.cs" />
+    <Compile Include="ServiceClient.Web\ServiceClientBaseTester.cs" />
+    <Compile Include="ServiceClient.Web\ServiceClientBaseTests.cs" />
+    <Compile Include="ServiceClient.Web\UrlExtensionsTests.cs" />
+    <Compile Include="StreamExtensionsTests.cs" />
+    <Compile Include="StringExtensionTests.cs" />
+    <Compile Include="ReflectionUtilTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Text\AdhocJsTests.cs" />
+    <Compile Include="OAuth\OAuthUserSessionTestsBase.cs" />
+    <Compile Include="UrlExtensionTests.cs" />
+    <Compile Include="Xlinq\XlinqExtensionsTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ServiceStack.Common\ServiceStack.Common.csproj">
+      <Project>{982416DB-C143-4028-A0C3-CF41892D18D3}</Project>
+      <Name>ServiceStack.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj">
+      <Project>{42E1C8C0-A163-44CC-92B1-8F416F2C0B01}</Project>
+      <Name>ServiceStack.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\ServiceStack.ServiceInterface\ServiceStack.ServiceInterface.csproj">
+      <Project>{5A315F92-80D2-4C60-A5A4-22E027AC7E7E}</Project>
+      <Name>ServiceStack.ServiceInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\ServiceStack\ServiceStack.csproj">
+      <Project>{680A1709-25EB-4D52-A87F-EE03FFD94BAA}</Project>
+      <Name>ServiceStack</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Models\DdnContentIngest\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Sql.Server.Express.10.0">
+      <Visible>False</Visible>
+      <ProductName>SQL Server 2008 Express</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\lib\sqlite3.dll">
+      <Link>sqlite3.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

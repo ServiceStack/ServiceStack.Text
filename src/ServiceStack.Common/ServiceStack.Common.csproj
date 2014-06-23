@@ -1,0 +1,501 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{982416DB-C143-4028-A0C3-CF41892D18D3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ServiceStack.Common</RootNamespace>
+    <AssemblyName>ServiceStack.Common</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\Release\ServiceStack.Common.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'STATIC_ONLY NO_EXPRESSIONS|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>bin\MonoTouch\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MonoTouch|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>bin\MonoTouch\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONOTOUCH</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\..\lib\ServiceStack.Text.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActionExecExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssertExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ByteArrayExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CryptUtils.cs" />
+    <Compile Include="DictionaryExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DirectoryInfoExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DisposableExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EnumerableExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EnumExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ExecExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Expressions\DelegateFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\ActionExecExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\AssertExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\ByteArrayExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\CollectionExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\DictionaryExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\EnumerableExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\IntExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\ITranslatorExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\StringExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HostContext.cs" />
+    <Compile Include="IntExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IPAddressExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\ClientFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\IMessageHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\IMessageHandlerDisposer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\IMessageHandlerFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\InMemoryMessageQueueClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\InMemoryTransientMessageFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\InMemoryTransientMessageService.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\MessageExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\MessageHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\MessageHandlerFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\MessageQueueClientFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Rcon\Client.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Rcon\Packet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Rcon\PacketCodec.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Rcon\PacketProcessingClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Rcon\Server.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\TransientMessageServiceBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\RouteMember.cs" />
+    <Compile Include="ServiceModel\MetadataTypes.cs" />
+    <Compile Include="Model.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ModelConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net30\ConcurrentDictionary.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net30\ConcurrentQueue.cs" />
+    <Compile Include="Net30\ObjectPool.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net30\SplitOrderedList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net30\Tuple.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Reflection\PropertyAccessor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Reflection\StaticAccessors.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\AsyncServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\AuthDtos.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\DictionaryExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\GenericProxy.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\HttpMethod.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\IDuplex.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\IDuplexCallback.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\IOneWay.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\ISyncReply.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\IWcfServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\JsonRestClientAsync.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\JsonServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\JsvRestClientAsync.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\JsvServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\ServiceClientBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\Soap11ServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\Soap12ServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\UrlExtensions.cs" />
+    <Compile Include="ServiceClient.Web\WcfServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\WebRequestExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\WebRequestUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\WebServiceException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\XLinqExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\XmlRestClientAsync.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceClient.Web\XmlServiceClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\DictionaryExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\DataContractDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\DataContractSerializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\JsonDataContractDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\JsonDataContractSerializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\KeyValueDataContractDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\StringMapTypeDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\XmlSerializableDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Serialization\XmlSerializableSerializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Support\XmlSerializableWrapper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Validation\ValidationError.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Validation\ValidationErrorField.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\Validation\ValidationErrorResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceModel\XLinqExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StreamExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringUtils.cs" />
+    <Compile Include="Support\ActionExecHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\AdapterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\AssignmentDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\CommandExecsHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\CommandResultsHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\InMemoryLogFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\LogicFacadeBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\NetDeflateProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\NetGZipProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\PropertyInvoker.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Support\Thread.WinRT.cs" />
+    <Compile Include="TypeExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UrnId.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\AssertUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\CommandsUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\ResponseStatusUtils.cs" />
+    <Compile Include="Utils\FuncUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\IdUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\PathUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\PerfUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\ReflectionUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\CompressedFileResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\CompressedResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\CompressionTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\ContentType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\EndPoint.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\HttpError.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\HttpHeaders.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\HttpMethods.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\HttpResponseFilter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\HttpResponseStreamWrapper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\HttpResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\HttpResultExtensions.cs" />
+    <Compile Include="Web\MimeTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RequestContextExtensions.cs" />
+    <Compile Include="Web\SerializationContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\CustomExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj">
+      <Project>{42E1C8C0-A163-44CC-92B1-8F416F2C0B01}</Project>
+      <Name>ServiceStack.Interfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

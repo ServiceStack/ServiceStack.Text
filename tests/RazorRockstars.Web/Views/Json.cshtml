@@ -1,0 +1,10 @@
+﻿@inherits ServiceStack.Razor.ViewPage<RockstarsResponse>
+
+@{
+    Layout = "Empty";
+    ViewBag.Title = "Test Encoding";
+}
+
+<script type="text/javascript">
+    var response = @Model.AsRawJson();
+</script>
