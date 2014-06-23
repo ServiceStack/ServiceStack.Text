@@ -312,6 +312,9 @@ namespace ServiceStack.Text.Common
             if (type == typeof(decimal) || type == typeof(decimal?))
                 return Serializer.WriteDecimal;
 
+            if (type == typeof(JsonValue))
+                return Serializer.WriteJsonValue;
+
             if (type.IsUnderlyingEnum())
                 return type.FirstAttribute<FlagsAttribute>(false) != null
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
@@ -332,9 +335,10 @@ namespace ServiceStack.Text.Common
         internal WriteObjectDelegate GetWriteFn<T>()
         {
             if (typeof(T) == typeof(string))
-            {
                 return Serializer.WriteObjectString;
-            }
+
+            if (typeof(T) == typeof(JsonValue))
+                return Serializer.WriteJsonValue;
 
             var onSerializingFn = JsConfig<T>.OnSerializingFn;
             if (onSerializingFn != null)
