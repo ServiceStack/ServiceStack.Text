@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using ServiceStack.Text.Reflection;
+using ServiceStack.Reflection;
 
 namespace ServiceStack.Text.Tests
 {

@@ -15,7 +15,7 @@ using System.Reflection;
 #if !XBOX
 using System.Linq.Expressions;
 #endif
-namespace ServiceStack.Text.Reflection
+namespace ServiceStack.Reflection
 {
     //Also exists in ServiceStack.Common in ServiceStack.Reflection namespace
     public static class StaticAccessors

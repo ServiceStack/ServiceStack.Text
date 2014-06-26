@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ServiceStack.Reflection;
 using ServiceStack.Text.Common;
-using ServiceStack.Text.Reflection;
 
 namespace ServiceStack.Text
 {

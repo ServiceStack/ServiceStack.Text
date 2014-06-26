@@ -15,8 +15,8 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using ServiceStack.Reflection;
 using ServiceStack.Text.Json;
-using ServiceStack.Text.Reflection;
 
 namespace ServiceStack.Text.Common
 {

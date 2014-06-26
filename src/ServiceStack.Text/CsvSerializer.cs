@@ -5,9 +5,9 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using ServiceStack.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
-using ServiceStack.Text.Reflection;
 
 namespace ServiceStack.Text
 {
