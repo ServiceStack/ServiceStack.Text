@@ -51,10 +51,12 @@ namespace ServiceStack.Text.Reflection
 			if (getMethodInfo == null) return null;
 			return x => getMethodInfo.Invoke(x, new object[0]);
 #else
-            var instance = Expression.Parameter(propertyInfo.DeclaringType, "i");
-            var property = Expression.Property(instance, propertyInfo);
-            var convert = Expression.TypeAs(property, typeof(object));
-            return Expression.Lambda<Func<T, object>>(convert, instance).Compile();
+            var instance = Expression.Parameter(typeof(T), "i");
+            var property = typeof(T) != propertyInfo.DeclaringType
+                ? Expression.Property(Expression.TypeAs(instance, propertyInfo.DeclaringType), propertyInfo)
+                : Expression.Property(instance, propertyInfo);
+            var convertProperty = Expression.TypeAs(property, typeof(object));
+            return Expression.Lambda<Func<T, object>>(convertProperty, instance).Compile();
 #endif
         }
 
@@ -63,27 +65,49 @@ namespace ServiceStack.Text.Reflection
 #if (SL5 && !WP) || __IOS__ || XBOX
             return x => fieldInfo.GetValue(x);
 #else
-            var instance = Expression.Parameter(fieldInfo.DeclaringType, "i");
-            var property = Expression.Field(instance, fieldInfo);
-            var convert = Expression.TypeAs(property, typeof(object));
-            return Expression.Lambda<Func<T, object>>(convert, instance).Compile();
+
+            var instance = Expression.Parameter(typeof(T), "i");
+            var field = typeof(T) != fieldInfo.DeclaringType
+                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
+                : Expression.Field(instance, fieldInfo);
+            var convertField = Expression.TypeAs(field, typeof(object));
+            return Expression.Lambda<Func<T, object>>(convertField, instance).Compile();
 #endif
         }
 
 #if !XBOX
         public static Action<T, object> GetValueSetter<T>(this PropertyInfo propertyInfo)
         {
-            if (typeof(T) != propertyInfo.DeclaringType)
-            {
-                throw new ArgumentException();
-            }
-
-            var instance = Expression.Parameter(propertyInfo.DeclaringType, "i");
+            var instance = Expression.Parameter(typeof(T), "i");
             var argument = Expression.Parameter(typeof(object), "a");
+
+            var instanceType = typeof(T) != propertyInfo.DeclaringType
+                ? (Expression)Expression.TypeAs(instance, propertyInfo.DeclaringType)
+                : instance;
+
             var setterCall = Expression.Call(
-                instance,
+                instanceType,
                 propertyInfo.SetMethod(),
                 Expression.Convert(argument, propertyInfo.PropertyType));
+
+            return Expression.Lambda<Action<T, object>>
+            (
+                setterCall, instance, argument
+            ).Compile();
+        }
+
+        public static Action<T, object> GetValueSetter<T>(this FieldInfo fieldInfo)
+        {
+            var instance = Expression.Parameter(typeof(T), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var field = typeof(T) != fieldInfo.DeclaringType
+                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
+                : Expression.Field(instance, fieldInfo);
+
+            var setterCall = Expression.Assign(
+                field,
+                Expression.Convert(argument, fieldInfo.FieldType));
 
             return Expression.Lambda<Action<T, object>>
             (
