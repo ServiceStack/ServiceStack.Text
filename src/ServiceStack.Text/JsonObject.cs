@@ -151,7 +151,12 @@ namespace ServiceStack.Text
 		}
 	}
 
-    public struct JsonValue
+    public interface IValueWriter
+    {
+        void WriteTo(ITypeSerializer serializer, TextWriter writer);
+    }
+
+    public struct JsonValue : IValueWriter
     {
         private readonly string json;
 
@@ -168,6 +173,11 @@ namespace ServiceStack.Text
         public override string ToString()
         {
             return json;
+        }
+
+        public void WriteTo(ITypeSerializer serializer, TextWriter writer)
+        {
+            writer.Write(json ?? JsonUtils.Null);
         }
     }
 

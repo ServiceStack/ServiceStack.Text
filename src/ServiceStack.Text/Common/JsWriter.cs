@@ -237,8 +237,11 @@ namespace ServiceStack.Text.Common
                     ? (WriteObjectDelegate)Serializer.WriteEnumFlags
                     : Serializer.WriteEnum;
 
-            if (type.HasInterface(typeof (IFormattable)))
+            if (type.HasInterface(typeof(IFormattable)))
                 return Serializer.WriteFormattableObjectString;
+
+            if (type.HasInterface(typeof(IValueWriter)))
+                return WriteValue;
 
             return Serializer.WriteObjectString;
         }
@@ -262,6 +265,12 @@ namespace ServiceStack.Text.Common
             }
 
             return GetCoreWriteFn<T>();
+        }
+
+        public void WriteValue(TextWriter writer, object value)
+        {
+            var valueWriter = (IValueWriter)value;
+            valueWriter.WriteTo(Serializer, writer);
         }
 
         private WriteObjectDelegate GetCoreWriteFn<T>()
@@ -341,6 +350,9 @@ namespace ServiceStack.Text.Common
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
             }
 
+            if (typeof(T).HasInterface(typeof (IValueWriter)))
+                return WriteValue;
+
             if (typeof(T).IsClass() || typeof(T).IsInterface() || JsConfig.TreatAsRefType(typeof(T)))
             {
                 var typeToStringMethod = WriteType<T, TSerializer>.Write;
@@ -374,6 +386,5 @@ namespace ServiceStack.Text.Common
         {
             Serializer.WriteRawString(writer, JsConfig.TypeWriter((Type)value));
         }
-
     }
 }
