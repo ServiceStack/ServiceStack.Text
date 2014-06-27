@@ -138,32 +138,82 @@ namespace ServiceStack.Text.Tests.Support
 						|| typeof(T) != typeof(double) || typeof(T) != typeof(double?)
 						|| typeof(T) != typeof(decimal) || typeof(T) != typeof(decimal?);
 			}
+
+            internal static bool TestTypeCode()
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+                switch (underlyingType.GetTypeCode())
+                {
+                    case TypeCode.SByte:
+                    case TypeCode.Byte:
+                    case TypeCode.Int16:
+                    case TypeCode.UInt16:
+                    case TypeCode.Int32:
+                    case TypeCode.UInt32:
+                    case TypeCode.Int64:
+                    case TypeCode.UInt64:
+                    case TypeCode.Single:
+                    case TypeCode.Double:
+                    case TypeCode.Decimal:
+                    case TypeCode.DateTime:
+                        return true;
+                }
+
+                return underlyingType == typeof(Guid);
+            }
 		}
 
+        [Test]
+        public void TestVarOrGenericType()
+        {
+            var matchingTypesCount = 0;
 
-		[Test]
-		public void TestVarOrGenericType()
-		{
-			var matchingTypesCount = 0;
+            CompareMultipleRuns(
+                "With var type",
+                () =>
+                {
+                    if (RuntimeType<BenchmarkTests>.TestVarType())
+                    {
+                        matchingTypesCount++;
+                    }
+                },
+                "With generic type",
+                () =>
+                {
+                    if (RuntimeType<BenchmarkTests>.TestGenericType())
+                    {
+                        matchingTypesCount++;
+                    }
+                });
 
-			CompareMultipleRuns(
-				"With var type",
-				() => {
-					if (RuntimeType<BenchmarkTests>.TestVarType())
-					{
-						matchingTypesCount++;
-					}
-				},
-				"With generic type",
-				() => {
-					if (RuntimeType<BenchmarkTests>.TestGenericType())
-					{
-						matchingTypesCount++;
-					}
-				});
+            Console.WriteLine(matchingTypesCount);
+        }
 
-			Console.WriteLine(matchingTypesCount);
-		}
+        [Test]
+        public void TestGenericTypeOrTypeCode()
+        {
+            var matchingTypesCount = 0;
+
+            CompareMultipleRuns(
+                "With type code",
+                () =>
+                {
+                    if (RuntimeType<BenchmarkTests>.TestTypeCode())
+                    {
+                        matchingTypesCount++;
+                    }
+                },
+                "With generic type",
+                () =>
+                {
+                    if (RuntimeType<BenchmarkTests>.TestGenericType())
+                    {
+                        matchingTypesCount++;
+                    }
+                });
+
+            Console.WriteLine(matchingTypesCount);
+        }
 
 		[Test]
 		public void Test_for_list_enumeration()

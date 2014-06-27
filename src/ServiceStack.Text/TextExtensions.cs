@@ -13,7 +13,6 @@
 using System;
 using System.Collections.Generic;
 using ServiceStack.Text;
-using ServiceStack.Text.Common;
 
 namespace ServiceStack
 {
@@ -22,25 +21,25 @@ namespace ServiceStack
         public static string ToCsvField(this string text)
         {
             return string.IsNullOrEmpty(text) || !CsvWriter.HasAnyEscapeChars(text)
-                       ? text
-                       : string.Concat
-                             (
-                                 CsvConfig.ItemDelimiterString,
-                                 text.Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
-                                 CsvConfig.ItemDelimiterString
-                             );
+                ? text
+                : string.Concat
+                        (
+                            CsvConfig.ItemDelimiterString,
+                            text.Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
+                            CsvConfig.ItemDelimiterString
+                        );
         }
 
         public static object ToCsvField(this object text)
         {
             return text == null || !CsvWriter.HasAnyEscapeChars(text.ToString())
-                       ? text
-                       : string.Concat
-                             (
-                                 CsvConfig.ItemDelimiterString,
-                                 text.ToString().Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
-                                 CsvConfig.ItemDelimiterString
-                             );
+                ? text
+                : string.Concat
+                        (
+                            CsvConfig.ItemDelimiterString,
+                            text.ToString().Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
+                            CsvConfig.ItemDelimiterString
+                        );
         }
 
 	    public static string FromCsvField(this string text)
