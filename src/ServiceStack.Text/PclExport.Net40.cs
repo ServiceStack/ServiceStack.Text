@@ -1445,6 +1445,8 @@ namespace ServiceStack.Text.FastMember
             foreach (PropertyInfo prop in props)
             {
                 if (prop.GetIndexParameters().Length != 0 || !prop.CanRead) continue;
+                var getFn = prop.GetGetMethod();
+                if (getFn == null) continue; //Mono
 
                 Label next = il.DefineLabel();
                 il.Emit(propName);
@@ -1454,7 +1456,7 @@ namespace ServiceStack.Text.FastMember
                 // match:
                 il.Emit(target);
                 Cast(il, type, loc);
-                il.EmitCall(type.IsValueType ? OpCodes.Call : OpCodes.Callvirt, prop.GetGetMethod(), null);
+                il.EmitCall(type.IsValueType ? OpCodes.Call : OpCodes.Callvirt, getFn, null);
                 if (prop.PropertyType.IsValueType)
                 {
                     il.Emit(OpCodes.Box, prop.PropertyType);
@@ -1503,6 +1505,8 @@ namespace ServiceStack.Text.FastMember
                 foreach (PropertyInfo prop in props)
                 {
                     if (prop.GetIndexParameters().Length != 0 || !prop.CanWrite) continue;
+                    var setFn = prop.GetSetMethod();
+                    if (setFn == null) continue; //Mono
 
                     Label next = il.DefineLabel();
                     il.Emit(propName);
@@ -1514,7 +1518,7 @@ namespace ServiceStack.Text.FastMember
                     Cast(il, type, loc);
                     il.Emit(value);
                     Cast(il, prop.PropertyType, null);
-                    il.EmitCall(type.IsValueType ? OpCodes.Call : OpCodes.Callvirt, prop.GetSetMethod(), null);
+                    il.EmitCall(type.IsValueType ? OpCodes.Call : OpCodes.Callvirt, setFn, null);
                     il.Emit(OpCodes.Ret);
                     // not match:
                     il.MarkLabel(next);
