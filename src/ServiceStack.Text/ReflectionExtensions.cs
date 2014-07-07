@@ -633,6 +633,7 @@ namespace ServiceStack
 
         public const string DataMember = "DataMemberAttribute";
         public const string IgnoreDataMember = "IgnoreDataMemberAttribute";
+        public const string JsonIgnoreMembar = "JsonIgnoreAttribute";
 
         public static PropertyInfo[] GetSerializableProperties(this Type type)
         {
@@ -647,8 +648,12 @@ namespace ServiceStack
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicReadableProperties
-                .Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember))
-                .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.PropertyType))
+                .Where( prop => prop.AllAttributes().All( attr =>
+                    {
+                        var name = attr.GetType().Name;
+                        return name != IgnoreDataMember && name != JsonIgnoreMembar;
+                    } ) )
+                .Where( prop => !JsConfig.ExcludeTypes.Contains( prop.PropertyType ) )
                 .ToArray();
         }
 
