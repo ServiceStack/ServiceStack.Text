@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels.DataModel;
@@ -500,6 +501,60 @@ namespace ServiceStack.Text.Tests
             IDictionary<string, object> dict = expando;
             Assert.AreEqual(dict.Dump(), new Dictionary<string, object>(dict).Dump());
         }
+
+        [Test]
+        public void Can_serialize_OrderedDictionary()
+        {
+            var dto = new OrderedDictionary { { "A", 1 }, { "B", "2" }, { "C", true } };
+            var to = Serialize(dto, includeXml: false);
+
+            Assert.That(to["A"], Is.EqualTo(1));
+            Assert.That(to["B"], Is.EqualTo("2"));
+            Assert.That(to["C"], Is.EqualTo(true));
+        }
+
+        [Test]
+        public void Can_deserialize_ordereddictionary()
+        {
+            var original = new OrderedDictionary {
+				{"Key1", "Value1"},
+                {"Key2", 2},
+                {3, "Value3"},
+                {"Key4", false}
+          	};
+            var json = JsonSerializer.SerializeToString(original);
+            var deserialized = JsonSerializer.DeserializeFromString<OrderedDictionary>(json);
+
+            json.Print();
+
+            Assert.That(deserialized, Is.Not.Null);
+            Assert.That(deserialized["Key1"], Is.EqualTo("Value1"));
+            Assert.That(deserialized["Key2"], Is.EqualTo(2));
+            Assert.That(deserialized[2], Is.EqualTo("Value3"));
+            Assert.That(deserialized["Key4"], Is.EqualTo(false));
+        }
+
+        [Test]
+        public void Can_deserialize_ordereddictionary_subclass()
+        {
+            var original = new OrderedDictionarySub {
+				{"Key1", "Value1"},
+				{"Key2", 2},
+				{3, "Value3"},
+				{"Key4", false}
+          	};
+            var json = JsonSerializer.SerializeToString(original);
+            var deserialized = JsonSerializer.DeserializeFromString<OrderedDictionarySub>(json);
+
+            json.Print();
+
+            Assert.That(deserialized, Is.Not.Null);
+            Assert.That(deserialized["Key1"], Is.EqualTo("Value1"));
+            Assert.That(deserialized["Key2"], Is.EqualTo(2));
+            Assert.That(deserialized[2], Is.EqualTo("Value3"));
+            Assert.That(deserialized["Key4"], Is.EqualTo(false));
+        }
     }
 
+    public class OrderedDictionarySub : OrderedDictionary {}
 }

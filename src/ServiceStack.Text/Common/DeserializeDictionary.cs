@@ -42,6 +42,11 @@ namespace ServiceStack.Text.Common
                 {
                     return GetParseMethod(typeof(Dictionary<object, object>));
                 }
+                if (typeof(IDictionary).IsAssignableFromType(type))
+                {
+                    return s => ParseIDictionary(s, type);
+                }
+
                 throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
             }
 
@@ -120,6 +125,46 @@ namespace ServiceStack.Text.Common
             }
 
             return result;
+        }
+
+        public static IDictionary ParseIDictionary(string value, Type dictType)
+        {
+            if (value == null) return null;
+
+            var index = VerifyAndGetStartIndex(value, dictType);
+
+            var valueParseMethod = Serializer.GetParseFn(typeof(object));
+            if (valueParseMethod == null) return null;
+
+            var to = (IDictionary)dictType.CreateInstance();
+
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return to;
+
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementStartIndex = index;
+                var elementValue = Serializer.EatTypeValue(value, ref index);
+                if (keyValue == null) continue;
+
+                var mapKey = valueParseMethod(keyValue);
+
+                if (elementStartIndex < valueLength)
+                {
+                    Serializer.EatWhitespace(value, ref elementStartIndex);
+                    to[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
+                }
+                else
+                {
+                    to[mapKey] = valueParseMethod(elementValue);
+                }
+
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
+
+            return to;
         }
 
         public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue>(
