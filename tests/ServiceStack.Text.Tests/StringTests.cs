@@ -186,8 +186,25 @@ namespace ServiceStack.Text.Tests
 			var xml = orderModel.ToXml();
 			var fromXml = xml.FromXml<OrderModel>();
 			Assert.That(fromXml.OrderType, Is.EqualTo(orderModel.OrderType));
-		}
-		
+		}		        
+
+        [Test]
+        public void Serializes_Poco_with_string_property()
+        {           
+            var original = new Poco { Name = "\"This is a string surrounded with quotes\"" };
+            var originalEmpty = new Poco { Name = "" };
+            var originalNull = new Poco { Name = null };
+            var json = TypeSerializer.SerializeToString<Poco>(original);
+            var jsonEmpty = TypeSerializer.SerializeToString<Poco>(originalEmpty);
+            var jsonNull = TypeSerializer.SerializeToString<Poco>(originalNull);
+            var fromJson = TypeSerializer.DeserializeFromString<Poco>(json);
+            var fromJsonEmpty = TypeSerializer.DeserializeFromString<Poco>(jsonEmpty);
+            var fromJsonNull = TypeSerializer.DeserializeFromString<Poco>(jsonNull);
+
+            Assert.That(fromJson.Name, Is.EqualTo(original.Name));
+            Assert.That(fromJsonEmpty.Name, Is.EqualTo(String.Empty));
+            Assert.That(fromJsonNull.Name, Is.EqualTo(null)); 
+        }
 	}
 
     [TestFixture]
