@@ -109,7 +109,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(deserialized.OnDeserializedTouched, Is.True);
         }
 
-        private void AddSerializeHooksForType<T>()
+        public static void AddSerializeHooksForType<T>()
         {
             Type type = typeof(T);
             System.Reflection.MethodInfo[] typeMethods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -150,7 +150,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-        class HookTestClass
+        public class HookTestClass
         {
             public bool OnDeserializingTouched { get; set; }
             public bool OnDeserializedTouched { get; set; }
@@ -198,7 +198,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-        class HookTestSubClass : HookTestClass
+        public class HookTestSubClass : HookTestClass
         {
         }
     }

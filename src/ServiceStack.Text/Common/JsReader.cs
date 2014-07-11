@@ -15,7 +15,10 @@ namespace ServiceStack.Text.Common
             var onDeserializedFn = JsConfig<T>.OnDeserializedFn;
             if (onDeserializedFn != null)
             {
-                return value => onDeserializedFn((T)GetCoreParseFn<T>()(value));
+                // get core delegate first -> much better performance
+                var readerfunc = GetCoreParseFn<T>();
+
+                return value => onDeserializedFn((T)readerfunc(value));
             }
 
             return GetCoreParseFn<T>();
