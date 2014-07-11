@@ -141,7 +141,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-        class HookTestClass
+        public class HookTestClass
         {
             public bool OnDeserializingTouched { get; set; }
             public bool OnDeserializedTouched { get; set; }
@@ -189,7 +189,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-        class HookTestSubClass : HookTestClass
+        public class HookTestSubClass : HookTestClass
         {
         }
     }

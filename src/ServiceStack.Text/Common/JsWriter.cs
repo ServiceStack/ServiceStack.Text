@@ -267,7 +267,8 @@ namespace ServiceStack.Text.Common
             var onSerializingFn = JsConfig<T>.OnSerializingFn;
             if (onSerializingFn != null)
             {
-                ret = (w, x) => GetCoreWriteFn<T>()(w, onSerializingFn((T)x));
+                var writeFn = GetCoreWriteFn<T>();
+                ret = (w, x) => writeFn(w, onSerializingFn((T)x));
             }
 
             if (JsConfig<T>.HasSerializeFn)

@@ -15,7 +15,8 @@ namespace ServiceStack.Text.Common
             var onDeserializedFn = JsConfig<T>.OnDeserializedFn;
             if (onDeserializedFn != null)
             {
-                return value => onDeserializedFn((T)GetCoreParseFn<T>()(value));
+                var parseFn = GetCoreParseFn<T>();
+                return value => onDeserializedFn((T)parseFn(value));
             }
 
             return GetCoreParseFn<T>();
