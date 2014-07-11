@@ -204,8 +204,25 @@ namespace ServiceStack.Text.Tests
 			var fromXml = xml.FromXml<OrderModel>();
 			Assert.That(fromXml.OrderType, Is.EqualTo(orderModel.OrderType));
 		}
-		
-	}
+
+        [Test]
+        public void Serializes_Poco_with_string_property()
+        {
+            var original = new Poco { Name = "\"This is a string surrounded with quotes\"" };
+            var originalEmpty = new Poco { Name = "" };
+            var originalNull = new Poco { Name = null };
+            var jsv = TypeSerializer.SerializeToString<Poco>(original);
+            var jsvEmpty = TypeSerializer.SerializeToString<Poco>(originalEmpty);
+            var jsonNull = TypeSerializer.SerializeToString<Poco>(originalNull);
+            var fromJsv = TypeSerializer.DeserializeFromString<Poco>(jsv);
+            var fromJsvEmpty = TypeSerializer.DeserializeFromString<Poco>(jsvEmpty);
+            var fromJsvNull = TypeSerializer.DeserializeFromString<Poco>(jsonNull);
+
+            Assert.That(fromJsv.Name, Is.EqualTo(original.Name));
+            Assert.That(fromJsvEmpty.Name, Is.EqualTo(String.Empty));
+            Assert.That(fromJsvNull.Name, Is.EqualTo(null));
+        }
+    }
 
     [TestFixture]
     public class StringParsingTests
