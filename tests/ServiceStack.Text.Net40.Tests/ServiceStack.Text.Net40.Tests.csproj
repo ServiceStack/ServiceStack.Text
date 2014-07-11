@@ -285,6 +285,12 @@
     <Compile Include="..\ServiceStack.Text.Tests\ReportedIssues.cs">
       <Link>ReportedIssues.cs</Link>
     </Compile>
+	<Compile Include="..\ServiceStack.Text.Tests\SerializationDelegatePerformanceTests.cs">
+      <Link>SerializationDelegatePerformanceTests.cs</Link>
+    </Compile>
+	<Compile Include="..\ServiceStack.Text.Tests\SerializationHookTests.cs">
+      <Link>SerializationHookTests.cs</Link>
+    </Compile>
     <Compile Include="..\ServiceStack.Text.Tests\SpecialTypesTests.cs">
       <Link>SpecialTypesTests.cs</Link>
     </Compile>
