@@ -262,18 +262,36 @@ namespace ServiceStack.Text.Common
                 return Serializer.WriteObjectString;
             }
 
+            WriteObjectDelegate ret = null;
+
             var onSerializingFn = JsConfig<T>.OnSerializingFn;
             if (onSerializingFn != null)
             {
-                return (w, x) => GetCoreWriteFn<T>()(w, onSerializingFn((T)x));
+                ret = (w, x) => GetCoreWriteFn<T>()(w, onSerializingFn((T)x));
             }
 
             if (JsConfig<T>.HasSerializeFn)
             {
-                return JsConfig<T>.WriteFn<TSerializer>;
+                ret = JsConfig<T>.WriteFn<TSerializer>;
             }
 
-            return GetCoreWriteFn<T>();
+            if (ret == null)
+            {
+                ret = GetCoreWriteFn<T>();
+            }
+
+            var onSerializedFn = JsConfig<T>.OnSerializedFn;
+            if (onSerializedFn != null)
+            {
+                var writerFunc = ret;
+                ret = (w, x) =>
+                {
+                    writerFunc(w, x);
+                    onSerializedFn((T)x);
+                };
+            }
+
+            return ret;
         }
 
         public void WriteValue(TextWriter writer, object value)

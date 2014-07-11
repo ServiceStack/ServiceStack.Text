@@ -779,6 +779,16 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
+        /// Define custom after serialization hook
+        /// </summary>
+        private static Action<T> onSerializedFn;
+        public static Action<T> OnSerializedFn
+        {
+            get { return onSerializedFn; }
+            set { onSerializedFn = value; }
+        }
+
+        /// <summary>
         /// Define custom deserialization fn for BCL Structs
         /// </summary>
         public static Func<string, T> DeSerializeFn;
