@@ -36,7 +36,7 @@ namespace ServiceStack.Text.Tests
 			var deserializedData = ServiceStack.Text.TypeSerializer.DeserializeFromString<List<PerformanceTestClass>>(stringvalue);
 			watch.Stop();
 
-            Debug.WriteLine("Elapsed time: {0}ms", watch.ElapsedMilliseconds);
+            Debug.WriteLine(String.Format("Elapsed time: {0}ms", watch.ElapsedMilliseconds));
 
             // should be at least less than 200ms
             Assert.LessOrEqual(watch.ElapsedMilliseconds, 200);
@@ -53,7 +53,7 @@ namespace ServiceStack.Text.Tests
 			var deserializedData = ServiceStack.Text.TypeSerializer.DeserializeFromString<List<PerformanceTestHookClass>>(stringvalue);
 			watch.Stop();
 
-            Debug.WriteLine("Elapsed time: {0}ms", watch.ElapsedMilliseconds);
+            Debug.WriteLine(String.Format("Elapsed time: {0}ms", watch.ElapsedMilliseconds));
 
             // should be at least less than 600ms
             Assert.LessOrEqual(watch.ElapsedMilliseconds, 600);
@@ -68,7 +68,7 @@ namespace ServiceStack.Text.Tests
 			var stringvalue = ServiceStack.Text.TypeSerializer.SerializeToString(data);
 			watch.Stop();
 
-            Debug.WriteLine("Elapsed time: {0}ms", watch.ElapsedMilliseconds);
+            Debug.WriteLine(String.Format("Elapsed time: {0}ms", watch.ElapsedMilliseconds));
             
             // should be at least less than 100ms
             Assert.LessOrEqual(watch.ElapsedMilliseconds, 100);
@@ -83,7 +83,7 @@ namespace ServiceStack.Text.Tests
 			var stringvalue = ServiceStack.Text.TypeSerializer.SerializeToString(data);
 			watch.Stop();
 
-            Debug.WriteLine("Elapsed time: {0}ms", watch.ElapsedMilliseconds);
+            Debug.WriteLine(String.Format("Elapsed time: {0}ms", watch.ElapsedMilliseconds));
 
             // should be at least less than 100ms
             Assert.LessOrEqual(watch.ElapsedMilliseconds, 100);
