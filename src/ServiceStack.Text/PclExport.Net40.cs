@@ -463,8 +463,13 @@ namespace ServiceStack
 
         public override void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
         {
-            if (!assemblyNames.Contains(accessType.Assembly.ManifestModule.Name)) //might get merged/mangled on alt platforms
-                throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest);
+            //might get merged/mangled on alt platforms (also issues with Smart Assembly)
+            if (assemblyNames.Contains(accessType.Assembly.ManifestModule.Name)) 
+                return;
+            if (assemblyNames.Contains(accessType.Assembly.Location.SplitOnLast(Path.DirectorySeparatorChar).Last()))
+                return;
+
+            throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest);
         }
 
         public override void BeginThreadAffinity()
