@@ -466,8 +466,16 @@ namespace ServiceStack
             //might get merged/mangled on alt platforms (also issues with Smart Assembly)
             if (assemblyNames.Contains(accessType.Assembly.ManifestModule.Name)) 
                 return;
-            if (assemblyNames.Contains(accessType.Assembly.Location.SplitOnLast(Path.DirectorySeparatorChar).Last()))
-                return;
+
+            try
+            {
+                if (assemblyNames.Contains(accessType.Assembly.Location.SplitOnLast(Path.DirectorySeparatorChar).Last()))
+                    return;
+            }
+            catch (Exception)
+            {
+                return; //dynamic assembly
+            } 
 
             throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest);
         }
