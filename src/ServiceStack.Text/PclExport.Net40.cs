@@ -463,11 +463,8 @@ namespace ServiceStack
 
         public override void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
         {
-            //might get merged/mangled on alt platforms (also issues with Smart Assembly)
+            //might get merged/mangled on alt platforms
             if (assemblyNames.Contains(accessType.Assembly.ManifestModule.Name)) 
-                return;
-
-            if (accessType.Name.StartsWith("#")) //Allow Smart Assemblies
                 return;
 
             try
@@ -478,9 +475,14 @@ namespace ServiceStack
             catch (Exception)
             {
                 return; //dynamic assembly
-            } 
+            }
 
-            throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest);
+            var errorDetails = " Type: '{0}', Assembly: '{1}', '{2}'".Fmt(
+                accessType.Name,
+                accessType.Assembly.ManifestModule.Name,
+                accessType.Assembly.Location);
+
+            throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest + errorDetails);
         }
 
         public override void BeginThreadAffinity()
