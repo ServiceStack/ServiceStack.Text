@@ -394,8 +394,8 @@ namespace ServiceStack
             {
                 var errorDetails = " __tokens: '{0}', Assembly: '{1}', '{2}'".Fmt(
                     accessType.Name,
-                    accessType.Assembly.ManifestModule.Name,
-                    accessType.Assembly.Location);
+                    accessType.GetAssembly().ManifestModule.Name,
+                    accessType.GetAssembly().Location);
 
                 throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest + errorDetails);
             }
