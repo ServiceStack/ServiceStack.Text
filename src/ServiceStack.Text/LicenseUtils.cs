@@ -392,10 +392,9 @@ namespace ServiceStack
 
             if (!_approved.__tokens.Contains(accessType.FullName))
             {
-                var errorDetails = " __tokens: '{0}', Assembly: '{1}', '{2}'".Fmt(
+                var errorDetails = " __token: '{0}', Assembly: '{1}'".Fmt(
                     accessType.Name,
-                    accessType.GetAssembly().ManifestModule.Name,
-                    accessType.GetAssembly().Location);
+                    accessType.GetAssembly().ManifestModule.Name);
 
                 throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest + errorDetails);
             }
