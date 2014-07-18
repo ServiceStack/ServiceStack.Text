@@ -467,6 +467,9 @@ namespace ServiceStack
             if (assemblyNames.Contains(accessType.Assembly.ManifestModule.Name)) 
                 return;
 
+            if (accessType.Name.StartsWith("#")) //Allow Smart Assemblies
+                return;
+
             try
             {
                 if (assemblyNames.Contains(accessType.Assembly.Location.SplitOnLast(Path.DirectorySeparatorChar).Last()))
