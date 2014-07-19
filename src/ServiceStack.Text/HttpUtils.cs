@@ -842,6 +842,7 @@ namespace ServiceStack
         public const string NetSerializer = "application/x-netserializer";
         public const string Bson = "application/bson";
         public const string Binary = "application/octet-stream";
+        public const string ServerSentEvents = "text/event-stream";
 
         public static string GetExtension(string mimeType)
         {
