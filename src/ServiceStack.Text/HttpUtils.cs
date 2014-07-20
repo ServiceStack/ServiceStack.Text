@@ -12,6 +12,8 @@ namespace ServiceStack
 {
     public static class HttpUtils
     {
+        public static string UserAgent = "ServiceStack.Text";
+
         [ThreadStatic]
         public static IHttpResultsFilter ResultsFilter;
 
@@ -754,6 +756,20 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 #endif
+
+        public static string GetRedirectUrlIfAny(this string url)
+        {
+            var finalUrl = url;
+            try
+            {
+                var ignore = url.GetBytesFromUrl(
+                    requestFilter: req => { req.AllowAutoRedirect = false; req.UserAgent = UserAgent; },
+                    responseFilter: res => finalUrl = res.Headers[HttpHeaders.Location] ?? finalUrl);
+            }
+            catch { }
+
+            return finalUrl;
+        }
     }
 
     public interface IHttpResultsFilter : IDisposable
