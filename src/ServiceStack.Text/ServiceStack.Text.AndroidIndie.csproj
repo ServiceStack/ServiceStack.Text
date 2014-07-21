@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -50,7 +50,9 @@
     <Compile Include="AutoMappingUtils.cs" />
     <Compile Include="Build.Silverlight.cs" />
     <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="Common\DeserializeCustomGenericType.cs" />
     <Compile Include="Common\DeserializeKeyValuePair.cs" />
+    <Compile Include="IStringSerializer.cs" />
     <Compile Include="Pcl.Dynamic.cs" />
     <Compile Include="Common\DateTimeSerializer.cs">
       <SubType>Code</SubType>
