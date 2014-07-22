@@ -387,7 +387,7 @@ namespace ServiceStack
             if (srcFeature != LicenseFeature.Client || requestedAccess != LicenseFeature.Text || accessToken == null)
                 throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest);
 
-            if (accessType.Name.StartsWith("#")) //Smart Assembly
+            if (accessType.Name == "AccessToken" && accessType.GetAssembly().ManifestModule.Name.StartsWith("<")) //Smart Assembly
                 return new AccessToken(requestedAccess);
 
             if (!_approved.__tokens.Contains(accessType.FullName))
