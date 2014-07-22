@@ -87,5 +87,81 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(guid.ToJson().Trim('"'), Is.EqualTo("adfa988b-01f6-490d-b65b-63750f869496"));
             Assert.That(guid.ToJsv(), Is.EqualTo("adfa988b-01f6-490d-b65b-63750f869496"));
         }
+
+        public class Parent
+        {
+            public ICar Car { get; set; }
+        }
+
+        public interface ICar
+        {
+            string CarType { get; }
+        }
+
+        public class LuxaryCar : ICar
+        {
+            public string Sunroof { get; set; }
+
+            public string CarType { get { return "Luxary"; } }
+        }
+
+        public class CheapCar : ICar
+        {
+            public bool HasCupHolder { get; set; }
+
+            public string CarType { get { return "Cheap"; } }
+        }
+
+        [Test]
+        public void Does_call_RawSerializeFn_for_toplevel_types()
+        {
+            JsConfig<ICar>.RawSerializeFn = SerializeCar;
+
+            var luxaryParent = new Parent() { Car = new LuxaryCar() { Sunroof = "Big" } };
+            var cheapParent = new Parent() { Car = new CheapCar() { HasCupHolder = true } };
+
+            // Works when ICar is a child
+            var luxaryParentJson = luxaryParent.ToJson();
+            var cheapParentJson = cheapParent.ToJson();
+
+            Assert.That(luxaryParentJson, Is.Not.StringContaining("__type"));
+            Assert.That(cheapParentJson, Is.Not.StringContaining("__type"));
+
+            ICar luxary = new LuxaryCar() { Sunroof = "Big" };
+            ICar cheap = new CheapCar() { HasCupHolder = true };
+
+            // ToJson() loses runtime cast of interface type, to keep it we need to specify it on call-site
+            var luxaryJson = JsonSerializer.SerializeToString(luxary, typeof(ICar));
+            var cheapJson = JsonSerializer.SerializeToString(cheap, typeof(ICar));
+
+            Assert.That(luxaryJson, Is.Not.StringContaining("__type"));
+            Assert.That(cheapJson, Is.Not.StringContaining("__type"));
+
+            JsConfig.Reset();
+        }
+
+        private static string SerializeCar(ICar car)
+        {
+            var jsonObject = JsonObject.Parse(car.ToJson());
+
+            if (jsonObject.ContainsKey("__type"))
+                jsonObject.Remove("__type");
+
+            return jsonObject.ToJson();
+        }
+
+        [Test]
+        public void Does_call_RawSerializeFn_for_toplevel_concrete_type()
+        {
+            JsConfig<LuxaryCar>.RawSerializeFn = c => "{\"foo\":1}";
+
+            ICar luxary = new LuxaryCar { Sunroof = "Big" };
+
+            var luxaryJson = luxary.ToJson();
+
+            Assert.That(luxaryJson, Is.StringContaining("foo"));
+
+            JsConfig.Reset();
+        }
     }
 }
