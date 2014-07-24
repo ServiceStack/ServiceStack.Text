@@ -29,16 +29,16 @@ namespace ServiceStack.Text.Common
         {
             TypeAccessor typeAccessor;
 
-            // camelCase is already supported by default, so no need to add another transform in the tree
-            return typeAccessorMap.TryGetValue(TransformFromLowercaseUnderscore(propertyName), out typeAccessor)
+            // map is case-insensitive by default, so simply remove hyphens and underscores
+            return typeAccessorMap.TryGetValue(RemoveSeparators(propertyName), out typeAccessor)
                        ? typeAccessor
                        : base.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
         }
 
-        private static string TransformFromLowercaseUnderscore(string propertyName)
+        private static string RemoveSeparators(string propertyName)
         {
-            // "lowercase-hyphen" -> "lowercase_underscore" -> LowercaseUnderscore
-            return propertyName.Replace("-","_").ToTitleCase();
+            // "lowercase-hyphen" or "lowercase_underscore" -> lowercaseunderscore
+            return propertyName.Replace("-", String.Empty).Replace("_", String.Empty);
         }
 
     }
