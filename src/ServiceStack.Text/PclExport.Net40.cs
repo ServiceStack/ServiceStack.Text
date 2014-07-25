@@ -167,7 +167,7 @@ namespace ServiceStack
             return Assembly.LoadFrom(assemblyPath);
         }
 
-        public virtual void AddHeader(WebRequest webReq, string name, string value)
+        public override void AddHeader(WebRequest webReq, string name, string value)
         {
             webReq.Headers.Add(name, value);
         }
@@ -199,13 +199,13 @@ namespace ServiceStack
             return assembly.CodeBase;
         }
 
-        public virtual string GetAssemblyPath(Type source)
+        public override string GetAssemblyPath(Type source)
         {
             var assemblyUri = new Uri(source.Assembly.EscapedCodeBase);
             return assemblyUri.LocalPath;
         }
 
-        public virtual string GetAsciiString(byte[] bytes, int index, int count)
+        public override string GetAsciiString(byte[] bytes, int index, int count)
         {
             return Encoding.ASCII.GetString(bytes, index, count);
         }
@@ -434,7 +434,7 @@ namespace ServiceStack
             return new XmlSerializer();
         }
 
-        public virtual void InitHttpWebRequest(HttpWebRequest httpReq,
+        public override void InitHttpWebRequest(HttpWebRequest httpReq,
             long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
         {
             httpReq.UserAgent = Env.ServerUserAgent;
@@ -490,7 +490,7 @@ namespace ServiceStack
             Thread.BeginThreadAffinity();
         }
 
-        public virtual void EndThreadAffinity()
+        public override void EndThreadAffinity()
         {
             Thread.EndThreadAffinity();
         }
@@ -511,12 +511,12 @@ namespace ServiceStack
         }
 
 #if !__IOS__
-        public virtual SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
+        public override SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
         {
             return CreateIlPropertySetter(propertyInfo);
         }
 
-        public virtual SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
+        public override SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
         {
             return CreateIlFieldSetter(fieldInfo);
         }
@@ -537,17 +537,17 @@ namespace ServiceStack
             return type;
         }
 
-        public DataContractAttribute GetWeakDataContract(Type type)
+        public override DataContractAttribute GetWeakDataContract(Type type)
         {
             return type.GetWeakDataContract();
         }
 
-        public DataMemberAttribute GetWeakDataMember(PropertyInfo pi)
+        public override DataMemberAttribute GetWeakDataMember(PropertyInfo pi)
         {
             return pi.GetWeakDataMember();
         }
 
-        public DataMemberAttribute GetWeakDataMember(FieldInfo pi)
+        public override DataMemberAttribute GetWeakDataMember(FieldInfo pi)
         {
             return pi.GetWeakDataMember();
         }

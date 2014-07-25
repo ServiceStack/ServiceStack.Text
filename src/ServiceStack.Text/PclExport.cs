@@ -430,17 +430,17 @@ namespace ServiceStack
         {
         }
 
-        public DataContractAttribute GetWeakDataContract(Type type)
+        public virtual DataContractAttribute GetWeakDataContract(Type type)
         {
             return null;
         }
 
-        public DataMemberAttribute GetWeakDataMember(PropertyInfo pi)
+        public virtual DataMemberAttribute GetWeakDataMember(PropertyInfo pi)
         {
             return null;
         }
 
-        public DataMemberAttribute GetWeakDataMember(FieldInfo pi)
+        public virtual DataMemberAttribute GetWeakDataMember(FieldInfo pi)
         {
             return null;
         }
