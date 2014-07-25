@@ -297,6 +297,12 @@ namespace ServiceStack.Text.Tests.Utils
         }
     }
 
+    public class DateModel
+    {
+        public DateTime DateTime { get; set; }
+        public DateTime? NullableDateTime { get; set; }
+    }
+
     [TestFixture]
     public class DateTimeISO8601Tests
         : TestBase
@@ -346,6 +352,21 @@ namespace ServiceStack.Text.Tests.Utils
             {
                 Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
             }
+        }
+
+        [Test]
+        public void Can_serialize_nullable_DateTime()
+        {
+            JsConfig.IncludeNullValues = true;
+            JsConfig.AssumeUtc = true;
+
+            var date = new DateTime(2013, 1, 1, 0, 0, 1, DateTimeKind.Utc);
+            var dto = new DateModel { DateTime = date, NullableDateTime = date };
+            dto.ToJson().Print();
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"DateTime\":\"2013-01-01T00:00:01.0000000Z\",\"NullableDateTime\":\"2013-01-01T00:00:01.0000000Z\"}"));
+
+            JsConfig.Reset();
         }
     }
 
