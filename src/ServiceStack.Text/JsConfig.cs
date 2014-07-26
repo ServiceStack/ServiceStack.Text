@@ -535,7 +535,7 @@ namespace ServiceStack.Text
             {
                 return (JsConfigScope.Current != null ? JsConfigScope.Current.ReuseStringBuffer : null)
                     ?? sReuseStringBuffer
-                    ?? false;
+                    ?? true;
             }
             set
             {
