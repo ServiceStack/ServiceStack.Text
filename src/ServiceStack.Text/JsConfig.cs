@@ -463,7 +463,20 @@ namespace ServiceStack.Text
             }
         }
 
-        internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
+        internal static HashSet<Type> HasSerializeFnSet = new HashSet<Type>();
+        internal static HashSet<Type> HasntToJsonMethodSet = new HashSet<Type>();
+
+        internal static bool HasSerializeFn(Type type)
+        {
+            return (bool)typeof(JsConfig)
+              .GetMethod("hasSerializeFn", BindingFlags.Static | BindingFlags.NonPublic)
+              .MakeGenericMethod(type).Invoke(null, null);
+        }
+
+        private static bool hasSerializeFn<T>()
+        {
+            return HasSerializeFnSet.Contains(typeof(T)) || JsConfig<T>.GetToJsonMethod() != null;
+        }
 
         public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
@@ -560,7 +573,7 @@ namespace ServiceStack.Text
 
 	    public static void Reset()
         {
-            foreach (var rawSerializeType in HasSerializeFn.ToArray())
+            foreach (var rawSerializeType in HasSerializeFnSet.ToArray())
             {
                 Reset(rawSerializeType);
             }
@@ -588,7 +601,8 @@ namespace ServiceStack.Text
             sAppendUtcOffset = null;
             sEscapeUnicode = null;
             sIncludePublicFields = null;
-            HasSerializeFn = new HashSet<Type>();
+            HasSerializeFnSet = new HashSet<Type>();
+            HasntToJsonMethodSet = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
             sExcludePropertyReferences = null;
@@ -869,10 +883,10 @@ namespace ServiceStack.Text
             {
                 serializeFn = value;
                 if (value != null)
-                    JsConfig.HasSerializeFn.Add(typeof(T));
+                    JsConfig.HasSerializeFnSet.Add(typeof(T));
                 else
-                    JsConfig.HasSerializeFn.Remove(typeof(T));
                 
+                    JsConfig.HasSerializeFnSet.Remove(typeof(T));
                 ClearFnCaches();
             }
         }
@@ -897,7 +911,22 @@ namespace ServiceStack.Text
         /// </summary>
         public static bool HasSerializeFn
         {
-            get { return serializeFn != null || rawSerializeFn != null; }
+            get { return serializeFn != null || rawSerializeFn != null || GetToJsonMethod() != null; }
+        }
+
+        internal static Func<T, string> GetToJsonMethod()
+        {
+            if (JsConfig.HasntToJsonMethodSet.Contains(typeof(T)))
+                return null;
+
+            var mi = typeof(T).GetMethod("ToJson");
+            if (mi == null)
+            {
+                JsConfig.HasntToJsonMethodSet.Add(typeof(T));
+                return null;
+            }
+
+            return RawSerializeFn = (Func<T, string>)mi.MakeDelegate(typeof(Func<T, string>));
         }
 
         /// <summary>
@@ -911,9 +940,9 @@ namespace ServiceStack.Text
             {
                 rawSerializeFn = value;
                 if (value != null)
-                    JsConfig.HasSerializeFn.Add(typeof(T));
+                    JsConfig.HasSerializeFnSet.Add(typeof(T));
                 else
-                    JsConfig.HasSerializeFn.Remove(typeof(T));
+                    JsConfig.HasSerializeFnSet.Remove(typeof(T));
 
                 ClearFnCaches();
             }
