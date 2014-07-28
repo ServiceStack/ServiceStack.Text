@@ -11,7 +11,8 @@ namespace ServiceStack.Text.Tests.JsonTests
         static CustomSerializerTests()
         {
             JsConfig<EntityWithValues>.RawSerializeFn = SerializeEntity;
-            JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity;
+            JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity<EntityWithValues>;
+            JsConfig<EntityWithToJsonInstanceMethod>.RawDeserializeFn = DeserializeEntity<EntityWithToJsonInstanceMethod>;
         }
 
         [TestFixtureTearDown]
@@ -25,6 +26,16 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             var originalEntity = new EntityWithValues { id = 5, Values = new Dictionary<string, string> { { "dog", "bark" }, { "cat", "meow" } } };
             JsonSerializeAndCompare(originalEntity);
+        }
+
+        [Test]
+        public void Can_serialize_Entity_using_ToJson_instance_method()
+        {
+            var originalEntity = new EntityWithToJsonInstanceMethod { id = 5, Values = new Dictionary<string, string> { { "dog", "bark" }, { "cat", "meow" } } };
+            var result = JsonSerializeAndCompare(originalEntity);
+            Assert.True(originalEntity.ToJsonWasCalled);
+            Assert.True(result.Values.ContainsKey(EntityWithToJsonInstanceMethod.TO_JSON_WAS_CALLED) &&
+                result.Values[EntityWithToJsonInstanceMethod.TO_JSON_WAS_CALLED] == true.ToString());
         }
 
         [Test]
@@ -70,6 +81,20 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
         }
 
+        public class EntityWithToJsonInstanceMethod : EntityWithValues
+        {
+            public const string TO_JSON_WAS_CALLED = "toJsonWasCalled";
+
+            public bool ToJsonWasCalled = false;
+
+            public string ToJson()
+            {
+                this.ToJsonWasCalled = true;
+                this.Values[TO_JSON_WAS_CALLED] = ToJsonWasCalled.ToString();
+                return SerializeEntity(this);
+            }
+        }
+
         private static string SerializeEntity(EntityWithValues entity)
         {
             var dictionary = entity.Values.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -80,11 +105,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             return JsonSerializer.SerializeToString(dictionary);
         }
 
-        private static EntityWithValues DeserializeEntity(string value)
+        private static T DeserializeEntity<T>(string value) where T : EntityWithValues, new()
         {
             var dictionary = JsonSerializer.DeserializeFromString<Dictionary<string, string>>(value);
             if (dictionary == null) return null;
-            var entity = new EntityWithValues();
+            var entity = new T();
             foreach (var pair in dictionary)
             {
                 if (pair.Key == "id")
