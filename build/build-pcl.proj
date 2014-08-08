@@ -104,6 +104,9 @@
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/portable-net45+win8+monotouch+monoandroid" />
 
+    <MakeDir Directories="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid" Condition="!Exists('$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid')" />
+    <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid" />
+
     <!-- Silverlight -->
     <!-- Built with SL5.sln -->
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.SL5.csproj"
@@ -112,6 +115,9 @@
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/sl5" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/sl5')" />
     <Copy SourceFiles="%(TextSl5Files.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Pcl/lib/sl5" />
+
+    <MakeDir Directories="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5" Condition="!Exists('$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5')" />
+    <Copy SourceFiles="%(TextSl5Files.Identity)" DestinationFolder="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5" />
 
 
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text.Pcl/servicestack.text.pcl.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
