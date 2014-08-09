@@ -1022,8 +1022,18 @@ namespace ServiceStack
 #endif
         }
 
-        static readonly Dictionary<string, List<Attribute>> propertyAttributesMap
+        //Should only register Runtime Attributes on StartUp, So using non-ThreadSafe Dictionary is OK
+        static Dictionary<string, List<Attribute>> propertyAttributesMap
             = new Dictionary<string, List<Attribute>>();
+
+        static Dictionary<Type, List<Attribute>> typeAttributesMap
+            = new Dictionary<Type, List<Attribute>>();
+
+        public static void ClearRuntimeAttributes()
+        {
+            propertyAttributesMap = new Dictionary<string, List<Attribute>>();
+            typeAttributesMap = new Dictionary<Type, List<Attribute>>();
+        }
 
         internal static string UniqueKey(this PropertyInfo pi)
         {
@@ -1035,12 +1045,15 @@ namespace ServiceStack
 
         public static Type AddAttributes(this Type type, params Attribute[] attrs)
         {
-#if NETFX_CORE || SL5 || PCL
-            throw new NotSupportedException("Adding Attributes at runtime is not supported on this platform");
-#else
-            TypeDescriptor.AddAttributes(type, attrs);
+            List<Attribute> typeAttrs;
+            if (!typeAttributesMap.TryGetValue(type, out typeAttrs))
+            {
+                typeAttributesMap[type] = typeAttrs = new List<Attribute>();
+            }
+
+            typeAttrs.AddRange(attrs);
+
             return type;
-#endif
         }
 
         /// <summary>
@@ -1194,10 +1207,8 @@ namespace ServiceStack
         {
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes(true).ToArray();
-#elif SL5
-            return type.GetCustomAttributes(true);
 #else
-            return TypeDescriptor.GetAttributes(type).Cast<object>().ToArray();
+            return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
         }
 
@@ -1205,10 +1216,8 @@ namespace ServiceStack
         {
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes(true).Where(x => x.GetType() == attrType).ToArray();
-#elif SL5
-            return type.GetCustomAttributes(attrType, true);
 #else
-            return TypeDescriptor.GetAttributes(type).OfType<Attribute>().ToArray();
+            return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
         }
 
@@ -1241,6 +1250,22 @@ namespace ServiceStack
             return pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
         }
 
+        static IEnumerable<T> GetRuntimeAttributes<T>(this Type type)
+        {
+            List<Attribute> attrs;
+            return typeAttributesMap.TryGetValue(type, out attrs)
+                ? attrs.OfType<T>()
+                : new List<T>();
+        }
+
+        static IEnumerable<Attribute> GetRuntimeAttributes(this Type type, Type attrType = null)
+        {
+            List<Attribute> attrs;
+            return typeAttributesMap.TryGetValue(type, out attrs)
+                ? attrs.Where(x => attrType == null || x.GetType() == attrType)
+                : new List<Attribute>();
+        }
+
         public static TAttr[] AllAttributes<TAttr>(this Type type)
 #if (NETFX_CORE || PCL)
             where TAttr : Attribute
@@ -1248,10 +1273,11 @@ namespace ServiceStack
         {
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes<TAttr>(true).ToArray();
-#elif SL5
-            return type.GetCustomAttributes(typeof(TAttr), true).Cast<TAttr>().ToArray();
 #else
-            return TypeDescriptor.GetAttributes(type).OfType<TAttr>().ToArray();
+            return type.GetCustomAttributes(typeof(TAttr), true)
+                .OfType<TAttr>()
+                .Union(type.GetRuntimeAttributes<TAttr>())
+                .ToArray();
 #endif
         }
 
@@ -1262,11 +1288,10 @@ namespace ServiceStack
             return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
                     .Cast<TAttr>()
                     .FirstOrDefault();
-#elif SL5
-            return (TAttr)type.GetCustomAttributes(typeof(TAttr), true)
-                   .FirstOrDefault();
 #else
-            return TypeDescriptor.GetAttributes(type).OfType<TAttr>().FirstOrDefault();
+            return (TAttr)type.GetCustomAttributes(typeof(TAttr), true)
+                   .FirstOrDefault()
+                   ?? type.GetRuntimeAttributes<TAttr>().FirstOrDefault();
 #endif
         }
 
