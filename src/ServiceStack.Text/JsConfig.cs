@@ -29,7 +29,7 @@ namespace ServiceStack.Text
         public static JsConfigScope With(
             bool? convertObjectTypesIntoStringDictionary = null,
             bool? tryToParsePrimitiveTypeValues = null,
-			bool? tryToParseNumericType = null,
+            bool? tryToParseNumericType = null,
             bool? includeNullValues = null,
             bool? includeDefaultEnums = null,
             bool? excludeTypeInfo = null,
@@ -44,7 +44,7 @@ namespace ServiceStack.Text
             string typeAttr = null,
             Func<Type, string> typeWriter = null,
             Func<string, Type> typeFinder = null,
-			bool? treatEnumAsInteger = null,
+            bool? treatEnumAsInteger = null,
             bool? alwaysUseUtc = null,
             bool? assumeUtc = null,
             bool? appendUtcOffset = null,
@@ -55,7 +55,8 @@ namespace ServiceStack.Text
             EmptyCtorFactoryDelegate modelFactory = null,
             string[] excludePropertyReferences = null)
         {
-            return new JsConfigScope {
+            return new JsConfigScope
+            {
                 ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary,
                 TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
                 TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
@@ -91,8 +92,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.ConvertObjectTypesIntoStringDictionary: null)
-                    ?? sConvertObjectTypesIntoStringDictionary 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ConvertObjectTypesIntoStringDictionary : null)
+                    ?? sConvertObjectTypesIntoStringDictionary
                     ?? false;
             }
             set
@@ -106,8 +107,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParsePrimitiveTypeValues: null)
-                    ?? sTryToParsePrimitiveTypeValues 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParsePrimitiveTypeValues : null)
+                    ?? sTryToParsePrimitiveTypeValues
                     ?? false;
             }
             set
@@ -116,20 +117,20 @@ namespace ServiceStack.Text
             }
         }
 
-		private static bool? sTryToParseNumericType;
-		public static bool TryToParseNumericType
-		{
-			get
-			{
-				return (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParseNumericType : null)
-					?? sTryToParseNumericType
-					?? false;
-			}
-			set
-			{
-				if (!sTryToParseNumericType.HasValue) sTryToParseNumericType = value;
-			}
-		}
+        private static bool? sTryToParseNumericType;
+        public static bool TryToParseNumericType
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParseNumericType : null)
+                    ?? sTryToParseNumericType
+                    ?? false;
+            }
+            set
+            {
+                if (!sTryToParseNumericType.HasValue) sTryToParseNumericType = value;
+            }
+        }
 
         private static bool? sIncludeNullValues;
         public static bool IncludeNullValues
@@ -166,8 +167,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.TreatEnumAsInteger: null)
-                    ?? sTreatEnumAsInteger 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TreatEnumAsInteger : null)
+                    ?? sTreatEnumAsInteger
                     ?? false;
             }
             set
@@ -181,8 +182,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypeInfo: null)
-                    ?? sExcludeTypeInfo 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypeInfo : null)
+                    ?? sExcludeTypeInfo
                     ?? false;
             }
             set
@@ -196,8 +197,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeTypeInfo: null)
-                    ?? sIncludeTypeInfo 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeTypeInfo : null)
+                    ?? sIncludeTypeInfo
                     ?? false;
             }
             set
@@ -211,8 +212,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeAttr: null)
-                    ?? sTypeAttr 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeAttr : null)
+                    ?? sTypeAttr
                     ?? JsWriter.TypeAttr;
             }
             set
@@ -229,8 +230,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsonTypeAttrInObject: null)
-                    ?? sJsonTypeAttrInObject 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsonTypeAttrInObject : null)
+                    ?? sJsonTypeAttrInObject
                     ?? defaultJsonTypeAttrInObject;
             }
             set
@@ -245,8 +246,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsvTypeAttrInObject: null)
-                    ?? sJsvTypeAttrInObject 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.JsvTypeAttrInObject : null)
+                    ?? sJsvTypeAttrInObject
                     ?? defaultJsvTypeAttrInObject;
             }
             set
@@ -260,8 +261,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeWriter: null)
-                    ?? sTypeWriter 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeWriter : null)
+                    ?? sTypeWriter
                     ?? AssemblyUtils.WriteType;
             }
             set
@@ -275,8 +276,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeFinder: null)
-                    ?? sTypeFinder 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.TypeFinder : null)
+                    ?? sTypeFinder
                     ?? AssemblyUtils.FindType;
             }
             set
@@ -290,8 +291,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.DateHandler: null)
-                    ?? sDateHandler 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.DateHandler : null)
+                    ?? sDateHandler
                     ?? DateHandler.TimestampOffset;
             }
             set
@@ -331,8 +332,8 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames: null)
-                    ?? sEmitCamelCaseNames 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames : null)
+                    ?? sEmitCamelCaseNames
                     ?? false;
             }
             set
@@ -351,8 +352,8 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitLowercaseUnderscoreNames: null)
-                    ?? sEmitLowercaseUnderscoreNames 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitLowercaseUnderscoreNames : null)
+                    ?? sEmitLowercaseUnderscoreNames
                     ?? false;
             }
             set
@@ -391,8 +392,8 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnDeserializationError: null)
-                    ?? sThrowOnDeserializationError 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnDeserializationError : null)
+                    ?? sThrowOnDeserializationError
                     ?? false;
             }
             set
@@ -410,8 +411,8 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.AlwaysUseUtc: null)
-                    ?? sAlwaysUseUtc 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.AlwaysUseUtc : null)
+                    ?? sAlwaysUseUtc
                     ?? false;
             }
             set
@@ -490,8 +491,8 @@ namespace ServiceStack.Text
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.PreferInterfaces: null)
-                    ?? sPreferInterfaces 
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.PreferInterfaces : null)
+                    ?? sPreferInterfaces
                     ?? false;
             }
             set
@@ -622,7 +623,7 @@ namespace ServiceStack.Text
 
             sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
             sTryToParsePrimitiveTypeValues = null;
-		    sTryToParseNumericType = null;
+            sTryToParseNumericType = null;
             sConvertObjectTypesIntoStringDictionary = null;
             sIncludeNullValues = null;
             sExcludeTypeInfo = null;
@@ -637,7 +638,7 @@ namespace ServiceStack.Text
             sJsvTypeAttrInObject = null;
             sTypeWriter = null;
             sTypeFinder = null;
-			sTreatEnumAsInteger = null;
+            sTreatEnumAsInteger = null;
             sAlwaysUseUtc = null;
             sAssumeUtc = null;
             sAppendUtcOffset = null;
@@ -650,7 +651,8 @@ namespace ServiceStack.Text
             sExcludePropertyReferences = null;
             sExcludeTypes = new HashSet<Type> { typeof(Stream) };
             __uniqueTypes = new HashSet<Type>();
-	        sMaxDepth = 50;
+            sMaxDepth = 50;
+            PlatformExtensions.ClearRuntimeAttributes();
         }
 
         static void Reset(Type cachesForType)
@@ -721,7 +723,7 @@ namespace ServiceStack.Text
                     JsConfig.HasSerializeFn.Add(typeof(T));
                 else
                     JsConfig.HasSerializeFn.Remove(typeof(T));
-                
+
                 ClearFnCaches();
             }
         }
@@ -824,7 +826,7 @@ namespace ServiceStack.Text
             else if (SerializeFn != null)
             {
                 var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-                serializer.WriteString(writer, SerializeFn((T) obj));
+                serializer.WriteString(writer, SerializeFn((T)obj));
             }
             else
             {
@@ -849,7 +851,7 @@ namespace ServiceStack.Text
                 return DeSerializeFn(serializer.UnescapeString(str));
             }
         }
-        
+
         internal static void ClearFnCaches()
         {
             typeof(JsonWriter<>).MakeGenericType(new[] { typeof(T) }).InvokeReset();
@@ -862,7 +864,7 @@ namespace ServiceStack.Text
             DeSerializeFn = null;
             ExcludePropertyNames = null;
             EmitCamelCaseNames = EmitLowercaseUnderscoreNames = IncludeTypeInfo = ExcludeTypeInfo = null;
-        }    
+        }
     }
 
     public enum PropertyConvention
