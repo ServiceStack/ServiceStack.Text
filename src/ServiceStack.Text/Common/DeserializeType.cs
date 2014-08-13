@@ -294,12 +294,12 @@ namespace ServiceStack.Text.Common
             };
         }
 
-		private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
-		{
+        private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
+        {
             if (fieldInfo.ReflectedType() != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
-		    return PclExport.Instance.GetSetFieldMethod(fieldInfo);
-		}
+            return PclExport.Instance.GetSetFieldMethod(fieldInfo);
+        }
     }
 }
