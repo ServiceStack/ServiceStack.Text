@@ -537,5 +537,35 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(person.ToJsv().FromJsv<ModelWithDataMemberField>().Id, Is.EqualTo(1));
             Assert.That(person.ToJson().FromJson<ModelWithDataMemberField>().Id, Is.EqualTo(1));
         }
+
+        [Test]
+        public void Can_include_null_values_for_adhoc_types()
+        {
+            Assert.That(new Foo().ToJson(), Is.EqualTo("{}"));
+
+            JsConfig<Foo>.RawSerializeFn = obj => 
+            {
+                using (JsConfig.With(includeNullValues: true))
+                    return obj.ToJson();
+            };
+
+            Assert.That(new Foo().ToJson(), Is.EqualTo("{\"Bar\":null}"));
+
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_run_FromJson_within_RawDeserializeFn()
+        {
+            JsConfig<Foo>.RawDeserializeFn = json =>
+            {
+                using (JsConfig.With(includeNullValues: true))
+                    return json.FromJson<Foo>();
+            };
+
+            var obj = "{\"Bar\":\"Bar\"}".FromJson<Foo>();
+
+            Assert.That(obj.Bar, Is.EqualTo("Bar"));
+        }
     }
 }

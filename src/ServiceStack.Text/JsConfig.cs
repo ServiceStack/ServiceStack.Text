@@ -748,7 +748,7 @@ namespace ServiceStack.Text
         /// </summary>
         public static bool HasSerializeFn
         {
-            get { return serializeFn != null || rawSerializeFn != null; }
+            get { return !JsState.InSerializeFn && (serializeFn != null || rawSerializeFn != null); }
         }
 
         /// <summary>
@@ -802,7 +802,7 @@ namespace ServiceStack.Text
 
         public static bool HasDeserializeFn
         {
-            get { return DeSerializeFn != null || RawDeserializeFn != null; }
+            get { return !JsState.InDeserializeFn && (DeSerializeFn != null || RawDeserializeFn != null); }
         }
 
         private static Func<T, T> onDeserializedFn;
@@ -819,14 +819,30 @@ namespace ServiceStack.Text
 
         public static void WriteFn<TSerializer>(TextWriter writer, object obj)
         {
-            if (RawSerializeFn != null)
+            if (RawSerializeFn != null && !JsState.InSerializeFn)
             {
-                writer.Write(RawSerializeFn((T)obj));
+                JsState.InSerializeFn = true;
+                try
+                {
+                    writer.Write(RawSerializeFn((T)obj));
+                }
+                finally
+                {
+                    JsState.InSerializeFn = false;
+                }
             }
-            else if (SerializeFn != null)
+            else if (SerializeFn != null && !JsState.InSerializeFn)
             {
-                var serializer = JsWriter.GetTypeSerializer<TSerializer>();
-                serializer.WriteString(writer, SerializeFn((T)obj));
+                JsState.InSerializeFn = true;
+                try
+                {
+                    var serializer = JsWriter.GetTypeSerializer<TSerializer>();
+                    serializer.WriteString(writer, SerializeFn((T)obj));
+                }
+                finally
+                {
+                    JsState.InSerializeFn = false;
+                }
             }
             else
             {
@@ -842,13 +858,34 @@ namespace ServiceStack.Text
 
         internal static object ParseFn(ITypeSerializer serializer, string str)
         {
-            if (RawDeserializeFn != null)
+            if (RawDeserializeFn != null && !JsState.InDeserializeFn)
             {
-                return RawDeserializeFn(str);
+                JsState.InDeserializeFn = true;
+                try
+                {
+                    return RawDeserializeFn(str);
+                }
+                finally
+                {
+                    JsState.InDeserializeFn = false;
+                }
+            }
+            else if (DeSerializeFn != null && !JsState.InDeserializeFn)
+            {
+                JsState.InDeserializeFn = true;
+                try
+                {
+                    return DeSerializeFn(serializer.UnescapeString(str));
+                }
+                finally
+                {
+                    JsState.InDeserializeFn = false;
+                }
             }
             else
             {
-                return DeSerializeFn(serializer.UnescapeString(str));
+                var parseFn = JsonReader.Instance.GetParseFn<T>();
+                return parseFn(str);
             }
         }
 

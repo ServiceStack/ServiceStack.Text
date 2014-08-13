@@ -19,6 +19,12 @@ namespace ServiceStack.Text.Common
         internal static bool QueryStringMode = false;
 
         [ThreadStatic]
+        internal static bool InSerializeFn = false;
+
+        [ThreadStatic]
+        internal static bool InDeserializeFn = false;
+
+        [ThreadStatic]
         internal static int Depth = 0;
     }
 }
