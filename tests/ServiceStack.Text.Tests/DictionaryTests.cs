@@ -299,7 +299,6 @@ namespace ServiceStack.Text.Tests
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.TryToParseNumericType = true;
-            var decimalFmt = "n50";
 
             float floatValue = 1.1f;
             //TODO find a number that doesn't suck which throws in float.Parse() but not double.Parse()
