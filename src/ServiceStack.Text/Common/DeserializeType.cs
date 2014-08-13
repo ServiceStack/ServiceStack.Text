@@ -155,32 +155,41 @@ namespace ServiceStack.Text.Common
 
             bool boolValue;
             if (bool.TryParse(value, out boolValue)) return boolValue;
+            float floatValue;
+            double doubleValue;
 
             decimal decimalValue;
             if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue))
             {
-	            if (!JsConfig.TryToParseNumericType)
-		            return decimalValue;
+                if (!JsConfig.TryToParseNumericType)
+                    return decimalValue;
 
                 if (decimalValue == decimal.Truncate(decimalValue))
-				{
-					if (decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
-					if (decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
-					if (decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
-					if (decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
-					if (decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
-					if (decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
-					if (decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
-					if (decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
+                {
+                    if (decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
+                    if (decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
+                    if (decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
+                    if (decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
+                    if (decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
+                    if (decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
+                    if (decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
+                    if (decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
                 }
+
+                if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue))
+                    return floatValue;
+
+                if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue))
+                    return doubleValue;
+
                 return decimalValue;
             }
 
-            float floatValue;
-            if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue)) return floatValue;
+            if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue))
+                return floatValue;
 
-            double doubleValue;
-            if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue)) return doubleValue;
+            if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue))
+                return doubleValue;
 
             return null;
         }

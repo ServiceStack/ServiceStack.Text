@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Globalization;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels.DataModel;
 
@@ -279,19 +280,57 @@ namespace ServiceStack.Text.Tests
 			public Type Type { get; private set; }		
 		}
 
-		[Test]
-		public void deserizes_signed_bytes_into_to_best_fit_numeric()
-		{
-			JsConfig.TryToParsePrimitiveTypeValues = true;
-			JsConfig.TryToParseNumericType = true;
+        [Test]
+        public void deserizes_signed_bytes_into_to_best_fit_numeric()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.TryToParseNumericType = true;
 
-			var deserializedDict = JsonSerializer.DeserializeFromString<IDictionary<string, object>>("{\"min\":-128,\"max\":127}");
-			Assert.That(deserializedDict["min"], Is.TypeOf<sbyte>());
-			Assert.That(deserializedDict["min"], Is.EqualTo(sbyte.MinValue));
-			//it seemed strange having zero return as a signed byte
-			Assert.That(deserializedDict["max"], Is.TypeOf<byte>());
-			Assert.That(deserializedDict["max"], Is.EqualTo(sbyte.MaxValue));
-		}
+            var deserializedDict = JsonSerializer.DeserializeFromString<IDictionary<string, object>>("{\"min\":-128,\"max\":127}");
+            Assert.That(deserializedDict["min"], Is.TypeOf<sbyte>());
+            Assert.That(deserializedDict["min"], Is.EqualTo(sbyte.MinValue));
+            //it seemed strange having zero return as a signed byte
+            Assert.That(deserializedDict["max"], Is.TypeOf<byte>());
+            Assert.That(deserializedDict["max"], Is.EqualTo(sbyte.MaxValue));
+        }
+
+        [Test]
+        public void deserizes_floats_into_to_best_fit_floating_point()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+            JsConfig.TryToParseNumericType = true;
+            var decimalFmt = "n50";
+
+            float floatValue = 1.1f;
+            //TODO find a number that doesn't suck which throws in float.Parse() but not double.Parse()
+            double doubleValue = double.MaxValue - Math.Pow(2, 1000);
+            var intValue = int.MaxValue;
+            var longValue = long.MaxValue;
+
+            float notFloat;
+            Assert.That(!float.TryParse(doubleValue.ToString(), out notFloat));
+
+            var toFloatValue = float.Parse(floatValue.ToString());
+            Assert.AreEqual(toFloatValue, floatValue, 1);
+            var toDoubleValue = double.Parse(doubleValue.ToString());
+            Assert.AreEqual(toDoubleValue, doubleValue, Math.Pow(2, 1000));
+
+            var json = "{{\"float\":{0},\"double\":{1},\"int\":{2},\"long\":{3}}}"
+                .Fmt(floatValue, doubleValue, intValue, longValue);
+            var map = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
+
+            Assert.That(map["float"], Is.TypeOf<float>());
+            Assert.That(map["float"], Is.EqualTo(floatValue));
+
+            Assert.That(map["double"], Is.TypeOf<double>());
+            Assert.AreEqual((double)map["double"], doubleValue, Math.Pow(2, 1000));
+
+            Assert.That(map["int"], Is.TypeOf<int>());
+            Assert.That(map["int"], Is.EqualTo(intValue));
+
+            Assert.That(map["long"], Is.TypeOf<long>());
+            Assert.That(map["long"], Is.EqualTo(longValue));
+        }
 
 		[Test]
 		public void deserizes_signed_types_into_to_best_fit_numeric()
