@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{579B3FDB-CDAD-44E1-8417-885C38E49A0E}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -303,6 +303,7 @@
     <Compile Include="XmlSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ParseAsType.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
