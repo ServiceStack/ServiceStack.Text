@@ -29,7 +29,7 @@ namespace ServiceStack.Text
             bool? convertObjectTypesIntoStringDictionary = null,
             bool? tryToParsePrimitiveTypeValues = null,
 			bool? tryToParseNumericType = null,
-			Type parseNumericDecimalNumberAsType = null,
+			Type parseNumericNonWholeNumberAsType = null,
 			Type[] parseNumericWholeNumberAsTypePreference = null,
             bool? includeNullValues = null,
             bool? excludeTypeInfo = null,
@@ -58,7 +58,7 @@ namespace ServiceStack.Text
                 ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary,
                 TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
                 TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
-				ParseNumericDecimalNumberAsType = parseNumericDecimalNumberAsType ?? sParseNumericDecimalNumberAsType,
+				ParseNumericNonWholeNumberAsType = parseNumericNonWholeNumberAsType ?? sParseNumericNonWholeNumberAsType,
 				ParseNumericWholeNumberAsTypePreference = parseNumericWholeNumberAsTypePreference ?? sParseNumericWholeNumberAsTypePreference,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
                 ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
@@ -130,18 +130,18 @@ namespace ServiceStack.Text
 			}
 		}
 
-		private static Type sParseNumericDecimalNumberAsType;
-		public static Type ParseNumericDecimalNumberAsType
+		private static Type sParseNumericNonWholeNumberAsType;
+		public static Type ParseNumericNonWholeNumberAsType
 		{
 			get
 			{
-				return (JsConfigScope.Current != null ? JsConfigScope.Current.ParseNumericDecimalNumberAsType : null)
-					?? sParseNumericDecimalNumberAsType
+				return (JsConfigScope.Current != null ? JsConfigScope.Current.ParseNumericNonWholeNumberAsType : null)
+					?? sParseNumericNonWholeNumberAsType
 					?? typeof(decimal);
 			}
 			set
 			{
-				if (sParseNumericDecimalNumberAsType == null) sParseNumericDecimalNumberAsType = value;
+				if (sParseNumericNonWholeNumberAsType == null) sParseNumericNonWholeNumberAsType = value;
 			}
 		}
 
@@ -622,7 +622,7 @@ namespace ServiceStack.Text
             sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
             sTryToParsePrimitiveTypeValues = null;
 		    sTryToParseNumericType = null;
-			sParseNumericDecimalNumberAsType = null;
+			sParseNumericNonWholeNumberAsType = null;
 			sParseNumericWholeNumberAsTypePreference = null;
             sConvertObjectTypesIntoStringDictionary = null;
             sIncludeNullValues = null;
