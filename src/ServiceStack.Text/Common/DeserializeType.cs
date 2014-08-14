@@ -165,15 +165,15 @@ namespace ServiceStack.Text.Common
 			if(decimalValue != decimal.Truncate(decimalValue))
 			{
 				// Value is a decimal number (Use a decimal type e.g decimal | double | float)
-				if(JsConfig.ParseNumericDecimalNumberAsType == typeof(decimal))
+				if(JsConfig.ParseNumericNonWholeNumberAsType == typeof(decimal))
 					return decimalValue;
 
-				if(JsConfig.ParseNumericDecimalNumberAsType == typeof(double)) {
+				if(JsConfig.ParseNumericNonWholeNumberAsType == typeof(double)) {
 					double doubleValue;
 					return double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue) ? doubleValue : Convert.ToDouble(decimalValue);
 				}
 
-				if(JsConfig.ParseNumericDecimalNumberAsType == typeof(float)) {
+				if(JsConfig.ParseNumericNonWholeNumberAsType == typeof(float)) {
 					float floatValue;
 					return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue) ? floatValue : Convert.ToSingle(decimalValue);
 				}
