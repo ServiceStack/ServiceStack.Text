@@ -156,33 +156,45 @@ namespace ServiceStack.Text.Common
             bool boolValue;
             if (bool.TryParse(value, out boolValue)) return boolValue;
 
-            decimal decimalValue;
-            if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue))
-            {
-	            if (!JsConfig.TryToParseNumericType)
-		            return decimalValue;
+			// Try parse as a decimal (all numbers should be reasonably represented as a decimal (-7.9 x 10^28 to 7.9 x 10^28) / (10^0 to 10^28))
+			decimal decimalValue;
+			if(!decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue))
+				return null;
 
-                if (decimalValue == decimal.Truncate(decimalValue))
+			// Determine if the number is whole or decimal
+			if(decimalValue != decimal.Truncate(decimalValue))
+			{
+				// Value is a decimal number (Use a decimal type e.g decimal | double | float)
+				if(JsConfig.ParseNumericDecimalNumberAsType == typeof(decimal))
+					return decimalValue;
+
+				if(JsConfig.ParseNumericDecimalNumberAsType == typeof(double)) {
+					double doubleValue;
+					return double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue) ? doubleValue : Convert.ToDouble(decimalValue);
+				}
+
+				if(JsConfig.ParseNumericDecimalNumberAsType == typeof(float)) {
+					float floatValue;
+					return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue) ? floatValue : Convert.ToSingle(decimalValue);
+				}
+
+			} else {
+
+				// Value is a whole number (Use byte | sbyte | Int16 | UInt16 | Int32 | UInt32 | Int64 | UInt64 based on user preference) 
+				foreach(var type in JsConfig.ParseNumericWholeNumberAsTypePreference ?? JsConfig.ParseNumericWholeNumberAsTypeDefaultOrder)
 				{
-					if (decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
-					if (decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
-					if (decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
-					if (decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
-					if (decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
-					if (decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
-					if (decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
-					if (decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
-                }
-                return decimalValue;
-            }
+					if (type == typeof(byte) && decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
+					if (type == typeof(sbyte) && decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
+					if (type == typeof(Int16) && decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
+					if (type == typeof(UInt16) && decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
+					if (type == typeof(Int32) && decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
+					if (type == typeof(UInt32) && decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
+					if (type == typeof(Int64) && decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
+					if (type == typeof(UInt64) && decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
+				}
+			}
 
-            float floatValue;
-            if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue)) return floatValue;
-
-            double doubleValue;
-            if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue)) return doubleValue;
-
-            return null;
+			return null;
         }
 
         internal static object ParsePrimitive(string value, char firstChar)

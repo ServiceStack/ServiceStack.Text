@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -28,6 +29,8 @@ namespace ServiceStack.Text
             bool? convertObjectTypesIntoStringDictionary = null,
             bool? tryToParsePrimitiveTypeValues = null,
 			bool? tryToParseNumericType = null,
+			Type parseNumericDecimalNumberAsType = null,
+			Type[] parseNumericWholeNumberAsTypePreference = null,
             bool? includeNullValues = null,
             bool? excludeTypeInfo = null,
             bool? includeTypeInfo = null,
@@ -55,6 +58,8 @@ namespace ServiceStack.Text
                 ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary,
                 TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
                 TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
+				ParseNumericDecimalNumberAsType = parseNumericDecimalNumberAsType ?? sParseNumericDecimalNumberAsType,
+				ParseNumericWholeNumberAsTypePreference = parseNumericWholeNumberAsTypePreference ?? sParseNumericWholeNumberAsTypePreference,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
                 ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
                 IncludeTypeInfo = includeTypeInfo ?? sIncludeTypeInfo,
@@ -122,6 +127,40 @@ namespace ServiceStack.Text
 			set
 			{
 				if (!sTryToParseNumericType.HasValue) sTryToParseNumericType = value;
+			}
+		}
+
+		private static Type sParseNumericDecimalNumberAsType;
+		public static Type ParseNumericDecimalNumberAsType
+		{
+			get
+			{
+				return (JsConfigScope.Current != null ? JsConfigScope.Current.ParseNumericDecimalNumberAsType : null)
+					?? sParseNumericDecimalNumberAsType
+					?? typeof(decimal);
+			}
+			set
+			{
+				if (sParseNumericDecimalNumberAsType == null) sParseNumericDecimalNumberAsType = value;
+			}
+		}
+
+		public static readonly Type[] ParseNumericWholeNumberAsTypeDefaultOrder = { typeof(byte), typeof(sbyte), typeof(Int16), typeof(UInt16), typeof(Int32), typeof(UInt32), typeof(Int64), typeof(UInt64) };
+		private static Type[] sParseNumericWholeNumberAsTypePreference;
+		public static Type[] ParseNumericWholeNumberAsTypePreference
+		{
+			get
+			{
+				var current = (JsConfigScope.Current != null ? JsConfigScope.Current.ParseNumericWholeNumberAsTypePreference : null);
+				return (current != null && current.Length > 0) ? current : sParseNumericWholeNumberAsTypePreference;
+			}
+			set
+			{
+				if (sParseNumericWholeNumberAsTypePreference == null || sParseNumericWholeNumberAsTypePreference.Length == 0)
+				{
+					// The default parse order is by smallest range ascending
+					sParseNumericWholeNumberAsTypePreference = value.Union(ParseNumericWholeNumberAsTypeDefaultOrder).ToArray();
+				}
 			}
 		}
 
@@ -583,6 +622,8 @@ namespace ServiceStack.Text
             sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
             sTryToParsePrimitiveTypeValues = null;
 		    sTryToParseNumericType = null;
+			sParseNumericDecimalNumberAsType = null;
+			sParseNumericWholeNumberAsTypePreference = null;
             sConvertObjectTypesIntoStringDictionary = null;
             sIncludeNullValues = null;
             sExcludeTypeInfo = null;
