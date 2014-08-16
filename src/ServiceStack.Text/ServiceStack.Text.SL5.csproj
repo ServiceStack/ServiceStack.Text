@@ -277,6 +277,7 @@
     <Compile Include="XmlSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ParseAsType.cs" />
   </ItemGroup>
   <!--ItemGroup,Content-->
   <!--ItemGroup,None-->
