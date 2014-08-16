@@ -149,63 +149,61 @@ namespace ServiceStack.Text.Common
             return Serializer.UnescapeString(value);
         }
 
-		public static object ParsePrimitive(string value)
-		{
-			if (string.IsNullOrEmpty(value)) return null;
+        public static object ParsePrimitive(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return null;
 
-			bool boolValue;
-			if (bool.TryParse(value, out boolValue)) return boolValue;
+            bool boolValue;
+            if (bool.TryParse(value, out boolValue)) return boolValue;
 
-			// Parse as decimal
-			decimal decimalValue;
-			var acceptDecimal = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Decimal);
-			var hasDecimal = decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue);
+            // Parse as decimal
+            decimal decimalValue;
+            var acceptDecimal = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Decimal);
+            var isDecimal = decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue);
 
-			// Check if the number is an Primitive Integer type given that we have a decimal
-			if(hasDecimal && decimalValue == decimal.Truncate(decimalValue))
-			{
-				// Value is a whole number
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.Byte) && decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.SByte) && decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.Int16) && decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.UInt16) && decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.Int32) && decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.UInt32) && decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.Int64) && decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
-				if (JsConfig.ParsePrimitiveIntegerTypes.HasFlag(ParseAsType.UInt64) && decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
-				return null;
-			}
+            // Check if the number is an Primitive Integer type given that we have a decimal
+            if (isDecimal && decimalValue == decimal.Truncate(decimalValue))
+            {
+                // Value is a whole number
+                var parseAs = JsConfig.ParsePrimitiveIntegerTypes;
+                if (parseAs.HasFlag(ParseAsType.Byte) && decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
+                if (parseAs.HasFlag(ParseAsType.SByte) && decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
+                if (parseAs.HasFlag(ParseAsType.Int16) && decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
+                if (parseAs.HasFlag(ParseAsType.UInt16) && decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
+                if (parseAs.HasFlag(ParseAsType.Int32) && decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
+                if (parseAs.HasFlag(ParseAsType.UInt32) && decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
+                if (parseAs.HasFlag(ParseAsType.Int64) && decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
+                if (parseAs.HasFlag(ParseAsType.UInt64) && decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
+                return decimalValue;
+            }
 
-			// Value is a floating point number
+            // Value is a floating point number
 
-			// Return a decimal if the user accepts a decimal
-			if(hasDecimal && acceptDecimal)
-				return decimalValue;
+            // Return a decimal if the user accepts a decimal
+            if (isDecimal && acceptDecimal)
+                return decimalValue;
 
-			// Parse as double if decimal failed or user wants a double
-			double doubleValue = 0;
-			var acceptDouble = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Double);
-			var hasDouble = (!hasDecimal || acceptDouble) && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue);
+            float floatValue;
+            var acceptFloat = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Single);
+            var isFloat = float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue);
+            if (acceptFloat && isFloat)
+                return floatValue;
 
-			// Return a double if the user accepts a double
-			if(acceptDouble && hasDouble)
-				return doubleValue;
+            double doubleValue;
+            var acceptDouble = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Double);
+            var isDouble = double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue);
+            if (acceptDouble && isDouble)
+                return doubleValue;
 
-			// Parse as float
-			float floatValue;
-			var acceptFloat = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Single);
-			var hasFloat = float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue);
+            if (isDecimal)
+                return decimalValue;
+            if (isFloat)
+                return floatValue;
+            if (isDouble)
+                return doubleValue;
 
-			// Return a float if the user accepts a float
-			if(acceptFloat && hasFloat)
-				return floatValue;
-
-			// Default to decimal, then double , then float or null
-			if(hasDecimal) return decimalValue;
-			if(hasDouble) return doubleValue;
-			if(hasFloat) return floatValue;
-			return null;
-		}
+            return null;
+        }
 
         internal static object ParsePrimitive(string value, char firstChar)
         {

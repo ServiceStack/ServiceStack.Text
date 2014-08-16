@@ -183,6 +183,7 @@ namespace ServiceStack.Text.Tests
                 { "c", false },
                 { "d", new[] {1, 2, 3} },
 				{ "e", 1m },
+				{ "f", 1.1m },
             };
         }
 
@@ -247,7 +248,6 @@ namespace ServiceStack.Text.Tests
             Assert.AreEqual(new List<int> { 1, 2, 3 }, deserializedDict["d"]);
         }
 
-
         [Test]
         public void deserizes_to_decimal_by_default()
         {
@@ -256,18 +256,15 @@ namespace ServiceStack.Text.Tests
             var dict = SetupDict();
             var json = JsonSerializer.SerializeToString(dict);
             var deserializedDict = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
-            Assert.That(deserializedDict["e"], Is.TypeOf<decimal>());
-            Assert.That(deserializedDict["e"], Is.EqualTo(1m));
-
+            Assert.That(deserializedDict["f"], Is.TypeOf<decimal>());
+            Assert.That(deserializedDict["f"], Is.EqualTo(1.1m));
         }
+
         class NumericType
         {
-
             public NumericType(decimal max, Type type)
-                : this(0, max, type)
-            {
+                : this(0, max, type) {}
 
-            }
             public NumericType(decimal min, decimal max, Type type)
             {
                 Min = min;
@@ -299,6 +296,7 @@ namespace ServiceStack.Text.Tests
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.TryToParseNumericType = true;
+            JsConfig.ParsePrimitiveFloatingPointTypes = ParseAsType.Single | ParseAsType.Double;
 
             float floatValue = 1.1f;
             //TODO find a number that doesn't suck which throws in float.Parse() but not double.Parse()
@@ -329,6 +327,8 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(map["long"], Is.TypeOf<long>());
             Assert.That(map["long"], Is.EqualTo(longValue));
+
+            JsConfig.Reset();
         }
 
         [Test]

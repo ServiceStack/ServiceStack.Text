@@ -689,6 +689,8 @@ namespace ServiceStack.Text
             sExcludeTypes = new HashSet<Type> { typeof(Stream) };
             __uniqueTypes = new HashSet<Type>();
             sMaxDepth = 50;
+            sParsePrimitiveIntegerTypes = null;
+            sParsePrimitiveFloatingPointTypes = null;
             PlatformExtensions.ClearRuntimeAttributes();
         }
 
