@@ -632,8 +632,19 @@ namespace ServiceStack
         }
 
         public const string DataMember = "DataMemberAttribute";
-        public const string IgnoreDataMember = "IgnoreDataMemberAttribute";
-        public const string JsonIgnoreMembar = "JsonIgnoreAttribute";
+
+        internal static string[] IgnoreAttributesNamed = new[] {
+            "IgnoreDataMemberAttribute",
+            "JsonIgnoreAttribute"
+        };
+
+        internal static void Reset()
+        {
+            IgnoreAttributesNamed = new[] {
+                "IgnoreDataMemberAttribute",
+                "JsonIgnoreAttribute"
+            };
+        }
 
         public static PropertyInfo[] GetSerializableProperties(this Type type)
         {
@@ -648,12 +659,11 @@ namespace ServiceStack
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicReadableProperties
-                .Where( prop => prop.AllAttributes().All( attr =>
-                    {
+                .Where(prop => prop.AllAttributes().All(attr => {
                         var name = attr.GetType().Name;
-                        return name != IgnoreDataMember && name != JsonIgnoreMembar;
-                    } ) )
-                .Where( prop => !JsConfig.ExcludeTypes.Contains( prop.PropertyType ) )
+                        return !IgnoreAttributesNamed.Contains(name);
+                    }))
+                .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.PropertyType))
                 .ToArray();
         }
 
@@ -672,7 +682,8 @@ namespace ServiceStack
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicFields
-                .Where(prop => prop.AllAttributes().All(attr => attr.GetType().Name != IgnoreDataMember))
+                .Where(prop => prop.AllAttributes()
+                    .All(attr => !IgnoreAttributesNamed.Contains(attr.GetType().Name)))
                 .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.FieldType))
                 .ToArray();
         }
@@ -1299,7 +1310,7 @@ namespace ServiceStack
         {
             return memberInfo.AllAttributes<TAttribute>().FirstOrDefault();
         }
-        
+
         public static TAttribute FirstAttribute<TAttribute>(this ParameterInfo paramInfo)
         {
             return paramInfo.AllAttributes<TAttribute>().FirstOrDefault();

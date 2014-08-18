@@ -647,6 +647,11 @@ namespace ServiceStack.Text
             }
         }
 
+        public static string[] IgnoreAttributesNamed
+        {
+            set { ReflectionExtensions.IgnoreAttributesNamed = value; }
+        }
+
         public static void Reset()
         {
             foreach (var rawSerializeType in HasSerializeFn.ToArray())
@@ -692,6 +697,7 @@ namespace ServiceStack.Text
             sParsePrimitiveIntegerTypes = null;
             sParsePrimitiveFloatingPointTypes = null;
             PlatformExtensions.ClearRuntimeAttributes();
+            ReflectionExtensions.Reset();
         }
 
         static void Reset(Type cachesForType)

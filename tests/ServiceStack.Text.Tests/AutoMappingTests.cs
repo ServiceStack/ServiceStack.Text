@@ -152,7 +152,7 @@ namespace ServiceStack.Text.Tests
         public int Ignored { get; set; }
     }
 
-    public class ReadOnlyAttribute : AttributeBase {}
+    public class ReadOnlyAttribute : AttributeBase { }
 
     [TestFixture]
     public class AutoMappingTests
@@ -526,8 +526,8 @@ namespace ServiceStack.Text.Tests
         {
             var model = new ModelWithIgnoredFields
             {
-                Id = 1, 
-                Name = "Foo", 
+                Id = 1,
+                Name = "Foo",
                 Ignored = 2
             };
 
@@ -539,5 +539,30 @@ namespace ServiceStack.Text.Tests
             Assert.That(dto.Ignored, Is.EqualTo(10));
         }
 
+        public class IgnoredModel
+        {
+            public int Id { get; set; }
+
+            [IgnoreDataMember]
+            public int DataMemberIgnoreId { get; set; }
+
+            [JsonIgnore]
+            public int JsonIgnoreId { get; set; }
+        }
+
+        //Matches JSON.NET's [JsonIgnore] by name
+        public class JsonIgnoreAttribute : AttributeBase { }
+
+        [Test]
+        public void Can_change_ignored_properties()
+        {
+            var dto = new IgnoredModel();
+
+            JsConfig.IgnoreAttributesNamed = new[] {
+                typeof(IgnoreDataMemberAttribute).Name //i.e. Remove [JsonIgnore] 
+            };
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":0,\"JsonIgnoreId\":0}"));
+        }
     }
 }
