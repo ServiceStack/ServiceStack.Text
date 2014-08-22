@@ -919,6 +919,19 @@ namespace ServiceStack
             }
         }
 
+        public static int CountOccurancesOf(this string text, char needle)
+        {
+            var chars = text.ToCharArray();
+            var count = 0;
+            var length = chars.Length;
+            for (var n = length - 1; n >= 0; n--)
+            {
+                if (chars[n] == needle)
+                    count++;
+            }
+            return count;
+        }
+
 #if !XBOX
         public static string HexEscape(this string text, params char[] anyCharOf)
         {
