@@ -919,7 +919,7 @@ namespace ServiceStack
             }
         }
 
-        public static int CountOccurancesOf(this string text, char needle)
+        public static int CountOccurrencesOf(this string text, char needle)
         {
             var chars = text.ToCharArray();
             var count = 0;
