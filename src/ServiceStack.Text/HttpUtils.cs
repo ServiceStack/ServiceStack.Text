@@ -201,7 +201,7 @@ namespace ServiceStack
         }
 
         public static Task<string> GetStringFromUrlAsync(this string url, string accept = "*/*",
-     Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrlAsync(url, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
@@ -348,20 +348,24 @@ namespace ServiceStack
             }
 
             var taskWebRes = webReq.GetResponseAsync();
-            return taskWebRes.ContinueWith(task =>
-            {
-                var webRes = task.Result;
-                if (responseFilter != null)
+            return taskWebRes
+                .ContinueWith(task =>
                 {
-                    responseFilter((HttpWebResponse)webRes);
-                }
+                    if (task.Exception != null)
+                        throw task.Exception;
 
-                using (var stream = webRes.GetResponseStream())
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }, TaskContinuationOptions.NotOnFaulted | TaskContinuationOptions.OnlyOnRanToCompletion);
+                    var webRes = task.Result;
+                    if (responseFilter != null)
+                    {
+                        responseFilter((HttpWebResponse)webRes);
+                    }
+
+                    using (var stream = webRes.GetResponseStream())
+                    using (var reader = new StreamReader(stream))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }, TaskContinuationOptions.NotOnCanceled);
         }
 
         public static string SendStringToUrl(this string url, string method = null,
