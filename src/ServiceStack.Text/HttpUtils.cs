@@ -348,24 +348,35 @@ namespace ServiceStack
             }
 
             var taskWebRes = webReq.GetResponseAsync();
-            return taskWebRes
-                .ContinueWith(task =>
+            var tcs = new TaskCompletionSource<string>();
+
+            taskWebRes.ContinueWith(task =>
+            {
+                if (task.Exception != null)
                 {
-                    if (task.Exception != null)
-                        throw task.Exception;
+                    tcs.SetException(task.Exception);
+                    return;
+                }
+                if (task.IsCanceled)
+                {
+                    tcs.SetCanceled();
+                    return;
+                }
 
-                    var webRes = task.Result;
-                    if (responseFilter != null)
-                    {
-                        responseFilter((HttpWebResponse)webRes);
-                    }
+                var webRes = task.Result;
+                if (responseFilter != null)
+                {
+                    responseFilter((HttpWebResponse)webRes);
+                }
 
-                    using (var stream = webRes.GetResponseStream())
-                    using (var reader = new StreamReader(stream))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }, TaskContinuationOptions.NotOnCanceled);
+                using (var stream = webRes.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    tcs.SetResult(reader.ReadToEnd());
+                }
+            });
+
+            return tcs.Task;
         }
 
         public static string SendStringToUrl(this string url, string method = null,
