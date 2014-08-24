@@ -353,7 +353,7 @@ namespace ServiceStack
                 var webRes = task.Result;
                 if (responseFilter != null)
                 {
-                    responseFilter(webRes);
+                    responseFilter((HttpWebResponse)webRes);
                 }
 
                 using (var stream = webRes.GetResponseStream())
