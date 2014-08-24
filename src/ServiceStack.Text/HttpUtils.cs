@@ -353,7 +353,7 @@ namespace ServiceStack
                 var webRes = task.Result;
                 if (responseFilter != null)
                 {
-                    responseFilter((HttpWebResponse)webRes);
+                    responseFilter(webRes);
                 }
 
                 using (var stream = webRes.GetResponseStream())
@@ -361,7 +361,7 @@ namespace ServiceStack
                 {
                     return reader.ReadToEnd();
                 }
-            });
+            }, TaskContinuationOptions.NotOnFaulted | TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
         public static string SendStringToUrl(this string url, string method = null,
