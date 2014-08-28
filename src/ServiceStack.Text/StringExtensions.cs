@@ -902,7 +902,7 @@ namespace ServiceStack
             foreach (var parts in text.ReadLines().Select(line => line.SplitOnFirst(delimiter)))
             {
                 var key = parts[0].Trim();
-                if (key.Length == 0) continue;
+                if (key.Length == 0 || key.StartsWith("#")) continue;
                 to[key] = parts.Length == 2 ? parts[1].Trim() : null;
             }
 
