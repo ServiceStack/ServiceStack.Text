@@ -79,7 +79,11 @@ namespace ServiceStack.Text.Common
             if (dateTimeStr.Length == DefaultDateTimeFormat.Length
                 || dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
             {
-                return DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture).Prepare();
+                var unspecifiedDate = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
+                if (JsConfig.AssumeUtc)
+                    unspecifiedDate = DateTime.SpecifyKind(unspecifiedDate, DateTimeKind.Utc);
+
+                return unspecifiedDate.Prepare();
             }
 
             switch (JsConfig.DateHandler)

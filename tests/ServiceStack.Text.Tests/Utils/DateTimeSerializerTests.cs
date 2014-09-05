@@ -355,6 +355,22 @@ namespace ServiceStack.Text.Tests.Utils
         }
 
         [Test]
+        public void Does_parse_as_UTC()
+        {
+            JsConfig.AssumeUtc = true;
+
+            var dateStr = "2014-08-27 14:30:23";
+            var dateTime = dateStr.FromJson<DateTime>();
+
+            Assert.That(dateTime.Kind, Is.EqualTo(DateTimeKind.Utc));
+            Assert.That(dateTime.Hour, Is.EqualTo(14));
+            Assert.That(dateTime.Minute, Is.EqualTo(30));
+            Assert.That(dateTime.Second, Is.EqualTo(23));
+
+            JsConfig.Reset();
+        }
+
+        [Test]
         public void Can_serialize_nullable_DateTime()
         {
             JsConfig.IncludeNullValues = true;
