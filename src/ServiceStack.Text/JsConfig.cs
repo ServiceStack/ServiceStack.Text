@@ -478,6 +478,8 @@ namespace ServiceStack.Text
             return HasSerializeFnSet.Contains(typeof(T)) || JsConfig<T>.GetToJsonMethod() != null;
         }
 
+        internal static HashSet<Type> HasntFromJsonMethodSet = new HashSet<Type>();
+
         public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
         private static bool? sPreferInterfaces;
@@ -603,6 +605,7 @@ namespace ServiceStack.Text
             sIncludePublicFields = null;
             HasSerializeFnSet = new HashSet<Type>();
             HasntToJsonMethodSet = new HashSet<Type>();
+            HasntFromJsonMethodSet = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
             sExcludePropertyReferences = null;
@@ -980,7 +983,22 @@ namespace ServiceStack.Text
 
         public static bool HasDeserializeFn
         {
-            get { return DeSerializeFn != null || RawDeserializeFn != null; }
+            get { return DeSerializeFn != null || RawDeserializeFn != null || GetFromJsonMethod() != null; }
+        }
+
+        internal static Func<string, T> GetFromJsonMethod()
+        {
+            if (JsConfig.HasntFromJsonMethodSet.Contains(typeof(T)))
+                return null;
+
+            var mi = typeof(T).GetMethod("FromJson", BindingFlags.Public | BindingFlags.Static);
+            if (mi == null)
+            {
+                JsConfig.HasntFromJsonMethodSet.Add(typeof(T));
+                return null;
+            }
+
+            return RawDeserializeFn = (Func<string, T>)mi.MakeDelegate(typeof(Func<string, T>));
         }
 
         private static Func<T, T> onDeserializedFn;
