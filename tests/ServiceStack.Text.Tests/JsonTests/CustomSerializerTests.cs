@@ -12,7 +12,6 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             JsConfig<EntityWithValues>.RawSerializeFn = SerializeEntity;
             JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity<EntityWithValues>;
-            JsConfig<EntityWithToJsonInstanceMethod>.RawDeserializeFn = DeserializeEntity<EntityWithToJsonInstanceMethod>;
         }
 
         [TestFixtureTearDown]
@@ -29,13 +28,14 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         [Test]
-        public void Can_serialize_Entity_using_ToJson_instance_method()
+        public void Can_serialize_Entity_using_method_hooks()
         {
-            var originalEntity = new EntityWithToJsonInstanceMethod { id = 5, Values = new Dictionary<string, string> { { "dog", "bark" }, { "cat", "meow" } } };
+            var originalEntity = new EntityWithMethodHooks { id = 5, Values = new Dictionary<string, string> { { "dog", "bark" }, { "cat", "meow" } } };
             var result = JsonSerializeAndCompare(originalEntity);
             Assert.True(originalEntity.ToJsonWasCalled);
-            Assert.True(result.Values.ContainsKey(EntityWithToJsonInstanceMethod.TO_JSON_WAS_CALLED) &&
-                result.Values[EntityWithToJsonInstanceMethod.TO_JSON_WAS_CALLED] == true.ToString());
+            Assert.True(result.Values.ContainsKey(EntityWithMethodHooks.TO_JSON_WAS_CALLED) &&
+                result.Values[EntityWithMethodHooks.TO_JSON_WAS_CALLED] == true.ToString());
+            Assert.True(result.FromJsonWasCalled);
         }
 
         [Test]
@@ -81,17 +81,26 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
         }
 
-        public class EntityWithToJsonInstanceMethod : EntityWithValues
+        public class EntityWithMethodHooks : EntityWithValues
         {
             public const string TO_JSON_WAS_CALLED = "toJsonWasCalled";
+            public const string FROM_JSON_WAS_CALLED = "fromJsonWasCalled";
 
             public bool ToJsonWasCalled = false;
+            public bool FromJsonWasCalled = false;
 
             public string ToJson()
             {
                 this.ToJsonWasCalled = true;
                 this.Values[TO_JSON_WAS_CALLED] = ToJsonWasCalled.ToString();
                 return SerializeEntity(this);
+            }
+
+            public static EntityWithMethodHooks FromJson(string json)
+            {
+                var entity = DeserializeEntity<EntityWithMethodHooks>(json);
+                entity.FromJsonWasCalled = true;
+                return entity;
             }
         }
 
