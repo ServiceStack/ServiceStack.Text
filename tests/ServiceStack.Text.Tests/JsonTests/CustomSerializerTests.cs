@@ -11,7 +11,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         static CustomSerializerTests()
         {
             JsConfig<EntityWithValues>.RawSerializeFn = SerializeEntity;
-            JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity;
+            JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity<EntityWithValues>;
         }
 
         [TestFixtureTearDown]
@@ -25,6 +25,17 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             var originalEntity = new EntityWithValues { id = 5, Values = new Dictionary<string, string> { { "dog", "bark" }, { "cat", "meow" } } };
             JsonSerializeAndCompare(originalEntity);
+        }
+
+        [Test]
+        public void Can_serialize_Entity_using_method_hooks()
+        {
+            var originalEntity = new EntityWithMethodHooks { id = 5, Values = new Dictionary<string, string> { { "dog", "bark" }, { "cat", "meow" } } };
+            var result = JsonSerializeAndCompare(originalEntity);
+            Assert.True(originalEntity.ToJsonWasCalled);
+            Assert.True(result.Values.ContainsKey(EntityWithMethodHooks.TO_JSON_WAS_CALLED) &&
+                result.Values[EntityWithMethodHooks.TO_JSON_WAS_CALLED] == true.ToString());
+            Assert.True(result.FromJsonWasCalled);
         }
 
         [Test]
@@ -70,6 +81,29 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
         }
 
+        public class EntityWithMethodHooks : EntityWithValues
+        {
+            public const string TO_JSON_WAS_CALLED = "toJsonWasCalled";
+            public const string FROM_JSON_WAS_CALLED = "fromJsonWasCalled";
+
+            public bool ToJsonWasCalled = false;
+            public bool FromJsonWasCalled = false;
+
+            public string ToJson()
+            {
+                this.ToJsonWasCalled = true;
+                this.Values[TO_JSON_WAS_CALLED] = ToJsonWasCalled.ToString();
+                return SerializeEntity(this);
+            }
+
+            public static EntityWithMethodHooks FromJson(string json)
+            {
+                var entity = DeserializeEntity<EntityWithMethodHooks>(json);
+                entity.FromJsonWasCalled = true;
+                return entity;
+            }
+        }
+
         private static string SerializeEntity(EntityWithValues entity)
         {
             var dictionary = entity.Values.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -80,11 +114,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             return JsonSerializer.SerializeToString(dictionary);
         }
 
-        private static EntityWithValues DeserializeEntity(string value)
+        private static T DeserializeEntity<T>(string value) where T : EntityWithValues, new()
         {
             var dictionary = JsonSerializer.DeserializeFromString<Dictionary<string, string>>(value);
             if (dictionary == null) return null;
-            var entity = new EntityWithValues();
+            var entity = new T();
             foreach (var pair in dictionary)
             {
                 if (pair.Key == "id")

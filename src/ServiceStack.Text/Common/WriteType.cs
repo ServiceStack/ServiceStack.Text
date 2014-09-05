@@ -136,7 +136,7 @@ namespace ServiceStack.Text.Common
                 int propertyOrder = -1;
                 var propertyType = propertyInfo.PropertyType;
                 var defaultValue = propertyType.GetDefaultValue();
-                bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
+                bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn(propertyType);
                 bool propertySuppressDefaultAttribute = false;
                 var shouldSerialize = GetShouldSerializeMethod(propertyInfo);
                 if (isDataContract)
@@ -186,7 +186,7 @@ namespace ServiceStack.Text.Common
                 int propertyOrder = -1;
                 var propertyType = fieldInfo.FieldType;
                 var defaultValue = propertyType.GetDefaultValue();
-                bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn.Contains(propertyType);
+                bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && JsConfig.HasSerializeFn(propertyType);
                 bool propertySuppressDefaultAttribute = false;
                 var shouldSerialize = GetShouldSerializeMethod(fieldInfo);
                 if (isDataContract)
