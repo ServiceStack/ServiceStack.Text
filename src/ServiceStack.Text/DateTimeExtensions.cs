@@ -88,12 +88,12 @@ namespace ServiceStack.Text
 
         public static DateTime FromUnixTimeMs(this long msSince1970, TimeSpan offset)
         {
-            return UnixEpochDateTimeUnspecified + TimeSpan.FromMilliseconds(msSince1970) + offset;
+            return DateTime.SpecifyKind(UnixEpochDateTimeUnspecified + TimeSpan.FromMilliseconds(msSince1970) + offset, DateTimeKind.Local);
         }
 
         public static DateTime FromUnixTimeMs(this double msSince1970, TimeSpan offset)
         {
-            return UnixEpochDateTimeUnspecified + TimeSpan.FromMilliseconds(msSince1970) + offset;
+            return DateTime.SpecifyKind(UnixEpochDateTimeUnspecified + TimeSpan.FromMilliseconds(msSince1970) + offset, DateTimeKind.Local);
         }
 
         public static DateTime FromUnixTimeMs(string msSince1970)

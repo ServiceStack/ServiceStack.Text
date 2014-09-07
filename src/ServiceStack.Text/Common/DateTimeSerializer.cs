@@ -80,8 +80,7 @@ namespace ServiceStack.Text.Common
                 || dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
             {
                 var unspecifiedDate = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
-                if (JsConfig.AssumeUtc)
-                    unspecifiedDate = DateTime.SpecifyKind(unspecifiedDate, DateTimeKind.Utc);
+                unspecifiedDate = DateTime.SpecifyKind(unspecifiedDate, DateTimeKind.Utc);
 
                 return unspecifiedDate.Prepare();
             }
@@ -118,7 +117,8 @@ namespace ServiceStack.Text.Common
 
             try
             {
-                return DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal).Prepare();
+                var dateTime = DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
+                return dateTime.Prepare();
             }
             catch (FormatException)
             {
@@ -446,7 +446,7 @@ namespace ServiceStack.Text.Common
 
             var offset = timeZone.FromTimeOffsetString();
             var date = unixTime.FromUnixTimeMs(offset);
-            return new DateTimeOffset(date, offset).DateTime;
+            return date;
         }
 
         public static TimeZoneInfo GetLocalTimeZoneInfo()
@@ -478,7 +478,7 @@ namespace ServiceStack.Text.Common
 
             if (JsConfig.DateHandler == DateHandler.RFC1123)
             {
-                writer.Write(dateTime.ToString("R", CultureInfo.InvariantCulture));
+                writer.Write(dateTime.ToUniversalTime().ToString("R", CultureInfo.InvariantCulture));
                 return;
             }
 
