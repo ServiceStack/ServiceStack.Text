@@ -80,7 +80,8 @@ namespace ServiceStack.Text.Common
                 || dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
             {
                 var unspecifiedDate = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
-                unspecifiedDate = DateTime.SpecifyKind(unspecifiedDate, DateTimeKind.Utc);
+                if (JsConfig.AssumeUtc)
+                    unspecifiedDate = DateTime.SpecifyKind(unspecifiedDate, DateTimeKind.Utc);
 
                 return unspecifiedDate.Prepare();
             }
