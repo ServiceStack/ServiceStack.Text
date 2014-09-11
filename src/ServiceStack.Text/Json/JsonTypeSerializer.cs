@@ -35,7 +35,7 @@ namespace ServiceStack.Text.Json
 
         internal static string GetTypeAttrInObject(string typeAttr)
         {
-            return string.Format("{{\"{0}\":", typeAttr);
+            return string.Format("\"{0}\":", typeAttr);
         }
 
         public static readonly bool[] WhiteSpaceFlags = new bool[' ' + 1];

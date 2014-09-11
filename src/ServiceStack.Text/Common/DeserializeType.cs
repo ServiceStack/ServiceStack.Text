@@ -77,29 +77,34 @@ namespace ServiceStack.Text.Common
         public static Type ExtractType(string strType)
         {
             var typeAttrInObject = Serializer.TypeAttrInObject;
-            if (strType != null
-                && strType.Length > typeAttrInObject.Length
-                && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
+            if (strType != null && strType.Length > typeAttrInObject.Length)
             {
-                var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
+                var propIndex = strType.IndexOf(typeAttrInObject, StringComparison.InvariantCulture);
 
-                var type = JsConfig.TypeFinder.Invoke(typeName);
-
-                if (type == null)
+                if (propIndex >= 1)
                 {
-                    Tracer.Instance.WriteWarning("Could not find type: " + typeName);
-                    return null;
-                }
+                    propIndex += typeAttrInObject.Length;
+                    var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
+
+                    var type = JsConfig.TypeFinder.Invoke(typeName);
+
+                    if (type == null)
+                    {
+                        Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+                        return null;
+                    }
 
 #if !SILVERLIGHT && !MONOTOUCH
-                if (type.IsInterface || type.IsAbstract)
-                {
-                    return DynamicProxy.GetInstanceFor(type).GetType();
-                }
+                    if (type.IsInterface || type.IsAbstract)
+                    {
+                        return DynamicProxy.GetInstanceFor(type).GetType();
+                    }
 #endif
 
-                return type;
+                    return type;
+                    
+                }
+
             }
             return null;
         }
@@ -209,18 +214,21 @@ namespace ServiceStack.Text.Common
         {
             var typeAttrInObject = Serializer.TypeAttrInObject;
 
-            if (strType != null
-                && strType.Length > typeAttrInObject.Length
-                && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
+            if (strType != null && strType.Length > typeAttrInObject.Length)
             {
-                var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.EatValue(strType, ref propIndex);
-                var type = JsConfig.TypeFinder.Invoke(typeName);
+                var propIndex = strType.IndexOf(typeAttrInObject, StringComparison.InvariantCulture);
 
-                if (type == null)
-                    Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+                if (propIndex >= 1)
+                {
+                    propIndex += typeAttrInObject.Length;
+                    var typeName = Serializer.EatValue(strType, ref propIndex);
+                    var type = JsConfig.TypeFinder.Invoke(typeName);
 
-                return type;
+                    if (type == null)
+                        Tracer.Instance.WriteWarning("Could not find type: " + typeName);
+
+                    return type;
+                }
             }
             return null;
         }
