@@ -894,7 +894,7 @@ namespace ServiceStack
             return PclExport.Instance.GetAsciiBytes(value);
         }
 
-        public static Dictionary<string,string> ParseKeyValueText(this string text, string delimiter=":")
+        public static Dictionary<string,string> ParseKeyValueText(this string text, string delimiter=" ")
         {
             var to = new Dictionary<string, string>();
             if (text == null) return to;
