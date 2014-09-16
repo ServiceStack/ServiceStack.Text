@@ -130,7 +130,7 @@ namespace ServiceStack
             return false;
         }
 
-        public static Type GetGenericType(this Type type)
+        public static Type FirstGenericType(this Type type)
         {
             while (type != null)
             {
@@ -174,7 +174,7 @@ namespace ServiceStack
                 }
             }
 
-            var genericType = type.GetGenericType();
+            var genericType = type.FirstGenericType();
             if (genericType != null && genericType.GetGenericTypeDefinition() == genericTypeDefinition)
             {
                 return genericType;
@@ -321,7 +321,7 @@ namespace ServiceStack
 
             if (!type.IsGeneric()) return null;
 
-            var genericType = type.GetGenericType();
+            var genericType = type.FirstGenericType();
             return genericType.GetGenericTypeDefinition() == genericInterfaceType
                     ? genericType
                     : null;
@@ -1325,12 +1325,11 @@ namespace ServiceStack
         {
             while (type != null)
             {
-                if (type.HasGenericType())
+                if (type.IsGenericTypeDefinition())
                     return type.GenericTypeDefinition();
 
                 type = type.BaseType();
             }
-
             return null;
         }
 

@@ -58,7 +58,7 @@ namespace ServiceStack.Text
             ConvertInstanceDelegate translateToFn;
             if (TranslateConvertibleICollectionCache.TryGetValue(typeKey, out translateToFn)) return translateToFn(from, toInstanceOfType);
 
-            var toElementType = toInstanceOfType.GetGenericType().GenericTypeArguments()[0];
+            var toElementType = toInstanceOfType.FirstGenericType().GenericTypeArguments()[0];
             var genericType = typeof(TranslateListWithConvertibleElements<,>).MakeGenericType(fromElementType, toElementType);
             var mi = genericType.GetStaticMethod("LateBoundTranslateToGenericICollection");
             translateToFn = (ConvertInstanceDelegate)mi.MakeDelegate(typeof(ConvertInstanceDelegate));

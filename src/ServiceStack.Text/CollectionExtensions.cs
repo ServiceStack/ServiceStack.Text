@@ -9,7 +9,7 @@ namespace ServiceStack
         {
             if (ofCollectionType == null) return new List<T>(withItems);
 
-            var genericType = ofCollectionType.GetGenericType();
+            var genericType = ofCollectionType.FirstGenericType();
             var genericTypeDefinition = genericType != null
                 ? genericType.GetGenericTypeDefinition()
                 : null;
