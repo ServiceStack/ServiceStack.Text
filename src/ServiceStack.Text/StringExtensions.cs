@@ -839,6 +839,11 @@ namespace ServiceStack
             return decimal.TryParse(text, out ret) ? ret : defaultValue;
         }
 
+        public static bool Matches(this string value, string pattern)
+        {
+            return value.Glob(pattern);
+        }
+
         public static bool Glob(this string value, string pattern)
         {
             int pos;
