@@ -1323,14 +1323,8 @@ namespace ServiceStack
 
         public static Type FirstGenericTypeDefinition(this Type type)
         {
-            while (type != null)
-            {
-                if (type.IsGenericTypeDefinition())
-                    return type.GenericTypeDefinition();
-
-                type = type.BaseType();
-            }
-            return null;
+            var genericType = type.FirstGenericType();
+            return genericType != null ? genericType.GetGenericTypeDefinition() : null;
         }
 
         public static bool IsDynamic(this Assembly assembly)
