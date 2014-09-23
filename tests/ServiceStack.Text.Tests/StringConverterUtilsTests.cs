@@ -88,5 +88,23 @@ namespace ServiceStack.ServiceModel.Tests
 			Assert.That(result, Is.EquivalentTo(value.Items));
 		}
 
+        public class ParseFoo
+        {
+            public string A { get; set; }
+
+            public static ParseFoo ParseJson(string json)
+            {
+                var obj = JsonObject.Parse(json);
+                var to = new ParseFoo { A = obj["B"] };
+                return to;
+            }
+        }
+
+	    [Test]
+	    public void Does_call_ParseJson_static_method()
+	    {
+	        var foo = "{\"B\":\"Value\"}".FromJson<ParseFoo>();
+            Assert.That(foo.A, Is.EqualTo("Value"));
+	    }
 	}
 }
