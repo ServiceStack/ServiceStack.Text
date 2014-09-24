@@ -14,6 +14,8 @@ namespace ServiceStack.Text.Json
 		public const string True = "true";
 		public const string False = "false";
 
+        public static char[] WhiteSpaceChars = new[] { ' ', '\t', '\r', '\n' };
+
 		static readonly char[] EscapeChars = new[]
 			{
 				QuoteChar, '\n', '\r', '\t', '"', '\\', '\f', '\b',

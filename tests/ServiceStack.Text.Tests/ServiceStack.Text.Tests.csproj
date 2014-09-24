@@ -178,6 +178,7 @@
   <ItemGroup>
     <Compile Include="AttributeTests.cs" />
     <Compile Include="JsonTests\InvalidJsonTests.cs" />
+    <Compile Include="JsonTests\TypeInfoTests.cs" />
     <Compile Include="SerializationDelegatePerformanceTests.cs" />
     <Compile Include="SerializationHookTests.cs" />
     <Compile Include="StaticAccessorTests.cs" />
