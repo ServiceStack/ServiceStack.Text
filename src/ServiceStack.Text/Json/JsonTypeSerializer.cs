@@ -42,10 +42,10 @@ namespace ServiceStack.Text.Json
 
         static JsonTypeSerializer()
         {
-            WhiteSpaceFlags[' '] = true;
-            WhiteSpaceFlags['\t'] = true;
-            WhiteSpaceFlags['\r'] = true;
-            WhiteSpaceFlags['\n'] = true;
+            foreach (var c in JsonUtils.WhiteSpaceChars)
+            {
+                WhiteSpaceFlags[c] = true;
+            }
         }
 
         public WriteObjectDelegate GetWriteFn<T>()

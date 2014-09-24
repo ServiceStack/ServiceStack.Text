@@ -77,8 +77,17 @@ namespace ServiceStack.Text.Common
         public static Type ExtractType(string strType)
         {
             var typeAttrInObject = Serializer.TypeAttrInObject;
-            if (strType != null
-                && strType.Length > typeAttrInObject.Length
+            if (strType == null || strType.Length <= 1) return null;
+
+            var hasWhitespace = JsonUtils.WhiteSpaceChars.Contains(strType[1]);
+            if (hasWhitespace)
+            {
+                var pos = strType.IndexOf('"');
+                if (pos >= 0)
+                    strType = "{" + strType.Substring(pos);
+            }
+
+            if (strType.Length > typeAttrInObject.Length
                 && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
