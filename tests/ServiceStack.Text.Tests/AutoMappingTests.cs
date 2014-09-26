@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels;
@@ -563,6 +565,51 @@ namespace ServiceStack.Text.Tests
             };
 
             Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":0,\"JsonIgnoreId\":0}"));
+        }
+    }
+
+    public class Test
+    {
+        public string Name { get; set; }
+    }
+
+    public class PropertyExpressionTests
+    {
+        [Test]
+        public void Can_call_typed_setter_Expressions()
+        {
+            var nameProperty = typeof(Test).GetProperty("Name");
+            var setMethod = nameProperty.GetSetMethod();
+
+            var instance = Expression.Parameter(typeof(Test), "i");
+            var argument = Expression.Parameter(typeof(string), "a");
+
+            var setterCall = Expression.Call(instance, setMethod, argument);
+            var fn = Expression.Lambda<Action<Test, string>>(setterCall, instance, argument).Compile();
+
+            var test = new Test();
+            fn(test, "Foo");
+            Assert.That(test.Name, Is.EqualTo("Foo"));
+        }
+
+        [Test]
+        public void Can_call_object_setter_Expressions()
+        {
+            var nameProperty = typeof(Test).GetProperty("Name");
+
+            var instance = Expression.Parameter(typeof(object), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var instanceParam = Expression.Convert(instance, nameProperty.ReflectedType());
+            var valueParam = Expression.Convert(argument, nameProperty.PropertyType);
+
+            var setterCall = Expression.Call(instanceParam, nameProperty.SetMethod(), valueParam);
+
+            var fn = Expression.Lambda<Action<object, object>>(setterCall, instance, argument).Compile();
+
+            var test = new Test();
+            fn(test, "Foo");
+            Assert.That(test.Name, Is.EqualTo("Foo"));
         }
     }
 }
