@@ -48,7 +48,7 @@ namespace ServiceStack.Text.Common
                 if (possibleTypeInfo && propertyName == JsWriter.TypeAttr)
                 {
                     var explicitTypeName = Serializer.ParseString(propertyValueStr);
-                    var explicitType = AssemblyUtils.FindType(explicitTypeName);
+                    var explicitType = JsConfig.TypeFinder(explicitTypeName);
 
                     if (explicitType != null && !explicitType.IsInterface() && !explicitType.IsAbstract())
                     {
