@@ -89,7 +89,7 @@ namespace ServiceStack.Text.Common
                 var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
 
-                var type = JsConfig.TypeFinder.Invoke(typeName);
+                var type = JsConfig.TypeFinder(typeName);
 
                 if (type == null)
                 {
@@ -250,7 +250,7 @@ namespace ServiceStack.Text.Common
             {
                 var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.EatValue(strType, ref propIndex);
-                var type = JsConfig.TypeFinder.Invoke(typeName);
+                var type = JsConfig.TypeFinder(typeName);
 
                 if (type == null)
                     Tracer.Instance.WriteWarning("Could not find type: " + typeName);
