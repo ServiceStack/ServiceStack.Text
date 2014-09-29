@@ -771,7 +771,7 @@ namespace ServiceStack
         public static Type ReflectedType(this PropertyInfo pi)
         {
 #if (NETFX_CORE || PCL)
-            return pi.PropertyType;
+            return pi.DeclaringType;
 #else
             return pi.ReflectedType;
 #endif
@@ -780,7 +780,7 @@ namespace ServiceStack
         public static Type ReflectedType(this FieldInfo fi)
         {
 #if (NETFX_CORE || PCL)
-            return fi.FieldType;
+            return fi.DeclaringType;
 #else
             return fi.ReflectedType;
 #endif
