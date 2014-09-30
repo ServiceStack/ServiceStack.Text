@@ -777,6 +777,14 @@ namespace ServiceStack
                 && type.Name.IndexOfAny(SystemTypeChars) == -1;
         }
 
+        public static bool IsUserEnum(this Type type)
+        {
+            return type.IsEnum()
+                && type.Namespace != null
+                && !type.Namespace.StartsWith("System")
+                && type.Name.IndexOfAny(SystemTypeChars) == -1;
+        }
+
         public static bool IsInt(this string text)
         {
             if (String.IsNullOrEmpty(text)) return false;
