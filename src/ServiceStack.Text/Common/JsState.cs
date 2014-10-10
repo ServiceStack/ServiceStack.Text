@@ -19,22 +19,61 @@ namespace ServiceStack.Text.Common
         internal static bool QueryStringMode = false;
 
         [ThreadStatic]
+        internal static int Depth = 0;
+
+
+        [ThreadStatic]
         internal static HashSet<Type> InSerializerFns = new HashSet<Type>();
 
-        internal static bool InSerialize<T>()
+        internal static void RegisterSerializer<T>()
         {
-            return InSerializerFns.Contains(typeof(T));
+            if (InSerializerFns == null)
+                InSerializerFns = new HashSet<Type>();
+
+            InSerializerFns.Add(typeof(T));
+        }
+
+        internal static void UnRegisterSerializer<T>()
+        {
+            if (InSerializerFns == null)
+                return;
+
+            InSerializerFns.Remove(typeof(T));
+        }
+
+        internal static bool InSerializer<T>()
+        {
+            return InSerializerFns != null && InSerializerFns.Contains(typeof(T));
         }
 
         [ThreadStatic]
-        internal static HashSet<Type> InDeserializerFns = new HashSet<Type>();
+        internal static HashSet<Type> InDeserializerFns;
 
-        internal static bool InDeserialize<T>()
+        internal static void RegisterDeserializer<T>()
         {
-            return InDeserializerFns.Contains(typeof (T));
+            if (InDeserializerFns == null)
+                InDeserializerFns = new HashSet<Type>();
+
+            InDeserializerFns.Add(typeof(T));
         }
 
-        [ThreadStatic]
-        internal static int Depth = 0;
+        internal static void UnRegisterDeserializer<T>()
+        {
+            if (InDeserializerFns == null)
+                return;
+
+            InDeserializerFns.Remove(typeof(T));
+        }
+
+        internal static bool InDeserializer<T>()
+        {
+            return InDeserializerFns != null && InDeserializerFns.Contains(typeof(T));
+        }
+
+        internal static void Reset()
+        {
+            InSerializerFns = null;
+            InDeserializerFns = null;
+        }
     }
 }
