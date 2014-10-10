@@ -19,10 +19,20 @@ namespace ServiceStack.Text.Common
         internal static bool QueryStringMode = false;
 
         [ThreadStatic]
-        internal static bool InSerializeFn = false;
+        internal static HashSet<Type> InSerializerFns = new HashSet<Type>();
+
+        internal static bool InSerialize<T>()
+        {
+            return InSerializerFns.Contains(typeof(T));
+        }
 
         [ThreadStatic]
-        internal static bool InDeserializeFn = false;
+        internal static HashSet<Type> InDeserializerFns = new HashSet<Type>();
+
+        internal static bool InDeserialize<T>()
+        {
+            return InDeserializerFns.Contains(typeof (T));
+        }
 
         [ThreadStatic]
         internal static int Depth = 0;

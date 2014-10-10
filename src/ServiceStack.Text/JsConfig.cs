@@ -793,7 +793,7 @@ namespace ServiceStack.Text
         /// </summary>
         public static bool HasSerializeFn
         {
-            get { return !JsState.InSerializeFn && (serializeFn != null || rawSerializeFn != null); }
+            get { return !JsState.InSerialize<T>() && (serializeFn != null || rawSerializeFn != null); }
         }
 
         /// <summary>
@@ -847,7 +847,7 @@ namespace ServiceStack.Text
 
         public static bool HasDeserializeFn
         {
-            get { return !JsState.InDeserializeFn && (DeSerializeFn != null || RawDeserializeFn != null); }
+            get { return !JsState.InDeserialize<T>() && (DeSerializeFn != null || RawDeserializeFn != null); }
         }
 
         private static Func<T, T> onDeserializedFn;
@@ -864,21 +864,21 @@ namespace ServiceStack.Text
 
         public static void WriteFn<TSerializer>(TextWriter writer, object obj)
         {
-            if (RawSerializeFn != null && !JsState.InSerializeFn)
+            if (RawSerializeFn != null && !JsState.InSerialize<T>())
             {
-                JsState.InSerializeFn = true;
+                JsState.InSerializerFns.Add(typeof(T));
                 try
                 {
                     writer.Write(RawSerializeFn((T)obj));
                 }
                 finally
                 {
-                    JsState.InSerializeFn = false;
+                    JsState.InSerializerFns.Remove(typeof(T));
                 }
             }
-            else if (SerializeFn != null && !JsState.InSerializeFn)
+            else if (SerializeFn != null && !JsState.InSerialize<T>())
             {
-                JsState.InSerializeFn = true;
+                JsState.InSerializerFns.Add(typeof(T));
                 try
                 {
                     var serializer = JsWriter.GetTypeSerializer<TSerializer>();
@@ -886,7 +886,7 @@ namespace ServiceStack.Text
                 }
                 finally
                 {
-                    JsState.InSerializeFn = false;
+                    JsState.InSerializerFns.Remove(typeof(T));
                 }
             }
             else
@@ -903,28 +903,28 @@ namespace ServiceStack.Text
 
         internal static object ParseFn(ITypeSerializer serializer, string str)
         {
-            if (RawDeserializeFn != null && !JsState.InDeserializeFn)
+            if (RawDeserializeFn != null && !JsState.InDeserialize<T>())
             {
-                JsState.InDeserializeFn = true;
+                JsState.InDeserializerFns.Add(typeof(T));
                 try
                 {
                     return RawDeserializeFn(str);
                 }
                 finally
                 {
-                    JsState.InDeserializeFn = false;
+                    JsState.InDeserializerFns.Remove(typeof(T));
                 }
             }
-            else if (DeSerializeFn != null && !JsState.InDeserializeFn)
+            else if (DeSerializeFn != null && !JsState.InDeserialize<T>())
             {
-                JsState.InDeserializeFn = true;
+                JsState.InDeserializerFns.Add(typeof(T));
                 try
                 {
                     return DeSerializeFn(serializer.UnescapeString(str));
                 }
                 finally
                 {
-                    JsState.InDeserializeFn = false;
+                    JsState.InDeserializerFns.Remove(typeof(T));
                 }
             }
             else

@@ -163,5 +163,60 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             JsConfig.Reset();
         }
+
+        [Test]
+        public void Can_call_different_nested_types_custom_serializers()
+        {
+            JsConfig<InnerType>.SerializeFn = o => InnerType.Serialize(o);
+            JsConfig<InnerType>.DeSerializeFn = str => InnerType.Deserialize(str);
+            JsConfig<OuterType>.RawSerializeFn = d => JsonSerializer.SerializeToString(d.P1);
+            JsConfig<OuterType>.RawDeserializeFn = str =>
+            {
+                var d = str.FromJson<InnerType>();
+                return new OuterType {
+                    P1 = d
+                };
+            };
+
+            var t = new InnerType { A = "Hello", B = "World" };
+
+            var data = new OuterType { P1 = t };
+
+            var json = data.ToJson();
+            json.Print();
+
+            Assert.That(json, Is.EqualTo(@"""Hello-World"""));
+
+            var outer = json.FromJson<OuterType>();
+            Assert.That(outer.P1.A, Is.EqualTo("Hello"));
+            Assert.That(outer.P1.B, Is.EqualTo("World"));
+        }
     }
+
+    public class OuterType
+    {
+        public InnerType P1 { get; set; }
+    }
+
+    public class InnerType
+    {
+        public string A { get; set; }
+
+        public string B { get; set; }
+
+        public static string Serialize(InnerType o)
+        {
+            return o.A + "-" + o.B;
+        }
+
+        public static InnerType Deserialize(string s)
+        {
+            var p = s.Split('-');
+            return new InnerType {
+                A = p[0],
+                B = p[1]
+            };
+        }
+    }
+
 }
