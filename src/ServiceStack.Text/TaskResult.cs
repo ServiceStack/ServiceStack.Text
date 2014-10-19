@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿// Copyright (c) Service Stack LLC. All Rights Reserved.
+// License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
-namespace ServiceStack.Text
+using System.Threading.Tasks;
+
+namespace ServiceStack
 {
     public static class TaskResult
     {
