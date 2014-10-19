@@ -5,6 +5,7 @@ namespace ServiceStack.Text
     public static class TaskResult
     {
         public static Task<int> Zero;
+        public static Task<int> One;
         public static readonly Task<bool> True;
         public static readonly Task<bool> False;
         public static readonly Task Finished;
@@ -12,10 +13,11 @@ namespace ServiceStack.Text
 
         static TaskResult()
         {
-            Finished = ((object)null).AsTaskResult();
-            True = true.AsTaskResult();
-            False = false.AsTaskResult();
-            Zero = 0.AsTaskResult();
+            Finished = ((object)null).InTask();
+            True = true.InTask();
+            False = false.InTask();
+            Zero = 0.InTask();
+            One = 1.InTask();
 
             var tcs = new TaskCompletionSource<object>();
             tcs.SetCanceled();
@@ -30,7 +32,7 @@ namespace ServiceStack.Text
 
         static TaskResult()
         {
-            Default = ((T)typeof(T).GetDefaultValue()).AsTaskResult();
+            Default = ((T)typeof(T).GetDefaultValue()).InTask();
 
             var tcs = new TaskCompletionSource<T>();
             tcs.SetCanceled();

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServiceStack.Text
@@ -12,11 +14,23 @@ namespace ServiceStack.Text
             return taskSource.Task;
         }
 
-        public static Task<T> AsTaskResult<T>(this T result)
+        public static Task<T> InTask<T>(this T result)
         {
             var taskSource = new TaskCompletionSource<T>();
             taskSource.SetResult(result);
             return taskSource.Task;
+        }
+
+        public static Task<T> InTask<T>(this Exception ex)
+        {
+            var taskSource = new TaskCompletionSource<T>();
+            taskSource.TrySetException(ex);
+            return taskSource.Task;
+        }
+
+        public static bool IsSuccess(this Task task)
+        {
+            return !task.IsFaulted && task.IsCompleted;
         }
 
         public static Task<To> Cast<From, To>(this Task<From> task) where To : From
@@ -38,6 +52,71 @@ namespace ServiceStack.Text
                 }, TaskContinuationOptions.ExecuteSynchronously);
 
             return tcs.Task;
+        }
+
+        //http://stackoverflow.com/a/13904811/85785
+        public static Task EachAsync<T>(this IEnumerable<T> items, Func<T, int, Task> fn)
+        {
+            var tcs = new TaskCompletionSource<object>();
+
+            var enumerator = items.GetEnumerator();
+            var i = 0;
+
+            Action<Task> next = null;
+            next = t =>
+            {
+                if (t.IsFaulted)
+                    tcs.TrySetException(t.Exception.InnerExceptions);
+                else if (t.IsCanceled)
+                    tcs.TrySetCanceled();
+                else
+                    StartNextIteration(tcs, fn, enumerator, ref i, next);
+            };
+
+            StartNextIteration(tcs, fn, enumerator, ref i, next);
+
+            tcs.Task.ContinueWith(_ => enumerator.Dispose(), TaskContinuationOptions.ExecuteSynchronously);
+
+            return tcs.Task;
+        }
+
+        static void StartNextIteration<T>(TaskCompletionSource<object> tcs, 
+            Func<T, int, Task> fn, 
+            IEnumerator<T> enumerator, 
+            ref int i, 
+            Action<Task> next)
+        {
+            bool moveNext;
+            try
+            {
+                moveNext = enumerator.MoveNext();
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+                return;
+            }
+
+            if (!moveNext)
+            {
+                tcs.SetResult(null);
+                return;
+            }
+
+            Task iterationTask = null;
+            try
+            {
+                iterationTask = fn(enumerator.Current, i);
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+
+            i++;
+
+            if (iterationTask != null)
+                iterationTask.ContinueWith(next, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
     }
 }
