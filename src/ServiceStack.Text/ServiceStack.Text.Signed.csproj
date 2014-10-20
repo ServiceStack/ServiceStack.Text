@@ -284,6 +284,8 @@
     </Compile>
     <Compile Include="SystemTime.cs" />
     <Compile Include="TaskExtensions.cs" />
+    <Compile Include="TaskResult.cs" />
+    <Compile Include="TaskUtils.cs" />
     <Compile Include="TextExtensions.cs">
       <SubType>Code</SubType>
     </Compile>

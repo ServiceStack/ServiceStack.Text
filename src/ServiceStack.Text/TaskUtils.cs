@@ -41,18 +41,44 @@ namespace ServiceStack
             return task.Then(x => (To)x);
         }
 
+        public static TaskScheduler SafeTaskScheduler()
+        {
+            //Unit test runner
+            if (SynchronizationContext.Current != null)
+                return TaskScheduler.FromCurrentSynchronizationContext();
+
+            SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+            return TaskScheduler.FromCurrentSynchronizationContext();
+        }
+
         public static Task<To> Then<From, To>(this Task<From> task, Func<From, To> fn)
         {
             var tcs = new TaskCompletionSource<To>();
             task.ContinueWith(t =>
-                {
-                    if (t.IsFaulted)
-                        tcs.TrySetException(t.Exception.InnerExceptions);
-                    else if (t.IsCanceled)
-                        tcs.TrySetCanceled();
-                    else
-                        tcs.TrySetResult(fn(t.Result));
-                }, TaskContinuationOptions.ExecuteSynchronously);
+            {
+                if (t.IsFaulted)
+                    tcs.TrySetException(t.Exception.InnerExceptions);
+                else if (t.IsCanceled)
+                    tcs.TrySetCanceled();
+                else
+                    tcs.TrySetResult(fn(t.Result));
+            }, TaskContinuationOptions.ExecuteSynchronously);
+
+            return tcs.Task;
+        }
+
+        public static Task Then(this Task task, Func<Task, Task> fn)
+        {
+            var tcs = new TaskCompletionSource<object>();
+            task.ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                    tcs.TrySetException(t.Exception.InnerExceptions);
+                else if (t.IsCanceled)
+                    tcs.TrySetCanceled();
+                else
+                    tcs.TrySetResult(fn(t));
+            }, TaskContinuationOptions.ExecuteSynchronously);
 
             return tcs.Task;
         }
