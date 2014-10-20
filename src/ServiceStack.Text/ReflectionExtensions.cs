@@ -536,6 +536,17 @@ namespace ServiceStack.Text
             return publicReadableProperties.Where(prop => !prop.CustomAttributes(false).Any(attr => attr.GetType().Name == IgnoreDataMember)).ToArray();
         }
 
+        public static Func<object, string, object, object> GetOnDeserializingMember<T>()
+        {
+            var method = typeof(T).GetMethod("OnDeserializingMember", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(string), typeof(object) }, null);
+            if (method == null || method.ReturnType != typeof (object))
+            {
+                return null;
+            }
+            var ojb = (Func<T, string, object, object>)Delegate.CreateDelegate(typeof(Func<T, string, object, object>), method);
+            return (instance, memberName, value) => ojb((T)instance, memberName, value);
+        }
+
         public static FieldInfo[] GetSerializableFields(this Type type)
         {
             if (type.IsDto()) {

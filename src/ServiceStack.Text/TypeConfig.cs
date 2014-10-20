@@ -10,6 +10,7 @@ namespace ServiceStack.Text
 		internal bool EnableAnonymousFieldSetterses;
 		internal PropertyInfo[] Properties;
 		internal FieldInfo[] Fields;
+        internal Func<object, string, object, object> OnDeserializingMember;
 
 		internal TypeConfig(Type type)
 		{
@@ -42,6 +43,12 @@ namespace ServiceStack.Text
 			set { config.EnableAnonymousFieldSetterses = value; }
 		}
 
+        public static Func<object, string, object, object> OnDeserializingMember
+		{
+            get { return config.OnDeserializingMember; }
+            set { config.OnDeserializingMember = value; }
+		}
+
 		static TypeConfig()
 		{
 			config = new TypeConfig(typeof(T));
@@ -54,6 +61,7 @@ namespace ServiceStack.Text
             Properties = properties.Where(x => x.GetIndexParameters().Length == 0).ToArray();
 
 			Fields = config.Type.GetSerializableFields().ToArray();
+		    OnDeserializingMember = ReflectionExtensions.GetOnDeserializingMember<T>();
 		}
 
 		internal static TypeConfig GetState()
