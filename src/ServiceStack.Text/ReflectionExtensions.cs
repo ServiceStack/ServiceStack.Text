@@ -1148,7 +1148,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return propertyInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOfType).ToArray();
+            return propertyInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
 #else
             var attrs = propertyInfo.GetCustomAttributes(attrType, true);
             var runtimeAttrs = propertyInfo.GetAttributes(attrType);
@@ -1190,7 +1190,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this ParameterInfo paramInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return paramInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOfType).ToArray();
+            return paramInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
 #else
             return paramInfo.GetCustomAttributes(attrType, true);
 #endif
@@ -1199,7 +1199,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this MemberInfo memberInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return memberInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOfType).ToArray();
+            return memberInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
 #else
             return memberInfo.GetCustomAttributes(attrType, true);
 #endif
@@ -1208,7 +1208,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this FieldInfo fieldInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return fieldInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOfType).ToArray();
+            return fieldInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
 #else
             return fieldInfo.GetCustomAttributes(attrType, true);
 #endif
@@ -1226,7 +1226,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this Type type, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return type.GetTypeInfo().GetCustomAttributes(true).Where(attrType.IsInstanceOfType).ToArray();
+            return type.GetTypeInfo().GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
 #else
             return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
