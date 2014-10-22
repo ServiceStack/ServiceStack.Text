@@ -1127,7 +1127,7 @@ namespace ServiceStack
             List<Attribute> propertyAttrs;
             return !propertyAttributesMap.TryGetValue(propertyInfo.UniqueKey(), out propertyAttrs)
                 ? new List<Attribute>()
-                : propertyAttrs.Where(attrType.IsInstanceOfType).ToList();
+                : propertyAttrs.Where(x => attrType.IsInstanceOf(x.GetType()) ).ToList();
         }
 
         public static object[] AllAttributes(this PropertyInfo propertyInfo)
@@ -1148,7 +1148,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return propertyInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
+            return propertyInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
 #else
             var attrs = propertyInfo.GetCustomAttributes(attrType, true);
             var runtimeAttrs = propertyInfo.GetAttributes(attrType);
@@ -1190,7 +1190,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this ParameterInfo paramInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return paramInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
+            return paramInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
 #else
             return paramInfo.GetCustomAttributes(attrType, true);
 #endif
@@ -1199,7 +1199,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this MemberInfo memberInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return memberInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
+            return memberInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
 #else
             return memberInfo.GetCustomAttributes(attrType, true);
 #endif
@@ -1208,7 +1208,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this FieldInfo fieldInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return fieldInfo.GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
+            return fieldInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
 #else
             return fieldInfo.GetCustomAttributes(attrType, true);
 #endif
@@ -1226,7 +1226,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this Type type, Type attrType)
         {
 #if (NETFX_CORE || PCL)
-            return type.GetTypeInfo().GetCustomAttributes(true).Where(attrType.IsInstanceOf).ToArray();
+            return type.GetTypeInfo().GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
 #else
             return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
@@ -1273,7 +1273,7 @@ namespace ServiceStack
         {
             List<Attribute> attrs;
             return typeAttributesMap.TryGetValue(type, out attrs)
-                ? attrs.Where(x => attrType == null || attrType.IsInstanceOfType(x))
+                ? attrs.Where(x => attrType == null || attrType.IsInstanceOf(x.GetType()))
                 : new List<Attribute>();
         }
 
