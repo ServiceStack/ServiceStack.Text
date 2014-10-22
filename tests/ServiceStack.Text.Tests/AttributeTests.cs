@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Tests
 
             // Loses one of the attrs with inheritence when union
             var referenceUnion = referenceGeneric.Union(new List<RouteDefaultAttribute>());
-            Assert.That(referenceUnion.Count(), Is.EqualTo(3));
+            Assert.That(referenceUnion.Count(), Is.EqualTo(4));
 
             // Keeps all items when concat
             var referenceConcat = referenceGeneric.Concat(new List<RouteDefaultAttribute>());
@@ -260,6 +260,30 @@ namespace ServiceStack.Text.Tests
         public override string ToString()
         {
             return "{0}:{1}".Fmt(Path, Verbs);
+        }
+
+        protected bool Equals(RouteDefaultAttribute other)
+        {
+            return base.Equals(other) && string.Equals(Path, other.Path) && string.Equals(Verbs, other.Verbs);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((RouteDefaultAttribute) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = base.GetHashCode();
+                hashCode = (hashCode*397) ^ (Path != null ? Path.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Verbs != null ? Verbs.GetHashCode() : 0);
+                return hashCode;
+            }
         }
     }
 

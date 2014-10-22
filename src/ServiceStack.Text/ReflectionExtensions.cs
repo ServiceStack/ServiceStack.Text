@@ -1219,7 +1219,7 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes(true).ToArray();
 #else
-            return type.GetCustomAttributes(true).Concat(type.GetRuntimeAttributes()).ToArray();
+            return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
         }
 
@@ -1228,7 +1228,7 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes(true).Where(attrType.IsInstanceOfType).ToArray();
 #else
-            return type.GetCustomAttributes(true).Concat(type.GetRuntimeAttributes()).ToArray();
+            return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
         }
 
@@ -1287,7 +1287,7 @@ namespace ServiceStack
 #else
             return type.GetCustomAttributes(typeof(TAttr), true)
                 .OfType<TAttr>()
-                .Concat(type.GetRuntimeAttributes<TAttr>())
+                .Union(type.GetRuntimeAttributes<TAttr>())
                 .ToArray();
 #endif
         }
