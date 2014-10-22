@@ -4,6 +4,8 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
+    using System.Collections.Generic;
+
     [TestFixture]
     public class AttributeTests
     {
@@ -30,8 +32,38 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_get_Multiple_Default_Attributes()
         {
-            var attrs = typeof(DefaultWithMultipleAttributes).AllAttributes<RouteDefaultAttribute>();
-            Assert.That(attrs.Length, Is.EqualTo(4));
+            // AllAttributes<T>() makes this call to get attrs
+            var referenceGeneric =
+                typeof(DefaultWithMultipleAttributes).GetCustomAttributes(typeof(RouteDefaultAttribute), true)
+                    .OfType<RouteDefaultAttribute>();
+
+            // Attribute inheritance hierarchies (InheritedRouteAttribute) are returned in results
+            Assert.That(referenceGeneric.Count(), Is.EqualTo(4));
+
+            // AllAttributes() makes this call to get attrs
+            var reference =
+                typeof(DefaultWithMultipleAttributes).GetCustomAttributes(typeof(RouteDefaultAttribute), true);
+
+            // Attribute inheritance hierarchies (InheritedRouteAttribute) are returned in results
+            Assert.That(reference.Count(), Is.EqualTo(4));
+
+            // Loses one of the attrs with inheritence when union
+            var referenceUnion = referenceGeneric.Union(new List<RouteDefaultAttribute>());
+            Assert.That(referenceUnion.Count(), Is.EqualTo(3));
+
+            // Keeps all items when concat
+            var referenceConcat = referenceGeneric.Concat(new List<RouteDefaultAttribute>());
+            Assert.That(referenceConcat.Count(), Is.EqualTo(4));
+
+            var attrsGeneric = typeof(DefaultWithMultipleAttributes).AllAttributes<RouteDefaultAttribute>();
+
+            // Attribute inheritance hierarchies (InheritedRouteAttribute) are NOT ALL returned in results
+            Assert.That(attrsGeneric.Length, Is.EqualTo(4)); // union loses one
+
+            var attrs = typeof(DefaultWithMultipleAttributes).AllAttributes(typeof(RouteDefaultAttribute));
+
+            // Attribute inheritance hierarchies (InheritedRouteAttribute) are NOT ALL returned in results
+            Assert.That(attrs.Length, Is.EqualTo(4)); // union loses one
 
             var values = attrs.ToList().ConvertAll(x => x.ToString());
 
@@ -168,8 +200,8 @@ namespace ServiceStack.Text.Tests
 
     [RouteDefault("/path")]
     [RouteDefault("/path/2")]
-    [RouteDefault("/path", "GET")]
-    [RouteDefault("/path", "POST")]
+    [InheritedRoute("/path", "GET")]
+    [InheritedRoute("/path", "POST")]
     public class DefaultWithMultipleAttributes { }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
@@ -197,6 +229,18 @@ namespace ServiceStack.Text.Tests
         public override string ToString()
         {
             return "{0}:{1}".Fmt(Path, Verbs);
+        }
+    }
+
+    public class InheritedRouteAttribute : RouteDefaultAttribute {
+        public InheritedRouteAttribute(string path)
+            : base(path)
+        {
+        }
+
+        public InheritedRouteAttribute(string path, string verbs)
+            : base(path, verbs)
+        {
         }
     }
 
