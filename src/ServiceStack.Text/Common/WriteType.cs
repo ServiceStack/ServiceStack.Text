@@ -109,9 +109,9 @@ namespace ServiceStack.Text.Common
             return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T,bool>)Delegate.CreateDelegate(typeof(Func<T,bool>), method);
         }
 
-        static Func<T,string, bool?> ShouldSerializeByName(Type type)
+        static Func<T,string, bool?> ShouldSerialize(Type type)
         {
-            var method = type.GetMethod("ShouldSerializeByName", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
+            var method = type.GetMethod("ShouldSerialize", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
             return (method == null || method.ReturnType != typeof(bool?)) 
                 ? null 
                 : (Func<T, string, bool?>)Delegate.CreateDelegate(typeof(Func<T,string, bool?>), method);
@@ -134,7 +134,7 @@ namespace ServiceStack.Text.Common
                 return typeof(T).IsDto();
             }
 
-            var shouldSerializeByName = ShouldSerializeByName(typeof(T));
+            var shouldSerializeByName = ShouldSerialize(typeof(T));
 
             // NOTE: very limited support for DataContractSerialization (DCS)
             //	NOT supporting Serializable

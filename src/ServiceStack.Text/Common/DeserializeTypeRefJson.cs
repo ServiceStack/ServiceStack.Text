@@ -141,9 +141,9 @@ namespace ServiceStack.Text.Common
                             var parseFn = JsonReader.GetParseFn(propType);
 
                             var propertyValue = parseFn(propertyValueStr);
-                            if (typeConfig.OnDeserializingMember != null)
+                            if (typeConfig.OnDeserializing != null)
                             {
-                                propertyValue = typeConfig.OnDeserializingMember(instance, propertyName, propertyValue);
+                                propertyValue = typeConfig.OnDeserializing(instance, propertyName, propertyValue);
                             }
                             typeAccessor.SetProperty(instance, propertyValue);
                         }
@@ -172,9 +172,9 @@ namespace ServiceStack.Text.Common
                     try
                     {
                         var propertyValue = typeAccessor.GetProperty(propertyValueStr);
-                        if (typeConfig.OnDeserializingMember != null)
+                        if (typeConfig.OnDeserializing != null)
                         {
-                            propertyValue = typeConfig.OnDeserializingMember(instance, propertyName, propertyValue);
+                            propertyValue = typeConfig.OnDeserializing(instance, propertyName, propertyValue);
                         }
                         typeAccessor.SetProperty(instance, propertyValue);
                     }
@@ -184,10 +184,10 @@ namespace ServiceStack.Text.Common
                         else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
                     }
                 }
-                else if (typeConfig.OnDeserializingMember != null)
+                else if (typeConfig.OnDeserializing != null)
                 {
                     // the property is not known by the DTO
-                    typeConfig.OnDeserializingMember(instance, propertyName, propertyValueStr);
+                    typeConfig.OnDeserializing(instance, propertyName, propertyValueStr);
                 }
 
                 //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);

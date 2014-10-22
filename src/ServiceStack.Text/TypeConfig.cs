@@ -10,7 +10,7 @@ namespace ServiceStack.Text
 		internal bool EnableAnonymousFieldSetterses;
 		internal PropertyInfo[] Properties;
 		internal FieldInfo[] Fields;
-        internal Func<object, string, object, object> OnDeserializingMember;
+        internal Func<object, string, object, object> OnDeserializing;
 
 		internal TypeConfig(Type type)
 		{
@@ -23,7 +23,7 @@ namespace ServiceStack.Text
 
 	public static class TypeConfig<T>
 	{
-		private static readonly TypeConfig config;
+		internal static readonly TypeConfig config;
 
 		public static PropertyInfo[] Properties
 		{
@@ -43,12 +43,6 @@ namespace ServiceStack.Text
 			set { config.EnableAnonymousFieldSetterses = value; }
 		}
 
-        public static Func<object, string, object, object> OnDeserializingMember
-		{
-            get { return config.OnDeserializingMember; }
-            set { config.OnDeserializingMember = value; }
-		}
-
 		static TypeConfig()
 		{
 			config = new TypeConfig(typeof(T));
@@ -61,7 +55,14 @@ namespace ServiceStack.Text
             Properties = properties.Where(x => x.GetIndexParameters().Length == 0).ToArray();
 
 			Fields = config.Type.GetSerializableFields().ToArray();
-		    OnDeserializingMember = ReflectionExtensions.GetOnDeserializingMember<T>();
+            if (!JsConfig<T>.HasDeserialingFn)
+            {
+                 JsConfig<T>.OnDeserializingFn = ReflectionExtensions.GetOnDeserializing<T>();
+            }
+		    if (JsConfig<T>.HasDeserialingFn)
+		    {
+		        config.OnDeserializing = (instance, memberName, value) => JsConfig<T>.OnDeserializingFn((T) instance, memberName, value);
+		    }
 		}
 
 		internal static TypeConfig GetState()

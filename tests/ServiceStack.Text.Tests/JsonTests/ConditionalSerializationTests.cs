@@ -128,7 +128,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             [DataMember(EmitDefaultValue = false, IsRequired = false)]
             public int? B { get; set; }
 
-            private bool? ShouldSerializeByName(string fieldName)
+            public bool? ShouldSerialize(string fieldName)
             {
                 if (hasAttribute == null)
                 {
@@ -137,7 +137,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                 return hasAttribute.Contains(fieldName);
             }
 
-            private object OnDeserializingMember(string fieldName, object value)
+            public object OnDeserializing(string fieldName, object value)
             {
                 if (hasAttribute == null)
                 {
