@@ -30,7 +30,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Does_get_Multiple_Default_Attributes()
+        public void Does_get_Multiple_RouteDefault_Attributes()
         {
             // AllAttributes<T>() makes this call to get attrs
             var referenceGeneric =
@@ -84,6 +84,26 @@ namespace ServiceStack.Text.Tests
             Assert.That(values, Is.EquivalentTo(new[] {
                 "/path:", "/path/2:", "/path:GET", "/path:POST", 
             }));
+        }
+
+        [Test]
+        public void Does_get_Multiple_Route_Attributes()
+        {
+            var routeAttrs = typeof(DefaultWithMultipleRouteAttributes)
+                .AllAttributes<RouteAttribute>();
+
+            Assert.That(routeAttrs.Length, Is.EqualTo(4));
+
+            var values = routeAttrs.ToList().ConvertAll(x => "{0}:{1}".Fmt(x.Path, x.Verbs));
+
+            Assert.That(values, Is.EquivalentTo(new[] {
+                "/path:", "/path/2:", "/path:GET", "/path:POST", 
+            }));
+
+            var inheritedRouteAttrs = typeof(DefaultWithMultipleRouteAttributes)
+                .AllAttributes<InheritedRouteAttribute>();
+
+            Assert.That(inheritedRouteAttrs.Length, Is.EqualTo(2));
         }
 
         [Test]
@@ -200,9 +220,15 @@ namespace ServiceStack.Text.Tests
 
     [RouteDefault("/path")]
     [RouteDefault("/path/2")]
+    [InheritedRouteDefault("/path", "GET")]
+    [InheritedRouteDefault("/path", "POST")]
+    public class DefaultWithMultipleAttributes { }
+
+    [Route("/path")]
+    [Route("/path/2")]
     [InheritedRoute("/path", "GET")]
     [InheritedRoute("/path", "POST")]
-    public class DefaultWithMultipleAttributes { }
+    public class DefaultWithMultipleRouteAttributes { }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class RouteTypeIdAttribute : Attribute
@@ -232,13 +258,13 @@ namespace ServiceStack.Text.Tests
         }
     }
 
-    public class InheritedRouteAttribute : RouteDefaultAttribute {
-        public InheritedRouteAttribute(string path)
+    public class InheritedRouteDefaultAttribute : RouteDefaultAttribute {
+        public InheritedRouteDefaultAttribute(string path)
             : base(path)
         {
         }
 
-        public InheritedRouteAttribute(string path, string verbs)
+        public InheritedRouteDefaultAttribute(string path, string verbs)
             : base(path, verbs)
         {
         }
@@ -285,6 +311,21 @@ namespace ServiceStack.Text.Tests
                 return hashCode;
             }
         }
+    }
+
+    public class InheritedRouteAttribute : RouteAttribute
+    {
+        public InheritedRouteAttribute(string path)
+            : base(path)
+        {
+        }
+
+        public InheritedRouteAttribute(string path, string verbs)
+            : base(path, verbs)
+        {
+        }
+
+        public string Custom { get; set; }
     }
 
 }
