@@ -108,6 +108,16 @@ namespace ServiceStack.Text.Common
                 null, Type.EmptyTypes, null);
             return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T,bool>)Delegate.CreateDelegate(typeof(Func<T,bool>), method);
         }
+
+        static Func<T,string, bool?> ShouldSerialize(Type type)
+        {
+            var method = type.GetMethod("ShouldSerialize", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
+            return (method == null || method.ReturnType != typeof(bool?)) 
+                ? null 
+                : (Func<T, string, bool?>)Delegate.CreateDelegate(typeof(Func<T,string, bool?>), method);
+        }
+
+
         private static bool Init()
         {
             if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
@@ -123,6 +133,8 @@ namespace ServiceStack.Text.Common
             {
                 return typeof(T).IsDto();
             }
+
+            var shouldSerializeByName = ShouldSerialize(typeof(T));
 
             // NOTE: very limited support for DataContractSerialization (DCS)
             //	NOT supporting Serializable
@@ -174,7 +186,8 @@ namespace ServiceStack.Text.Common
                     propertyInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
                     propertyType.GetDefaultValue(),
-                    shouldSerialize
+                    shouldSerialize,
+                    shouldSerializeByName
                 );
             }
 
@@ -221,7 +234,8 @@ namespace ServiceStack.Text.Common
                     fieldInfo.GetValueGetter<T>(),
                     Serializer.GetWriteFn(propertyType),
                     defaultValue,
-                    shouldSerialize
+                    shouldSerialize,
+                    shouldSerializeByName
                 );
             }
             PropertyWriters = PropertyWriters.OrderBy(x => x.propertyOrder).ToArray();
@@ -253,9 +267,10 @@ namespace ServiceStack.Text.Common
             internal readonly WriteObjectDelegate WriteFn;
             internal readonly object DefaultValue;
             internal readonly Func<T, bool> shouldSerialize;
+            internal readonly Func<T, string, bool?> shouldSerializeByName;
 
             public TypePropertyWriter(string propertyName, string propertyReflectedName, string propertyNameCLSFriendly, string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig,bool propertySuppressDefaultAttribute,
-                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, Func<T, bool> shouldSerialize)
+                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, Func<T, bool> shouldSerialize, Func<T,string, bool?> shouldSerializeByName)
             {
                 this.propertyName = propertyName;
                 this.propertyOrder = propertyOrder;
@@ -269,6 +284,7 @@ namespace ServiceStack.Text.Common
                 this.WriteFn = writeFn;
                 this.DefaultValue = defaultValue;
                 this.shouldSerialize = shouldSerialize;
+                this.shouldSerializeByName = shouldSerializeByName;
             }
         }
 
@@ -337,21 +353,38 @@ namespace ServiceStack.Text.Common
                     var propertyWriter = PropertyWriters[index];
 
                     if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) continue;
-
+                    bool dontSkipDefault=false;
+                    if (propertyWriter.shouldSerializeByName != null)
+                    {
+                        var shouldSerialize = propertyWriter.shouldSerializeByName((T) value, propertyWriter.PropertyName);
+                        if (shouldSerialize.HasValue)
+                        {
+                            if (shouldSerialize.Value)
+                            {
+                                dontSkipDefault = true;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                    }
                     var propertyValue = value != null
                         ? propertyWriter.GetterFn((T)value)
                         : null;
-                    
-                    if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
+                    if (!dontSkipDefault)
                     {
-                        continue;
-                    }
-                    if ((propertyValue == null 
-                         || (propertyWriter.propertySuppressDefaultConfig && Equals(propertyWriter.DefaultValue, propertyValue)))
-                        && !Serializer.IncludeNullValues
-                        )
-                    {
-                        continue;
+                        if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
+                        {
+                            continue;
+                        }
+                        if ((propertyValue == null
+                             || (propertyWriter.propertySuppressDefaultConfig && Equals(propertyWriter.DefaultValue, propertyValue)))
+                            && !Serializer.IncludeNullValues
+                            )
+                        {
+                            continue;
+                        }
                     }
 
                     if (exclude.Any() && exclude.Contains(propertyWriter.propertyCombinedNameUpper)) continue;

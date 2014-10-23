@@ -40,8 +40,8 @@ namespace ServiceStack.Text.Common
                 return value => ctorFn();
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-                ? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(type, value, ctorFn, map))
-                : value => DeserializeTypeRefJsv.StringToType(type, value, ctorFn, map);
+                ? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
+                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, map);
         }
 
         public static object ObjectStringToType(string strType)
