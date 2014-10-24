@@ -128,6 +128,14 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_UrlEncode_in_upper_case()
+        {
+            var chars = "/=";
+            Assert.That(chars.UrlEncode(), Is.EqualTo("%2f%3d"));
+            Assert.That(chars.UrlEncode(upperCase:true), Is.EqualTo("%2F%3D"));
+        }
+
+        [Test]
         public void Can_ToCamelCase_String()
         {
             Assert.That("U".ToCamelCase(), Is.EqualTo("u"));

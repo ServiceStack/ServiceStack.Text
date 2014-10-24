@@ -134,11 +134,12 @@ namespace ServiceStack
                         .Replace(TypeSerializer.DoubleQuoteString, JsWriter.QuoteString);
         }
 
-        public static string UrlEncode(this string text)
+        public static string UrlEncode(this string text, bool upperCase=false)
         {
             if (String.IsNullOrEmpty(text)) return text;
 
             var sb = new StringBuilder();
+            var fmt = upperCase ? "X2" : "x2";
 
             foreach (var charCode in Encoding.UTF8.GetBytes(text))
             {
@@ -158,7 +159,7 @@ namespace ServiceStack
                 }
                 else
                 {
-                    sb.Append('%' + charCode.ToString("x2"));
+                    sb.Append('%' + charCode.ToString(fmt));
                 }
             }
 
