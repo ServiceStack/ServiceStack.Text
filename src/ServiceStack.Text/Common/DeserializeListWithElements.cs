@@ -59,6 +59,8 @@ namespace ServiceStack.Text.Common
             if (string.IsNullOrEmpty(value))
                 return null;
 
+            value = value.TrimEnd();
+
             const int startQuotePos = 1;
             const int endQuotePos = 2;
             var ret = value[0] == JsWriter.ListStartChar

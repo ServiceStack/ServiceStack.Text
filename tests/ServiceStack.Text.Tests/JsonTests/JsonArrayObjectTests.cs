@@ -122,5 +122,18 @@ namespace ServiceStack.Text.Tests.JsonTests
                 response.PrintDump();
             }
         }
+
+        class Test
+        {
+            public string Value { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_empty_array_with_whitespace()
+        {
+            const string data = "[]\n";
+            var result = data.FromJson<Test[]>();
+            Assert.That(result.Length, Is.EqualTo(0));
+        }
     }
 }
