@@ -110,7 +110,7 @@ namespace ServiceStack.Text.Common
 
         static Func<T, string, bool?> ShouldSerialize(Type type)
         {
-            var method = type.GetMethod("ShouldSerialize", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(string) }, null);
+            var method = type.GetMethodInfo("ShouldSerialize");
             return (method == null || method.ReturnType != typeof(bool?)) 
                 ? null
                 : (Func<T, string, bool?>)Delegate.CreateDelegate(typeof(Func<T, string, bool?>), method);

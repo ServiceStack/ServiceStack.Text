@@ -483,7 +483,6 @@ namespace ServiceStack.Text.Tests
             Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<HashSet<User>>()));
         }
 
-
         public class Customer
         {
             public CompanyInfo CompanyInfo { get; set; }
