@@ -105,15 +105,17 @@ namespace ServiceStack.Text.Common
         static Func<T, bool> GetShouldSerializeMethod(MemberInfo member)
         {
             var method = member.DeclaringType.GetInstanceMethod("ShouldSerialize" + member.Name);
-            return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T, bool>)method.CreateDelegate(typeof(Func<T, bool>));
+            return method == null || method.ReturnType != typeof(bool) 
+                ? null 
+                : (Func<T, bool>)method.CreateDelegate(typeof(Func<T, bool>));
         }
 
         static Func<T, string, bool?> ShouldSerialize(Type type)
         {
             var method = type.GetMethodInfo("ShouldSerialize");
-            return (method == null || method.ReturnType != typeof(bool?)) 
+            return method == null || method.ReturnType != typeof(bool?) 
                 ? null
-                : (Func<T, string, bool?>)Delegate.CreateDelegate(typeof(Func<T, string, bool?>), method);
+                : (Func<T, string, bool?>)method.CreateDelegate(typeof(Func<T, string, bool?>));
         }
 
         private static bool Init()

@@ -672,7 +672,7 @@ namespace ServiceStack
             var method = typeof(T).GetMethodInfo("OnDeserializing");
             if (method == null || method.ReturnType != typeof(object))
                 return null;
-            var obj = (Func<T, string, object, object>)Delegate.CreateDelegate(typeof(Func<T, string, object, object>), method);
+            var obj = (Func<T, string, object, object>)method.CreateDelegate(typeof(Func<T, string, object, object>));
             return (instance, memberName, value) => obj((T)instance, memberName, value);
         }
 
