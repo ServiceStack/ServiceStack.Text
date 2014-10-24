@@ -858,6 +858,18 @@ namespace ServiceStack.Text
             set { onDeserializedFn = value; }
         }
 
+        public static bool HasDeserialingFn
+        {
+            get { return OnDeserializingFn != null; }
+        }
+
+        private static Func<T, string, object, object> onDeserializingFn;
+        public static Func<T, string, object, object> OnDeserializingFn
+        {
+            get { return onDeserializingFn; }
+            set { onDeserializingFn = value; }
+        }
+
         /// <summary>
         /// Exclude specific properties of this type from being serialized
         /// </summary>

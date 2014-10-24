@@ -108,6 +108,14 @@ namespace ServiceStack.Text.Common
             return (method == null || method.ReturnType != typeof(bool)) ? null : (Func<T, bool>)method.CreateDelegate(typeof(Func<T, bool>));
         }
 
+        static Func<T, string, bool?> ShouldSerialize(Type type)
+        {
+            var method = type.GetMethod("ShouldSerialize", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(string) }, null);
+            return (method == null || method.ReturnType != typeof(bool?)) 
+                ? null
+                : (Func<T, string, bool?>)Delegate.CreateDelegate(typeof(Func<T, string, bool?>), method);
+        }
+
         private static bool Init()
         {
             if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
@@ -122,6 +130,8 @@ namespace ServiceStack.Text.Common
             {
                 return typeof(T).IsDto();
             }
+
+            var shouldSerializeDynamic = ShouldSerialize(typeof(T));
 
             // NOTE: very limited support for DataContractSerialization (DCS)
             //	NOT supporting Serializable
@@ -173,6 +183,7 @@ namespace ServiceStack.Text.Common
                     Serializer.GetWriteFn(propertyType),
                     propertyType.GetDefaultValue(),
                     shouldSerialize,
+                    shouldSerializeDynamic,
                     propertyType.IsEnum()
                 );
             }
@@ -225,6 +236,7 @@ namespace ServiceStack.Text.Common
                     Serializer.GetWriteFn(propertyType),
                     defaultValue,
                     shouldSerialize,
+                    shouldSerializeDynamic,
                     propertyType.IsEnum()
                 );
             }
@@ -257,11 +269,15 @@ namespace ServiceStack.Text.Common
             internal readonly WriteObjectDelegate WriteFn;
             internal readonly object DefaultValue;
             internal readonly Func<T, bool> shouldSerialize;
+            internal readonly Func<T, string, bool?> shouldSerializeDynamic;
             internal readonly bool isEnum;
 
             public TypePropertyWriter(string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly, 
                 string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig,bool propertySuppressDefaultAttribute,
-                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, Func<T, bool> shouldSerialize, bool isEnum)
+                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, 
+                Func<T, bool> shouldSerialize, 
+                Func<T,string, bool?> shouldSerializeDynamic,
+                bool isEnum)
             {
                 this.propertyName = propertyName;
                 this.propertyOrder = propertyOrder;
@@ -274,6 +290,7 @@ namespace ServiceStack.Text.Common
                 this.WriteFn = writeFn;
                 this.DefaultValue = defaultValue;
                 this.shouldSerialize = shouldSerialize;
+                this.shouldSerializeDynamic = shouldSerializeDynamic;
                 this.isEnum = isEnum;
             }
 
@@ -361,15 +378,31 @@ namespace ServiceStack.Text.Common
                     if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) 
                         continue;
 
+                    var dontSkipDefault = false;
+                    if (propertyWriter.shouldSerializeDynamic != null)
+                    {
+                        var shouldSerialize = propertyWriter.shouldSerializeDynamic((T)value, propertyWriter.PropertyName);
+                        if (shouldSerialize.HasValue)
+                        {
+                            if (shouldSerialize.Value)
+                                dontSkipDefault = true;
+                            else
+                                continue;
+                        }
+                    }
+
                     var propertyValue = value != null
                         ? propertyWriter.GetterFn((T)value)
                         : null;
-                    
-                    if (!propertyWriter.ShouldWriteProperty(propertyValue))
-                        continue;
 
-                    if (JsConfig.ExcludePropertyReferences != null
-                        && JsConfig.ExcludePropertyReferences.Contains(propertyWriter.propertyReferenceName)) continue;
+                    if (!dontSkipDefault)
+                    {
+                        if (!propertyWriter.ShouldWriteProperty(propertyValue))
+                            continue;
+
+                        if (JsConfig.ExcludePropertyReferences != null
+                            && JsConfig.ExcludePropertyReferences.Contains(propertyWriter.propertyReferenceName)) continue;
+                    }
 
                     if (i++ > 0)
                         writer.Write(JsWriter.ItemSeperator);

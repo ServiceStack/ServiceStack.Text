@@ -667,6 +667,15 @@ namespace ServiceStack
                 .ToArray();
         }
 
+        public static Func<object, string, object, object> GetOnDeserializing<T>()
+        {
+            var method = typeof(T).GetMethod("OnDeserializing", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(string), typeof(object) }, null);
+            if (method == null || method.ReturnType != typeof (object))
+                return null;
+            var obj = (Func<T, string, object, object>)Delegate.CreateDelegate(typeof(Func<T, string, object, object>), method);
+            return (instance, memberName, value) => obj((T)instance, memberName, value);
+        }
+
         public static FieldInfo[] GetSerializableFields(this Type type)
         {
             if (type.IsDto())

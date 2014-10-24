@@ -10,6 +10,7 @@ namespace ServiceStack.Text
         internal bool EnableAnonymousFieldSetterses;
         internal PropertyInfo[] Properties;
         internal FieldInfo[] Fields;
+        internal Func<object, string, object, object> OnDeserializing;
         internal bool IsUserType { get; set; }
 
         internal void AssertValidUsage()
@@ -32,7 +33,7 @@ namespace ServiceStack.Text
 
     public static class TypeConfig<T>
     {
-        private static TypeConfig config;
+        internal static TypeConfig config;
 
         static TypeConfig Config
         {
@@ -68,6 +69,12 @@ namespace ServiceStack.Text
             config = Init();
         }
 
+        public static Func<object, string, object, object> OnDeserializing
+        {
+            get { return config.OnDeserializing; }
+            set { config.OnDeserializing = value; }
+        }
+
         static TypeConfig Init()
         {
             config = new TypeConfig(typeof(T));
@@ -80,6 +87,11 @@ namespace ServiceStack.Text
             Properties = properties.Where(x => x.GetIndexParameters().Length == 0).ToArray();
 
             Fields = config.Type.GetSerializableFields().ToArray();
+    
+            if (!JsConfig<T>.HasDeserialingFn)
+                OnDeserializing = ReflectionExtensions.GetOnDeserializing<T>();
+            else
+                config.OnDeserializing = (instance, memberName, value) => JsConfig<T>.OnDeserializingFn((T)instance, memberName, value);
 
             IsUserType = !typeof(T).IsValueType() && typeof(T).Namespace != "System";
 
