@@ -609,9 +609,11 @@ namespace ServiceStack
             try
             {
                 var webReq = WebRequest.Create(url);
-                var webRes = PclExport.Instance.GetResponse(webReq);
-                var strRes = webRes.ReadToEnd();
-                return null;
+                using (var webRes = PclExport.Instance.GetResponse(webReq))
+                {
+                    var strRes = webRes.ReadToEnd();
+                    return null;
+                }
             }
             catch (WebException webEx)
             {
