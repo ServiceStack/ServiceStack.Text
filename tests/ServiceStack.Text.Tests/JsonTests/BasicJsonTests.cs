@@ -567,5 +567,27 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.That(obj.Bar, Is.EqualTo("Bar"));
         }
+
+        [Test]
+        public void Does_include_null_values_in_lists()
+        {
+            using (JsConfig.With(includeNullValues:true))
+            {
+                var dto = new List<DateTime?>
+                {
+                    new DateTime(2000, 01, 01, 0, 0, 0, 0, DateTimeKind.Utc),
+                    null,
+                    new DateTime(2000, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                };
+
+                var json = dto.ToJson();
+                
+                Assert.That(json, Is.EqualTo(@"[""\/Date(946684800000)\/"",null,""\/Date(978220800000)\/""]"));
+
+                var fromJson = json.FromJson<List<DateTime?>>();
+
+                Assert.That(fromJson.Count, Is.EqualTo(dto.Count));
+            }
+        }
     }
 }
