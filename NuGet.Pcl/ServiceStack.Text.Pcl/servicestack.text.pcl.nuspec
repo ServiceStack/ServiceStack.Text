@@ -6,7 +6,7 @@
     <version>4.0.0</version> 
     <authors>Service Stack</authors> 
     <owners>Service Stack</owners>
-    <summary>.NET's fastest JSON, JSV and CSV Text Serializers (deprecated)</summary>
+    <summary>ServiceStack.Text.Pcl (deprecated)</summary>
     <description>
       This package is no longer maintained as the PCL builds have been merged into the main "ServiceStack.Text" NuGet package.
     </description> 
