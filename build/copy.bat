@@ -6,6 +6,7 @@ COPY ..\src\ServiceStack.Text\bin\%BUILD%\ServiceStack.Text.* ..\..\ServiceStack
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\ServiceStack.Text.* ..\..\ServiceStack.Contrib\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\ServiceStack.Text.* ..\..\ServiceStack.Redis\lib
 COPY ..\src\ServiceStack.Text\bin\%BUILD%\ServiceStack.Text.* ..\..\ServiceStack.OrmLite\lib
+COPY ..\src\ServiceStack.Text\bin\%BUILD%\ServiceStack.Text.* ..\..\Stripe\lib
 
 COPY ..\src\ServiceStack.Text\bin\Signed\ServiceStack.Text.* ..\..\ServiceStack\lib\signed
 COPY ..\src\ServiceStack.Text\bin\Signed\ServiceStack.Text.* ..\..\ServiceStack.Redis\lib\signed
