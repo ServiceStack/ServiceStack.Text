@@ -1664,6 +1664,20 @@ namespace ServiceStack
             return Delegate.CreateDelegate(delegateType, target, methodInfo);
 #endif
         }
+
+        public static Type ElementType(this Type type)
+        {
+#if PCL
+            return type.GetTypeInfo().GetElementType();
+#else
+            return type.GetElementType();
+#endif
+        }
+
+        public static Type GetCollectionType(this Type type)
+        {
+            return type.ElementType() ?? type.GetTypeGenericArguments().FirstOrDefault();
+        }
     }
 
 }
