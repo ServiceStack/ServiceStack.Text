@@ -381,13 +381,23 @@ namespace ServiceStack
 
         public static string WithoutExtension(this string filePath)
         {
-            if (String.IsNullOrEmpty(filePath)) return null;
+            if (string.IsNullOrEmpty(filePath)) 
+                return null;
 
             var extPos = filePath.LastIndexOf('.');
             if (extPos == -1) return filePath;
 
             var dirPos = filePath.LastIndexOfAny(DirSeps);
             return extPos > dirPos ? filePath.Substring(0, extPos) : filePath;
+        }
+
+        public static string GetExtension(this string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath)) 
+                return null;
+
+            var extPos = filePath.LastIndexOf('.');
+            return extPos == -1 ? string.Empty : filePath.Substring(extPos);
         }
 
         static readonly char[] DirSeps = new[] { '\\', '/' };

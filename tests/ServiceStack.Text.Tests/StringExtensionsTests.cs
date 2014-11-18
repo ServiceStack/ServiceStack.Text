@@ -82,6 +82,19 @@ namespace ServiceStack.Text.Tests
             Assert.That("path/to/file.ext".WithoutExtension(), Is.EqualTo("path/to/file"));
         }
 
+        [TestCase(null, null)]
+        [TestCase("/", "")]
+        [TestCase("/a", "")]
+        [TestCase("/a.b", ".b")]
+        [TestCase("/a.b.c", ".c")]
+        [TestCase("/{a.b}.c", ".c")]
+        [TestCase("/:=#%$@{a.b}.c", ".c")]
+        public void Does_get_Path_extension(string actual, string expected)
+        {
+            Assert.That(actual.GetExtension(), Is.EqualTo(Path.GetExtension(actual)));
+            Assert.That(actual.GetExtension(), Is.EqualTo(expected));
+        }
+
         //         0         1
         //         01234567890123456789
         [TestCase("text with /* and <!--", "<!--", "/*", 10)]
