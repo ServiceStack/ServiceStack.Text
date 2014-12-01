@@ -927,6 +927,9 @@ namespace ServiceStack
                 case "ts":
                     return "text/x.typescript";
 
+                case "jsx":
+                    return "text/jsx";
+
                 case "csv":
                 case "css":
                 case "sgml":
