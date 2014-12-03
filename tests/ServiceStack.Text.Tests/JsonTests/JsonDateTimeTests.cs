@@ -677,5 +677,14 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(date.Kind, Is.EqualTo(DateTimeKind.Utc));
             Assert.That(date.ToString("yyyy-MM-dd"), Is.EqualTo("2000-01-01"));
         }
+
+        [Test]
+        public void Does_serialize_Dates_without_time_as_UTC_when_AssumeUtc()
+        {
+            JsConfig.AssumeUtc = true;
+            var date = "2000-01-01".FromJson<DateTime>();
+            Assert.That(date.Kind, Is.EqualTo(DateTimeKind.Utc));
+            Assert.That(date.ToString("yyyy-MM-dd"), Is.EqualTo("2000-01-01"));
+        }
     }
 }

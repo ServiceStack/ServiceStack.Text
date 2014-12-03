@@ -116,6 +116,13 @@ namespace ServiceStack.Text.Common
                 return PclExport.Instance.ParseXsdDateTimeAsUtc(dateTimeStr);
             }
 
+            if (dateTimeStr.Length == ShortDateTimeFormat.Length)
+            {
+                var manualDate = ParseManual(dateTimeStr);
+                if (manualDate != null)
+                    return manualDate.Value;
+            }
+
             try
             {
                 var dateTime = DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
@@ -150,10 +157,12 @@ namespace ServiceStack.Text.Common
 
         public static DateTime? ParseManual(string dateTimeStr)
         {
-            if (dateTimeStr == null || dateTimeStr.Length < "YYYY-MM-DD".Length)
+            if (dateTimeStr == null || dateTimeStr.Length < ShortDateTimeFormat.Length)
                 return null;
 
-            var dateKind = DateTimeKind.Utc;
+            var dateKind = JsConfig.AssumeUtc || JsConfig.AlwaysUseUtc 
+                ? DateTimeKind.Utc
+                : DateTimeKind.Local;
             if (dateTimeStr.EndsWith(XsdUtcSuffix))
             {
                 dateTimeStr = dateTimeStr.Substring(0, dateTimeStr.Length - 1);
@@ -168,7 +177,11 @@ namespace ServiceStack.Text.Common
             double subMs = 0;
             int offsetMultiplier = 0;
 
-            if (parts.Length == 2)
+            if (parts.Length == 1)
+            {
+                return new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]), int.Parse(dateParts[2]), 0, 0, 0, 0, dateKind);
+            }
+            else if (parts.Length == 2)
             {
                 var timeStringParts = parts[1].Split('+');
                 if (timeStringParts.Length == 2)
