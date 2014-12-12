@@ -22,6 +22,22 @@ namespace ServiceStack
             return task;
         }
 
+        public static Task Success(this Task task, Action fn,
+            bool onUiThread = true,
+            TaskContinuationOptions taskOptions = TaskContinuationOptions.NotOnFaulted | TaskContinuationOptions.OnlyOnRanToCompletion)
+        {
+            if (onUiThread)
+            {
+                var source = new CancellationToken();
+                task.ContinueWith(t => fn(), source, taskOptions, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            else
+            {
+                task.ContinueWith(t => fn(), taskOptions);
+            }
+            return task;
+        }
+
         public static Task<T> Error<T>(this Task<T> task, Action<Exception> fn,
             bool onUiThread = true,
             TaskContinuationOptions taskOptions = TaskContinuationOptions.OnlyOnFaulted)
@@ -38,7 +54,28 @@ namespace ServiceStack
             return task;
         }
 
+        public static Task Error(this Task task, Action<Exception> fn,
+            bool onUiThread = true,
+            TaskContinuationOptions taskOptions = TaskContinuationOptions.OnlyOnFaulted)
+        {
+            if (onUiThread)
+            {
+                var source = new CancellationToken();
+                task.ContinueWith(t => fn(t.UnwrapIfSingleException()), source, taskOptions, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            else
+            {
+                task.ContinueWith(t => fn(t.UnwrapIfSingleException()), taskOptions);
+            }
+            return task;
+        }
+
         public static Exception UnwrapIfSingleException<T>(this Task<T> task)
+        {
+            return task.Exception.UnwrapIfSingleException();
+        }
+
+        public static Exception UnwrapIfSingleException(this Task task)
         {
             return task.Exception.UnwrapIfSingleException();
         }
