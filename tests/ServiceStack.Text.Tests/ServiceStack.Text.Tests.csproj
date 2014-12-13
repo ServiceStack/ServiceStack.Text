@@ -177,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttributeTests.cs" />
+    <Compile Include="JsonTests\JsonEnumTests.cs" />
     <Compile Include="JsonTests\InvalidJsonTests.cs" />
     <Compile Include="JsonTests\TypeInfoTests.cs" />
     <Compile Include="SerializationDelegatePerformanceTests.cs" />
@@ -352,6 +353,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

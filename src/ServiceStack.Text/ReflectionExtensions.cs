@@ -834,7 +834,14 @@ namespace ServiceStack
         internal static PropertyInfo[] GetTypesPublicProperties(this Type subType)
         {
 #if (NETFX_CORE || PCL)
-            return subType.GetRuntimeProperties().ToArray();
+            var pis = new List<PropertyInfo>();
+            foreach (var pi in subType.GetRuntimeProperties())
+            {
+                var mi = pi.GetMethod ?? pi.SetMethod;
+                if (mi != null && mi.IsStatic) continue;
+                pis.Add(pi);
+            }
+            return pis.ToArray();
 #else
             return subType.GetProperties(
                 BindingFlags.FlattenHierarchy |
