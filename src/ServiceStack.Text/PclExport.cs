@@ -288,6 +288,9 @@ namespace ServiceStack
             if (propertyInfo.CanWrite)
             {
                 var setMethodInfo = propertyInfo.SetMethod();
+                if (setMethodInfo.IsStatic)
+                    return (instance, value) => setMethodInfo.Invoke(null, new[] { value });
+                
                 return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
             }
             if (fieldInfo == null) return null;
