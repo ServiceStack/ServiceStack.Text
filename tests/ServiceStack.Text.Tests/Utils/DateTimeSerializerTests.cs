@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Xml;
 using NUnit.Framework;
 using ServiceStack.Text.Common;
@@ -568,7 +569,26 @@ namespace ServiceStack.Text.Tests.Utils
             var dateStr = date.ToJson();
             var fromDate = dateStr.FromJson<DateTime>();
             Assert.AreEqual(date.ToLocalTime().RoundToSecond(), fromDate.ToLocalTime().RoundToSecond());
-        }        
+        }
+
+        [Test]
+        public void Can_handle_condensed_date_format()
+        {
+            var date = "20001213".FromJson<DateTime>();
+            Assert.That(date, Is.EqualTo(new DateTime(2000, 12, 13)));
+        }
+
+        [Test]
+        public void Can_handle_invalid_format_Exceptions()
+        {
+            DateTimeSerializer.OnParseErrorFn = (str, ex) =>
+                DateTime.ParseExact(str, "yyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None);
+
+            var date = "001213".FromJson<DateTime>();
+            Assert.That(date, Is.EqualTo(new DateTime(2000, 12, 13)));
+
+            DateTimeSerializer.OnParseErrorFn = null;
+        }
     }
 
 }
