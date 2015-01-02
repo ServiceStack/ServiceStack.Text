@@ -9,12 +9,18 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class CsvTypeTests
     {
-        private int id = 0;
+        private int id;
         static string[] Names = new[] { "Foo", "Bar" };
 
         object Create(string name)
         {
             return new { id = ++id, name = name };
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            id = 0;
         }
 
         [Test]

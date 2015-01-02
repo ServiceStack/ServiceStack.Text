@@ -1688,6 +1688,10 @@ namespace ServiceStack
 
         public static Dictionary<string, object> ToObjectDictionary<T>(this T obj)
         {
+            var alreadyDict = obj as Dictionary<string, object>;
+            if (alreadyDict != null)
+                return alreadyDict;
+
             var dict = new Dictionary<string, object>();
             
             foreach (var pi in obj.GetType().GetSerializableProperties())
