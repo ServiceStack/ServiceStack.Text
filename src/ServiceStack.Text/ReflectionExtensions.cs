@@ -1685,6 +1685,25 @@ namespace ServiceStack
         {
             return type.ElementType() ?? type.GetTypeGenericArguments().FirstOrDefault();
         }
+
+        public static Dictionary<string, object> ToObjectDictionary<T>(this T obj)
+        {
+            var dict = new Dictionary<string, object>();
+            
+            foreach (var pi in obj.GetType().GetSerializableProperties())
+            {
+                dict[pi.Name] = pi.GetValue(obj, null);
+            }
+
+            if (JsConfig.IncludePublicFields)
+            {
+                foreach (var fi in obj.GetType().GetSerializableFields())
+                {
+                    dict[fi.Name] = fi.GetValue(obj);
+                }
+            }
+            return dict;
+        }
     }
 
 }

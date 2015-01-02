@@ -229,9 +229,10 @@ namespace ServiceStack.Text
                 return;
             }
 
-            if (typeof(T) == typeof(Dictionary<string, object>))
+            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>)))
             {
-                CsvDictionaryWriter.Write(writer, (IEnumerable<Dictionary<string, object>>)records);
+                var dynamicList = records.Select(x => x.ToObjectDictionary()).ToList();
+                CsvDictionaryWriter.Write(writer, dynamicList);
                 return;
             }
 
