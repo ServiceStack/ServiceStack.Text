@@ -232,5 +232,22 @@ namespace ServiceStack.Text.Tests.JsonTests
                 dto.PrintDump();
             }
         }
+
+        [Test]
+        public void Can_serialize_custom_doubles()
+        {
+            JsConfig<double>.RawSerializeFn = d =>
+                double.IsPositiveInfinity(d) ?
+                  "\"+Inf\""
+                : double.IsNegativeInfinity(d) ?
+                 "\"-Inf\""
+                : double.IsNaN(d) ?
+                  "\"NaN\""
+                : d.ToString();
+
+            var doubles = new[] { 0.0, 1.0, double.NegativeInfinity, double.NaN, double.PositiveInfinity };
+
+            Assert.That(doubles.ToJson(), Is.EqualTo("[0,1,\"-Inf\",\"NaN\",\"+Inf\"]"));
+        }
     }
 }
