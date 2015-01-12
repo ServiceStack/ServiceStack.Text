@@ -147,7 +147,11 @@ namespace ServiceStack.Text.Common
                 int propertyOrder = -1;
                 var propertyType = propertyInfo.PropertyType;
                 var defaultValue = propertyType.GetDefaultValue();
-                bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && !propertyType.IsEnum() && JsConfig.HasSerializeFn.Contains(propertyType);
+                bool propertySuppressDefaultConfig = defaultValue != null 
+                    && propertyType.IsValueType() 
+                    && !propertyType.IsEnum() 
+                    && JsConfig.HasSerializeFn.Contains(propertyType) 
+                    && !JsConfig.HasIncludeDefaultValue.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
 
                 var shouldSerialize = GetShouldSerializeMethod(propertyInfo);
@@ -198,7 +202,10 @@ namespace ServiceStack.Text.Common
                 int propertyOrder = -1;
                 var propertyType = fieldInfo.FieldType;
                 var defaultValue = propertyType.GetDefaultValue();
-                bool propertySuppressDefaultConfig = defaultValue != null && propertyType.IsValueType() && !propertyType.IsEnum() && JsConfig.HasSerializeFn.Contains(propertyType);
+                bool propertySuppressDefaultConfig = defaultValue != null 
+                    && propertyType.IsValueType() && !propertyType.IsEnum() 
+                    && JsConfig.HasSerializeFn.Contains(propertyType) 
+                    && !JsConfig.HasIncludeDefaultValue.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
 #if (NETFX_CORE)
                 var shouldSerialize = (Func<T, bool>)null;

@@ -518,6 +518,8 @@ namespace ServiceStack.Text
 
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
+        internal static HashSet<Type> HasIncludeDefaultValue = new HashSet<Type>();
+
         public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
         private static bool? sPreferInterfaces;
@@ -658,6 +660,10 @@ namespace ServiceStack.Text
             {
                 Reset(rawSerializeType);
             }
+            foreach (var rawSerializeType in HasIncludeDefaultValue.ToArray())
+            {
+                Reset(rawSerializeType);
+            }
             foreach (var uniqueType in __uniqueTypes.ToArray())
             {
                 Reset(uniqueType);
@@ -688,6 +694,7 @@ namespace ServiceStack.Text
             sIncludePublicFields = null;
             sReuseStringBuffer = null;
             HasSerializeFn = new HashSet<Type>();
+            HasIncludeDefaultValue = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             sPropertyConvention = null;
             sExcludePropertyReferences = null;
@@ -754,6 +761,20 @@ namespace ServiceStack.Text
         public static bool? EmitCamelCaseNames = null;
 
         public static bool? EmitLowercaseUnderscoreNames = null;
+
+        public static bool IncludeDefaultValue
+        {
+            get { return JsConfig.HasIncludeDefaultValue.Contains(typeof(T)); }
+            set
+            {
+                if (value)
+                    JsConfig.HasIncludeDefaultValue.Add(typeof(T));
+                else
+                    JsConfig.HasIncludeDefaultValue.Remove(typeof(T));
+
+                ClearFnCaches();
+            }
+        }
 
         /// <summary>
         /// Define custom serialization fn for BCL Structs

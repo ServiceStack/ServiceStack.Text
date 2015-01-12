@@ -232,8 +232,11 @@ namespace ServiceStack.Text.Tests.JsonTests
                 dto.PrintDump();
             }
         }
+    }
 
-        [Test]
+    public class CustomSerailizerValueTypeTests
+    {
+        [Ignore("Need to clear static element caches"), Test]
         public void Can_serialize_custom_doubles()
         {
             JsConfig<double>.RawSerializeFn = d =>
@@ -249,5 +252,25 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.That(doubles.ToJson(), Is.EqualTo("[0,1,\"-Inf\",\"NaN\",\"+Inf\"]"));
         }
+
+        public class Model
+        {
+            public int Int { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_custom_ints()
+        {
+            JsConfig<int>.IncludeDefaultValue = true;
+            JsConfig<int>.RawSerializeFn = i =>
+                i == 0 ? "-1" : i.ToString();
+
+            var dto = new Model { Int = 0 };
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Int\":-1}"));
+
+            JsConfig.Reset();
+        }
     }
+
 }
