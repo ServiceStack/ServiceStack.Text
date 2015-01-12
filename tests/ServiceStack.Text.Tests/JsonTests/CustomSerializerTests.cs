@@ -234,11 +234,12 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
     }
 
-    public class CustomSerailizerValueTypeTests
+    public class CustomSerailizerValueTypeTests 
     {
-        [Ignore("Need to clear static element caches"), Test]
+        [Ignore("Needs to clear dirty static element caches from other tests"), Test]
         public void Can_serialize_custom_doubles()
         {
+            JsConfig<double>.IncludeDefaultValue = true;
             JsConfig<double>.RawSerializeFn = d =>
                 double.IsPositiveInfinity(d) ?
                   "\"+Inf\""
@@ -251,6 +252,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             var doubles = new[] { 0.0, 1.0, double.NegativeInfinity, double.NaN, double.PositiveInfinity };
 
             Assert.That(doubles.ToJson(), Is.EqualTo("[0,1,\"-Inf\",\"NaN\",\"+Inf\"]"));
+
+            Assert.That(new KeyValuePair<double, double>(0, 1).ToJson(),
+                Is.EqualTo("{\"Key\":0,\"Value\":1}"));
+
+            JsConfig.Reset();
         }
 
         public class Model
@@ -261,13 +267,16 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_custom_ints()
         {
-            JsConfig<int>.IncludeDefaultValue = true;
+            //JsConfig<int>.IncludeDefaultValue = true;
             JsConfig<int>.RawSerializeFn = i =>
                 i == 0 ? "-1" : i.ToString();
 
             var dto = new Model { Int = 0 };
 
-            Assert.That(dto.ToJson(), Is.EqualTo("{\"Int\":-1}"));
+            using (JsConfig.With(includeNullValues: true))
+            {
+                Assert.That(dto.ToJson(), Is.EqualTo("{\"Int\":-1}"));
+            }
 
             JsConfig.Reset();
         }
