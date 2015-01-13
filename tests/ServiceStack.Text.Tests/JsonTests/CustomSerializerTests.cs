@@ -136,7 +136,8 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_Serialize_With_Custom_Constructor()
         {
             bool hit = false;
-            JsConfig.ModelFactory = type => {
+            JsConfig.ModelFactory = type =>
+            {
                 if (typeof(Test1) == type)
                 {
                     hit = true;
@@ -183,10 +184,12 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_detect_dto_with_no_Version()
         {
-            using (JsConfig.With(modelFactory:type => {
+            using (JsConfig.With(modelFactory: type =>
+            {
                 if (typeof(IHasVersion).IsAssignableFrom(type))
                 {
-                    return () => {
+                    return () =>
+                    {
                         var obj = (IHasVersion)type.CreateInstance();
                         obj.Version = 0;
                         return obj;
@@ -234,7 +237,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
     }
 
-    public class CustomSerailizerValueTypeTests 
+    public class CustomSerailizerValueTypeTests
     {
         [Ignore("Needs to clear dirty static element caches from other tests"), Test]
         public void Can_serialize_custom_doubles()
@@ -259,7 +262,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig.Reset();
         }
 
-        public class Model
+        public class ModelInt
         {
             public int Int { get; set; }
         }
@@ -271,7 +274,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig<int>.RawSerializeFn = i =>
                 i == 0 ? "-1" : i.ToString();
 
-            var dto = new Model { Int = 0 };
+            var dto = new ModelInt { Int = 0 };
 
             using (JsConfig.With(includeNullValues: true))
             {
