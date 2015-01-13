@@ -283,6 +283,24 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             JsConfig.Reset();
         }
+
+        public class ModelDecimal
+        {
+            public decimal Decimal { get; set; }
+        }
+
+        [Test]
+        public void Can_customize_JSON_decimal()
+        {
+            JsConfig<decimal>.RawSerializeFn = d =>
+                d.ToString(CultureInfo.CreateSpecificCulture("nl-NL"));
+
+            var dto = new ModelDecimal { Decimal = 1.33m };
+
+            Assert.That(dto.ToCsv(), Is.EqualTo("Decimal\r\n\"1,33\"\r\n"));
+            Assert.That(dto.ToJsv(), Is.EqualTo("{Decimal:1,33}"));
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Decimal\":1,33}"));
+        }
     }
 
 }
