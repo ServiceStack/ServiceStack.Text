@@ -13,12 +13,12 @@ namespace ServiceStack.Text
         internal Func<object, string, object, object> OnDeserializing;
         internal bool IsUserType { get; set; }
 
-        internal void AssertValidUsage()
-        {
-            if (!IsUserType) return;
+        //internal void AssertValidUsage()
+        //{
+        //    if (!IsUserType) return;
 
-            LicenseUtils.AssertValidUsage(LicenseFeature.Text, QuotaType.Types, JsConfig.__uniqueTypesCount);
-        }
+        //    LicenseUtils.AssertValidUsage(LicenseFeature.Text, QuotaType.Types, JsConfig.__uniqueTypesCount);
+        //}
 
         internal TypeConfig(Type type)
         {
@@ -108,9 +108,9 @@ namespace ServiceStack.Text
             return Config;
         }
 
-        internal static void AssertValidUsage()
-        {
-            Config.AssertValidUsage();
-        }
+        //internal static void AssertValidUsage()
+        //{
+        //    Config.AssertValidUsage();
+        //}
     }
 }

@@ -155,9 +155,9 @@ namespace ServiceStack
         {
         }
 
-        public virtual void RegisterLicenseFromConfig()
-        {            
-        }
+        //public virtual void RegisterLicenseFromConfig()
+        //{            
+        //}
 
         public virtual string GetEnvironmentVariable(string name)
         {
@@ -416,10 +416,10 @@ namespace ServiceStack
             stream.Position = 0;
         }
 
-        public virtual LicenseKey VerifyLicenseKeyText(string licenseKeyText)
-        {
-            return licenseKeyText.ToLicenseKey();
-        }
+        //public virtual LicenseKey VerifyLicenseKeyText(string licenseKeyText)
+        //{
+        //    return licenseKeyText.ToLicenseKey();
+        //}
 
         public virtual void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
         {

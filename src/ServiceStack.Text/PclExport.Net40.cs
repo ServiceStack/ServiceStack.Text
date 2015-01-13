@@ -96,19 +96,19 @@ namespace ServiceStack
         }
 
         public const string AppSettingsKey = "servicestack:license";
-        public override void RegisterLicenseFromConfig()
-        {
-#if ANDROID
-#elif __IOS__
-#else
-            //Automatically register license key stored in <appSettings/>
-            var licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
-            if (!string.IsNullOrEmpty(licenceKeyText))
-            {
-                LicenseUtils.RegisterLicense(licenceKeyText);
-            }
-#endif
-        }
+//        public override void RegisterLicenseFromConfig()
+//        {
+//#if ANDROID
+//#elif __IOS__
+//#else
+//            //Automatically register license key stored in <appSettings/>
+//            var licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
+//            if (!string.IsNullOrEmpty(licenceKeyText))
+//            {
+//                LicenseUtils.RegisterLicense(licenceKeyText);
+//            }
+//#endif
+//        }
 
         public override string GetEnvironmentVariable(string name)
         {
@@ -464,14 +464,14 @@ namespace ServiceStack
             stream.Close();
         }
 
-        public override LicenseKey VerifyLicenseKeyText(string licenseKeyText)
-        {
-            LicenseKey key;
-            if (!licenseKeyText.VerifyLicenseKeyText(out key))
-                throw new ArgumentException("licenseKeyText");
+        //public override LicenseKey VerifyLicenseKeyText(string licenseKeyText)
+        //{
+        //    LicenseKey key;
+        //    if (!licenseKeyText.VerifyLicenseKeyText(out key))
+        //        throw new ArgumentException("licenseKeyText");
 
-            return key;
-        }
+        //    return key;
+        //}
 
         public override void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
         {
@@ -489,12 +489,12 @@ namespace ServiceStack
                 return; //dynamic assembly
             }
 
-            var errorDetails = " Type: '{0}', Assembly: '{1}', '{2}'".Fmt(
-                accessType.Name,
-                accessType.Assembly.ManifestModule.Name,
-                accessType.Assembly.Location);
+            //var errorDetails = " Type: '{0}', Assembly: '{1}', '{2}'".Fmt(
+            //    accessType.Name,
+            //    accessType.Assembly.ManifestModule.Name,
+            //    accessType.Assembly.Location);
 
-            throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest + errorDetails);
+            //throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest + errorDetails);
         }
 
         public override void BeginThreadAffinity()
@@ -1218,18 +1218,18 @@ namespace ServiceStack
             }
         }
 
-        public static bool VerifyLicenseKeyText(this string licenseKeyText, out LicenseKey key)
-        {
-            var publicRsaProvider = new RSACryptoServiceProvider();
-            publicRsaProvider.FromXmlString(LicenseUtils.LicensePublicKey);
-            var publicKeyParams = publicRsaProvider.ExportParameters(false);
+        //public static bool VerifyLicenseKeyText(this string licenseKeyText, out LicenseKey key)
+        //{
+        //    var publicRsaProvider = new RSACryptoServiceProvider();
+        //    publicRsaProvider.FromXmlString(LicenseUtils.LicensePublicKey);
+        //    var publicKeyParams = publicRsaProvider.ExportParameters(false);
 
-            key = licenseKeyText.ToLicenseKey();
-            var originalData = key.GetHashKeyToSign().ToUtf8Bytes();
-            var signedData = Convert.FromBase64String(key.Hash);
+        //    key = licenseKeyText.ToLicenseKey();
+        //    var originalData = key.GetHashKeyToSign().ToUtf8Bytes();
+        //    var signedData = Convert.FromBase64String(key.Hash);
 
-            return VerifySignedHash(originalData, signedData, publicKeyParams);
-        }
+        //    return VerifySignedHash(originalData, signedData, publicKeyParams);
+        //}
 
         public static bool VerifySha1Data(this RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
         {
