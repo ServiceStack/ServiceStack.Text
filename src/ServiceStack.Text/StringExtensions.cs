@@ -783,17 +783,20 @@ namespace ServiceStack
         public static bool IsUserType(this Type type)
         {
             return type.IsClass()
-                && type.Namespace != null
-                && !type.Namespace.StartsWith("System")
-                && type.Name.IndexOfAny(SystemTypeChars) == -1;
+                && !type.IsSystemType();
         }
 
         public static bool IsUserEnum(this Type type)
         {
             return type.IsEnum()
-                && type.Namespace != null
-                && !type.Namespace.StartsWith("System")
-                && type.Name.IndexOfAny(SystemTypeChars) == -1;
+                && !type.IsSystemType();
+        }
+
+        public static bool IsSystemType(this Type type)
+        {
+            return type.Namespace == null
+                || type.Namespace.StartsWith("System")
+                || type.Name.IndexOfAny(SystemTypeChars) >= 0;
         }
 
         public static bool IsInt(this string text)
