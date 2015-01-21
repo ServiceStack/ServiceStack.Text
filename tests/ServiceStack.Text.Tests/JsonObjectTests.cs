@@ -73,5 +73,20 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(obj.Get("name"), Is.EqualTo("Demis Bellot TW"));
         }
+
+        [Test]
+        public void Can_parse_ArrayObjects()
+        {
+            var data = new { key = new[] { "value1", "value2" } };
+            var json = data.ToJson();
+
+            Assert.That(json, Is.EqualTo(@"{""key"":[""value1"",""value2""]}"));
+
+            var value = JsonObject.Parse(json);
+            var dataObjects = value.Get<string[]>("key");
+
+            Assert.That(dataObjects[0], Is.EqualTo("value1"));
+            Assert.That(dataObjects[1], Is.EqualTo("value2"));
+        }
     }
 }
