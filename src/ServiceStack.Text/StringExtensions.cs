@@ -358,7 +358,7 @@ namespace ServiceStack
             var pos = strVal.IndexOf(needle);
             return pos == -1
                 ? new[] { strVal }
-                : new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
+                : new[] { strVal.Substring(0, pos), strVal.Substring(pos + needle.Length) };
         }
 
         public static string[] SplitOnLast(this string strVal, char needle)
@@ -376,7 +376,7 @@ namespace ServiceStack
             var pos = strVal.LastIndexOf(needle);
             return pos == -1
                 ? new[] { strVal }
-                : new[] { strVal.Substring(0, pos), strVal.Substring(pos + 1) };
+                : new[] { strVal.Substring(0, pos), strVal.Substring(pos + needle.Length) };
         }
 
         public static string WithoutExtension(this string filePath)
