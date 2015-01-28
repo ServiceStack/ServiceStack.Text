@@ -649,6 +649,11 @@ namespace ServiceStack
         public static PropertyInfo[] GetSerializableProperties(this Type type)
         {
             var publicProperties = GetPublicProperties(type);
+            return publicProperties.OnlySerializableProperties(type);
+        }
+
+        public static PropertyInfo[] OnlySerializableProperties(this PropertyInfo[] publicProperties, Type type = null)
+        {
             var publicReadableProperties = publicProperties.Where(x => x.PropertyGetMethod() != null);
 
             if (type.IsDto())
@@ -659,10 +664,11 @@ namespace ServiceStack
 
             // else return those properties that are not decorated with IgnoreDataMember
             return publicReadableProperties
-                .Where(prop => prop.AllAttributes().All(attr => {
-                        var name = attr.GetType().Name;
-                        return !IgnoreAttributesNamed.Contains(name);
-                    }))
+                .Where(prop => prop.AllAttributes()
+                    .All(attr => {
+                            var name = attr.GetType().Name;
+                            return !IgnoreAttributesNamed.Contains(name);
+                        }))
                 .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.PropertyType))
                 .ToArray();
         }
@@ -1010,6 +1016,9 @@ namespace ServiceStack
         const string DataContract = "DataContractAttribute";
         public static bool IsDto(this Type type)
         {
+            if (type == null)
+                return false;
+
 #if (NETFX_CORE || PCL)
             return type.HasAttribute<DataContractAttribute>();
 #else
