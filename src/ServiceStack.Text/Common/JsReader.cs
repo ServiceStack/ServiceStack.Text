@@ -30,9 +30,7 @@ namespace ServiceStack.Text.Common
                 return value => JsConfig<T>.ParseFn(Serializer, value);
 
             if (type.IsEnum())
-            {
-                return x => Enum.Parse(type, Serializer.UnescapeSafeString(x), true);
-            }
+                return x => ParseUtils.TryParseEnum(type, Serializer.UnescapeSafeString(x));
 
             if (type == typeof(string))
                 return Serializer.UnescapeString;
@@ -43,9 +41,6 @@ namespace ServiceStack.Text.Common
             var specialParseFn = ParseUtils.GetSpecialParseMethod(type);
             if (specialParseFn != null)
                 return specialParseFn;
-
-            if (type.IsEnum())
-                return x => Enum.Parse(type, x, true);
 
             if (type.IsArray)
             {

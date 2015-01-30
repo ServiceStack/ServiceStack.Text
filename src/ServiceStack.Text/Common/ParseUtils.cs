@@ -60,6 +60,14 @@ namespace ServiceStack.Text.Common
         {
             return AssemblyUtils.FindType(assemblyQualifiedName.FromCsvField());
         }
+
+        public static object TryParseEnum(Type enumType, string str)
+        {
+            if (JsConfig.EmitLowercaseUnderscoreNames)
+                str = str.Replace("_", "");
+
+            return Enum.Parse(enumType, str, ignoreCase: true);
+        }
     }
 
 }
