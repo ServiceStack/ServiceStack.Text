@@ -349,7 +349,15 @@ namespace ServiceStack.Text.Common
         {
             return dateTimeStr.StartsWith("P", StringComparison.Ordinal) || dateTimeStr.StartsWith("-P", StringComparison.Ordinal)
                 ? ParseXsdTimeSpan(dateTimeStr)
-                : TimeSpan.Parse(dateTimeStr);
+                : dateTimeStr.Contains(":") 
+                ? TimeSpan.Parse(dateTimeStr)
+                : ParseNSTimeInterval(dateTimeStr);
+        }
+
+        public static TimeSpan ParseNSTimeInterval(string doubleInSecs)
+        {
+            var secs = double.Parse(doubleInSecs);
+            return TimeSpan.FromSeconds(secs);
         }
 
         public static TimeSpan ParseXsdTimeSpan(string dateTimeStr)
