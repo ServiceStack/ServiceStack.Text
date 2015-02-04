@@ -13,7 +13,7 @@ namespace ServiceStack.Text
 {
     public class CsvSerializer
     {
-        private static readonly UTF8Encoding UTF8EncodingWithoutBom = new UTF8Encoding(false);
+        public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
 
         private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
 
@@ -87,7 +87,7 @@ namespace ServiceStack.Text
         public static void SerializeToStream<T>(T value, Stream stream)
         {
             if (value == null) return;
-            var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+            var writer = new StreamWriter(stream, UTF8Encoding);
             CsvSerializer<T>.WriteObject(writer, value);
             writer.Flush();
         }
@@ -95,7 +95,7 @@ namespace ServiceStack.Text
         public static void SerializeToStream(object obj, Stream stream)
         {
             if (obj == null) return;
-            var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+            var writer = new StreamWriter(stream, UTF8Encoding);
             var writeFn = GetWriteFn(obj.GetType());
             writeFn(writer, obj);
             writer.Flush();
