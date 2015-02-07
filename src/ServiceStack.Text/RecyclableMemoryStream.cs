@@ -30,7 +30,9 @@ using System.Threading;
 
 namespace ServiceStack.Text //Internalize to avoid conflicts
 {
+#if !SL5
     using Events = RecyclableMemoryStreamManager.Events;
+#endif
 
     public static class MemoryStreamFactory
     {
