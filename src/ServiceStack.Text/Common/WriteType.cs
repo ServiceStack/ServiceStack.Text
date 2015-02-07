@@ -527,8 +527,8 @@ namespace ServiceStack.Text.Common
                     {                        
                         //Trim brackets in top-level lists in QueryStrings, e.g: ?a=[1,2,3] => ?a=1,2,3
                         using (var ms = MemoryStreamFactory.GetStream())
-                        using (var enumerableWriter = new StreamWriter(ms))
                         {
+                            var enumerableWriter = new StreamWriter(ms); //ms disposed in using 
                             propertyWriter.WriteFn(enumerableWriter, propertyValue); 
                             enumerableWriter.Flush();
                             var output = ms.ToArray().FromUtf8Bytes();
