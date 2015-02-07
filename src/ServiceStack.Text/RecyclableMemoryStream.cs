@@ -48,6 +48,13 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 : new MemoryStream();
         }
 
+        public static MemoryStream GetStream(int capacity)
+        {
+            return UseRecyclableMemoryStream
+                ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, capacity)
+                : new MemoryStream(capacity);
+        }
+
         public static MemoryStream GetStream(byte[] bytes)
         {
             return UseRecyclableMemoryStream
@@ -65,6 +72,11 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         public static MemoryStream CreateMemoryStream()
         {
             return new MemoryStream();
+        }
+
+        public static MemoryStream GetStream(int capacity)
+        {
+            return new MemoryStream(capacity);
         }
 
         public static MemoryStream CreateMemoryStream(byte[] bytes)
