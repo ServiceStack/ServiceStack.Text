@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using ServiceStack.Text;
 
 namespace ServiceStack
 {
@@ -96,7 +97,7 @@ namespace ServiceStack
             }
             // We could do all our own work here, but using MemoryStream is easier
             // and likely to be just as efficient.
-            using (var tempStream = new MemoryStream())
+            using (var tempStream = MemoryStreamFactory.GetStream())
             {
                 CopyTo(input, tempStream, buffer);
                 // No need to copy the buffer if it's the right size

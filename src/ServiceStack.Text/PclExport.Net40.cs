@@ -1197,7 +1197,7 @@ namespace ServiceStack
 
         public static byte[] Compress<TXmlDto>(TXmlDto from)
         {
-            using (var ms = new MemoryStream())
+            using (var ms = MemoryStreamFactory.GetStream())
             {
                 CompressToStream(from, ms);
 
