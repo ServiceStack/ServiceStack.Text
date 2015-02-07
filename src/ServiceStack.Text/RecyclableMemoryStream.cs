@@ -36,7 +36,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
     public static class MemoryStreamFactory
     {
-        public static bool UseRecyclableMemoryStream { get; set; }
+        public static bool UseRecyclableMemoryStream = true;
 
 #if !SL5
         public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
