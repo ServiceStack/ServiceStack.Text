@@ -373,7 +373,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 if (this.GenerateCallStacks)
                 {
                     // Grab the stack -- we want to know who requires such large buffers
-                    callStack = Environment.StackTrace;
+                    callStack = PclExport.Instance.GetStackTrace();
                 }
                 Events.Write.MemoryStreamNonPooledLargeBufferCreated(requiredSize, tag, callStack);
 
@@ -848,7 +848,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
             if (this.memoryManager.GenerateCallStacks)
             {
-                this.allocationStack = Environment.StackTrace;
+                this.allocationStack = PclExport.Instance.GetStackTrace();
             }
 
             Events.Write.MemoryStreamCreated(this.id, this.tag, requestedSize);
@@ -876,7 +876,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 string doubleDisposeStack = null;
                 if (this.memoryManager.GenerateCallStacks)
                 {
-                    doubleDisposeStack = Environment.StackTrace;
+                    doubleDisposeStack = PclExport.Instance.GetStackTrace();
                 }
 
                 Events.Write.MemoryStreamDoubleDispose(this.id, this.tag, this.allocationStack, this.disposeStack, doubleDisposeStack);
@@ -887,7 +887,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
             if (this.memoryManager.GenerateCallStacks)
             {
-                this.disposeStack = Environment.StackTrace;
+                this.disposeStack = PclExport.Instance.GetStackTrace();
             }
 
             if (disposing)
@@ -1115,7 +1115,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             var newBuffer = new byte[this.Length];
 
             this.InternalRead(newBuffer, 0, this.length, 0);
-            string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
+            string stack = this.memoryManager.GenerateCallStacks ? PclExport.Instance.GetStackTrace() : null;
             Events.Write.MemoryStreamToArray(this.id, this.tag, stack, 0);
             this.memoryManager.ReportStreamToArray();
 

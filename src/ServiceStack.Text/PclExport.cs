@@ -451,6 +451,11 @@ namespace ServiceStack
         public virtual void RegisterForAot()
         {            
         }
+
+        public virtual string GetStackTrace()
+        {
+            return null;
+        }
     }
 
 }

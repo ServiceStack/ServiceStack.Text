@@ -522,6 +522,11 @@ namespace ServiceStack
             if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
         }
 
+        public override string GetStackTrace()
+        {
+            return Environment.StackTrace;
+        }
+
 #if !__IOS__
         public override SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
         {
