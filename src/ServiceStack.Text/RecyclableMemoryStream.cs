@@ -41,21 +41,21 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 #if !SL5
         public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
 
-        public static MemoryStream CreateMemoryStream()
+        public static MemoryStream GetStream()
         {
             return UseRecyclableMemoryStream
                 ? RecyclableInstance.GetStream()
                 : new MemoryStream();
         }
 
-        public static MemoryStream CreateMemoryStream(byte[] bytes)
+        public static MemoryStream GetStream(byte[] bytes)
         {
             return UseRecyclableMemoryStream
                 ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, bytes, 0, bytes.Length)
                 : new MemoryStream(bytes);
         }
 
-        public static MemoryStream CreateMemoryStream(byte[] bytes, int index, int count)
+        public static MemoryStream GetStream(byte[] bytes, int index, int count)
         {
             return UseRecyclableMemoryStream
                 ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, bytes, index, count)
