@@ -255,6 +255,7 @@
     <Compile Include="QueryStringSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RecyclableMemoryStream.cs" />
     <Compile Include="ReflectionExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
