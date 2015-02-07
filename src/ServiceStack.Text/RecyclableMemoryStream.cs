@@ -69,7 +69,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 : new MemoryStream(bytes, index, count);
         }
 #else
-        public static MemoryStream CreateMemoryStream()
+        public static MemoryStream GetStream()
         {
             return new MemoryStream();
         }
@@ -79,12 +79,12 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             return new MemoryStream(capacity);
         }
 
-        public static MemoryStream CreateMemoryStream(byte[] bytes)
+        public static MemoryStream GetStream(byte[] bytes)
         {
             return new MemoryStream(bytes);
         }
 
-        public static MemoryStream CreateMemoryStream(byte[] bytes, int index, int count)
+        public static MemoryStream GetStream(byte[] bytes, int index, int count)
         {
             return new MemoryStream(bytes, index, count);
         }
