@@ -36,7 +36,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
     public static class MemoryStreamFactory
     {
-        public static bool UseRecyclableMemoryStream = true;
+        public static bool UseRecyclableMemoryStream { get; set; }
+        public static bool MuteDuplicateDisposeExceptions { get; set; }
 
 #if !SL5
         public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
@@ -912,6 +913,9 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 }
 
                 Events.Write.MemoryStreamDoubleDispose(this.id, this.tag, this.allocationStack, this.disposeStack, doubleDisposeStack);
+                if (MemoryStreamFactory.MuteDuplicateDisposeExceptions)
+                    return;
+
                 throw new InvalidOperationException("Cannot dispose of RecyclableMemoryStream twice");
             }
 
