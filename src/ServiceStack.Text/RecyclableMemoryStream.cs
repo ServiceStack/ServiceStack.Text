@@ -34,9 +34,10 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
     public static class MemoryStreamFactory
     {
-        public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
-
         public static bool UseRecyclableMemoryStream { get; set; }
+
+#if !SL5
+        public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
 
         public static MemoryStream CreateMemoryStream()
         {
@@ -58,8 +59,25 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, bytes, index, count)
                 : new MemoryStream(bytes, index, count);
         }
+#else
+        public static MemoryStream CreateMemoryStream()
+        {
+            return new MemoryStream();
+        }
+
+        public static MemoryStream CreateMemoryStream(byte[] bytes)
+        {
+            return new MemoryStream(bytes);
+        }
+
+        public static MemoryStream CreateMemoryStream(byte[] bytes, int index, int count)
+        {
+            return new MemoryStream(bytes, index, count);
+        }
+#endif
     }
 
+#if !SL5
     /// <summary>
     /// Manages pools of RecyclableMemoryStream objects.
     /// </summary>
@@ -1495,6 +1513,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         #endregion
     }
 
+    //Avoid taking on an extra dep
     public sealed partial class RecyclableMemoryStreamManager
     {
         //[EventSource(Name = "Microsoft-IO-RecyclableMemoryStream", Guid = "{B80CD4E4-890E-468D-9CBA-90EB7C82DFC7}")]
@@ -1618,5 +1637,5 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             }
         }
     }
-
+#endif
 }
