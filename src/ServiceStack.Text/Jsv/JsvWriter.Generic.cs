@@ -130,7 +130,7 @@ namespace ServiceStack.Text.Jsv
 #if __IOS__
 			if (writer == null) return;
 #endif
-            TypeConfig<T>.AssertValidUsage();
+            //TypeConfig<T>.AssertValidUsage();
 
             try
             {
@@ -154,15 +154,15 @@ namespace ServiceStack.Text.Jsv
 #if __IOS__
 			if (writer == null) return;
 #endif
-            try
-            {
-                TypeConfig<T>.AssertValidUsage();
-            }
-            catch (Exception ex)
-            {
-                var inner = ex.GetInnerMostException();
-                throw inner;
-            }
+            //try
+            //{
+            //    TypeConfig<T>.AssertValidUsage();
+            //}
+            //catch (Exception ex)
+            //{
+            //    var inner = ex.GetInnerMostException();
+            //    throw inner;
+            //}
 
             JsState.Depth = 0;
             CacheFn(writer, value);

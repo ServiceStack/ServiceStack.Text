@@ -183,7 +183,7 @@ namespace ServiceStack.Text.Json
 #if __IOS__
 			if (writer == null) return;
 #endif
-            TypeConfig<T>.AssertValidUsage();
+            //TypeConfig<T>.AssertValidUsage();
 
             try
             {
@@ -207,7 +207,7 @@ namespace ServiceStack.Text.Json
 #if __IOS__
 			if (writer == null) return;
 #endif
-            TypeConfig<T>.AssertValidUsage();
+            //TypeConfig<T>.AssertValidUsage();
 
             JsState.Depth = 0;
             CacheFn(writer, value);
