@@ -106,6 +106,8 @@ namespace ServiceStack.Text.Common
 #if !SILVERLIGHT
         public static Hashtable ParseHashtable(string value)
         {
+            if (value == null) return null;
+
             var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
 
             var result = new Hashtable();
@@ -174,6 +176,8 @@ namespace ServiceStack.Text.Common
 
         public static Dictionary<string, string> ParseStringDictionary(string value)
         {
+            if (value == null) return null;
+
             var index = VerifyAndGetStartIndex(value, typeof(Dictionary<string, string>));
 
             var result = new Dictionary<string, string>();
