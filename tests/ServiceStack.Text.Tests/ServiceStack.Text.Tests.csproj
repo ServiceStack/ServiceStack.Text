@@ -164,6 +164,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableTests.cs" />
     <Compile Include="JsonTests\TypeInfoTests.cs" />
     <Compile Include="AdhocModelTests.cs" />
     <Compile Include="AnonymousTypes.cs" />
