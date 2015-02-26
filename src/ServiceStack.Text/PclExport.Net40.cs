@@ -1058,6 +1058,9 @@ namespace ServiceStack
 
         public static Hashtable ParseHashtable(string value)
         {
+            if (value == null) 
+                return null;
+
             var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
 
             var result = new Hashtable();
