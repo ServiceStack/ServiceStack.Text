@@ -172,17 +172,28 @@ namespace ServiceStack
                         ranOnce = true;
 
                     JsState.WritingKeyCount++;
-                    JsState.IsWritingValue = false;
+                    try
+                    {
+                        JsState.IsWritingValue = false;
 
-                    writeKeyFn(writer, key);
-
-                    JsState.WritingKeyCount--;
+                        writeKeyFn(writer, key);
+                    }
+                    finally
+                    {
+                        JsState.WritingKeyCount--;
+                    }
 
                     writer.Write("=");
 
                     JsState.IsWritingValue = true;
-                    writeValueFn(writer, dictionaryValue);
-                    JsState.IsWritingValue = false;
+                    try
+                    {
+                        writeValueFn(writer, dictionaryValue);
+                    }
+                    finally
+                    {
+                        JsState.IsWritingValue = false;
+                    } 
                 }
             }
             finally 

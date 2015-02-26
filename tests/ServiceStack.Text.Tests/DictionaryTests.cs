@@ -593,6 +593,38 @@ namespace ServiceStack.Text.Tests
             Assert.That(deserialized[2], Is.EqualTo("Value3"));
             Assert.That(deserialized["Key4"], Is.EqualTo(false));
         }
+
+        [Test]
+        public void Can_recover_from_exceptions_when_serializing_dictionary_keys()
+        {
+            var before = JsConfig<int>.SerializeFn;
+            try
+            {
+                JsConfig<int>.SerializeFn = v =>
+                {
+                    throw new Exception("Boom!");
+                };
+                var target = new Dictionary<int, string>
+                {
+                    { 1, "1" },
+                };
+                Assert.Throws<Exception>(() => JsonSerializer.SerializeToString(target));
+            }
+            finally
+            {
+                JsConfig<int>.SerializeFn = before;
+            }
+            var json = JsonSerializer.SerializeToString(new ModelWithDictionary());
+
+            json.Print();
+
+            Assert.That(json.StartsWith("{"));
+        }
+
+        private class ModelWithDictionary
+        {
+            public Dictionary<string, string> Value { get; set; }
+        }
     }
 
     public class OrderedDictionarySub : OrderedDictionary { }

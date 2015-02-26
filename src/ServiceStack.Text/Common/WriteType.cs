@@ -420,15 +420,21 @@ namespace ServiceStack.Text.Common
                     writer.Write(JsWriter.MapKeySeperator);
 
                     if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = true;
-                    if (propertyValue == null)
+                    try
                     {
-                        writer.Write(JsonUtils.Null);
+                        if (propertyValue == null)
+                        {
+                            writer.Write(JsonUtils.Null);
+                        }
+                        else
+                        {
+                            propertyWriter.WriteFn(writer, propertyValue);
+                        }
                     }
-                    else
+                    finally
                     {
-                        propertyWriter.WriteFn(writer, propertyValue);
-                    }
-                    if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
+                        if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
+                    } 
                 }
             }
 
