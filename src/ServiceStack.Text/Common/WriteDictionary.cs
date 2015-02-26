@@ -123,21 +123,33 @@ namespace ServiceStack.Text.Common
                 JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
                 JsState.WritingKeyCount++;
-                JsState.IsWritingValue = false;
-
-                if (encodeMapKey)
+                try
                 {
-                    JsState.IsWritingValue = true; //prevent ""null""
-                    writer.Write(JsWriter.QuoteChar);
-                    writeKeyFn(writer, key);
-                    writer.Write(JsWriter.QuoteChar);
-                }
-                else
-                {
-                    writeKeyFn(writer, key);
-                }
+                    JsState.IsWritingValue = false;
 
-                JsState.WritingKeyCount--;
+                    if (encodeMapKey)
+                    {
+                        JsState.IsWritingValue = true; //prevent ""null""
+                        try
+                        {
+                            writer.Write(JsWriter.QuoteChar);
+                            writeKeyFn(writer, key);
+                            writer.Write(JsWriter.QuoteChar);
+                        }
+                        finally
+                        {
+                            JsState.IsWritingValue = false;
+                        }
+                    }
+                    else
+                    {
+                        writeKeyFn(writer, key);
+                    }
+                }
+                finally
+                {
+                    JsState.WritingKeyCount--;
+                }
 
                 writer.Write(JsWriter.MapKeySeperator);
 
@@ -155,8 +167,14 @@ namespace ServiceStack.Text.Common
                     }
 
                     JsState.IsWritingValue = true;
-                    writeValueFn(writer, dictionaryValue);
-                    JsState.IsWritingValue = false;
+                    try
+                    {
+                        writeValueFn(writer, dictionaryValue);
+                    }
+                    finally
+                    {
+                        JsState.IsWritingValue = false;
+                    }
                 }
             }
 
@@ -203,21 +221,26 @@ namespace ServiceStack.Text.Common
                 JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
                 JsState.WritingKeyCount++;
-                JsState.IsWritingValue = false;
-
-                if (encodeMapKey)
+                try
                 {
-                    JsState.IsWritingValue = true; //prevent ""null""
-                    writer.Write(JsWriter.QuoteChar);
-                    writeKeyFn(writer, kvp.Key);
-                    writer.Write(JsWriter.QuoteChar);
-                }
-                else
-                {
-                    writeKeyFn(writer, kvp.Key);
-                }
+                    JsState.IsWritingValue = false;
 
-                JsState.WritingKeyCount--;
+                    if (encodeMapKey)
+                    {
+                        JsState.IsWritingValue = true; //prevent ""null""
+                        writer.Write(JsWriter.QuoteChar);
+                        writeKeyFn(writer, kvp.Key);
+                        writer.Write(JsWriter.QuoteChar);
+                    }
+                    else
+                    {
+                        writeKeyFn(writer, kvp.Key);
+                    }
+                }
+                finally
+                {
+                    JsState.WritingKeyCount--;
+                }
 
                 writer.Write(JsWriter.MapKeySeperator);
 
@@ -228,8 +251,14 @@ namespace ServiceStack.Text.Common
                 else
                 {
                     JsState.IsWritingValue = true;
-                    writeValueFn(writer, kvp.Value);
-                    JsState.IsWritingValue = false;
+                    try
+                    {
+                        writeValueFn(writer, kvp.Value);
+                    }
+                    finally
+                    {
+                        JsState.IsWritingValue = false;
+                    }
                 }
             }
 
