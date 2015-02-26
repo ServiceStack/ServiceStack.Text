@@ -54,12 +54,16 @@ namespace ServiceStack.Text.Common
 
         public static ICollection<string> ParseStringCollection(string value, Type createType)
         {
+            if (value == null) return null;
+
             var items = DeserializeArrayWithElements<string, TSerializer>.ParseGenericArray(value, Serializer.ParseString);
             return CollectionExtensions.CreateAndPopulate(createType, items);
         }
 
         public static ICollection<int> ParseIntCollection(string value, Type createType)
         {
+            if (value == null) return null;
+
             var items = DeserializeArrayWithElements<int, TSerializer>.ParseGenericArray(value, x => int.Parse(x));
             return CollectionExtensions.CreateAndPopulate(createType, items);
         }

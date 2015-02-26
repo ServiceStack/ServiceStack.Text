@@ -556,6 +556,29 @@ namespace ServiceStack.Text.Tests
             Assert.That(deserialized[2], Is.EqualTo("Value3"));
             Assert.That(deserialized["Key4"], Is.EqualTo(false));
         }
+
+        [Test]
+        public void Can_deserialize_null_string_string_dictionary()
+        {
+            using (var config = JsConfig.BeginScope())
+            {
+                config.IncludeNullValues = true;
+                config.ThrowOnDeserializationError = true;
+                var original = new ModelWithDictionary { Value = null };
+                var json = JsonSerializer.SerializeToString(original);
+                var deserialized = JsonSerializer.DeserializeFromString<ModelWithDictionary>(json);
+
+                json.Print();
+
+                Assert.That(deserialized, Is.Not.Null);
+                Assert.That(deserialized.Value, Is.EqualTo(original.Value));
+            }
+        }
+
+        private class ModelWithDictionary
+        {
+            public Dictionary<string, string> Value { get; set; }
+        }
 	}
 
     public class OrderedDictionarySub : OrderedDictionary { }
