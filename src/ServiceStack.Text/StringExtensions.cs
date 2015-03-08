@@ -562,7 +562,7 @@ namespace ServiceStack
         private const int LowerCaseOffset = 'a' - 'A';
         public static string ToCamelCase(this string value)
         {
-            if (String.IsNullOrEmpty(value)) return value;
+            if (string.IsNullOrEmpty(value)) return value;
 
             var len = value.Length;
             var newValue = new char[len];
@@ -584,6 +584,13 @@ namespace ServiceStack
             }
 
             return new string(newValue);
+        }
+
+        public static string ToPascalCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= 1) return value;
+            var camelCase = value.ToCamelCase();
+            return Char.ToUpper(camelCase[0]) + camelCase.Substring(1);
         }
 
         public static string ToTitleCase(this string value)
