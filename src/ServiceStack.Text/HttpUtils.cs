@@ -984,6 +984,8 @@ namespace ServiceStack
 
                 case "woff":
                     return "application/font-woff";
+                case "woff2":
+                    return "application/font-woff2";
 
                 default:
                     return "application/" + fileExt;
