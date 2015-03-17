@@ -619,6 +619,16 @@ namespace ServiceStack
             return sb.ToString();
         }
 
+        public static string ToLowerSafe(this string value)
+        {
+            return value != null ? value.ToLower() : null;
+        }
+
+        public static string ToUpperSafe(this string value)
+        {
+            return value != null ? value.ToUpper() : null;
+        }
+
         public static string SafeSubstring(this string value, int startIndex)
         {
             return SafeSubstring(value, startIndex, value.Length);
