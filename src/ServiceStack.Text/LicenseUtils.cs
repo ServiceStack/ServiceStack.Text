@@ -26,6 +26,7 @@ namespace ServiceStack
         OrmLiteBusiness,
         RedisIndie,
         RedisBusiness,
+        Trial,
     }
 
     [Flags]
@@ -168,6 +169,10 @@ namespace ServiceStack
                     throw new LicenseException("This license has expired on {0} and is not valid for use with this release."
                         .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
 
+                if (key.Type == LicenseType.Trial && DateTime.UtcNow > key.Expiry)
+                    throw new LicenseException("This trial license has expired on {0}."
+                        .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
+
                 __activatedLicense = key;
             }
             catch (Exception ex)
@@ -296,6 +301,7 @@ namespace ServiceStack
                 case LicenseType.Indie:
                 case LicenseType.Business:
                 case LicenseType.Enterprise:
+                case LicenseType.Trial:
                     return LicenseFeature.All;
 
                 case LicenseType.TextIndie:

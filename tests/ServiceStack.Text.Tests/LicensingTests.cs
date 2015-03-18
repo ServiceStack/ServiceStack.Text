@@ -37,6 +37,11 @@ namespace ServiceStack.Text.Tests
         const string TestText2013Text = "1001-e1JlZjoxMDAxLE5hbWU6VGVzdCBUZXh0LFR5cGU6VGV4dEluZGllLEhhc2g6V3liaFpUejZiMWgxTGhCcmRRSzlNc09FVUsya3Z6Z2E5VDBaRCtEWnlBd0JxM1dabVFVanNaelgwTWR5OXJMSTlmbzJ0dVVOMk9iZ2srcmswdVZGeit6Q1dreTk3SFE5OHhkOGtDRkx0LzQxR2RiU054SnFIVUlmR1hMdS9CQTVOR0lKanN3SjhXTjdyY0R0VmYyTllKK2dEaFd1RzZ4cnB1ZXhYa01WSXFrPSxFeHBpcnk6MjAxMy0wMS0wMX0=";
         readonly LicenseKey TestText2013 = new LicenseKey { Ref = "1001", Name = "Test Text", Type = LicenseType.TextIndie, Expiry = new DateTime(2013, 01, 01) };
 
+        const string TestTrial2000Text = "TRIAL302000-e1JlZjpUUklBTDMwMjAwMCxOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOm4vOGhCQmk3cjFBSmV3WmNwaksyYXJBaDhObHBvRFVNR1ExZjNocmFwaERDNm5zRjY1azJ6bUI2b2xwblhtdHVVdFhNUEoxQ1prOVdWWVlNdjcrTnU3VVk0bS9CV091R1RNb2FxaUU2QWExRGpjRW91NDZHRy83c0tQeGVJcXcxK01XZXdFdm96TTRBWDhhZEs0dEEwZGF6a1dnVjZYMVJBK2tzZDVWZTZvcz0sRXhwaXJ5OjIwMDAtMDEtMDF9";
+        readonly LicenseKey TestTrial2000 = new LicenseKey { Ref = "TRIAL302000", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2000, 01, 01) };
+        const string TestTrial2016Text = "TRIAL302016-e1JlZjpUUklBTDMwMjAxNixOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOkFSSThkVzlHZ210NWZGZ09MTytIRi9vQ29iOWgwN1c4bGxuNHZrUm9CQ2M5aysxVlh3WWJEd2Nxais3cHhFbEwrTkgwbGF2NXoyZGdJV1NndUpXYjZrUC9aQWdqNVIvMmlHamp4ZlduQjExOWY2WHgvRzFERmQ5cndJdjNMejhzR0V5RitNcGhlN3RTbEhJVlR4UjA1amI2SDFaZHlIYjNDNFExcTJaWEFzQT0sRXhwaXJ5OjIwMTYtMDEtMDF9";
+        readonly LicenseKey TestTrial2016 = new LicenseKey { Ref = "TRIAL302016", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2016, 01, 01) };
+
         public IEnumerable AllLicenseUseCases
         {
             get
@@ -107,6 +112,13 @@ namespace ServiceStack.Text.Tests
             Assert.That(LicenseUtils.ActivatedLicenseFeatures(), Is.EqualTo(LicenseFeature.All));
         }
 
+        [Test, Explicit("Licenses are expired")]
+        public void Can_register_valid_trial_license()
+        {
+            Licensing.RegisterLicense(TestTrial2016Text);
+            Assert.That(LicenseUtils.ActivatedLicenseFeatures(), Is.EqualTo(LicenseFeature.All));
+        }
+
         [Test]
         public void Can_register_valid_license()
         {
@@ -135,6 +147,17 @@ namespace ServiceStack.Text.Tests
             try
             {
                 Licensing.RegisterLicense(TestBusiness2000Text);
+                Assert.Fail("Should throw Expired LicenseException");
+            }
+            catch (LicenseException ex)
+            {
+                ex.Message.Print();
+                Assert.That(ex.Message, Is.StringStarting("This license has expired"));
+            }
+
+            try
+            {
+                Licensing.RegisterLicense(TestTrial2000Text);
                 Assert.Fail("Should throw Expired LicenseException");
             }
             catch (LicenseException ex)
