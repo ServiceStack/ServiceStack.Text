@@ -37,8 +37,8 @@ namespace ServiceStack.Text.Tests
         const string TestText2013Text = "1001-e1JlZjoxMDAxLE5hbWU6VGVzdCBUZXh0LFR5cGU6VGV4dEluZGllLEhhc2g6V3liaFpUejZiMWgxTGhCcmRRSzlNc09FVUsya3Z6Z2E5VDBaRCtEWnlBd0JxM1dabVFVanNaelgwTWR5OXJMSTlmbzJ0dVVOMk9iZ2srcmswdVZGeit6Q1dreTk3SFE5OHhkOGtDRkx0LzQxR2RiU054SnFIVUlmR1hMdS9CQTVOR0lKanN3SjhXTjdyY0R0VmYyTllKK2dEaFd1RzZ4cnB1ZXhYa01WSXFrPSxFeHBpcnk6MjAxMy0wMS0wMX0=";
         readonly LicenseKey TestText2013 = new LicenseKey { Ref = "1001", Name = "Test Text", Type = LicenseType.TextIndie, Expiry = new DateTime(2013, 01, 01) };
 
-        const string TestTrial2000Text = "TRIAL302000-e1JlZjpUUklBTDMwMjAwMCxOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOm4vOGhCQmk3cjFBSmV3WmNwaksyYXJBaDhObHBvRFVNR1ExZjNocmFwaERDNm5zRjY1azJ6bUI2b2xwblhtdHVVdFhNUEoxQ1prOVdWWVlNdjcrTnU3VVk0bS9CV091R1RNb2FxaUU2QWExRGpjRW91NDZHRy83c0tQeGVJcXcxK01XZXdFdm96TTRBWDhhZEs0dEEwZGF6a1dnVjZYMVJBK2tzZDVWZTZvcz0sRXhwaXJ5OjIwMDAtMDEtMDF9";
-        readonly LicenseKey TestTrial2000 = new LicenseKey { Ref = "TRIAL302000", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2000, 01, 01) };
+        const string TestTrial2001Text = "TRIAL302001-e1JlZjpUUklBTDMwMjAwMSxOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOlRGRlNVQTRHYWtiY2tmYlpsOHpsbXhVZUpLZ0pORkxaQ1pJckxwSEJpdTVtSXAzWEx4NGFmd0ZGa2duYzNkZTlUUjczR3hKdVdjMkVnQXF0dzdERVNxVWQwOTBFQ09UOXZ3eGNsMjR4V3BXSkwvM1A5TW1RN283bGp1ckJzV2wvL3AzVFpXajlmeTIzcVA0T3B5YmEzTzhLcmhoTXNnZ3k3c0dGL0JOVmdjbz0sRXhwaXJ5OjIwMDEtMDEtMDF9";
+        readonly LicenseKey TestTrial2001 = new LicenseKey { Ref = "TRIAL302001", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2001, 01, 01) };
         const string TestTrial2016Text = "TRIAL302016-e1JlZjpUUklBTDMwMjAxNixOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOkFSSThkVzlHZ210NWZGZ09MTytIRi9vQ29iOWgwN1c4bGxuNHZrUm9CQ2M5aysxVlh3WWJEd2Nxais3cHhFbEwrTkgwbGF2NXoyZGdJV1NndUpXYjZrUC9aQWdqNVIvMmlHamp4ZlduQjExOWY2WHgvRzFERmQ5cndJdjNMejhzR0V5RitNcGhlN3RTbEhJVlR4UjA1amI2SDFaZHlIYjNDNFExcTJaWEFzQT0sRXhwaXJ5OjIwMTYtMDEtMDF9";
         readonly LicenseKey TestTrial2016 = new LicenseKey { Ref = "TRIAL302016", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2016, 01, 01) };
 
@@ -157,14 +157,37 @@ namespace ServiceStack.Text.Tests
 
             try
             {
-                Licensing.RegisterLicense(TestTrial2000Text);
+                Licensing.RegisterLicense(TestTrial2001Text);
                 Assert.Fail("Should throw Expired LicenseException");
             }
             catch (LicenseException ex)
             {
                 ex.Message.Print();
-                Assert.That(ex.Message, Is.StringStarting("This license has expired"));
+                Assert.That(ex.Message, Is.StringStarting("This trial license has expired"));
             }
+        }
+
+        [Test]
+        public void Can_deserialize_all_license_key()
+        {
+            AssertKey(TestBusiness2000Text, TestBusiness2000);
+            AssertKey(TestIndie2000Text, TestIndie2000);
+            AssertKey(TestBusiness2013Text, TestBusiness2013);
+            AssertKey(TestIndie2013Text, TestIndie2013);
+            AssertKey(TestText2013Text, TestText2013);
+            AssertKey(TestTrial2001Text, TestTrial2001);
+            AssertKey(TestTrial2016Text, TestTrial2016);
+        }
+
+        private void AssertKey(string licenseKeyText, LicenseKey expectedKey)
+        {
+            var licenseKey = licenseKeyText.ToLicenseKey();
+
+            Assert.That(licenseKey.Ref, Is.EqualTo(expectedKey.Ref));
+            Assert.That(licenseKey.Name, Is.EqualTo(expectedKey.Name));
+            Assert.That(licenseKey.Type, Is.EqualTo(expectedKey.Type));
+            //Assert.That(licenseKey.Hash, Is.EqualTo(expectedKey.Hash));
+            Assert.That(licenseKey.Expiry, Is.EqualTo(expectedKey.Expiry));
         }
 
         [Explicit,Test]
