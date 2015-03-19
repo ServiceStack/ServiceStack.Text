@@ -163,7 +163,8 @@ namespace ServiceStack.Text.Tests
             catch (LicenseException ex)
             {
                 ex.Message.Print();
-                Assert.That(ex.Message, Is.StringStarting("This trial license has expired"));
+                Assert.That(ex.Message, Is.StringStarting("This trial license has expired")
+                                       .Or.StringStarting("This license has expired"));
             }
         }
 
