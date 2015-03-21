@@ -588,9 +588,22 @@ namespace ServiceStack
 
         public static string ToPascalCase(this string value)
         {
-            if (string.IsNullOrEmpty(value) || value.Length <= 1) return value;
+            if (string.IsNullOrEmpty(value)) return value;
+
+            if (value.Contains('_'))
+            {
+                var parts = value.Split('_');
+                var sb = new StringBuilder();
+                foreach (var part in parts)
+                {
+                    var str = part.ToCamelCase();
+                    sb.Append(Char.ToUpper(str[0]) + str.SafeSubstring(1, str.Length));
+                }
+                return sb.ToString();
+            }
+
             var camelCase = value.ToCamelCase();
-            return Char.ToUpper(camelCase[0]) + camelCase.Substring(1);
+            return Char.ToUpper(camelCase[0]) + camelCase.SafeSubstring(1, camelCase.Length);
         }
 
         public static string ToTitleCase(this string value)
@@ -636,7 +649,7 @@ namespace ServiceStack
 
         public static string SafeSubstring(this string value, int startIndex, int length)
         {
-            if (String.IsNullOrEmpty(value)) return String.Empty;
+            if (string.IsNullOrEmpty(value)) return string.Empty;
             if (value.Length >= (startIndex + length))
                 return value.Substring(startIndex, length);
 
