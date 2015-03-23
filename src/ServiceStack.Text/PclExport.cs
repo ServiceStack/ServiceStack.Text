@@ -164,6 +164,16 @@ namespace ServiceStack
             return null;
         }
 
+        public virtual string[] GetFileNames(string dirPath, string searchPattern = null)
+        {
+            return new string[0];
+        }
+
+        public virtual string[] GetDirectoryNames(string dirPath, string searchPattern = null)
+        {
+            return new string[0];
+        }
+
         public virtual void WriteLine(string line)
         {
         }

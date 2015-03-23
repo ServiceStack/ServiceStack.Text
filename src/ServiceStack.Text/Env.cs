@@ -97,22 +97,17 @@ namespace ServiceStack.Text
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.0\";
                     else
                     {
-                        var dir = new DirectoryInfo(netFxReferenceBasePath);
-                        if (dir.Exists)
+                        var v4Dirs = PclExport.Instance.GetDirectoryNames(netFxReferenceBasePath, "v4*");
+                        if (v4Dirs.Length > 0)
                         {
-                            var fxDirs = dir.GetDirectories();
-                            foreach (var fxDir in fxDirs)
-                            {
-                                if (fxDir.Name.StartsWith("v4"))
-                                {
-                                    return referenceAssembyPath = netFxReferenceBasePath + fxDir.Name + @"\";
-                                }
-                            }
+                            referenceAssembyPath = v4Dirs[v4Dirs.Length - 1]; //latest v4
                         }
-
-                        throw new FileNotFoundException(
-                            "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n".Fmt(netFxReferenceBasePath + @"v4.0\") +
-                            "Provide path manually 'Env.ReferenceAssembyPath'.");
+                        else
+                        {
+                            throw new FileNotFoundException(
+                                "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n".Fmt(netFxReferenceBasePath + @"v4.0\") +
+                                "Provide path manually 'Env.ReferenceAssembyPath'.");
+                        }
                     }
                 }
 #endif
