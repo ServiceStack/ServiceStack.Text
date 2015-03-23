@@ -87,9 +87,7 @@ namespace ServiceStack.Text
                 {
                     var programFilesPath = PclExport.Instance.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
                     var netFxReferenceBasePath = programFilesPath + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\";
-                    if ((netFxReferenceBasePath + @"v4.6\").DirectoryExists())
-                        referenceAssembyPath = netFxReferenceBasePath + @"v4.6\";
-                    else if ((netFxReferenceBasePath + @"v4.5.2\").DirectoryExists())
+                    if ((netFxReferenceBasePath + @"v4.5.2\").DirectoryExists())
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.5.2\";
                     else if ((netFxReferenceBasePath + @"v4.5.1\").DirectoryExists())
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.5.1\";
@@ -98,9 +96,24 @@ namespace ServiceStack.Text
                     else if ((netFxReferenceBasePath + @"v4.0\").DirectoryExists())
                         referenceAssembyPath = netFxReferenceBasePath + @"v4.0\";
                     else
+                    {
+                        var dir = new DirectoryInfo(netFxReferenceBasePath);
+                        if (dir.Exists)
+                        {
+                            var fxDirs = dir.GetDirectories();
+                            foreach (var fxDir in fxDirs)
+                            {
+                                if (fxDir.Name.StartsWith("v4"))
+                                {
+                                    return referenceAssembyPath = netFxReferenceBasePath + fxDir.Name + @"\";
+                                }
+                            }
+                        }
+
                         throw new FileNotFoundException(
                             "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n".Fmt(netFxReferenceBasePath + @"v4.0\") +
                             "Provide path manually 'Env.ReferenceAssembyPath'.");
+                    }
                 }
 #endif
                 return referenceAssembyPath;
