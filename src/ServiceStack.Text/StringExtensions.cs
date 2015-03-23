@@ -590,7 +590,7 @@ namespace ServiceStack
         {
             if (string.IsNullOrEmpty(value)) return value;
 
-            if (value.Contains('_'))
+            if (value.IndexOf('_') >= 0)
             {
                 var parts = value.Split('_');
                 var sb = new StringBuilder();
