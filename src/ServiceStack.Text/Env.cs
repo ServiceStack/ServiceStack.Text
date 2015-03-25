@@ -98,6 +98,12 @@ namespace ServiceStack.Text
                     else
                     {
                         var v4Dirs = PclExport.Instance.GetDirectoryNames(netFxReferenceBasePath, "v4*");
+                        if (v4Dirs.Length == 0)
+                        {
+                            var winPath = PclExport.Instance.GetEnvironmentVariable("SYSTEMROOT") ?? @"C:\Windows";
+                            var gacPath = winPath + @"\Microsoft.NET\Framework\";
+                            v4Dirs = PclExport.Instance.GetDirectoryNames(gacPath, "v4*");                            
+                        }
                         if (v4Dirs.Length > 0)
                         {
                             referenceAssembyPath = v4Dirs[v4Dirs.Length - 1]; //latest v4
