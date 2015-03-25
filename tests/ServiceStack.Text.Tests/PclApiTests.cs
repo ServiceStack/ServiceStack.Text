@@ -12,6 +12,10 @@ namespace ServiceStack.Text.Tests
 
             PclExport.Instance.GetDirectoryNames(refDir).PrintDump();
             PclExport.Instance.GetDirectoryNames(refDir, "v4*").PrintDump();
+
+            var winPath = PclExport.Instance.GetEnvironmentVariable("SYSTEMROOT") ?? @"C:\Windows";
+            var gacPath = winPath + @"\Microsoft.NET\Framework\";
+            PclExport.Instance.GetDirectoryNames(gacPath, "v4*").PrintDump();
         }
     }
 }

@@ -106,7 +106,7 @@ namespace ServiceStack.Text
                         }
                         if (v4Dirs.Length > 0)
                         {
-                            referenceAssembyPath = v4Dirs[v4Dirs.Length - 1]; //latest v4
+                            referenceAssembyPath = v4Dirs[v4Dirs.Length - 1] + @"\"; //latest v4
                         }
                         else
                         {
