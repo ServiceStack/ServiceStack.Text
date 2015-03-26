@@ -234,6 +234,52 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
         }
 
+        [Test]
+        public void NullItemInCollectionShouldBeHandledGracefullyEvenIfShouldSerializeMethodExists()
+        {
+            var store = new ParentDto();
+            store.ChildDtosWithShouldSerialize = new List<ChildDtoWithShouldSerialize>() { new ChildDtoWithShouldSerialize() { Data = "xx" }, null };
+
+            var jj = JsonSerializer.SerializeToString(store);
+            Assert.AreEqual(jj, "{\"ChildDtosWithShouldSerialize\":[{\"Data\":\"xx\"},{}]}");
+        }
+
+        [Test]
+        public void NullItemInCollectionShouldBeHandledGracefullyEvenIfShouldSerializeForPropertyNameMethodExists()
+        {
+            var store = new ParentDto();
+            store.ChildDtosWithShouldSerializeProperty = new List<ChildDtoWithShouldSerializeForProperty>() { new ChildDtoWithShouldSerializeForProperty() { Data = "xx" }, null };
+
+            var jj = JsonSerializer.SerializeToString(store);
+            Assert.AreEqual(jj, "{\"ChildDtosWithShouldSerializeProperty\":[{\"Data\":\"xx\"},{}]}");
+        }
+
+        public class ParentDto
+        {
+            public IList<ChildDtoWithShouldSerialize> ChildDtosWithShouldSerialize { get; set; }
+            public IList<ChildDtoWithShouldSerializeForProperty> ChildDtosWithShouldSerializeProperty { get; set; }
+        }
+
+        public class ChildDtoWithShouldSerialize
+        {
+            protected virtual bool? ShouldSerialize(string fieldName)
+            {
+                return true;
+            }
+
+            public string Data { get; set; }
+        }
+
+        public class ChildDtoWithShouldSerializeForProperty
+        {
+            public virtual bool ShouldSerializeData()
+            {
+                return true;
+            }
+
+            public string Data { get; set; }
+        }  
+
         public class SimpleObj
         {
             public string value1 { get; set; }
