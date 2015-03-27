@@ -181,6 +181,7 @@
     <Compile Include="CsvTypeTests.cs" />
     <Compile Include="JsonTests\JsonEnumTests.cs" />
     <Compile Include="JsonTests\InvalidJsonTests.cs" />
+    <Compile Include="JsonTests\OnDeserializationErrorTests.cs" />
     <Compile Include="JsonTests\TypeInfoTests.cs" />
     <Compile Include="PclApiTests.cs" />
     <Compile Include="SerializationDelegatePerformanceTests.cs" />

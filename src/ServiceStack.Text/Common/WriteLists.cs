@@ -182,10 +182,22 @@ namespace ServiceStack.Text.Common
             Type lastType = null;
             foreach (var valueItem in valueCollection)
             {
-                if (toStringFn == null || valueItem.GetType() != lastType)
+                if ((toStringFn == null) || (valueItem != null && valueItem.GetType() != lastType))
                 {
-                    lastType = valueItem.GetType();
-                    toStringFn = Serializer.GetWriteFn(lastType);
+                    if (valueItem != null)
+                    {
+                        if (valueItem.GetType() != lastType)
+                        {
+                            lastType = valueItem.GetType();
+                            toStringFn = Serializer.GetWriteFn(lastType);
+                        }
+                    }
+                    else
+                    {
+                        // this can happen if the first item in the collection was null
+                        lastType = typeof(object);
+                        toStringFn = Serializer.GetWriteFn(lastType);
+                    }
                 }
 
                 JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);

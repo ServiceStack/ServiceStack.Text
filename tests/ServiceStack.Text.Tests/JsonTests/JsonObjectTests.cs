@@ -149,6 +149,58 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(dst.Action, Is.EqualTo(fromDst.Action));
         }
 
+        [Test]
+        public void Can_handle_null_in_Collection_with_ShouldSerialize()
+        {
+            var dto = new Parent {
+                ChildDtosWithShouldSerialize = new List<ChildWithShouldSerialize> {
+                    new ChildWithShouldSerialize { Data = "xx" }, null,
+                }
+            };
+
+            var json = JsonSerializer.SerializeToString(dto);
+            Assert.AreEqual(json, "{\"ChildDtosWithShouldSerialize\":[{\"Data\":\"xx\"},{}]}");
+        }
+
+        [Test]
+        public void Can_handle_null_in_Collection_with_ShouldSerialize_PropertyName()
+        {
+            var dto = new Parent {
+                ChildDtosWithShouldSerializeProperty = new List<ChildDtoWithShouldSerializeForProperty> {
+                    new ChildDtoWithShouldSerializeForProperty {Data = "xx"},
+                    null,
+                }
+            };
+
+            var json = JsonSerializer.SerializeToString(dto);
+            Assert.AreEqual(json, "{\"ChildDtosWithShouldSerializeProperty\":[{\"Data\":\"xx\"},{}]}");
+        }
+
+        public class Parent
+        {
+            public IList<ChildWithShouldSerialize> ChildDtosWithShouldSerialize { get; set; }
+            public IList<ChildDtoWithShouldSerializeForProperty> ChildDtosWithShouldSerializeProperty { get; set; }
+        }
+
+        public class ChildWithShouldSerialize
+        {
+            protected virtual bool? ShouldSerialize(string fieldName)
+            {
+                return true;
+            }
+
+            public string Data { get; set; }
+        }
+
+        public class ChildDtoWithShouldSerializeForProperty
+        {
+            public virtual bool ShouldSerializeData()
+            {
+                return true;
+            }
+
+            public string Data { get; set; }
+        }  
 
         readonly SimpleObj simple = new SimpleObj
         {

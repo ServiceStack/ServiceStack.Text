@@ -384,7 +384,7 @@ namespace ServiceStack.Text.Common
                 {
                     var propertyWriter = PropertyWriters[index];
 
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) 
+                    if (value != null && propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) 
                         continue;
 
                     var dontSkipDefault = false;
