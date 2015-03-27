@@ -81,5 +81,6 @@ namespace ServiceStack.Text
         public int? MaxDepth { get; set; }
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }
         public string[] ExcludePropertyReferences { get; set; }
+        public JsConfig.Action<object, string, string, Type, Exception> OnDeserializationErrorCallback { get; set; }
     }
 }

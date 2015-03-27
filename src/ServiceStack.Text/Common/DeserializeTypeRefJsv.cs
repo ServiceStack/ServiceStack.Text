@@ -112,6 +112,7 @@ namespace ServiceStack.Text.Common
                     }
                     catch (Exception e)
                     {
+                        if (JsConfig.HasOnDeserializationErrorHandler) JsConfig.OnDeserializationErrorCallback(instance, propertyName, propertyValueStr, propType, e);
                         if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName, propertyValueStr, propType, e);
                         else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
                     }
@@ -130,6 +131,7 @@ namespace ServiceStack.Text.Common
                     }
                     catch (Exception e)
                     {
+                        if (JsConfig.HasOnDeserializationErrorHandler) JsConfig.OnDeserializationErrorCallback(instance, propertyName, propertyValueStr, propType, e);
                         if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName, propertyValueStr, propType, e);
                         else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
                     }
