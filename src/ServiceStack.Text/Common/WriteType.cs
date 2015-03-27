@@ -348,13 +348,16 @@ namespace ServiceStack.Text.Common
                 var len = PropertyWriters.Length;
                 var exclude = JsConfig.ExcludePropertyReferences ?? new string[0];
                 ConvertToUpper(exclude);
+
+                var hasValueNotNull = (value != null);
+
                 for (int index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
-
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) continue;
+                    
+                    if (hasValueNotNull && propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) continue;
                     bool dontSkipDefault=false;
-                    if (propertyWriter.shouldSerializeByName != null)
+                    if (hasValueNotNull && propertyWriter.shouldSerializeByName != null)
                     {
                         var shouldSerialize = propertyWriter.shouldSerializeByName((T) value, propertyWriter.PropertyName);
                         if (shouldSerialize.HasValue)
@@ -369,7 +372,7 @@ namespace ServiceStack.Text.Common
                             }
                         }
                     }
-                    var propertyValue = value != null
+                    var propertyValue = hasValueNotNull
                         ? propertyWriter.GetterFn((T)value)
                         : null;
                     if (!dontSkipDefault)
