@@ -516,6 +516,22 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating if the framework should call an error handler when
+        /// an exception happens during the deserialization.
+        /// </summary>
+        /// <remarks>Parameters have following meaning in order: deserialized entity, property name, parsed value, property type, caught exception.</remarks>
+        private static DeserializationErrorDelegate sOnDeserializationError;
+        public static DeserializationErrorDelegate OnDeserializationError
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.OnDeserializationError : null)
+                    ?? sOnDeserializationError;
+            }
+            set { sOnDeserializationError = value; }
+        }
+
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
         internal static HashSet<Type> HasIncludeDefaultValue = new HashSet<Type>();
@@ -691,6 +707,7 @@ namespace ServiceStack.Text
             sAssumeUtc = null;
             sAppendUtcOffset = null;
             sEscapeUnicode = null;
+            sOnDeserializationError = null;
             sIncludePublicFields = null;
             sReuseStringBuffer = null;
             HasSerializeFn = new HashSet<Type>();
