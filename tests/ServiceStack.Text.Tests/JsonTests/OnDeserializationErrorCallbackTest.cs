@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace ServiceStack.Text.Tests.JsonTests
 {
     [TestFixture]
-    public class OnDeserializationErrorCallbackTest
+    public class OnDeserializationErrorTest
     {
         [Test]
         public void Invokes_callback_on_protected_setter()
@@ -40,7 +40,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Does_not_invoke_callback_on_valid_data()
         {
             JsConfig.Reset();
-            JsConfig.OnDeserializationErrorCallback = (o, s, s1, arg3, arg4) => Assert.Fail("For valida data this should not be invoked");
+            JsConfig.OnDeserializationError = (o, s, s1, arg3, arg4) => Assert.Fail("For valida data this should not be invoked");
 
             var json = @"{""idBad"":""2"", ""idGood"":""2"" }";
             JsonSerializer.DeserializeFromString(json, typeof(TestDto));
@@ -50,11 +50,11 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void TestReset()
         {
             JsConfig.Reset();
-            Assert.IsNull(JsConfig.OnDeserializationErrorCallback);
-            JsConfig.OnDeserializationErrorCallback = (o, s, s1, arg3, arg4) => { };
-            Assert.IsNotNull(JsConfig.OnDeserializationErrorCallback);
+            Assert.IsNull(JsConfig.OnDeserializationError);
+            JsConfig.OnDeserializationError = (o, s, s1, arg3, arg4) => { };
+            Assert.IsNotNull(JsConfig.OnDeserializationError);
             JsConfig.Reset();
-            Assert.IsNull(JsConfig.OnDeserializationErrorCallback);
+            Assert.IsNull(JsConfig.OnDeserializationError);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Does_not_invoke_callback_on_valid_data_with_array()
         {
             JsConfig.Reset();
-            JsConfig.OnDeserializationErrorCallback = (o, s, s1, arg3, arg4) => Assert.Fail("For valida data this should not be invoked");
+            JsConfig.OnDeserializationError = (o, s, s1, arg3, arg4) => Assert.Fail("For valida data this should not be invoked");
 
             var json = @"{""Values"": [ { ""Val"": ""a""}, { ""Val"": ""b""}] }";
             JsonSerializer.DeserializeFromString(json, typeof(TestDtoWithArray));
@@ -109,12 +109,12 @@ namespace ServiceStack.Text.Tests.JsonTests
             object deserialized = null;
 
             JsConfig.Reset();
-            JsConfig.OnDeserializationErrorCallback = (o, s, s1, arg3, arg4) =>
+            JsConfig.OnDeserializationError = (o, propertyType, s, s1, arg4) =>
             {
                 deserialized = o;
                 property = s;
                 value = s1;
-                type = arg3;
+                type = propertyType;
                 ex = arg4;
                 callbackInvoked = true;
             };

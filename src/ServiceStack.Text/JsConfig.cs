@@ -15,8 +15,6 @@ namespace ServiceStack.Text
     public static class
         JsConfig
     {
-        public delegate void Action<in T1, in T2, in T3, in T4, in T5>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5);
-
         static JsConfig()
         {
             //In-built default serialization, to Deserialize Color struct do:
@@ -393,21 +391,21 @@ namespace ServiceStack.Text
         /// an exception happens during the deserialization.
         /// </summary>
         /// <remarks>Parameters have following meaning in order: deserialized entity, property name, parsed value, property type, caught exception.</remarks>
-        private static Action<object, string, string, Type, Exception> sOnDeserializationErrorCallback;
-        public static Action<object, string, string, Type, Exception> OnDeserializationErrorCallback
+        private static DeserializationErrorDelegate sOnDeserializationError;
+        public static DeserializationErrorDelegate OnDeserializationError
         {
             get
             {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.OnDeserializationErrorCallback : null)
-                    ?? sOnDeserializationErrorCallback;                
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.OnDeserializationError : null)
+                    ?? sOnDeserializationError;                
             }
-            set { sOnDeserializationErrorCallback = value; }
+            set { sOnDeserializationError = value; }
         }
 
         /// <summary>
         /// Gets whether a deserialization error handler is configured or not.
         /// </summary>
-        public static bool HasOnDeserializationErrorHandler { get { return OnDeserializationErrorCallback != null; } }
+        public static bool HasOnDeserializationErrorHandler { get { return OnDeserializationError != null; } }
 
         /// <summary>
         /// Gets or sets a value indicating if the framework should always convert <see cref="DateTime"/> to UTC format instead of local time. 
@@ -615,7 +613,7 @@ namespace ServiceStack.Text
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
             sExcludePropertyReferences = null;
-	        sOnDeserializationErrorCallback = null;
+	        sOnDeserializationError = null;
         }
 
         public static void Reset(Type cachesForType)

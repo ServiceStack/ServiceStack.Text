@@ -162,9 +162,10 @@ namespace ServiceStack.Text.Common
                     }
                     catch (Exception e)
                     {
-                        if (JsConfig.HasOnDeserializationErrorHandler) JsConfig.OnDeserializationErrorCallback(instance, propertyName, propertyValueStr, propType, e);
+                        if (JsConfig.HasOnDeserializationErrorHandler) JsConfig.OnDeserializationError(instance, propType, propertyName, propertyValueStr, e);
                         if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName, propertyValueStr, propType, e);
-                        else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
+                        
+                        Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
                     }
                 }
 
@@ -181,9 +182,10 @@ namespace ServiceStack.Text.Common
                     }
                     catch (Exception e)
                     {
-                        if (JsConfig.HasOnDeserializationErrorHandler) JsConfig.OnDeserializationErrorCallback(instance, propertyName, propertyValueStr, typeAccessor.PropertyType, e);
+                        if (JsConfig.HasOnDeserializationErrorHandler) JsConfig.OnDeserializationError(instance, typeAccessor.PropertyType, propertyName, propertyValueStr, e);
                         if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName, propertyValueStr, typeAccessor.PropertyType, e);
-                        else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
+                        
+                        Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
                     }
                 }
                 else if (typeConfig.OnDeserializing != null)
