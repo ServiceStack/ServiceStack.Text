@@ -167,6 +167,7 @@
     <Compile Include="HashSetTests.cs" />
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="HashtableTests.cs" />
+    <Compile Include="JsonTests\OnDeserializationErrorCallbackTest.cs" />
     <Compile Include="JsonTests\TypeInfoTests.cs" />
     <Compile Include="AdhocModelTests.cs" />
     <Compile Include="AnonymousTypes.cs" />

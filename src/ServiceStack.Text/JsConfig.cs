@@ -387,6 +387,27 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
+        /// Gets or sets a value indicating if the framework should call an error handler when
+        /// an exception happens during the deserialization.
+        /// </summary>
+        /// <remarks>Parameters have following meaning in order: deserialized entity, property name, parsed value, property type, caught exception.</remarks>
+        private static DeserializationErrorDelegate sOnDeserializationError;
+        public static DeserializationErrorDelegate OnDeserializationError
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.OnDeserializationError : null)
+                    ?? sOnDeserializationError;                
+            }
+            set { sOnDeserializationError = value; }
+        }
+
+        /// <summary>
+        /// Gets whether a deserialization error handler is configured or not.
+        /// </summary>
+        public static bool HasOnDeserializationErrorHandler { get { return OnDeserializationError != null; } }
+
+        /// <summary>
         /// Gets or sets a value indicating if the framework should always convert <see cref="DateTime"/> to UTC format instead of local time. 
         /// </summary>
         private static bool? sAlwaysUseUtc;
@@ -592,6 +613,7 @@ namespace ServiceStack.Text
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
             PropertyConvention = JsonPropertyConvention.ExactMatch;
             sExcludePropertyReferences = null;
+	        sOnDeserializationError = null;
         }
 
         public static void Reset(Type cachesForType)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
 {
@@ -81,5 +82,6 @@ namespace ServiceStack.Text
         public int? MaxDepth { get; set; }
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }
         public string[] ExcludePropertyReferences { get; set; }
+        public DeserializationErrorDelegate OnDeserializationError { get; set; }
     }
 }
