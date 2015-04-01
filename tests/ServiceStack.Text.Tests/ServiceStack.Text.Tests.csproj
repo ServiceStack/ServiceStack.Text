@@ -179,6 +179,7 @@
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="CsvTypeTests.cs" />
+    <Compile Include="HttpUtilsTests.cs" />
     <Compile Include="JsonTests\JsonEnumTests.cs" />
     <Compile Include="JsonTests\InvalidJsonTests.cs" />
     <Compile Include="JsonTests\OnDeserializationErrorTests.cs" />

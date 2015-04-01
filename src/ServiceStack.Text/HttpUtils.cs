@@ -68,6 +68,28 @@ namespace ServiceStack
             return url + prefix + key + "=" + val.UrlEncode();
         }
 
+        public static string SetHashParam(this string url, string key, string val)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+            var hPos = url.IndexOf('#');
+            if (hPos != -1)
+            {
+                var existingKeyPos = url.IndexOf(key, hPos, PclExport.Instance.InvariantComparison);
+                if (existingKeyPos != -1)
+                {
+                    var endPos = url.IndexOf('/', existingKeyPos);
+                    if (endPos == -1) endPos = url.Length;
+
+                    var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + val.UrlEncode()
+                        + url.Substring(endPos);
+                    return newUrl;
+                }
+            }
+            var prefix = url.IndexOf('#') == -1 ? "#" : "/";
+            return url + prefix + key + "=" + val.UrlEncode();
+        }
+
         public static string GetJsonFromUrl(this string url,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
