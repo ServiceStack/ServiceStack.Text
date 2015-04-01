@@ -142,6 +142,15 @@ namespace ServiceStack
                     result = Deserialize(json);
                     return true;
                 }
+                else if (json.TrimStart(' ').StartsWith("[", StringComparison.Ordinal))
+                {
+                    result = JsonArrayObjects.Parse(json).Select(a =>
+                    {
+                        var hash = a.ToDictionary<KeyValuePair<string, string>, string, object>(entry => entry.Key, entry => entry.Value);
+                        return new DynamicJson(hash);
+                    }).ToArray();
+                    return true;
+                }
                 result = json;
                 return _hash[name] == result;
             }
