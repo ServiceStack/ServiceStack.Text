@@ -60,5 +60,22 @@ namespace ServiceStack.Text.Tests.JsonTests
                 map.PrintDump();
             }
         }
+
+        [Test]
+        public void Deserialize_dynamic_json_with_inner_obj_and_array()
+        {
+            var json = @"{""obj"":{""name"":""Alex"",""address"":{""street"":""zbra st.""},""phones"":[{""area"":""101"",""number"":""867-5309""},{""area"":""11"",""number"":""39967""}]}}";
+            var dyn = DynamicJson.Deserialize(json);
+            var name = dyn.obj.name;
+            Assert.AreEqual(name, "Alex");
+            var address = dyn.obj.address.street;
+            Assert.AreEqual(address, "zbra st.");
+            var phone1 = dyn.obj.phones[0].number;
+            Assert.AreEqual(phone1, "867-5309");
+            var area2 = dyn.obj.phones[1].area;
+            Assert.AreEqual(area2, "11");
+            var phone2 = dyn.obj.phones[1].number;
+            Assert.AreEqual(phone2, "39967");
+        }
 	}
 }
