@@ -21,6 +21,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("http://example.com?s=0".SetQueryParam("f", "1"), Is.EqualTo("http://example.com?s=0&f=1"));
             Assert.That("http://example.com?f=1".SetQueryParam("f", "2"), Is.EqualTo("http://example.com?f=2"));
             Assert.That("http://example.com?s=0&f=1&s=1".SetQueryParam("f", "2"), Is.EqualTo("http://example.com?s=0&f=2&s=1"));
+            Assert.That("http://example.com?s=rf&f=1".SetQueryParam("f", "2"), Is.EqualTo("http://example.com?s=rf&f=2"));
         }
 
         [Test]
