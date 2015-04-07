@@ -18,7 +18,8 @@ namespace ServiceStack.Text
             {
                 IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
-                IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null;
+                IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null
+                    || AssemblyUtils.FindType("Foundation.NSObject") != null;
 
                 IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
 
