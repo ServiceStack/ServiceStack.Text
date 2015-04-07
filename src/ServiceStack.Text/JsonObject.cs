@@ -117,7 +117,7 @@ namespace ServiceStack.Text
             return base[key];
         }
         
-        static readonly Regex NumberRegEx = new Regex(@"^[0-9]*(?:\.[0-9]*)?$", PclExport.Instance.RegexOptions);
+        static readonly Regex NumberRegEx = new Regex(@"^(0|[1-9]*)(?:\.[0-9]*)?$", PclExport.Instance.RegexOptions);
 
         /// <summary>
         /// Write JSON Array, Object, bool or number values as raw string
