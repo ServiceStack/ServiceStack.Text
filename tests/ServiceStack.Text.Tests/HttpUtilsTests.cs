@@ -12,6 +12,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("http://example.com?s=0".AddQueryParam("f", "1"), Is.EqualTo("http://example.com?s=0&f=1"));
             Assert.That("http://example.com?f=1".AddQueryParam("f", "2"), Is.EqualTo("http://example.com?f=1&f=2"));
             Assert.That("http://example.com?s=0&f=1&s=1".AddQueryParam("f", "2"), Is.EqualTo("http://example.com?s=0&f=1&s=1&f=2"));
+            Assert.That("http://example.com?s=rf&f=1".AddQueryParam("f", "2"), Is.EqualTo("http://example.com?s=rf&f=1&f=2"));
         }
 
         [Test]
@@ -31,6 +32,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("http://example.com#s=0".AddHashParam("f", "1"), Is.EqualTo("http://example.com#s=0/f=1"));
             Assert.That("http://example.com#f=1".AddHashParam("f", "2"), Is.EqualTo("http://example.com#f=1/f=2"));
             Assert.That("http://example.com#s=0/f=1/s=1".AddHashParam("f", "2"), Is.EqualTo("http://example.com#s=0/f=1/s=1/f=2"));
+            Assert.That("http://example.com#s=rf/f=1".AddHashParam("f", "2"), Is.EqualTo("http://example.com#s=rf/f=1/f=2"));
         }
 
         [Test]
@@ -40,6 +42,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("http://example.com#s=0".SetHashParam("f", "1"), Is.EqualTo("http://example.com#s=0/f=1"));
             Assert.That("http://example.com#f=1".SetHashParam("f", "2"), Is.EqualTo("http://example.com#f=2"));
             Assert.That("http://example.com#s=0/f=1/s=1".SetHashParam("f", "2"), Is.EqualTo("http://example.com#s=0/f=2/s=1"));
+            Assert.That("http://example.com#s=rf/f=1".SetHashParam("f", "2"), Is.EqualTo("http://example.com#s=rf/f=2"));
         }
     }
 }

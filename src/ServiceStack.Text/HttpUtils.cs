@@ -40,24 +40,18 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                int existingKeyPos;
-                if(qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison))
-                {
-                    existingKeyPos = qsPos + 1;
-                }
-                else
-                {
-                    existingKeyPos = url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
-                    if (existingKeyPos != -1)
-                        existingKeyPos++;
-                }
+                var existingKeyPos = qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison) 
+                    ? qsPos 
+                    : url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
 
                 if (existingKeyPos != -1)
                 {
-                    var endPos = url.IndexOf('&', existingKeyPos);
-                    if (endPos == -1) endPos = url.Length;
+                    var endPos = url.IndexOf('&', existingKeyPos + 1);
+                    if (endPos == -1) 
+                        endPos = url.Length;
 
                     var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + "="
                         + val.UrlEncode()
                         + url.Substring(endPos);
                     return newUrl;
@@ -85,13 +79,18 @@ namespace ServiceStack
             var hPos = url.IndexOf('#');
             if (hPos != -1)
             {
-                var existingKeyPos = url.IndexOf(key, hPos, PclExport.Instance.InvariantComparison);
+                var existingKeyPos = hPos + 1 == url.IndexOf(key, hPos, PclExport.Instance.InvariantComparison)
+                    ? hPos
+                    : url.IndexOf("/" + key, hPos, PclExport.Instance.InvariantComparison);
+
                 if (existingKeyPos != -1)
                 {
-                    var endPos = url.IndexOf('/', existingKeyPos);
-                    if (endPos == -1) endPos = url.Length;
+                    var endPos = url.IndexOf('/', existingKeyPos + 1);
+                    if (endPos == -1) 
+                        endPos = url.Length;
 
                     var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + "="
                         + val.UrlEncode()
                         + url.Substring(endPos);
                     return newUrl;
