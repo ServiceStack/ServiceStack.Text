@@ -26,6 +26,27 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(JsonObject.Parse("{ \n\t  \n\r}"), Is.Empty);
         }
 
+        [Test]
+        public void Can_Serialize_numbers()
+        {
+            string notNumber = "{\"field\":\"00001\"}";
+            Assert.AreEqual(notNumber, JsonObject.Parse(notNumber).ToJson<JsonObject>());
+
+            string num1 = "{\"field\":0}";
+            Assert.AreEqual(num1, JsonObject.Parse(num1).ToJson<JsonObject>());
+
+            string num2 = "{\"field\":0.5}";
+            Assert.AreEqual(num2, JsonObject.Parse(num2).ToJson<JsonObject>());
+
+            string num3 = "{\"field\":.5}";
+            Assert.AreEqual(num3, JsonObject.Parse(num3).ToJson<JsonObject>());
+
+            string num4 = "{\"field\":12312}";
+            Assert.AreEqual(num4, JsonObject.Parse(num4).ToJson<JsonObject>());
+
+            string num5 = "{\"field\":12312.1231}";
+            Assert.AreEqual(num5, JsonObject.Parse(num5).ToJson<JsonObject>());
+        }
 
         public class Jackalope
         {
