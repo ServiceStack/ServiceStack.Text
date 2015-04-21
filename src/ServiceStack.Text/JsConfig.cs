@@ -637,11 +637,11 @@ namespace ServiceStack.Text
         /// Provide hint to MonoTouch AOT compiler to pre-compile generic classes for all your DTOs.
         /// Just needs to be called once in a static constructor.
         /// </summary>
-        [MonoTouch.Foundation.Preserve]
+        [Foundation.Preserve]
 		public static void InitForAot() { 
 		}
 
-        [MonoTouch.Foundation.Preserve]
+        [Foundation.Preserve]
         public static void RegisterForAot()
         {
 			RegisterTypeForAot<Poco>();
@@ -690,20 +690,20 @@ namespace ServiceStack.Text
 			RegisterTypeForAot<Guid?>();
         }
 
-		[MonoTouch.Foundation.Preserve]
+		[Foundation.Preserve]
 		public static void RegisterTypeForAot<T>()
 		{
 			AotConfig.RegisterSerializers<T>();
 		}
 
-        [MonoTouch.Foundation.Preserve]
+        [Foundation.Preserve]
         static void RegisterQueryStringWriter()
         {
             var i = 0;
             if (QueryStringWriter<Poco>.WriteFn() != null) i++;
         }
 		        
-        [MonoTouch.Foundation.Preserve]
+        [Foundation.Preserve]
 		internal static int RegisterElement<T, TElement>()
         {
 			var i = 0;
@@ -716,7 +716,7 @@ namespace ServiceStack.Text
 		///<summary>
 		/// Class contains Ahead-of-Time (AOT) explicit class declarations which is used only to workaround "-aot-only" exceptions occured on device only. 
 		/// </summary>			
-		[MonoTouch.Foundation.Preserve(AllMembers=true)]
+		[Foundation.Preserve(AllMembers=true)]
 		internal class AotConfig
 		{
 			internal static JsReader<JsonTypeSerializer> jsonReader;
@@ -851,7 +851,7 @@ namespace ServiceStack.Text
     }
 
 #if MONOTOUCH
-    [MonoTouch.Foundation.Preserve(AllMembers=true)]
+    [Foundation.Preserve(AllMembers=true)]
     internal class Poco
     {
         public string Dummy { get; set; }
