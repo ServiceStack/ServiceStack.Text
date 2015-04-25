@@ -45,37 +45,33 @@ namespace ServiceStack.Text.Common
                     var explicitTypeName = Serializer.ParseString(propertyValueStr);
                     var explicitType = AssemblyUtils.FindType(explicitTypeName);
 
-                    if (explicitType != null && !explicitType.IsInterface() && !explicitType.IsAbstract())
+                    if (explicitType == null || explicitType.IsInterface() || explicitType.IsAbstract())
+                    {
+                        Tracer.Instance.WriteWarning("Could not find type: " + propertyValueStr);
+                    }
+                    else if (!type.IsAssignableFrom(explicitType))
+                    {
+                        Tracer.Instance.WriteWarning("Could not assign type: " + propertyValueStr);
+                    }
+                    else
                     {
                         instance = explicitType.CreateInstance();
                     }
 
-                    if (instance == null)
+                    if (instance != null)
                     {
-                        Tracer.Instance.WriteWarning("Could not find type: " + propertyValueStr);
-                    }
-                    else
-                    {
-                        //If __type info doesn't match, ignore it.
-                        if (!type.InstanceOfType(instance))
+                        var derivedType = instance.GetType();
+                        if (derivedType != type)
                         {
-                            instance = null;
-                        }
-                        else
-                        {
-                            var derivedType = instance.GetType();
-                            if (derivedType != type)
+                            var derivedTypeConfig = new TypeConfig(derivedType);
+                            var map = DeserializeTypeRef.GetTypeAccessorMap(derivedTypeConfig, Serializer);
+                            if (map != null)
                             {
-                                var derivedTypeConfig = new TypeConfig(derivedType);
-                                var map = DeserializeTypeRef.GetTypeAccessorMap(derivedTypeConfig, Serializer);
-                                if (map != null)
-                                {
-                                    typeAccessorMap = map;
-                                }
+                                typeAccessorMap = map;
                             }
                         }
                     }
-
+                    
                     //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
                     if (index != strType.Length) index++;
 
