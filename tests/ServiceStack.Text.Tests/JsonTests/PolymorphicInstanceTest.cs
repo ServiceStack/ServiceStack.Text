@@ -44,5 +44,26 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 		}
 
+        [Test]
+        public void Should_not_instantiate_incorrect_type()
+        {
+            var json = @"{""__type"":"""
+                + typeof(TestClass).ToTypeString() + @""", ""Name"":""Fido""}";
+
+            var dog = JsonSerializer.DeserializeFromString<Dog>(json);
+
+            Assert.IsFalse(TestClass.Called);
+        }
+
+        public class TestClass
+        {
+            public static bool Called { get; set; }
+
+            public TestClass()
+            {
+                Called = true;
+            }
+        }
+
 	}
 }
