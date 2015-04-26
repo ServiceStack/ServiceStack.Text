@@ -55,7 +55,7 @@ namespace ServiceStack.Text.Common
                     {
                         Tracer.Instance.WriteWarning("Could not find type: " + propertyValueStr);
                     }
-                    else if (!type.IsAssignableFrom(explicitType))
+                    else if (!type.IsAssignableFromType(explicitType))
                     {
                         Tracer.Instance.WriteWarning("Could not assign type: " + propertyValueStr);
                     }
