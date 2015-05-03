@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -643,7 +643,7 @@ namespace ServiceStack
                 var webReq = WebRequest.Create(url);
                 using (var webRes = PclExport.Instance.GetResponse(webReq))
                 {
-                    var strRes = webRes.ReadToEnd();
+                    webRes.ReadToEnd();
                     return null;
                 }
             }
@@ -738,7 +738,7 @@ namespace ServiceStack
             if (requestFilter != null)
                 requestFilter(httpReq);
 
-            var boundary = "----------------------------" + DateTime.UtcNow.Ticks.ToString("x");
+            var boundary = "----------------------------" + Stopwatch.GetTimestamp().ToString("x");
 
             httpReq.ContentType = "multipart/form-data; boundary=" + boundary;
 
@@ -765,13 +765,7 @@ namespace ServiceStack
             {
                 outputStream.Write(headerbytes, 0, headerbytes.Length);
 
-                var buffer = new byte[4096];
-                int byteCount;
-
-                while ((byteCount = fileStream.Read(buffer, 0, 4096)) > 0)
-                {
-                    outputStream.Write(buffer, 0, byteCount);
-                }
+                fileStream.CopyTo(outputStream, 4096);
 
                 outputStream.Write(boundarybytes, 0, boundarybytes.Length);
 
