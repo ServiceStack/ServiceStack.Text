@@ -168,7 +168,7 @@ namespace ServiceStack
             return Environment.TickCount * TimeSpan.TicksPerMillisecond;
         }
 
-        public long GetTimestamp() 
+        public static long GetTimestamp() 
         {
             return DateTime.UtcNow.Ticks;
         }
