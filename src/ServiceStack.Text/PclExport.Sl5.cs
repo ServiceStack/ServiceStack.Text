@@ -96,6 +96,78 @@ namespace ServiceStack
             return webRes;
         }
     }
+
+    // Stopwatch shim for Silverlight
+    public sealed class Stopwatch
+    {
+        private long startTick;
+        private long elapsed;
+        private bool isRunning;
+
+        public static Stopwatch StartNew()
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            return sw;
+        }
+
+        public Stopwatch() {}
+
+        public void Reset()
+        {
+            elapsed = 0;
+            isRunning = false;
+            startTick = 0;
+        }
+
+        public void Start()
+        {
+            if (!isRunning)
+            {
+                startTick = GetCurrentTicks();
+                isRunning = true;
+            }
+        }
+
+        public void Stop()
+        {
+            if (isRunning)
+            {
+                elapsed += GetCurrentTicks() - startTick;
+                isRunning = false;
+            }
+        }
+
+        public bool IsRunning
+        {
+            get { return isRunning; }
+        }
+
+        public TimeSpan Elapsed
+        {
+            get { return TimeSpan.FromMilliseconds(ElapsedMilliseconds); }
+        }
+
+        public long ElapsedMilliseconds
+        {
+            get { return GetCurrentElapsedTicks() / TimeSpan.TicksPerMillisecond; }
+        }
+
+        public long ElapsedTicks
+        {
+            get { return GetCurrentElapsedTicks(); }
+        }
+
+        private long GetCurrentElapsedTicks()
+        {
+            return (long) (this.elapsed + (IsRunning ? (GetCurrentTicks() - startTick) : 0));
+        }
+
+        private long GetCurrentTicks()
+        {
+            return Environment.TickCount * TimeSpan.TicksPerMillisecond;
+        }
+    }
 }
 
 #endif
