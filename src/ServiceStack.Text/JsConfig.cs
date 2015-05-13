@@ -765,6 +765,10 @@ namespace ServiceStack.Text
         public static bool? IncludeTypeInfo = null;
 
         /// <summary>
+        /// For classes that inherit of non abstract class.
+        /// </summary>
+        public static bool TreatAsAbstract = false;
+        /// <summary>
         /// Never emit type info for this type
         /// </summary>
         public static bool? ExcludeTypeInfo = null;

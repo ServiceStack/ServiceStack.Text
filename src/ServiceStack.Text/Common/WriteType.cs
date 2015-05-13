@@ -364,6 +364,13 @@ namespace ServiceStack.Text.Common
 
         public static void WriteProperties(TextWriter writer, object value)
         {
+            if (PropertyWriters != null && 
+                value.GetType().FullName != PropertyWriters.GetType().GetGenericArguments()[0].FullName)
+            {
+                WriteAbstractProperties(writer, value);
+                return;
+            }
+
             if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0)
                 writer.Write(JsWriter.QuoteChar);
 
