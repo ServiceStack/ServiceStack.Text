@@ -1539,9 +1539,9 @@ namespace ServiceStack
         public static bool IsAbstract(this Type type)
         {
 #if (NETFX_CORE || PCL)
-            return type.GetTypeInfo().IsAbstract;
+            return type.GetTypeInfo().IsAbstract || JsConfig.TreatAsAbstractType.Contains(type);
 #else
-            return type.IsAbstract;
+            return type.IsAbstract || JsConfig.TreatAsAbstractType.Contains(type);
 #endif
         }
 
