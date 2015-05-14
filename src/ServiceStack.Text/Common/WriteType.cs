@@ -356,14 +356,24 @@ namespace ServiceStack.Text.Common
                 return;
             }
 
-            var writeFn = Serializer.GetWriteFn(valueType);
-            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = true;
-            writeFn(writer, value);
-            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
+            WriteLateboundProperties(writer, value, valueType);
         }
 
         public static void WriteProperties(TextWriter writer, object value)
         {
+            if (value == null)
+            {
+                writer.Write(JsWriter.EmptyMap);
+                return;
+            }
+
+            var valueType = value.GetType();
+            if (PropertyWriters != null && valueType != typeof(T) && !typeof(T).IsAbstract())
+            {
+                WriteLateboundProperties(writer, value, valueType);
+                return;
+            }
+
             if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0)
                 writer.Write(JsWriter.QuoteChar);
 
@@ -384,7 +394,7 @@ namespace ServiceStack.Text.Common
                 {
                     var propertyWriter = PropertyWriters[index];
 
-                    if (value != null && propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) 
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) 
                         continue;
 
                     var dontSkipDefault = false;
@@ -400,9 +410,7 @@ namespace ServiceStack.Text.Common
                         }
                     }
 
-                    var propertyValue = value != null
-                        ? propertyWriter.GetterFn((T)value)
-                        : null;
+                    var propertyValue = propertyWriter.GetterFn((T)value);
 
                     if (!dontSkipDefault)
                     {
@@ -442,6 +450,14 @@ namespace ServiceStack.Text.Common
 
             if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0)
                 writer.Write(JsWriter.QuoteChar);
+        }
+
+        private static void WriteLateboundProperties(TextWriter writer, object value, Type valueType)
+        {
+            var writeFn = Serializer.GetWriteFn(valueType);
+            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = true;
+            writeFn(writer, value);
+            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
         }
 
         private static readonly char[] ArrayBrackets = new[] { '[', ']' };
