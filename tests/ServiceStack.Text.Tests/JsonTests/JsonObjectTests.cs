@@ -180,7 +180,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             };
 
             var json = JsonSerializer.SerializeToString(dto);
-            Assert.AreEqual(json, "{\"ChildDtosWithShouldSerialize\":[{\"Data\":\"xx\"},{}]}");
+            Assert.That(json, Is.EqualTo("{\"ChildDtosWithShouldSerialize\":[{\"Data\":\"xx\"},{}]}"));
         }
 
         [Test]
