@@ -538,8 +538,6 @@ namespace ServiceStack.Text
 
         public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
-        public static HashSet<Type> TreatAsAbstractType = new HashSet<Type>();
-
         private static bool? sPreferInterfaces;
         /// <summary>
         /// If set to true, Interface types will be prefered over concrete types when serializing.
@@ -715,7 +713,6 @@ namespace ServiceStack.Text
             HasSerializeFn = new HashSet<Type>();
             HasIncludeDefaultValue = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
-            TreatAsAbstractType = new HashSet<Type>();
             sPropertyConvention = null;
             sExcludePropertyReferences = null;
             sExcludeTypes = new HashSet<Type> { typeof(Stream) };
@@ -771,23 +768,6 @@ namespace ServiceStack.Text
         /// Never emit type info for this type
         /// </summary>
         public static bool? ExcludeTypeInfo = null;
-
-        /// <summary>
-        /// Treat non-abstract type like an abstract type
-        /// </summary>
-        public static bool TreatAsAbstractType
-        {
-            get { return JsConfig.TreatAsAbstractType.Contains(typeof(T)); }
-            set
-            {
-                if (value)
-                    JsConfig.TreatAsAbstractType.Add(typeof(T));
-                else
-                    JsConfig.TreatAsAbstractType.Remove(typeof(T));
-
-                ClearFnCaches();
-            }
-        }
 
         /// <summary>
         /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
