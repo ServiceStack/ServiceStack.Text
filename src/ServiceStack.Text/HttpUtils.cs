@@ -1027,6 +1027,8 @@ namespace ServiceStack
 
         public const string XAutoBatchCompleted = "X-AutoBatch-Completed"; // How many requests were completed before first failure
 
+        public const string XTag = "X-Tag";
+
         public const string XUserAuthId = "X-UAId";
 
         public const string XTrigger = "X-Trigger"; // Trigger Events on UserAgent
