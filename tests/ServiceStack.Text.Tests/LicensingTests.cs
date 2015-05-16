@@ -200,5 +200,16 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(assembly.ManifestModule.Name, Is.EqualTo("<Unknown>"));
         }
+
+        [Test]
+        public void Doesnt_override_DateTime_config()
+        {
+            var fixedDate = new DateTime(2000, 01, 01);
+            JsConfig<DateTime>.DeSerializeFn = s => fixedDate;
+
+            var result = "2020-01-01".FromJson<DateTime>();
+
+            Assert.That(result, Is.EqualTo(fixedDate));
+        }
     }
 }

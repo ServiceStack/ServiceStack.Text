@@ -861,7 +861,7 @@ namespace ServiceStack.Text
         public static Func<T, T> OnSerializingFn
         {
             get { return onSerializingFn; }
-            set { onSerializingFn = value; }
+            set { onSerializingFn = value; Refresh(); }
         }
 
         /// <summary>
@@ -871,18 +871,28 @@ namespace ServiceStack.Text
         public static Action<T> OnSerializedFn
         {
             get { return onSerializedFn; }
-            set { onSerializedFn = value; }
+            set { onSerializedFn = value; Refresh(); }
         }
 
         /// <summary>
         /// Define custom deserialization fn for BCL Structs
         /// </summary>
-        public static Func<string, T> DeSerializeFn;
+        private static Func<string, T> deSerializeFn;
+        public static Func<string, T> DeSerializeFn
+        {
+            get { return deSerializeFn; }
+            set { deSerializeFn = value; Refresh(); }
+        }
 
         /// <summary>
         /// Define custom raw deserialization fn for objects
         /// </summary>
-        public static Func<string, T> RawDeserializeFn;
+        private static Func<string, T> rawDeserializeFn;
+        public static Func<string, T> RawDeserializeFn
+        {
+            get { return rawDeserializeFn; }
+            set { rawDeserializeFn = value; Refresh(); }
+        }
 
         public static bool HasDeserializeFn
         {
@@ -893,7 +903,7 @@ namespace ServiceStack.Text
         public static Func<T, T> OnDeserializedFn
         {
             get { return onDeserializedFn; }
-            set { onDeserializedFn = value; }
+            set { onDeserializedFn = value; Refresh(); }
         }
 
         public static bool HasDeserialingFn
@@ -905,7 +915,7 @@ namespace ServiceStack.Text
         public static Func<T, string, object, object> OnDeserializingFn
         {
             get { return onDeserializingFn; }
-            set { onDeserializingFn = value; }
+            set { onDeserializingFn = value; Refresh(); }
         }
 
         /// <summary>
@@ -987,8 +997,8 @@ namespace ServiceStack.Text
 
         internal static void ClearFnCaches()
         {
-            typeof(JsonWriter<>).MakeGenericType(new[] { typeof(T) }).InvokeReset();
-            typeof(JsvWriter<>).MakeGenericType(new[] { typeof(T) }).InvokeReset();
+            JsonWriter<T>.Reset();
+            JsvWriter<T>.Reset();
         }
 
         public static void Reset()
@@ -997,6 +1007,14 @@ namespace ServiceStack.Text
             DeSerializeFn = null;
             ExcludePropertyNames = null;
             EmitCamelCaseNames = EmitLowercaseUnderscoreNames = IncludeTypeInfo = ExcludeTypeInfo = null;
+        }
+
+        public static void Refresh()
+        {
+            JsonReader<T>.Refresh();
+            JsonWriter<T>.Refresh();
+            JsvReader<T>.Refresh();
+            JsvWriter<T>.Refresh();
         }
     }
 

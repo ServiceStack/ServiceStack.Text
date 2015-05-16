@@ -149,13 +149,17 @@ namespace ServiceStack.Text.Json
         public static void Reset()
         {
             JsonWriter.RemoveCacheFn(typeof(T));
-
-            CacheFn = typeof(T) == typeof(object) 
-                ? JsonWriter.WriteLateBoundObject 
-                : JsonWriter.Instance.GetWriteFn<T>();
+            Refresh();
         }
 
-		public static WriteObjectDelegate WriteFn()
+	    public static void Refresh()
+	    {
+	        CacheFn = typeof (T) == typeof (object)
+	            ? JsonWriter.WriteLateBoundObject
+	            : JsonWriter.Instance.GetWriteFn<T>();
+	    }
+
+	    public static WriteObjectDelegate WriteFn()
 		{
 			return CacheFn ?? WriteObject;
 		}
