@@ -326,12 +326,26 @@ namespace ServiceStack
             var refId = parts[0];
             var base64 = parts[1];
             var jsv = Convert.FromBase64String(base64).FromUtf8Bytes();
-            var key = jsv.FromJsv<LicenseKey>();
 
-            if (key.Ref != refId)
-                throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64)).Trace();
+            var hold = JsConfig<DateTime>.DeSerializeFn;
+            var holdRaw = JsConfig<DateTime>.RawDeserializeFn;
 
-            return key;
+            try
+            {
+                JsConfig<DateTime>.DeSerializeFn = null;
+                JsConfig<DateTime>.RawDeserializeFn = null;
+                var key = jsv.FromJsv<LicenseKey>();
+
+                if (key.Ref != refId)
+                    throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64)).Trace();
+
+                return key;
+            }
+            finally
+            {
+                JsConfig<DateTime>.DeSerializeFn = hold;
+                JsConfig<DateTime>.RawDeserializeFn = holdRaw;
+            }
         }
 
         public static string GetHashKeyToSign(this LicenseKey key)
