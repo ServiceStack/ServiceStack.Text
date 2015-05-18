@@ -50,6 +50,9 @@ namespace ServiceStack.Text.Jsv
 
         public static void Refresh()
         {
+            if (JsvReader.Instance == null)
+                return;
+
             ReadFn = JsvReader.Instance.GetParseFn<T>();
         }
 		

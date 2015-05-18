@@ -154,7 +154,10 @@ namespace ServiceStack.Text.Json
 
 	    public static void Refresh()
 	    {
-	        CacheFn = typeof (T) == typeof (object)
+            if (JsonWriter.Instance == null)
+                return;
+
+	        CacheFn = typeof(T) == typeof(object)
 	            ? JsonWriter.WriteLateBoundObject
 	            : JsonWriter.Instance.GetWriteFn<T>();
 	    }

@@ -50,6 +50,9 @@ namespace ServiceStack.Text.Json
 
         public static void Refresh()
         {
+            if (JsonReader.Instance == null)
+                return;
+
             ReadFn = JsonReader.Instance.GetParseFn<T>();
         }
 		

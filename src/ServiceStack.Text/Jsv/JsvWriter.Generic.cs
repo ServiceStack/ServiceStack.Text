@@ -112,7 +112,10 @@ namespace ServiceStack.Text.Jsv
 
 	    public static void Refresh()
 	    {
-	        CacheFn = typeof (T) == typeof (object)
+            if (JsvWriter.Instance == null)
+                return;
+
+            CacheFn = typeof(T) == typeof(object)
 	            ? JsvWriter.WriteLateBoundObject
 	            : JsvWriter.Instance.GetWriteFn<T>();
 	    }
