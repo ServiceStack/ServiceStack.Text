@@ -11,6 +11,13 @@ namespace ServiceStack.Text.Json
         public const long MinInteger = -9007199254740992;
 
         public const char EscapeChar = '\\';
+
+        public const char EscapeTab = 't';
+        public const char EscapeCarriageReturn = 'r';
+        public const char EscapeLineFeedChar = 'n';
+        public const char EscapeFormFeedChar = 'f';
+        public const char EscapeBackspaceChar = 'b';
+
         public const char QuoteChar = '"';
         public const string Null = "null";
         public const string True = "true";
@@ -26,11 +33,11 @@ namespace ServiceStack.Text.Json
         /// Micro-optimization keep pre-built char arrays saving a .ToCharArray() + function call (see .net implementation of .Write(string))
         /// </summary>
         private static readonly char[] EscapedBackslash = { EscapeChar, EscapeChar };
-        private static readonly char[] EscapedTab = { EscapeChar, TabChar };
-        private static readonly char[] EscapedCarriageReturn = { EscapeChar, CarriageReturnChar };
-        private static readonly char[] EscapedLineFeed = { EscapeChar, LineFeedChar };
-        private static readonly char[] EscapedFormFeed = { EscapeChar, FormFeedChar };
-        private static readonly char[] EscapedBackspace = { EscapeChar, BackspaceChar };
+        private static readonly char[] EscapedTab = { EscapeChar, EscapeTab };
+        private static readonly char[] EscapedCarriageReturn = { EscapeChar, EscapeCarriageReturn };
+        private static readonly char[] EscapedLineFeed = { EscapeChar, EscapeLineFeedChar };
+        private static readonly char[] EscapedFormFeed = { EscapeChar, EscapeFormFeedChar };
+        private static readonly char[] EscapedBackspace = { EscapeChar, EscapeBackspaceChar };
         private static readonly char[] EscapedQuote = { EscapeChar, QuoteChar };
 
         public static readonly char[] WhiteSpaceChars = { ' ', TabChar, CarriageReturnChar, LineFeedChar };

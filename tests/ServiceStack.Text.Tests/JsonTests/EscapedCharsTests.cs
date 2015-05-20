@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.Common.Tests.Models;
 
@@ -258,6 +259,50 @@ namespace ServiceStack.Text.Tests.JsonTests
             var json = JsonSerializer.SerializeToString(array);
             Assert.That(json, Is.EqualTo(@"[""\u0018"",""Ω""]"));
         }
+
+
+        [Test]
+        public void Can_serialize_windows_new_line()
+        {
+            const string expected = "\"Hi I\'m\\r\\nnew line :)\"";
+            var text = "Hi I\'m" + Environment.NewLine + "new line :)";
+
+            var result = JsonSerializer.SerializeToString(text);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void Can_serialize_object_with_escaped_chars()
+        {
+            const string expected = "{\"Id\":1,\"Name\":\"Hi I'm\\r\\nnew line :)\"}";
+            var model = new ModelWithIdAndName
+            {
+                Id = 1,
+                Name = "Hi I'm" + Environment.NewLine + "new line :)"
+            };
+
+            var result = JsonSerializer.SerializeToString(model);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void Can_deserialize_with_new_line()
+        {
+            var model = new ModelWithIdAndName
+            {
+                Id = 1,
+                Name = "Hi I'm" + Environment.NewLine + "new line :)"
+            };
+
+            const string json = "{\"Id\":1,\"Name\":\"Hi I'm\\r\\nnew line :)\"}";
+
+            var fromJson = JsonSerializer.DeserializeFromString<ModelWithIdAndName>(json);
+
+            Assert.That(fromJson, Is.EqualTo(model));
+        }
+
 
         public class MyModel
         {
