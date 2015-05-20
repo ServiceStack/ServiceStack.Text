@@ -1425,7 +1425,7 @@ namespace ServiceStack
 
         public static bool IsDynamic(this Assembly assembly)
         {
-#if __IOS__ || WP || NETFX_CORE || PCL
+#if __IOS__ || WP || NETFX_CORE || PCL || DNX451 || DNXCORE50
             return false;
 #else
             try

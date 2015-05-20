@@ -44,7 +44,12 @@ namespace ServiceStack
 
         public override Assembly[] GetAllAssemblies()
         {
+//TODO: Get dynamic working in sl5 builds
+#if FALSE 
             return ((dynamic)AppDomain.CurrentDomain).GetAssemblies() as Assembly[];
+#else
+            return new Assembly[0]; 
+#endif
         }
 
         public override Type GetGenericCollectionType(Type type)

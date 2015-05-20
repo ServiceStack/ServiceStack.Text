@@ -1,0 +1,57 @@
+{
+  "version": "4.0.0-*",
+
+  "frameworks": {
+
+    "net45+win+wpa81+MonoAndroid10+Xamarin.iOS10+MonoTouch10": {
+      "frameworkAssemblies": {
+        "Microsoft.CSharp": "",
+        "System.Core": "",
+        "System.Collections": "",
+        "System.Runtime": "",
+        "System.Linq": "",
+        "System.Linq.Expressions": "",
+        "System.Linq.Queryable": "",
+        "System.Text.RegularExpressions": "",
+        "System.Reflection": "",
+        "System.Reflection.Extensions": "",
+        "System.Diagnostics.Debug": "",
+        "System.ObjectModel": "",
+        "System.Runtime.Extensions": "",
+        "System.Threading": ""
+      }
+    },
+    "net45": {
+      "frameworkAssemblies": {
+        "Microsoft.CSharp": "",
+        "System.Core": "",
+        "System.Runtime.Serialization": "",
+        "System.Xml": "",
+        "System.Data.Linq": "",
+        "System.Configuration": ""
+      },
+      "compilationOptions": { "define": [ "NET45" ] }
+    },
+    "sl5": {
+      "frameworkAssemblies": {
+        "System": "",
+        "System.Core": "",
+        "mscorlib": "",
+        "System.Runtime.Serialization": "",
+        "System.Net": "",
+        "System.Xml": "",
+        "System.Windows": ""
+      }
+    },
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "Microsoft.CSharp": "",
+        "System.Runtime.Serialization": "",
+        "System.Xml": "",
+        "System.Data.Linq": "",
+        "System.Configuration": ""
+      }
+    }
+  }
+}
