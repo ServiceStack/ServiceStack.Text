@@ -1,7 +1,7 @@
 //Copyright (c) Service Stack LLC. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
-#if !PCL && FALSE
+#if !PCL
 
 using System;
 using System.Collections.Generic;
@@ -86,6 +86,9 @@ namespace ServiceStack
             return index;
         }
     }
+
+//TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
+#if !(SL5 && CORECLR)
 
     public class DynamicJson : DynamicObject
     {
@@ -179,6 +182,7 @@ namespace ServiceStack
             return sb.ToString().ToLowerInvariant();
         }
     }
+#endif
 }
 
 #endif

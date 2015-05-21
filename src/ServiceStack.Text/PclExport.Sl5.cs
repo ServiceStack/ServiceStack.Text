@@ -44,8 +44,8 @@ namespace ServiceStack
 
         public override Assembly[] GetAllAssemblies()
         {
-//TODO: Get dynamic working in sl5 builds
-#if FALSE 
+//TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
+#if !(SL5 && CORECLR)
             return ((dynamic)AppDomain.CurrentDomain).GetAssemblies() as Assembly[];
 #else
             return new Assembly[0]; 
