@@ -58,5 +58,8 @@
       },
       "compilationOptions": { "define": [ "DNX451", "CORECLR" ] }
     }
+  },
+  "configurations": {
+    "PCL": { }
   }
 }
