@@ -146,5 +146,23 @@ namespace ServiceStack.Text.Tests.JsonTests
                 return value;
             }
         }
+
+        [DataContract]
+        public class HasEmitDefaultValue
+        {
+            [DataMember(EmitDefaultValue = false)]
+            public int DontEmitDefaultValue { get; set; }
+
+            [DataMember]
+            public int IntValue { get; set; }
+        }
+
+        [Test]
+        public void Does_exclude_default_property_with_EmitDefaultValue()
+        {
+            var dto = new HasEmitDefaultValue();
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"IntValue\":0}"));
+        }
     }
 }

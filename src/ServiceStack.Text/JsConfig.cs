@@ -33,6 +33,7 @@ namespace ServiceStack.Text
             bool? tryToParseNumericType = null,
 			ParseAsType? parsePrimitiveFloatingPointTypes = null,
 			ParseAsType? parsePrimitiveIntegerTypes = null,
+            bool? excludeDefaultValues = null,
             bool? includeNullValues = null,
             bool? includeDefaultEnums = null,
             bool? excludeTypeInfo = null,
@@ -67,6 +68,7 @@ namespace ServiceStack.Text
 				ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? sParsePrimitiveFloatingPointTypes,
 				ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? sParsePrimitiveIntegerTypes,
 
+                ExcludeDefaultValues = excludeDefaultValues ?? sExcludeDefaultValues,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
                 IncludeDefaultEnums = includeDefaultEnums ?? sIncludeDefaultEnums,
                 ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
@@ -168,6 +170,21 @@ namespace ServiceStack.Text
 				if (!sParsePrimitiveIntegerTypes.HasValue) sParsePrimitiveIntegerTypes = value;
 			}
 		}
+
+        private static bool? sExcludeDefaultValues;
+        public static bool ExcludeDefaultValues
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeDefaultValues : null)
+                    ?? sExcludeDefaultValues
+                    ?? false;
+            }
+            set
+            {
+                if (!sExcludeDefaultValues.HasValue) sExcludeDefaultValues = value;
+            }
+        }
 
         private static bool? sIncludeNullValues;
         public static bool IncludeNullValues
@@ -689,6 +706,7 @@ namespace ServiceStack.Text
             sTryToParsePrimitiveTypeValues = null;
             sTryToParseNumericType = null;
             sConvertObjectTypesIntoStringDictionary = null;
+            sExcludeDefaultValues = null;
             sIncludeNullValues = null;
             sExcludeTypeInfo = null;
             sEmitCamelCaseNames = null;

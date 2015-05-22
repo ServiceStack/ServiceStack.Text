@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels;
 
@@ -43,6 +44,22 @@ namespace ServiceStack.Text.Tests.JsonTests
 			Console.WriteLine(s);
 		}
 
+	    public class ModelWithValueTypes
+	    {
+            public int Int { get; set; }
+            public long Long { get; set; }
+            public float Float { get; set; }
+            public double Double { get; set; }
+	    }
 
+	    [Test]
+        public void Does_ExcludeDefaultValues()
+	    {
+	        JsConfig.ExcludeDefaultValues = true;
+
+            var dto = new ModelWithValueTypes();
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{}"));
+        }
 	}
 }
