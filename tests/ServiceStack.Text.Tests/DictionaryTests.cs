@@ -376,7 +376,9 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Can_serialise_null_values_from_dictionary_correctly()
 		{
-			JsConfig.IncludeNullValues = true;
+			JsConfig.IncludeNullValues = false;
+            JsConfig.IncludeNullValuesInDictionaries = true;
+
 			var dictionary = new Dictionary<string, object> { { "value", null } };
 
 			Serialize(dictionary, includeXml: false);
@@ -391,7 +393,9 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void Will_ignore_null_values_from_dictionary_correctly()
 		{
-			JsConfig.IncludeNullValues = false;
+			JsConfig.IncludeNullValues = true;
+			JsConfig.IncludeNullValuesInDictionaries = false;
+
 			var dictionary = new Dictionary<string, string> { { "value", null } };
 
 			Serialize(dictionary, includeXml: false);
