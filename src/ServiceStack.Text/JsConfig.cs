@@ -142,6 +142,21 @@ namespace ServiceStack.Text
             }
         }
 
+        private static bool? sIncludeNullValuesInDictionaries;
+        public static bool IncludeNullValuesInDictionaries
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValuesInDictionaries : null)
+                    ?? sIncludeNullValuesInDictionaries
+                    ?? false;
+            }
+            set
+            {
+                if (!sIncludeNullValuesInDictionaries.HasValue) sIncludeNullValues = value;
+            }
+        }
+
         private static bool? sTreatEnumAsInteger;
         public static bool TreatEnumAsInteger
         {

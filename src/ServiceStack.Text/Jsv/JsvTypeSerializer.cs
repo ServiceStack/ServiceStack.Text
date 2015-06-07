@@ -28,6 +28,11 @@ namespace ServiceStack.Text.Jsv
             get { return false; } //Doesn't support null values, treated as "null" string literal
 	    }
 
+        public bool IncludeNullValuesInDictionaries
+	    {
+            get { return false; } //Doesn't support null values, treated as "null" string literal
+	    }
+
         public string TypeAttrInObject
         {
             get { return JsConfig.JsvTypeAttrInObject; }
