@@ -35,6 +35,7 @@ namespace ServiceStack.Text
 			ParseAsType? parsePrimitiveIntegerTypes = null,
             bool? excludeDefaultValues = null,
             bool? includeNullValues = null,
+            bool? includeNullValuesInDictionaries = null,
             bool? includeDefaultEnums = null,
             bool? excludeTypeInfo = null,
             bool? includeTypeInfo = null,
@@ -70,6 +71,7 @@ namespace ServiceStack.Text
 
                 ExcludeDefaultValues = excludeDefaultValues ?? sExcludeDefaultValues,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
+                IncludeNullValuesInDictionaries = includeNullValuesInDictionaries ?? sIncludeNullValuesInDictionaries,
                 IncludeDefaultEnums = includeDefaultEnums ?? sIncludeDefaultEnums,
                 ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
                 IncludeTypeInfo = includeTypeInfo ?? sIncludeTypeInfo,
@@ -198,6 +200,21 @@ namespace ServiceStack.Text
             set
             {
                 if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
+            }
+        }
+
+        private static bool? sIncludeNullValuesInDictionaries;
+        public static bool IncludeNullValuesInDictionaries
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValuesInDictionaries : null)
+                    ?? sIncludeNullValuesInDictionaries
+                    ?? false;
+            }
+            set
+            {
+                if (!sIncludeNullValuesInDictionaries.HasValue) sIncludeNullValuesInDictionaries = value;
             }
         }
 
@@ -708,6 +725,7 @@ namespace ServiceStack.Text
             sConvertObjectTypesIntoStringDictionary = null;
             sExcludeDefaultValues = null;
             sIncludeNullValues = null;
+            sIncludeNullValuesInDictionaries = null;
             sExcludeTypeInfo = null;
             sEmitCamelCaseNames = null;
             sEmitLowercaseUnderscoreNames = null;

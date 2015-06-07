@@ -19,6 +19,11 @@ namespace ServiceStack.Text.Json
             get { return JsConfig.IncludeNullValues; }
         }
 
+        public bool IncludeNullValuesInDictionaries
+        {
+            get { return JsConfig.IncludeNullValuesInDictionaries; }
+        }
+
         public string TypeAttrInObject
         {
             get { return JsConfig.JsonTypeAttrInObject; }

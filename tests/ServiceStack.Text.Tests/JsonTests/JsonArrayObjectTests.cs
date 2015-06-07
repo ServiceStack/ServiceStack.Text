@@ -135,5 +135,30 @@ namespace ServiceStack.Text.Tests.JsonTests
             var result = data.FromJson<Test[]>();
             Assert.That(result.Length, Is.EqualTo(0));
         }
+
+        public class MyClass
+        {
+            public string Item { get; set; }
+        }
+
+        [Test]
+        public void Can_parse_array_with_null_objects_starting_with_not_null_item()
+        {
+            var compactJson = @"{""items"":[{""Item"":""myitem""},null]}";
+            var json = JsonObject.Parse(compactJson);
+            var items = json.ArrayObjects("items");
+            Assert.NotNull(items[0]);
+            Assert.Null(items[1]);
+        }
+
+        [Test]
+        public void Can_parse_array_with_null_objects_starting_with_null_item()
+        {
+            var compactJson = @"{""items"":[null,{""Item"":""myitem""}]}";
+            var json = JsonObject.Parse(compactJson);
+            var items = json.ArrayObjects("items");
+            Assert.Null(items[0]);
+            Assert.NotNull(items[1]);
+        }
     }
 }

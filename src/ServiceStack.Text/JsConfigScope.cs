@@ -60,6 +60,7 @@ namespace ServiceStack.Text
 		public ParseAsType? ParsePrimitiveIntegerTypes { get; set; }
         public bool? ExcludeDefaultValues { get; set; }
         public bool? IncludeNullValues { get; set; }
+        public bool? IncludeNullValuesInDictionaries { get; set; }
         public bool? IncludeDefaultEnums { get; set; }
         public bool? TreatEnumAsInteger { get; set; }
         public bool? ExcludeTypeInfo { get; set; }

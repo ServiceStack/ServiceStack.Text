@@ -14,10 +14,15 @@ namespace ServiceStack.Text.Jsv
 	{
 		public static ITypeSerializer Instance = new JsvTypeSerializer();
 
-	    public bool IncludeNullValues
-	    {
+        public bool IncludeNullValues
+        {
             get { return false; } //Doesn't support null values, treated as "null" string literal
-	    }
+        }
+
+        public bool IncludeNullValuesInDictionaries
+        {
+            get { return false; } //Doesn't support null values, treated as "null" string literal
+        }
 
         public string TypeAttrInObject
         {
