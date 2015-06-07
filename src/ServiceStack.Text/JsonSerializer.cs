@@ -152,7 +152,7 @@ namespace ServiceStack.Text
 			if (value == null) return;
 			if (typeof(T) == typeof(string))
 			{
-				writer.Write(value);
+                JsonUtils.WriteString(writer, value as string);
 			}
             else if (typeof(T) == typeof(object))
             {
@@ -175,7 +175,7 @@ namespace ServiceStack.Text
 			if (value == null) return;
 			if (type == typeof(string))
 			{
-				writer.Write(value);
+                JsonUtils.WriteString(writer, value as string);
 				return;
 			}
 

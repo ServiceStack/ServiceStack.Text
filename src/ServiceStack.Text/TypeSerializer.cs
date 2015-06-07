@@ -151,7 +151,8 @@ namespace ServiceStack.Text
 		public static string SerializeToString(object value, Type type)
 		{
 			if (value == null) return null;
-			if (type == typeof(string)) return value as string;
+			if (type == typeof(string)) 
+                return value as string;
 
             using (var sb = StringBuilderWriter.Create())
             {

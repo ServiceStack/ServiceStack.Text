@@ -174,7 +174,10 @@ namespace ServiceStack.Text.Json
 
 		static JsonWriter()
 		{
-		    var isNumeric = typeof(T).IsNumericType();
+            if (JsonWriter.Instance == null)
+                return;
+
+            var isNumeric = typeof(T).IsNumericType();
 			TypeInfo = new TypeInfo {
                 EncodeMapKey = typeof(T) == typeof(bool) || isNumeric,
                 IsNumeric = isNumeric
