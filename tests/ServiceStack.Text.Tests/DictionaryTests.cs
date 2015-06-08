@@ -623,6 +623,31 @@ namespace ServiceStack.Text.Tests
             Assert.That(json.StartsWith("{"));
         }
 
+        [Test]
+        public void Do_not_lower_case_Guids()
+        {
+            JsConfig.DateHandler = DateHandler.ISO8601;
+            JsConfig.AlwaysUseUtc = true;
+            JsConfig.TryToParsePrimitiveTypeValues = true;  // needed for datetime
+
+            var original = new Dictionary<string, object>
+               {
+                   {"GuidString", "6A3F0923-A4B8-4026-9982-5C79128EA128"},
+                   {"DateTime", DateTime.UtcNow}
+               };
+
+            var json = JsonSerializer.SerializeToString(original);
+
+            json.Print();
+
+            var deserialized = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
+
+            Assert.That(deserialized["GuidString"], Is.EqualTo("6A3F0923-A4B8-4026-9982-5C79128EA128"));
+            Assert.That(deserialized["DateTime"], Is.AssignableTo(typeof(DateTime)));
+
+            JsConfig.Reset();
+        }
+
         private class ModelWithDictionary
         {
             public Dictionary<string, string> Value { get; set; }
