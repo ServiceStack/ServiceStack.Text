@@ -70,6 +70,7 @@ namespace ServiceStack.Text
         internal string JsvTypeAttrInObject { get; set; }
         public Func<Type, string> TypeWriter { get; set; }
         public Func<string, Type> TypeFinder { get; set; }
+        public Func<string, object> ParsePrimitiveFn { get; set; }
         public DateHandler? DateHandler { get; set; }
         public TimeSpanHandler? TimeSpanHandler { get; set; }
         public PropertyConvention? PropertyConvention { get; set; }

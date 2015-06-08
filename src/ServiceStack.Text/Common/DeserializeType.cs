@@ -120,7 +120,16 @@ namespace ServiceStack.Text.Common
 
         public static object ParseQuotedPrimitive(string value)
         {
-            if (string.IsNullOrEmpty(value)) return null;
+            var fn = JsConfig.ParsePrimitiveFn;
+            if (fn != null)
+            {
+                var result = fn(value);
+                if (result != null)
+                    return result;
+            }
+
+            if (string.IsNullOrEmpty(value)) 
+                return null;
 
             Guid guidValue;
             if (Guid.TryParse(value, out guidValue)) return guidValue;
@@ -160,10 +169,20 @@ namespace ServiceStack.Text.Common
 
         public static object ParsePrimitive(string value)
         {
-            if (string.IsNullOrEmpty(value)) return null;
+            var fn = JsConfig.ParsePrimitiveFn;
+            if (fn != null)
+            {
+                var result = fn(value);
+                if (result != null)
+                    return result;
+            }
+
+            if (string.IsNullOrEmpty(value)) 
+                return null;
 
             bool boolValue;
-            if (bool.TryParse(value, out boolValue)) return boolValue;
+            if (bool.TryParse(value, out boolValue)) 
+                return boolValue;
 
             // Parse as decimal
             decimal decimalValue;
@@ -219,8 +238,8 @@ namespace ServiceStack.Text.Common
             if (typeof(TSerializer) == typeof(JsonTypeSerializer))
             {
                 return firstChar == JsWriter.QuoteChar
-                           ? ParseQuotedPrimitive(value)
-                           : ParsePrimitive(value);
+                    ? ParseQuotedPrimitive(value)
+                    : ParsePrimitive(value);
             }
             return (ParsePrimitive(value) ?? ParseQuotedPrimitive(value));
         }

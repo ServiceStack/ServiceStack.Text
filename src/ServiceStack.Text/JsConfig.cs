@@ -357,6 +357,21 @@ namespace ServiceStack.Text
             }
         }
 
+        private static Func<string, object> sParsePrimitiveFn;
+        public static Func<string, object> ParsePrimitiveFn
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFn : null)
+                    ?? sParsePrimitiveFn
+                    ?? null;
+            }
+            set
+            {
+                if (sParsePrimitiveFn == null) sParsePrimitiveFn = value;
+            }
+        }
+
         private static DateHandler? sDateHandler;
         public static DateHandler DateHandler
         {
@@ -738,6 +753,7 @@ namespace ServiceStack.Text
             sJsvTypeAttrInObject = null;
             sTypeWriter = null;
             sTypeFinder = null;
+            sParsePrimitiveFn = null;
             sTreatEnumAsInteger = null;
             sAlwaysUseUtc = null;
             sAssumeUtc = null;
