@@ -30,7 +30,7 @@ namespace ServiceStack.Text.Json
 
         public bool IncludeNullValuesInDictionaries
         {
-            get { return JsConfig.IncludeNullValues; }
+            get { return JsConfig.IncludeNullValuesInDictionaries; }
         }
 
         public string TypeAttrInObject

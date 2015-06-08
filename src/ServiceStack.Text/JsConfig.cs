@@ -153,7 +153,7 @@ namespace ServiceStack.Text
             }
             set
             {
-                if (!sIncludeNullValuesInDictionaries.HasValue) sIncludeNullValues = value;
+                if (!sIncludeNullValuesInDictionaries.HasValue) sIncludeNullValuesInDictionaries = value;
             }
         }
 
@@ -606,6 +606,7 @@ namespace ServiceStack.Text
 		    sTryToParseNumericType = null;
             sConvertObjectTypesIntoStringDictionary = null;
             sIncludeNullValues = null;
+            sIncludeNullValuesInDictionaries = null;
             sExcludeTypeInfo = null;
             sEmitCamelCaseNames = null;
             sEmitLowercaseUnderscoreNames = null;
