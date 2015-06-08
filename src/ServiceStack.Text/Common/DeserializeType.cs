@@ -122,8 +122,11 @@ namespace ServiceStack.Text.Common
         {
             if (string.IsNullOrEmpty(value)) return null;
 
-            Guid guidValue;
-            if (Guid.TryParse(value, out guidValue)) return guidValue;
+            if ( !JsConfig.HandleGuidsAsStrings )
+            {
+                Guid guidValue;
+                if ( Guid.TryParse(value, out guidValue) ) return guidValue;
+            }
 
             if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix, StringComparison.Ordinal) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix, StringComparison.Ordinal))
             {

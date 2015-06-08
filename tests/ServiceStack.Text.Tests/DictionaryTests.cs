@@ -629,6 +629,7 @@ namespace ServiceStack.Text.Tests
             JsConfig.DateHandler = DateHandler.ISO8601;
             JsConfig.AlwaysUseUtc = true;
             JsConfig.TryToParsePrimitiveTypeValues = true;  // needed for datetime
+            JsConfig.HandleGuidsAsStrings = true;
 
             var original = new Dictionary<string, object>
                {
