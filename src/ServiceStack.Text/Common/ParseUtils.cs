@@ -11,7 +11,6 @@
 //
 
 using System;
-using System.Linq;
 
 namespace ServiceStack.Text.Common
 {
@@ -67,10 +66,9 @@ namespace ServiceStack.Text.Common
             if (JsConfig.EmitLowercaseUnderscoreNames)
             {
                 string[] names = Enum.GetNames(enumType);
-                if (!names.Contains(str))   // does this need StringComparer.InvariantCultureIgnoreCase?
+                if (Array.IndexOf(names, str) == -1)    // case sensitive ... could use Linq Contains() extension with StringComparer.InvariantCultureIgnoreCase instead for a slight penalty
                     str = str.Replace("_", "");
             }
-                
 
             return Enum.Parse(enumType, str, ignoreCase: true);
         }
