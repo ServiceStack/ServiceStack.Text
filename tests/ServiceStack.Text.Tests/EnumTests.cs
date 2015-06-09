@@ -149,10 +149,12 @@ namespace ServiceStack.Text.Tests
         {
             Assert.That("Word".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Word));
             Assert.That("DoubleWord".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
+            Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));
 
             using (JsConfig.With(emitLowercaseUnderscoreNames: true))
             {
                 Assert.That("Double_Word".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
+                Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));
             }
         }
     }

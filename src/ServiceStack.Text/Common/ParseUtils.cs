@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Linq;
 
 namespace ServiceStack.Text.Common
 {
@@ -64,7 +65,12 @@ namespace ServiceStack.Text.Common
         public static object TryParseEnum(Type enumType, string str)
         {
             if (JsConfig.EmitLowercaseUnderscoreNames)
-                str = str.Replace("_", "");
+            {
+                string[] names = Enum.GetNames(enumType);
+                if (!names.Contains(str))   // does this need StringComparer.InvariantCultureIgnoreCase?
+                    str = str.Replace("_", "");
+            }
+                
 
             return Enum.Parse(enumType, str, ignoreCase: true);
         }
