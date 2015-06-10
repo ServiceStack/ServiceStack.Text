@@ -64,7 +64,11 @@ namespace ServiceStack.Text.Common
         public static object TryParseEnum(Type enumType, string str)
         {
             if (JsConfig.EmitLowercaseUnderscoreNames)
-                str = str.Replace("_", "");
+            {
+                string[] names = Enum.GetNames(enumType);
+                if (Array.IndexOf(names, str) == -1)    // case sensitive ... could use Linq Contains() extension with StringComparer.InvariantCultureIgnoreCase instead for a slight penalty
+                    str = str.Replace("_", "");
+            }
 
             return Enum.Parse(enumType, str, ignoreCase: true);
         }
