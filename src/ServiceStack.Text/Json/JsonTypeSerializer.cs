@@ -19,6 +19,11 @@ namespace ServiceStack.Text.Json
             get { return JsConfig.IncludeNullValues; }
         }
 
+        public bool IncludeNullValuesInDictionaries
+        {
+            get { return JsConfig.IncludeNullValuesInDictionaries; }
+        }
+
         public string TypeAttrInObject
         {
             get { return JsConfig.JsonTypeAttrInObject; }
@@ -309,7 +314,7 @@ namespace ServiceStack.Text.Json
 
         public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
         {
-#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL)
+#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL || DNX451 || DNXCORE50)
             WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
 #endif
         }

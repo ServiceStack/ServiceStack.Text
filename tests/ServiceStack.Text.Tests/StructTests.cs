@@ -94,6 +94,7 @@ namespace ServiceStack.Text.Tests
 
             JsConfig<Text>.SerializeFn = text => text.ToString();
             JsConfig<Text>.DeSerializeFn = v => new Text(v);
+            JsConfig<Foo>.Refresh();
 
             var json = JsonSerializer.SerializeToString(dto, dto.GetType());
             Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));

@@ -593,6 +593,44 @@ namespace ServiceStack
             return ctorFn();
         }
 
+        public static PropertyInfo[] GetAllProperties(this Type type)
+        {
+            if (type.IsInterface())
+            {
+                var propertyInfos = new List<PropertyInfo>();
+
+                var considered = new List<Type>();
+                var queue = new Queue<Type>();
+                considered.Add(type);
+                queue.Enqueue(type);
+
+                while (queue.Count > 0)
+                {
+                    var subType = queue.Dequeue();
+                    foreach (var subInterface in subType.GetTypeInterfaces())
+                    {
+                        if (considered.Contains(subInterface)) continue;
+
+                        considered.Add(subInterface);
+                        queue.Enqueue(subInterface);
+                    }
+
+                    var typeProperties = subType.GetTypesProperties();
+
+                    var newPropertyInfos = typeProperties
+                        .Where(x => !propertyInfos.Contains(x));
+
+                    propertyInfos.InsertRange(0, newPropertyInfos);
+                }
+
+                return propertyInfos.ToArray();
+            }
+
+            return type.GetTypesProperties()
+                .Where(t => t.GetIndexParameters().Length == 0) // ignore indexed properties
+                .ToArray();
+        }
+
         public static PropertyInfo[] GetPublicProperties(this Type type)
         {
             if (type.IsInterface())
@@ -648,21 +686,30 @@ namespace ServiceStack
 
         public static PropertyInfo[] GetSerializableProperties(this Type type)
         {
-            var publicProperties = GetPublicProperties(type);
-            var publicReadableProperties = publicProperties.Where(x => x.PropertyGetMethod() != null);
+            var properties = type.IsDto()
+                ? type.GetAllProperties()
+                : type.GetPublicProperties();
+            return properties.OnlySerializableProperties(type);
+        }
 
-            if (type.IsDto())
+        public static PropertyInfo[] OnlySerializableProperties(this PropertyInfo[] properties, Type type = null)
+        {
+            var isDto = type.IsDto();
+            var readableProperties = properties.Where(x => x.PropertyGetMethod(nonPublic: isDto) != null);
+
+            if (isDto)
             {
-                return publicReadableProperties.Where(attr =>
+                return readableProperties.Where(attr =>
                     attr.HasAttribute<DataMemberAttribute>()).ToArray();
             }
 
             // else return those properties that are not decorated with IgnoreDataMember
-            return publicReadableProperties
-                .Where(prop => prop.AllAttributes().All(attr => {
-                        var name = attr.GetType().Name;
-                        return !IgnoreAttributesNamed.Contains(name);
-                    }))
+            return readableProperties
+                .Where(prop => prop.AllAttributes()
+                    .All(attr => {
+                            var name = attr.GetType().Name;
+                            return !IgnoreAttributesNamed.Contains(name);
+                        }))
                 .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.PropertyType))
                 .ToArray();
         }
@@ -680,8 +727,8 @@ namespace ServiceStack
         {
             if (type.IsDto())
             {
-                return type.GetAllFields().Where(attr =>
-                    attr.HasAttribute<DataMemberAttribute>()).ToArray();
+                return type.GetAllFields().Where(f =>
+                    f.HasAttribute<DataMemberAttribute>()).ToArray();
             }
 
             if (!JsConfig.IncludePublicFields)
@@ -850,6 +897,26 @@ namespace ServiceStack
 #endif
         }
 
+        internal static PropertyInfo[] GetTypesProperties(this Type subType)
+        {
+#if (NETFX_CORE || PCL)
+            var pis = new List<PropertyInfo>();
+            foreach (var pi in subType.GetRuntimeProperties())
+            {
+                var mi = pi.GetMethod ?? pi.SetMethod;
+                if (mi != null && mi.IsStatic) continue;
+                pis.Add(pi);
+            }
+            return pis.ToArray();
+#else
+            return subType.GetProperties(
+                BindingFlags.FlattenHierarchy |
+                BindingFlags.Public |
+                BindingFlags.NonPublic |
+                BindingFlags.Instance);
+#endif
+        }
+
         public static Assembly GetAssembly(this Type type)
         {
 #if (NETFX_CORE || PCL)
@@ -873,7 +940,12 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return type.GetRuntimeFields().ToArray();
 #else
-            return type.GetFields();
+            return type.GetFields(
+                BindingFlags.FlattenHierarchy |
+                BindingFlags.Instance |
+                BindingFlags.Static |
+                BindingFlags.Public |
+                BindingFlags.NonPublic);
 #endif
         }
 
@@ -882,7 +954,12 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return type.GetRuntimeProperties().ToArray();
 #else
-            return type.GetProperties();
+            return type.GetProperties(
+                BindingFlags.FlattenHierarchy |
+                BindingFlags.Instance |
+                BindingFlags.Static |
+                BindingFlags.Public |
+                BindingFlags.NonPublic);
 #endif
         }
 
@@ -896,7 +973,7 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return type.GetRuntimeFields().ToArray();
 #else
-            return type.GetPublicFields();
+            return type.Fields();
 #endif
         }
 
@@ -1010,6 +1087,9 @@ namespace ServiceStack
         const string DataContract = "DataContractAttribute";
         public static bool IsDto(this Type type)
         {
+            if (type == null)
+                return false;
+
 #if (NETFX_CORE || PCL)
             return type.HasAttribute<DataContractAttribute>();
 #else
@@ -1024,7 +1104,7 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return pi.GetMethod;
 #else
-            return pi.GetGetMethod(false);
+            return pi.GetGetMethod(nonPublic);
 #endif
         }
 
@@ -1345,7 +1425,7 @@ namespace ServiceStack
 
         public static bool IsDynamic(this Assembly assembly)
         {
-#if __IOS__ || WP || NETFX_CORE || PCL
+#if __IOS__ || WP || NETFX_CORE || PCL || DNX451 || DNXCORE50
             return false;
 #else
             try

@@ -119,9 +119,9 @@ Contributors need to approve the [Contributor License Agreement](https://docs.go
 ## ServiceStack.JsonSerializer
 
 For reasons outlined [in this blog post](http://www.servicestack.net/mythz_blog/?p=344) I decided to re-use *TypeSerializer's* text processing-core to create ServiceStack.JsonSerializer - the fastest JSON Serializer for .NET.
-Based on the [Northwind Benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.100000-times.2010-08-17.html) it's *3.6x* faster than .NET's BCL JsonDataContractSerializer and *3x* faster then the previous fastest JSON serializer benchmarked - [JSON.NET](http://json.codeplex.com/).
+Based on the [Northwind Benchmarks](http://mono.servicestack.net/benchmarks/) it's *3.6x* faster than .NET's BCL JsonDataContractSerializer and *3x* faster then the previous fastest JSON serializer benchmarked - [JSON.NET](http://json.codeplex.com/).
 
-A comprehensive set of other .NET benchmarks are maintained at [servicestack.net/benchmarks](http://www.servicestack.net/benchmarks/).
+A comprehensive set of other .NET benchmarks are maintained at [servicestack.net/benchmarks](http://mono.servicestack.net/benchmarks/) and [in the wiki](https://github.com/ServiceStack/ServiceStack/wiki/Real-world-performance).
 
 ## ServiceStack.CsvSerializer
 As CSV is an important format in many data access and migration scenarios, it became [the latest format included in ServiceStack](https://github.com/ServiceStack/ServiceStack/wiki/ServiceStack-CSV-Format) which allows all your existing web services to take advantage of the new format without config or code-changes. As its built using the same tech that makes the JSON and JSV serializers so fast, we expect it to be the fastest POCO CSV Serializer for .NET.
@@ -420,7 +420,7 @@ Out of all the serializers benchmarked, it is the only one to remain competitive
 Below is a series of benchmarks serialize the different tables in the [Northwind database](http://code.google.com/p/servicestack/source/browse/trunk/Common/Northwind.Benchmarks/Northwind.Common/DataModel/NorthwindData.cs) (3202 records) with the most popular serializers available for .NET:
 
 ### Combined results for serializing / deserialzing a single row of each table in the Northwind database 1,000,000 times
-_[view the detailed benchmarks](http://www.servicestack.net/benchmarks/NorthwindDatabaseRowsSerialization.1000000-times.2010-02-06.html)_
+_[view the detailed benchmarks](http://mono.servicestack.net/benchmarks/)_
 
 <table>
 <thead>

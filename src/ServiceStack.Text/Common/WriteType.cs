@@ -305,7 +305,7 @@ namespace ServiceStack.Text.Common
 
             public bool ShouldWriteProperty(object propertyValue)
             {
-                if (propertySuppressDefaultAttribute && Equals(DefaultValue, propertyValue))
+                if ((propertySuppressDefaultAttribute || JsConfig.ExcludeDefaultValues) && Equals(DefaultValue, propertyValue))
                     return false;
 
                 if (!Serializer.IncludeNullValues
@@ -356,14 +356,24 @@ namespace ServiceStack.Text.Common
                 return;
             }
 
-            var writeFn = Serializer.GetWriteFn(valueType);
-            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = true;
-            writeFn(writer, value);
-            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
+            WriteLateboundProperties(writer, value, valueType);
         }
 
         public static void WriteProperties(TextWriter writer, object value)
         {
+            if (value == null)
+            {
+                writer.Write(JsWriter.EmptyMap);
+                return;
+            }
+
+            var valueType = value.GetType();
+            if (PropertyWriters != null && valueType != typeof(T) && !typeof(T).IsAbstract())
+            {
+                WriteLateboundProperties(writer, value, valueType);
+                return;
+            }
+
             if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0)
                 writer.Write(JsWriter.QuoteChar);
 
@@ -400,9 +410,7 @@ namespace ServiceStack.Text.Common
                         }
                     }
 
-                    var propertyValue = value != null
-                        ? propertyWriter.GetterFn((T)value)
-                        : null;
+                    var propertyValue = propertyWriter.GetterFn((T)value);
 
                     if (!dontSkipDefault)
                     {
@@ -420,15 +428,21 @@ namespace ServiceStack.Text.Common
                     writer.Write(JsWriter.MapKeySeperator);
 
                     if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = true;
-                    if (propertyValue == null)
+                    try
                     {
-                        writer.Write(JsonUtils.Null);
+                        if (propertyValue == null)
+                        {
+                            writer.Write(JsonUtils.Null);
+                        }
+                        else
+                        {
+                            propertyWriter.WriteFn(writer, propertyValue);
+                        }
                     }
-                    else
+                    finally
                     {
-                        propertyWriter.WriteFn(writer, propertyValue);
-                    }
-                    if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
+                        if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
+                    } 
                 }
             }
 
@@ -436,6 +450,14 @@ namespace ServiceStack.Text.Common
 
             if (typeof(TSerializer) == typeof(JsonTypeSerializer) && JsState.WritingKeyCount > 0)
                 writer.Write(JsWriter.QuoteChar);
+        }
+
+        private static void WriteLateboundProperties(TextWriter writer, object value, Type valueType)
+        {
+            var writeFn = Serializer.GetWriteFn(valueType);
+            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = true;
+            writeFn(writer, value);
+            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
         }
 
         private static readonly char[] ArrayBrackets = new[] { '[', ']' };
@@ -526,9 +548,9 @@ namespace ServiceStack.Text.Common
                     else
                     {                        
                         //Trim brackets in top-level lists in QueryStrings, e.g: ?a=[1,2,3] => ?a=1,2,3
-                        using (var ms = new MemoryStream())
-                        using (var enumerableWriter = new StreamWriter(ms))
+                        using (var ms = MemoryStreamFactory.GetStream())
                         {
+                            var enumerableWriter = new StreamWriter(ms); //ms disposed in using 
                             propertyWriter.WriteFn(enumerableWriter, propertyValue); 
                             enumerableWriter.Flush();
                             var output = ms.ToArray().FromUtf8Bytes();

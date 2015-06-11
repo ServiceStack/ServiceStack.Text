@@ -591,4 +591,35 @@ namespace ServiceStack.Text.Tests.Utils
         }
     }
 
+
+    [TestFixture]
+    public class TimeSpanTests
+    {
+        static readonly TimeSpan Time1Y1M1H1S1MS = TimeSpan.FromDays(365)
+                .Add(TimeSpan.FromHours(1))
+                .Add(TimeSpan.FromMinutes(1))
+                .Add(TimeSpan.FromSeconds(1))
+                .Add(TimeSpan.FromMilliseconds(1));
+
+        [Test]
+        public void Can_Parse_XSD_Times()
+        {
+            Assert.That("P365D".FromJson<TimeSpan>(), Is.EqualTo(TimeSpan.FromDays(365)));
+            Assert.That("P365DT1H1M1.001S".FromJson<TimeSpan>(), Is.EqualTo(Time1Y1M1H1S1MS));
+        }
+
+        [Test]
+        public void Can_Parse_TimeSpan_Strings()
+        {
+            Assert.That("365.00:00:00".FromJson<TimeSpan>(), Is.EqualTo(TimeSpan.FromDays(365)));
+            Assert.That("365.01:01:01.001".FromJson<TimeSpan>(), Is.EqualTo(Time1Y1M1H1S1MS));
+        }
+
+        [Test]
+        public void Can_Parse_TimeSpan_NSTimeSpan()
+        {
+            Assert.That("31536000".FromJson<TimeSpan>(), Is.EqualTo(TimeSpan.FromDays(365)));
+            Assert.That("31539661.001".FromJson<TimeSpan>(), Is.EqualTo(Time1Y1M1H1S1MS));
+        }
+    }
 }

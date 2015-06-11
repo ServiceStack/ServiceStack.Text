@@ -62,4 +62,13 @@ namespace ServiceStack.Text
             }
 		}
 	}
+
+    public static class TracerExceptions
+    {
+        public static T Trace<T>(this T ex) where T : Exception
+        {
+            Tracer.Instance.WriteError(ex);
+            return ex;
+        }
+    }
 }

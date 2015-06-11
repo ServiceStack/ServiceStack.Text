@@ -134,6 +134,29 @@ namespace ServiceStack.Text.Tests
             var map = json.FromJson<Dictionary<AnEnum, int>>();
             Assert.That(map[AnEnum.This], Is.EqualTo(1));
         }
+
+        public enum EnumStyles
+        {
+            None=0,
+            Word,
+            DoubleWord,
+            lowerWord,
+            Underscore_Words,
+        }
+
+        [Test]
+        public void Can_serialize_different_enum_styles()
+        {
+            Assert.That("Word".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Word));
+            Assert.That("DoubleWord".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
+            Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));
+
+            using (JsConfig.With(emitLowercaseUnderscoreNames: true))
+            {
+                Assert.That("Double_Word".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
+                Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));
+            }
+        }
     }
 }
 

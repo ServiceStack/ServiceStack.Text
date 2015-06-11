@@ -33,7 +33,9 @@ namespace ServiceStack.Text
             bool? tryToParseNumericType = null,
 			ParseAsType? parsePrimitiveFloatingPointTypes = null,
 			ParseAsType? parsePrimitiveIntegerTypes = null,
+            bool? excludeDefaultValues = null,
             bool? includeNullValues = null,
+            bool? includeNullValuesInDictionaries = null,
             bool? includeDefaultEnums = null,
             bool? excludeTypeInfo = null,
             bool? includeTypeInfo = null,
@@ -67,7 +69,9 @@ namespace ServiceStack.Text
 				ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? sParsePrimitiveFloatingPointTypes,
 				ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? sParsePrimitiveIntegerTypes,
 
+                ExcludeDefaultValues = excludeDefaultValues ?? sExcludeDefaultValues,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
+                IncludeNullValuesInDictionaries = includeNullValuesInDictionaries ?? sIncludeNullValuesInDictionaries,
                 IncludeDefaultEnums = includeDefaultEnums ?? sIncludeDefaultEnums,
                 ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
                 IncludeTypeInfo = includeTypeInfo ?? sIncludeTypeInfo,
@@ -169,6 +173,21 @@ namespace ServiceStack.Text
 			}
 		}
 
+        private static bool? sExcludeDefaultValues;
+        public static bool ExcludeDefaultValues
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeDefaultValues : null)
+                    ?? sExcludeDefaultValues
+                    ?? false;
+            }
+            set
+            {
+                if (!sExcludeDefaultValues.HasValue) sExcludeDefaultValues = value;
+            }
+        }
+
         private static bool? sIncludeNullValues;
         public static bool IncludeNullValues
         {
@@ -181,6 +200,21 @@ namespace ServiceStack.Text
             set
             {
                 if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
+            }
+        }
+
+        private static bool? sIncludeNullValuesInDictionaries;
+        public static bool IncludeNullValuesInDictionaries
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValuesInDictionaries : null)
+                    ?? sIncludeNullValuesInDictionaries
+                    ?? false;
+            }
+            set
+            {
+                if (!sIncludeNullValuesInDictionaries.HasValue) sIncludeNullValuesInDictionaries = value;
             }
         }
 
@@ -320,6 +354,21 @@ namespace ServiceStack.Text
             set
             {
                 if (sTypeFinder == null) sTypeFinder = value;
+            }
+        }
+
+        private static Func<string, object> sParsePrimitiveFn;
+        public static Func<string, object> ParsePrimitiveFn
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFn : null)
+                    ?? sParsePrimitiveFn
+                    ?? null;
+            }
+            set
+            {
+                if (sParsePrimitiveFn == null) sParsePrimitiveFn = value;
             }
         }
 
@@ -516,6 +565,22 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating if the framework should call an error handler when
+        /// an exception happens during the deserialization.
+        /// </summary>
+        /// <remarks>Parameters have following meaning in order: deserialized entity, property name, parsed value, property type, caught exception.</remarks>
+        private static DeserializationErrorDelegate sOnDeserializationError;
+        public static DeserializationErrorDelegate OnDeserializationError
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.OnDeserializationError : null)
+                    ?? sOnDeserializationError;
+            }
+            set { sOnDeserializationError = value; }
+        }
+
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
 
         internal static HashSet<Type> HasIncludeDefaultValue = new HashSet<Type>();
@@ -673,7 +738,9 @@ namespace ServiceStack.Text
             sTryToParsePrimitiveTypeValues = null;
             sTryToParseNumericType = null;
             sConvertObjectTypesIntoStringDictionary = null;
+            sExcludeDefaultValues = null;
             sIncludeNullValues = null;
+            sIncludeNullValuesInDictionaries = null;
             sExcludeTypeInfo = null;
             sEmitCamelCaseNames = null;
             sEmitLowercaseUnderscoreNames = null;
@@ -686,11 +753,13 @@ namespace ServiceStack.Text
             sJsvTypeAttrInObject = null;
             sTypeWriter = null;
             sTypeFinder = null;
+            sParsePrimitiveFn = null;
             sTreatEnumAsInteger = null;
             sAlwaysUseUtc = null;
             sAssumeUtc = null;
             sAppendUtcOffset = null;
             sEscapeUnicode = null;
+            sOnDeserializationError = null;
             sIncludePublicFields = null;
             sReuseStringBuffer = null;
             HasSerializeFn = new HashSet<Type>();
@@ -844,7 +913,7 @@ namespace ServiceStack.Text
         public static Func<T, T> OnSerializingFn
         {
             get { return onSerializingFn; }
-            set { onSerializingFn = value; }
+            set { onSerializingFn = value; Refresh(); }
         }
 
         /// <summary>
@@ -854,18 +923,28 @@ namespace ServiceStack.Text
         public static Action<T> OnSerializedFn
         {
             get { return onSerializedFn; }
-            set { onSerializedFn = value; }
+            set { onSerializedFn = value; Refresh(); }
         }
 
         /// <summary>
         /// Define custom deserialization fn for BCL Structs
         /// </summary>
-        public static Func<string, T> DeSerializeFn;
+        private static Func<string, T> deSerializeFn;
+        public static Func<string, T> DeSerializeFn
+        {
+            get { return deSerializeFn; }
+            set { deSerializeFn = value; Refresh(); }
+        }
 
         /// <summary>
         /// Define custom raw deserialization fn for objects
         /// </summary>
-        public static Func<string, T> RawDeserializeFn;
+        private static Func<string, T> rawDeserializeFn;
+        public static Func<string, T> RawDeserializeFn
+        {
+            get { return rawDeserializeFn; }
+            set { rawDeserializeFn = value; Refresh(); }
+        }
 
         public static bool HasDeserializeFn
         {
@@ -876,7 +955,7 @@ namespace ServiceStack.Text
         public static Func<T, T> OnDeserializedFn
         {
             get { return onDeserializedFn; }
-            set { onDeserializedFn = value; }
+            set { onDeserializedFn = value; Refresh(); }
         }
 
         public static bool HasDeserialingFn
@@ -888,7 +967,7 @@ namespace ServiceStack.Text
         public static Func<T, string, object, object> OnDeserializingFn
         {
             get { return onDeserializingFn; }
-            set { onDeserializingFn = value; }
+            set { onDeserializingFn = value; Refresh(); }
         }
 
         /// <summary>
@@ -970,8 +1049,8 @@ namespace ServiceStack.Text
 
         internal static void ClearFnCaches()
         {
-            typeof(JsonWriter<>).MakeGenericType(new[] { typeof(T) }).InvokeReset();
-            typeof(JsvWriter<>).MakeGenericType(new[] { typeof(T) }).InvokeReset();
+            JsonWriter<T>.Reset();
+            JsvWriter<T>.Reset();
         }
 
         public static void Reset()
@@ -980,6 +1059,14 @@ namespace ServiceStack.Text
             DeSerializeFn = null;
             ExcludePropertyNames = null;
             EmitCamelCaseNames = EmitLowercaseUnderscoreNames = IncludeTypeInfo = ExcludeTypeInfo = null;
+        }
+
+        public static void Refresh()
+        {
+            JsonReader<T>.Refresh();
+            JsonWriter<T>.Refresh();
+            JsvReader<T>.Refresh();
+            JsvWriter<T>.Refresh();
         }
     }
 

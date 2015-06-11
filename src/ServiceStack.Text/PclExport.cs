@@ -164,6 +164,16 @@ namespace ServiceStack
             return null;
         }
 
+        public virtual string[] GetFileNames(string dirPath, string searchPattern = null)
+        {
+            return new string[0];
+        }
+
+        public virtual string[] GetDirectoryNames(string dirPath, string searchPattern = null)
+        {
+            return new string[0];
+        }
+
         public virtual void WriteLine(string line)
         {
         }
@@ -390,10 +400,10 @@ namespace ServiceStack
             if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
-	            return DeserializeDynamic<TSerializer>.Parse;
+                return DeserializeDynamic<TSerializer>.Parse;
             }
 #endif
-	        return null;
+            return null;
         }
 
         public virtual XmlSerializer NewXmlSerializer()
@@ -450,6 +460,11 @@ namespace ServiceStack
 
         public virtual void RegisterForAot()
         {            
+        }
+
+        public virtual string GetStackTrace()
+        {
+            return null;
         }
     }
 

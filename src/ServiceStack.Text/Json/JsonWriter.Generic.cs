@@ -149,13 +149,20 @@ namespace ServiceStack.Text.Json
         public static void Reset()
         {
             JsonWriter.RemoveCacheFn(typeof(T));
-
-            CacheFn = typeof(T) == typeof(object) 
-                ? JsonWriter.WriteLateBoundObject 
-                : JsonWriter.Instance.GetWriteFn<T>();
+            Refresh();
         }
 
-		public static WriteObjectDelegate WriteFn()
+	    public static void Refresh()
+	    {
+            if (JsonWriter.Instance == null)
+                return;
+
+	        CacheFn = typeof(T) == typeof(object)
+	            ? JsonWriter.WriteLateBoundObject
+	            : JsonWriter.Instance.GetWriteFn<T>();
+	    }
+
+	    public static WriteObjectDelegate WriteFn()
 		{
 			return CacheFn ?? WriteObject;
 		}
@@ -167,7 +174,10 @@ namespace ServiceStack.Text.Json
 
 		static JsonWriter()
 		{
-		    var isNumeric = typeof(T).IsNumericType();
+            if (JsonWriter.Instance == null)
+                return;
+
+            var isNumeric = typeof(T).IsNumericType();
 			TypeInfo = new TypeInfo {
                 EncodeMapKey = typeof(T) == typeof(bool) || isNumeric,
                 IsNumeric = isNumeric

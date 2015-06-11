@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 
@@ -26,7 +25,7 @@ namespace ServiceStack.Text
 	/// </summary>
 	public static class TypeSerializer
 	{
-		private static readonly UTF8Encoding UTF8EncodingWithoutBom = new UTF8Encoding(false);
+        public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
 
 		public const string DoubleQuoteString = "\"\"";
 
@@ -152,7 +151,8 @@ namespace ServiceStack.Text
 		public static string SerializeToString(object value, Type type)
 		{
 			if (value == null) return null;
-			if (type == typeof(string)) return value as string;
+			if (type == typeof(string)) 
+                return value as string;
 
             using (var sb = StringBuilderWriter.Create())
             {
@@ -212,7 +212,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+                var writer = new StreamWriter(stream, UTF8Encoding);
                 JsvWriter<T>.WriteRootObject(writer, value);
                 writer.Flush();
             }
@@ -220,7 +220,7 @@ namespace ServiceStack.Text
 
 		public static void SerializeToStream(object value, Type type, Stream stream)
 		{
-			var writer = new StreamWriter(stream, UTF8EncodingWithoutBom);
+			var writer = new StreamWriter(stream, UTF8Encoding);
 			JsvWriter.GetWriteFn(type)(writer, value);
 			writer.Flush();
 		}
@@ -234,7 +234,7 @@ namespace ServiceStack.Text
 
 		public static T DeserializeFromStream<T>(Stream stream)
 		{
-			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
+			using (var reader = new StreamReader(stream, UTF8Encoding))
 			{
 				return DeserializeFromString<T>(reader.ReadToEnd());
 			}
@@ -242,7 +242,7 @@ namespace ServiceStack.Text
 
 		public static object DeserializeFromStream(Type type, Stream stream)
 		{
-			using (var reader = new StreamReader(stream, UTF8EncodingWithoutBom))
+			using (var reader = new StreamReader(stream, UTF8Encoding))
 			{
 				return DeserializeFromString(reader.ReadToEnd(), type);
 			}

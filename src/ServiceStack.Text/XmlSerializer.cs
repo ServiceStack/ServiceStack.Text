@@ -71,7 +71,7 @@ namespace ServiceStack.Text
         {
             try
             {
-                using (var ms = new MemoryStream())
+                using (var ms = MemoryStreamFactory.GetStream())
                 {
                     using (var xw = XmlWriter.Create(ms, XWSettings))
                     {

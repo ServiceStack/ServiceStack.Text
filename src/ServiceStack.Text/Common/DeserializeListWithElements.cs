@@ -143,7 +143,14 @@ namespace ServiceStack.Text.Common
                     do
                     {
                         var itemValue = Serializer.EatTypeValue(value, ref i);
-                        to.Add((T)parseFn(itemValue));
+                        if (itemValue != null)
+                        {
+                            to.Add((T)parseFn(itemValue));
+                        }
+                        else
+                        {
+                            to.Add(default(T));
+                        }
                         Serializer.EatWhitespace(value, ref i);
                     } while (++i < value.Length);
                 }

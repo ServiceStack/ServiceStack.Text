@@ -1,0 +1,31 @@
+{
+  "locked": false,
+  "version": -9998,
+  "projectFileDependencyGroups": {
+    "": [],
+    ".NETFramework,Version=v4.5": [
+      "framework/System.Core ",
+      "framework/System.Runtime.Serialization ",
+      "framework/System.Xml ",
+      "framework/System.Data.Linq ",
+      "framework/System.Configuration "
+    ],
+    "Silverlight,Version=v5.0": [
+      "framework/System ",
+      "framework/System.Core ",
+      "framework/mscorlib ",
+      "framework/System.Runtime.Serialization ",
+      "framework/System.Net ",
+      "framework/System.Xml ",
+      "framework/System.Windows "
+    ],
+    "DNX,Version=v4.5.1": [
+      "framework/System.Core ",
+      "framework/System.Runtime.Serialization ",
+      "framework/System.Xml ",
+      "framework/System.Data.Linq ",
+      "framework/System.Configuration "
+    ]
+  },
+  "libraries": {}
+}

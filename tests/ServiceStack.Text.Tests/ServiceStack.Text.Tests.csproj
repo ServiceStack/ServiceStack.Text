@@ -176,11 +176,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableTests.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="CsvTypeTests.cs" />
+    <Compile Include="HttpUtilsTests.cs" />
+    <Compile Include="JsonTests\InheritAbstractTests.cs" />
     <Compile Include="JsonTests\JsonEnumTests.cs" />
     <Compile Include="JsonTests\InvalidJsonTests.cs" />
+    <Compile Include="JsonTests\OnDeserializationErrorTests.cs" />
     <Compile Include="JsonTests\TypeInfoTests.cs" />
+    <Compile Include="PclApiTests.cs" />
     <Compile Include="SerializationDelegatePerformanceTests.cs" />
     <Compile Include="SerializationHookTests.cs" />
     <Compile Include="StaticAccessorTests.cs" />
@@ -263,6 +268,7 @@
     <Compile Include="Shared\Shipper.cs" />
     <Compile Include="Shared\ShipperFactory.cs" />
     <Compile Include="Shared\TaskQueue.cs" />
+    <Compile Include="StreamTests.cs" />
     <Compile Include="StringConverterUtilsTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="StructTests.cs" />

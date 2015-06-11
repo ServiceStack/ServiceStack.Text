@@ -41,12 +41,20 @@ namespace ServiceStack.Text.Json
 
     public static class JsonReader<T>
 	{
-		private static readonly ParseStringDelegate ReadFn;
+		private static ParseStringDelegate ReadFn;
 
 		static JsonReader()
 		{
-			ReadFn = JsonReader.Instance.GetParseFn<T>();
+            Refresh();
 		}
+
+        public static void Refresh()
+        {
+            if (JsonReader.Instance == null)
+                return;
+
+            ReadFn = JsonReader.Instance.GetParseFn<T>();
+        }
 		
 		public static ParseStringDelegate GetParseFn()
 		{

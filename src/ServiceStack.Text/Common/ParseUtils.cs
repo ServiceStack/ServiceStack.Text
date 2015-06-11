@@ -60,6 +60,18 @@ namespace ServiceStack.Text.Common
         {
             return AssemblyUtils.FindType(assemblyQualifiedName.FromCsvField());
         }
+
+        public static object TryParseEnum(Type enumType, string str)
+        {
+            if (JsConfig.EmitLowercaseUnderscoreNames)
+            {
+                string[] names = Enum.GetNames(enumType);
+                if (Array.IndexOf(names, str) == -1)    // case sensitive ... could use Linq Contains() extension with StringComparer.InvariantCultureIgnoreCase instead for a slight penalty
+                    str = str.Replace("_", "");
+            }
+
+            return Enum.Parse(enumType, str, ignoreCase: true);
+        }
     }
 
 }

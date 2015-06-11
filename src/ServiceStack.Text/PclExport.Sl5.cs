@@ -44,7 +44,12 @@ namespace ServiceStack
 
         public override Assembly[] GetAllAssemblies()
         {
+//TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
+#if !(SL5 && CORECLR)
             return ((dynamic)AppDomain.CurrentDomain).GetAssemblies() as Assembly[];
+#else
+            return new Assembly[0]; 
+#endif
         }
 
         public override Type GetGenericCollectionType(Type type)
@@ -94,6 +99,83 @@ namespace ServiceStack
             task.Wait();
             var webRes = task.Result;
             return webRes;
+        }
+    }
+
+    // Stopwatch shim for Silverlight
+    public sealed class Stopwatch
+    {
+        private long startTick;
+        private long elapsed;
+        private bool isRunning;
+
+        public static Stopwatch StartNew()
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            return sw;
+        }
+
+        public Stopwatch() {}
+
+        public void Reset()
+        {
+            elapsed = 0;
+            isRunning = false;
+            startTick = 0;
+        }
+
+        public void Start()
+        {
+            if (!isRunning)
+            {
+                startTick = GetCurrentTicks();
+                isRunning = true;
+            }
+        }
+
+        public void Stop()
+        {
+            if (isRunning)
+            {
+                elapsed += GetCurrentTicks() - startTick;
+                isRunning = false;
+            }
+        }
+
+        public bool IsRunning
+        {
+            get { return isRunning; }
+        }
+
+        public TimeSpan Elapsed
+        {
+            get { return TimeSpan.FromMilliseconds(ElapsedMilliseconds); }
+        }
+
+        public long ElapsedMilliseconds
+        {
+            get { return GetCurrentElapsedTicks() / TimeSpan.TicksPerMillisecond; }
+        }
+
+        public long ElapsedTicks
+        {
+            get { return GetCurrentElapsedTicks(); }
+        }
+
+        private long GetCurrentElapsedTicks()
+        {
+            return (long) (this.elapsed + (IsRunning ? (GetCurrentTicks() - startTick) : 0));
+        }
+
+        private long GetCurrentTicks()
+        {
+            return Environment.TickCount * TimeSpan.TicksPerMillisecond;
+        }
+
+        public static long GetTimestamp() 
+        {
+            return DateTime.UtcNow.Ticks;
         }
     }
 }

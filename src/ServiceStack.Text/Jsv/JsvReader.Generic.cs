@@ -41,12 +41,20 @@ namespace ServiceStack.Text.Jsv
 
     internal static class JsvReader<T>
 	{
-		private static readonly ParseStringDelegate ReadFn;
+		private static ParseStringDelegate ReadFn;
 
 		static JsvReader()
-		{
-			ReadFn = JsvReader.Instance.GetParseFn<T>();
-		}
+        {
+            Refresh();
+        }
+
+        public static void Refresh()
+        {
+            if (JsvReader.Instance == null)
+                return;
+
+            ReadFn = JsvReader.Instance.GetParseFn<T>();
+        }
 		
 		public static ParseStringDelegate GetParseFn()
 		{

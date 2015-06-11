@@ -103,7 +103,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialise_null_values_from_expando_correctly()
         {
-            JsConfig.IncludeNullValues = true;
+            JsConfig.IncludeNullValuesInDictionaries = true;
             dynamic expando = new ExpandoObject();
             expando.value = null;
 

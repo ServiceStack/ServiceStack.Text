@@ -179,10 +179,26 @@ namespace ServiceStack.Text.Common
 
             var valueCollection = (IEnumerable)oValueCollection;
             var ranOnce = false;
+            Type lastType = null;
             foreach (var valueItem in valueCollection)
             {
-                if (toStringFn == null)
-                    toStringFn = Serializer.GetWriteFn(valueItem.GetType());
+                if ((toStringFn == null) || (valueItem != null && valueItem.GetType() != lastType))
+                {
+                    if (valueItem != null)
+                    {
+                        if (valueItem.GetType() != lastType)
+                        {
+                            lastType = valueItem.GetType();
+                            toStringFn = Serializer.GetWriteFn(lastType);
+                        }
+                    }
+                    else
+                    {
+                        // this can happen if the first item in the collection was null
+                        lastType = typeof(object);
+                        toStringFn = Serializer.GetWriteFn(lastType);
+                    }
+                }
 
                 JsWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 

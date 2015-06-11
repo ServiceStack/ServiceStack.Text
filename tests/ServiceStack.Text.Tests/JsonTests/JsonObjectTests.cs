@@ -26,6 +26,27 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(JsonObject.Parse("{ \n\t  \n\r}"), Is.Empty);
         }
 
+        [Test]
+        public void Can_Serialize_numbers()
+        {
+            string notNumber = "{\"field\":\"00001\"}";
+            Assert.AreEqual(notNumber, JsonObject.Parse(notNumber).ToJson<JsonObject>());
+
+            string num1 = "{\"field\":0}";
+            Assert.AreEqual(num1, JsonObject.Parse(num1).ToJson<JsonObject>());
+
+            string num2 = "{\"field\":0.5}";
+            Assert.AreEqual(num2, JsonObject.Parse(num2).ToJson<JsonObject>());
+
+            string num3 = "{\"field\":.5}";
+            Assert.AreEqual(num3, JsonObject.Parse(num3).ToJson<JsonObject>());
+
+            string num4 = "{\"field\":12312}";
+            Assert.AreEqual(num4, JsonObject.Parse(num4).ToJson<JsonObject>());
+
+            string num5 = "{\"field\":12312.1231}";
+            Assert.AreEqual(num5, JsonObject.Parse(num5).ToJson<JsonObject>());
+        }
 
         public class Jackalope
         {
@@ -149,6 +170,58 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(dst.Action, Is.EqualTo(fromDst.Action));
         }
 
+        [Test]
+        public void Can_handle_null_in_Collection_with_ShouldSerialize()
+        {
+            var dto = new Parent {
+                ChildDtosWithShouldSerialize = new List<ChildWithShouldSerialize> {
+                    new ChildWithShouldSerialize { Data = "xx" }, null,
+                }
+            };
+
+            var json = JsonSerializer.SerializeToString(dto);
+            Assert.That(json, Is.EqualTo("{\"ChildDtosWithShouldSerialize\":[{\"Data\":\"xx\"},{}]}"));
+        }
+
+        [Test]
+        public void Can_handle_null_in_Collection_with_ShouldSerialize_PropertyName()
+        {
+            var dto = new Parent {
+                ChildDtosWithShouldSerializeProperty = new List<ChildDtoWithShouldSerializeForProperty> {
+                    new ChildDtoWithShouldSerializeForProperty {Data = "xx"},
+                    null,
+                }
+            };
+
+            var json = JsonSerializer.SerializeToString(dto);
+            Assert.AreEqual(json, "{\"ChildDtosWithShouldSerializeProperty\":[{\"Data\":\"xx\"},{}]}");
+        }
+
+        public class Parent
+        {
+            public IList<ChildWithShouldSerialize> ChildDtosWithShouldSerialize { get; set; }
+            public IList<ChildDtoWithShouldSerializeForProperty> ChildDtosWithShouldSerializeProperty { get; set; }
+        }
+
+        public class ChildWithShouldSerialize
+        {
+            protected virtual bool? ShouldSerialize(string fieldName)
+            {
+                return true;
+            }
+
+            public string Data { get; set; }
+        }
+
+        public class ChildDtoWithShouldSerializeForProperty
+        {
+            public virtual bool ShouldSerializeData()
+            {
+                return true;
+            }
+
+            public string Data { get; set; }
+        }  
 
         readonly SimpleObj simple = new SimpleObj
         {

@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -40,13 +40,18 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                var existingKeyPos = url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison);
+                var existingKeyPos = qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison) 
+                    ? qsPos 
+                    : url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
+
                 if (existingKeyPos != -1)
                 {
-                    var endPos = url.IndexOf('&', existingKeyPos);
-                    if (endPos == -1) endPos = url.Length;
+                    var endPos = url.IndexOf('&', existingKeyPos + 1);
+                    if (endPos == -1) 
+                        endPos = url.Length;
 
                     var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + "="
                         + val.UrlEncode()
                         + url.Substring(endPos);
                     return newUrl;
@@ -64,6 +69,33 @@ namespace ServiceStack
         public static string AddHashParam(this string url, string key, string val)
         {
             if (string.IsNullOrEmpty(url)) return null;
+            var prefix = url.IndexOf('#') == -1 ? "#" : "/";
+            return url + prefix + key + "=" + val.UrlEncode();
+        }
+
+        public static string SetHashParam(this string url, string key, string val)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+            var hPos = url.IndexOf('#');
+            if (hPos != -1)
+            {
+                var existingKeyPos = hPos + 1 == url.IndexOf(key, hPos, PclExport.Instance.InvariantComparison)
+                    ? hPos
+                    : url.IndexOf("/" + key, hPos, PclExport.Instance.InvariantComparison);
+
+                if (existingKeyPos != -1)
+                {
+                    var endPos = url.IndexOf('/', existingKeyPos + 1);
+                    if (endPos == -1) 
+                        endPos = url.Length;
+
+                    var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + "="
+                        + val.UrlEncode()
+                        + url.Substring(endPos);
+                    return newUrl;
+                }
+            }
             var prefix = url.IndexOf('#') == -1 ? "#" : "/";
             return url + prefix + key + "=" + val.UrlEncode();
         }
@@ -611,7 +643,7 @@ namespace ServiceStack
                 var webReq = WebRequest.Create(url);
                 using (var webRes = PclExport.Instance.GetResponse(webReq))
                 {
-                    var strRes = webRes.ReadToEnd();
+                    webRes.ReadToEnd();
                     return null;
                 }
             }
@@ -706,7 +738,7 @@ namespace ServiceStack
             if (requestFilter != null)
                 requestFilter(httpReq);
 
-            var boundary = "----------------------------" + DateTime.UtcNow.Ticks.ToString("x");
+            var boundary = "----------------------------" + Stopwatch.GetTimestamp().ToString("x");
 
             httpReq.ContentType = "multipart/form-data; boundary=" + boundary;
 
@@ -733,13 +765,7 @@ namespace ServiceStack
             {
                 outputStream.Write(headerbytes, 0, headerbytes.Length);
 
-                var buffer = new byte[4096];
-                int byteCount;
-
-                while ((byteCount = fileStream.Read(buffer, 0, 4096)) > 0)
-                {
-                    outputStream.Write(buffer, 0, byteCount);
-                }
+                fileStream.CopyTo(outputStream, 4096);
 
                 outputStream.Write(boundarybytes, 0, boundarybytes.Length);
 
@@ -984,6 +1010,8 @@ namespace ServiceStack
 
                 case "woff":
                     return "application/font-woff";
+                case "woff2":
+                    return "application/font-woff2";
 
                 default:
                     return "application/" + fileExt;
@@ -996,6 +1024,10 @@ namespace ServiceStack
         public const string XParamOverridePrefix = "X-Param-Override-";
 
         public const string XHttpMethodOverride = "X-Http-Method-Override";
+
+        public const string XAutoBatchCompleted = "X-AutoBatch-Completed"; // How many requests were completed before first failure
+
+        public const string XTag = "X-Tag";
 
         public const string XUserAuthId = "X-UAId";
 

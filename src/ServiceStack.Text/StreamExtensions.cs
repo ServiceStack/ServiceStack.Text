@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using ServiceStack.Text;
 
 namespace ServiceStack
 {
@@ -96,7 +98,7 @@ namespace ServiceStack
             }
             // We could do all our own work here, but using MemoryStream is easier
             // and likely to be just as efficient.
-            using (var tempStream = new MemoryStream())
+            using (var tempStream = MemoryStreamFactory.GetStream())
             {
                 CopyTo(input, tempStream, buffer);
                 // No need to copy the buffer if it's the right size
@@ -240,6 +242,30 @@ namespace ServiceStack
                 index += read;
             }
             return intoBuffer;
+        }
+
+        public static string CollapseWhitespace(this string str)
+        {
+            if (str == null) 
+                return null;
+
+            var sb = new StringBuilder();
+
+            var lastChar = (char)0;
+            for (var i = 0; i < str.Length; i++)
+            {
+                var c = str[i];
+                if (c < 32) continue; // Skip all these
+                if (c == 32)
+                {
+                    if (lastChar == 32)
+                        continue; // Only write one space character
+                }
+                sb.Append(c);
+                lastChar = c;
+            }
+
+            return sb.ToString();
         }
     }
 }

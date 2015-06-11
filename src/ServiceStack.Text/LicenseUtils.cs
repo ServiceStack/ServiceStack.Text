@@ -26,6 +26,7 @@ namespace ServiceStack
         OrmLiteBusiness,
         RedisIndie,
         RedisBusiness,
+        Trial,
     }
 
     [Flags]
@@ -71,7 +72,7 @@ namespace ServiceStack
         public static void RegisterLicenseFromFile(string filePath)
         {
             if (!filePath.FileExists())
-                throw new LicenseException("License file does not exist: " + filePath);
+                throw new LicenseException("License file does not exist: " + filePath).Trace();
 
             var licenseKeyText = filePath.ReadAllText();
             LicenseUtils.RegisterLicense(licenseKeyText);
@@ -145,7 +146,7 @@ namespace ServiceStack
         {
             if (DateTime.UtcNow > new DateTime(2013, 12, 31))
                 throw new LicenseException("The evaluation license for this software has expired. " +
-                    "See https://servicestack.net to upgrade to a valid license.");
+                    "See https://servicestack.net to upgrade to a valid license.").Trace();
         }
 
         private static LicenseKey __activatedLicense;
@@ -166,7 +167,11 @@ namespace ServiceStack
                 var releaseDate = Env.GetReleaseDate();
                 if (releaseDate > key.Expiry)
                     throw new LicenseException("This license has expired on {0} and is not valid for use with this release."
-                        .Fmt(key.Expiry.ToString("d")) + ContactDetails);
+                        .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
+
+                if (key.Type == LicenseType.Trial && DateTime.UtcNow > key.Expiry)
+                    throw new LicenseException("This trial license has expired on {0}."
+                        .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
 
                 __activatedLicense = key;
             }
@@ -179,7 +184,7 @@ namespace ServiceStack
                 if (!string.IsNullOrEmpty(cutomerId))
                     msg += " The id for this license is '{0}'".Fmt(cutomerId);
 
-                throw new LicenseException(msg);
+                throw new LicenseException(msg).Trace();
             }
         }
 
@@ -201,7 +206,7 @@ namespace ServiceStack
                 return;
 
             if (actualUsage > allowedUsage)
-                throw new LicenseException(message.Fmt(allowedUsage));
+                throw new LicenseException(message.Fmt(allowedUsage)).Trace();
         }
 
         public static bool HasLicensedFeature(LicenseFeature feature)
@@ -283,7 +288,7 @@ namespace ServiceStack
                     break;
             }
 
-            throw new LicenseException("Unknown Quota Usage: {0}, {1}".Fmt(feature, quotaType));
+            throw new LicenseException("Unknown Quota Usage: {0}, {1}".Fmt(feature, quotaType)).Trace();
         }
 
         public static LicenseFeature GetLicensedFeatures(this LicenseKey key)
@@ -296,6 +301,7 @@ namespace ServiceStack
                 case LicenseType.Indie:
                 case LicenseType.Business:
                 case LicenseType.Enterprise:
+                case LicenseType.Trial:
                     return LicenseFeature.All;
 
                 case LicenseType.TextIndie:
@@ -310,7 +316,7 @@ namespace ServiceStack
                 case LicenseType.RedisBusiness:
                     return LicenseFeature.RedisSku;
             }
-            throw new ArgumentException("Unknown License Type: " + key.Type);
+            throw new ArgumentException("Unknown License Type: " + key.Type).Trace();
         }
 
         public static LicenseKey ToLicenseKey(this string licenseKeyText)
@@ -320,12 +326,26 @@ namespace ServiceStack
             var refId = parts[0];
             var base64 = parts[1];
             var jsv = Convert.FromBase64String(base64).FromUtf8Bytes();
-            var key = jsv.FromJsv<LicenseKey>();
 
-            if (key.Ref != refId)
-                throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64));
+            var hold = JsConfig<DateTime>.DeSerializeFn;
+            var holdRaw = JsConfig<DateTime>.RawDeserializeFn;
 
-            return key;
+            try
+            {
+                JsConfig<DateTime>.DeSerializeFn = null;
+                JsConfig<DateTime>.RawDeserializeFn = null;
+                var key = jsv.FromJsv<LicenseKey>();
+
+                if (key.Ref != refId)
+                    throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64)).Trace();
+
+                return key;
+            }
+            finally
+            {
+                JsConfig<DateTime>.DeSerializeFn = hold;
+                JsConfig<DateTime>.RawDeserializeFn = holdRaw;
+            }
         }
 
         public static string GetHashKeyToSign(this LicenseKey key)
@@ -385,7 +405,7 @@ namespace ServiceStack
             var accessType = accessToken.GetType();
 
             if (srcFeature != LicenseFeature.Client || requestedAccess != LicenseFeature.Text || accessToken == null)
-                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest);
+                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest).Trace();
 
             if (accessType.Name == "AccessToken" && accessType.GetAssembly().ManifestModule.Name.StartsWith("<")) //Smart Assembly
                 return new AccessToken(requestedAccess);
@@ -396,7 +416,7 @@ namespace ServiceStack
                     accessType.Name,
                     accessType.GetAssembly().ManifestModule.Name);
 
-                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest + errorDetails);
+                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest + errorDetails).Trace();
             }
 
             PclExport.Instance.VerifyInAssembly(accessType, _approved.__dlls);

@@ -1,0 +1,65 @@
+{
+  "version": "4.0.0-*",
+
+  "frameworks": {
+
+    "net45+sl5+MonoAndroid10+Xamarin.iOS10+MonoTouch10": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Collections": "",
+        "System.Linq": "",
+        "System.Linq.Expressions": "",
+        "System.Linq.Queryable": "",
+        "System.Text.RegularExpressions": "",
+        "System.Reflection": "",
+        "System.Reflection.Extensions": "",
+        "System.Diagnostics.Debug": "",
+        "System.ObjectModel": "",
+        "System.Threading": "",
+        "System.Runtime": "",
+        "System.Runtime.Extensions": "",
+        "System.Runtime.Serialization.Primitives": "",
+        "System.Runtime.Serialization.Json": "",
+        "System.Runtime.Serialization.Xml": "",
+        "System.Net.Requests": "",
+        "System.Net.Http": ""
+      },
+      "compilationOptions": { "define": [ "PCL", "CORECLR" ] }
+    },
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Runtime.Serialization": "",
+        "System.Xml": "",
+        "System.Data.Linq": "",
+        "System.Configuration": ""
+      },
+      "compilationOptions": { "define": [ "NET45", "CORECLR" ] }
+    },
+    "sl5": {
+      "frameworkAssemblies": {
+        "System": "",
+        "System.Core": "",
+        "mscorlib": "",
+        "System.Runtime.Serialization": "",
+        "System.Net": "",
+        "System.Xml": "",
+        "System.Windows": ""
+      },
+      "compilationOptions": { "define": [ "SL5", "CORECLR" ] }
+    },
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Runtime.Serialization": "",
+        "System.Xml": "",
+        "System.Data.Linq": "",
+        "System.Configuration": ""
+      },
+      "compilationOptions": { "define": [ "DNX451", "CORECLR" ] }
+    }
+  },
+  "configurations": {
+    "PCL": { }
+  }
+}

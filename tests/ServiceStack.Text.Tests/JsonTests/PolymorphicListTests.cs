@@ -502,5 +502,46 @@ namespace ServiceStack.Text.Tests.JsonTests
 	        Assert.IsAssignableFrom<FooTerm>(terms2.First());
 	    }
 
+	    [Test]
+	    public void Serialize_Polymorphic_collection()
+	    {
+	        var dto = new PolymorphicContainer
+	        {
+	            items = new List<PolymorphicBase>
+	            {
+	                new PolymorphicA { id = 1, fieldA = "testingA" },
+	                new PolymorphicB { id = 2, fieldB = "testingB" },
+	            }
+	        };
+
+	        var json = dto.ToJson();
+
+	        var fromJson = json.FromJson<PolymorphicContainer>();
+            //fromJson.PrintDump();
+
+            Assert.That(fromJson.items.Count, Is.EqualTo(2));
+            Assert.That(((PolymorphicB)fromJson.items[1]).fieldB, Is.EqualTo("testingB"));
+	    }
 	}
+
+    public abstract class PolymorphicBase
+    {
+        public int id { get; set; }
+    }
+
+    public class PolymorphicA : PolymorphicBase
+    {
+        public string fieldA { get; set; }
+    }
+
+    public class PolymorphicB : PolymorphicBase
+    {
+        public string fieldB { get; set; }
+    }
+
+    public class PolymorphicContainer
+    {
+        public List<PolymorphicBase> items { get; set; }
+    }
+
 }

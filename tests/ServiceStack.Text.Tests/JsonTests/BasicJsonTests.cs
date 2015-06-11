@@ -519,10 +519,32 @@ namespace ServiceStack.Text.Tests.JsonTests
         [DataContract]
         class ModelWithDataMemberField
         {
+            public ModelWithDataMemberField() {}
+
+            public ModelWithDataMemberField(string privateField, string privateProperty)
+            {
+                PrivateField = privateField;
+                PrivateProperty = privateProperty;
+            }
+
             [DataMember]
             public int Id;
             [DataMember]
             public string Name { get; set; }
+            [DataMember]
+            private string PrivateProperty { get; set; }
+            [DataMember] 
+            private string PrivateField;
+
+            public string GetPrivateProperty()
+            {
+                return PrivateProperty;
+            }
+
+            public string GetPrivateField()
+            {
+                return PrivateField;
+            }
         }
 
         [Test]
@@ -536,6 +558,18 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.That(person.ToJsv().FromJsv<ModelWithDataMemberField>().Id, Is.EqualTo(1));
             Assert.That(person.ToJson().FromJson<ModelWithDataMemberField>().Id, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Explicit_DataMember_attribute_serializers_private_properties_and_fields()
+        {
+            var person = new ModelWithDataMemberField("field", "property");
+
+            Assert.That(person.ToJsv().FromJsv<ModelWithDataMemberField>().GetPrivateField(), Is.EqualTo("field"));
+            Assert.That(person.ToJson().FromJson<ModelWithDataMemberField>().GetPrivateField(), Is.EqualTo("field"));
+
+            Assert.That(person.ToJsv().FromJsv<ModelWithDataMemberField>().GetPrivateProperty(), Is.EqualTo("property"));
+            Assert.That(person.ToJson().FromJson<ModelWithDataMemberField>().GetPrivateProperty(), Is.EqualTo("property"));
         }
 
         [Test]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels.DataModel;
 
@@ -414,7 +415,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialise_null_values_from_dictionary_correctly()
         {
-            JsConfig.IncludeNullValues = true;
+            JsConfig.IncludeNullValues = false;
+            JsConfig.IncludeNullValuesInDictionaries = true;
             var dictionary = new Dictionary<string, object> { { "value", null } };
 
             Serialize(dictionary, includeXml: false);
@@ -429,7 +431,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Will_ignore_null_values_from_dictionary_correctly()
         {
-            JsConfig.IncludeNullValues = false;
+            JsConfig.IncludeNullValues = true;
+            JsConfig.IncludeNullValuesInDictionaries = false;
             var dictionary = new Dictionary<string, string> { { "value", null } };
 
             Serialize(dictionary, includeXml: false);
@@ -592,6 +595,68 @@ namespace ServiceStack.Text.Tests
             Assert.That(deserialized["Key2"], Is.EqualTo(2));
             Assert.That(deserialized[2], Is.EqualTo("Value3"));
             Assert.That(deserialized["Key4"], Is.EqualTo(false));
+        }
+
+        [Test]
+        public void Can_recover_from_exceptions_when_serializing_dictionary_keys()
+        {
+            var before = JsConfig<int>.SerializeFn;
+            try
+            {
+                JsConfig<int>.SerializeFn = v =>
+                {
+                    throw new Exception("Boom!");
+                };
+                var target = new Dictionary<int, string>
+                {
+                    { 1, "1" },
+                };
+                Assert.Throws<Exception>(() => JsonSerializer.SerializeToString(target));
+            }
+            finally
+            {
+                JsConfig<int>.SerializeFn = before;
+            }
+            var json = JsonSerializer.SerializeToString(new ModelWithDictionary());
+
+            json.Print();
+
+            Assert.That(json.StartsWith("{"));
+        }
+
+        private class ModelWithDictionary
+        {
+            public Dictionary<string, string> Value { get; set; }
+        }
+
+        [Test]
+        public void Do_not_convert_Guids()
+        {
+            JsConfig.DateHandler = DateHandler.ISO8601;
+            JsConfig.AlwaysUseUtc = true;
+            JsConfig.TryToParsePrimitiveTypeValues = true;  // needed for datetime
+
+            var isGuidRegex = 
+              new Regex(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", RegexOptions.Compiled);
+
+            JsConfig.ParsePrimitiveFn = s => isGuidRegex.IsMatch(s) ? s : null;
+
+            var original = new Dictionary<string, object>
+               {
+                   {"GuidString", "6A3F0923-A4B8-4026-9982-5C79128EA128"},
+                   {"DateTime", DateTime.UtcNow}
+               };
+
+            var json = JsonSerializer.SerializeToString(original);
+
+            json.Print();
+
+            var deserialized = JsonSerializer.DeserializeFromString<Dictionary<string, object>>(json);
+
+            Assert.That(deserialized["GuidString"], Is.EqualTo("6A3F0923-A4B8-4026-9982-5C79128EA128"));
+            Assert.That(deserialized["DateTime"], Is.AssignableTo(typeof(DateTime)));
+
+            JsConfig.Reset();
         }
     }
 
