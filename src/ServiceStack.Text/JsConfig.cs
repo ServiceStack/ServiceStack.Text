@@ -717,6 +717,7 @@ namespace ServiceStack.Text
         public static string[] IgnoreAttributesNamed
         {
             set { ReflectionExtensions.IgnoreAttributesNamed = value; }
+            get { return ReflectionExtensions.IgnoreAttributesNamed; }
         }
 
         public static void Reset()

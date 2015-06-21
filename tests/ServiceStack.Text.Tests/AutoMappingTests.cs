@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+using System.Web.Script.Serialization;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels;
 
@@ -549,6 +550,9 @@ namespace ServiceStack.Text.Tests
 
             [JsonIgnore]
             public int JsonIgnoreId { get; set; }
+
+            [ScriptIgnore]
+            public int ScriptIgnoreId { get; set; }
         }
 
         //Matches JSON.NET's [JsonIgnore] by name
@@ -557,13 +561,13 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_change_ignored_properties()
         {
-            var dto = new IgnoredModel();
+            JsConfig.IgnoreAttributesNamed = JsConfig.IgnoreAttributesNamed.NewArray(
+                with: typeof(ScriptIgnoreAttribute).Name,
+                without: typeof(JsonIgnoreAttribute).Name);
 
-            JsConfig.IgnoreAttributesNamed = new[] {
-                typeof(IgnoreDataMemberAttribute).Name //i.e. Remove [JsonIgnore] 
-            };
+            var dto = new IgnoredModel { JsonIgnoreId = 1, ScriptIgnoreId = 2 };
 
-            Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":0,\"JsonIgnoreId\":0}"));
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":0,\"JsonIgnoreId\":1}"));
         }
     }
 
