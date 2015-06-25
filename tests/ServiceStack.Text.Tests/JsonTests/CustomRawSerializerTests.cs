@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
@@ -11,7 +12,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             JsConfig.Reset();
         }
-        
+
         public class RealType
         {
             public string Name { get; set; }
@@ -173,7 +174,8 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig<OuterType>.RawDeserializeFn = str =>
             {
                 var d = str.FromJson<InnerType>();
-                return new OuterType {
+                return new OuterType
+                {
                     P1 = d
                 };
             };
@@ -190,6 +192,31 @@ namespace ServiceStack.Text.Tests.JsonTests
             var outer = json.FromJson<OuterType>();
             Assert.That(outer.P1.A, Is.EqualTo("Hello"));
             Assert.That(outer.P1.B, Is.EqualTo("World"));
+        }
+
+        public class Response
+        {
+            public DateTime DateTime { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_custom_DateTime()
+        {
+            JsConfig<DateTime>.RawSerializeFn = time =>
+            {
+                var result = time;
+                if (time.Kind == DateTimeKind.Unspecified)
+                {
+                    result = DateTime.SpecifyKind(result, DateTimeKind.Local);
+                }
+                return result.ToString(CultureInfo.InvariantCulture);
+            };
+
+            var dto = new Response { DateTime = new DateTime(2001, 1, 1, 1, 1, 1) };
+
+            var csv = dto.ToCsv();
+
+            Assert.That(csv, Is.EqualTo("DateTime\r\n\"01/01/2001 01:01:01\"\r\n"));
         }
     }
 
@@ -212,7 +239,8 @@ namespace ServiceStack.Text.Tests.JsonTests
         public static InnerType Deserialize(string s)
         {
             var p = s.Split('-');
-            return new InnerType {
+            return new InnerType
+            {
                 A = p[0],
                 B = p[1]
             };
