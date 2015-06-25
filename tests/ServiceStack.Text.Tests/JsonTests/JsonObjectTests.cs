@@ -30,22 +30,28 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_Serialize_numbers()
         {
             string notNumber = "{\"field\":\"00001\"}";
-            Assert.AreEqual(notNumber, JsonObject.Parse(notNumber).ToJson<JsonObject>());
+            Assert.That(JsonObject.Parse(notNumber).ToJson(), Is.EqualTo(notNumber));
 
             string num1 = "{\"field\":0}";
-            Assert.AreEqual(num1, JsonObject.Parse(num1).ToJson<JsonObject>());
+            Assert.That(JsonObject.Parse(num1).ToJson(), Is.EqualTo(num1));
 
             string num2 = "{\"field\":0.5}";
-            Assert.AreEqual(num2, JsonObject.Parse(num2).ToJson<JsonObject>());
+            Assert.That(JsonObject.Parse(num2).ToJson(), Is.EqualTo(num2));
 
             string num3 = "{\"field\":.5}";
-            Assert.AreEqual(num3, JsonObject.Parse(num3).ToJson<JsonObject>());
+            Assert.That(JsonObject.Parse(num3).ToJson(), Is.EqualTo(num3));
 
             string num4 = "{\"field\":12312}";
-            Assert.AreEqual(num4, JsonObject.Parse(num4).ToJson<JsonObject>());
+            Assert.That(JsonObject.Parse(num4).ToJson(), Is.EqualTo(num4));
 
             string num5 = "{\"field\":12312.1231}";
-            Assert.AreEqual(num5, JsonObject.Parse(num5).ToJson<JsonObject>());
+            Assert.That(JsonObject.Parse(num5).ToJson(), Is.EqualTo(num5));
+
+            string num6 = "{\"field\":1435252569117}";
+            Assert.That(JsonObject.Parse(num6).ToJson(), Is.EqualTo(num6));
+
+            string num7 = "{\"field\":1435052569117}";
+            Assert.That(JsonObject.Parse(num7).ToJson(), Is.EqualTo(num7));
         }
 
         public class Jackalope
@@ -279,6 +285,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(fromJson.value1, Is.EqualTo(simple.value1));
             Assert.That(fromJson.value2, Is.EqualTo(simple.value2));
         }
+
         [Test]
         public void Can_Serialize_NestedJsonValueDto()
         {
