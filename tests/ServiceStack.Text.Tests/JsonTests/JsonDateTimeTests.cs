@@ -508,7 +508,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var offsetSpan = TimeZoneInfo.Local.GetUtcOffset(dateTime);
             var offset = offsetSpan.ToTimeOffsetString(":");
 
-            Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 17:34:56 GMT""")); //Convert to UTC on wire
+            Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 04:34:56 GMT""")); //Convert to UTC on wire
             JsConfig.Reset();
         }
 
@@ -520,7 +520,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
             var ssJson = JsonSerializer.SerializeToString(dateTime);
 
-            Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 17:34:56 GMT""")); //Convert to UTC on wire
+            Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 04:34:56 GMT""")); //Convert to UTC on wire
             JsConfig.Reset();
         }
 

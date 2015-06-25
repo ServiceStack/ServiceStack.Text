@@ -219,6 +219,9 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             var json = dto.ToJson();
             Assert.That(json, Is.EqualTo("{\"DateTime\":\"01/01/2001 01:01:01\"}"));
+
+            JsConfig<DateTime>.SerializeFn = null;
+            JsConfig.Reset();
         }
     }
 
