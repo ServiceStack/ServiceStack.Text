@@ -541,6 +541,15 @@ namespace ServiceStack
             return String.IsNullOrEmpty(html) ? null : StripHtmlRegEx.Replace(html, "");
         }
 
+        public static string StripQuotes(this string text)
+        {
+            return string.IsNullOrEmpty(text) || text.Length < 2
+                ? text
+                : text[0] == '"' && text[text.Length - 1] == '"'
+                    ? text.Substring(1, text.Length - 2)
+                    : text;
+        }
+
         static readonly Regex StripBracketsRegEx = new Regex(@"\[(.|\n)*?\]", PclExport.Instance.RegexOptions);
         static readonly Regex StripBracesRegEx = new Regex(@"\((.|\n)*?\)", PclExport.Instance.RegexOptions);
 

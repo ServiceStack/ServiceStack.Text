@@ -271,9 +271,9 @@ namespace ServiceStack.Text
                     var propertyGetter = PropertyGetters[i];
                     var value = propertyGetter(record) ?? "";
 
-                    var strValue = value.GetType() == typeof(string)
+                    var strValue = value is string
                        ? (string)value
-                       : TypeSerializer.SerializeToString(value);
+                       : TypeSerializer.SerializeToString(value).StripQuotes();
 
                     row[i] = strValue;
                 }

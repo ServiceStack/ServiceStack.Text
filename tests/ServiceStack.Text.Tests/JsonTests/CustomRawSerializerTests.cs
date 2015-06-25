@@ -202,7 +202,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_custom_DateTime()
         {
-            JsConfig<DateTime>.RawSerializeFn = time =>
+            JsConfig<DateTime>.SerializeFn = time =>
             {
                 var result = time;
                 if (time.Kind == DateTimeKind.Unspecified)
@@ -215,8 +215,10 @@ namespace ServiceStack.Text.Tests.JsonTests
             var dto = new Response { DateTime = new DateTime(2001, 1, 1, 1, 1, 1) };
 
             var csv = dto.ToCsv();
-
             Assert.That(csv, Is.EqualTo("DateTime\r\n01/01/2001 01:01:01\r\n"));
+
+            var json = dto.ToJson();
+            Assert.That(json, Is.EqualTo("{\"DateTime\":\"01/01/2001 01:01:01\"}"));
         }
     }
 
