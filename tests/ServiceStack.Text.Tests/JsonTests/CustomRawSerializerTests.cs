@@ -216,7 +216,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             var csv = dto.ToCsv();
 
-            Assert.That(csv, Is.EqualTo("DateTime\r\n\"01/01/2001 01:01:01\"\r\n"));
+            Assert.That(csv, Is.EqualTo("DateTime\r\n01/01/2001 01:01:01\r\n"));
         }
     }
 
