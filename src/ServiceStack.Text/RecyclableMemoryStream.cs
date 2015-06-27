@@ -943,10 +943,10 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                     base.Dispose(disposing);
                     return;
                 }
+#endif
 
                 this.memoryManager.ReportStreamFinalized();
             }
-#endif
 
             this.memoryManager.ReportStreamLength(this.length);
 
