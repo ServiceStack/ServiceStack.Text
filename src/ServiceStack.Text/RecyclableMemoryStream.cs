@@ -934,6 +934,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
                 Events.Write.MemoryStreamFinalized(this.id, this.tag, this.allocationStack);
 
+#if !PCL
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
@@ -945,6 +946,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
                 this.memoryManager.ReportStreamFinalized();
             }
+#endif
 
             this.memoryManager.ReportStreamLength(this.length);
 
