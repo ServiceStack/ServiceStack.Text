@@ -37,7 +37,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
     public static class MemoryStreamFactory
     {
         public static bool UseRecyclableMemoryStream { get; set; }
-        public static bool MuteDuplicateDisposeExceptions { get; set; }
 
 #if !SL5
         public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
@@ -722,7 +721,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
     /// leads to continual memory growth as each stream approaches the maximum allowed size.
     /// 3. Memory copying - Each time a MemoryStream grows, all the bytes are copied into new buffers.
     /// This implementation only copies the bytes when GetBuffer is called.
-    /// 4. Memory fragmentation - By using homogenous buffer sizes, it ensures that blocks of memory
+    /// 4. Memory fragmentation - By using homogeneous buffer sizes, it ensures that blocks of memory
     /// can be easily reused.
     /// 
     /// The stream is implemented on top of a series of uniformly-sized blocks. As the stream's length grows,
@@ -822,9 +821,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// </summary>
         /// <param name="memoryManager">The memory manager</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
-            : this(memoryManager, null)
+            : this(memoryManager, null, 0, null)
         {
-
         }
 
         /// <summary>
@@ -833,9 +831,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <param name="memoryManager">The memory manager</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
-            : this(memoryManager, tag, 0)
+            : this(memoryManager, tag, 0, null)
         {
-
         }
 
         /// <summary>
@@ -890,7 +887,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         #endregion
 
         #region Dispose and Finalize
-
         ~RecyclableMemoryStream()
         {
             this.Dispose(false);
@@ -913,10 +909,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 }
 
                 Events.Write.MemoryStreamDoubleDispose(this.id, this.tag, this.allocationStack, this.disposeStack, doubleDisposeStack);
-                if (MemoryStreamFactory.MuteDuplicateDisposeExceptions)
-                    return;
-
-                throw new InvalidOperationException("Cannot dispose of RecyclableMemoryStream twice");
+                return;
             }
 
             Events.Write.MemoryStreamDisposed(this.id, this.tag);
@@ -941,7 +934,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
                 Events.Write.MemoryStreamFinalized(this.id, this.tag, this.allocationStack);
 
-#if !PCL
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
@@ -950,7 +942,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                     base.Dispose(disposing);
                     return;
                 }
-#endif
 
                 this.memoryManager.ReportStreamFinalized();
             }
@@ -986,7 +977,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         {
             this.Dispose(true);
         }
-
         #endregion
 
         #region MemoryStream overrides
@@ -1016,7 +1006,11 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 }
                 return 0;
             }
-            set { this.EnsureCapacity(value); }
+            set
+            {
+                this.CheckDisposed();
+                this.EnsureCapacity(value);
+            }
         }
 
         private int length;
@@ -1049,6 +1043,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             }
             set
             {
+                this.CheckDisposed();
                 if (value < 0)
                 {
                     throw new ArgumentOutOfRangeException("value", "value must be non-negative");
@@ -1125,7 +1120,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             // it's possible that people will manipulate the buffer directly
             // and set the length afterward. Capacity sets the expectation
             // for the size of the buffer.
-            var newBuffer = this.MemoryManager.GetLargeBuffer(this.Capacity, this.tag);
+            var newBuffer = this.memoryManager.GetLargeBuffer(this.Capacity, this.tag);
 
             // InternalRead will check for existence of largeBuffer, so make sure we
             // don't set it until after we've copied the data.
@@ -1147,6 +1142,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// for the sake of completeness.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
         {
             this.CheckDisposed();
@@ -1232,53 +1228,49 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 throw new ArgumentException("count must be greater than buffer.Length - offset");
             }
 
+            int blockSize = this.memoryManager.BlockSize;
+            long end = (long)this.position + count;
             // Check for overflow
-            if (this.Position + count > MaxStreamLength)
+            if (end > MaxStreamLength)
             {
                 throw new IOException("Maximum capacity exceeded");
             }
 
-            int end = (int)this.Position + count;
-
-            int blockSize = this.memoryManager.BlockSize;
-
-            int requiredBuffers = (end + blockSize - 1) / blockSize;
+            long requiredBuffers = (end + blockSize - 1) / blockSize;
 
             if (requiredBuffers * blockSize > MaxStreamLength)
             {
                 throw new IOException("Maximum capacity exceeded");
             }
 
-            EnsureCapacity(end);
+            this.EnsureCapacity((int)end);
 
             if (this.largeBuffer == null)
             {
                 int bytesRemaining = count;
                 int bytesWritten = 0;
-                int currentBlockIndex = this.OffsetToBlockIndex(this.position);
-
-                int blockOffset = this.OffsetToBlockOffset(this.position);
+                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
 
                 while (bytesRemaining > 0)
                 {
-                    byte[] currentBlock = this.blocks[currentBlockIndex];
-                    int remainingInBlock = blockSize - blockOffset;
+                    byte[] currentBlock = this.blocks[blockAndOffset.Block];
+                    int remainingInBlock = blockSize - blockAndOffset.Offset;
                     int amountToWriteInBlock = Math.Min(remainingInBlock, bytesRemaining);
 
-                    Buffer.BlockCopy(buffer, offset + bytesWritten, currentBlock, blockOffset, amountToWriteInBlock);
+                    Buffer.BlockCopy(buffer, offset + bytesWritten, currentBlock, blockAndOffset.Offset, amountToWriteInBlock);
 
                     bytesRemaining -= amountToWriteInBlock;
                     bytesWritten += amountToWriteInBlock;
 
-                    currentBlockIndex++;
-                    blockOffset = 0;
+                    ++blockAndOffset.Block;
+                    blockAndOffset.Offset = 0;
                 }
             }
             else
             {
                 Buffer.BlockCopy(buffer, offset, this.largeBuffer, this.position, count);
             }
-            this.Position = end;
+            this.position = (int)end;
             this.length = Math.Max(this.position, this.length);
         }
 
@@ -1297,7 +1289,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override void WriteByte(byte value)
         {
-            CheckDisposed();
+            this.CheckDisposed();
             this.byteBuffer[0] = value;
             this.Write(this.byteBuffer, 0, 1);
         }
@@ -1317,9 +1309,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             byte value = 0;
             if (this.largeBuffer == null)
             {
-                int block = OffsetToBlockIndex(this.position);
-                int blockOffset = OffsetToBlockOffset(this.position);
-                value = this.blocks[block][blockOffset];
+                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                value = this.blocks[blockAndOffset.Block][blockAndOffset.Offset];
             }
             else
             {
@@ -1399,6 +1390,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <remarks>Important: This does a synchronous write, which may not be desired in some situations</remarks>
         public override void WriteTo(Stream stream)
         {
+            this.CheckDisposed();
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
@@ -1427,7 +1419,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         #endregion
 
         #region Helper Methods
-
         private void CheckDisposed()
         {
             if (this.disposed)
@@ -1444,21 +1435,20 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             }
             if (this.largeBuffer == null)
             {
-                int currentBlock = this.OffsetToBlockIndex(fromPosition);
+                var blockAndOffset = this.GetBlockAndRelativeOffset(fromPosition);
                 int bytesWritten = 0;
                 int bytesRemaining = Math.Min(count, this.length - fromPosition);
-                int blockOffset = this.OffsetToBlockOffset(fromPosition);
 
                 while (bytesRemaining > 0)
                 {
-                    int amountToCopy = Math.Min(this.blocks[currentBlock].Length - blockOffset, bytesRemaining);
-                    Buffer.BlockCopy(this.blocks[currentBlock], blockOffset, buffer, bytesWritten + offset, amountToCopy);
+                    int amountToCopy = Math.Min(this.blocks[blockAndOffset.Block].Length - blockAndOffset.Offset, bytesRemaining);
+                    Buffer.BlockCopy(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, buffer, bytesWritten + offset, amountToCopy);
 
                     bytesWritten += amountToCopy;
                     bytesRemaining -= amountToCopy;
 
-                    ++currentBlock;
-                    blockOffset = 0;
+                    ++blockAndOffset.Block;
+                    blockAndOffset.Offset = 0;
                 }
                 return bytesWritten;
             }
@@ -1470,14 +1460,22 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             }
         }
 
-        private int OffsetToBlockIndex(int offset)
+        private struct BlockAndOffset
         {
-            return offset / this.memoryManager.BlockSize;
+            public int Block;
+            public int Offset;
+
+            public BlockAndOffset(int block, int offset)
+            {
+                this.Block = block;
+                this.Offset = offset;
+            }
         }
 
-        private int OffsetToBlockOffset(int offset)
+        private BlockAndOffset GetBlockAndRelativeOffset(int offset)
         {
-            return offset % this.memoryManager.BlockSize;
+            var blockSize = this.memoryManager.BlockSize;
+            return new BlockAndOffset(offset / blockSize, offset % blockSize);
         }
 
         private void EnsureCapacity(int newCapacity)
@@ -1502,7 +1500,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             {
                 while (this.Capacity < newCapacity)
                 {
-                    blocks.Add((this.MemoryManager.GetBlock()));
+                    blocks.Add((this.memoryManager.GetBlock()));
                 }
             }
         }
