@@ -81,6 +81,13 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(response.Values, Has.Count.EqualTo(9));
 		}
-		
+
+	    [Test]
+	    public void Does_Combine_Byte()
+	    {
+	        var wordBytes = "HELLO".ToUtf8Bytes().Combine(" ".ToUtf8Bytes(), "WORLD".ToUtf8Bytes());
+	        var word = wordBytes.FromUtf8Bytes();
+            Assert.That(word, Is.EqualTo("HELLO WORLD"));
+	    }
 	}
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ServiceStack.Text;
 
@@ -246,7 +247,7 @@ namespace ServiceStack
 
         public static string CollapseWhitespace(this string str)
         {
-            if (str == null) 
+            if (str == null)
                 return null;
 
             var sb = new StringBuilder();
@@ -266,6 +267,23 @@ namespace ServiceStack
             }
 
             return sb.ToString();
+        }
+
+        public static byte[] Combine(this byte[] bytes, params byte[][] withBytes)
+        {
+            var combinedLength = bytes.Length + withBytes.Sum(b => b.Length);
+            var to = new byte[combinedLength];
+
+            Buffer.BlockCopy(bytes, 0, to, 0, bytes.Length);
+            var pos = bytes.Length;
+
+            foreach (var b in withBytes)
+            {
+                Buffer.BlockCopy(b, 0, to, pos, b.Length);
+                pos += b.Length;
+            }
+
+            return to;
         }
     }
 }
