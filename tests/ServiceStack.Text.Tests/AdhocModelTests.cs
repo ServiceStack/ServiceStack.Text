@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Runtime.Serialization;
 using System.Xml;
 using NUnit.Framework;
+using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text.Tests
@@ -774,6 +775,27 @@ namespace ServiceStack.Text.Tests
             Assert.IsNotNull(from.Blah);
             Assert.AreEqual(dto.Blah.Count, from.Blah.Count);
             from.PrintDump();
+        }
+
+        [Test]
+        public void Can_parse_different_3_part_date_formats()
+        {
+            Assert.That("28/06/2015".FromJsv<DateTime>().ToLongDateString(),
+                Is.EqualTo("Sunday, June 28, 2015"));
+
+            Assert.That("6/28/2015".FromJsv<DateTime>().ToLongDateString(),
+                Is.EqualTo("Sunday, June 28, 2015"));
+
+            DateTimeSerializer.OnParseErrorFn = (s, ex) =>
+            {
+                var parts = s.Split('/');
+                return new DateTime(int.Parse(parts[2]), int.Parse(parts[0]), int.Parse(parts[1]));
+            };
+
+            Assert.That("06/28/2015".FromJsv<DateTime>().ToLongDateString(),
+                Is.EqualTo("Sunday, June 28, 2015"));
+
+            DateTimeSerializer.OnParseErrorFn = null;
         }
     }
 }
