@@ -62,5 +62,15 @@ namespace ServiceStack
 
             return to.ToArray();
         }
+
+        public static List<T> InList<T>(this T value)
+        {
+            return new List<T> { value };
+        }
+
+        public static T[] InArray<T>(this T value)
+        {
+            return new[] { value };
+        }
     }
 }
