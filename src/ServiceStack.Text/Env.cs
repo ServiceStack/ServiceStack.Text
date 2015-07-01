@@ -47,8 +47,12 @@ namespace ServiceStack.Text
                 + platformName
                 + (IsMono ? "/Mono" : "/.NET");
 
+            VersionString = ServiceStackVersion.ToString();
+
             __releaseDate = DateTime.Parse("2001-01-01");
         }
+
+        public static string VersionString { get; set; }
 
         public static decimal ServiceStackVersion = 4.00m;
 
