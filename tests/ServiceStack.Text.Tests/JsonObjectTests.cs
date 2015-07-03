@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
@@ -112,6 +113,20 @@ namespace ServiceStack.Text.Tests
             var proj3Name = projects[2].Get("name");
 
             Assert.That(proj3Name, Is.EqualTo("Project3"));
+        }
+
+        [Test]
+        public void Can_deserialize_JSON_Object()
+        {
+            var json = "{\"http://SomeUrl.com/\":{\"http://otherUrl.org/schema#name\":[{\"value\":\"val1\",\"type\":\"val2\"}]}}";
+
+            var obj = JsonObject.Parse(json)
+                .Object("http://SomeUrl.com/");
+
+            var items = obj.ArrayObjects("http://otherUrl.org/schema#name")[0];
+
+            Assert.That(items["value"], Is.EqualTo("val1"));
+            Assert.That(items["type"], Is.EqualTo("val2"));
         }
     }
 }
