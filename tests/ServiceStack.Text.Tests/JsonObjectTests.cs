@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -127,6 +128,43 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(items["value"], Is.EqualTo("val1"));
             Assert.That(items["type"], Is.EqualTo("val2"));
+        }
+
+        public class Customer
+        {
+            public static List<object> Setters = new List<object>();
+
+            private string name;
+            private int age;
+            private string address;
+
+            public string Name
+            {
+                get { return name; }
+                set { name = value; Setters.Add(value); }
+            }
+
+            public int Age
+            {
+                get { return age; }
+                set { age = value; Setters.Add(value); }
+            }
+
+            public string Address
+            {
+                get { return address; }
+                set { address = value; Setters.Add(value); }
+            }
+        }
+
+        [Test]
+        public void Only_sets_Setters_with_JSON()
+        {
+            var dto = "{\"Name\":\"Foo\"}".FromJson<Customer>();
+
+            Assert.That(dto.Name, Is.EqualTo("Foo"));
+            Assert.That(Customer.Setters.Count, Is.EqualTo(1));
+            Assert.That(Customer.Setters[0], Is.EqualTo(dto.Name));
         }
     }
 }
