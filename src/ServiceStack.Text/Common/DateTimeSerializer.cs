@@ -82,12 +82,21 @@ namespace ServiceStack.Text.Common
                 if (dateTimeStr.StartsWith(EscapedWcfJsonPrefix, StringComparison.Ordinal) || dateTimeStr.StartsWith(WcfJsonPrefix, StringComparison.Ordinal))
                     return ParseWcfJsonDate(dateTimeStr).Prepare();
 
-                if (dateTimeStr.Length == DefaultDateTimeFormat.Length
-                    || dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
+                if (dateTimeStr.Length == DefaultDateTimeFormat.Length)
                 {
                     var unspecifiedDate = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
+
                     if (JsConfig.AssumeUtc)
                         unspecifiedDate = DateTime.SpecifyKind(unspecifiedDate, DateTimeKind.Utc);
+
+                    return unspecifiedDate.Prepare();
+                }
+
+                if (dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
+                {
+                    var unspecifiedDate = JsConfig.AssumeUtc    
+                        ? DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+                        : DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
 
                     return unspecifiedDate.Prepare();
                 }

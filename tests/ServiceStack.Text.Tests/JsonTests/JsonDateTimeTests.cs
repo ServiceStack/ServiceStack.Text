@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
@@ -139,6 +140,23 @@ namespace ServiceStack.Text.Tests.JsonTests
             var ssJson = JsonSerializer.SerializeToString(dateTime);
             Assert.That(ssJson, Is.EqualTo(@"""\/Date(1371239017663+0000)\/"""));
             
+            JsConfig.Reset();
+        }
+        
+        [Test]
+        public void ParseShortestXsdDateTime_TwoDateTimesWithDifferentPrecision_ReturnsSameParsedDateTime()
+        {
+            JsConfig.AssumeUtc = true;
+            JsConfig.AlwaysUseUtc = true;
+
+            const string noDecimalPoint = "1979-05-09T00:00:01Z";
+            const string twoDecimalPoints = "1979-05-09T00:00:01.00Z";
+
+            var dateTimeWithNoDecimalPoint = DateTimeSerializer.ParseShortestXsdDateTime(noDecimalPoint);
+            var dateTimeWithTwoDecimalPoints = DateTimeSerializer.ParseShortestXsdDateTime(twoDecimalPoints);
+
+            Assert.That(dateTimeWithNoDecimalPoint, Is.EqualTo(dateTimeWithTwoDecimalPoints));
+
             JsConfig.Reset();
         }
 
