@@ -91,7 +91,8 @@ namespace ServiceStack.Text.Tests
             Assert.That(methodWithArgs.Dump(), Is.EqualTo("String MethodWithArgs(Int32 arg1, String arg2)"));
 
             Action x = () => { };
-            Assert.That(x.Dump(), Is.EqualTo("Void <Does_dump_delegate_info>b__4()"));
+            Assert.That(x.Dump(), Is.EqualTo("Void <Does_dump_delegate_info>b__4()")      //VS 2012
+                                 .Or.EqualTo("Void <Does_dump_delegate_info>b__10_0()")); //VS 2015
         }
 
 
