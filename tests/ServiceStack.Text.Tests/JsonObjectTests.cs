@@ -166,5 +166,56 @@ namespace ServiceStack.Text.Tests
             Assert.That(Customer.Setters.Count, Is.EqualTo(1));
             Assert.That(Customer.Setters[0], Is.EqualTo(dto.Name));
         }
+
+        public class TypeObject
+        {
+            public string Prop1 { get; set; }
+            public int Prop2 { get; set; }
+            public bool Prop3 { get; set; }
+            public double Prop4 { get; set; }
+            public string[] Prop5 { get; set; }
+            public Dictionary<string,string> Prop6 { get; set; }
+        }
+
+        [Test]
+        public void Can_parse_dynamic_json()
+        {
+            var json = @"{
+              ""prop1"": ""text string"",
+              ""prop2"": 33,
+              ""prop3"": true,
+              ""prop4"": 6.3,
+              ""prop5"": [ ""A"", ""B"", ""C"" ],
+              ""prop6"": { ""A"" : ""a"" }
+            }";
+
+            var typeObj = json.FromJson<TypeObject>();
+
+            Assert.That(typeObj.Prop1, Is.EqualTo("text string"));
+            Assert.That(typeObj.Prop2, Is.EqualTo(33));
+            Assert.That(typeObj.Prop3, Is.EqualTo(true));
+            Assert.That(typeObj.Prop4, Is.EqualTo(6.3d));
+            Assert.That(typeObj.Prop5, Is.EquivalentTo(new[] {"A","B","C"}));
+            Assert.That(typeObj.Prop6, Is.EquivalentTo(new Dictionary<string,string> { { "A", "a" } }));
+
+            var obj = JsonObject.Parse(json);
+
+            var o = new TypeObject
+            {
+                Prop1 = obj["prop1"],
+                Prop2 = obj.Get<int>("prop2"),
+                Prop3 = obj.Get<bool>("prop3"),
+                Prop4 = obj.Get<double>("prop4"),
+                Prop5 = obj.Get<string[]>("prop5"),
+                Prop6 = obj.Object("prop6"),
+            };
+
+            Assert.That(o.Prop1, Is.EqualTo("text string"));
+            Assert.That(o.Prop2, Is.EqualTo(33));
+            Assert.That(o.Prop3, Is.EqualTo(true));
+            Assert.That(o.Prop4, Is.EqualTo(6.3d));
+            Assert.That(o.Prop5, Is.EquivalentTo(new[] { "A", "B", "C" }));
+            Assert.That(o.Prop6, Is.EquivalentTo(new Dictionary<string, string> { { "A", "a" } }));
+        }
     }
 }
