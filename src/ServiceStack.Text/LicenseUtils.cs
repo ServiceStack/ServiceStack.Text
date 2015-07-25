@@ -399,6 +399,7 @@ namespace ServiceStack
                 "ServiceStack.HttpClient.dll",
                 "ServiceStack.Client.dll",
                 "ServiceStack.RabbitMq.dll",
+                "ServiceStack.Aws.dll",
                 "<Unknown>"
             };
         }
