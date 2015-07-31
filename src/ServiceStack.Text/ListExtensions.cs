@@ -72,5 +72,11 @@ namespace ServiceStack
         {
             return new[] { value };
         }
+
+        public static List<Type> Add<T>(this List<Type> types)
+        {
+            types.Add(typeof(T));
+            return types;
+        } 
     }
 }
