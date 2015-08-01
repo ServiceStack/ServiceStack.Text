@@ -569,6 +569,30 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":0,\"JsonIgnoreId\":1}"));
         }
+
+        [Test]
+        public void Does_convert_to_ValueType()
+        {
+            Assert.That("1".ConvertTo(typeof(int)), Is.EqualTo(1));
+            Assert.That("1".ConvertTo(typeof(long)), Is.EqualTo(1L));
+            Assert.That("1.1".ConvertTo(typeof(float)), Is.EqualTo(1.1f));
+            Assert.That("1.1".ConvertTo(typeof(double)), Is.EqualTo(1.1d));
+            Assert.That("1.1".ConvertTo(typeof(decimal)), Is.EqualTo(1.1M));
+
+            Assert.That("2001-01-01".ConvertTo<DateTime>(), Is.EqualTo(new DateTime(2001, 01, 01)));
+        }
+
+        [Test]
+        public void Does_convert_from_ValueType_to_strings()
+        {
+            Assert.That(1.ConvertTo(typeof(string)), Is.EqualTo("1"));
+            Assert.That(1L.ConvertTo(typeof(string)), Is.EqualTo("1"));
+            Assert.That(1.1f.ConvertTo(typeof(string)), Is.EqualTo("1.1"));
+            Assert.That(1.1d.ConvertTo(typeof(string)), Is.EqualTo("1.1"));
+            Assert.That(1.1M.ConvertTo(typeof(string)), Is.EqualTo("1.1"));
+
+            Assert.That(new DateTime(2001, 01, 01).ConvertTo<string>(), Is.EqualTo("2001-01-01"));
+        }
     }
 
     public class Test

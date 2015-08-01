@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
 using ServiceStack.Text;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack
 {
@@ -24,14 +25,10 @@ namespace ServiceStack
                 return default(T);
 
             if (from.GetType() == typeof(T))
-            {
                 return (T)from;
-            }
 
-            if (from.GetType().IsValueType())
-            {
-                return (T)Convert.ChangeType(from, typeof(T), provider: null);
-            }
+            if (from.GetType().IsValueType() || typeof(T).IsValueType())
+                return (T)ChangeValueType(from, typeof(T));
 
             if (typeof(IEnumerable).IsAssignableFromType(typeof(T)))
             {
@@ -43,6 +40,40 @@ namespace ServiceStack
 
             var to = typeof(T).CreateInstance<T>();
             return to.PopulateWith(from);
+        }
+
+        public static object ConvertTo(this object from, Type type)
+        {
+            if (from == null)
+                return null;
+
+            if (from.GetType() == type)
+                return from;
+
+            if (from.GetType().IsValueType() || type.IsValueType())
+                return ChangeValueType(from, type);
+
+            if (typeof(IEnumerable).IsAssignableFromType(type))
+            {
+                var listResult = TranslateListWithElements.TryTranslateCollections(
+                    from.GetType(), type, from);
+
+                return listResult;
+            }
+
+            var to = type.CreateInstance();
+            return to.PopulateInstance(from);
+        }
+
+        private static object ChangeValueType(object from, Type type)
+        {
+            var strValue = from as string;
+            if (type == typeof(DateTime) && strValue != null)
+                return DateTimeSerializer.ParseShortestXsdDateTime(strValue);
+            if (from is DateTime)
+                return DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)from);
+
+            return Convert.ChangeType(from, type, provider: null);
         }
 
         private static readonly Dictionary<Type, List<string>> TypePropertyNamesMap = new Dictionary<Type, List<string>>();
@@ -262,6 +293,18 @@ namespace ServiceStack
             var assignmentDefinition = GetAssignmentDefinition(to.GetType(), from.GetType());
 
             assignmentDefinition.Populate(to, from);
+
+            return to;
+        }
+
+        public static object PopulateInstance(this object to, object from)
+        {
+            if (to == null || from == null)
+                return null;
+
+            var assignmentDefinition = GetAssignmentDefinition(to.GetType(), from.GetType());
+
+            assignmentDefinition.PopulateWithNonDefaultValues(to, from);
 
             return to;
         }
