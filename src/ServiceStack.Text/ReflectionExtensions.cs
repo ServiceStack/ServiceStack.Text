@@ -1800,7 +1800,7 @@ namespace ServiceStack
                 if (SetValueFn == null)
                     return;
 
-                if (!Type.IsInstanceOfType(value))
+                if (!Type.InstanceOfType(value))
                 {
                     lock (this)
                     {
@@ -1812,7 +1812,7 @@ namespace ServiceStack
                         }
                     }
 
-                    if (ConvertType.IsInstanceOfType(value))
+                    if (ConvertType.InstanceOfType(value))
                     {
                         value = ConvertValueFn(value);
                     }
