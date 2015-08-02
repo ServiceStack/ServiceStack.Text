@@ -585,6 +585,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("1.1".ConvertTo(typeof(decimal)), Is.EqualTo(1.1M));
 
             Assert.That("2001-01-01".ConvertTo<DateTime>(), Is.EqualTo(new DateTime(2001, 01, 01)));
+            Assert.That("98ece8400be4452eb6ad7c3a4404f119".ConvertTo<Guid>(), Is.EqualTo(new Guid("98ece8400be4452eb6ad7c3a4404f119")));
         }
 
         [Test]
@@ -595,8 +596,9 @@ namespace ServiceStack.Text.Tests
             Assert.That(1.1f.ConvertTo(typeof(string)), Is.EqualTo("1.1"));
             Assert.That(1.1d.ConvertTo(typeof(string)), Is.EqualTo("1.1"));
             Assert.That(1.1M.ConvertTo(typeof(string)), Is.EqualTo("1.1"));
-
+            
             Assert.That(new DateTime(2001, 01, 01).ConvertTo<string>(), Is.EqualTo("2001-01-01"));
+            Assert.That(new Guid("98ECE840-0BE4-452E-B6AD-7C3A4404F119").ConvertTo<string>(), Is.EqualTo("98ece8400be4452eb6ad7c3a4404f119"));
         }
 
         [Test]

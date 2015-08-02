@@ -68,10 +68,11 @@ namespace ServiceStack
         private static object ChangeValueType(object from, Type type)
         {
             var strValue = from as string;
-            if (type == typeof(DateTime) && strValue != null)
-                return DateTimeSerializer.ParseShortestXsdDateTime(strValue);
-            if (from is DateTime)
-                return DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)from);
+            if (strValue != null)
+                return TypeSerializer.DeserializeFromString(strValue, type);
+
+            if (type == typeof(string))
+                return from.ToJsv();
 
             return Convert.ChangeType(from, type, provider: null);
         }

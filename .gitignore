@@ -42,6 +42,7 @@ App_Data/
 *.resharper.user
 *.suo
 *.user
+.vs/
 
 NuGet/
 NuGet.Pcl/
