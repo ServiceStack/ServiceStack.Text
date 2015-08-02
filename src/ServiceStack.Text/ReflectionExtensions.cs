@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -706,10 +707,11 @@ namespace ServiceStack
             // else return those properties that are not decorated with IgnoreDataMember
             return readableProperties
                 .Where(prop => prop.AllAttributes()
-                    .All(attr => {
-                            var name = attr.GetType().Name;
-                            return !IgnoreAttributesNamed.Contains(name);
-                        }))
+                    .All(attr =>
+                    {
+                        var name = attr.GetType().Name;
+                        return !IgnoreAttributesNamed.Contains(name);
+                    }))
                 .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.PropertyType))
                 .ToArray();
         }
@@ -1223,7 +1225,7 @@ namespace ServiceStack
             List<Attribute> propertyAttrs;
             return !propertyAttributesMap.TryGetValue(propertyInfo.UniqueKey(), out propertyAttrs)
                 ? new List<Attribute>()
-                : propertyAttrs.Where(x => attrType.IsInstanceOf(x.GetType()) ).ToList();
+                : propertyAttrs.Where(x => attrType.IsInstanceOf(x.GetType())).ToList();
         }
 
         public static object[] AllAttributes(this PropertyInfo propertyInfo)
@@ -1766,27 +1768,144 @@ namespace ServiceStack
             return type.ElementType() ?? type.GetTypeGenericArguments().FirstOrDefault();
         }
 
-        public static Dictionary<string, object> ToObjectDictionary<T>(this T obj)
+        private static readonly ConcurrentDictionary<Type, ObjectDictionaryDefinition> toObjectMapCache =
+            new ConcurrentDictionary<Type, ObjectDictionaryDefinition>();
+
+        internal class ObjectDictionaryDefinition
         {
+            public Type Type;
+            public readonly List<ObjectDictionaryFieldDefinition> Fields = new List<ObjectDictionaryFieldDefinition>();
+            public readonly Dictionary<string, ObjectDictionaryFieldDefinition> FieldsMap = new Dictionary<string, ObjectDictionaryFieldDefinition>();
+
+            public void Add(string name, ObjectDictionaryFieldDefinition fieldDef)
+            {
+                Fields.Add(fieldDef);
+                FieldsMap[name] = fieldDef;
+            }
+        }
+
+        internal class ObjectDictionaryFieldDefinition
+        {
+            public string Name;
+            public Type Type;
+
+            public PropertyGetterDelegate GetValueFn;
+            public PropertySetterDelegate SetValueFn;
+
+            public Type ConvertType;
+            public PropertyGetterDelegate ConvertValueFn;
+
+            public void SetValue(object instance, object value)
+            {
+                if (SetValueFn == null)
+                    return;
+
+                if (!Type.IsInstanceOfType(value))
+                {
+                    lock (this)
+                    {
+                        //Only caches object converter used on first use
+                        if (ConvertType == null)
+                        {
+                            ConvertType = value.GetType();
+                            ConvertValueFn = TypeConverter.CreateTypeConverter(ConvertType, Type);
+                        }
+                    }
+
+                    if (ConvertType.IsInstanceOfType(value))
+                    {
+                        value = ConvertValueFn(value);
+                    }
+                    else
+                    {
+                        var tempConvertFn = TypeConverter.CreateTypeConverter(value.GetType(), Type);
+                        value = tempConvertFn(value);
+                    }
+                }
+
+                SetValueFn(instance, value);
+            }
+        }
+
+        public static Dictionary<string, object> ToObjectDictionary(this object obj)
+        {
+            if (obj == null)
+                return null;
+
             var alreadyDict = obj as Dictionary<string, object>;
             if (alreadyDict != null)
                 return alreadyDict;
 
+            var type = obj.GetType();
+
+            ObjectDictionaryDefinition def;
+            if (!toObjectMapCache.TryGetValue(type, out def))
+                toObjectMapCache[type] = def = CreateObjectDictionaryDefinition(type);
+
             var dict = new Dictionary<string, object>();
-            
-            foreach (var pi in obj.GetType().GetSerializableProperties())
+
+            foreach (var fieldDef in def.Fields)
             {
-                dict[pi.Name] = pi.GetValue(obj, null);
+                dict[fieldDef.Name] = fieldDef.GetValueFn(obj);
+            }
+
+            return dict;
+        }
+
+        public static object FromObjectDictionary(this Dictionary<string, object> values, Type type)
+        {
+            var alreadyDict = type == typeof(Dictionary<string, object>);
+            if (alreadyDict)
+                return alreadyDict;
+
+            ObjectDictionaryDefinition def;
+            if (!toObjectMapCache.TryGetValue(type, out def))
+                toObjectMapCache[type] = def = CreateObjectDictionaryDefinition(type);
+
+            var to = type.CreateInstance();
+            foreach (var entry in values)
+            {
+                ObjectDictionaryFieldDefinition fieldDef;
+                if (!def.FieldsMap.TryGetValue(entry.Key, out fieldDef) || entry.Value == null)
+                    continue;
+
+                fieldDef.SetValue(to, entry.Value);
+            }
+            return to;
+        }
+
+        private static ObjectDictionaryDefinition CreateObjectDictionaryDefinition(Type type)
+        {
+            var def = new ObjectDictionaryDefinition
+            {
+                Type = type,
+            };
+
+            foreach (var pi in type.GetSerializableProperties())
+            {
+                def.Add(pi.Name, new ObjectDictionaryFieldDefinition
+                {
+                    Name = pi.Name,
+                    Type = pi.PropertyType,
+                    GetValueFn = pi.GetPropertyGetterFn(),
+                    SetValueFn = pi.GetPropertySetterFn(),
+                });
             }
 
             if (JsConfig.IncludePublicFields)
             {
-                foreach (var fi in obj.GetType().GetSerializableFields())
+                foreach (var fi in type.GetSerializableFields())
                 {
-                    dict[fi.Name] = fi.GetValue(obj);
+                    def.Add(fi.Name, new ObjectDictionaryFieldDefinition
+                    {
+                        Name = fi.Name,
+                        Type = fi.FieldType,
+                        GetValueFn = fi.GetFieldGetterFn(),
+                        SetValueFn = fi.GetFieldSetterFn(),
+                    });
                 }
             }
-            return dict;
+            return def;
         }
     }
 

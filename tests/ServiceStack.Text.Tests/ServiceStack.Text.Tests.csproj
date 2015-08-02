@@ -176,6 +176,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoMappingObjectDictionaryTests.cs" />
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="CsvTypeTests.cs" />

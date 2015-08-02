@@ -33,6 +33,11 @@ namespace ServiceStack.Text.Tests
         public int Age { get; set; }
     }
 
+    public class SubCar : Car
+    {
+        public string Custom { get; set; }
+    }
+
     public class UserDto
     {
         public string FirstName { get; set; }
