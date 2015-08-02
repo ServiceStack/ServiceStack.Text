@@ -598,6 +598,30 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(new DateTime(2001, 01, 01).ConvertTo<string>(), Is.EqualTo("2001-01-01"));
         }
+
+        [Test]
+        public void Can_convert_from_List_object()
+        {
+            var from = 3.Times(i => (object)new Car { Age = i, Name = "Name" + i });
+            var to = (List<Car>)TranslateListWithElements.TryTranslateCollections(
+                typeof(List<object>), typeof(List<Car>), from);
+
+            Assert.That(to.Count, Is.EqualTo(3));
+            Assert.That(to[0].Age, Is.EqualTo(0));
+            Assert.That(to[0].Name, Is.EqualTo("Name0"));
+        }
+
+        [Test]
+        public void Can_convert_from_List_SubType()
+        {
+            var from = 3.Times(i => new SubCar { Age = i, Name = "Name" + i });
+            var to = (List<Car>)TranslateListWithElements.TryTranslateCollections(
+                typeof(List<SubCar>), typeof(List<Car>), from);
+
+            Assert.That(to.Count, Is.EqualTo(3));
+            Assert.That(to[0].Age, Is.EqualTo(0));
+            Assert.That(to[0].Name, Is.EqualTo("Name0"));
+        }
     }
 
     public class Test

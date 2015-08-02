@@ -96,6 +96,15 @@ namespace ServiceStack.Text
                     fromValue, toPropertyType, varArgs.Args1[0]);
             }
 
+            var fromElType = fromPropertyType.GetCollectionType();
+            var toElType = toPropertyType.GetCollectionType();
+
+            if (fromElType == null || toElType == null)
+                return null;
+
+            if (fromElType == typeof(object) || toElType.IsAssignableFromType(fromElType))
+                return TranslateToGenericICollectionCache(fromValue, toPropertyType, toElType);
+
             return null;
         }
 
@@ -176,21 +185,21 @@ namespace ServiceStack.Text
             if (toInstanceOfType.IsArray)
             {
                 var result = TranslateToGenericICollection(
-                    (ICollection<T>)fromList, typeof(List<T>));
+                    (IEnumerable)fromList, typeof(List<T>));
                 return result.ToArray();
             }
 
             return TranslateToGenericICollection(
-                (ICollection<T>)fromList, toInstanceOfType);
+                (IEnumerable)fromList, toInstanceOfType);
         }
 
         public static ICollection<T> TranslateToGenericICollection(
-            ICollection<T> fromList, Type toInstanceOfType)
+            IEnumerable fromList, Type toInstanceOfType)
         {
             var to = (ICollection<T>)CreateInstance(toInstanceOfType);
             foreach (var item in fromList)
             {
-                to.Add(item);
+                to.Add((T)item);
             }
             return to;
         }
