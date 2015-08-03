@@ -189,12 +189,24 @@ namespace ServiceStack.Text.Common
 
         public static DateTime? ParseManual(string dateTimeStr)
         {
-            if (dateTimeStr == null || dateTimeStr.Length < ShortDateTimeFormat.Length)
-                return null;
-
             var dateKind = JsConfig.AssumeUtc || JsConfig.AlwaysUseUtc 
                 ? DateTimeKind.Utc
                 : DateTimeKind.Local;
+
+            var date = ParseManual(dateTimeStr, dateKind);
+            if (date == null)
+                return null;
+
+            return dateKind == DateTimeKind.Local
+                ? date.Value.ToLocalTime().Prepare()
+                : date;
+        }
+
+        public static DateTime? ParseManual(string dateTimeStr, DateTimeKind dateKind)
+        {
+            if (dateTimeStr == null || dateTimeStr.Length < ShortDateTimeFormat.Length)
+                return null;
+
             if (dateTimeStr.EndsWith(XsdUtcSuffix))
             {
                 dateTimeStr = dateTimeStr.Substring(0, dateTimeStr.Length - 1);
@@ -204,7 +216,7 @@ namespace ServiceStack.Text.Common
             if (parts.Length == 1)
                 parts = dateTimeStr.SplitOnFirst(' ');
 
-            var dateParts = parts[0].Split('-','/');
+            var dateParts = parts[0].Split('-', '/');
             int hh = 0, min = 0, ss = 0, ms = 0;
             double subMs = 0;
             int offsetMultiplier = 0;
@@ -212,8 +224,10 @@ namespace ServiceStack.Text.Common
             if (parts.Length == 1)
             {
                 return dateParts.Length == 3 && dateParts[2].Length == "YYYY".Length
-                    ? new DateTime(int.Parse(dateParts[2]), int.Parse(dateParts[1]), int.Parse(dateParts[0]), 0, 0, 0, 0, dateKind)
-                    : new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]), int.Parse(dateParts[2]), 0, 0, 0, 0, dateKind);
+                    ? new DateTime(int.Parse(dateParts[2]), int.Parse(dateParts[1]), int.Parse(dateParts[0]), 0, 0, 0, 0,
+                        dateKind)
+                    : new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]), int.Parse(dateParts[2]), 0, 0, 0, 0,
+                        dateKind);
             }
             else if (parts.Length == 2)
             {
@@ -249,15 +263,16 @@ namespace ServiceStack.Text.Common
                         if (msStr.Length > 3)
                         {
                             var subMsStr = msStr.Substring(3);
-                            subMs = double.Parse(subMsStr) / Math.Pow(10, subMsStr.Length);
+                            subMs = double.Parse(subMsStr)/Math.Pow(10, subMsStr.Length);
                         }
                     }
                 }
 
-                var dateTime = new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]), int.Parse(dateParts[2]), hh, min, ss, ms, dateKind);
+                var dateTime = new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]), int.Parse(dateParts[2]), hh, min,
+                    ss, ms, dateKind);
                 if (subMs != 0)
                 {
-                    dateTime=dateTime.AddMilliseconds(subMs);
+                    dateTime = dateTime.AddMilliseconds(subMs);
                 }
 
                 if (offsetMultiplier != 0 && timeOffset != null)
@@ -274,11 +289,11 @@ namespace ServiceStack.Text.Common
                         min = int.Parse(timeOffset.Substring(2));
                     }
 
-                    dateTime = dateTime.AddHours(offsetMultiplier * hh);
-                    dateTime = dateTime.AddMinutes(offsetMultiplier * min);
+                    dateTime = dateTime.AddHours(offsetMultiplier*hh);
+                    dateTime = dateTime.AddMinutes(offsetMultiplier*min);
                 }
 
-                return dateTime.ToLocalTime().Prepare();
+                return dateTime;
             }
 
             return null;
