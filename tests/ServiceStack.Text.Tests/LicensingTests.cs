@@ -51,6 +51,7 @@ namespace ServiceStack.Text.Tests
                     new LicenseUseCase(LicenseFeature.Text, QuotaType.Types, LicenseUtils.FreeQuotas.TextTypes),
                     new LicenseUseCase(LicenseFeature.Redis, QuotaType.Types, LicenseUtils.FreeQuotas.RedisTypes),
                     new LicenseUseCase(LicenseFeature.OrmLite, QuotaType.Tables, LicenseUtils.FreeQuotas.OrmLiteTables),
+                    new LicenseUseCase(LicenseFeature.Aws, QuotaType.Tables, LicenseUtils.FreeQuotas.AwsTables),
                     new LicenseUseCase(LicenseFeature.ServiceStack, QuotaType.Operations, LicenseUtils.FreeQuotas.ServiceStackOperations),
                     new LicenseUseCase(LicenseFeature.Admin, QuotaType.PremiumFeature, LicenseUtils.FreeQuotas.PremiumFeature),
                     new LicenseUseCase(LicenseFeature.Premium, QuotaType.PremiumFeature, LicenseUtils.FreeQuotas.PremiumFeature),
