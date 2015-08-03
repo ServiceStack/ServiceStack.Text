@@ -26,6 +26,8 @@ namespace ServiceStack
         OrmLiteBusiness,
         RedisIndie,
         RedisBusiness,
+        AwsIndie,
+        AwsBusiness,
         Trial,
     }
 
@@ -33,9 +35,10 @@ namespace ServiceStack
     public enum LicenseFeature : long
     {
         None = 0,
-        All = Premium | Text | Client | Common | Redis | OrmLite | ServiceStack | Server | Razor | Admin,
+        All = Premium | Text | Client | Common | Redis | OrmLite | ServiceStack | Server | Razor | Admin | Aws,
         RedisSku = Redis | Text,
         OrmLiteSku = OrmLite | Text,
+        AwsSku = Aws | Text,
         Free = None,
         Premium = 1 << 0,
         Text = 1 << 1,
@@ -47,6 +50,7 @@ namespace ServiceStack
         Server = 1 << 7,
         Razor = 1 << 8,
         Admin = 1 << 9,
+        Aws = 1 << 10,
     }
 
     public enum QuotaType
@@ -55,7 +59,7 @@ namespace ServiceStack
         Types,           //Text, Redis
         Fields,          //ServiceStack, Text, Redis, OrmLite
         RequestsPerHour, //Redis
-        Tables,          //OrmLite
+        Tables,          //OrmLite, Aws
         PremiumFeature,  //AdminUI, Advanced Redis APIs, etc
     }
 
@@ -125,6 +129,7 @@ namespace ServiceStack
             internal const string ExceededRedisTypes = "The free-quota limit on '{0} Redis Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisRequests = "The free-quota limit on '{0} Redis requests per hour' has been reached." + UpgradeInstructions;
             internal const string ExceededOrmLiteTables = "The free-quota limit on '{0} OrmLite Tables' has been reached." + UpgradeInstructions;
+            internal const string ExceededAwsTables = "The free-quota limit on '{0} AWS Tables' has been reached." + UpgradeInstructions;
             internal const string ExceededServiceStackOperations = "The free-quota limit on '{0} ServiceStack Operations' has been reached." + UpgradeInstructions;
             internal const string ExceededAdminUi = "The Admin UI is a commerical-only premium feature." + UpgradeInstructions;
             internal const string ExceededPremiumFeature = "Unauthorized use of a commerical-only premium feature." + UpgradeInstructions;
@@ -139,6 +144,7 @@ namespace ServiceStack
             public const int RedisTypes = 20;
             public const int RedisRequestPerHour = 6000;
             public const int OrmLiteTables = 10;
+            public const int AwsTables = 10;
             public const int PremiumFeature = 0;
         }
 
@@ -260,6 +266,15 @@ namespace ServiceStack
                     }
                     break;
 
+                case LicenseFeature.Aws:
+                    switch (quotaType)
+                    {
+                        case QuotaType.Tables:
+                            ApprovedUsage(licensedFeatures, feature, FreeQuotas.AwsTables, count, ErrorMessages.ExceededAwsTables);
+                            return;
+                    }
+                    break;
+
                 case LicenseFeature.ServiceStack:
                     switch (quotaType)
                     {
@@ -307,11 +322,15 @@ namespace ServiceStack
                 case LicenseType.TextIndie:
                 case LicenseType.TextBusiness:
                     return LicenseFeature.Text;
-                
+
                 case LicenseType.OrmLiteIndie:
                 case LicenseType.OrmLiteBusiness:
                     return LicenseFeature.OrmLiteSku;
-                
+
+                case LicenseType.AwsIndie:
+                case LicenseType.AwsBusiness:
+                    return LicenseFeature.AwsSku;
+
                 case LicenseType.RedisIndie:
                 case LicenseType.RedisBusiness:
                     return LicenseFeature.RedisSku;
