@@ -223,6 +223,43 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig<DateTime>.SerializeFn = null;
             JsConfig.Reset();
         }
+
+        [Test]
+        public void Can_serialize_custom_DateTime2()
+        {
+            JsConfig<DateTime>.SerializeFn = time =>
+            {
+                var x = new DateTime(time.Ticks, DateTimeKind.Unspecified).ToString("o");
+                return x;
+            };
+
+            JsConfig<DateTime>.DeSerializeFn = time =>
+            {
+                var x = DateTime.ParseExact(time, "o", null);
+                return x;
+            };
+
+            var dateTime = new DateTime(2015, 08, 12, 12, 12, 12, DateTimeKind.Unspecified);
+
+            var json = dateTime.ToJson();
+            Assert.That(json, Is.EqualTo("\"2015-08-12T12:12:12.0000000\""));
+
+            var fromJson = json.FromJson<DateTime>();
+            Assert.That(fromJson, Is.EqualTo(dateTime));
+
+            var dto = new Response
+            {
+                DateTime = dateTime,
+            };
+
+            json = dto.ToJson();
+            Assert.That(json, Is.EqualTo("{\"DateTime\":\"2015-08-12T12:12:12.0000000\"}"));
+            Assert.That(json.FromJson<Response>().DateTime, Is.EqualTo(dateTime));
+
+            JsConfig<DateTime>.SerializeFn = null;
+            JsConfig<DateTime>.DeSerializeFn = null;
+            JsConfig.Reset();
+        }
     }
 
     public class OuterType
