@@ -1299,6 +1299,10 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return memberInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
 #else
+            var prop = memberInfo as PropertyInfo;
+            if (prop != null)
+                return prop.AllAttributes(attrType);
+
             return memberInfo.GetCustomAttributes(attrType, true);
 #endif
         }
