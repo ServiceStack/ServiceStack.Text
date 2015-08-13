@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
@@ -35,6 +36,37 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             // Assert:
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":[1,2,3,4,5]}"));
+
+            JsConfig.Reset();
+        }
+
+        [Test]
+        public void Can_Serialize_bytes_as_Hex()
+        {
+            JsConfig<byte[]>.SerializeFn = BitConverter.ToString;
+            JsConfig<byte[]>.DeSerializeFn = hex =>
+            {
+                hex = hex.Replace("-", "");
+                return Enumerable.Range(0, hex.Length)
+                    .Where(x => x%2 == 0)
+                    .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                    .ToArray();
+            };
+
+            var dto = new RealType
+            {
+                Name = "Red",
+                Data = new byte[] { 255, 0, 0 }
+            };
+
+            var json = dto.ToJson();
+            Assert.That(json, Is.StringContaining("FF-00-00"));
+
+            var fromJson = json.FromJson<RealType>();
+
+            Assert.That(fromJson.Data, Is.EquivalentTo(dto.Data));
+
+            JsConfig.Reset();
         }
 
         [Test]
