@@ -25,18 +25,17 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             var test = new RealType { Name = "Test", Data = new byte[] { 1, 2, 3, 4, 5 } };
 
-            // Act: now we set a custom function for byte[]
             JsConfig<byte[]>.RawSerializeFn = c =>
-                {
-                    var temp = new int[c.Length];
-                    Array.Copy(c, temp, c.Length);
-                    return JsonSerializer.SerializeToString(temp);
-                };
+            {
+                var temp = new int[c.Length];
+                Array.Copy(c, temp, c.Length);
+                return JsonSerializer.SerializeToString(temp);
+            };
             var json = JsonSerializer.SerializeToString(test);
 
-            // Assert:
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":[1,2,3,4,5]}"));
 
+            JsConfig<byte[]>.RawSerializeFn = null;
             JsConfig.Reset();
         }
 
@@ -48,7 +47,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             {
                 hex = hex.Replace("-", "");
                 return Enumerable.Range(0, hex.Length)
-                    .Where(x => x%2 == 0)
+                    .Where(x => x % 2 == 0)
                     .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
                     .ToArray();
             };
@@ -66,7 +65,14 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.That(fromJson.Data, Is.EquivalentTo(dto.Data));
 
+            JsConfig<byte[]>.SerializeFn = null;
+            JsConfig<byte[]>.DeSerializeFn = null;
             JsConfig.Reset();
+
+            json = dto.ToJson();
+            json.Print();
+            fromJson = json.FromJson<RealType>();
+            Assert.That(fromJson.Data, Is.EquivalentTo(dto.Data));
         }
 
         [Test]
@@ -76,15 +82,18 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             // Act: now we set a custom function for byte[]
             JsConfig<byte[]>.RawSerializeFn = c =>
-                {
-                    var temp = new int[c.Length];
-                    Array.Copy(c, temp, c.Length);
-                    return JsonSerializer.SerializeToString(temp);
-                };
+            {
+                var temp = new int[c.Length];
+                Array.Copy(c, temp, c.Length);
+                return JsonSerializer.SerializeToString(temp);
+            };
             var json = JsonSerializer.SerializeToString(test);
 
             // Assert:
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":[1,2,3,4,5]}"));
+
+            JsConfig<byte[]>.RawSerializeFn = null;
+            JsConfig.Reset();
         }
 
         [Test]
@@ -92,18 +101,19 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             var test = new { Name = "Test", Data = new byte[] { 1, 2, 3, 4, 5 } };
             JsConfig<byte[]>.RawSerializeFn = c =>
-                {
-                    var temp = new int[c.Length];
-                    Array.Copy(c, temp, c.Length);
-                    return JsonSerializer.SerializeToString(temp);
-                };
+            {
+                var temp = new int[c.Length];
+                Array.Copy(c, temp, c.Length);
+                return JsonSerializer.SerializeToString(temp);
+            };
             var json = JsonSerializer.SerializeToString(test);
 
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":[1,2,3,4,5]}"));
-            // Act: now we set a custom function for byte[]
+
+            JsConfig<byte[]>.RawSerializeFn = null;
             JsConfig.Reset();
             json = JsonSerializer.SerializeToString(test);
-            // Assert:
+
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":\"AQIDBAU=\"}"));
         }
 
