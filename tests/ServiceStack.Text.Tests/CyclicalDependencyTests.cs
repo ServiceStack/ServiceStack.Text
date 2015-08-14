@@ -176,5 +176,45 @@ namespace ServiceStack.Text.Tests
                 p.ToJson().Print();
             }
         }
+
+        class Node
+        {
+            public string Name { get; set; }
+
+            [IgnoreDataMember]
+            public Node Parent { get; set; }
+
+            public List<Node> Children { get; set; }
+        }
+
+        [Test]
+        public void Ignore_Cyclical_dependencies()
+        {
+            JsConfig<Node>.OnDeserializedFn = (node) =>
+            {
+                node.Children.Each(child => child.Parent = node);
+                return node;
+            };
+
+            var parent = new Node
+            {
+                Name = "Parent",
+            };
+            parent.Children = new List<Node>
+            {
+                new Node { Name = "Child", Parent = parent },
+            };
+
+            var json = parent.ToJson();
+            Assert.That(json,
+                Is.EqualTo("{\"Name\":\"Parent\",\"Children\":[{\"Name\":\"Child\"}]}"));
+
+            var fromJson = json.FromJson<Node>();
+
+            Assert.That(fromJson.Children[0].Parent, Is.EqualTo(fromJson));
+
+            JsConfig<Node>.OnDeserializedFn = null;
+            JsConfig.Reset();
+        }
     }
 }
