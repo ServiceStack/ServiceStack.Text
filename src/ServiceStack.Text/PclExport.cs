@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 
@@ -353,26 +352,35 @@ namespace ServiceStack
 
         public virtual string ToXsdDateTimeString(DateTime dateTime)
         {
-            return XmlConvert.ToString(dateTime.ToStableUniversalTime(), DateTimeSerializer.XsdDateTimeFormat);
+#if !PCL
+            return System.Xml.XmlConvert.ToString(dateTime.ToStableUniversalTime(), DateTimeSerializer.XsdDateTimeFormat);
+#else
+            return dateTime.ToStableUniversalTime().ToString(DateTimeSerializer.XsdDateTimeFormat);
+#endif
         }
 
         public virtual string ToLocalXsdDateTimeString(DateTime dateTime)
         {
-            return XmlConvert.ToString(dateTime, DateTimeSerializer.XsdDateTimeFormat);
+#if !PCL
+            return System.Xml.XmlConvert.ToString(dateTime, DateTimeSerializer.XsdDateTimeFormat);
+#else
+            return dateTime.ToString(DateTimeSerializer.XsdDateTimeFormat);
+#endif
         }
 
         public virtual DateTime ParseXsdDateTime(string dateTimeStr)
         {
-            return XmlConvert.ToDateTimeOffset(dateTimeStr).DateTime;
+#if !PCL
+            return System.Xml.XmlConvert.ToDateTimeOffset(dateTimeStr).DateTime;
+#else
+            return DateTime.ParseExact(dateTimeStr, DateTimeSerializer.XsdDateTimeFormat, CultureInfo.InvariantCulture);
+#endif
         }
 
         public virtual DateTime ParseXsdDateTimeAsUtc(string dateTimeStr)
         {
-            var knownDateTime = DateTimeSerializer.ParseManual(dateTimeStr);
-            if (knownDateTime == null)
-                throw new ArgumentException("Unable to parse unknown format: {0}".Fmt(dateTimeStr));
-
-            return knownDateTime.Value;
+            return DateTimeSerializer.ParseManual(dateTimeStr, DateTimeKind.Utc)
+                ?? DateTime.ParseExact(dateTimeStr, DateTimeSerializer.XsdDateTimeFormat, CultureInfo.InvariantCulture);
         }
 
         public virtual DateTime ToStableUniversalTime(DateTime dateTime)
@@ -404,11 +412,6 @@ namespace ServiceStack
             }
 #endif
             return null;
-        }
-
-        public virtual XmlSerializer NewXmlSerializer()
-        {
-            return new XmlSerializer();
         }
 
         public virtual void InitHttpWebRequest(HttpWebRequest httpReq,

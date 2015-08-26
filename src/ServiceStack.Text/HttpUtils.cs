@@ -784,7 +784,7 @@ namespace ServiceStack
             UploadFile(webRequest, fileStream, fileName, mimeType);
         }
 
-#if !XBOX
+#if !(XBOX || PCL)
         public static string PostXmlToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {

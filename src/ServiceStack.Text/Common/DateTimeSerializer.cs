@@ -14,8 +14,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Xml;
 using ServiceStack.Text.Json;
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
@@ -355,13 +355,18 @@ namespace ServiceStack.Text.Common
 
         public static string ToXsdTimeSpanString(TimeSpan timeSpan)
         {
-            var r = XmlConvert.ToString(timeSpan);
+#if !PCL
+            var r = System.Xml.XmlConvert.ToString(timeSpan);
             if (Env.IsMono)
             {
                 // Mono returns DT even if time is 00:00:00
-                if (r.EndsWith("DT")) return r.Substring(0, r.Length - 1);
+                if (r.EndsWith("DT")) 
+                    return r.Substring(0, r.Length - 1);
             }
             return r;
+#else
+            return TimeSpanConverter.ToXsdDuration(timeSpan);
+#endif
         }
 
         public static string ToXsdTimeSpanString(TimeSpan? timeSpan)
@@ -390,11 +395,6 @@ namespace ServiceStack.Text.Common
             return TimeSpan.FromSeconds(secs);
         }
 
-        public static TimeSpan ParseXsdTimeSpan(string dateTimeStr)
-        {
-            return XmlConvert.ToTimeSpan(dateTimeStr);
-        }
-
         public static TimeSpan? ParseNullableTimeSpan(string dateTimeStr)
         {
             return string.IsNullOrEmpty(dateTimeStr)
@@ -402,11 +402,20 @@ namespace ServiceStack.Text.Common
                 : ParseTimeSpan(dateTimeStr);
         }
 
+        public static TimeSpan ParseXsdTimeSpan(string dateTimeStr)
+        {
+#if !PCL
+            return System.Xml.XmlConvert.ToTimeSpan(dateTimeStr);
+#else
+            return TimeSpanConverter.FromXsdDuration(dateTimeStr);
+#endif
+        }
+
         public static TimeSpan? ParseXsdNullableTimeSpan(string dateTimeStr)
         {
-            return String.IsNullOrEmpty(dateTimeStr) ?
+            return string.IsNullOrEmpty(dateTimeStr) ?
                 null :
-                new TimeSpan?(XmlConvert.ToTimeSpan(dateTimeStr));
+                new TimeSpan?(ParseXsdTimeSpan(dateTimeStr));
         }
 
         public static string ToShortestXsdDateTimeString(DateTime dateTime)

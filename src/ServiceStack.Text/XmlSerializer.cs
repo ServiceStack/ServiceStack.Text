@@ -1,4 +1,4 @@
-#if !XBOX
+#if !(XBOX || PCL)
 using System;
 using System.IO;
 using System.Runtime.Serialization;
@@ -12,7 +12,7 @@ namespace ServiceStack.Text
         private static readonly XmlWriterSettings XWSettings = new XmlWriterSettings();
         private static readonly XmlReaderSettings XRSettings = new XmlReaderSettings();
 
-        public static XmlSerializer Instance = PclExport.Instance.NewXmlSerializer();
+        public static XmlSerializer Instance = new XmlSerializer();
 
         public XmlSerializer(bool omitXmlDeclaration = false, int maxCharsInDocument = 1024 * 1024)
         {
