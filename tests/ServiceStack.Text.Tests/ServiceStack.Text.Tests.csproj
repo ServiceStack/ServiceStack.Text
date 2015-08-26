@@ -291,6 +291,7 @@
     <Compile Include="Support\BenchmarkTests.cs" />
     <Compile Include="Support\MovieDtos.cs" />
     <Compile Include="SystemTimeTests.cs" />
+    <Compile Include="TimeSpanConverterTests.cs" />
     <Compile Include="TupleTests.cs" />
     <Compile Include="UseCases\CentroidTests.cs" />
     <Compile Include="UseCases\GitHubRestTests.cs" />

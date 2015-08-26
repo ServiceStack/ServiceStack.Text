@@ -280,6 +280,7 @@
     <Compile Include="Support\DoubleConverter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Support\TimeSpanConverter.cs" />
     <Compile Include="Support\TypePair.cs">
       <SubType>Code</SubType>
     </Compile>
