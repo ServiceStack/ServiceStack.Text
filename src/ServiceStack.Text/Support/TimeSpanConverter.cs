@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 namespace ServiceStack.Text.Support
@@ -12,40 +10,38 @@ namespace ServiceStack.Text.Support
         {
             var sb = new StringBuilder("P");
 
-            double d = timeSpan.TotalSeconds;
+            double ticks = timeSpan.Ticks;
 
-            int totalSeconds = (int)(d);
-            int remainingMs = (int)(Math.Round(d - totalSeconds, 3) * 1000);
-            int sec = (totalSeconds >= 60 ? totalSeconds % 60 : totalSeconds);
-            int min = (totalSeconds = (totalSeconds / 60)) >= 60 ? totalSeconds % 60 : totalSeconds;
-            int hours = (totalSeconds = (totalSeconds / 60)) >= 24 ? totalSeconds % 24 : totalSeconds;
-            int days = (totalSeconds = (totalSeconds / 24)) >= 30 ? totalSeconds % 30 : totalSeconds;
+            double totalSeconds = ticks / TimeSpan.TicksPerSecond;
+            int wholeSeconds = (int) totalSeconds;
+            int seconds = wholeSeconds;
+            int sec = (seconds >= 60 ? seconds % 60 : seconds);
+            int min = (seconds = (seconds / 60)) >= 60 ? seconds % 60 : seconds;
+            int hours = (seconds = (seconds / 60)) >= 24 ? seconds % 24 : seconds;
+            int days = seconds / 24;
+            double remainingSecs = sec + (totalSeconds - wholeSeconds);
 
             if (days > 0)
-            {
                 sb.Append(days + "D");
-            }
 
-            if (hours + min + sec + remainingMs > 0)
+            if (days == 0 || hours + min + sec + remainingSecs > 0)
             {
                 sb.Append("T");
                 if (hours > 0)
-                {
                     sb.Append(hours + "H");
-                }
-                if (min > 0)
-                {
-                    sb.Append(min + "M");
-                }
 
-                
-                if (remainingMs > 0)
+                if (min > 0)
+                    sb.Append(min + "M");
+
+                if (remainingSecs > 0)
                 {
-                    sb.Append(sec + "." + remainingMs.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0') + "S");
+                    var secFmt = string.Format("{0:0.0000000}", remainingSecs);
+                    secFmt = secFmt.TrimEnd('0').TrimEnd('.');
+                    sb.Append(secFmt + "S");
                 }
-                else if (sec > 0)
+                else if (sb.Length == 2) //PT
                 {
-                    sb.Append(sec + "S");
+                    sb.Append("0S");
                 }
             }
 
@@ -58,8 +54,7 @@ namespace ServiceStack.Text.Support
             int days = 0;
             int hours = 0;
             int minutes = 0;
-            int seconds = 0;
-            double ms = 0.0;
+            double seconds = 0;
 
             string[] t = xsdDuration.Substring(1).SplitOnFirst('T'); //strip P
 
@@ -72,7 +67,6 @@ namespace ServiceStack.Text.Support
                 if (int.TryParse(d[0], out day))
                     days = day;
             }
-
             if (hasTime)
             {
                 string[] h = t[1].SplitOnFirst('H');
@@ -96,11 +90,8 @@ namespace ServiceStack.Text.Support
                 {
                     double millis;
                     if (double.TryParse(s[0], out millis))
-                        ms = millis;
+                        seconds = millis;
                 }
-
-                seconds = (int)ms;
-                ms -= seconds;
             }
 
             double totalSecs = 0
@@ -109,9 +100,9 @@ namespace ServiceStack.Text.Support
                     + (minutes * 60)
                     + (seconds);
 
-            double interval = totalSecs + ms;
+            var interval = (long) (totalSecs * TimeSpan.TicksPerSecond);
 
-            return TimeSpan.FromSeconds(interval);
+            return TimeSpan.FromTicks(interval);
         }
     }
 }

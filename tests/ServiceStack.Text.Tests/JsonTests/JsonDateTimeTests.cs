@@ -166,15 +166,15 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void JsonSerializerReturnsTimeSpanAsString()
         {
-            Assert.AreEqual("\"PT0S\"", JsonSerializer.SerializeToString(new TimeSpan()));
-            Assert.AreEqual("\"PT0.0000001S\"", JsonSerializer.SerializeToString(new TimeSpan(1)));
+            Assert.That(JsonSerializer.SerializeToString(new TimeSpan()), Is.EqualTo("\"PT0S\""));
+            Assert.That(JsonSerializer.SerializeToString(new TimeSpan(1)), Is.EqualTo("\"PT0.0000001S\""));
         }
 
         [Test]
         public void JsonDeserializerReturnsTimeSpanFromString()
         {
-            Assert.AreEqual(TimeSpan.Zero, JsonSerializer.DeserializeFromString<TimeSpan>("\"PT0S\""));
-            Assert.AreEqual(new TimeSpan(1), JsonSerializer.DeserializeFromString<TimeSpan>("\"PT0.0000001S\""));
+            Assert.That(JsonSerializer.DeserializeFromString<TimeSpan>("\"PT0S\""), Is.EqualTo(TimeSpan.Zero));
+            Assert.That(JsonSerializer.DeserializeFromString<TimeSpan>("\"PT0.0000001S\""), Is.EqualTo(new TimeSpan(1)));
         }
         #endregion
 
@@ -527,7 +527,8 @@ namespace ServiceStack.Text.Tests.JsonTests
             var offset = offsetSpan.ToTimeOffsetString(":");
 
             Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 04:34:56 GMT"""). //Convert to UTC on wire
-                                Or.EqualTo(@"""Thu, 24 Nov 1994 17:34:56 GMT"""));
+                                Or.EqualTo(@"""Thu, 24 Nov 1994 17:34:56 GMT""").
+                                Or.EqualTo(@"""Thu, 24 Nov 1994 20:34:56 GMT"""));
             JsConfig.Reset();
         }
 
@@ -540,7 +541,8 @@ namespace ServiceStack.Text.Tests.JsonTests
             var ssJson = JsonSerializer.SerializeToString(dateTime);
 
             Assert.That(ssJson, Is.EqualTo(@"""Thu, 24 Nov 1994 04:34:56 GMT"""). //Convert to UTC on wire
-                                Or.EqualTo(@"""Thu, 24 Nov 1994 17:34:56 GMT""")); 
+                                Or.EqualTo(@"""Thu, 24 Nov 1994 17:34:56 GMT""").
+                                Or.EqualTo(@"""Thu, 24 Nov 1994 20:34:56 GMT"""));
             JsConfig.Reset();
         }
 
