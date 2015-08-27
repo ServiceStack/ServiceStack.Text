@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -166,13 +165,13 @@ namespace ServiceStack
             return webRequest.GetResponse();
         }
 
-        public override bool IsDebugBuild(Assembly assembly)
-        {
-            return assembly.AllAttributes()
-                           .OfType<DebuggableAttribute>()
-                           .Select(attr => attr.IsJITTrackingEnabled)
-                           .FirstOrDefault();
-        }
+        //public override bool IsDebugBuild(Assembly assembly)
+        //{
+        //    return assembly.AllAttributes()
+        //                   .OfType<DebuggableAttribute>()
+        //                   .Select(attr => attr.IsJITTrackingEnabled)
+        //                   .FirstOrDefault();
+        //}
 
         public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
         {
@@ -469,13 +468,13 @@ namespace ServiceStack
 
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
-#if !__IOS__
-            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
-                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
-            {
-                return DeserializeDynamic<TSerializer>.Parse;
-            }
-#endif
+//#if !__IOS__
+//            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+//                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
+//            {
+//                return DeserializeDynamic<TSerializer>.Parse;
+//            }
+//#endif
             return null;
         }
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels.DataModel;

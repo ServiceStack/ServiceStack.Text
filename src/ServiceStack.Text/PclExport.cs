@@ -223,8 +223,7 @@ namespace ServiceStack
         public virtual bool IsDebugBuild(Assembly assembly)
         {
             return assembly.AllAttributes()
-                .OfType<DebuggableAttribute>()
-                .Any();
+                .Any(x => x.GetType().Name == "DebuggableAttribute");
         }
 
         public virtual string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
@@ -405,11 +404,11 @@ namespace ServiceStack
             where TSerializer : ITypeSerializer
         {
 #if !PCL
-            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
-                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
-            {
-                return DeserializeDynamic<TSerializer>.Parse;
-            }
+            //if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+            //    type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
+            //{
+            //    return DeserializeDynamic<TSerializer>.Parse;
+            //}
 #endif
             return null;
         }

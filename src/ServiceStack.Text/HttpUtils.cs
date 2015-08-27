@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -738,7 +737,7 @@ namespace ServiceStack
             if (requestFilter != null)
                 requestFilter(httpReq);
 
-            var boundary = "----------------------------" + Stopwatch.GetTimestamp().ToString("x");
+            var boundary = "----------------------------" + Guid.NewGuid().ToString("N");
 
             httpReq.ContentType = "multipart/form-data; boundary=" + boundary;
 

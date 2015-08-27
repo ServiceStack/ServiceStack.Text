@@ -134,11 +134,9 @@ namespace ServiceStack.Text
                 var propertyName = propertyInfo.Name;
                 if (isDataContract)
                 {
-                    var dcsDataMember = propertyInfo.GetDataMember();
-                    if (dcsDataMember != null && dcsDataMember.Name != null)
-                    {
-                        propertyName = dcsDataMember.Name;
-                    }
+                    var dcsDataMemberName = propertyInfo.GetDataMemberName();
+                    if (dcsDataMemberName != null)
+                        propertyName = dcsDataMemberName;
                 }
                 Headers.Add(propertyName);
             }

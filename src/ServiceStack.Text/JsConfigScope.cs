@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
@@ -45,8 +41,6 @@ namespace ServiceStack.Text
             if (!disposed)
             {
                 disposed = true;
-                Debug.Assert(this == head, "Disposed out of order.");
-
                 head = parent;
 
                 PclExport.Instance.EndThreadAffinity();

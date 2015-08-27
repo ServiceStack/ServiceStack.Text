@@ -777,6 +777,18 @@ namespace ServiceStack
 
             return dataMember;
         }
+
+        public static string GetDataMemberName(this PropertyInfo pi)
+        {
+            var attr = pi.GetDataMember();
+            return attr != null ? attr.Name : null;
+        }
+
+        public static string GetDataMemberName(this FieldInfo fi)
+        {
+            var attr = fi.GetDataMember();
+            return attr != null ? attr.Name : null;
+        }
     }
 
     public static class PlatformExtensions //Because WinRT is a POS

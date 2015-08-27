@@ -166,9 +166,9 @@ namespace ServiceStack.Text.Common
         		{ typeof(Uri), Serializer.WriteObjectString },
         		{ typeof(Type), WriteType },
         		{ typeof(Exception), Serializer.WriteException },
-#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL || DNX451 || DNXCORE50)
-                { typeof(System.Data.Linq.Binary), Serializer.WriteLinqBinary },
-#endif
+//#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL || DNX451 || DNXCORE50)
+//                { typeof(System.Data.Linq.Binary), Serializer.WriteLinqBinary },
+//#endif
         	};
         }
 
