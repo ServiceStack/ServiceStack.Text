@@ -80,10 +80,6 @@ namespace ServiceStack.Text.Common
                     return value => DateTimeSerializer.ParseDateTimeOffset(value);
                 if (typeof(T) == typeof(TimeSpan))
                     return value => DateTimeSerializer.ParseTimeSpan(value);
-//#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL || DNX451 || DNXCORE50)
-//                if (typeof(T) == typeof(System.Data.Linq.Binary))
-//                    return value => new System.Data.Linq.Binary(Convert.FromBase64String(value));
-//#endif
             }
             else
             {

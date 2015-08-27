@@ -312,13 +312,6 @@ namespace ServiceStack.Text.Json
 			JsWriter.WriteEnumFlags(writer, enumFlagValue);
         }
 
-//        public void WriteLinqBinary(TextWriter writer, object linqBinaryValue)
-//        {
-//#if !(__IOS__ || SL5 || XBOX || ANDROID || PCL || DNX451 || DNXCORE50)
-//            WriteRawString(writer, Convert.ToBase64String(((System.Data.Linq.Binary)linqBinaryValue).ToArray()));
-//#endif
-//        }
-
         public ParseStringDelegate GetParseFn<T>()
         {
             return JsonReader.Instance.GetParseFn<T>();
