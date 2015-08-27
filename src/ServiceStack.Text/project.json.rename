@@ -3,28 +3,32 @@
 
   "frameworks": {
 
-    "net45+sl5+MonoAndroid10+Xamarin.iOS10+MonoTouch10": {
+    ".NETPortable,Version=v4.5,Profile=Profile7": {
+      "compilationOptions": {
+        "define": [ "PCL" ]
+      },
       "frameworkAssemblies": {
-        "System.Core": "",
+        "System": "",
         "System.Collections": "",
+        "System.Collections.Concurrent": "",
+        "System.Globalization": "",
+        "System.IO": "",
         "System.Linq": "",
         "System.Linq.Expressions": "",
-        "System.Linq.Queryable": "",
-        "System.Text.RegularExpressions": "",
         "System.Reflection": "",
         "System.Reflection.Extensions": "",
-        "System.Diagnostics.Debug": "",
-        "System.ObjectModel": "",
-        "System.Threading": "",
         "System.Runtime": "",
         "System.Runtime.Extensions": "",
         "System.Runtime.Serialization.Primitives": "",
-        "System.Runtime.Serialization.Json": "",
-        "System.Runtime.Serialization.Xml": "",
+        "System.Text.Encoding": "",
+        "System.Text.Encoding.Extensions": "",
+        "System.Text.RegularExpressions": "",
+        "System.Threading": "",
+        "System.Threading.Tasks": "",
         "System.Net.Requests": "",
-        "System.Net.Http": ""
-      },
-      "compilationOptions": { "define": [ "PCL", "CORECLR" ] }
+        "System.Net.Http": "",
+        "System.Net.Primitives": ""
+      }
     },
     "net45": {
       "frameworkAssemblies": {
