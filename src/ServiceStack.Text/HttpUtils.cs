@@ -783,7 +783,6 @@ namespace ServiceStack
             UploadFile(webRequest, fileStream, fileName, mimeType);
         }
 
-#if !(XBOX || PCL)
         public static string PostXmlToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -797,7 +796,6 @@ namespace ServiceStack
             return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
-#endif
     }
 
     public interface IHttpResultsFilter : IDisposable

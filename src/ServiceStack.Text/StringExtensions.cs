@@ -998,7 +998,7 @@ namespace ServiceStack
             return count;
         }
 
-#if !(XBOX || PCL)
+#if !LITE
         public static string HexEscape(this string text, params char[] anyCharOf)
         {
             if (String.IsNullOrEmpty(text)) return text;
