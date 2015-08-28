@@ -1852,6 +1852,10 @@ namespace ServiceStack
             if (alreadyDict != null)
                 return alreadyDict;
 
+            var interfaceDict = obj as IDictionary<string, object>;
+            if (interfaceDict != null)
+                return new Dictionary<string, object>(interfaceDict);
+
             var type = obj.GetType();
 
             ObjectDictionaryDefinition def;

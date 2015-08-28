@@ -6,13 +6,16 @@ namespace ServiceStack.Text.Tests
     public class DynamicJsonTests
     {
         [Test]
-        public void Can_serialize_dynamic_instance()
+        public void Can_Serialize_dynamic_collection()
         {
-            var dog = new { Name = "Spot" };
-            var json = DynamicJson.Serialize(dog);
+            dynamic rows = new[] { new { Name = "Foo" }, new { Name = "Bar" } };
 
-            Assert.IsNotNull(json);
-            json.Print();
+            string json = JsonSerializer.SerializeToString(rows);
+
+            Assert.That(json, Is.EqualTo("[{\"Name\":\"Foo\"},{\"Name\":\"Bar\"}]"));
+
+            string csv = CsvSerializer.SerializeToString(rows);
+            Assert.That(csv.NormalizeNewLines(), Is.EqualTo("Name\nFoo\nBar\n"));
         }
 
         [Test]
@@ -20,10 +23,13 @@ namespace ServiceStack.Text.Tests
         {
             var dog = new { Name = "Spot" };
             var json = DynamicJson.Serialize(dog);
+
+            Assert.That(json, Is.EqualTo("{\"Name\":\"Spot\"}"));
+
             var deserialized = DynamicJson.Deserialize(json);
 
             Assert.IsNotNull(deserialized);
-            Assert.AreEqual(dog.Name, deserialized.Name);
+            Assert.That(deserialized.Name, Is.EqualTo(dog.Name));
         }
     }
 }

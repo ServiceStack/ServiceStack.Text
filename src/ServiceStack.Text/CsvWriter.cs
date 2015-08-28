@@ -33,7 +33,7 @@ namespace ServiceStack.Text
             writer.Write(CsvConfig.RowSeparatorString);
         }
 
-        public static void Write(TextWriter writer, IEnumerable<Dictionary<string, object>> records)
+        public static void Write(TextWriter writer, IEnumerable<IDictionary<string, object>> records)
         {
             if (records == null) return; //AOT
 
@@ -49,7 +49,7 @@ namespace ServiceStack.Text
             }
         }
 
-        public static void Write(TextWriter writer, IEnumerable<Dictionary<string, string>> records)
+        public static void Write(TextWriter writer, IEnumerable<IDictionary<string, string>> records)
         {
             if (records == null) return; //AOT
 
@@ -221,9 +221,15 @@ namespace ServiceStack.Text
         {
             if (writer == null) return; //AOT
 
-            if (typeof(T) == typeof(Dictionary<string, string>))
+            if (typeof(T) == typeof(Dictionary<string, string>) || typeof(T) == typeof(IDictionary<string, string>))
             {
-                CsvDictionaryWriter.Write(writer, (IEnumerable<Dictionary<string, string>>)records);
+                CsvDictionaryWriter.Write(writer, (IEnumerable<IDictionary<string, string>>)records);
+                return;
+            }
+
+            if (typeof(T) == typeof(Dictionary<string, object>) || typeof(T) == typeof(IDictionary<string, object>))
+            {
+                CsvDictionaryWriter.Write(writer, (IEnumerable<IDictionary<string, object>>)records);
                 return;
             }
 

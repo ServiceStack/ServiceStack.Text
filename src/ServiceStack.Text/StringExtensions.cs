@@ -998,6 +998,13 @@ namespace ServiceStack
             return count;
         }
 
+        public static string NormalizeNewLines(this string text)
+        {
+            return text != null
+                ? text.Replace("\r\n", "\n")
+                : null;
+        }
+
 #if !LITE
         public static string HexEscape(this string text, params char[] anyCharOf)
         {
