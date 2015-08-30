@@ -29,6 +29,7 @@ namespace ServiceStack
         AwsIndie,
         AwsBusiness,
         Trial,
+        Site,
     }
 
     [Flags]
@@ -317,6 +318,7 @@ namespace ServiceStack
                 case LicenseType.Business:
                 case LicenseType.Enterprise:
                 case LicenseType.Trial:
+                case LicenseType.Site:
                     return LicenseFeature.All;
 
                 case LicenseType.TextIndie:
