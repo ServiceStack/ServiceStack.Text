@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED
 		..\build\build.tasks = ..\build\build.tasks
 		..\build\copy-pcl.bat = ..\build\copy-pcl.bat
 		..\build\copy.bat = ..\build\copy.bat
+		..\README.md = ..\README.md
 		..\NuGet\ServiceStack.Text\servicestack.text.nuspec = ..\NuGet\ServiceStack.Text\servicestack.text.nuspec
 		..\NuGet.Signed\ServiceStack.Text.Signed\servicestack.text.signed.nuspec = ..\NuGet.Signed\ServiceStack.Text.Signed\servicestack.text.signed.nuspec
 	EndProjectSection

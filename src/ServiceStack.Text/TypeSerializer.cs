@@ -287,7 +287,17 @@ namespace ServiceStack.Text
                 PclExport.Instance.WriteLine(text);
         }
 
-		public static string SerializeAndFormat<T>(this T instance)
+        public static void Print(this int intValue)
+        {
+            PclExport.Instance.WriteLine(intValue.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public static void Print(this long longValue)
+        {
+            PclExport.Instance.WriteLine(longValue.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public static string SerializeAndFormat<T>(this T instance)
 		{
 		    var fn = instance as Delegate;
 		    if (fn != null)
