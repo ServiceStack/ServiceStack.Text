@@ -63,6 +63,9 @@ namespace ServiceStack.Text.Common
 
         public static object TryParseEnum(Type enumType, string str)
         {
+            if (str == null)
+                return null;
+
             if (JsConfig.EmitLowercaseUnderscoreNames)
             {
                 string[] names = Enum.GetNames(enumType);
