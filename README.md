@@ -493,6 +493,6 @@ Support for dynamic payloads and late-bound objects is explained in the post [Ve
 
 # Community Resources
 
-  - [ServiceStack.Text has nice extension method called Dump and has a few friends](http://blogs.lessthandot.com/index.php/DesktopDev/MSTech/servicestack-text-has-a-nice) by [@chrissie1](https://twitter.com/chrissie1)
-  - [JSON.NET vs ServiceStack](http://daniel.wertheim.se/2011/02/07/json-net-vs-servicestack/)
-  - [GithubSharp with ServiceStack.Text](http://xtzgzorex.wordpress.com/2012/01/30/githubsharp-with-servicestack-text/) by [@XTZGZoReX](https://twitter.com/XTZGZoReX)
+  - [ServiceStack.Text has nice extension method called Dump and has a few friends - web archive](https://web.archive.org/web/20150318193203/http://blogs.lessthandot.com/index.php/desktopdev/mstech/servicestack-text-has-a-nice/) by [@chrissie1](https://twitter.com/chrissie1)
+  - [JSON.NET vs ServiceStack - web archive](https://web.archive.org/web/20140721081359/http://daniel.wertheim.se/2011/02/07/json-net-vs-servicestack/)
+  - [GithubSharp with ServiceStack.Text](https://github.com/xamarin/GithubSharp/tree/servicestack) by [@XTZGZoReX](https://twitter.com/XTZGZoReX)
