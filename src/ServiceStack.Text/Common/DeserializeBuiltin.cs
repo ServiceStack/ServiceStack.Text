@@ -70,8 +70,10 @@ namespace ServiceStack.Text.Common
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
                     case TypeCode.Char:
-                        char cValue;
-                        return value => char.TryParse(value, out cValue) ? cValue : '\0';
+                        return value => {
+                            char cValue;
+                            return char.TryParse(value, out cValue) ? cValue : '\0';
+                        };
                 }
 
                 if (typeof(T) == typeof(Guid))
@@ -120,8 +122,10 @@ namespace ServiceStack.Text.Common
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestNullableXsdDateTime(value);
                     case TypeCode.Char:
-                        char cValue;
-                        return value => string.IsNullOrEmpty(value) ? (char?)null : char.TryParse(value, out cValue) ? cValue : '\0';
+                        return value => {
+                            char cValue;
+                            return string.IsNullOrEmpty(value) ? (char?)null : char.TryParse(value, out cValue) ? cValue : '\0';
+                        };
                 }
 
                 if (typeof(T) == typeof(TimeSpan?))
