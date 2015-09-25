@@ -164,7 +164,8 @@ namespace ServiceStack.Text
 
                     if (propertyInfo.PropertyType == typeof(string)
                         || propertyInfo.PropertyType.IsValueType()
-                        || propertyInfo.PropertyType == typeof(byte[])) continue;
+                        || propertyInfo.PropertyType == typeof(byte[]))
+                        continue;
 
                     if (firstCandidate == null)
                     {
@@ -263,7 +264,16 @@ namespace ServiceStack.Text
 
         public static void WriteObject(TextWriter writer, object value)
         {
-            CacheFn(writer, value);
+            var hold = JsState.IsCsv;
+            JsState.IsCsv = true;
+            try
+            {
+                CacheFn(writer, value);
+            }
+            finally
+            {
+                JsState.IsCsv = hold;
+            }
         }
     }
 }

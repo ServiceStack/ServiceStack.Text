@@ -222,26 +222,32 @@ namespace ServiceStack.Text.Jsv
 		{
 			if (floatValue == null) return;
 			var floatVal = (float)floatValue;
-			if (Equals(floatVal, float.MaxValue) || Equals(floatVal, float.MinValue))
-				writer.Write(floatVal.ToString("r", CultureInfo.InvariantCulture));
+            var cultureInfo = JsState.IsCsv ? CsvConfig.RealNumberCultureInfo : null;
+
+            if (Equals(floatVal, float.MaxValue) || Equals(floatVal, float.MinValue))
+				writer.Write(floatVal.ToString("r", cultureInfo ?? CultureInfo.InvariantCulture));
 			else
-				writer.Write(floatVal.ToString(CultureInfo.InvariantCulture));
+				writer.Write(floatVal.ToString(cultureInfo ?? CultureInfo.InvariantCulture));
 		}
 
 		public void WriteDouble(TextWriter writer, object doubleValue)
 		{
 			if (doubleValue == null) return;
 			var doubleVal = (double)doubleValue;
-			if (Equals(doubleVal, double.MaxValue) || Equals(doubleVal, double.MinValue))
-				writer.Write(doubleVal.ToString("r", CultureInfo.InvariantCulture));
+            var cultureInfo = JsState.IsCsv ? CsvConfig.RealNumberCultureInfo : null;
+
+            if (Equals(doubleVal, double.MaxValue) || Equals(doubleVal, double.MinValue))
+				writer.Write(doubleVal.ToString("r", cultureInfo ?? CultureInfo.InvariantCulture));
 			else
-				writer.Write(doubleVal.ToString(CultureInfo.InvariantCulture));
+				writer.Write(doubleVal.ToString(cultureInfo ?? CultureInfo.InvariantCulture));
 		}
 
 		public void WriteDecimal(TextWriter writer, object decimalValue)
 		{
 			if (decimalValue == null) return;
-			writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));
+            var cultureInfo = JsState.IsCsv ? CsvConfig.RealNumberCultureInfo : null;
+
+            writer.Write(((decimal)decimalValue).ToString(cultureInfo ?? CultureInfo.InvariantCulture));
 		}
 
 		public void WriteEnum(TextWriter writer, object enumValue)

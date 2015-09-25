@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
@@ -9,6 +10,13 @@ namespace ServiceStack.Text
         static CsvConfig()
         {
             Reset();
+        }
+
+        private static CultureInfo sRealNumberCultureInfo;
+        public static CultureInfo RealNumberCultureInfo
+        {
+            get { return sRealNumberCultureInfo ?? CultureInfo.InvariantCulture; }
+            set { sRealNumberCultureInfo = value; }
         }
 
         [ThreadStatic]
