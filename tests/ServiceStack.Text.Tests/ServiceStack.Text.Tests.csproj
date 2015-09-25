@@ -177,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoMappingObjectDictionaryTests.cs" />
+    <Compile Include="CustomCultureInfoTests.cs" />
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="CsvTypeTests.cs" />
@@ -187,6 +188,8 @@
     <Compile Include="JsonTests\OnDeserializationErrorTests.cs" />
     <Compile Include="JsonTests\TypeInfoTests.cs" />
     <Compile Include="PclApiTests.cs" />
+    <Compile Include="Support\NumberTypes.cs" />
+    <Compile Include="Support\Point.cs" />
     <Compile Include="SerializationDelegatePerformanceTests.cs" />
     <Compile Include="SerializationHookTests.cs" />
     <Compile Include="StaticAccessorTests.cs" />
