@@ -168,6 +168,18 @@ namespace ServiceStack.Text
 	        }
 	        return false;
 	    }
+
+	    public T ConvertTo<T>()
+	    {
+	        var map = new Dictionary<string,object>();
+
+	        foreach (var entry in this)
+	        {
+	            map[entry.Key] = entry.Value;
+	        }
+
+            return (T)map.FromObjectDictionary(typeof(T));
+	    }
 	}
 
 	public class JsonArrayObjects : List<JsonObject>
