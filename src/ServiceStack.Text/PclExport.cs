@@ -22,7 +22,8 @@ namespace ServiceStack
         {
             public const string WindowsStore = "WindowsStore";
             public const string Android = "Android";
-            public const string IOS = "IOS";
+			public const string IOS = "IOS";
+            public const string Mac = "MAC";
             public const string Silverlight5 = "Silverlight5";
             public const string WindowsPhone = "WindowsPhone";
         }
@@ -40,6 +41,8 @@ namespace ServiceStack
           = new XboxPclExport()
 #elif __IOS__
           = new IosPclExport()
+#elif __MAC__
+          = new MacPclExport()
 #elif ANDROID
           = new AndroidPclExport()
 #else
@@ -57,6 +60,8 @@ namespace ServiceStack
                 if (ConfigureProvider("ServiceStack.IosPclExportClient, ServiceStack.Pcl.iOS"))
                     return;
                 if (ConfigureProvider("ServiceStack.AndroidPclExportClient, ServiceStack.Pcl.Android"))
+                    return;
+                if (ConfigureProvider("ServiceStack.MacPclExportClient, ServiceStack.Pcl.Mac20"))
                     return;
                 if (ConfigureProvider("ServiceStack.WinStorePclExportClient, ServiceStack.Pcl.WinStore"))
                     return;
