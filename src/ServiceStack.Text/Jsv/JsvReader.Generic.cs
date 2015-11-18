@@ -9,7 +9,7 @@ using ServiceStack.Text.Common;
 namespace ServiceStack.Text.Jsv
 {
     public static class JsvReader
-	{ 
+	{
 		internal static readonly JsReader<JsvTypeSerializer> Instance = new JsReader<JsvTypeSerializer>();
 
         private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
@@ -50,6 +50,8 @@ namespace ServiceStack.Text.Jsv
 
         public static void Refresh()
         {
+            JsConfig.InitStatics();
+
             if (JsvReader.Instance == null)
                 return;
 
@@ -72,8 +74,11 @@ namespace ServiceStack.Text.Jsv
 					throw new NotSupportedException("Can not deserialize interface type: "
 						+ typeof(T).Name);
 				}
-			}
-			return value == null 
+
+                Refresh();
+            }
+
+            return value == null 
 			       	? null 
 			       	: ReadFn(value);
 		}

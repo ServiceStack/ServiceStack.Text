@@ -22,6 +22,8 @@ namespace ServiceStack.Text
             LicenseUtils.Init();
         }
 
+        internal static void InitStatics() {}
+
         public static JsConfigScope BeginScope()
         {
             return new JsConfigScope();
