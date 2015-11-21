@@ -430,7 +430,7 @@ namespace ServiceStack
 
             if (ResultsFilter != null)
             {
-                return ResultsFilter.GetString(webReq);
+                return ResultsFilter.GetString(webReq, requestBody);
             }
 
             if (requestBody != null)
@@ -497,7 +497,7 @@ namespace ServiceStack
 
             if (ResultsFilter != null)
             {
-                return ResultsFilter.GetBytes(webReq);
+                return ResultsFilter.GetBytes(webReq, requestBody);
             }
 
             if (requestBody != null)
@@ -800,8 +800,8 @@ namespace ServiceStack
 
     public interface IHttpResultsFilter : IDisposable
     {
-        string GetString(HttpWebRequest webReq);
-        byte[] GetBytes(HttpWebRequest webReq);
+        string GetString(HttpWebRequest webReq, string reqBody);
+        byte[] GetBytes(HttpWebRequest webReq, byte[] reqBody);
         void UploadStream(HttpWebRequest webRequest, Stream fileStream, string fileName);
     }
 
@@ -812,8 +812,8 @@ namespace ServiceStack
         public string StringResult { get; set; }
         public byte[] BytesResult { get; set; }
 
-        public Func<HttpWebRequest, string> StringResultFn { get; set; }
-        public Func<HttpWebRequest, byte[]> BytesResultFn { get; set; }
+        public Func<HttpWebRequest, string, string> StringResultFn { get; set; }
+        public Func<HttpWebRequest, byte[], byte[]> BytesResultFn { get; set; }
         public Action<HttpWebRequest, Stream, string> UploadFileFn { get; set; }
 
         public HttpResultsFilter(string stringResult=null, byte[] bytesResult=null)
@@ -830,17 +830,17 @@ namespace ServiceStack
             HttpUtils.ResultsFilter = previousFilter;
         }
 
-        public string GetString(HttpWebRequest webReq)
+        public string GetString(HttpWebRequest webReq, string reqBody)
         {
             return StringResultFn != null
-                ? StringResultFn(webReq)
+                ? StringResultFn(webReq, reqBody)
                 : StringResult;
         }
 
-        public byte[] GetBytes(HttpWebRequest webReq)
+        public byte[] GetBytes(HttpWebRequest webReq, byte[] reqBody)
         {
             return BytesResultFn != null
-                ? BytesResultFn(webReq)
+                ? BytesResultFn(webReq, reqBody)
                 : BytesResult;
         }
 
