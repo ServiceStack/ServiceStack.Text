@@ -60,26 +60,6 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Can_serialize_negative_TimeSpan_field()
-        {
-            var period = new TimeSpan(0, 0, -15, 0);
-
-            var model = new SampleModel { Id = 1, TimeSpan = period };
-            var json = JsonSerializer.SerializeToString(model);
-            Assert.That(json, Is.StringContaining("\"TimeSpan\":\"-PT15M\""));
-        }
-
-        [Test]
-        public void Can_deserialize_negative_TimeSpan_string()
-        {
-            var expectedTimeSpan = new TimeSpan(0, 0, -15, 0);
-            const string timeSpanString = @"-PT15M";
-
-            var timeSpan = JsonSerializer.DeserializeFromString<TimeSpan>(timeSpanString);
-            Assert.That(timeSpan, Is.EqualTo(expectedTimeSpan));
-        }
-
-        [Test]
         public void Can_serialize_TimeSpan_field_with_StandardTimeSpanFormat()
         {
             using (JsConfig.With(timeSpanHandler:TimeSpanHandler.StandardFormat))

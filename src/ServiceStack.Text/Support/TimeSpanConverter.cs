@@ -56,7 +56,13 @@ namespace ServiceStack.Text.Support
             int hours = 0;
             int minutes = 0;
             double seconds = 0;
-            var sign = (xsdDuration.StartsWith("-", StringComparison.Ordinal) ? -1 : 1);
+            int sign = 1;
+
+            if (xsdDuration.StartsWith("-", StringComparison.Ordinal))
+            {
+                sign = -1;
+                xsdDuration = xsdDuration.Substring(1); //strip sign
+            }
 
             string[] t = xsdDuration.Substring(1).SplitOnFirst('T'); //strip P
 
