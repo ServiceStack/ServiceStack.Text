@@ -22,7 +22,8 @@ namespace ServiceStack.Text
             LicenseUtils.Init();
         }
 
-        internal static void InitStatics() {}
+        // force deterministic initialization of static constructor
+        public static void InitStatics() {}
 
         public static JsConfigScope BeginScope()
         {
