@@ -117,7 +117,7 @@ namespace ServiceStack.Text
             return base[key];
         }
         
-        static readonly Regex NumberRegEx = new Regex(@"^[0-9]*(?:\.[0-9]*)?$", PclExport.Instance.RegexOptions);
+        static readonly Regex NumberRegEx = new Regex(@"^(0|[1-9]*)(?:\.[0-9]*)?$", PclExport.Instance.RegexOptions);
 
         /// <summary>
         /// Write JSON Array, Object, bool or number values as raw string
@@ -133,7 +133,7 @@ namespace ServiceStack.Text
                     || (firstChar == JsWriter.ListStartChar && lastChar == JsWriter.ListEndChar) 
                     || JsonUtils.True == strValue
                     || JsonUtils.False == strValue
-                    || NumberRegEx.IsMatch(strValue))
+                    || (NumberRegEx.IsMatch(strValue) && IsJavaScriptNumber(strValue)))
                 {
                     writer.Write(strValue);
                     return;
@@ -141,7 +141,27 @@ namespace ServiceStack.Text
             }
             JsonUtils.WriteString(writer, strValue);
         }
-    }
+
+	    private static bool IsJavaScriptNumber(string strValue)
+	    {
+	        if (!strValue.Contains("."))
+	        {
+	            long longValue; 
+	            if (long.TryParse(strValue, out longValue))
+	            {
+	                return longValue < JsonUtils.MaxInteger && longValue > JsonUtils.MinInteger;
+	            }
+	            return false;
+	        }
+	        
+            double doubleValue;
+	        if (double.TryParse(strValue, out doubleValue))
+	        {
+	            return doubleValue < JsonUtils.MaxInteger && doubleValue > JsonUtils.MinInteger;
+	        }
+	        return false;
+	    }
+	}
 
 	public class JsonArrayObjects : List<JsonObject>
 	{

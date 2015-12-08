@@ -40,13 +40,18 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                var existingKeyPos = url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison);
+                var existingKeyPos = qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison) 
+                    ? qsPos 
+                    : url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
+
                 if (existingKeyPos != -1)
                 {
-                    var endPos = url.IndexOf('&', existingKeyPos);
-                    if (endPos == -1) endPos = url.Length;
+                    var endPos = url.IndexOf('&', existingKeyPos + 1);
+                    if (endPos == -1) 
+                        endPos = url.Length;
 
                     var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + "="
                         + val.UrlEncode()
                         + url.Substring(endPos);
                     return newUrl;
@@ -64,6 +69,33 @@ namespace ServiceStack
         public static string AddHashParam(this string url, string key, string val)
         {
             if (string.IsNullOrEmpty(url)) return null;
+            var prefix = url.IndexOf('#') == -1 ? "#" : "/";
+            return url + prefix + key + "=" + val.UrlEncode();
+        }
+
+        public static string SetHashParam(this string url, string key, string val)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+            var hPos = url.IndexOf('#');
+            if (hPos != -1)
+            {
+                var existingKeyPos = hPos + 1 == url.IndexOf(key, hPos, PclExport.Instance.InvariantComparison)
+                    ? hPos
+                    : url.IndexOf("/" + key, hPos, PclExport.Instance.InvariantComparison);
+
+                if (existingKeyPos != -1)
+                {
+                    var endPos = url.IndexOf('/', existingKeyPos + 1);
+                    if (endPos == -1) 
+                        endPos = url.Length;
+
+                    var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
+                        + "="
+                        + val.UrlEncode()
+                        + url.Substring(endPos);
+                    return newUrl;
+                }
+            }
             var prefix = url.IndexOf('#') == -1 ? "#" : "/";
             return url + prefix + key + "=" + val.UrlEncode();
         }
@@ -984,6 +1016,8 @@ namespace ServiceStack
 
                 case "woff":
                     return "application/font-woff";
+                case "woff2":
+                    return "application/font-woff2";
 
                 default:
                     return "application/" + fileExt;
@@ -996,6 +1030,8 @@ namespace ServiceStack
         public const string XParamOverridePrefix = "X-Param-Override-";
 
         public const string XHttpMethodOverride = "X-Http-Method-Override";
+
+        public const string XAutoBatchCompleted = "X-AutoBatch-Completed"; // How many requests were completed before first failure
 
         public const string XUserAuthId = "X-UAId";
 

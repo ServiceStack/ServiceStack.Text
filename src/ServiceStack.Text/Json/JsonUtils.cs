@@ -8,6 +8,9 @@ namespace ServiceStack.Text.Json
 {
 	public static class JsonUtils
 	{
+        public static long MaxInteger = 9007199254740992;
+        public static long MinInteger = -9007199254740992;
+
 		public const char EscapeChar = '\\';
 		public const char QuoteChar = '"';
 		public const string Null = "null";

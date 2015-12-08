@@ -33,4 +33,6 @@ namespace ServiceStack.Text.Common
     public delegate object ConvertObjectDelegate(object fromObject);
 
     public delegate object ConvertInstanceDelegate(object obj, Type type);
+
+    public delegate void DeserializationErrorDelegate(object instance, Type propertyType, string propertyName, string propertyValueStr, Exception ex);
 }

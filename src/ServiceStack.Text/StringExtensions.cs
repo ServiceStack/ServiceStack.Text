@@ -562,7 +562,7 @@ namespace ServiceStack
         private const int LowerCaseOffset = 'a' - 'A';
         public static string ToCamelCase(this string value)
         {
-            if (String.IsNullOrEmpty(value)) return value;
+            if (string.IsNullOrEmpty(value)) return value;
 
             var len = value.Length;
             var newValue = new char[len];
@@ -584,6 +584,26 @@ namespace ServiceStack
             }
 
             return new string(newValue);
+        }
+
+        public static string ToPascalCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+
+            if (value.IndexOf('_') >= 0)
+            {
+                var parts = value.Split('_');
+                var sb = new StringBuilder();
+                foreach (var part in parts)
+                {
+                    var str = part.ToCamelCase();
+                    sb.Append(Char.ToUpper(str[0]) + str.SafeSubstring(1, str.Length));
+                }
+                return sb.ToString();
+            }
+
+            var camelCase = value.ToCamelCase();
+            return Char.ToUpper(camelCase[0]) + camelCase.SafeSubstring(1, camelCase.Length);
         }
 
         public static string ToTitleCase(this string value)
@@ -612,6 +632,16 @@ namespace ServiceStack
             return sb.ToString();
         }
 
+        public static string ToLowerSafe(this string value)
+        {
+            return value != null ? value.ToLower() : null;
+        }
+
+        public static string ToUpperSafe(this string value)
+        {
+            return value != null ? value.ToUpper() : null;
+        }
+
         public static string SafeSubstring(this string value, int startIndex)
         {
             return SafeSubstring(value, startIndex, value.Length);
@@ -619,7 +649,7 @@ namespace ServiceStack
 
         public static string SafeSubstring(this string value, int startIndex, int length)
         {
-            if (String.IsNullOrEmpty(value)) return String.Empty;
+            if (string.IsNullOrEmpty(value)) return string.Empty;
             if (value.Length >= (startIndex + length))
                 return value.Substring(startIndex, length);
 
