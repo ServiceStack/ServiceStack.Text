@@ -442,6 +442,21 @@ namespace ServiceStack
             return String.Format(text, args);
         }
 
+        public static string Fmt(this string text, object arg1)
+        {
+            return String.Format(text, arg1);
+        }
+
+        public static string Fmt(this string text, object arg1, object arg2)
+        {
+            return String.Format(text, arg1, arg2);
+        }
+
+        public static string Fmt(this string text, object arg1, object arg2, object arg3)
+        {
+            return String.Format(text, arg1, arg2, arg3);
+        }
+
         public static bool StartsWithIgnoreCase(this string text, string startsWith)
         {
             return text != null
