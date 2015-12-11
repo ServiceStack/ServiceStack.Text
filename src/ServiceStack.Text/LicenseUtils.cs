@@ -412,7 +412,7 @@ namespace ServiceStack
                 "ServiceStack.RabbitMq.RabbitMqProducer+AccessToken",
                 "ServiceStack.Messaging.RedisMessageQueueClient+AccessToken",
                 "ServiceStack.Messaging.RedisMessageProducer+AccessToken",
-                "ServiceStack.Aws.AwsClientUtils+AccessToken",
+                "ServiceStack.Aws.Support.AwsClientUtils+AccessToken",
             };
 
             internal static readonly HashSet<string> __dlls = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

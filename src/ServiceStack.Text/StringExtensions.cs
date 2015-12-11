@@ -54,44 +54,34 @@ namespace ServiceStack
         /// <returns></returns>
         public static string BaseConvert(this string source, int from, int to)
         {
-            const string chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var len = source.Length;
+            if (len == 0)
+                throw new Exception(string.Format("Parameter: '{0}' is not valid integer (in base {1}).", source, from));
+            var minus = source[0] == '-' ? "-" : "";
+            var src = minus == "" ? source : source.Substring(1);
+            len = src.Length;
+            if (len == 0)
+                throw new Exception(string.Format("Parameter: '{0}' is not valid integer (in base {1}).", source, from));
+
+            var d = 0;
+            for (int i = 0; i < len; i++) // Convert to decimal
+            {
+                int c = chars.IndexOf(src[i]);
+                if (c >= from)
+                    throw new Exception(string.Format("Parameter: '{0}' is not valid integer (in base {1}).", source, from));
+                d = d * from + c;
+            }
+            if (to == 10 || d == 0)
+                return minus + d;
+
             var result = "";
-            var length = source.Length;
-            var number = new int[length];
-
-            for (var i = 0; i < length; i++)
+            while (d > 0)   // Convert to desired
             {
-                number[i] = chars.IndexOf(source[i]);
+                result = chars[d % to] + result;
+                d /= to;
             }
-
-            int newlen;
-
-            do
-            {
-                var divide = 0;
-                newlen = 0;
-
-                for (var i = 0; i < length; i++)
-                {
-                    divide = divide * @from + number[i];
-
-                    if (divide >= to)
-                    {
-                        number[newlen++] = divide / to;
-                        divide = divide % to;
-                    }
-                    else if (newlen > 0)
-                    {
-                        number[newlen++] = 0;
-                    }
-                }
-
-                length = newlen;
-                result = chars[divide] + result;
-            }
-            while (newlen != 0);
-
-            return result;
+            return minus + result;
         }
 
         public static string EncodeXml(this string value)
@@ -450,6 +440,21 @@ namespace ServiceStack
         public static string Fmt(this string text, params object[] args)
         {
             return String.Format(text, args);
+        }
+
+        public static string Fmt(this string text, object arg1)
+        {
+            return String.Format(text, arg1);
+        }
+
+        public static string Fmt(this string text, object arg1, object arg2)
+        {
+            return String.Format(text, arg1, arg2);
+        }
+
+        public static string Fmt(this string text, object arg1, object arg2, object arg3)
+        {
+            return String.Format(text, arg1, arg2, arg3);
         }
 
         public static bool StartsWithIgnoreCase(this string text, string startsWith)

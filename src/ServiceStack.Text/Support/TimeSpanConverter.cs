@@ -8,10 +8,11 @@ namespace ServiceStack.Text.Support
     {
         public static string ToXsdDuration(TimeSpan timeSpan)
         {
-            var sb = new StringBuilder("P");
+            var sb = new StringBuilder();
 
-            double ticks = timeSpan.Ticks;
+            sb.Append(timeSpan.Ticks < 0 ? "-P" : "P");
 
+            double ticks = Math.Abs(timeSpan.Ticks);
             double totalSeconds = ticks / TimeSpan.TicksPerSecond;
             int wholeSeconds = (int) totalSeconds;
             int seconds = wholeSeconds;
@@ -55,6 +56,13 @@ namespace ServiceStack.Text.Support
             int hours = 0;
             int minutes = 0;
             double seconds = 0;
+            int sign = 1;
+
+            if (xsdDuration.StartsWith("-", StringComparison.Ordinal))
+            {
+                sign = -1;
+                xsdDuration = xsdDuration.Substring(1); //strip sign
+            }
 
             string[] t = xsdDuration.Substring(1).SplitOnFirst('T'); //strip P
 
@@ -100,7 +108,7 @@ namespace ServiceStack.Text.Support
                     + (minutes * 60)
                     + (seconds);
 
-            var interval = (long) (totalSecs * TimeSpan.TicksPerSecond);
+            var interval = (long) (totalSecs * TimeSpan.TicksPerSecond * sign);
 
             return TimeSpan.FromTicks(interval);
         }

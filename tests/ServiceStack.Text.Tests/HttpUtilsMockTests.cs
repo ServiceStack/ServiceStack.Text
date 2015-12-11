@@ -82,9 +82,14 @@ namespace ServiceStack.Text.Tests
         {
             using (new HttpResultsFilter
             {
-                StringResultFn = webReq => webReq.RequestUri.ToString().Contains("google")
-                    ? "mocked-google"
-                    : "mocked-yahoo"
+                StringResultFn = (webReq, reqBody) =>
+                {
+                    if (reqBody != null && reqBody.Contains("{\"a\":1}")) return "mocked-by-body";
+
+                    return webReq.RequestUri.ToString().Contains("google")
+                        ? "mocked-google"
+                        : "mocked-yahoo";
+                }
             })
             {
                 Assert.That(ExampleGoogleUrl.GetJsonFromUrl(), Is.EqualTo("mocked-google"));
@@ -92,6 +97,8 @@ namespace ServiceStack.Text.Tests
 
                 Assert.That(ExampleGoogleUrl.PostJsonToUrl(json: "{\"postdata\":1}"), Is.EqualTo("mocked-google"));
                 Assert.That(ExampleYahooUrl.PostJsonToUrl(json: "{\"postdata\":1}"), Is.EqualTo("mocked-yahoo"));
+
+                Assert.That(ExampleYahooUrl.PostJsonToUrl(json: "{\"a\":1}"), Is.EqualTo("mocked-by-body"));
             }
         }
 
@@ -100,9 +107,14 @@ namespace ServiceStack.Text.Tests
         {
             using (new HttpResultsFilter
             {
-                BytesResultFn = webReq => webReq.RequestUri.ToString().Contains("google")
-                    ? "mocked-google".ToUtf8Bytes()
-                    : "mocked-yahoo".ToUtf8Bytes()
+                BytesResultFn = (webReq, reqBody) =>
+                {
+                    if (reqBody != null && reqBody.FromUtf8Bytes().Contains("{\"a\":1}")) return "mocked-by-body".ToUtf8Bytes();
+
+                    return webReq.RequestUri.ToString().Contains("google")
+                        ? "mocked-google".ToUtf8Bytes()
+                        : "mocked-yahoo".ToUtf8Bytes();
+                }
             })
             {
                 Assert.That(ExampleGoogleUrl.GetBytesFromUrl(), Is.EqualTo("mocked-google".ToUtf8Bytes()));
@@ -110,6 +122,8 @@ namespace ServiceStack.Text.Tests
 
                 Assert.That(ExampleGoogleUrl.PostBytesToUrl(requestBody: "postdata=1".ToUtf8Bytes()), Is.EqualTo("mocked-google".ToUtf8Bytes()));
                 Assert.That(ExampleYahooUrl.PostBytesToUrl(requestBody: "postdata=1".ToUtf8Bytes()), Is.EqualTo("mocked-yahoo".ToUtf8Bytes()));
+
+                Assert.That(ExampleYahooUrl.PostBytesToUrl(requestBody: "{\"a\":1}".ToUtf8Bytes()), Is.EqualTo("mocked-by-body".ToUtf8Bytes()));
             }
         }
 

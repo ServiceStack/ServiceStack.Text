@@ -50,6 +50,8 @@ namespace ServiceStack.Text.Json
 
         public static void Refresh()
         {
+            JsConfig.InitStatics();
+
             if (JsonReader.Instance == null)
                 return;
 
@@ -78,6 +80,8 @@ namespace ServiceStack.Text.Json
                     throw new NotSupportedException("Can not deserialize interface type: "
                         + typeof(T).Name);
                 }
+
+                Refresh();
             }
 
             return value == null
