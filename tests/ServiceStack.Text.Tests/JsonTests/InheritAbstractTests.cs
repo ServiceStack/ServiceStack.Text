@@ -48,11 +48,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             // serialize to JSON using ServiceStack
             string jsonString = JsonSerializer.SerializeToString(blockBuster);
 
-            const string expected = "{\"Address\":\"Av. República do Líbano, 2175 - Indinópolis, São Paulo - SP, 04502-300\",\"Movies\":[{\"Title\":\"The Shawshank Redemption\",\"ImdbId\":\"tt0111161\",\"Rating\":9.2,\"Director\":\"Frank Darabont\",\"ReleaseDate\":\"\\/Date(792950400000-0000)\\/\",\"TagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"Genres\":[\"Crime\",\"Drama\"]},{\"__type\":\"ServiceStack.Text.Tests.JsonTests.MovieChild, ServiceStack.Text.Tests\",\"Oscar\":[\"Best Picture - 1972\",\"Best Actor - 1972\",\"Best Adapted Screenplay - 1972\"],\"Title\":\"The Godfather\",\"ImdbId\":\"tt0068646\",\"Rating\":9.2,\"Director\":\"Francis Ford Coppola\",\"ReleaseDate\":\"\\/Date(70214400000-0000)\\/\",\"TagLine\":\"An offer you can't refuse.\",\"Genres\":[\"Crime\",\"Drama\",\"Thriller\"]}]}";
+            var expected = "{\"Address\":\"Av. República do Líbano, 2175 - Indinópolis, São Paulo - SP, 04502-300\",\"Movies\":[{\"Title\":\"The Shawshank Redemption\",\"ImdbId\":\"tt0111161\",\"Rating\":9.2,\"Director\":\"Frank Darabont\",\"ReleaseDate\":"
+                + JsonSerializer.SerializeToString(MoviesData.Movies[0].ReleaseDate) + ",\"TagLine\":\"Fear can hold you prisoner. Hope can set you free.\",\"Genres\":[\"Crime\",\"Drama\"]},{\"__type\":\"ServiceStack.Text.Tests.JsonTests.MovieChild, ServiceStack.Text.Tests\",\"Oscar\":[\"Best Picture - 1972\",\"Best Actor - 1972\",\"Best Adapted Screenplay - 1972\"],\"Title\":\"The Godfather\",\"ImdbId\":\"tt0068646\",\"Rating\":9.2,\"Director\":\"Francis Ford Coppola\",\"ReleaseDate\":"
+                + JsonSerializer.SerializeToString(child.ReleaseDate) + ",\"TagLine\":\"An offer you can't refuse.\",\"Genres\":[\"Crime\",\"Drama\",\"Thriller\"]}]}";
 
-            Assert.That(jsonString, Is.EqualTo(expected).
-                                    Or.EqualTo(expected.Replace("792997200000", "792950400000")
-                                                       .Replace("70261200000", "70214400000")));
+            Assert.That(jsonString, Is.EqualTo(expected));
         }
     }
 }
