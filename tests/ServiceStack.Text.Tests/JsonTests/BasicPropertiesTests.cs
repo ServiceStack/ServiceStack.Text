@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text;
 using NUnit.Framework;
 
@@ -171,6 +172,22 @@ namespace ServiceStack.Text.Tests.JsonTests
             var sb = new StringBuilder();
             foreach (var key in d.Keys) { sb.AppendLine(key + " = " + d[key]); }
             return sb.ToString();
+        }
+
+        public class ModelWithHashSet
+        {
+            public HashSet<string> Set { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_null_Nested_HashSet()
+        {
+            JsConfig.ThrowOnDeserializationError = true;
+            string json = @"{""set"":null}";
+            var o = json.FromJson<ModelWithHashSet>();
+            Assert.That(o.Set, Is.Null);
+
+            JsConfig.Reset();
         }
     }
 }
