@@ -100,7 +100,20 @@ namespace ServiceStack.Text.Tests
             Assert.That(deserialized.OnDeserializedTouched, Is.True);
         }
 
-        private void AddSerializeHooksForType<T>()
+        [Test]
+        public void JsonSerializer_Deserialize_hooks_set_in_cctor()
+        {
+            // Deserialize without serializing first, so we don't call the static constructor of HookTestCctor, which sets its own OnDeserialized callback.
+
+            //var original = new HookTestContainer { Child = new HookTestCctor() };
+            //var json = JsonSerializer.SerializeToString(original);
+            const string json = "{\"Child\":{\"OnDeserializingTouched\":false,\"OnDeserializedTouched\":false,\"OnSerializingTouched\":true,\"OnSerializedTouched\":false}}";
+
+            var deserialized = JsonSerializer.DeserializeFromString<HookTestContainer>(json);
+            Assert.That(deserialized.Child.OnDeserializedTouched, Is.True);
+        }
+
+        internal static void AddSerializeHooksForType<T>()
         {
             Type type = typeof(T);
             System.Reflection.MethodInfo[] typeMethods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -191,6 +204,19 @@ namespace ServiceStack.Text.Tests
 
         public class HookTestSubClass : HookTestClass
         {
+        }
+
+        public class HookTestCctor : HookTestClass
+        {
+            static HookTestCctor()
+            {
+                AddSerializeHooksForType<HookTestCctor>();
+            }
+        }
+
+        public class HookTestContainer
+        {
+            public HookTestCctor Child { get; set; }
         }
     }
 }
