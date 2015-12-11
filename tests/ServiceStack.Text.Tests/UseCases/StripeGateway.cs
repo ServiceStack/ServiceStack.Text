@@ -23,6 +23,7 @@ namespace ServiceStack.Stripe
             Credentials = new NetworkCredential(apiKey, "");
             Timeout = TimeSpan.FromSeconds(60);
             UserAgent = "servicestack .net stripe v1";
+            JsConfig.InitStatics();
         }
 
         protected virtual string Send(string relativeUrl, string method, string body)
