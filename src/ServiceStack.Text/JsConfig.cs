@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -815,6 +816,12 @@ namespace ServiceStack.Text
 
     public class JsConfig<T>
     {
+        static JsConfig()
+        {
+            // Run the type's static constructor (which may set OnDeserialized, etc.) before we cache any information about it
+            RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);
+        }
+
         /// <summary>
         /// Always emit type info for this type.  Takes precedence over ExcludeTypeInfo
         /// </summary>
