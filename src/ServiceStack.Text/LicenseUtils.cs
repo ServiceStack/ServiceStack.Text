@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using ServiceStack.Text;
 
 namespace ServiceStack
@@ -160,8 +162,11 @@ namespace ServiceStack
         public static void RegisterLicense(string licenseKeyText)
         {
             string cutomerId = null;
+            var hold = Thread.CurrentThread.CurrentCulture;
+
             try
             {
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
                 var parts = licenseKeyText.SplitOnFirst('-');
                 cutomerId = parts[0];
 
@@ -192,6 +197,10 @@ namespace ServiceStack
                     msg += " The id for this license is '{0}'".Fmt(cutomerId);
 
                 throw new LicenseException(msg).Trace();
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = hold;
             }
         }
 
@@ -355,6 +364,7 @@ namespace ServiceStack
             {
                 JsConfig<DateTime>.DeSerializeFn = null;
                 JsConfig<DateTime>.RawDeserializeFn = null;
+
                 var key = jsv.FromJsv<LicenseKey>();
 
                 if (key.Ref != refId)

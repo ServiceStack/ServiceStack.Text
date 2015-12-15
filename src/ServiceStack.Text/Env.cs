@@ -2,6 +2,7 @@
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace ServiceStack.Text
@@ -47,9 +48,9 @@ namespace ServiceStack.Text
                 + platformName
                 + (IsMono ? "/Mono" : "/.NET");
 
-            VersionString = ServiceStackVersion.ToString();
+            VersionString = ServiceStackVersion.ToString(CultureInfo.InvariantCulture);
 
-            __releaseDate = DateTime.Parse("2001-01-01");
+            __releaseDate = new DateTime(2001,01,01);
         }
 
         public static string VersionString { get; set; }
