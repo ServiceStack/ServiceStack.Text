@@ -68,8 +68,8 @@
         <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
       </RegexTransform>
       <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
-        <Find>DateTime\.Parse.*</Find>
-        <ReplaceWith>DateTime.Parse("$([System.DateTime]::Now.ToString(`yyyy-MM-dd`))");</ReplaceWith>
+        <Find>new DateTime.*</Find>
+        <ReplaceWith>new DateTime($([System.DateTime]::Now.ToString(`yyyy,MM,dd`)));</ReplaceWith>
       </RegexTransform>
       <RegexTransform Include="$(BuildSolutionDir)/tests/**/*.config">
         <Find>key="servicestack:license".*</Find>
