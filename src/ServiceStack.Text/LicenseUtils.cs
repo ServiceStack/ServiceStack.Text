@@ -162,11 +162,12 @@ namespace ServiceStack
         public static void RegisterLicense(string licenseKeyText)
         {
             string cutomerId = null;
+#if !PCL
             var hold = Thread.CurrentThread.CurrentCulture;
-
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+#endif
             try
             {
-                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
                 var parts = licenseKeyText.SplitOnFirst('-');
                 cutomerId = parts[0];
 
@@ -200,7 +201,9 @@ namespace ServiceStack
             }
             finally
             {
+#if !PCL
                 Thread.CurrentThread.CurrentCulture = hold;
+#endif
             }
         }
 
