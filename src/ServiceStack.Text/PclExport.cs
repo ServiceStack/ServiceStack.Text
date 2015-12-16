@@ -46,6 +46,8 @@ namespace ServiceStack
           = new MacPclExport()
 #elif ANDROID
           = new AndroidPclExport()
+#elif NET45
+          = new Net45PclExport()
 #else
           = new Net40PclExport()
 #endif
@@ -485,14 +487,9 @@ namespace ServiceStack
 
         public virtual Task WriteAndFlushAsync(Stream stream, byte[] bytes)
         {
-#if !SL5
-            return stream.WriteAsync(bytes, 0, bytes.Length)
-                .ContinueWith(t => stream.FlushAsync());
-#else
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
             return EmptyTask;
-#endif
         }
     }
 
