@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 
@@ -471,6 +472,12 @@ namespace ServiceStack
         public virtual string GetStackTrace()
         {
             return null;
+        }
+
+        public virtual Task WriteAndFlushAsync(Stream stream, byte[] bytes)
+        {
+            return stream.WriteAsync(bytes, 0, bytes.Length)
+                .ContinueWith(t => stream.FlushAsync());
         }
     }
 
