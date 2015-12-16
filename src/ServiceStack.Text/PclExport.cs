@@ -476,8 +476,13 @@ namespace ServiceStack
 
         public virtual Task WriteAndFlushAsync(Stream stream, byte[] bytes)
         {
+#if !SL5
             return stream.WriteAsync(bytes, 0, bytes.Length)
                 .ContinueWith(t => stream.FlushAsync());
+#elif
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Flush();
+#endif
         }
     }
 
