@@ -482,6 +482,7 @@ namespace ServiceStack
 #else
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
+            return Task.FromResult(0);
 #endif
         }
     }
