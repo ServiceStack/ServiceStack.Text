@@ -90,7 +90,16 @@ namespace ServiceStack
         public static void Configure(PclExport instance)
         {
             Instance = instance ?? Instance;
+
+            if (Instance != null && Instance.EmptyTask == null)
+            {
+                var tcs = new TaskCompletionSource<object>();
+                tcs.SetResult(null);
+                Instance.EmptyTask = tcs.Task;
+            }
         }
+
+        public Task EmptyTask;
 
         public bool SupportsExpression;
 
@@ -482,7 +491,7 @@ namespace ServiceStack
 #else
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
-            return Task.FromResult(0);
+            return EmptyTask;
 #endif
         }
     }
