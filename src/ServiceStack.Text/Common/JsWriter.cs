@@ -313,7 +313,7 @@ namespace ServiceStack.Text.Common
                 return specialWriteFn;
             }
 
-            if (typeof(T).IsArray)
+            if (typeof(T).IsArray())
             {
                 if (typeof(T) == typeof(byte[]))
                     return (w, x) => WriteLists.WriteBytes(Serializer, w, x);
