@@ -24,7 +24,6 @@ namespace ServiceStack.Text.Common
         public const string CondensedDateTimeFormat = "yyyyMMdd";                             //8
         public const string ShortDateTimeFormat = "yyyy-MM-dd";                               //11
         public const string DefaultDateTimeFormat = "dd/MM/yyyy HH:mm:ss";                    //20
-        public const string DefaultDateTimeFormatWithFraction = "dd/MM/yyyy HH:mm:ss.fff";    //24
         public const string XsdDateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffffffZ";               //29
         public const string XsdDateTimeFormat3F = "yyyy-MM-ddTHH:mm:ss.fffZ";                 //25
         public const string XsdDateTimeFormatSeconds = "yyyy-MM-ddTHH:mm:ssZ";                //21
@@ -92,15 +91,6 @@ namespace ServiceStack.Text.Common
                     return unspecifiedDate.Prepare();
                 }
 
-                if (dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
-                {
-                    var unspecifiedDate = JsConfig.AssumeUtc    
-                        ? DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
-                        : DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
-
-                    return unspecifiedDate.Prepare();
-                }
-
                 switch (JsConfig.DateHandler)
                 {
                     case DateHandler.UnixTime:
@@ -149,7 +139,8 @@ namespace ServiceStack.Text.Common
 
                 try
                 {
-                    var dateTime = DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
+                    var assumeKind = JsConfig.AssumeUtc ? DateTimeStyles.AssumeUniversal : DateTimeStyles.AssumeLocal;
+                    var dateTime = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture, assumeKind);
                     return dateTime.Prepare();
                 }
                 catch (FormatException)
