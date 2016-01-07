@@ -46,7 +46,7 @@ namespace ServiceStack.Text.Common
         public static Func<string, Exception, DateTime> OnParseErrorFn { get; set; }
 
         /// <summary>
-        /// If AlwaysUseUtc is set to true then convert all DateTime to UTC.
+        /// If AlwaysUseUtc is set to true then convert all DateTime to UTC. If PreserveUtc is set to true then UTC dates will not convert to local
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
@@ -55,6 +55,10 @@ namespace ServiceStack.Text.Common
             if (JsConfig.AlwaysUseUtc)
             {
                 return dateTime.Kind != DateTimeKind.Utc ? dateTime.ToStableUniversalTime() : dateTime;
+            }
+            if (JsConfig.PreserveUtc && dateTime.Kind == DateTimeKind.Utc)
+            {
+                return dateTime;
             }
             return parsedAsUtc ? dateTime.ToLocalTime() : dateTime;
         }
@@ -206,10 +210,10 @@ namespace ServiceStack.Text.Common
         {
             if (dateTimeStr == null || dateTimeStr.Length < ShortDateTimeFormat.Length)
                 return null;
-
             if (dateTimeStr.EndsWith(XsdUtcSuffix))
             {
                 dateTimeStr = dateTimeStr.Substring(0, dateTimeStr.Length - 1);
+                dateKind = JsConfig.PreserveUtc ? DateTimeKind.Utc : dateKind;  
             }
 
             var parts = dateTimeStr.Split('T');
@@ -408,7 +412,7 @@ namespace ServiceStack.Text.Common
             var timeOfDay = dateTime.TimeOfDay;
 
             var isStartOfDay = timeOfDay.Ticks == 0;
-            if (isStartOfDay)
+            if (isStartOfDay && !(JsConfig.PreserveUtc && dateTime.Kind == DateTimeKind.Utc))
                 return dateTime.ToString(ShortDateTimeFormat);
 
             var hasFractionalSecs = (timeOfDay.Milliseconds != 0) 

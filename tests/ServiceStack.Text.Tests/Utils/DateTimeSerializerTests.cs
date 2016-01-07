@@ -356,6 +356,60 @@ namespace ServiceStack.Text.Tests.Utils
         }
 
         [Test]
+        public void DateTime_Is_Serialized_As_Utc_and_Deserialized_as_Utc_with_PreserveUtc_true()
+        {
+            JsConfig.PreserveUtc = true;
+
+            var testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 1, DateTimeKind.Utc)
+            };
+
+            Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+             
+            using (JsConfig.With(preserveUtc: false))
+            {
+                Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+
+            testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            };
+
+            Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+             
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+
+            //make sure it still keeps local local
+            testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 2, 0, 2, 0, DateTimeKind.Local)
+            };
+
+            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+             
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+            testObject = new TestObject
+            {
+                Date = new DateTime(2013, 1, 2, 0, 2, 0, DateTimeKind.Unspecified)
+            };
+
+            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+        }
+
+        [Test]
         public void Does_parse_as_UTC()
         {
             JsConfig.AssumeUtc = true;

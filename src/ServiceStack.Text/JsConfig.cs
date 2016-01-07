@@ -54,6 +54,7 @@ namespace ServiceStack.Text
             Func<Type, string> typeWriter = null,
             Func<string, Type> typeFinder = null,
             bool? treatEnumAsInteger = null,
+            bool? preserveUtc = null,
             bool? alwaysUseUtc = null,
             bool? assumeUtc = null,
             bool? appendUtcOffset = null,
@@ -70,8 +71,8 @@ namespace ServiceStack.Text
                 TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
                 TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
 
-				ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? sParsePrimitiveFloatingPointTypes,
-				ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? sParsePrimitiveIntegerTypes,
+                ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? sParsePrimitiveFloatingPointTypes,
+                ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? sParsePrimitiveIntegerTypes,
 
                 ExcludeDefaultValues = excludeDefaultValues ?? sExcludeDefaultValues,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
@@ -90,6 +91,7 @@ namespace ServiceStack.Text
                 TypeWriter = typeWriter ?? sTypeWriter,
                 TypeFinder = typeFinder ?? sTypeFinder,
                 TreatEnumAsInteger = treatEnumAsInteger ?? sTreatEnumAsInteger,
+                PreserveUtc = preserveUtc ?? sPreserveUtc,
                 AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
                 AssumeUtc = assumeUtc ?? sAssumeUtc,
                 AppendUtcOffset = appendUtcOffset ?? sAppendUtcOffset,
@@ -511,6 +513,25 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating if the framework should preserve <see cref="DateTime"/> <see cref="DateTimeKind"/> when input was in UTC format instead of converting to local.
+        /// JsConfig.DateHandler = DateHandler.ISO8601 should be used when set true for consistent serialization
+        /// </summary>
+        private static bool? sPreserveUtc;
+        public static bool PreserveUtc
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.PreserveUtc : null)
+                    ?? sPreserveUtc
+                    ?? false;
+            }
+            set
+            {
+                if (!sPreserveUtc.HasValue) sPreserveUtc = value;
+            }
+        }
         /// <summary>
         /// Gets or sets a value indicating if the framework should always assume <see cref="DateTime"/> is in UTC format if Kind is Unspecified. 
         /// </summary>

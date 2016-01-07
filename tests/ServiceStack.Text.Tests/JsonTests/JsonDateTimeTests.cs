@@ -349,7 +349,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 
 		[Test]
-		public void Can_deserialize_json_date_iso8601_withZOffset_asUtc()
+		public void Can_deserialize_json_date_iso8601_withZOffset_asUtc_alwaysUseUtc_true()
 		{
 		    JsConfig.AlwaysUseUtc = true;
 			JsConfig.DateHandler = DateHandler.ISO8601;
@@ -363,20 +363,37 @@ namespace ServiceStack.Text.Tests.JsonTests
 			JsConfig.Reset();
 		}
 
-		[Test]
-		public void Can_deserialize_json_date_iso8601_withoutOffset_as_Unspecified()
-		{
-			JsConfig.DateHandler = DateHandler.ISO8601;
+        [Test]
+        public void Can_deserialize_json_date_iso8601_withZOffset_asUtc_preserveUtc_true()
+        {
+            JsConfig.PreserveUtc = true;
+            JsConfig.DateHandler = DateHandler.ISO8601;
 
-			const string json = @"""1994-11-24T12:34:56""";
-			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
+            const string json = "\"1994-11-24T12:34:56.0000000Z\"";
+            var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
-			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
-			Assert.That(fromJson, Is.EqualTo(dateTime));
-			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
-			JsConfig.Reset();
-		}
+            var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
+            Assert.That(fromJson, Is.EqualTo(dateTime));
+            Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+            var backToJson = JsonSerializer.SerializeToString(dateTime);
+            Assert.That(json, Is.EqualTo(backToJson));
+            JsConfig.Reset();
+        }
 
+        [Test]
+        public void Can_deserialize_json_date_iso8601_withoutOffset_as_Unspecified()
+        {
+            JsConfig.DateHandler = DateHandler.ISO8601;
+
+            const string json = @"""1994-11-24T12:34:56""";
+            var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
+            Assert.That(fromJson, Is.EqualTo(dateTime));
+            Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+            JsConfig.Reset();
+        }
+            
 		[Test]
 		public void Can_deserialize_json_date_iso8601_withOffset_asLocal()
 		{
