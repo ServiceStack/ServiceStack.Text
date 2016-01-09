@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Common
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc=false)
+        public static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc = false)
         {
             if (JsConfig.AlwaysUseUtc)
             {
@@ -134,7 +134,7 @@ namespace ServiceStack.Text.Common
                         if (manualDate != null)
                             return manualDate.Value;
                     }
-                    catch {}
+                    catch { }
                 }
 
                 try
@@ -169,7 +169,7 @@ namespace ServiceStack.Text.Common
         /// <returns>The repaired string. If no repairs were made, the original string is returned.</returns>
         private static string RepairXsdTimeSeparator(string dateTimeStr)
         {
-            if( (dateTimeStr.Length > XsdTimeSeparatorIndex) && (dateTimeStr[XsdTimeSeparatorIndex] == ' ') && dateTimeStr.EndsWith(XsdUtcSuffix) )
+            if ((dateTimeStr.Length > XsdTimeSeparatorIndex) && (dateTimeStr[XsdTimeSeparatorIndex] == ' ') && dateTimeStr.EndsWith(XsdUtcSuffix))
             {
                 dateTimeStr = dateTimeStr.Substring(0, XsdTimeSeparatorIndex) + XsdTimeSeparator +
                               dateTimeStr.Substring(XsdTimeSeparatorIndex + 1);
@@ -180,7 +180,7 @@ namespace ServiceStack.Text.Common
 
         public static DateTime? ParseManual(string dateTimeStr)
         {
-            var dateKind = JsConfig.AssumeUtc || JsConfig.AlwaysUseUtc 
+            var dateKind = JsConfig.AssumeUtc || JsConfig.AlwaysUseUtc
                 ? DateTimeKind.Utc
                 : DateTimeKind.Local;
 
@@ -254,7 +254,7 @@ namespace ServiceStack.Text.Common
                         if (msStr.Length > 3)
                         {
                             var subMsStr = msStr.Substring(3);
-                            subMs = double.Parse(subMsStr)/Math.Pow(10, subMsStr.Length);
+                            subMs = double.Parse(subMsStr) / Math.Pow(10, subMsStr.Length);
                         }
                     }
                 }
@@ -280,8 +280,8 @@ namespace ServiceStack.Text.Common
                         min = int.Parse(timeOffset.Substring(2));
                     }
 
-                    dateTime = dateTime.AddHours(offsetMultiplier*hh);
-                    dateTime = dateTime.AddMinutes(offsetMultiplier*min);
+                    dateTime = dateTime.AddHours(offsetMultiplier * hh);
+                    dateTime = dateTime.AddMinutes(offsetMultiplier * min);
                 }
 
                 return dateTime;
@@ -320,7 +320,7 @@ namespace ServiceStack.Text.Common
                 if (Env.IsMono)
                 {
                     // Without that Mono uses a Local timezone))
-                    dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00";                     
+                    dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00";
                 }
             }
 
@@ -364,7 +364,7 @@ namespace ServiceStack.Text.Common
         {
             return dateTimeStr.StartsWith("P", StringComparison.Ordinal) || dateTimeStr.StartsWith("-P", StringComparison.Ordinal)
                 ? ParseXsdTimeSpan(dateTimeStr)
-                : dateTimeStr.Contains(":") 
+                : dateTimeStr.Contains(":")
                 ? TimeSpan.Parse(dateTimeStr)
                 : ParseNSTimeInterval(dateTimeStr);
         }
@@ -402,8 +402,8 @@ namespace ServiceStack.Text.Common
             if (isStartOfDay)
                 return dateTime.ToString(ShortDateTimeFormat);
 
-            var hasFractionalSecs = (timeOfDay.Milliseconds != 0) 
-                || ((timeOfDay.Ticks%TimeSpan.TicksPerMillisecond) != 0);
+            var hasFractionalSecs = (timeOfDay.Milliseconds != 0)
+                || ((timeOfDay.Ticks % TimeSpan.TicksPerMillisecond) != 0);
             if (!hasFractionalSecs)
                 return dateTime.Kind != DateTimeKind.Utc
                     ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)

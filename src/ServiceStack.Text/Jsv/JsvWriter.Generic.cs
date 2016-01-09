@@ -9,12 +9,12 @@ using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Jsv
 {
-	internal static class JsvWriter
-	{
-		public static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
+    internal static class JsvWriter
+    {
+        public static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
 
         private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
-        
+
         internal static void RemoveCacheFn(Type forType)
         {
             Dictionary<Type, WriteObjectDelegate> snapshot, newCache;
@@ -23,15 +23,15 @@ namespace ServiceStack.Text.Jsv
                 snapshot = WriteFnCache;
                 newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
                 newCache.Remove(forType);
-                
+
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
         }
 
-		public static WriteObjectDelegate GetWriteFn(Type type)
-		{
-			try
-			{
+        public static WriteObjectDelegate GetWriteFn(Type type)
+        {
+            try
+            {
                 WriteObjectDelegate writeFn;
                 if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
 
@@ -52,17 +52,17 @@ namespace ServiceStack.Text.Jsv
                     Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
 
                 return writeFn;
-			}
-			catch (Exception ex)
-			{
-				Tracer.Instance.WriteError(ex);
-				throw;
-			}
-		}
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                throw;
+            }
+        }
 
-		public static void WriteLateBoundObject(TextWriter writer, object value)
-		{
-            if (value == null) 
+        public static void WriteLateBoundObject(TextWriter writer, object value)
+        {
+            if (value == null)
                 return;
 
             try
@@ -88,49 +88,49 @@ namespace ServiceStack.Text.Jsv
             {
                 JsState.Depth--;
             }
-		}
+        }
 
-		public static WriteObjectDelegate GetValueTypeToStringMethod(Type type)
-		{
-			return Instance.GetValueTypeToStringMethod(type);
-		}
-	}
+        public static WriteObjectDelegate GetValueTypeToStringMethod(Type type)
+        {
+            return Instance.GetValueTypeToStringMethod(type);
+        }
+    }
 
-	/// <summary>
-	/// Implement the serializer using a more static approach
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public static class JsvWriter<T>
-	{
-		private static WriteObjectDelegate CacheFn;
-        
+    /// <summary>
+    /// Implement the serializer using a more static approach
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public static class JsvWriter<T>
+    {
+        private static WriteObjectDelegate CacheFn;
+
         public static void Reset()
         {
             JsvWriter.RemoveCacheFn(typeof(T));
             Refresh();
         }
 
-	    public static void Refresh()
-	    {
+        public static void Refresh()
+        {
             if (JsvWriter.Instance == null)
                 return;
 
             CacheFn = typeof(T) == typeof(object)
-	            ? JsvWriter.WriteLateBoundObject
-	            : JsvWriter.Instance.GetWriteFn<T>();
-	    }
-
-	    public static WriteObjectDelegate WriteFn()
-		{
-			return CacheFn ?? WriteObject;
-		}
-
-		static JsvWriter()
-		{
-		    CacheFn = typeof(T) == typeof(object) 
-                ? JsvWriter.WriteLateBoundObject 
+                ? JsvWriter.WriteLateBoundObject
                 : JsvWriter.Instance.GetWriteFn<T>();
-		}
+        }
+
+        public static WriteObjectDelegate WriteFn()
+        {
+            return CacheFn ?? WriteObject;
+        }
+
+        static JsvWriter()
+        {
+            CacheFn = typeof(T) == typeof(object)
+                ? JsvWriter.WriteLateBoundObject
+                : JsvWriter.Instance.GetWriteFn<T>();
+        }
 
         public static void WriteObject(TextWriter writer, object value)
         {
@@ -150,7 +150,7 @@ namespace ServiceStack.Text.Jsv
 
                 CacheFn(writer, value);
             }
-            finally 
+            finally
             {
                 JsState.Depth--;
             }

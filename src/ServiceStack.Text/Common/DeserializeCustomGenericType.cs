@@ -21,7 +21,7 @@ namespace ServiceStack.Text.Common
         {
             var index = 0;
             Serializer.EatMapStartChar(value, ref index);
-            if (JsonTypeSerializer.IsEmptyMap(value, index)) 
+            if (JsonTypeSerializer.IsEmptyMap(value, index))
                 return tupleType.CreateInstance();
 
             var genericArgs = tupleType.GetGenericArguments();

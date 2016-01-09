@@ -128,7 +128,7 @@ namespace ServiceStack.Text.Common
                     return result;
             }
 
-            if (string.IsNullOrEmpty(value)) 
+            if (string.IsNullOrEmpty(value))
                 return null;
 
             Guid guidValue;
@@ -177,11 +177,11 @@ namespace ServiceStack.Text.Common
                     return result;
             }
 
-            if (string.IsNullOrEmpty(value)) 
+            if (string.IsNullOrEmpty(value))
                 return null;
 
             bool boolValue;
-            if (bool.TryParse(value, out boolValue)) 
+            if (bool.TryParse(value, out boolValue))
                 return boolValue;
 
             // Parse as decimal

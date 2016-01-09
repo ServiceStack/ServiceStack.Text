@@ -38,11 +38,11 @@ namespace ServiceStack.Text.Common
                 {
                     case TypeCode.Boolean:
                         //Lots of kids like to use '1', HTML checkboxes use 'on' as a soft convention
-                        return value => 
-                            value.Length == 1 ? 
-                              value == "1" 
-                            : value.Length == 2 ? 
-                              value == "on" : 
+                        return value =>
+                            value.Length == 1 ?
+                              value == "1"
+                            : value.Length == 2 ?
+                              value == "on" :
                               bool.Parse(value);
 
                     case TypeCode.Byte:
@@ -70,7 +70,8 @@ namespace ServiceStack.Text.Common
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestXsdDateTime(value);
                     case TypeCode.Char:
-                        return value => {
+                        return value =>
+                        {
                             char cValue;
                             return char.TryParse(value, out cValue) ? cValue : '\0';
                         };
@@ -89,8 +90,8 @@ namespace ServiceStack.Text.Common
                 switch (typeCode)
                 {
                     case TypeCode.Boolean:
-                        return value => string.IsNullOrEmpty(value) ? 
-                              (bool?)null 
+                        return value => string.IsNullOrEmpty(value) ?
+                              (bool?)null
                             : value.Length == 1 ?
                               value == "1"
                             : value.Length == 2 ?
@@ -122,7 +123,8 @@ namespace ServiceStack.Text.Common
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestNullableXsdDateTime(value);
                     case TypeCode.Char:
-                        return value => {
+                        return value =>
+                        {
                             char cValue;
                             return string.IsNullOrEmpty(value) ? (char?)null : char.TryParse(value, out cValue) ? cValue : '\0';
                         };

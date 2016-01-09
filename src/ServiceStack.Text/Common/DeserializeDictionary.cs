@@ -102,7 +102,7 @@ namespace ServiceStack.Text.Common
 
         public static Dictionary<string, string> ParseStringDictionary(string value)
         {
-            if (value == null) 
+            if (value == null)
                 return null;
 
             var index = VerifyAndGetStartIndex(value, typeof(Dictionary<string, string>));

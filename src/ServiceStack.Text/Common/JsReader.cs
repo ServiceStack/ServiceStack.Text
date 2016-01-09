@@ -77,9 +77,9 @@ namespace ServiceStack.Text.Common
                     return customFn;
             }
 
-			var pclParseFn = PclExport.Instance.GetJsReaderParseMethod<TSerializer>(typeof(T));
-			if (pclParseFn != null)
-				return pclParseFn;
+            var pclParseFn = PclExport.Instance.GetJsReaderParseMethod<TSerializer>(typeof(T));
+            if (pclParseFn != null)
+                return pclParseFn;
 
             var isDictionary = typeof(T) != typeof(IEnumerable) && typeof(T) != typeof(ICollection)
                 && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));

@@ -25,7 +25,7 @@ namespace ServiceStack.Text.Common
         {
             // Get the static Parse(string) method on the type supplied
             var parseMethodInfo = typeof(T).GetStaticMethod(parseMethod, new[] { typeof(string) });
-            if (parseMethodInfo == null) 
+            if (parseMethodInfo == null)
                 return null;
 
             ParseDelegate parseDelegate = null;
