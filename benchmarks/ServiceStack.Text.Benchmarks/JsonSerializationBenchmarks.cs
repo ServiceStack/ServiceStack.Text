@@ -69,6 +69,9 @@ namespace ServiceStack.Text.Benchmarks
         static ModelWithCommonTypes commonTypesModel = ModelWithCommonTypes.Create(3);
         static MemoryStream stream = new MemoryStream(16384);
         const string serializedString = "this is the test string";
+        readonly string serializedString256 = new string('t', 256);
+        readonly string serializedString512 = new string('t', 512);
+        readonly string serializedString4096 = new string('t', 4096);
 
         [Benchmark]
         public void SerializeJsonAllTypes()
@@ -96,6 +99,27 @@ namespace ServiceStack.Text.Benchmarks
         }
 
         [Benchmark]
+        public void SerializeJsonString256ToStream()
+        {
+            stream.Position = 0;
+            JsonSerializer.SerializeToStream<string>(serializedString256, stream);
+        }
+
+        [Benchmark]
+        public void SerializeJsonString512ToStream()
+        {
+            stream.Position = 0;
+            JsonSerializer.SerializeToStream<string>(serializedString512, stream);
+        }
+
+        [Benchmark]
+        public void SerializeJsonString4096ToStream()
+        {
+            stream.Position = 0;
+            JsonSerializer.SerializeToStream<string>(serializedString4096, stream);
+        }
+
+        [Benchmark]
         public void SerializeJsonStringToStreamDirectly()
         {
             stream.Position = 0;
@@ -105,28 +129,54 @@ namespace ServiceStack.Text.Benchmarks
         }
 
 
-        [Benchmark]
+  //      [Benchmark]
         public void SerializeJsonAllTypesToStream()
         {
             stream.Position = 0;
             JsonSerializer.SerializeToStream<ModelWithAllTypes>(allTypesModel, stream);
         }
         
-        [Benchmark]
+//        [Benchmark]
         public void SerializeJsonCommonTypesToStream()
         {
             stream.Position = 0;
             JsonSerializer.SerializeToStream<ModelWithCommonTypes>(commonTypesModel, stream);
         }
 
-/*        [Benchmark]
+        [Benchmark]
         public void SerializeJsonStringToStreamUsingDirectStreamWriter()
         {
             stream.Position = 0;
-            var writer = new DirectStreamWriter(stream);
+            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
             JsonWriter<string>.WriteRootObject(writer, serializedString);
             writer.Flush();
         }
-*/        
+        
+        [Benchmark]
+        public void SerializeJsonString256ToStreamUsingDirectStreamWriter()
+        {
+            stream.Position = 0;
+            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
+            JsonWriter<string>.WriteRootObject(writer, serializedString256);
+            writer.Flush();
+        }
+
+        [Benchmark]
+        public void SerializeJsonString512ToStreamUsingDirectStreamWriter()
+        {
+            stream.Position = 0;
+            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
+            JsonWriter<string>.WriteRootObject(writer, serializedString512);
+            writer.Flush();
+        }
+
+        [Benchmark]
+        public void SerializeJsonString4096ToStreamUsingDirectStreamWriter()
+        {
+            stream.Position = 0;
+            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
+            JsonWriter<string>.WriteRootObject(writer, serializedString4096);
+            writer.Flush();
+        }
     }
 }
