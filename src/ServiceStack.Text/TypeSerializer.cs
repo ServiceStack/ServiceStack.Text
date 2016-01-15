@@ -25,6 +25,11 @@ namespace ServiceStack.Text
 	/// </summary>
 	public static class TypeSerializer
 	{
+	    static TypeSerializer()
+	    {
+	        JsConfig.InitStatics();
+	    }
+
         public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
 
 		public const string DoubleQuoteString = "\"\"";
