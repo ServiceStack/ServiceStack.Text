@@ -25,7 +25,12 @@ namespace ServiceStack.Text
 	/// </summary>
 	public static class JsonSerializer
 	{
-	    public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
+        static JsonSerializer()
+        {
+            JsConfig.InitStatics();
+        }
+
+        public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
 
 		public static T DeserializeFromString<T>(string value)
 		{

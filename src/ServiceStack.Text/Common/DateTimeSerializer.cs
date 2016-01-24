@@ -53,7 +53,7 @@ namespace ServiceStack.Text.Common
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc=false)
+        public static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc = false)
         {
             if (JsConfig.SkipDateTimeConversion)
             {
@@ -159,7 +159,7 @@ namespace ServiceStack.Text.Common
                         if (manualDate != null)
                             return manualDate.Value;
                     }
-                    catch {}
+                    catch { }
                 }
 
                 try
@@ -176,7 +176,8 @@ namespace ServiceStack.Text.Common
                     }
                     else
                     {
-                        dateTime = DateTime.Parse(dateTimeStr, null, DateTimeStyles.AssumeLocal);
+                        var assumeKind = JsConfig.AssumeUtc ? DateTimeStyles.AssumeUniversal : DateTimeStyles.AssumeLocal;
+                        dateTime = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture, assumeKind);
                     }
                     return dateTime.Prepare();
                 }
@@ -218,7 +219,7 @@ namespace ServiceStack.Text.Common
         /// <returns>The repaired string. If no repairs were made, the original string is returned.</returns>
         private static string RepairXsdTimeSeparator(string dateTimeStr)
         {
-            if( (dateTimeStr.Length > XsdTimeSeparatorIndex) && (dateTimeStr[XsdTimeSeparatorIndex] == ' ') && dateTimeStr.EndsWith(XsdUtcSuffix) )
+            if ((dateTimeStr.Length > XsdTimeSeparatorIndex) && (dateTimeStr[XsdTimeSeparatorIndex] == ' ') && dateTimeStr.EndsWith(XsdUtcSuffix))
             {
                 dateTimeStr = dateTimeStr.Substring(0, XsdTimeSeparatorIndex) + XsdTimeSeparator +
                               dateTimeStr.Substring(XsdTimeSeparatorIndex + 1);
@@ -246,6 +247,7 @@ namespace ServiceStack.Text.Common
         {
             if (dateTimeStr == null || dateTimeStr.Length < ShortDateTimeFormat.Length)
                 return null;
+
             if (dateTimeStr.EndsWith(XsdUtcSuffix))
             {
                 dateTimeStr = dateTimeStr.Substring(0, dateTimeStr.Length - 1);
@@ -303,7 +305,7 @@ namespace ServiceStack.Text.Common
                         if (msStr.Length > 3)
                         {
                             var subMsStr = msStr.Substring(3);
-                            subMs = double.Parse(subMsStr)/Math.Pow(10, subMsStr.Length);
+                            subMs = double.Parse(subMsStr) / Math.Pow(10, subMsStr.Length);
                         }
                     }
                 }
@@ -329,8 +331,8 @@ namespace ServiceStack.Text.Common
                         min = int.Parse(timeOffset.Substring(2));
                     }
 
-                    dateTime = dateTime.AddHours(offsetMultiplier*hh);
-                    dateTime = dateTime.AddMinutes(offsetMultiplier*min);
+                    dateTime = dateTime.AddHours(offsetMultiplier * hh);
+                    dateTime = dateTime.AddMinutes(offsetMultiplier * min);
                 }
 
                 return dateTime;
@@ -468,17 +470,14 @@ namespace ServiceStack.Text.Common
                     ? dateTime.ToString(DateTimeFormatTicksNoUtcOffset)
                     : PclExport.Instance.ToXsdDateTimeString(dateTime);
             }
-            else
-            {
-                if (!hasFractionalSecs)
-                    return dateTime.Kind != DateTimeKind.Utc
-                        ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
-                        : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
-
+            if (!hasFractionalSecs)
                 return dateTime.Kind != DateTimeKind.Utc
-                    ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
-                    : PclExport.Instance.ToXsdDateTimeString(dateTime);
-            }
+                    ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
+                    : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
+
+            return dateTime.Kind != DateTimeKind.Utc
+                ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
+                : PclExport.Instance.ToXsdDateTimeString(dateTime);
         }
 
         static readonly char[] TimeZoneChars = new[] { '+', '-' };
@@ -597,7 +596,7 @@ namespace ServiceStack.Text.Common
             {
                 if (!JsConfig.SkipDateTimeConversion)
                 {
-                    writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
+                writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
                 }
                 else
                 {

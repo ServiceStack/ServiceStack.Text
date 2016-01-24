@@ -9,14 +9,14 @@ using ServiceStack.Text.Common;
 namespace ServiceStack.Text.Jsv
 {
     public static class JsvReader
-	{
-		internal static readonly JsReader<JsvTypeSerializer> Instance = new JsReader<JsvTypeSerializer>();
+    {
+        internal static readonly JsReader<JsvTypeSerializer> Instance = new JsReader<JsvTypeSerializer>();
 
         private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
         public static ParseStringDelegate GetParseFn(Type type)
-		{
-			ParseFactoryDelegate parseFactoryFn;
+        {
+            ParseFactoryDelegate parseFactoryFn;
             ParseFnCache.TryGetValue(type, out parseFactoryFn);
 
             if (parseFactoryFn != null) return parseFactoryFn();
@@ -34,16 +34,16 @@ namespace ServiceStack.Text.Jsv
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref ParseFnCache, newCache, snapshot), snapshot));
-            
+
             return parseFactoryFn();
-		}
-	}
+        }
+    }
 
     internal static class JsvReader<T>
-	{
-		private static ParseStringDelegate ReadFn;
+    {
+        private static ParseStringDelegate ReadFn;
 
-		static JsvReader()
+        static JsvReader()
         {
             Refresh();
         }
@@ -57,30 +57,30 @@ namespace ServiceStack.Text.Jsv
 
             ReadFn = JsvReader.Instance.GetParseFn<T>();
         }
-		
-		public static ParseStringDelegate GetParseFn()
-		{
-			return ReadFn ?? Parse;
-		}
 
-		public static object Parse(string value)
-		{
+        public static ParseStringDelegate GetParseFn()
+        {
+            return ReadFn ?? Parse;
+        }
+
+        public static object Parse(string value)
+        {
             TypeConfig<T>.AssertValidUsage();
 
             if (ReadFn == null)
-			{
+            {
                 if (typeof(T).IsInterface())
                 {
-					throw new NotSupportedException("Can not deserialize interface type: "
-						+ typeof(T).Name);
-				}
+                    throw new NotSupportedException("Can not deserialize interface type: "
+                        + typeof(T).Name);
+                }
 
                 Refresh();
             }
 
-            return value == null 
-			       	? null 
-			       	: ReadFn(value);
-		}
-	}
+            return value == null
+                       ? null
+                       : ReadFn(value);
+        }
+    }
 }

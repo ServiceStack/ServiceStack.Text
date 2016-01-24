@@ -162,11 +162,11 @@ namespace ServiceStack.Text.Common
         public JsWriter()
         {
             this.SpecialTypes = new Dictionary<Type, WriteObjectDelegate>
-        	{
-        		{ typeof(Uri), Serializer.WriteObjectString },
-        		{ typeof(Type), WriteType },
-        		{ typeof(Exception), Serializer.WriteException },
-        	};
+            {
+                { typeof(Uri), Serializer.WriteObjectString },
+                { typeof(Type), WriteType },
+                { typeof(Exception), Serializer.WriteException },
+            };
         }
 
         public WriteObjectDelegate GetValueTypeToStringMethod(Type type)
@@ -375,7 +375,7 @@ namespace ServiceStack.Text.Common
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
             }
 
-            if (typeof(T).HasInterface(typeof (IValueWriter)))
+            if (typeof(T).HasInterface(typeof(IValueWriter)))
                 return WriteValue;
 
             if (typeof(T).IsClass() || typeof(T).IsInterface() || JsConfig.TreatAsRefType(typeof(T)))

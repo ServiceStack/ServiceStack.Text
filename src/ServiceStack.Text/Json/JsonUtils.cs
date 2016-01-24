@@ -16,7 +16,7 @@ namespace ServiceStack.Text.Json
         public const string Null = "null";
         public const string True = "true";
         public const string False = "false";
-        
+
         private const char TabChar = '\t';
         private const char CarriageReturnChar = '\r';
         private const char LineFeedChar = '\n';
@@ -133,7 +133,7 @@ namespace ServiceStack.Text.Json
             for (var i = 0; i < len; i++)
             {
                 var c = value[i];
-                
+
                 // c is not printable
                 // OR c is a printable that requires escaping (quote and backslash).
                 if (!c.IsPrintable() || c == QuoteChar || c == EscapeChar) return true;
@@ -151,7 +151,7 @@ namespace ServiceStack.Text.Json
 
                 // 0x30 + num == '0' + num
                 // 0x37 + num == 'A' + (num - 10)
-                hex[i] = (char) ((num < 10 ? 0x30 : 0x37) + num);
+                hex[i] = (char)((num < 10 ? 0x30 : 0x37) + num);
 
                 intValue >>= 4;
             }

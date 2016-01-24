@@ -105,15 +105,15 @@ namespace ServiceStack.Text.Common
         static Func<T, bool> GetShouldSerializeMethod(MemberInfo member)
         {
             var method = member.DeclaringType.GetInstanceMethod("ShouldSerialize" + member.Name);
-            return method == null || method.ReturnType != typeof(bool) 
-                ? null 
+            return method == null || method.ReturnType != typeof(bool)
+                ? null
                 : (Func<T, bool>)method.CreateDelegate(typeof(Func<T, bool>));
         }
 
         static Func<T, string, bool?> ShouldSerialize(Type type)
         {
             var method = type.GetMethodInfo("ShouldSerialize");
-            return method == null || method.ReturnType != typeof(bool?) 
+            return method == null || method.ReturnType != typeof(bool?)
                 ? null
                 : (Func<T, string, bool?>)method.CreateDelegate(typeof(Func<T, string, bool?>));
         }
@@ -147,10 +147,10 @@ namespace ServiceStack.Text.Common
                 int propertyOrder = -1;
                 var propertyType = propertyInfo.PropertyType;
                 var defaultValue = propertyType.GetDefaultValue();
-                bool propertySuppressDefaultConfig = defaultValue != null 
-                    && propertyType.IsValueType() 
-                    && !propertyType.IsEnum() 
-                    && JsConfig.HasSerializeFn.Contains(propertyType) 
+                bool propertySuppressDefaultConfig = defaultValue != null
+                    && propertyType.IsValueType()
+                    && !propertyType.IsEnum()
+                    && JsConfig.HasSerializeFn.Contains(propertyType)
                     && !JsConfig.HasIncludeDefaultValue.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
 
@@ -202,9 +202,9 @@ namespace ServiceStack.Text.Common
                 int propertyOrder = -1;
                 var propertyType = fieldInfo.FieldType;
                 var defaultValue = propertyType.GetDefaultValue();
-                bool propertySuppressDefaultConfig = defaultValue != null 
-                    && propertyType.IsValueType() && !propertyType.IsEnum() 
-                    && JsConfig.HasSerializeFn.Contains(propertyType) 
+                bool propertySuppressDefaultConfig = defaultValue != null
+                    && propertyType.IsValueType() && !propertyType.IsEnum()
+                    && JsConfig.HasSerializeFn.Contains(propertyType)
                     && !JsConfig.HasIncludeDefaultValue.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
 #if (NETFX_CORE)
@@ -281,11 +281,11 @@ namespace ServiceStack.Text.Common
             internal readonly Func<T, string, bool?> shouldSerializeDynamic;
             internal readonly bool isEnum;
 
-            public TypePropertyWriter(string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly, 
-                string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig,bool propertySuppressDefaultAttribute,
-                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue, 
-                Func<T, bool> shouldSerialize, 
-                Func<T,string, bool?> shouldSerializeDynamic,
+            public TypePropertyWriter(string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly,
+                string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig, bool propertySuppressDefaultAttribute,
+                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue,
+                Func<T, bool> shouldSerialize,
+                Func<T, string, bool?> shouldSerializeDynamic,
                 bool isEnum)
             {
                 this.propertyName = propertyName;
@@ -394,7 +394,7 @@ namespace ServiceStack.Text.Common
                 {
                     var propertyWriter = PropertyWriters[index];
 
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) 
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value))
                         continue;
 
                     var dontSkipDefault = false;
@@ -442,7 +442,7 @@ namespace ServiceStack.Text.Common
                     finally
                     {
                         if (typeof(TSerializer) == typeof(JsonTypeSerializer)) JsState.IsWritingValue = false;
-                    } 
+                    }
                 }
             }
 
@@ -526,7 +526,7 @@ namespace ServiceStack.Text.Common
                     var isEnumerable = strValue == null
                         && !(propertyType.IsValueType())
                         && propertyType.HasInterface(typeof(IEnumerable));
-                    
+
                     if (QueryStringSerializer.ComplexTypeStrategy != null
                         && !isEnumerable && (propertyType.IsUserType() || propertyType.IsInterface()))
                     {
@@ -546,12 +546,12 @@ namespace ServiceStack.Text.Common
                         propertyWriter.WriteFn(writer, propertyValue);
                     }
                     else
-                    {                        
+                    {
                         //Trim brackets in top-level lists in QueryStrings, e.g: ?a=[1,2,3] => ?a=1,2,3
                         using (var ms = MemoryStreamFactory.GetStream())
                         {
                             var enumerableWriter = new StreamWriter(ms); //ms disposed in using 
-                            propertyWriter.WriteFn(enumerableWriter, propertyValue); 
+                            propertyWriter.WriteFn(enumerableWriter, propertyValue);
                             enumerableWriter.Flush();
                             var output = ms.ToArray().FromUtf8Bytes();
                             output = output.Trim(ArrayBrackets);
