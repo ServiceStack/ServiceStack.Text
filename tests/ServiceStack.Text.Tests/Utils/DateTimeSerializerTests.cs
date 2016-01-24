@@ -356,18 +356,49 @@ namespace ServiceStack.Text.Tests.Utils
         }
 
         [Test]
-        public void DateTime_Is_Serialized_As_Utc_and_Deserialized_as_Utc_with_PreserveUtc_true()
+        public void SkipDateTimeConversion_IgnoresTimezoneOffsets()
         {
-            JsConfig.PreserveUtc = true;
+            JsConfig.DateHandler = DateHandler.ISO8601;
+            JsConfig.SkipDateTimeConversion = true;
+            string serilizedResult;
+            DateTime deserilizedResult;
+            var targetDateLocal = new DateTime(2016, 01, 10, 12, 12, 12, DateTimeKind.Local).AddMilliseconds(2); 
+            var targetDateUtc = new DateTime(2016, 01, 10, 12, 12, 12, DateTimeKind.Utc).AddMilliseconds(2);
+            var targetDateUnspecificed = new DateTime(2016, 01, 10, 12, 12, 12, DateTimeKind.Unspecified).AddMilliseconds(2);
+            serilizedResult = "2016-01-10T12:12:12.002-15:00";
+            deserilizedResult = TypeSerializer.DeserializeFromString<DateTime>(serilizedResult);
+            Assert.AreEqual(deserilizedResult, targetDateLocal);
+            serilizedResult = "2016-01-10T12:12:12.002+05:00";
+            deserilizedResult = TypeSerializer.DeserializeFromString<DateTime>(serilizedResult);
+            Assert.AreEqual(deserilizedResult, targetDateLocal);
+
+             serilizedResult = "2016-01-10T12:12:12.002Z";
+            deserilizedResult = TypeSerializer.DeserializeFromString<DateTime>(serilizedResult);
+            Assert.AreEqual(deserilizedResult, targetDateUtc);
+
+            serilizedResult = "2016-01-10T12:12:12.002";
+            deserilizedResult = TypeSerializer.DeserializeFromString<DateTime>(serilizedResult);
+            Assert.AreEqual(deserilizedResult, targetDateUnspecificed);
+        }
+
+        [Test]
+        public void DateTimeKind_Does_Not_Change_With_SkipDateTimeConversion_true()
+        {
+            JsConfig.DateHandler = DateHandler.ISO8601;
+            JsConfig.SkipDateTimeConversion = true;
+            string serilizedResult;
+            TestObject deserilizedResult;
 
             var testObject = new TestObject
             {
                 Date = new DateTime(2013, 1, 1, 0, 0, 1, DateTimeKind.Utc)
             };
-
-            Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            serilizedResult = TypeSerializer.SerializeToString<TestObject>(testObject);
+            deserilizedResult = TypeSerializer.DeserializeFromString<TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Utc, deserilizedResult.Date.Kind);
              
-            using (JsConfig.With(preserveUtc: false))
+            using (JsConfig.With(skipDateTimeConversion: false))
             {
                 Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
             }
@@ -376,10 +407,16 @@ namespace ServiceStack.Text.Tests.Utils
             {
                 Date = new DateTime(2013, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             };
+            serilizedResult = TypeSerializer.SerializeToString<TestObject>(testObject);
+            deserilizedResult = TypeSerializer.DeserializeFromString<TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Utc, deserilizedResult.Date.Kind);
 
-            Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
-             
-            using (JsConfig.With(alwaysUseUtc: true))
+            using (JsConfig.With(skipDateTimeConversion: false))  
+            {
+                Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion:false)) //It will work now
             {
                 Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
             }
@@ -389,23 +426,44 @@ namespace ServiceStack.Text.Tests.Utils
             {
                 Date = new DateTime(2013, 1, 2, 0, 2, 0, DateTimeKind.Local)
             };
-
-            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            serilizedResult = TypeSerializer.SerializeToString<TestObject>(testObject);
+            deserilizedResult = TypeSerializer.DeserializeFromString<TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Local, deserilizedResult.Date.Kind);
              
             using (JsConfig.With(alwaysUseUtc: true))
             {
+                Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false))
+            {
                 Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
             }
+
+
             testObject = new TestObject
             {
                 Date = new DateTime(2013, 1, 2, 0, 2, 0, DateTimeKind.Unspecified)
             };
-
-            Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            serilizedResult = TypeSerializer.SerializeToString<TestObject>(testObject);
+            deserilizedResult = TypeSerializer.DeserializeFromString<TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Unspecified, deserilizedResult.Date.Kind);
 
             using (JsConfig.With(alwaysUseUtc: true))
             {
+                Assert.AreEqual(DateTimeKind.Unspecified, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false))
+            {
                 Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+            }
+
+            using (JsConfig.With(skipDateTimeConversion: false))
+            {
+                serilizedResult = TypeSerializer.SerializeToString<TestObject>(testObject);
+                deserilizedResult = TypeSerializer.DeserializeFromString<TestObject>(serilizedResult);
+                Assert.AreEqual(DateTimeKind.Local, deserilizedResult.Date.Kind);
             }
         }
 
