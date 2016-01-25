@@ -28,7 +28,13 @@ namespace ServiceStack
 {
 	public static class QueryStringSerializer
 	{
-		internal static readonly JsWriter<JsvTypeSerializer> Instance = new JsWriter<JsvTypeSerializer>();
+        static QueryStringSerializer()
+        {
+            JsConfig.InitStatics();
+            Instance = new JsWriter<JsvTypeSerializer>();
+        }
+
+	    internal static readonly JsWriter<JsvTypeSerializer> Instance;
 
 		private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
 
