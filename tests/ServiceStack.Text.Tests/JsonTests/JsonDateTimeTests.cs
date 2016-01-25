@@ -349,7 +349,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		}
 
 		[Test]
-		public void Can_deserialize_json_date_iso8601_withZOffset_asUtc()
+		public void Can_deserialize_json_date_iso8601_withZOffset_asUtc_alwaysUseUtc_true()
 		{
 		    JsConfig.AlwaysUseUtc = true;
 			JsConfig.DateHandler = DateHandler.ISO8601;
@@ -363,20 +363,124 @@ namespace ServiceStack.Text.Tests.JsonTests
 			JsConfig.Reset();
 		}
 
-		[Test]
-		public void Can_deserialize_json_date_iso8601_withoutOffset_as_Unspecified()
-		{
-			JsConfig.DateHandler = DateHandler.ISO8601;
+        [Test]
+        public void Can_deserialize_json_date_iso8601_withZOffset_asUtc_skipDateTimeConversion_true()
+        {
+            JsConfig.SkipDateTimeConversion = true;
+            JsConfig.DateHandler = DateHandler.ISO8601;
 
-			const string json = @"""1994-11-24T12:34:56""";
-			var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
+            const string json = "\"1994-11-24T12:34:56Z\"";
+            var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
 
-			var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
-			Assert.That(fromJson, Is.EqualTo(dateTime));
-			Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
-			JsConfig.Reset();
-		}
+            var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Utc);
+            Assert.That(fromJson, Is.EqualTo(dateTime));
+            Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind)); 
+            JsConfig.Reset();
+        }
 
+        [Test]
+        public void Can_deserialize_json_date_iso8601_with_skipDateTimeConversion_true()
+        {
+            JsConfig.DateHandler = DateHandler.ISO8601;
+            JsConfig.SkipDateTimeConversion = true;
+            string serilizedResult;
+            Utils.DateTimeISO8601Tests.TestObject deserilizedResult;
+
+            var testObject = new Utils.DateTimeISO8601Tests.TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 1, DateTimeKind.Utc)
+            };
+            serilizedResult = JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject);
+            deserilizedResult = JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Utc, deserilizedResult.Date.Kind);
+
+            using (JsConfig.With(skipDateTimeConversion: false))
+            {
+                Assert.AreEqual(DateTimeKind.Local, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+            }
+
+            testObject = new Utils.DateTimeISO8601Tests.TestObject
+            {
+                Date = new DateTime(2013, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(2)
+            };
+            serilizedResult = JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject);
+            deserilizedResult = JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Utc, deserilizedResult.Date.Kind);
+
+            using (JsConfig.With(skipDateTimeConversion: false))
+            {
+                Assert.AreEqual(DateTimeKind.Local, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+            }
+            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false)) //It will work now
+            {
+                Assert.AreEqual(DateTimeKind.Utc, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+            }
+
+            //make sure it still keeps local local
+            testObject = new Utils.DateTimeISO8601Tests.TestObject
+            {
+                Date = new DateTime(2013, 1, 2, 0, 2, 0, DateTimeKind.Local).AddMilliseconds(2)
+            };
+            serilizedResult = JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject);
+            deserilizedResult = JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Local, deserilizedResult.Date.Kind);
+
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Local, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+            }
+            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+            }
+
+
+            testObject = new Utils.DateTimeISO8601Tests.TestObject
+            {
+                Date = new DateTime(2013, 1, 2, 0, 2, 0, DateTimeKind.Unspecified).AddMilliseconds(2)
+            };
+            serilizedResult = JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject);
+            deserilizedResult = JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(serilizedResult);
+            Assert.AreEqual(deserilizedResult.Date, testObject.Date);
+            Assert.AreEqual(DateTimeKind.Unspecified, deserilizedResult.Date.Kind);
+
+            using (JsConfig.With(alwaysUseUtc: true))
+            {
+                Assert.AreEqual(DateTimeKind.Unspecified, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+            }
+            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false))
+            {
+                Assert.AreEqual(DateTimeKind.Utc, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+            }
+
+            using (JsConfig.With(skipDateTimeConversion: false))
+            {
+                serilizedResult = JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject);
+                deserilizedResult = JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(serilizedResult);
+                Assert.AreEqual(DateTimeKind.Local, deserilizedResult.Date.Kind);
+            }
+            JsConfig.Reset();
+        }
+
+
+
+        [Test]
+        public void Can_deserialize_json_date_iso8601_withoutOffset_as_Unspecified()
+        {
+            JsConfig.DateHandler = DateHandler.ISO8601;
+
+            const string json = @"""1994-11-24T12:34:56""";
+            var fromJson = JsonSerializer.DeserializeFromString<DateTime>(json);
+
+            var dateTime = new DateTime(1994, 11, 24, 12, 34, 56, DateTimeKind.Unspecified);
+            Assert.That(fromJson, Is.EqualTo(dateTime));
+            Assert.That(fromJson.Kind, Is.EqualTo(dateTime.Kind));
+            JsConfig.Reset();
+        }
+            
 		[Test]
 		public void Can_deserialize_json_date_iso8601_withOffset_asLocal()
 		{

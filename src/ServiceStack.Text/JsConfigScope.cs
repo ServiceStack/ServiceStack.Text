@@ -71,6 +71,7 @@ namespace ServiceStack.Text
         public bool? EmitCamelCaseNames { get; set; }
         public bool? EmitLowercaseUnderscoreNames { get; set; }
         public bool? ThrowOnDeserializationError { get; set; }
+        public bool? SkipDateTimeConversion { get; set; }
         public bool? AlwaysUseUtc { get; set; }
         public bool? AssumeUtc { get; set; }
         public bool? AppendUtcOffset { get; set; }

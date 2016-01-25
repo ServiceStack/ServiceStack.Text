@@ -54,6 +54,7 @@ namespace ServiceStack.Text
             Func<Type, string> typeWriter = null,
             Func<string, Type> typeFinder = null,
             bool? treatEnumAsInteger = null,
+            bool? skipDateTimeConversion = null,
             bool? alwaysUseUtc = null,
             bool? assumeUtc = null,
             bool? appendUtcOffset = null,
@@ -70,8 +71,8 @@ namespace ServiceStack.Text
                 TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
                 TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
 
-				ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? sParsePrimitiveFloatingPointTypes,
-				ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? sParsePrimitiveIntegerTypes,
+                ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? sParsePrimitiveFloatingPointTypes,
+                ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? sParsePrimitiveIntegerTypes,
 
                 ExcludeDefaultValues = excludeDefaultValues ?? sExcludeDefaultValues,
                 IncludeNullValues = includeNullValues ?? sIncludeNullValues,
@@ -90,6 +91,7 @@ namespace ServiceStack.Text
                 TypeWriter = typeWriter ?? sTypeWriter,
                 TypeFinder = typeFinder ?? sTypeFinder,
                 TreatEnumAsInteger = treatEnumAsInteger ?? sTreatEnumAsInteger,
+                SkipDateTimeConversion = skipDateTimeConversion ?? sSkipDateTimeConversion,
                 AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
                 AssumeUtc = assumeUtc ?? sAssumeUtc,
                 AppendUtcOffset = appendUtcOffset ?? sAppendUtcOffset,
@@ -511,6 +513,28 @@ namespace ServiceStack.Text
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating if the framework should skip automatic <see cref="DateTime"/> conversions.
+        /// Dates will be handled literally, any included timezone encoding will be lost and the date will be treaded as DateTimeKind.Local
+        /// Utc formatted input will result in DateTimeKind.Utc output. Any input without TZ data will be set DateTimeKind.Unspecified
+        /// This will take precedence over other flags like AlwaysUseUtc 
+        /// JsConfig.DateHandler = DateHandler.ISO8601 should be used when set true for consistent de/serialization.
+        /// </summary>
+        private static bool? sSkipDateTimeConversion;
+        public static bool SkipDateTimeConversion
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.SkipDateTimeConversion : null)
+                    ?? sSkipDateTimeConversion
+                    ?? false;
+            }
+            set
+            {
+                if (!sSkipDateTimeConversion.HasValue) sSkipDateTimeConversion = value;
+            }
+        }
         /// <summary>
         /// Gets or sets a value indicating if the framework should always assume <see cref="DateTime"/> is in UTC format if Kind is Unspecified. 
         /// </summary>
