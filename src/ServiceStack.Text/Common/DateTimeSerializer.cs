@@ -30,9 +30,9 @@ namespace ServiceStack.Text.Common
         public const string XsdDateTimeFormat3F = "yyyy-MM-ddTHH:mm:ss.fffZ";                 //25
         public const string XsdDateTimeFormatSeconds = "yyyy-MM-ddTHH:mm:ssZ";                //21
         public const string DateTimeFormatSecondsUtcOffset = "yyyy-MM-ddTHH:mm:sszzz";        //22
-        public const string DateTimeFormatSecondsNoOffset = "yyyy-MM-ddTHH:mm:ss";        
+        public const string DateTimeFormatSecondsNoOffset = "yyyy-MM-ddTHH:mm:ss";
         public const string DateTimeFormatTicksUtcOffset = "yyyy-MM-ddTHH:mm:ss.fffffffzzz";  //30
-        public const string DateTimeFormatTicksNoUtcOffset = "yyyy-MM-ddTHH:mm:ss.fffffff";  
+        public const string DateTimeFormatTicksNoUtcOffset = "yyyy-MM-ddTHH:mm:ss.fffffff";
 
         public const string EscapedWcfJsonPrefix = "\\/Date(";
         public const string EscapedWcfJsonSuffix = ")\\/";
@@ -56,14 +56,11 @@ namespace ServiceStack.Text.Common
         public static DateTime Prepare(this DateTime dateTime, bool parsedAsUtc = false)
         {
             if (JsConfig.SkipDateTimeConversion)
-            {
                 return dateTime;
-            }
+
             if (JsConfig.AlwaysUseUtc)
-            {
                 return dateTime.Kind != DateTimeKind.Utc ? dateTime.ToStableUniversalTime() : dateTime;
-            }
-            
+
             return parsedAsUtc ? dateTime.ToLocalTime() : dateTime;
         }
 
@@ -102,14 +99,14 @@ namespace ServiceStack.Text.Common
 
                 if (dateTimeStr.Length == DefaultDateTimeFormatWithFraction.Length)
                 {
-                    var unspecifiedDate = JsConfig.AssumeUtc    
+                    var unspecifiedDate = JsConfig.AssumeUtc
                         ? DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
                         : DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture);
 
                     return unspecifiedDate.Prepare();
                 }
-                DateTimeKind kind = DateTimeKind.Unspecified;
 
+                var kind = DateTimeKind.Unspecified;
                 switch (JsConfig.DateHandler)
                 {
                     case DateHandler.UnixTime:
@@ -124,9 +121,7 @@ namespace ServiceStack.Text.Common
                         break;
                     case DateHandler.ISO8601:
                         if (JsConfig.SkipDateTimeConversion)
-                        {
-                            dateTimeStr = RemoveUtcOffsets(dateTimeStr, out kind); 
-                        }
+                            dateTimeStr = RemoveUtcOffsets(dateTimeStr, out kind);
                         break;
                 }
 
@@ -164,21 +159,18 @@ namespace ServiceStack.Text.Common
 
                 try
                 {
-                    DateTime dateTime;
                     if (JsConfig.SkipDateTimeConversion)
                     {
-                        dateTime = DateTime.Parse(dateTimeStr, null, 
-                            kind == DateTimeKind.Unspecified ?
-                            DateTimeStyles.None :
-                            kind == DateTimeKind.Local ?
-                            DateTimeStyles.AssumeLocal :
-                            DateTimeStyles.AssumeUniversal);
+                        return DateTime.Parse(dateTimeStr, null,
+                            kind == DateTimeKind.Unspecified
+                                ? DateTimeStyles.None
+                                : kind == DateTimeKind.Local
+                                    ? DateTimeStyles.AssumeLocal
+                                    : DateTimeStyles.AssumeUniversal);
                     }
-                    else
-                    {
-                        var assumeKind = JsConfig.AssumeUtc ? DateTimeStyles.AssumeUniversal : DateTimeStyles.AssumeLocal;
-                        dateTime = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture, assumeKind);
-                    }
+
+                    var assumeKind = JsConfig.AssumeUtc ? DateTimeStyles.AssumeUniversal : DateTimeStyles.AssumeLocal;
+                    var dateTime = DateTime.Parse(dateTimeStr, CultureInfo.InvariantCulture, assumeKind);
                     return dateTime.Prepare();
                 }
                 catch (FormatException)
@@ -200,14 +192,14 @@ namespace ServiceStack.Text.Common
         }
 
         private static string RemoveUtcOffsets(string dateTimeStr, out DateTimeKind kind)
-        { 
+        {
             var startOfTz = UtcOffsetInfoRegex.Match(dateTimeStr);
-            if (startOfTz.Index > 0) 
+            if (startOfTz.Index > 0)
             {
-                kind =  DateTimeKind.Local;
+                kind = DateTimeKind.Local;
                 return dateTimeStr.Substring(0, startOfTz.Index);
             }
-            kind =  dateTimeStr.Contains("Z") ? DateTimeKind.Utc : DateTimeKind.Unspecified;
+            kind = dateTimeStr.Contains("Z") ? DateTimeKind.Utc : DateTimeKind.Unspecified;
             return dateTimeStr;
         }
 
@@ -230,7 +222,7 @@ namespace ServiceStack.Text.Common
 
         public static DateTime? ParseManual(string dateTimeStr)
         {
-            var dateKind = JsConfig.AssumeUtc || JsConfig.AlwaysUseUtc 
+            var dateKind = JsConfig.AssumeUtc || JsConfig.AlwaysUseUtc
                 ? DateTimeKind.Utc
                 : DateTimeKind.Local;
 
@@ -251,7 +243,7 @@ namespace ServiceStack.Text.Common
             if (dateTimeStr.EndsWith(XsdUtcSuffix))
             {
                 dateTimeStr = dateTimeStr.Substring(0, dateTimeStr.Length - 1);
-                dateKind = JsConfig.SkipDateTimeConversion ? DateTimeKind.Utc : dateKind;  
+                dateKind = JsConfig.SkipDateTimeConversion ? DateTimeKind.Utc : dateKind;
             }
 
             var parts = dateTimeStr.Split('T');
@@ -371,7 +363,7 @@ namespace ServiceStack.Text.Common
                 if (Env.IsMono)
                 {
                     // Without that Mono uses a Local timezone))
-                    dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00";                     
+                    dateTimeOffsetStr = dateTimeOffsetStr.Substring(0, dateTimeOffsetStr.Length - 1) + "+00:00";
                 }
             }
 
@@ -415,7 +407,7 @@ namespace ServiceStack.Text.Common
         {
             return dateTimeStr.StartsWith("P", StringComparison.Ordinal) || dateTimeStr.StartsWith("-P", StringComparison.Ordinal)
                 ? ParseXsdTimeSpan(dateTimeStr)
-                : dateTimeStr.Contains(":") 
+                : dateTimeStr.Contains(":")
                 ? TimeSpan.Parse(dateTimeStr)
                 : ParseNSTimeInterval(dateTimeStr);
         }
@@ -450,11 +442,12 @@ namespace ServiceStack.Text.Common
             var timeOfDay = dateTime.TimeOfDay;
 
             var isStartOfDay = timeOfDay.Ticks == 0;
-            if (isStartOfDay && !(JsConfig.SkipDateTimeConversion))
+            if (isStartOfDay && !JsConfig.SkipDateTimeConversion)
                 return dateTime.ToString(ShortDateTimeFormat);
 
-            var hasFractionalSecs = (timeOfDay.Milliseconds != 0) 
-                || ((timeOfDay.Ticks%TimeSpan.TicksPerMillisecond) != 0);
+            var hasFractionalSecs = (timeOfDay.Milliseconds != 0)
+                || (timeOfDay.Ticks % TimeSpan.TicksPerMillisecond != 0);
+
             if (JsConfig.SkipDateTimeConversion)
             {
                 if (!hasFractionalSecs)
@@ -470,6 +463,7 @@ namespace ServiceStack.Text.Common
                     ? dateTime.ToString(DateTimeFormatTicksNoUtcOffset)
                     : PclExport.Instance.ToXsdDateTimeString(dateTime);
             }
+
             if (!hasFractionalSecs)
                 return dateTime.Kind != DateTimeKind.Utc
                     ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
@@ -594,15 +588,7 @@ namespace ServiceStack.Text.Common
 
             if (JsConfig.DateHandler == DateHandler.ISO8601)
             {
-                if (!JsConfig.SkipDateTimeConversion)
-                {
                 writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
-                }
-                else
-                {
-                    var dt = dateTime.ToString("o", CultureInfo.InvariantCulture);
-                    writer.Write(dt);
-                }
                 return;
             }
 
