@@ -786,6 +786,7 @@ namespace ServiceStack.Text
             sTreatEnumAsInteger = null;
             sAlwaysUseUtc = null;
             sAssumeUtc = null;
+            sSkipDateTimeConversion = null;
             sAppendUtcOffset = null;
             sEscapeUnicode = null;
             sOnDeserializationError = null;
