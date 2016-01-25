@@ -77,6 +77,6 @@ namespace ServiceStack
         {
             types.Add(typeof(T));
             return types;
-        } 
+        }
     }
 }

@@ -158,7 +158,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// Initializes the memory manager with the default block/buffer specifications.
         /// </summary>
         public RecyclableMemoryStreamManager()
-            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize) { }
+            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize)
+        { }
 
         /// <summary>
         /// Initializes the memory manager with the given block requiredSize.

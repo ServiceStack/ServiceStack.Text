@@ -20,11 +20,11 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text
 {
-	/// <summary>
-	/// Creates an instance of a Type from a string value
-	/// </summary>
-	public static class JsonSerializer
-	{
+    /// <summary>
+    /// Creates an instance of a Type from a string value
+    /// </summary>
+    public static class JsonSerializer
+    {
         static JsonSerializer()
         {
             JsConfig.InitStatics();
@@ -32,49 +32,49 @@ namespace ServiceStack.Text
 
         public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
 
-		public static T DeserializeFromString<T>(string value)
-		{
+        public static T DeserializeFromString<T>(string value)
+        {
             if (string.IsNullOrEmpty(value)) return default(T);
             return (T)JsonReader<T>.Parse(value);
         }
 
-		public static T DeserializeFromReader<T>(TextReader reader)
-		{
-			return DeserializeFromString<T>(reader.ReadToEnd());
-		}
+        public static T DeserializeFromReader<T>(TextReader reader)
+        {
+            return DeserializeFromString<T>(reader.ReadToEnd());
+        }
 
-		public static object DeserializeFromString(string value, Type type)
-		{
+        public static object DeserializeFromString(string value, Type type)
+        {
             return string.IsNullOrEmpty(value)
                 ? null
                 : JsonReader.GetParseFn(type)(value);
         }
 
-		public static object DeserializeFromReader(TextReader reader, Type type)
-		{
-			return DeserializeFromString(reader.ReadToEnd(), type);
-		}
+        public static object DeserializeFromReader(TextReader reader, Type type)
+        {
+            return DeserializeFromString(reader.ReadToEnd(), type);
+        }
 
         [ThreadStatic] //Reuse the thread static StringBuilder when serializing to strings
-        private static StringBuilderWriter LastWriter; 
+        private static StringBuilderWriter LastWriter;
 
-	    internal class StringBuilderWriter : IDisposable
+        internal class StringBuilderWriter : IDisposable
         {
-	        protected StringBuilder sb;
-	        protected StringWriter writer;
+            protected StringBuilder sb;
+            protected StringWriter writer;
 
-	        public StringWriter Writer
-	        {
-	            get { return writer; }
-	        }
+            public StringWriter Writer
+            {
+                get { return writer; }
+            }
 
-	        public StringBuilderWriter()
-	        {
-	            this.sb = new StringBuilder();
+            public StringBuilderWriter()
+            {
+                this.sb = new StringBuilder();
                 this.writer = new StringWriter(sb, CultureInfo.InvariantCulture);
-	        }
+            }
 
-	        public static StringBuilderWriter Create()
+            public static StringBuilderWriter Create()
             {
                 var ret = LastWriter;
                 if (JsConfig.ReuseStringBuffer && ret != null)
@@ -105,8 +105,8 @@ namespace ServiceStack.Text
             }
         }
 
-	    public static string SerializeToString<T>(T value)
-		{
+        public static string SerializeToString<T>(T value)
+        {
             if (value == null || value is Delegate) return null;
             if (typeof(T) == typeof(object))
             {
@@ -134,62 +134,62 @@ namespace ServiceStack.Text
             }
         }
 
-		public static string SerializeToString(object value, Type type)
-		{
-			if (value == null) return null;
+        public static string SerializeToString(object value, Type type)
+        {
+            if (value == null) return null;
 
             using (var sb = StringBuilderWriter.Create())
             {
-				if (type == typeof(string))
-				{
-					JsonUtils.WriteString(sb.Writer, value as string);
-				}
-				else
-				{
+                if (type == typeof(string))
+                {
+                    JsonUtils.WriteString(sb.Writer, value as string);
+                }
+                else
+                {
                     JsonWriter.GetWriteFn(type)(sb.Writer, value);
-				}
+                }
                 return sb.ToString();
             }
-		}
+        }
 
-		public static void SerializeToWriter<T>(T value, TextWriter writer)
-		{
-			if (value == null) return;
-			if (typeof(T) == typeof(string))
-			{
+        public static void SerializeToWriter<T>(T value, TextWriter writer)
+        {
+            if (value == null) return;
+            if (typeof(T) == typeof(string))
+            {
                 JsonUtils.WriteString(writer, value as string);
-			}
+            }
             else if (typeof(T) == typeof(object))
             {
                 SerializeToWriter(value, value.GetType(), writer);
             }
-		    else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
-		    {
-		        JsState.IsWritingDynamic = false;
-		        SerializeToWriter(value, value.GetType(), writer);
-		        JsState.IsWritingDynamic = true;
-		    }
-		    else
-		    {
+            else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            {
+                JsState.IsWritingDynamic = false;
+                SerializeToWriter(value, value.GetType(), writer);
+                JsState.IsWritingDynamic = true;
+            }
+            else
+            {
                 JsonWriter<T>.WriteRootObject(writer, value);
             }
-		}
+        }
 
-		public static void SerializeToWriter(object value, Type type, TextWriter writer)
-		{
-			if (value == null) return;
-			if (type == typeof(string))
-			{
+        public static void SerializeToWriter(object value, Type type, TextWriter writer)
+        {
+            if (value == null) return;
+            if (type == typeof(string))
+            {
                 JsonUtils.WriteString(writer, value as string);
-				return;
-			}
+                return;
+            }
 
-			JsonWriter.GetWriteFn(type)(writer, value);
-		}
+            JsonWriter.GetWriteFn(type)(writer, value);
+        }
 
-		public static void SerializeToStream<T>(T value, Stream stream)
-		{
-			if (value == null) return;
+        public static void SerializeToStream<T>(T value, Stream stream)
+        {
+            if (value == null) return;
             if (typeof(T) == typeof(object))
             {
                 SerializeToStream(value, value.GetType(), stream);
@@ -206,30 +206,30 @@ namespace ServiceStack.Text
                 JsonWriter<T>.WriteRootObject(writer, value);
                 writer.Flush();
             }
-		}
+        }
 
-		public static void SerializeToStream(object value, Type type, Stream stream)
-		{
-			var writer = new StreamWriter(stream, UTF8Encoding);
-			JsonWriter.GetWriteFn(type)(writer, value);
-			writer.Flush();
-		}
+        public static void SerializeToStream(object value, Type type, Stream stream)
+        {
+            var writer = new StreamWriter(stream, UTF8Encoding);
+            JsonWriter.GetWriteFn(type)(writer, value);
+            writer.Flush();
+        }
 
-		public static T DeserializeFromStream<T>(Stream stream)
-		{
-			using (var reader = new StreamReader(stream, UTF8Encoding))
-			{
-				return DeserializeFromString<T>(reader.ReadToEnd());
-			}
-		}
+        public static T DeserializeFromStream<T>(Stream stream)
+        {
+            using (var reader = new StreamReader(stream, UTF8Encoding))
+            {
+                return DeserializeFromString<T>(reader.ReadToEnd());
+            }
+        }
 
-		public static object DeserializeFromStream(Type type, Stream stream)
-		{
-			using (var reader = new StreamReader(stream, UTF8Encoding))
-			{
-				return DeserializeFromString(reader.ReadToEnd(), type);
-			}
-		}
+        public static object DeserializeFromStream(Type type, Stream stream)
+        {
+            using (var reader = new StreamReader(stream, UTF8Encoding))
+            {
+                return DeserializeFromString(reader.ReadToEnd(), type);
+            }
+        }
 
         public static T DeserializeResponse<T>(WebRequest webRequest)
         {
@@ -268,23 +268,23 @@ namespace ServiceStack.Text
                 return DeserializeResponse(type, webRes);
             }
         }
-        
-        public static T DeserializeResponse<T>(WebResponse webResponse)
-		{
-			using (var stream = webResponse.GetResponseStream())
-			{
-				return DeserializeFromStream<T>(stream);
-			}
-		}
 
-		public static object DeserializeResponse(Type type, WebResponse webResponse)
-		{
-			using (var stream = webResponse.GetResponseStream())
-			{
-				return DeserializeFromStream(type, stream);
-			}
-		}
-	}
+        public static T DeserializeResponse<T>(WebResponse webResponse)
+        {
+            using (var stream = webResponse.GetResponseStream())
+            {
+                return DeserializeFromStream<T>(stream);
+            }
+        }
+
+        public static object DeserializeResponse(Type type, WebResponse webResponse)
+        {
+            using (var stream = webResponse.GetResponseStream())
+            {
+                return DeserializeFromStream(type, stream);
+            }
+        }
+    }
 
     public class JsonStringSerializer : IStringSerializer
     {

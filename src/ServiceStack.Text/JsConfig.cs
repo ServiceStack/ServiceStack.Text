@@ -24,7 +24,7 @@ namespace ServiceStack.Text
         }
 
         // force deterministic initialization of static constructor
-        public static void InitStatics() {}
+        public static void InitStatics() { }
 
         public static JsConfigScope BeginScope()
         {
@@ -35,8 +35,8 @@ namespace ServiceStack.Text
             bool? convertObjectTypesIntoStringDictionary = null,
             bool? tryToParsePrimitiveTypeValues = null,
             bool? tryToParseNumericType = null,
-			ParseAsType? parsePrimitiveFloatingPointTypes = null,
-			ParseAsType? parsePrimitiveIntegerTypes = null,
+            ParseAsType? parsePrimitiveFloatingPointTypes = null,
+            ParseAsType? parsePrimitiveIntegerTypes = null,
             bool? excludeDefaultValues = null,
             bool? includeNullValues = null,
             bool? includeNullValuesInDictionaries = null,
@@ -149,35 +149,35 @@ namespace ServiceStack.Text
             }
         }
 
-		private static ParseAsType? sParsePrimitiveFloatingPointTypes;
-		public static ParseAsType ParsePrimitiveFloatingPointTypes
-		{
-			get
-			{
-				return (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFloatingPointTypes : null)
-					?? sParsePrimitiveFloatingPointTypes
-					?? ParseAsType.Decimal;
-			}
-			set
-			{
-				if (sParsePrimitiveFloatingPointTypes == null) sParsePrimitiveFloatingPointTypes = value;
-			}
-		}
+        private static ParseAsType? sParsePrimitiveFloatingPointTypes;
+        public static ParseAsType ParsePrimitiveFloatingPointTypes
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFloatingPointTypes : null)
+                    ?? sParsePrimitiveFloatingPointTypes
+                    ?? ParseAsType.Decimal;
+            }
+            set
+            {
+                if (sParsePrimitiveFloatingPointTypes == null) sParsePrimitiveFloatingPointTypes = value;
+            }
+        }
 
-		private static ParseAsType? sParsePrimitiveIntegerTypes;
-		public static ParseAsType ParsePrimitiveIntegerTypes
-		{
-			get
-			{
-				return (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveIntegerTypes : null)
-					?? sParsePrimitiveIntegerTypes
-					?? ParseAsType.Byte | ParseAsType.SByte | ParseAsType.Int16 | ParseAsType.UInt16 | ParseAsType.Int32 |  ParseAsType.UInt32 | ParseAsType.Int64 | ParseAsType.UInt64;
-			}
-			set
-			{
-				if (!sParsePrimitiveIntegerTypes.HasValue) sParsePrimitiveIntegerTypes = value;
-			}
-		}
+        private static ParseAsType? sParsePrimitiveIntegerTypes;
+        public static ParseAsType ParsePrimitiveIntegerTypes
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveIntegerTypes : null)
+                    ?? sParsePrimitiveIntegerTypes
+                    ?? ParseAsType.Byte | ParseAsType.SByte | ParseAsType.Int16 | ParseAsType.UInt16 | ParseAsType.Int32 | ParseAsType.UInt32 | ParseAsType.Int64 | ParseAsType.UInt64;
+            }
+            set
+            {
+                if (!sParsePrimitiveIntegerTypes.HasValue) sParsePrimitiveIntegerTypes = value;
+            }
+        }
 
         private static bool? sExcludeDefaultValues;
         public static bool ExcludeDefaultValues

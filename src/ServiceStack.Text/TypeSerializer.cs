@@ -20,65 +20,65 @@ using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text
 {
-	/// <summary>
-	/// Creates an instance of a Type from a string value
-	/// </summary>
-	public static class TypeSerializer
-	{
-	    static TypeSerializer()
-	    {
-	        JsConfig.InitStatics();
-	    }
+    /// <summary>
+    /// Creates an instance of a Type from a string value
+    /// </summary>
+    public static class TypeSerializer
+    {
+        static TypeSerializer()
+        {
+            JsConfig.InitStatics();
+        }
 
         public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
 
-		public const string DoubleQuoteString = "\"\"";
+        public const string DoubleQuoteString = "\"\"";
 
-		/// <summary>
-		/// Determines whether the specified type is convertible from string.
-		/// </summary>
-		/// <param name="type">The type.</param>
-		/// <returns>
-		/// 	<c>true</c> if the specified type is convertible from string; otherwise, <c>false</c>.
-		/// </returns>
-		public static bool CanCreateFromString(Type type)
-		{
-			return JsvReader.GetParseFn(type) != null;
-		}
+        /// <summary>
+        /// Determines whether the specified type is convertible from string.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        /// 	<c>true</c> if the specified type is convertible from string; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool CanCreateFromString(Type type)
+        {
+            return JsvReader.GetParseFn(type) != null;
+        }
 
-		/// <summary>
-		/// Parses the specified value.
-		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <returns></returns>
-		public static T DeserializeFromString<T>(string value)
-		{
-			if (string.IsNullOrEmpty(value)) return default(T);
-			return (T)JsvReader<T>.Parse(value);
-		}
+        /// <summary>
+        /// Parses the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static T DeserializeFromString<T>(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return default(T);
+            return (T)JsvReader<T>.Parse(value);
+        }
 
-		public static T DeserializeFromReader<T>(TextReader reader)
-		{
-			return DeserializeFromString<T>(reader.ReadToEnd());
-		}
+        public static T DeserializeFromReader<T>(TextReader reader)
+        {
+            return DeserializeFromString<T>(reader.ReadToEnd());
+        }
 
-		/// <summary>
-		/// Parses the specified type.
-		/// </summary>
-		/// <param name="type">The type.</param>
-		/// <param name="value">The value.</param>
-		/// <returns></returns>
-		public static object DeserializeFromString(string value, Type type)
-		{
-			return value == null 
-			       	? null 
-			       	: JsvReader.GetParseFn(type)(value);
-		}
+        /// <summary>
+        /// Parses the specified type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static object DeserializeFromString(string value, Type type)
+        {
+            return value == null
+                       ? null
+                       : JsvReader.GetParseFn(type)(value);
+        }
 
-		public static object DeserializeFromReader(TextReader reader, Type type)
-		{
-			return DeserializeFromString(reader.ReadToEnd(), type);
-		}
+        public static object DeserializeFromReader(TextReader reader, Type type)
+        {
+            return DeserializeFromString(reader.ReadToEnd(), type);
+        }
 
         [ThreadStatic] //Reuse the thread static StringBuilder when serializing to strings
         private static StringBuilderWriter LastWriter;
@@ -130,8 +130,8 @@ namespace ServiceStack.Text
             }
         }
 
-		public static string SerializeToString<T>(T value)
-		{
+        public static string SerializeToString<T>(T value)
+        {
             if (value == null || value is Delegate) return null;
             if (typeof(T) == typeof(object))
             {
@@ -151,12 +151,12 @@ namespace ServiceStack.Text
 
                 return sb.ToString();
             }
-		}
+        }
 
-		public static string SerializeToString(object value, Type type)
-		{
-			if (value == null) return null;
-			if (type == typeof(string)) 
+        public static string SerializeToString(object value, Type type)
+        {
+            if (value == null) return null;
+            if (type == typeof(string))
                 return value as string;
 
             using (var sb = StringBuilderWriter.Create())
@@ -165,15 +165,15 @@ namespace ServiceStack.Text
 
                 return sb.ToString();
             }
-		}
+        }
 
-		public static void SerializeToWriter<T>(T value, TextWriter writer)
-		{
-			if (value == null) return;
-			if (typeof(T) == typeof(string))
-			{
-				writer.Write(value);
-			}
+        public static void SerializeToWriter<T>(T value, TextWriter writer)
+        {
+            if (value == null) return;
+            if (typeof(T) == typeof(string))
+            {
+                writer.Write(value);
+            }
             else if (typeof(T) == typeof(object))
             {
                 SerializeToWriter(value, value.GetType(), writer);
@@ -188,23 +188,23 @@ namespace ServiceStack.Text
             {
                 JsvWriter<T>.WriteRootObject(writer, value);
             }
-		}
+        }
 
-		public static void SerializeToWriter(object value, Type type, TextWriter writer)
-		{
-			if (value == null) return;
-			if (type == typeof(string))
-			{
-				writer.Write(value);
-				return;
-			}
+        public static void SerializeToWriter(object value, Type type, TextWriter writer)
+        {
+            if (value == null) return;
+            if (type == typeof(string))
+            {
+                writer.Write(value);
+                return;
+            }
 
-			JsvWriter.GetWriteFn(type)(writer, value);
-		}
+            JsvWriter.GetWriteFn(type)(writer, value);
+        }
 
-		public static void SerializeToStream<T>(T value, Stream stream)
-		{
-			if (value == null) return;
+        public static void SerializeToStream<T>(T value, Stream stream)
+        {
+            if (value == null) return;
             if (typeof(T) == typeof(object))
             {
                 SerializeToStream(value, value.GetType(), stream);
@@ -221,48 +221,48 @@ namespace ServiceStack.Text
                 JsvWriter<T>.WriteRootObject(writer, value);
                 writer.Flush();
             }
-		}
+        }
 
-		public static void SerializeToStream(object value, Type type, Stream stream)
-		{
-			var writer = new StreamWriter(stream, UTF8Encoding);
-			JsvWriter.GetWriteFn(type)(writer, value);
-			writer.Flush();
-		}
+        public static void SerializeToStream(object value, Type type, Stream stream)
+        {
+            var writer = new StreamWriter(stream, UTF8Encoding);
+            JsvWriter.GetWriteFn(type)(writer, value);
+            writer.Flush();
+        }
 
-		public static T Clone<T>(T value)
-		{
-			var serializedValue = SerializeToString(value);
-			var cloneObj = DeserializeFromString<T>(serializedValue);
-			return cloneObj;
-		}
+        public static T Clone<T>(T value)
+        {
+            var serializedValue = SerializeToString(value);
+            var cloneObj = DeserializeFromString<T>(serializedValue);
+            return cloneObj;
+        }
 
-		public static T DeserializeFromStream<T>(Stream stream)
-		{
-			using (var reader = new StreamReader(stream, UTF8Encoding))
-			{
-				return DeserializeFromString<T>(reader.ReadToEnd());
-			}
-		}
+        public static T DeserializeFromStream<T>(Stream stream)
+        {
+            using (var reader = new StreamReader(stream, UTF8Encoding))
+            {
+                return DeserializeFromString<T>(reader.ReadToEnd());
+            }
+        }
 
-		public static object DeserializeFromStream(Type type, Stream stream)
-		{
-			using (var reader = new StreamReader(stream, UTF8Encoding))
-			{
-				return DeserializeFromString(reader.ReadToEnd(), type);
-			}
-		}
+        public static object DeserializeFromStream(Type type, Stream stream)
+        {
+            using (var reader = new StreamReader(stream, UTF8Encoding))
+            {
+                return DeserializeFromString(reader.ReadToEnd(), type);
+            }
+        }
 
-		/// <summary>
-		/// Useful extension method to get the Dictionary[string,string] representation of any POCO type.
-		/// </summary>
-		/// <returns></returns>
-		public static Dictionary<string, string> ToStringDictionary<T>(this T obj)
-		{
-			var jsv = SerializeToString(obj);
-			var map = DeserializeFromString<Dictionary<string, string>>(jsv);
-			return map;
-		}
+        /// <summary>
+        /// Useful extension method to get the Dictionary[string,string] representation of any POCO type.
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<string, string> ToStringDictionary<T>(this T obj)
+        {
+            var jsv = SerializeToString(obj);
+            var map = DeserializeFromString<Dictionary<string, string>>(jsv);
+            return map;
+        }
 
         /// <summary>
         /// Recursively prints the contents of any POCO object in a human-friendly, readable format
@@ -303,15 +303,15 @@ namespace ServiceStack.Text
         }
 
         public static string SerializeAndFormat<T>(this T instance)
-		{
-		    var fn = instance as Delegate;
-		    if (fn != null)
+        {
+            var fn = instance as Delegate;
+            if (fn != null)
                 return Dump(fn);
 
-			var dtoStr = SerializeToString(instance);
-			var formatStr = JsvFormatter.Format(dtoStr);
-			return formatStr;
-		}
+            var dtoStr = SerializeToString(instance);
+            var formatStr = JsvFormatter.Format(dtoStr);
+            return formatStr;
+        }
 
         public static string Dump(this Delegate fn)
         {
@@ -329,7 +329,7 @@ namespace ServiceStack.Text
             var info = "{0} {1}({2})".Fmt(method.ReturnType.Name, methodName, sb);
             return info;
         }
-	}
+    }
 
     public class JsvStringSerializer : IStringSerializer
     {

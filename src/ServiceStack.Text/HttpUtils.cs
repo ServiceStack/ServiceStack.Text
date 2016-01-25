@@ -39,14 +39,14 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                var existingKeyPos = qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison) 
-                    ? qsPos 
+                var existingKeyPos = qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison)
+                    ? qsPos
                     : url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
 
                 if (existingKeyPos != -1)
                 {
                     var endPos = url.IndexOf('&', existingKeyPos + 1);
-                    if (endPos == -1) 
+                    if (endPos == -1)
                         endPos = url.Length;
 
                     var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
@@ -85,7 +85,7 @@ namespace ServiceStack
                 if (existingKeyPos != -1)
                 {
                     var endPos = url.IndexOf('/', existingKeyPos + 1);
-                    if (endPos == -1) 
+                    if (endPos == -1)
                         endPos = url.Length;
 
                     var newUrl = url.Substring(0, existingKeyPos + key.Length + 1)
@@ -654,7 +654,7 @@ namespace ServiceStack
 
         public static Task<Stream> GetRequestStreamAsync(this WebRequest request)
         {
-            return GetRequestStreamAsync((HttpWebRequest) request);
+            return GetRequestStreamAsync((HttpWebRequest)request);
         }
 
         public static Task<Stream> GetRequestStreamAsync(this HttpWebRequest request)
@@ -752,7 +752,7 @@ namespace ServiceStack
 
             var contentLength = fileStream.Length + headerbytes.Length + boundarybytes.Length;
             PclExport.Instance.InitHttpWebRequest(httpReq,
-                contentLength:contentLength, allowAutoRedirect: false, keepAlive: false);
+                contentLength: contentLength, allowAutoRedirect: false, keepAlive: false);
 
             if (ResultsFilter != null)
             {
@@ -816,7 +816,7 @@ namespace ServiceStack
         public Func<HttpWebRequest, byte[], byte[]> BytesResultFn { get; set; }
         public Action<HttpWebRequest, Stream, string> UploadFileFn { get; set; }
 
-        public HttpResultsFilter(string stringResult=null, byte[] bytesResult=null)
+        public HttpResultsFilter(string stringResult = null, byte[] bytesResult = null)
         {
             StringResult = stringResult;
             BytesResult = bytesResult;
@@ -1112,7 +1112,7 @@ namespace ServiceStack
             "ACL",        // RFC 3744
             "PATCH",      // https://datatracker.ietf.org/doc/draft-dusseault-http-patch/
             "SEARCH",     // https://datatracker.ietf.org/doc/draft-reschke-webdav-search/
-            "BCOPY", "BDELETE", "BMOVE", "BPROPFIND", "BPROPPATCH", "NOTIFY",  
+            "BCOPY", "BDELETE", "BMOVE", "BPROPFIND", "BPROPPATCH", "NOTIFY",
             "POLL",  "SUBSCRIBE", "UNSUBSCRIBE" //MS Exchange WebDav: http://msdn.microsoft.com/en-us/library/aa142917.aspx
         };
 
