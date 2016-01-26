@@ -45,7 +45,7 @@ namespace ServiceStack.Text.Common
         private static readonly int XsdTimeSeparatorIndex = XsdDateTimeFormat.IndexOf(XsdTimeSeparator);
         private const string XsdUtcSuffix = "Z";
         private static readonly char[] DateTimeSeperators = new[] { '-', '/' };
-        private static readonly Regex UtcOffsetInfoRegex = new Regex("([+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])", RegexOptions.Compiled);
+        private static readonly Regex UtcOffsetInfoRegex = new Regex("([+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])", PclExport.Instance.RegexOptions);
         public static Func<string, Exception, DateTime> OnParseErrorFn { get; set; }
 
         /// <summary>
