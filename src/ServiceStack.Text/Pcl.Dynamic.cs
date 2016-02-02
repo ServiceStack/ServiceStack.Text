@@ -87,7 +87,7 @@ namespace ServiceStack
         }
     }
 
-    //TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
+//TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
 #if !(SL5 && CORECLR)
 
     public class DynamicJson : DynamicObject
