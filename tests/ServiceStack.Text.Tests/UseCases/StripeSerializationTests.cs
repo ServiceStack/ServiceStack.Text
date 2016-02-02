@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using ServiceStack.Stripe;
+using ServiceStack.Stripe.Types;
 
 namespace ServiceStack.Text.Tests.UseCases
 {
@@ -26,7 +27,7 @@ namespace ServiceStack.Text.Tests.UseCases
         {
             var dto = new CreateStripeCustomer
             {
-                Card = new CreateStripeCard
+                Card = new StripeCard
                 {
                     Name = "Name",
                     Number = "4242424242424242",
@@ -97,6 +98,37 @@ namespace ServiceStack.Text.Tests.UseCases
         {
             var dto = StripeJsonData.Charge.FromJson<StripeCharge>();
             dto.PrintDump();
+        }
+
+        [Test]
+        public void Can_serialize_ComplexTypes()
+        {
+            var dto = new CreateStripeAccount
+            {
+                Country = "Country",
+                Email = "the@email.com",
+                LegalEntity = new StripeLegalEntity
+                {
+                    Dob = new StripeDob
+                    {
+                        Day = 1,
+                        Month = 1,
+                        Year = 1970,
+                    }
+                },
+                TosAcceptance = new StripeTosAcceptance
+                {
+                    Date = DateTime.UtcNow,
+                    Ip = "127.0.0.1",
+                    UserAgent = "USER AGENT",
+                }
+            };
+
+            var qs = QueryStringSerializer.SerializeToString(dto);
+            qs.Print();
+
+            Assert.That(qs, Is.StringContaining(
+                @"&legal_entity[dob][year]=1970&legal_entity[dob][month]=1&legal_entity[dob][day]=1"));
         }
     }
 }

@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using ServiceStack.Reflection;
 using ServiceStack.Text.Json;
+using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text.Common
 {
@@ -178,6 +179,7 @@ namespace ServiceStack.Text.Common
 
                 PropertyWriters[i] = new TypePropertyWriter
                 (
+                    propertyType,
                     propertyName,
                     propertyDeclaredTypeName,
                     propertyNameCLSFriendly,
@@ -234,6 +236,7 @@ namespace ServiceStack.Text.Common
 
                 PropertyWriters[i + propertyNamesLength] = new TypePropertyWriter
                 (
+                    propertyType,
                     propertyName,
                     propertyDeclaredTypeName,
                     propertyNameCLSFriendly,
@@ -267,6 +270,8 @@ namespace ServiceStack.Text.Common
                             : propertyName;
                 }
             }
+
+            internal readonly Type PropertyType;
             internal readonly string propertyName;
             internal readonly int propertyOrder;
             internal readonly bool propertySuppressDefaultConfig;
@@ -281,13 +286,14 @@ namespace ServiceStack.Text.Common
             internal readonly Func<T, string, bool?> shouldSerializeDynamic;
             internal readonly bool isEnum;
 
-            public TypePropertyWriter(string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly,
+            public TypePropertyWriter(Type propertyType, string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly,
                 string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig, bool propertySuppressDefaultAttribute,
                 Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue,
                 Func<T, bool> shouldSerialize,
                 Func<T, string, bool?> shouldSerializeDynamic,
                 bool isEnum)
             {
+                this.PropertyType = propertyType;
                 this.propertyName = propertyName;
                 this.propertyOrder = propertyOrder;
                 this.propertySuppressDefaultConfig = propertySuppressDefaultConfig;
@@ -357,6 +363,15 @@ namespace ServiceStack.Text.Common
             }
 
             WriteLateboundProperties(writer, value, valueType);
+        }
+
+        internal static string GetPropertyName(string propertyName)
+        {
+            return JsConfig<T>.EmitCamelCaseNames.GetValueOrDefault(JsConfig.EmitCamelCaseNames)
+                ? propertyName.ToCamelCase()
+                : JsConfig<T>.EmitLowercaseUnderscoreNames.GetValueOrDefault(JsConfig.EmitLowercaseUnderscoreNames)
+                    ? propertyName.ToLowercaseUnderscore()
+                    : propertyName;
         }
 
         public static void WriteProperties(TextWriter writer, object value)
@@ -488,20 +503,54 @@ namespace ServiceStack.Text.Common
                     if (i++ > 0)
                         writer.Write('&');
 
-                    writer.Write(typeName);
-                    writer.Write('[');
-                    writer.Write(propertyWriter.PropertyName);
-                    writer.Write(']');
-
-                    writer.Write('=');
-
-                    if (propertyValue == null)
+                    var propertyValueType = propertyValue != null ? propertyValue.GetType() : null;
+                    if (propertyValueType != null && 
+                        propertyValueType.IsUserType() && 
+                        !propertyValueType.HasInterface(typeof(IEnumerable)))
                     {
-                        writer.Write(JsonUtils.Null);
+                        //Nested Complex Type: legal_entity[dob][day]=1
+                        var prefix = "{0}[{1}]".Fmt(typeName, propertyWriter.PropertyName);
+                        var props = propertyValueType.GetSerializableProperties();
+                        for (int j = 0; j < props.Length; j++)
+                        {
+                            var pi = props[j];
+                            var pValue = pi.GetValue(propertyValue, new object[0]);
+                            if (pValue == null && !Serializer.IncludeNullValues)
+                                continue;
+
+                            if (j > 0)
+                                writer.Write('&');
+
+                            writer.Write(prefix);
+                            writer.Write('[');
+                            writer.Write(GetPropertyName(pi.Name));
+                            writer.Write("]=");
+
+                            if (pValue == null)
+                            {
+                                writer.Write(JsonUtils.Null);
+                            }
+                            else
+                            {
+                                JsvWriter.GetWriteFn(pValue.GetType())(writer, pValue);
+                            }
+                        }
                     }
                     else
                     {
-                        propertyWriter.WriteFn(writer, propertyValue);
+                        writer.Write(typeName);
+                        writer.Write('[');
+                        writer.Write(propertyWriter.PropertyName);
+                        writer.Write("]=");
+
+                        if (propertyValue == null)
+                        {
+                            writer.Write(JsonUtils.Null);
+                        }
+                        else
+                        {
+                            propertyWriter.WriteFn(writer, propertyValue);
+                        }
                     }
                 }
             }
@@ -524,7 +573,7 @@ namespace ServiceStack.Text.Common
                     var propertyType = propertyValue.GetType();
                     var strValue = propertyValue as string;
                     var isEnumerable = strValue == null
-                        && !(propertyType.IsValueType())
+                        && !propertyType.IsValueType()
                         && propertyType.HasInterface(typeof(IEnumerable));
 
                     if (QueryStringSerializer.ComplexTypeStrategy != null

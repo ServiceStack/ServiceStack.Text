@@ -5,150 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
+using ServiceStack.Stripe.Types;
 using ServiceStack.Text;
 
 namespace ServiceStack.Stripe
 {
-    public class StripeGateway
-    {
-        private const string BaseUrl = "https://api.stripe.com/v1";
-
-        public TimeSpan Timeout { get; set; }
-
-        public ICredentials Credentials { get; set; }
-        private string UserAgent { get; set; }
-
-        public StripeGateway(string apiKey)
-        {
-            Credentials = new NetworkCredential(apiKey, "");
-            Timeout = TimeSpan.FromSeconds(60);
-            UserAgent = "servicestack .net stripe v1";
-            JsConfig.InitStatics();
-        }
-
-        protected virtual string Send(string relativeUrl, string method, string body)
-        {
-            try
-            {
-                var url = BaseUrl.CombineWith(relativeUrl);
-                var response = url.SendStringToUrl(method: method, requestBody: body, requestFilter: req =>
-                {
-                    req.Accept = MimeTypes.Json;
-                    req.UserAgent = UserAgent;
-                    req.Credentials = Credentials;
-                    req.PreAuthenticate = true;
-                    req.Timeout = (int)Timeout.TotalMilliseconds;
-                    if (method == HttpMethods.Post || method == HttpMethods.Put)
-                        req.ContentType = MimeTypes.FormUrlEncoded;
-                });
-
-                return response;
-            }
-            catch (WebException ex)
-            {
-                var errorBody = ex.GetResponseBody();
-                var errorStatus = ex.GetStatus() ?? HttpStatusCode.BadRequest;
-                if (ex.IsAny400())
-                {
-                    var result = errorBody.FromJson<StripeErrors>();
-                    throw new StripeException(result.Error) { StatusCode = errorStatus };
-                }
-
-                throw;
-            }
-        }
-
-        class ConfigScope : IDisposable
-        {
-            private readonly WriteComplexTypeDelegate holdQsStrategy;
-            private readonly JsConfigScope scope;
-
-            public ConfigScope()
-            {
-                scope = JsConfig.With(dateHandler: DateHandler.UnixTime,
-                                      propertyConvention: PropertyConvention.Lenient,
-                                      emitLowercaseUnderscoreNames: true);
-
-                holdQsStrategy = QueryStringSerializer.ComplexTypeStrategy;
-                QueryStringSerializer.ComplexTypeStrategy = QueryStringStrategy.FormUrlEncoded;
-            }
-
-            public void Dispose()
-            {
-                QueryStringSerializer.ComplexTypeStrategy = holdQsStrategy;
-                scope.Dispose();
-            }
-        }
-
-        private T Send<T>(IReturn<T> request, string method, bool sendRequestBody = true)
-        {
-            using (new ConfigScope())
-            {
-                var relativeUrl = request.ToUrl(method);
-                var body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
-
-                var json = Send(relativeUrl, method, body);
-
-                var response = json.FromJson<T>();
-                return response;
-            }
-        }
-
-        public T Get<T>(IReturn<T> request)
-        {
-            return Send(request, HttpMethods.Get, sendRequestBody: false);
-        }
-
-        public T Post<T>(IReturn<T> request)
-        {
-            return Send(request, HttpMethods.Post);
-        }
-
-        public T Put<T>(IReturn<T> request)
-        {
-            return Send(request, HttpMethods.Put);
-        }
-
-        public T Delete<T>(IReturn<T> request)
-        {
-            return Send(request, HttpMethods.Delete, sendRequestBody: false);
-        }
-    }
-
-    [Route("/customers/{Id}")]
-    public class GetCustomer : IReturn<StripeCustomer>
-    {
-        public string Id { get; set; }
-    }
-
-    [Route("/customers")]
-    public class CreateStripeCustomer : IReturn<StripeCustomer>
-    {
-        public int AccountBalance { get; set; }
-        public CreateStripeCard Card { get; set; }
-        public string Coupon { get; set; }
-        public string Description { get; set; }
-        public string Email { get; set; }
-        public string Plan { get; set; }
-        public int? Quantity { get; set; }
-        public DateTime? TrialEnd { get; set; }
-    }
-
-    [Route("/customers/{Id}")]
-    public class UpdateStripeCustomer : IReturn<StripeCustomer>
-    {
-        [IgnoreDataMember]
-        public string Id { get; set; }
-        public int AccountBalance { get; set; }
-        public StripeCard Card { get; set; }
-        public string Coupon { get; set; }
-        public string DefaultCard { get; set; }
-        public string Description { get; set; }
-        public string Email { get; set; }
-    }
-
+    /* Charges 
+	 * https://stripe.com/docs/api/curl#charges
+	 */
     [Route("/charges")]
-    public class ChargeStripeCustomer : IReturn<StripeCharge>
+    public class ChargeStripeCustomer : IPost, IReturn<StripeCharge>
     {
         public int Amount { get; set; }
         public string Currency { get; set; }
@@ -159,8 +26,214 @@ namespace ServiceStack.Stripe
         public int? ApplicationFee { get; set; }
     }
 
+    [Route("/charges/{ChargeId}")]
+    public class GetStripeCharge : IGet, IReturn<StripeCharge>
+    {
+        public string ChargeId { get; set; }
+    }
+
+    [Route("/charges/{ChargeId}")]
+    public class UpdateStripeCharge : IPost, IReturn<StripeCharge>
+    {
+        [IgnoreDataMember]
+        public string ChargeId { get; set; }
+        public string Description { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
+    }
+
+    [Route("/charges/{ChargeId}/refund")]
+    public class RefundStripeCharge : IPost, IReturn<StripeCharge>
+    {
+        [IgnoreDataMember]
+        public string ChargeId { get; set; }
+        public int? Amount { get; set; }
+        public bool? RefundApplicationFee { get; set; }
+    }
+
+    [Route("/charges/{ChargeId}/capture")]
+    public class CaptureStripeCharge : IPost, IReturn<StripeCharge>
+    {
+        [IgnoreDataMember]
+        public string ChargeId { get; set; }
+        public int? Amount { get; set; }
+        public bool? ApplicationFee { get; set; }
+    }
+
+    [Route("/charges")]
+    public class GetStripeCharges : IGet, IReturn<StripeCollection<StripeCharge>>, IUrlFilter
+    {
+        public GetStripeCharges()
+        {
+            Include = new[] { "total_count" };
+        }
+
+        public int? Limit { get; set; }
+        public string StartingAfter { get; set; }
+        public string EndingBefore { get; set; }
+
+        public DateTime? Created { get; set; }
+        public string Customer { get; set; }
+
+        [IgnoreDataMember]
+        public string[] Include { get; set; }
+
+        public string ToUrl(string absoluteUrl)
+        {
+            return Include == null ? absoluteUrl : absoluteUrl.AddQueryParam("include[]", string.Join(",", Include));
+        }
+    }
+
+    /* Customers 
+	 * https://stripe.com/docs/api/curl#customers
+	 */
+    [Route("/customers")]
+    public class CreateStripeCustomer : IPost, IReturn<StripeCustomer>
+    {
+        public int AccountBalance { get; set; }
+        public StripeCard Card { get; set; }
+        public string Coupon { get; set; }
+        public string Description { get; set; }
+        public string Email { get; set; }
+        public string Plan { get; set; }
+        public int? Quantity { get; set; }
+        public DateTime? TrialEnd { get; set; }
+    }
+
+    [Route("/customers")]
+    public class CreateStripeCustomerWithToken : IPost, IReturn<StripeCustomer>
+    {
+        public int AccountBalance { get; set; }
+        public string Card { get; set; }
+        public string Coupon { get; set; }
+        public string Description { get; set; }
+        public string Email { get; set; }
+        public string Plan { get; set; }
+        public int? Quantity { get; set; }
+        public DateTime? TrialEnd { get; set; }
+    }
+
+    [Route("/customers/{Id}")]
+    public class GetStripeCustomer : IGet, IReturn<StripeCustomer>
+    {
+        public string Id { get; set; }
+    }
+
+    [Route("/customers/{Id}")]
+    public class UpdateStripeCustomer : IPost, IReturn<StripeCustomer>
+    {
+        [IgnoreDataMember]
+        public string Id { get; set; }
+        public int AccountBalance { get; set; }
+        public StripeCard Card { get; set; }
+        public string Coupon { get; set; }
+        public string DefaultSource { get; set; }
+        public string Description { get; set; }
+        public string Email { get; set; }
+        public string Source { get; set; }
+    }
+
+    [Route("/customers/{Id}")]
+    public class DeleteStripeCustomer : IDelete, IReturn<StripeReference>
+    {
+        public string Id { get; set; }
+    }
+
+    [Route("/customers")]
+    public class GetStripeCustomers : IGet, IReturn<StripeCollection<StripeCustomer>>, IUrlFilter
+    {
+        public GetStripeCustomers()
+        {
+            Include = new[] { "total_count" };
+        }
+
+        public int? Limit { get; set; }
+        public string StartingAfter { get; set; }
+        public string EndingBefore { get; set; }
+
+        public DateTime? Created { get; set; }
+
+        [IgnoreDataMember]
+        public string[] Include { get; set; }
+
+        public string ToUrl(string absoluteUrl)
+        {
+            return Include == null ? absoluteUrl : absoluteUrl.AddQueryParam("include[]", string.Join(",", Include));
+        }
+    }
+
+    /* Cards
+	 * https://stripe.com/docs/api/curl#cards
+	 */
+    [Route("/customers/{CustomerId}/cards")]
+    public class CreateStripeCard : IPost, IReturn<StripeCard>
+    {
+        [IgnoreDataMember]
+        public string CustomerId { get; set; }
+
+        public StripeCard Card { get; set; }
+    }
+
+    [Route("/customers/{CustomerId}/cards/{CardId}")]
+    public class GetStripeCard : IGet, IReturn<StripeCard>
+    {
+        public string CustomerId { get; set; }
+        public string CardId { get; set; }
+    }
+
+    [Route("/customers/{CustomerId}/cards/{CardId}")]
+    public class UpdateStripeCard : IPost, IReturn<StripeCard>
+    {
+        [IgnoreDataMember]
+        public string CustomerId { get; set; }
+        [IgnoreDataMember]
+        public string CardId { get; set; }
+
+        public string AddressCity { get; set; }
+        public string AddressCountry { get; set; }
+        public string AddressLine1 { get; set; }
+        public string AddressLine2 { get; set; }
+        public string AddressState { get; set; }
+        public string AddressZip { get; set; }
+        public int? ExpMonth { get; set; }
+        public int? ExpYear { get; set; }
+        public string Name { get; set; }
+    }
+
+    [Route("/customers/{CustomerId}/sources/{CardId}")]
+    public class DeleteStripeCustomerCard : IDelete, IReturn<StripeReference>
+    {
+        public string CustomerId { get; set; }
+        public string CardId { get; set; }
+    }
+
+    [Route("/customers/{CustomerId}/sources")]
+    public class GetStripeCustomerCards : IGet, IReturn<StripeCollection<StripeCard>>, IUrlFilter
+    {
+        public GetStripeCustomerCards()
+        {
+            Include = new[] { "total_count" };
+        }
+
+        public string CustomerId { get; set; }
+
+        public int? Limit { get; set; }
+        public string StartingAfter { get; set; }
+        public string EndingBefore { get; set; }
+
+        [IgnoreDataMember]
+        public string[] Include { get; set; }
+
+        public string ToUrl(string absoluteUrl)
+        {
+            return Include == null ? absoluteUrl : absoluteUrl.AddQueryParam("include[]", string.Join(",", Include));
+        }
+    }
+
+    /* Subscriptions
+	 * https://stripe.com/docs/api/curl#subscriptions
+	 */
     [Route("/customers/{CustomerId}/subscription")]
-    public class SubscribeStripeCustomer : IReturn<StripeSubscription>
+    public class SubscribeStripeCustomer : IPost, IReturn<StripeSubscription>
     {
         [IgnoreDataMember]
         public string CustomerId { get; set; }
@@ -174,20 +247,26 @@ namespace ServiceStack.Stripe
     }
 
     [Route("/customers/{CustomerId}/subscription")]
-    public class CancelStripeSubscription : IReturn<StripeSubscription>
+    public class CancelStripeSubscription : IDelete, IReturn<StripeSubscription>
     {
         public string CustomerId { get; set; }
         public bool AtPeriodEnd { get; set; }
     }
 
-    [Route("/plans/{Id}")]
-    public class GetStripePlan : IReturn<StripePlan>
+
+    [Route("/customers/{CustomerId}/subscriptions/{SubscriptionId}")]
+    public class GetStripeSubscription : IGet, IReturn<StripeSubscription>
     {
-        public string Id { get; set; }
+        public string CustomerId { get; set; }
+        public string SubscriptionId { get; set; }
     }
 
+
+    /* Plans
+	 * https://stripe.com/docs/api/curl#plans
+	 */
     [Route("/plans")]
-    public class CreateStripePlan : IReturn<StripePlan>
+    public class CreateStripePlan : IPost, IReturn<StripePlan>
     {
         public string Id { get; set; }
         public int Amount { get; set; }
@@ -198,27 +277,40 @@ namespace ServiceStack.Stripe
         public int? TrialPeriodDays { get; set; }
     }
 
-    [Route("/plans")]
-    public class GetStripePlans : IReturn<StripeResults<StripePlan>>
+    [Route("/plans/{Id}")]
+    public class GetStripePlan : IGet, IReturn<StripePlan>
     {
-        public int? Count { get; set; }
-        public int? Offset { get; set; }
+        public string Id { get; set; }
     }
 
     [Route("/plans/{Id}")]
-    public class DeleteStripePlan : IReturn<StripeReference>
+    public class UpdateStripePlan : IPost, IReturn<StripePlan>
+    {
+        [IgnoreDataMember]
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
+    }
+
+    [Route("/plans/{Id}")]
+    public class DeleteStripePlan : IDelete, IReturn<StripeReference>
     {
         public string Id { get; set; }
     }
 
-    [Route("/coupons/{Id}")]
-    public class GetStripeCoupon : IReturn<StripeCoupon>
+    [Route("/plans")]
+    public class GetStripePlans : IGet, IReturn<StripeCollection<StripePlan>>
     {
-        public string Id { get; set; }
+        public int? Limit { get; set; }
+        public string StartingAfter { get; set; }
+        public string EndingBefore { get; set; }
     }
 
+    /* Coupons
+	 * https://stripe.com/docs/api/curl#coupons
+	 */
     [Route("/coupons")]
-    public class CreateStripeCoupon : IReturn<StripeCoupon>
+    public class CreateStripeCoupon : IPost, IReturn<StripeCoupon>
     {
         public string Id { get; set; }
         public StripeCouponDuration Duration { get; set; }
@@ -230,45 +322,383 @@ namespace ServiceStack.Stripe
         public DateTime? RedeemBy { get; set; }
     }
 
-    [Route("/coupons")]
-    public class GetStripeCoupons : IReturn<StripeResults<StripeCoupon>>
-    {
-        public int? Count { get; set; }
-        public int? Offset { get; set; }
-    }
-
     [Route("/coupons/{Id}")]
-    public class DeleteStripeCoupon : IReturn<StripeReference>
+    public class GetStripeCoupon : IGet, IReturn<StripeCoupon>
     {
         public string Id { get; set; }
     }
 
+    [Route("/coupons/{Id}")]
+    public class DeleteStripeCoupon : IDelete, IReturn<StripeReference>
+    {
+        public string Id { get; set; }
+    }
+
+    [Route("/coupons")]
+    public class GetStripeCoupons : IGet, IReturn<StripeCollection<StripeCoupon>>
+    {
+        public int? Limit { get; set; }
+        public string StartingAfter { get; set; }
+        public string EndingBefore { get; set; }
+    }
+
+    /* Discounts
+	 * https://stripe.com/docs/api/curl#discounts
+	 */
     [Route("/customers/{CustomerId}/discount")]
-    public class DeleteStripeDiscount : IReturn<StripeReference>
+    public class DeleteStripeDiscount : IDelete, IReturn<StripeReference>
     {
         public string CustomerId { get; set; }
     }
 
+    /* Invoices
+	 * https://stripe.com/docs/api/curl#invoices
+	 */
+
+    [Route("/invoices/{Id}")]
+    public class GetStripeInvoice : IGet, IReturn<StripeInvoice>
+    {
+        public string Id { get; set; }
+    }
+
     [Route("/invoices")]
-    public class CreateStripeInvoice : IReturn<StripeInvoice>
+    public class CreateStripeInvoice : IPost, IReturn<StripeInvoice>
     {
         public string Customer { get; set; }
         public int? ApplicationFee { get; set; }
     }
 
     [Route("/invoices/{Id}/pay")]
-    public class PayStripeInvoice : IReturn<StripeInvoice>
+    public class PayStripeInvoice : IPost, IReturn<StripeInvoice>
     {
         [IgnoreDataMember]
         public string Id { get; set; }
     }
 
+    [Route("/invoices")]
+    public class GetStripeInvoices : IGet, IReturn<StripeCollection<StripeInvoice>>
+    {
+        public string Customer { get; set; }
+        public DateTime? Date { get; set; }
+        public int? Count { get; set; }
+        public int? Offset { get; set; }
+    }
+
     [Route("/invoices/upcoming")]
-    public class GetUpcomingStripeInvoice : IReturn<StripeInvoice>
+    public class GetUpcomingStripeInvoice : IGet, IReturn<StripeInvoice>
     {
         public string Customer { get; set; }
     }
 
+    /* Tokens */
+    [Route("/tokens")]
+    public class CreateStripeToken : IPost, IReturn<StripeToken>
+    {
+        public StripeCard Card { get; set; }
+
+        public string Customer { get; set; }
+    }
+
+    public class StripeToken : StripeId
+    {
+        public bool Livemode { get; set; }
+        public DateTime Created { get; set; }
+        public bool Used { get; set; }
+        public string Type { get; set; }
+        public StripeCard Card { get; set; }
+    }
+
+    /* 
+        Accounts 
+    */
+
+    [Route("/accounts")]
+    public class CreateStripeAccount : IPost, IReturn<StripeAccount>
+    {
+        public string Country { get; set; }
+        public bool Managed { get; set; }
+        public string Email { get; set; }
+        public StripeTosAcceptance TosAcceptance { get; set; }
+        public StripeLegalEntity LegalEntity { get; set; }
+    }
+
+    public class StripeTosAcceptance
+    {
+        public DateTime Date { get; set; }
+        public string Ip { get; set; }
+        public string UserAgent { get; set; }
+    }
+
+    public class StripeLegalEntity
+    {
+        public StripeDob Dob { get; set; }
+    }
+
+    public class StripeAccount : StripeId
+    {
+        public Dictionary<string, string> Keys { get; set; }
+    }
+
+    public class StripeDob
+    {
+        public StripeDob() {}
+        public StripeDob(int year, int month, int day)
+        {
+            Year = year;
+            Month = month;
+            Day = day;
+        }
+
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
+    }
+
+
+    public class StripeGateway : IRestGateway
+    {
+        private const string BaseUrl = "https://api.stripe.com/v1";
+        private const string APIVersion = "2015-10-16";
+
+        public TimeSpan Timeout { get; set; }
+
+        public string Currency { get; set; }
+
+        private string apiKey;
+        private string publishableKey;
+        public ICredentials Credentials { get; set; }
+        private string UserAgent { get; set; }
+
+        public StripeGateway(string apiKey, string publishableKey = null)
+        {
+            this.apiKey = apiKey;
+            this.publishableKey = publishableKey;
+            Credentials = new NetworkCredential(apiKey, "");
+            Timeout = TimeSpan.FromSeconds(60);
+            UserAgent = "servicestack .net stripe v1";
+            Currency = Currencies.UnitedStatesDollar;
+            JsConfig.InitStatics();
+        }
+
+        protected virtual void InitRequest(HttpWebRequest req, string method, string idempotencyKey)
+        {
+            req.Accept = MimeTypes.Json;
+            req.Credentials = Credentials;
+
+            if (method == HttpMethods.Post || method == HttpMethods.Put)
+                req.ContentType = MimeTypes.FormUrlEncoded;
+
+            if (!string.IsNullOrWhiteSpace(idempotencyKey))
+                req.Headers["Idempotency-Key"] = idempotencyKey;
+
+            req.Headers["Stripe-Version"] = APIVersion;
+
+            PclExport.Instance.Config(req,
+                userAgent: UserAgent,
+                timeout: Timeout,
+                preAuthenticate: true);
+        }
+
+        protected virtual void HandleStripeException(WebException ex)
+        {
+            string errorBody = ex.GetResponseBody();
+            var errorStatus = ex.GetStatus() ?? HttpStatusCode.BadRequest;
+
+            if (ex.IsAny400())
+            {
+                var result = errorBody.FromJson<StripeErrors>();
+                throw new StripeException(result.Error)
+                {
+                    StatusCode = errorStatus
+                };
+            }
+        }
+
+        protected virtual string Send(string relativeUrl, string method, string body, string idempotencyKey)
+        {
+            try
+            {
+                var url = BaseUrl.CombineWith(relativeUrl);
+                var response = url.SendStringToUrl(method: method, requestBody: body, requestFilter: req =>
+                {
+                    InitRequest(req, method, idempotencyKey);
+                });
+
+                return response;
+            }
+            catch (WebException ex)
+            {
+                string errorBody = ex.GetResponseBody();
+                var errorStatus = ex.GetStatus() ?? HttpStatusCode.BadRequest;
+
+                if (ex.IsAny400())
+                {
+                    var result = errorBody.FromJson<StripeErrors>();
+                    throw new StripeException(result.Error)
+                    {
+                        StatusCode = errorStatus
+                    };
+                }
+
+                throw;
+            }
+        }
+
+        protected virtual async Task<string> SendAsync(string relativeUrl, string method, string body, string idempotencyKey)
+        {
+            try
+            {
+                var url = BaseUrl.CombineWith(relativeUrl);
+                var response = await url.SendStringToUrlAsync(method: method, requestBody: body, requestFilter: req =>
+                {
+                    InitRequest(req, method, idempotencyKey);
+                });
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var webEx = ex.UnwrapIfSingleException() as WebException;
+                if (webEx != null)
+                    HandleStripeException(webEx);
+
+                throw;
+            }
+        }
+
+        public class ConfigScope : IDisposable
+        {
+            private readonly WriteComplexTypeDelegate holdQsStrategy;
+            private readonly JsConfigScope jsConfigScope;
+
+            public ConfigScope()
+            {
+                jsConfigScope = JsConfig.With(dateHandler: DateHandler.UnixTime,
+                    propertyConvention: PropertyConvention.Lenient,
+                    emitLowercaseUnderscoreNames: true,
+                    emitCamelCaseNames: false);
+
+                holdQsStrategy = QueryStringSerializer.ComplexTypeStrategy;
+                QueryStringSerializer.ComplexTypeStrategy = QueryStringStrategy.FormUrlEncoded;
+            }
+
+            public void Dispose()
+            {
+                QueryStringSerializer.ComplexTypeStrategy = holdQsStrategy;
+                jsConfigScope.Dispose();
+            }
+        }
+
+        public T Send<T>(IReturn<T> request, string method, bool sendRequestBody = true, string idempotencyKey = null)
+        {
+            using (new ConfigScope())
+            {
+                var relativeUrl = request.ToUrl(method);
+                var body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
+
+                var json = Send(relativeUrl, method, body, idempotencyKey);
+
+                var response = json.FromJson<T>();
+                return response;
+            }
+        }
+
+        public async Task<T> SendAsync<T>(IReturn<T> request, string method, bool sendRequestBody = true, string idempotencyKey = null)
+        {
+            string relativeUrl;
+            string body;
+
+            using (new ConfigScope())
+            {
+                relativeUrl = request.ToUrl(method);
+                body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
+            }
+
+            var json = await SendAsync(relativeUrl, method, body, idempotencyKey);
+
+            using (new ConfigScope())
+            {
+                var response = json.FromJson<T>();
+                return response;
+            }
+        }
+
+        private static string GetMethod<T>(IReturn<T> request)
+        {
+            var method = request is IPost ?
+                  HttpMethods.Post
+                : request is IPut ?
+                  HttpMethods.Put
+                : request is IDelete ?
+                  HttpMethods.Delete
+                : HttpMethods.Get;
+            return method;
+        }
+
+        public T Send<T>(IReturn<T> request)
+        {
+            return Send(request, GetMethod(request), sendRequestBody: false);
+        }
+
+        public Task<T> SendAsync<T>(IReturn<T> request)
+        {
+            return SendAsync(request, GetMethod(request), sendRequestBody: false);
+        }
+
+        public T Get<T>(IReturn<T> request)
+        {
+            return Send(request, HttpMethods.Get, sendRequestBody: false);
+        }
+
+        public Task<T> GetAsync<T>(IReturn<T> request)
+        {
+            return SendAsync(request, HttpMethods.Get, sendRequestBody: false);
+        }
+
+        public T Post<T>(IReturn<T> request)
+        {
+            return Send(request, HttpMethods.Post);
+        }
+
+        public Task<T> PostAsync<T>(IReturn<T> request)
+        {
+            return SendAsync(request, HttpMethods.Post);
+        }
+
+        public T Post<T>(IReturn<T> request, string idempotencyKey)
+        {
+            return Send(request, HttpMethods.Post, true, idempotencyKey);
+        }
+
+        public Task<T> PostAsync<T>(IReturn<T> request, string idempotencyKey)
+        {
+            return SendAsync(request, HttpMethods.Post, true, idempotencyKey);
+        }
+
+        public T Put<T>(IReturn<T> request)
+        {
+            return Send(request, HttpMethods.Put);
+        }
+
+        public Task<T> PutAsync<T>(IReturn<T> request)
+        {
+            return SendAsync(request, HttpMethods.Put);
+        }
+
+        public T Delete<T>(IReturn<T> request)
+        {
+            return Send(request, HttpMethods.Delete, sendRequestBody: false);
+        }
+
+        public Task<T> DeleteAsync<T>(IReturn<T> request)
+        {
+            return SendAsync(request, HttpMethods.Delete, sendRequestBody: false);
+        }
+    }
+}
+
+namespace ServiceStack.Stripe.Types
+{
     public class StripeErrors
     {
         public StripeError Error { get; set; }
@@ -289,12 +719,13 @@ namespace ServiceStack.Stripe
         {
             Code = error.Code;
             Param = error.Param;
+            Type = error.Type;
         }
 
         public string Code { get; set; }
         public string Param { get; set; }
+        public string Type { get; set; }
         public HttpStatusCode StatusCode { get; set; }
-
     }
 
     public class StripeReference
@@ -303,35 +734,35 @@ namespace ServiceStack.Stripe
         public bool Deleted { get; set; }
     }
 
-    public class StripeEntity
+    public class StripeObject
     {
-        public StripeType Object { get; set; }
+        public StripeType? Object { get; set; }
     }
 
-    public class StripeId : StripeEntity
+    public class StripeId : StripeObject
     {
         public string Id { get; set; }
     }
 
     public enum StripeType
     {
-        Unknown,
-        Account,
-        Card,
-        Charge,
-        Coupon,
-        Customer,
-        Discount,
-        Dispute,
-        Event,
-        InvoiceItem,
-        Invoice,
-        Line_Item,
-        Plan,
-        Subscription,
-        Token,
-        Transfer,
-        List,
+        unknown,
+        account,
+        card,
+        charge,
+        coupon,
+        customer,
+        discount,
+        dispute,
+        @event,
+        invoiceitem,
+        invoice,
+        line_item,
+        plan,
+        subscription,
+        token,
+        transfer,
+        list,
     }
 
     public class StripeInvoice : StripeId
@@ -339,7 +770,7 @@ namespace ServiceStack.Stripe
         public DateTime Date { get; set; }
         public DateTime PeriodStart { get; set; }
         public DateTime PeriodEnd { get; set; }
-        public StripeResults<StripeLineItem> Lines { get; set; }
+        public StripeCollection<StripeLineItem> Lines { get; set; }
         public int Subtotal { get; set; }
         public int Total { get; set; }
         public string Customer { get; set; }
@@ -358,10 +789,11 @@ namespace ServiceStack.Stripe
         public int? ApplicationFee { get; set; }
     }
 
-    public class StripeResults<T> : StripeId
+    public class StripeCollection<T> : StripeId
     {
         public string Url { get; set; }
-        public int Count { get; set; }
+        public int TotalCount { get; set; }
+        public bool? HasMore { get; set; }
         public List<T> Data { get; set; }
     }
 
@@ -436,19 +868,15 @@ namespace ServiceStack.Stripe
         public bool Livemode { get; set; }
         public string Description { get; set; }
         public string Email { get; set; }
-        public bool? Deliquent { get; set; }
+        public bool? Delinquent { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
-        public StripeSubscription Subscription { get; set; }
+        public StripeCollection<StripeSubscription> Subscriptions { get; set; }
         public StripeDiscount Discount { get; set; }
         public int AccountBalance { get; set; }
-        public StripeResults<StripeCard> Cards { get; set; }
-        public bool Deleted { get; set; }
-        public string DefaultCard { get; set; }
-    }
+        public StripeCollection<StripeCard> Sources { get; set; }
 
-    public class DeleteStripeCustomer
-    {
-        public string Id { get; set; }
+        public bool Deleted { get; set; }
+        public string DefaultSource { get; set; }
     }
 
     public class GetAllStripeCustomers
@@ -466,39 +894,28 @@ namespace ServiceStack.Stripe
         public DateTime? Lte { get; set; }
     }
 
-    public class CreateStripeCard
-    {
-        public string Number { get; set; }
-        public int ExpMonth { get; set; }
-        public int ExpYear { get; set; }
-        public string Cvc { get; set; }
-        public string Name { get; set; }
-        public string AddressLine1 { get; set; }
-        public string AddressLine2 { get; set; }
-        public string AddressZip { get; set; }
-        public string AddressState { get; set; }
-        public string AddressCountry { get; set; }
-    }
-
     public class StripeCard : StripeId
     {
-        public string Last4 { get; set; }
-        public string Type { get; set; }
+        public string Brand { get; set; }
         public string Number { get; set; }
+        public string Last4 { get; set; }
+        public string DynamicLast4 { get; set; }
         public int ExpMonth { get; set; }
         public int ExpYear { get; set; }
         public string Cvc { get; set; }
         public string Name { get; set; }
 
+        public string AddressCity { get; set; }
+        public string AddressCountry { get; set; }
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
-        public string AddressCity { get; set; }
         public string AddressState { get; set; }
         public string AddressZip { get; set; }
-        public string AddressCountry { get; set; }
         public StripeCvcCheck? CvcCheck { get; set; }
         public string AddressLine1Check { get; set; }
         public string AddressZipCheck { get; set; }
+
+        public string Funding { get; set; }
 
         public string Fingerprint { get; set; }
         public string Customer { get; set; }
@@ -544,12 +961,12 @@ namespace ServiceStack.Stripe
         public bool LiveMode { get; set; }
         public int Amount { get; set; }
         public bool Captured { get; set; }
-        public StripeCard Card { get; set; }
+        public StripeCard Source { get; set; }
         public DateTime Created { get; set; }
         public string Currency { get; set; }
         public bool Paid { get; set; }
         public bool Refunded { get; set; }
-        public List<StripeRefund> Refunds { get; set; }
+        public StripeCollection<StripeRefund> Refunds { get; set; }
         public int AmountRefunded { get; set; }
         public string BalanceTransaction { get; set; }
         public string Customer { get; set; }
@@ -584,15 +1001,19 @@ namespace ServiceStack.Stripe
         public Dictionary<string, string> Metadata { get; set; }
     }
 
-    public class StripeRefund : StripeEntity
+    public class StripeRefund : StripeObject
     {
         public int Amount { get; set; }
+        public string Charge { get; set; }
         public DateTime Created { get; set; }
         public string Currency { get; set; }
         public string BalanceTransaction { get; set; }
+        public string Description { get; set; }
+        public string Reason { get; set; }
+        public string ReceiptNumber { get; set; }
     }
 
-    public class StripeDispute : StripeEntity
+    public class StripeDispute : StripeObject
     {
         public StripeDisputeStatus Status { get; set; }
         public string Evidence { get; set; }
@@ -634,4 +1055,145 @@ namespace ServiceStack.Stripe
         General
     }
 
+    public static class Currencies
+    {
+        public const string UnitedArabEmiratesDirham = "AED";
+        public const string AfghanAfghani = "AFN";
+        public const string AlbanianLek = "ALL";
+        public const string ArmenianDram = "AMD";
+        public const string NetherlandsAntilleanGulden = "ANG";
+        public const string AngolanKwanza = "AOA";
+        public const string ArgentinePeso = "ARS";
+        public const string AustralianDollar = "AUD";
+        public const string ArubanFlorin = "AWG";
+        public const string AzerbaijaniManat = "AZN";
+        public const string BosniaAndHerzegovinaConvertibleMark = "BAM";
+        public const string BarbadianDollar = "BBD";
+        public const string BangladeshiTaka = "BDT";
+        public const string BulgarianLev = "BGN";
+        public const string BurundianFran = "BIF";
+        public const string BermudianDollar = "BMD";
+        public const string BruneiDollar = "BND";
+        public const string BolivianBoliviano = "BOB";
+        public const string BrazilianReal = "BRL";
+        public const string BahamianDollar = "BSD";
+        public const string BotswanaPula = "BWP";
+        public const string BelizeDollar = "BZD";
+        public const string CanadianDollar = "CAD";
+        public const string CongoleseFranc = "CDF";
+        public const string SwissFranc = "CHF";
+        public const string ChileanPeso = "CLP";
+        public const string ChineseRenminbiYuan = "CNY";
+        public const string ColombianPeso = "COP";
+        public const string CostaRicanColón = "CRC";
+        public const string CapeVerdeanEscudo = "CVE";
+        public const string CzechKoruna = "CZK";
+        public const string DjiboutianFranc = "DJF";
+        public const string DanishKrone = "DKK";
+        public const string DominicanPeso = "DOP";
+        public const string AlgerianDinar = "DZD";
+        public const string EstonianKroon = "EEK";
+        public const string EgyptianPound = "EGP";
+        public const string EthiopianBirr = "ETB";
+        public const string Euro = "EUR";
+        public const string FijianDollar = "FJD";
+        public const string FalklandIslandsPound = "FKP";
+        public const string BritishPound = "GBP";
+        public const string GeorgianLari = "GEL";
+        public const string GibraltarPound = "GIP";
+        public const string GambianDalasi = "GMD";
+        public const string GuineanFranc = "GNF";
+        public const string GuatemalanQuetzal = "GTQ";
+        public const string GuyaneseDollar = "GYD";
+        public const string HongKongDollar = "HKD";
+        public const string HonduranLempira = "HNL";
+        public const string CroatianKuna = "HRK";
+        public const string HaitianGourde = "HTG";
+        public const string HungarianForint = "HUF";
+        public const string IndonesianRupiah = "IDR";
+        public const string IsraeliNewSheqel = "ILS";
+        public const string IndianRupee = "INR";
+        public const string IcelandicKróna = "ISK";
+        public const string JamaicanDollar = "JMD";
+        public const string JapaneseYen = "JPY";
+        public const string KenyanShilling = "KES";
+        public const string KyrgyzstaniSom = "KGS";
+        public const string CambodianRiel = "KHR";
+        public const string ComorianFranc = "KMF";
+        public const string SouthKoreanWon = "KRW";
+        public const string CaymanIslandsDollar = "KYD";
+        public const string KazakhstaniTenge = "KZT";
+        public const string LaoKip = "LAK";
+        public const string LebanesePound = "LBP";
+        public const string SriLankanRupee = "LKR";
+        public const string LiberianDollar = "LRD";
+        public const string LesothoLoti = "LSL";
+        public const string LithuanianLitas = "LTL";
+        public const string LatvianLats = "LVL";
+        public const string MoroccanDirham = "MAD";
+        public const string MoldovanLeu = "MDL";
+        public const string MalagasyAriary = "MGA";
+        public const string MacedonianDenar = "MKD";
+        public const string MongolianTögrög = "MNT";
+        public const string MacanesePataca = "MOP";
+        public const string MauritanianOuguiya = "MRO";
+        public const string MauritianRupee = "MUR";
+        public const string MaldivianRufiyaa = "MVR";
+        public const string MalawianKwacha = "MWK";
+        public const string MexicanPeso = "MXN";
+        public const string MalaysianRinggit = "MYR";
+        public const string MozambicanMetical = "MZN";
+        public const string NamibianDollar = "NAD";
+        public const string NigerianNaira = "NGN";
+        public const string NicaraguanCórdoba = "NIO";
+        public const string NorwegianKrone = "NOK";
+        public const string NepaleseRupee = "NPR";
+        public const string NewZealandDollar = "NZD";
+        public const string PanamanianBalboa = "PAB";
+        public const string PeruvianNuevoSol = "PEN";
+        public const string PapuaNewGuineanKina = "PGK";
+        public const string PhilippinePeso = "PHP";
+        public const string PakistaniRupee = "PKR";
+        public const string PolishZłoty = "PLN";
+        public const string ParaguayanGuaraní = "PYG";
+        public const string QatariRiyal = "QAR";
+        public const string RomanianLeu = "RON";
+        public const string SerbianDinar = "RSD";
+        public const string RussianRuble = "RUB";
+        public const string RwandanFranc = "RWF";
+        public const string SaudiRiyal = "SAR";
+        public const string SolomonIslandsDollar = "SBD";
+        public const string SeychelloisRupee = "SCR";
+        public const string SwedishKrona = "SEK";
+        public const string SingaporeDollar = "SGD";
+        public const string SaintHelenianPound = "SHP";
+        public const string SierraLeoneanLeone = "SLL";
+        public const string SomaliShilling = "SOS";
+        public const string SurinameseDollar = "SRD";
+        public const string SãoToméandPríncipeDobra = "STD";
+        public const string SalvadoranColón = "SVC";
+        public const string SwaziLilangeni = "SZL";
+        public const string ThaiBaht = "THB";
+        public const string TajikistaniSomoni = "TJS";
+        public const string TonganPaʻanga = "TOP";
+        public const string TurkishLira = "TRY";
+        public const string TrinidadandTobagoDollar = "TTD";
+        public const string NewTaiwanDollar = "TWD";
+        public const string TanzanianShilling = "TZS";
+        public const string UkrainianHryvnia = "UAH";
+        public const string UgandanShilling = "UGX";
+        public const string UnitedStatesDollar = "USD";
+        public const string UruguayanPeso = "UYU";
+        public const string UzbekistaniSom = "UZS";
+        public const string VenezuelanBolívar = "VEF";
+        public const string VietnameseĐồng = "VND";
+        public const string VanuatuVatu = "VUV";
+        public const string SamoanTala = "WST";
+        public const string CentralAfricanCfaFranc = "XAF";
+        public const string EastCaribbeanDollar = "XCD";
+        public const string WestAfricanCfaFranc = "XOF";
+        public const string CfpFranc = "XPF";
+        public const string YemeniRial = "YER";
+        public const string SouthAfricanRand = "ZAR";
+    }
 }
