@@ -31,12 +31,14 @@ namespace ServiceStack.Text
             return new JsConfigScope();
         }
 
-        public static JsConfigScope CreateScope(string config)
+        public static JsConfigScope CreateScope(string config, JsConfigScope scope = null)
         {
             if (string.IsNullOrEmpty(config))
-                return null;
+                return scope;
 
-            var scope = BeginScope();
+            if (scope == null)
+                scope = BeginScope();
+
             var items = config.Split(',');
             foreach (var item in items)
             {
