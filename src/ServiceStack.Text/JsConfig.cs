@@ -31,6 +31,90 @@ namespace ServiceStack.Text
             return new JsConfigScope();
         }
 
+        public static JsConfigScope CreateScope(string config)
+        {
+            if (string.IsNullOrEmpty(config))
+                return null;
+
+            var scope = BeginScope();
+            var items = config.Split(',');
+            foreach (var item in items)
+            {
+                var parts = item.SplitOnFirst(':');
+                var key = parts[0].ToLower();
+                var boolValue = parts.Length == 1 || (parts[1].ToLower() != "false" && parts[1] != "0");
+
+                switch (key)
+                {
+                    case "convertobjecttypesintostringdictionary":
+                        scope.ConvertObjectTypesIntoStringDictionary = boolValue;
+                        break;
+                    case "trytoparseprimitivetypevalues":
+                        scope.TryToParsePrimitiveTypeValues = boolValue;
+                        break;
+                    case "trytoparsenumerictype":
+                        scope.TryToParseNumericType = boolValue;
+                        break;
+                    case "excludedefaultvalues":
+                        scope.ExcludeDefaultValues = boolValue;
+                        break;
+                    case "includenullvalues":
+                        scope.IncludeNullValues = boolValue;
+                        break;
+                    case "includenullvaluesindictionaries":
+                        scope.IncludeNullValuesInDictionaries = boolValue;
+                        break;
+                    case "includedefaultenums":
+                        scope.IncludeDefaultEnums = boolValue;
+                        break;
+                    case "excludetypeinfo":
+                        scope.ExcludeTypeInfo = boolValue;
+                        break;
+                    case "includetypeinfo":
+                        scope.IncludeTypeInfo = boolValue;
+                        break;
+                    case "emitcamelcasenames":
+                        scope.EmitCamelCaseNames = boolValue;
+                        break;
+                    case "emitlowercaseunderscorenames":
+                        scope.EmitLowercaseUnderscoreNames = boolValue;
+                        break;
+                    case "preferinterfaces":
+                        scope.PreferInterfaces = boolValue;
+                        break;
+                    case "throwondeserializationerror":
+                        scope.ThrowOnDeserializationError = boolValue;
+                        break;
+                    case "treatenumasinteger":
+                        scope.TreatEnumAsInteger = boolValue;
+                        break;
+                    case "skipdatetimeconversion":
+                        scope.SkipDateTimeConversion = boolValue;
+                        break;
+                    case "alwaysuseutc":
+                        scope.AlwaysUseUtc = boolValue;
+                        break;
+                    case "assumeutc":
+                        scope.AssumeUtc = boolValue;
+                        break;
+                    case "appendutcoffset":
+                        scope.AppendUtcOffset = boolValue;
+                        break;
+                    case "escapeunicode":
+                        scope.EscapeUnicode = boolValue;
+                        break;
+                    case "includepublicfields":
+                        scope.IncludePublicFields = boolValue;
+                        break;
+                    case "reuseStringBuffer":
+                        scope.ReuseStringBuffer = boolValue;
+                        break;
+                }
+            }
+
+            return scope;
+        }
+
         public static JsConfigScope With(
             bool? convertObjectTypesIntoStringDictionary = null,
             bool? tryToParsePrimitiveTypeValues = null,
