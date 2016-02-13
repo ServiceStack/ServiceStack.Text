@@ -44,7 +44,8 @@ namespace ServiceStack.Text
             {
                 var parts = item.SplitOnFirst(':');
                 var key = parts[0].ToLower();
-                var boolValue = parts.Length == 1 || (parts[1].ToLower() != "false" && parts[1] != "0");
+                var value = parts.Length == 2 ? parts[1].ToLower() : null;
+                var boolValue = parts.Length == 1 || (value != "false" && value != "0");
 
                 switch (key)
                 {
@@ -110,6 +111,51 @@ namespace ServiceStack.Text
                         break;
                     case "reuseStringBuffer":
                         scope.ReuseStringBuffer = boolValue;
+                        break;
+                    case "datehandler":
+                        switch (value)
+                        {
+                            case "timestampoffset":
+                                scope.DateHandler = DateHandler.TimestampOffset;
+                                break;
+                            case "dcjscompatible":
+                                scope.DateHandler = DateHandler.DCJSCompatible;
+                                break;
+                            case "iso8601":
+                                scope.DateHandler = DateHandler.ISO8601;
+                                break;
+                            case "rfc1123":
+                                scope.DateHandler = DateHandler.RFC1123;
+                                break;
+                            case "unixtime":
+                                scope.DateHandler = DateHandler.UnixTime;
+                                break;
+                            case "unixtimems":
+                                scope.DateHandler = DateHandler.UnixTimeMs;
+                                break;
+                        }
+                        break;
+                    case "timespanhandler":
+                        switch (value)
+                        {
+                            case "durationformat":
+                                scope.TimeSpanHandler = TimeSpanHandler.DurationFormat;
+                                break;
+                            case "standardformat":
+                                scope.TimeSpanHandler = TimeSpanHandler.StandardFormat;
+                                break;
+                        }
+                        break;
+                    case "propertyconvention":
+                        switch (value)
+                        {
+                            case "lenient":
+                                scope.PropertyConvention = PropertyConvention.Lenient;
+                                break;
+                            case "strict":
+                                scope.PropertyConvention = PropertyConvention.Strict;
+                                break;
+                        }
                         break;
                 }
             }

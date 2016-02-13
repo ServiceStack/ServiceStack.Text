@@ -201,6 +201,12 @@ namespace ServiceStack.Text.Tests
             Assert.That(!scope.ExcludeDefaultValues.Value);
             Assert.That(scope.IncludeDefaultEnums.Value);
             scope.Dispose();
-        }        
+
+            scope = JsConfig.CreateScope("DateHandler:ISO8601,timespanhandler:durationformat,PropertyConvention:strict");
+            Assert.That(scope.DateHandler, Is.EqualTo(DateHandler.ISO8601));
+            Assert.That(scope.TimeSpanHandler, Is.EqualTo(TimeSpanHandler.DurationFormat));
+            Assert.That(scope.PropertyConvention, Is.EqualTo(PropertyConvention.Strict));
+            scope.Dispose();
+        }
     }
 }
