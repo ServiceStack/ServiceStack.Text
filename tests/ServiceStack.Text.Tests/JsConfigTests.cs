@@ -208,5 +208,23 @@ namespace ServiceStack.Text.Tests
             Assert.That(scope.PropertyConvention, Is.EqualTo(PropertyConvention.Strict));
             scope.Dispose();
         }
+
+        [Test]
+        public void Does_create_scope_from_string_using_CamelCaseHumps()
+        {
+            var scope = JsConfig.CreateScope("eccn,elun,inv:false,edv:0,ide:1");
+            Assert.That(scope.EmitCamelCaseNames.Value);
+            Assert.That(scope.EmitLowercaseUnderscoreNames.Value);
+            Assert.That(!scope.IncludeNullValues.Value);
+            Assert.That(!scope.ExcludeDefaultValues.Value);
+            Assert.That(scope.IncludeDefaultEnums.Value);
+            scope.Dispose();
+
+            scope = JsConfig.CreateScope("dh:ISO8601,tsh:df,pc:strict");
+            Assert.That(scope.DateHandler, Is.EqualTo(DateHandler.ISO8601));
+            Assert.That(scope.TimeSpanHandler, Is.EqualTo(TimeSpanHandler.DurationFormat));
+            Assert.That(scope.PropertyConvention, Is.EqualTo(PropertyConvention.Strict));
+            scope.Dispose();
+        }
     }
 }

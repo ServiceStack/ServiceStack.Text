@@ -49,109 +49,149 @@ namespace ServiceStack.Text
 
                 switch (key)
                 {
+                    case "cotisd":
                     case "convertobjecttypesintostringdictionary":
                         scope.ConvertObjectTypesIntoStringDictionary = boolValue;
                         break;
+                    case "ttpptv":
                     case "trytoparseprimitivetypevalues":
                         scope.TryToParsePrimitiveTypeValues = boolValue;
                         break;
+                    case "ttpnt":
                     case "trytoparsenumerictype":
                         scope.TryToParseNumericType = boolValue;
                         break;
+                    case "edv":
                     case "excludedefaultvalues":
                         scope.ExcludeDefaultValues = boolValue;
                         break;
+                    case "inv":
                     case "includenullvalues":
                         scope.IncludeNullValues = boolValue;
                         break;
+                    case "invid":
                     case "includenullvaluesindictionaries":
                         scope.IncludeNullValuesInDictionaries = boolValue;
                         break;
+                    case "ide":
                     case "includedefaultenums":
                         scope.IncludeDefaultEnums = boolValue;
                         break;
+                    case "eti":
                     case "excludetypeinfo":
                         scope.ExcludeTypeInfo = boolValue;
                         break;
+                    case "iti":
                     case "includetypeinfo":
                         scope.IncludeTypeInfo = boolValue;
                         break;
+                    case "eccn":
                     case "emitcamelcasenames":
                         scope.EmitCamelCaseNames = boolValue;
                         break;
+                    case "elun":
                     case "emitlowercaseunderscorenames":
                         scope.EmitLowercaseUnderscoreNames = boolValue;
                         break;
+                    case "pi":
                     case "preferinterfaces":
                         scope.PreferInterfaces = boolValue;
                         break;
+                    case "tode":
                     case "throwondeserializationerror":
                         scope.ThrowOnDeserializationError = boolValue;
                         break;
+                    case "teai":
                     case "treatenumasinteger":
                         scope.TreatEnumAsInteger = boolValue;
                         break;
+                    case "sdtc":
                     case "skipdatetimeconversion":
                         scope.SkipDateTimeConversion = boolValue;
                         break;
+                    case "auu":
                     case "alwaysuseutc":
                         scope.AlwaysUseUtc = boolValue;
                         break;
+                    case "au":
                     case "assumeutc":
                         scope.AssumeUtc = boolValue;
                         break;
+                    case "auo":
                     case "appendutcoffset":
                         scope.AppendUtcOffset = boolValue;
                         break;
+                    case "eu":
                     case "escapeunicode":
                         scope.EscapeUnicode = boolValue;
                         break;
+                    case "ipf":
                     case "includepublicfields":
                         scope.IncludePublicFields = boolValue;
                         break;
+                    case "rsb":
                     case "reuseStringBuffer":
                         scope.ReuseStringBuffer = boolValue;
                         break;
+                    case "dh":
                     case "datehandler":
                         switch (value)
                         {
                             case "timestampoffset":
+                            case "to":
                                 scope.DateHandler = DateHandler.TimestampOffset;
                                 break;
+                            case "dcjsc":
                             case "dcjscompatible":
                                 scope.DateHandler = DateHandler.DCJSCompatible;
                                 break;
                             case "iso8601":
                                 scope.DateHandler = DateHandler.ISO8601;
                                 break;
+                            case "iso8601do":
+                            case "iso8601dateonly":
+                                scope.DateHandler = DateHandler.ISO8601DateOnly;
+                                break;
+                            case "iso8601dt":
+                            case "iso8601datetime":
+                                scope.DateHandler = DateHandler.ISO8601DateTime;
+                                break;
                             case "rfc1123":
                                 scope.DateHandler = DateHandler.RFC1123;
                                 break;
+                            case "ut":
                             case "unixtime":
                                 scope.DateHandler = DateHandler.UnixTime;
                                 break;
+                            case "utm":
                             case "unixtimems":
                                 scope.DateHandler = DateHandler.UnixTimeMs;
                                 break;
                         }
                         break;
+                    case "tsh":
                     case "timespanhandler":
                         switch (value)
                         {
+                            case "df":
                             case "durationformat":
                                 scope.TimeSpanHandler = TimeSpanHandler.DurationFormat;
                                 break;
+                            case "sf":
                             case "standardformat":
                                 scope.TimeSpanHandler = TimeSpanHandler.StandardFormat;
                                 break;
                         }
                         break;
+                    case "pc":
                     case "propertyconvention":
                         switch (value)
                         {
+                            case "l":
                             case "lenient":
                                 scope.PropertyConvention = PropertyConvention.Lenient;
                                 break;
+                            case "s":
                             case "strict":
                                 scope.PropertyConvention = PropertyConvention.Strict;
                                 break;
@@ -1255,6 +1295,8 @@ namespace ServiceStack.Text
         TimestampOffset,
         DCJSCompatible,
         ISO8601,
+        ISO8601DateOnly,
+        ISO8601DateTime,
         RFC1123,
         UnixTime,
         UnixTimeMs,
