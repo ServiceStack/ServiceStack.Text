@@ -120,6 +120,8 @@ namespace ServiceStack.Text.Common
                             return unixTimeMs.FromUnixTimeMs();
                         break;
                     case DateHandler.ISO8601:
+                    case DateHandler.ISO8601DateOnly:
+                    case DateHandler.ISO8601DateTime:
                         if (JsConfig.SkipDateTimeConversion)
                             dateTimeStr = RemoveUtcOffsets(dateTimeStr, out kind);
                         break;
@@ -591,7 +593,16 @@ namespace ServiceStack.Text.Common
                 writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
                 return;
             }
-
+            if (JsConfig.DateHandler == DateHandler.ISO8601DateOnly)
+            {
+                writer.Write(dateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                return;
+            }
+            if (JsConfig.DateHandler == DateHandler.ISO8601DateTime)
+            {
+                writer.Write(dateTime.ToString("yyyy-MM-dd hh:mm:ss", CultureInfo.InvariantCulture));
+                return;
+            }
             if (JsConfig.DateHandler == DateHandler.RFC1123)
             {
                 writer.Write(dateTime.ToUniversalTime().ToString("R", CultureInfo.InvariantCulture));
