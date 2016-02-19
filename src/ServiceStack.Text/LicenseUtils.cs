@@ -32,6 +32,9 @@ namespace ServiceStack
         AwsBusiness,
         Trial,
         Site,
+        TextSite,
+        RedisSite,
+        OrmLiteSite,
     }
 
     [Flags]
@@ -335,10 +338,12 @@ namespace ServiceStack
 
                 case LicenseType.TextIndie:
                 case LicenseType.TextBusiness:
+                case LicenseType.TextSite:
                     return LicenseFeature.Text;
 
                 case LicenseType.OrmLiteIndie:
                 case LicenseType.OrmLiteBusiness:
+                case LicenseType.OrmLiteSite:
                     return LicenseFeature.OrmLiteSku;
 
                 case LicenseType.AwsIndie:
@@ -347,6 +352,7 @@ namespace ServiceStack
 
                 case LicenseType.RedisIndie:
                 case LicenseType.RedisBusiness:
+                case LicenseType.RedisSite:
                     return LicenseFeature.RedisSku;
             }
             throw new ArgumentException("Unknown License Type: " + key.Type).Trace();
