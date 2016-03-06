@@ -1070,6 +1070,8 @@ namespace ServiceStack
 
         public const string ETag = "ETag";
 
+        public const string Expires = "Expires";
+
         public const string Authorization = "Authorization";
 
         public const string WwwAuthenticate = "WWW-Authenticate";
