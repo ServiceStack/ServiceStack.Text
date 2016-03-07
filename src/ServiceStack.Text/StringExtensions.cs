@@ -543,7 +543,14 @@ namespace ServiceStack
 
         public static string StripHtml(this string html)
         {
-            return String.IsNullOrEmpty(html) ? null : StripHtmlRegEx.Replace(html, "");
+            return string.IsNullOrEmpty(html) ? null : StripHtmlRegEx.Replace(html, "");
+        }
+
+        public static string Quoted(this string text)
+        {
+            return text == null || text.IndexOf('"') >= 0
+                ? text
+                : '"' + text + '"';
         }
 
         public static string StripQuotes(this string text)
