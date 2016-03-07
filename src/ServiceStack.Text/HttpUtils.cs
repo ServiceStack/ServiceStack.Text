@@ -1069,7 +1069,11 @@ namespace ServiceStack
 
         public const string IfModifiedSince = "If-Modified-Since";
 
+        public const string IfUnmodifiedSince = "If-Unmodified-Since";
+
         public const string IfNoneMatch = "If-None-Match";
+
+        public const string IfMatch = "If-Match";
 
         public const string LastModified = "Last-Modified";
 
