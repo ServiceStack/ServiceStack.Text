@@ -538,29 +538,34 @@ namespace ServiceStack
             return status >= HttpStatusCode.InternalServerError && (int)status < 600;
         }
 
+        public static bool IsNotModified(this Exception ex)
+        {
+            return GetStatus(ex) == HttpStatusCode.NotModified;
+        }
+
         public static bool IsBadRequest(this Exception ex)
         {
-            return HasStatus(ex as WebException, HttpStatusCode.BadRequest);
+            return GetStatus(ex) == HttpStatusCode.BadRequest;
         }
 
         public static bool IsNotFound(this Exception ex)
         {
-            return HasStatus(ex as WebException, HttpStatusCode.NotFound);
+            return GetStatus(ex) == HttpStatusCode.NotFound;
         }
 
         public static bool IsUnauthorized(this Exception ex)
         {
-            return HasStatus(ex as WebException, HttpStatusCode.Unauthorized);
+            return GetStatus(ex) == HttpStatusCode.Unauthorized;
         }
 
         public static bool IsForbidden(this Exception ex)
         {
-            return HasStatus(ex as WebException, HttpStatusCode.Forbidden);
+            return GetStatus(ex) == HttpStatusCode.Forbidden;
         }
 
         public static bool IsInternalServerError(this Exception ex)
         {
-            return HasStatus(ex as WebException, HttpStatusCode.InternalServerError);
+            return GetStatus(ex) == HttpStatusCode.InternalServerError;
         }
 
         public static HttpStatusCode? GetResponseStatus(this string url)
@@ -582,19 +587,30 @@ namespace ServiceStack
 
         public static HttpStatusCode? GetStatus(this Exception ex)
         {
-            return GetStatus(ex as WebException);
+            var webEx = ex as WebException;
+            if (webEx != null)
+                return GetStatus(webEx);
+
+            var hasStatus = ex as IHasStatusCode;
+            if (hasStatus != null)
+                return (HttpStatusCode)hasStatus.StatusCode;
+
+            return null;
         }
 
         public static HttpStatusCode? GetStatus(this WebException webEx)
         {
             if (webEx == null) return null;
             var httpRes = webEx.Response as HttpWebResponse;
-            return httpRes != null ? httpRes.StatusCode : (HttpStatusCode?)null;
+            if (httpRes != null)
+                return httpRes.StatusCode;
+
+            return null;
         }
 
-        public static bool HasStatus(this WebException webEx, HttpStatusCode statusCode)
+        public static bool HasStatus(this Exception ex, HttpStatusCode statusCode)
         {
-            return GetStatus(webEx) == statusCode;
+            return GetStatus(ex) == statusCode;
         }
 
         public static string GetResponseBody(this Exception ex)
@@ -796,6 +812,11 @@ namespace ServiceStack
             return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
+    }
+
+    public interface IHasStatusCode
+    {
+        int StatusCode { get; }
     }
 
     public interface IHttpResultsFilter : IDisposable
@@ -1069,6 +1090,8 @@ namespace ServiceStack
         public const string SetCookie = "Set-Cookie";
 
         public const string ETag = "ETag";
+
+        public const string Age = "Age";
 
         public const string Expires = "Expires";
 
