@@ -587,6 +587,9 @@ namespace ServiceStack
 
         public static HttpStatusCode? GetStatus(this Exception ex)
         {
+            if (ex == null)
+                return null;
+
             var webEx = ex as WebException;
             if (webEx != null)
                 return GetStatus(webEx);
