@@ -20,6 +20,11 @@ namespace ServiceStack.Reflection
     //Also exists in ServiceStack.Common in ServiceStack.Reflection namespace
     public static class StaticAccessors
     {
+        public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo)
+        {
+            return GetValueGetter(propertyInfo, propertyInfo.DeclaringType);
+        }
+
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
         {
 #if NETFX_CORE
