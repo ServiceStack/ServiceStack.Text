@@ -37,6 +37,16 @@ namespace ServiceStack
             }
         }
 
+        public static PropertyInfo GetPublicProperty(string name)
+        {
+            foreach (var pi in PublicPropertyInfos)
+            {
+                if (pi.Name == name)
+                    return pi;
+            }
+            return null;
+        }
+
         public static Func<object, object> GetPublicGetter(PropertyInfo pi)
         {
             if (pi == null)
@@ -48,7 +58,7 @@ namespace ServiceStack
                 : pi.GetValueGetter();
         }
 
-        public static Func<object, object> GetPropertyGetter(string name)
+        public static Func<object, object> GetPublicGetter(string name)
         {
             if (name == null)
                 return null;
