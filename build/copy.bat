@@ -14,4 +14,4 @@ COPY ..\src\ServiceStack.Text\bin\Signed\ServiceStack.Text.* ..\..\ServiceStack.
 
 COPY ..\src\ServiceStack.Text.SL5\bin\%BUILD%\ServiceStack.Text.* ..\..\ServiceStack\lib\sl5
 
-COPY ..\src\ServiceStack.Text\bin\Pcl\ServiceStack.Text.* ..\..\ServiceStack\lib\pcl
+COPY ..\src\ServiceStack.Text\bin\Pcl\ServiceStack.Text.dll ..\..\ServiceStack\lib\pcl

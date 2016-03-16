@@ -9,13 +9,13 @@ namespace ServiceStack
     public static class TypeReflector<T>
     {
         public static readonly Dictionary<string, Func<object, object>> PublicGetters =
-            new Dictionary<string, Func<object, object>>(StringComparer.InvariantCultureIgnoreCase);
+            new Dictionary<string, Func<object, object>>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         public static readonly Dictionary<string, Action<object, object>> PublicSetters =
-            new Dictionary<string, Action<object, object>>(StringComparer.InvariantCultureIgnoreCase);
+            new Dictionary<string, Action<object, object>>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         public static readonly Dictionary<string, PropertyInfo> PublicProperties =
-            new Dictionary<string, PropertyInfo>(StringComparer.InvariantCultureIgnoreCase);
+            new Dictionary<string, PropertyInfo>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         public static readonly PropertyInfo[] PublicPropertyInfos;
 
