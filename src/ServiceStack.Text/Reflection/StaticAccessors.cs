@@ -81,6 +81,29 @@ namespace ServiceStack.Reflection
         }
 
 #if !XBOX
+        public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo, Type instanceType)
+        {
+            return GetValueSetter(propertyInfo);
+        }
+
+        public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo)
+        {
+            var instance = Expression.Parameter(typeof(object), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var type = (Expression)Expression.TypeAs(instance, propertyInfo.DeclaringType);
+
+            var setterCall = Expression.Call(
+                type,
+                propertyInfo.SetMethod(),
+                Expression.Convert(argument, propertyInfo.PropertyType));
+
+            return Expression.Lambda<Action<object, object>>
+            (
+                setterCall, instance, argument
+            ).Compile();
+        }
+
         public static Action<T, object> GetValueSetter<T>(this PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(typeof(T), "i");

@@ -245,6 +245,7 @@
     <Compile Include="TypeConfig.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeReflector.cs" />
     <Compile Include="TypeSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
