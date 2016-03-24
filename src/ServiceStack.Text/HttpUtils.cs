@@ -817,10 +817,15 @@ namespace ServiceStack
         }
     }
 
-    //Allow Exceptions to Customize HTTP StatusCode returned
+    //Allow Exceptions to Customize HTTP StatusCode and StatusDescription returned
     public interface IHasStatusCode
     {
         int StatusCode { get; }
+    }
+
+    public interface IHasStatusDescription
+    {
+        string StatusDescription { get; }
     }
 
     public interface IHttpResultsFilter : IDisposable
