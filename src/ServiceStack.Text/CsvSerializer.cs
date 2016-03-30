@@ -16,7 +16,6 @@ namespace ServiceStack.Text
         public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
 
         private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
-
         internal static WriteObjectDelegate GetWriteFn(Type type)
         {
             try
@@ -40,6 +39,40 @@ namespace ServiceStack.Text
 
                 } while (!ReferenceEquals(
                     Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
+
+                return writeFn;
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                throw;
+            }
+        }
+
+        private static Dictionary<Type, ParseStringDelegate> ReadFnCache = new Dictionary<Type, ParseStringDelegate>();
+        internal static ParseStringDelegate GetReadFn(Type type)
+        {
+            try
+            {
+                ParseStringDelegate writeFn;
+                if (ReadFnCache.TryGetValue(type, out writeFn)) return writeFn;
+
+                var genericType = typeof(CsvSerializer<>).MakeGenericType(type);
+                var mi = genericType.GetStaticMethod("ReadFn");
+                var writeFactoryFn = (Func<ParseStringDelegate>)mi.MakeDelegate(
+                    typeof(Func<ParseStringDelegate>));
+
+                writeFn = writeFactoryFn();
+
+                Dictionary<Type, ParseStringDelegate> snapshot, newCache;
+                do
+                {
+                    snapshot = ReadFnCache;
+                    newCache = new Dictionary<Type, ParseStringDelegate>(ReadFnCache);
+                    newCache[type] = writeFn;
+
+                } while (!ReferenceEquals(
+                    Interlocked.CompareExchange(ref ReadFnCache, newCache, snapshot), snapshot));
 
                 return writeFn;
             }
@@ -108,6 +141,20 @@ namespace ServiceStack.Text
 
         public static object DeserializeFromStream(Type type, Stream stream)
         {
+            if (stream == null) return null;
+            var reader = new StreamReader(stream, UTF8Encoding);
+            var readFn = GetReadFn(type);
+            return readFn(reader.ReadToEnd());
+        }
+
+        public static T DeserializeFromString<T>(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return default(T);
+            return (T)CsvSerializer<T>.ReadObject(text);
+        }
+
+        public static object DeserializeFromString(Type type, string text)
+        {
             throw new NotImplementedException();
         }
 
@@ -117,15 +164,23 @@ namespace ServiceStack.Text
             var writeFn = GetWriteFn(value.GetType());
             writeFn(writer, value);
         }
+
+        public static object ReadLateBoundObject(Type type, string value)
+        {
+            if (value == null) return null;
+            var readFn = GetReadFn(type);
+            return readFn(value);
+        }
     }
 
     public static class CsvSerializer<T>
     {
-        private static readonly WriteObjectDelegate CacheFn;
+        private static readonly WriteObjectDelegate WriteCacheFn;
+        private static readonly ParseStringDelegate ReadCacheFn;
 
         public static WriteObjectDelegate WriteFn()
         {
-            return CacheFn;
+            return WriteCacheFn;
         }
 
         private const string IgnoreResponseStatus = "ResponseStatus";
@@ -250,30 +305,182 @@ namespace ServiceStack.Text
             writeElementFn(writer, nonEnumerableType);
         }
 
-        static CsvSerializer()
-        {
-            if (typeof(T) == typeof(object))
-            {
-                CacheFn = CsvSerializer.WriteLateBoundObject;
-            }
-            else
-            {
-                CacheFn = GetWriteFn();
-            }
-        }
-
         public static void WriteObject(TextWriter writer, object value)
         {
             var hold = JsState.IsCsv;
             JsState.IsCsv = true;
             try
             {
-                CacheFn(writer, value);
+                WriteCacheFn(writer, value);
             }
             finally
             {
                 JsState.IsCsv = hold;
             }
         }
+
+
+        static CsvSerializer()
+        {
+            if (typeof(T) == typeof(object))
+            {
+                WriteCacheFn = CsvSerializer.WriteLateBoundObject;
+                ReadCacheFn = str => CsvSerializer.ReadLateBoundObject(typeof(T), str);
+            }
+            else
+            {
+                WriteCacheFn = GetWriteFn();
+                ReadCacheFn = GetReadFn();
+            }
+        }
+
+
+        public static ParseStringDelegate ReadFn()
+        {
+            return ReadCacheFn;
+        }
+
+        private static Action<object, object> valueSetter = null;
+        private static ParseStringDelegate readElementFn = null;
+
+        private static ParseStringDelegate GetReadFn()
+        {
+            PropertyInfo firstCandidate = null;
+            Type bestCandidateEnumerableType = null;
+            PropertyInfo bestCandidate = null;
+
+            if (typeof(T).IsValueType())
+            {
+                return JsvReader<T>.Parse;
+            }
+
+            //If type is an enumerable property itself write that
+            bestCandidateEnumerableType = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
+            if (bestCandidateEnumerableType != null)
+            {
+                var elementType = bestCandidateEnumerableType.GenericTypeArguments()[0];
+                readElementFn = CreateReadFn(elementType);
+
+                return ReadEnumerableType;
+            }
+
+            //Look for best candidate property if DTO
+            if (typeof(T).IsDto() || typeof(T).HasAttribute<CsvAttribute>())
+            {
+                var properties = TypeConfig<T>.Properties;
+                foreach (var propertyInfo in properties)
+                {
+                    if (propertyInfo.Name == IgnoreResponseStatus) continue;
+
+                    if (propertyInfo.PropertyType == typeof(string)
+                        || propertyInfo.PropertyType.IsValueType()
+                        || propertyInfo.PropertyType == typeof(byte[]))
+                        continue;
+
+                    if (firstCandidate == null)
+                    {
+                        firstCandidate = propertyInfo;
+                    }
+
+                    var enumProperty = propertyInfo.PropertyType
+                        .GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
+
+                    if (enumProperty != null)
+                    {
+                        bestCandidateEnumerableType = enumProperty;
+                        bestCandidate = propertyInfo;
+                        break;
+                    }
+                }
+            }
+
+            //If is not DTO or no candidates exist, write self
+            var noCandidatesExist = bestCandidate == null && firstCandidate == null;
+            if (noCandidatesExist)
+            {
+                return ReadSelf;
+            }
+
+            //If is DTO and has an enumerable property serialize that
+            if (bestCandidateEnumerableType != null)
+            {
+                valueSetter = bestCandidate.GetValueSetter(typeof(T));
+                var elementType = bestCandidateEnumerableType.GenericTypeArguments()[0];
+                readElementFn = CreateReadFn(elementType);
+
+                return ReadEnumerableProperty;
+            }
+
+            //If is DTO and has non-enumerable, reference type property serialize that
+            valueSetter = firstCandidate.GetValueSetter(typeof(T));
+            readElementFn = CreateReadRowFn(firstCandidate.PropertyType);
+
+            return ReadNonEnumerableType;
+        }
+
+        private static ParseStringDelegate CreateReadFn(Type elementType)
+        {
+            return CreateCsvReadFn(elementType, "ReadObject");
+        }
+
+        private static ParseStringDelegate CreateReadRowFn(Type elementType)
+        {
+            return CreateCsvReadFn(elementType, "ReadObjectRow");
+        }
+
+        private static ParseStringDelegate CreateCsvReadFn(Type elementType, string methodName)
+        {
+            var genericType = typeof(CsvReader<>).MakeGenericType(elementType);
+            var mi = genericType.GetStaticMethod(methodName);
+            var readFn = (ParseStringDelegate)mi.MakeDelegate(typeof(ParseStringDelegate));
+            return readFn;
+        }
+
+        public static object ReadEnumerableType(string value)
+        {
+            return readElementFn(value);
+        }
+
+        public static object ReadSelf(string value)
+        {
+            return CsvReader<T>.ReadRow(value);
+        }
+
+        public static object ReadEnumerableProperty(string row)
+        {
+            if (row == null) return null; //AOT
+
+            var value = readElementFn(row);
+            var to = typeof(T).CreateInstance();
+            valueSetter(to, value);
+            return to;
+        }
+
+        public static object ReadNonEnumerableType(string row)
+        {
+            var value = readElementFn(row);
+            var to = typeof(T).CreateInstance();
+            valueSetter(to, value);
+            return to;
+        }
+
+        public static object ReadObject(string value)
+        {
+            var hold = JsState.IsCsv;
+            JsState.IsCsv = true;
+            try
+            {
+                return ReadCacheFn(value);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                JsState.IsCsv = hold;
+            }
+        }
+
     }
 }

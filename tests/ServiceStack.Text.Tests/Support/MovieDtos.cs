@@ -40,13 +40,13 @@ namespace ServiceStack.Text.Tests.Support
         public decimal Rating { get; set; }
 
         [DataMember(Order = 5, EmitDefaultValue = true, IsRequired = false)]
-        public string Director;
+        public string Director { get; set; }
 
         [DataMember(Order = 6, EmitDefaultValue = false, IsRequired = false)]
         public DateTime ReleaseDate { get; set; }
 
-        [DataMember(Order = 6, EmitDefaultValue = false, IsRequired = false)]
-        public string TagLine;
+        [DataMember(Order = 7, EmitDefaultValue = false, IsRequired = false)]
+        public string TagLine { get; set; }
 
         [DataMember(Order = 8, EmitDefaultValue = false, IsRequired = false)]
         public List<string> Genres { get; set; }
@@ -81,28 +81,94 @@ namespace ServiceStack.Text.Tests.Support
 	}
 
     [DataContract]
-    public class MovieResponse
+    public class MovieResponse : IEquatable<MovieResponse>
     {
         [DataMember]
         public Movie Movie { get; set; }
+
+        public bool Equals(MovieResponse other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(Movie, other.Movie);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((MovieResponse) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Movie != null ? Movie.GetHashCode() : 0);
+        }
     }
 
     [DataContract]
-    public class MoviesResponse
+    public class MoviesResponse : IEquatable<MoviesResponse>
     {
         [DataMember]
         public int Id { get; set; }
 
         [DataMember]
         public List<Movie> Movies { get; set; }
+
+        public bool Equals(MoviesResponse other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Id == other.Id && Movies.EquivalentTo(other.Movies);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((MoviesResponse) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Id*397) ^ (Movies != null ? Movies.GetHashCode() : 0);
+            }
+        }
     }
 
     [Csv(CsvBehavior.FirstEnumerable)]
-    public class MoviesResponse2
+    public class MoviesResponse2 : IEquatable<MoviesResponse2>
     {
         public int Id { get; set; }
 
         public List<Movie> Movies { get; set; }
+
+        public bool Equals(MoviesResponse2 other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Id == other.Id && Movies.EquivalentTo(other.Movies);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((MoviesResponse2) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Id*397) ^ (Movies != null ? Movies.GetHashCode() : 0);
+            }
+        }
     }
 
 }

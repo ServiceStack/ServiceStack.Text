@@ -35,19 +35,19 @@ namespace ServiceStack
             return text == null || !CsvWriter.HasAnyEscapeChars(text.ToString())
                 ? text
                 : string.Concat
-                        (
-                            CsvConfig.ItemDelimiterString,
-                            text.ToString().Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
-                            CsvConfig.ItemDelimiterString
-                        );
+                  (
+                      CsvConfig.ItemDelimiterString,
+                      text.ToString().Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
+                      CsvConfig.ItemDelimiterString
+                  );
         }
 
         public static string FromCsvField(this string text)
         {
             return string.IsNullOrEmpty(text) || !text.StartsWith(CsvConfig.ItemDelimiterString, StringComparison.Ordinal)
-                       ? text
-                    : text.Substring(CsvConfig.ItemDelimiterString.Length, text.Length - CsvConfig.EscapedItemDelimiterString.Length)
-                        .Replace(CsvConfig.EscapedItemDelimiterString, CsvConfig.ItemDelimiterString);
+                ? text
+                : text.Substring(CsvConfig.ItemDelimiterString.Length, text.Length - CsvConfig.EscapedItemDelimiterString.Length)
+                    .Replace(CsvConfig.EscapedItemDelimiterString, CsvConfig.ItemDelimiterString);
         }
 
         public static List<string> FromCsvFields(this IEnumerable<string> texts)
