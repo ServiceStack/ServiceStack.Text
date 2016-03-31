@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -136,15 +137,21 @@ namespace ServiceStack.Text
 
         public static T DeserializeFromStream<T>(Stream stream)
         {
-            throw new NotImplementedException();
+            if (stream == null) return default(T);
+            using (var reader = new StreamReader(stream, UTF8Encoding))
+            {
+                return DeserializeFromString<T>(reader.ReadToEnd());
+            }
         }
 
         public static object DeserializeFromStream(Type type, Stream stream)
         {
             if (stream == null) return null;
-            var reader = new StreamReader(stream, UTF8Encoding);
-            var readFn = GetReadFn(type);
-            return readFn(reader.ReadToEnd());
+            using (var reader = new StreamReader(stream, UTF8Encoding))
+            {
+                var readFn = GetReadFn(type);
+                return readFn(reader.ReadToEnd());
+            }
         }
 
         public static T DeserializeFromString<T>(string text)
@@ -156,7 +163,8 @@ namespace ServiceStack.Text
 
         public static object DeserializeFromString(Type type, string text)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(text)) return null;
+            return GetReadFn(type)(text);
         }
 
         public static void WriteLateBoundObject(TextWriter writer, object value)
