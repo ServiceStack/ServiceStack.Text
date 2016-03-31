@@ -150,7 +150,8 @@ namespace ServiceStack.Text
         public static T DeserializeFromString<T>(string text)
         {
             if (string.IsNullOrEmpty(text)) return default(T);
-            return (T)CsvSerializer<T>.ReadObject(text);
+            var results = CsvSerializer<T>.ReadObject(text);
+            return CsvSerializer<T>.ConvertFrom(results);
         }
 
         public static object DeserializeFromString(Type type, string text)
@@ -480,6 +481,30 @@ namespace ServiceStack.Text
             {
                 JsState.IsCsv = hold;
             }
+        }
+
+        public static T ConvertFrom(object results)
+        {
+            if (typeof(T).IsAssignableFromType(results.GetType()))
+            {
+                return (T)results;
+            }
+
+            foreach (var ci in typeof(T).GetConstructors())
+            {
+                var ciParams = ci.GetParameters();
+                if (ciParams.Length == 1)
+                {
+                    var pi = ciParams.First();
+                    if (pi.ParameterType.IsAssignableFromType(typeof(T)))
+                    {
+                        var to = ci.Invoke(new[] { results });
+                        return (T)to;
+                    }
+                }
+            }
+
+            return results.ConvertTo<T>();
         }
 
     }

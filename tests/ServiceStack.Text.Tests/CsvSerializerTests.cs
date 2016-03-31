@@ -96,6 +96,12 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_Serialize_inherited_Movies()
+        {
+            SerializeAndDeserialize(new Movies(MoviesData.Movies));
+        }
+
+        [Test]
         public void Can_Serialize_MovieResponse_Dto()
         {
             SerializeAndDeserialize(new MovieResponse { Movie = MoviesData.Movies[0] });
