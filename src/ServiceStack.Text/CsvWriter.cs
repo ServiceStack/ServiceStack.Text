@@ -49,33 +49,6 @@ namespace ServiceStack.Text
             }
         }
 
-        public static List<Dictionary<string, object>> ReadObjectDictionary(IEnumerable<string> rows)
-        {
-            var to = new List<Dictionary<string, object>>();
-
-            List<string> headers = null;
-            foreach (var row in rows)
-            {
-                if (headers == null)
-                {
-                    headers = CsvReader.ParseFields(row);
-                    continue;
-                }
-
-                var values = CsvReader.ParseFields(row);
-                var map = new Dictionary<string, object>();
-                for (int i = 0; i < headers.Count; i++)
-                {
-                    var header = headers[i];
-                    map[header] = values[i];
-                }
-
-                to.Add(map);
-            }
-
-            return to;
-        } 
-
         public static void Write(TextWriter writer, IEnumerable<IDictionary<string, string>> records)
         {
             if (records == null) return; //AOT

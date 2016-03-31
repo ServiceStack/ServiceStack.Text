@@ -432,6 +432,11 @@ namespace ServiceStack
             return CsvSerializer.SerializeToString(obj);
         }
 
+        public static T FromCsv<T>(this string csv)
+        {
+            return CsvSerializer.DeserializeFromString<T>(csv);
+        }
+
         public static string FormatWith(this string text, params object[] args)
         {
             return String.Format(text, args);

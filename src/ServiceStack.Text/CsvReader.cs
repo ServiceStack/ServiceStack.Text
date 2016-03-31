@@ -213,17 +213,47 @@ namespace ServiceStack.Text
             return ReadRow(csv);
         }
 
+        public static List<Dictionary<string, string>> ReadStringDictionary(IEnumerable<string> rows)
+        {
+            var to = new List<Dictionary<string, string>>();
+
+            List<string> headers = null;
+            foreach (var row in rows)
+            {
+                if (headers == null)
+                {
+                    headers = CsvReader.ParseFields(row);
+                    continue;
+                }
+
+                var values = CsvReader.ParseFields(row);
+                var map = new Dictionary<string, string>();
+                for (int i = 0; i < headers.Count; i++)
+                {
+                    var header = headers[i];
+                    map[header] = values[i];
+                }
+
+                to.Add(map);
+            }
+
+            return to;
+        }
+
         public static List<T> Read(List<string> rows)
         {
             var to = new List<T>();
             if (rows == null || rows.Count == 0) return to; //AOT
 
-            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>)))
+            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, string>)))
             {
-                return CsvDictionaryWriter.ReadObjectDictionary(rows)
-                    .ConvertAll(x => (T)x.FromObjectDictionary(typeof(T)));
+                return ReadStringDictionary(rows).ConvertAll(x => (T)(object)x);
             }
 
+            if (typeof(T).IsAssignableFromType(typeof(List<string>)))
+            {
+                return new List<T>(rows.Select(x => (T)(object)CsvReader.ParseFields(x)));
+            }
 
             if (OptimizedReader != null)
             {

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
@@ -117,6 +118,62 @@ namespace ServiceStack.Text.Tests
         public void Can_Serialize_MoviesResponse2_Dto()
         {
             SerializeAndDeserialize(new MoviesResponse2 { Movies = MoviesData.Movies });
+        }
+
+        [Test]
+        public void Can_Deserialize_into_String_Dictionary()
+        {
+            var csv = MoviesData.Movies.ToCsv();
+
+            var dynamicMap = csv.FromCsv<List<Dictionary<string, string>>>();
+            Assert.That(dynamicMap.Count, Is.EqualTo(MoviesData.Movies.Count));
+
+            dynamicMap.PrintDump();
+
+            var movie = MoviesData.Movies[0];
+            var map = dynamicMap[0];
+
+            Assert.That(map["Id"], Is.EqualTo(movie.Id.ToString()));
+            Assert.That(map["ImdbId"], Is.EqualTo(movie.ImdbId));
+            Assert.That(map["Title"], Is.EqualTo(movie.Title));
+            Assert.That(map["Rating"], Is.EqualTo(movie.Rating.ToString()));
+            Assert.That(map["Director"], Is.EqualTo(movie.Director));
+            Assert.That(map["ReleaseDate"], Is.EqualTo(movie.ReleaseDate.ToJsv()));
+            Assert.That(map["TagLine"], Is.EqualTo(movie.TagLine));
+            Assert.That(map["Genres"], Is.EqualTo(movie.Genres.ToJsv()));
+        }
+
+        [Test]
+        public void Can_deserialize_into_String_List()
+        {
+            var csv = MoviesData.Movies.ToCsv();
+
+            var dynamicList = csv.FromCsv<List<List<string>>>();
+            Assert.That(dynamicList.Count - 1, Is.EqualTo(MoviesData.Movies.Count));
+
+            dynamicList.PrintDump();
+
+            var movie = MoviesData.Movies[0];
+            var headers = dynamicList[0];
+            var first = dynamicList[1];
+
+            Assert.That(headers[0], Is.EqualTo("Id"));
+            Assert.That(headers[1], Is.EqualTo("ImdbId"));
+            Assert.That(headers[2], Is.EqualTo("Title"));
+            Assert.That(headers[3], Is.EqualTo("Rating"));
+            Assert.That(headers[4], Is.EqualTo("Director"));
+            Assert.That(headers[5], Is.EqualTo("ReleaseDate"));
+            Assert.That(headers[6], Is.EqualTo("TagLine"));
+            Assert.That(headers[7], Is.EqualTo("Genres"));
+
+            Assert.That(first[0], Is.EqualTo(movie.Id.ToString()));
+            Assert.That(first[1], Is.EqualTo(movie.ImdbId));
+            Assert.That(first[2], Is.EqualTo(movie.Title));
+            Assert.That(first[3], Is.EqualTo(movie.Rating.ToString()));
+            Assert.That(first[4], Is.EqualTo(movie.Director));
+            Assert.That(first[5], Is.EqualTo(movie.ReleaseDate.ToJsv()));
+            Assert.That(first[6], Is.EqualTo(movie.TagLine));
+            Assert.That(first[7], Is.EqualTo(movie.Genres.ToJsv()));
         }
 
         [Test]
