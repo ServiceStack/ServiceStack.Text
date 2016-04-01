@@ -892,7 +892,7 @@ namespace ServiceStack
 #endif
         }
 
-        public static ConstructorInfo[] GetAllConstructors(this Type type)
+        public static IEnumerable<ConstructorInfo> GetAllConstructors(this Type type)
         {
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().DeclaredConstructors;
