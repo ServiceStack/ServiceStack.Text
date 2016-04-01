@@ -1108,6 +1108,8 @@ namespace ServiceStack
 
         public const string Expires = "Expires";
 
+        public const string Vary = "Vary";
+
         public const string Authorization = "Authorization";
 
         public const string WwwAuthenticate = "WWW-Authenticate";
