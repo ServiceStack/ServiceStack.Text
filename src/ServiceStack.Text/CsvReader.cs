@@ -118,7 +118,7 @@ namespace ServiceStack.Text
             var isDataContract = typeof(T).IsDto();
             foreach (var propertyInfo in TypeConfig<T>.Properties)
             {
-                if (!propertyInfo.CanWrite || propertyInfo.GetSetMethod() == null) continue;
+                if (!propertyInfo.CanWrite || propertyInfo.SetMethod() == null) continue;
                 if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
                 var propertyName = propertyInfo.Name;

@@ -892,6 +892,15 @@ namespace ServiceStack
 #endif
         }
 
+        public static ConstructorInfo[] GetAllConstructors(this Type type)
+        {
+#if (NETFX_CORE || PCL)
+            return type.GetTypeInfo().DeclaredConstructors;
+#else
+            return type.GetConstructors();
+#endif
+        }
+
         internal static PropertyInfo[] GetTypesPublicProperties(this Type subType)
         {
 #if (NETFX_CORE || PCL)

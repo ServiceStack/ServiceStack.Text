@@ -498,7 +498,7 @@ namespace ServiceStack.Text
                 return (T)results;
             }
 
-            foreach (var ci in typeof(T).GetConstructors())
+            foreach (var ci in typeof(T).GetAllConstructors())
             {
                 var ciParams = ci.GetParameters();
                 if (ciParams.Length == 1)
