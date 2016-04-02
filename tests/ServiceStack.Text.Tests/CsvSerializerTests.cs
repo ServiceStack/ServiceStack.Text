@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
@@ -33,13 +34,31 @@ namespace ServiceStack.Text.Tests
             csv.Print();
         }
 
-        public void SerializeAndDeserialize<T>(T data)
+        public object SerializeAndDeserialize<T>(T data)
         {
             var csv = CsvSerializer.SerializeToString(data);
             csv.Print();
 
             var dto = CsvSerializer.DeserializeFromString<T>(csv);
+            AssertEqual(dto, data);
 
+            using (var reader = new StringReader(csv))
+            {
+                dto = CsvSerializer.DeserializeFromReader<T>(reader);
+                AssertEqual(dto, data);
+            }
+
+            using (var ms = new MemoryStream(csv.ToUtf8Bytes()))
+            {
+                dto = CsvSerializer.DeserializeFromStream<T>(ms);
+                AssertEqual(dto, data);
+            }
+
+            return dto;
+        }
+
+        private static void AssertEqual<T>(T dto, T data)
+        {
             var dataArray = data is IEnumerable ? (data as IEnumerable).Map(x => x).ToArray() : null;
             var dtoArray = dto is IEnumerable ? (dto as IEnumerable).Map(x => x).ToArray() : null;
 
@@ -100,6 +119,13 @@ namespace ServiceStack.Text.Tests
         public void Can_Serialize_inherited_Movies()
         {
             SerializeAndDeserialize(new Movies(MoviesData.Movies));
+        }
+
+        [Test]
+        public void Does_Serialize_back_into_Array()
+        {
+            var dto = SerializeAndDeserialize(MoviesData.Movies.ToArray());
+            Assert.That(dto.GetType().IsArray);
         }
 
         [Test]

@@ -154,6 +154,11 @@ namespace ServiceStack.Text
             }
         }
 
+        public static T DeserializeFromReader<T>(TextReader reader)
+        {
+            return DeserializeFromString<T>(reader.ReadToEnd());
+        }
+
         public static T DeserializeFromString<T>(string text)
         {
             if (string.IsNullOrEmpty(text)) return default(T);
