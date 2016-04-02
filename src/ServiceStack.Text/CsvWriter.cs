@@ -33,7 +33,7 @@ namespace ServiceStack.Text
             writer.Write(CsvConfig.RowSeparatorString);
         }
 
-        public static void Write(TextWriter writer, IEnumerable<IDictionary<string, object>> records)
+        public static void Write(TextWriter writer, IEnumerable<IDictionary<string, object>> records) 
         {
             if (records == null) return; //AOT
 
@@ -42,10 +42,13 @@ namespace ServiceStack.Text
             {
                 if (requireHeaders)
                 {
-                    WriteRow(writer, record.Keys);
+                    if (record != null)
+                        WriteRow(writer, record.Keys);
+
                     requireHeaders = false;
                 }
-                WriteObjectRow(writer, record.Values);
+                if (record != null) 
+                    WriteObjectRow(writer, record.Values);
             }
         }
 
@@ -232,7 +235,7 @@ namespace ServiceStack.Text
                 return;
             }
 
-            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>)))
+            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>))) //also does `object`
             {
                 var dynamicList = records.Select(x => x.ToObjectDictionary()).ToList();
                 CsvDictionaryWriter.Write(writer, dynamicList);
