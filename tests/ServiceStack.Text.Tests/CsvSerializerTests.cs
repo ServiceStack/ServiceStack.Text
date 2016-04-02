@@ -54,6 +54,12 @@ namespace ServiceStack.Text.Tests
                 AssertEqual(dto, data);
             }
 
+            using (var ms = new MemoryStream(csv.ToUtf8Bytes()))
+            {
+                dto = (T)CsvSerializer.DeserializeFromStream(typeof(T), ms);
+                AssertEqual(dto, data);
+            }
+
             return dto;
         }
 

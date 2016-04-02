@@ -149,8 +149,7 @@ namespace ServiceStack.Text
             if (stream == null) return null;
             using (var reader = new StreamReader(stream, UTF8Encoding))
             {
-                var readFn = GetReadFn(type);
-                return readFn(reader.ReadToEnd());
+                return DeserializeFromString(type, reader.ReadToEnd());
             }
         }
 
@@ -163,13 +162,16 @@ namespace ServiceStack.Text
         {
             if (string.IsNullOrEmpty(text)) return default(T);
             var results = CsvSerializer<T>.ReadObject(text);
-            return CsvSerializer<T>.ConvertFrom(results);
+            return ConvertFrom<T>(results);
         }
 
         public static object DeserializeFromString(Type type, string text)
         {
             if (string.IsNullOrEmpty(text)) return null;
-            return GetReadFn(type)(text);
+            var fn = GetReadFn(type);
+            var result = fn(text);
+            var converted = ConvertFrom(type, result);
+            return converted;
         }
 
         public static void WriteLateBoundObject(TextWriter writer, object value)
@@ -184,6 +186,50 @@ namespace ServiceStack.Text
             if (value == null) return null;
             var readFn = GetReadFn(type);
             return readFn(value);
+        }
+
+        internal static T ConvertFrom<T>(object results)
+        {
+            if (typeof(T).IsAssignableFromType(results.GetType()))
+                return (T)results;
+
+            foreach (var ci in typeof(T).GetAllConstructors())
+            {
+                var ciParams = ci.GetParameters();
+                if (ciParams.Length == 1)
+                {
+                    var pi = ciParams.First();
+                    if (pi.ParameterType.IsAssignableFromType(typeof(T)))
+                    {
+                        var to = ci.Invoke(new[] { results });
+                        return (T)to;
+                    }
+                }
+            }
+
+            return results.ConvertTo<T>();
+        }
+
+        internal static object ConvertFrom(Type type, object results)
+        {
+            if (type.IsAssignableFromType(results.GetType()))
+                return results;
+
+            foreach (var ci in type.GetAllConstructors())
+            {
+                var ciParams = ci.GetParameters();
+                if (ciParams.Length == 1)
+                {
+                    var pi = ciParams.First();
+                    if (pi.ParameterType.IsAssignableFromType(type))
+                    {
+                        var to = ci.Invoke(new[] { results });
+                        return to;
+                    }
+                }
+            }
+
+            return results.ConvertTo(type);
         }
     }
 
@@ -486,39 +532,12 @@ namespace ServiceStack.Text
             {
                 return ReadCacheFn(value);
             }
-            catch (Exception ex)
-            {
-                throw;
-            }
             finally
             {
                 JsState.IsCsv = hold;
             }
         }
 
-        public static T ConvertFrom(object results)
-        {
-            if (typeof(T).IsAssignableFromType(results.GetType()))
-            {
-                return (T)results;
-            }
-
-            foreach (var ci in typeof(T).GetAllConstructors())
-            {
-                var ciParams = ci.GetParameters();
-                if (ciParams.Length == 1)
-                {
-                    var pi = ciParams.First();
-                    if (pi.ParameterType.IsAssignableFromType(typeof(T)))
-                    {
-                        var to = ci.Invoke(new[] { results });
-                        return (T)to;
-                    }
-                }
-            }
-
-            return results.ConvertTo<T>();
-        }
 
     }
 }
