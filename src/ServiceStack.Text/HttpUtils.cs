@@ -111,6 +111,12 @@ namespace ServiceStack
             return url.GetStringFromUrl(MimeTypes.Xml, requestFilter, responseFilter);
         }
 
+        public static string GetCsvFromUrl(this string url,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.GetStringFromUrl(MimeTypes.Csv, requestFilter, responseFilter);
+        }
+
         public static string GetStringFromUrl(this string url, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -165,6 +171,13 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PostCsvToUrl(this string url, string csv,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "POST", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PutStringToUrl(this string url, string requestBody = null,
             string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
@@ -210,6 +223,13 @@ namespace ServiceStack
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutCsvToUrl(this string url, string csv,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -285,6 +305,13 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<string> PostCsvToUrlAsync(this string url, string csv,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "POST", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static Task<string> PutStringToUrlAsync(this string url, string requestBody = null,
             string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
@@ -330,6 +357,13 @@ namespace ServiceStack
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrlAsync(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PutCsvToUrlAsync(this string url, string csv,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "PUT", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -809,10 +843,24 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PostCsvToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "POST", requestBody: data.ToCsv(), contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PutXmlToUrl(this string url, object data,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutCsvToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToCsv(), contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
     }
