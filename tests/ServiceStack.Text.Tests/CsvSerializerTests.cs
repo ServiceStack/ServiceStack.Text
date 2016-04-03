@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -132,6 +133,39 @@ namespace ServiceStack.Text.Tests
         {
             var dto = SerializeAndDeserialize(MoviesData.Movies.ToArray());
             Assert.That(dto.GetType().IsArray);
+        }
+
+        public class SubMovie
+        {
+            public DateTime ReleaseDate { get; set; }
+            public string Title { get; set; }
+            public decimal Rating { get; set; }
+            public string ImdbId { get; set; }
+        }
+
+        [Test]
+        public void Does_serialize_partial_DTO_in_order_of_Headers()
+        {
+            var subMovies = MoviesData.Movies.Map(x => x.ConvertTo<SubMovie>());
+            var csv = CsvSerializer.SerializeToString(subMovies);
+
+            csv.Print();
+            Assert.That(csv, Is.StringStarting("ReleaseDate,Title,Rating,ImdbId\r\n"));
+
+            var movies = csv.FromCsv<List<Movie>>();
+
+            Assert.That(movies.Count, Is.EqualTo(subMovies.Count));
+            for (int i = 0; i < subMovies.Count; i++)
+            {
+                var actual = movies[i];
+                var expected = MoviesData.Movies[i];
+
+                Assert.That(actual.Id, Is.EqualTo(0));
+                Assert.That(actual.ReleaseDate, Is.EqualTo(expected.ReleaseDate));
+                Assert.That(actual.Title, Is.EqualTo(expected.Title));
+                Assert.That(actual.Rating, Is.EqualTo(expected.Rating));
+                Assert.That(actual.ImdbId, Is.EqualTo(expected.ImdbId));
+            }
         }
 
         [Test]
