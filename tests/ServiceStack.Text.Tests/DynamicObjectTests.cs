@@ -82,7 +82,7 @@ namespace ServiceStack.Text.Tests
 
             var json = "12345";
             var deserialized = JsonSerializer.DeserializeFromString<object>(json);
-            Assert.That(deserialized, Is.EqualTo(json));
+            Assert.That(deserialized, Is.EqualTo(12345));
         }
 
         [Test]
