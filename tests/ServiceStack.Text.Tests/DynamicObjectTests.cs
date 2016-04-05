@@ -283,5 +283,40 @@ namespace ServiceStack.Text.Tests
             Assert.That(arrayValues.Count, Is.EqualTo(1));
             Assert.That(arrayValues[0], Is.EqualTo(5));
         }
+
+        class TypeWithObjects
+        {
+            public object Value { get; set; }
+            public Dictionary<string, object> Map { get; set; }
+            public List<object> List { get; set; }
+        }
+
+        [Test]
+        public void Does_deserialize_int_objects()
+        {
+            JsConfig.TryToParsePrimitiveTypeValues = true;
+
+            var dto = new TypeWithObjects
+            {
+                Value = 1,
+                Map = new Dictionary<string, object>
+                {
+                    {"string", "foo"},
+                    {"int", 1},
+                },
+                List = new List<object> { "foo", 1 }
+            };
+
+            var json = dto.ToJson();
+            Assert.That(json, Is.EqualTo("{\"Value\":1,\"Map\":{\"string\":\"foo\",\"int\":1},\"List\":[\"foo\",1]}"));
+
+
+            var fromJson = json.FromJson<TypeWithObjects>();
+            Assert.That(fromJson.Value, Is.EqualTo(1));
+            Assert.That(fromJson.Map["int"], Is.EqualTo(1));
+            Assert.That(fromJson.List[1], Is.EqualTo(1));
+
+            JsConfig.Reset();
+        }
     }
 }
