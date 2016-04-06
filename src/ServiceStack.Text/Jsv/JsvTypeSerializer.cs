@@ -176,6 +176,12 @@ namespace ServiceStack.Text.Jsv
             writer.Write((byte)byteValue);
         }
 
+        public void WriteSByte(TextWriter writer, object sbyteValue)
+        {
+            if (sbyteValue == null) return;
+            writer.Write((sbyte)sbyteValue);
+        }
+
         public void WriteInt16(TextWriter writer, object intValue)
         {
             if (intValue == null) return;

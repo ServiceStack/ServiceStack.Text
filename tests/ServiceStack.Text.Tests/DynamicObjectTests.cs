@@ -318,5 +318,26 @@ namespace ServiceStack.Text.Tests
 
             JsConfig.Reset();
         }
+
+        string SerializeObject(object value)
+        {
+            return new TypeWithObjects { Value = value }.ToJson();
+        }
+
+        [Test]
+        public void Does_serialize_number_object_types()
+        {
+            Assert.That(SerializeObject((byte)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((sbyte)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((short)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((ushort)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((int)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((uint)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((long)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((ulong)1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((float)1.1), Is.EqualTo("{\"Value\":1.1}"));
+            Assert.That(SerializeObject((double)1.1), Is.EqualTo("{\"Value\":1.1}"));
+            Assert.That(SerializeObject((decimal)1.1), Is.EqualTo("{\"Value\":1.1}"));
+        }
     }
 }

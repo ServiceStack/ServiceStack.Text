@@ -204,6 +204,14 @@ namespace ServiceStack.Text.Json
                 writer.Write((byte)byteValue);
         }
 
+        public void WriteSByte(TextWriter writer, object sbyteValue)
+        {
+            if (sbyteValue == null)
+                writer.Write(JsonUtils.Null);
+            else
+                writer.Write((sbyte)sbyteValue);
+        }
+
         public void WriteInt16(TextWriter writer, object intValue)
         {
             if (intValue == null)

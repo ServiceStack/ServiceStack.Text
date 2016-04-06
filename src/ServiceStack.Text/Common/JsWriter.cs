@@ -193,6 +193,8 @@ namespace ServiceStack.Text.Common
 
                 if (typeCode == TypeCode.Byte)
                     return Serializer.WriteByte;
+                if (typeCode == TypeCode.SByte)
+                    return Serializer.WriteSByte;
 
                 if (typeCode == TypeCode.Int16)
                     return Serializer.WriteInt16;

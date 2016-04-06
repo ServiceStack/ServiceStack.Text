@@ -33,6 +33,7 @@ namespace ServiceStack.Text.Common
         void WriteBytes(TextWriter writer, object oByteValue);
         void WriteChar(TextWriter writer, object charValue);
         void WriteByte(TextWriter writer, object byteValue);
+        void WriteSByte(TextWriter writer, object sbyteValue);
         void WriteInt16(TextWriter writer, object intValue);
         void WriteUInt16(TextWriter writer, object intValue);
         void WriteInt32(TextWriter writer, object intValue);
