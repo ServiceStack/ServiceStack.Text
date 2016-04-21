@@ -1,8 +1,6 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using ServiceStack.Text.Common;
@@ -129,10 +127,6 @@ namespace ServiceStack.Text
                     case "includepublicfields":
                         scope.IncludePublicFields = boolValue;
                         break;
-                    case "rsb":
-                    case "reuseStringBuffer":
-                        scope.ReuseStringBuffer = boolValue;
-                        break;
                     case "dh":
                     case "datehandler":
                         switch (value)
@@ -232,7 +226,6 @@ namespace ServiceStack.Text
             bool? appendUtcOffset = null,
             bool? escapeUnicode = null,
             bool? includePublicFields = null,
-            bool? reuseStringBuffer = null,
             int? maxDepth = null,
             EmptyCtorFactoryDelegate modelFactory = null,
             string[] excludePropertyReferences = null)
@@ -269,7 +262,6 @@ namespace ServiceStack.Text
                 AppendUtcOffset = appendUtcOffset ?? sAppendUtcOffset,
                 EscapeUnicode = escapeUnicode ?? sEscapeUnicode,
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
-                ReuseStringBuffer = reuseStringBuffer ?? sReuseStringBuffer,
                 MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
                 ExcludePropertyReferences = excludePropertyReferences ?? sExcludePropertyReferences
@@ -830,25 +822,6 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
-        /// For extra serialization performance you can re-use a ThreadStatic StringBuilder
-        /// when serializing to a JSON String.
-        /// </summary>
-        private static bool? sReuseStringBuffer;
-        public static bool ReuseStringBuffer
-        {
-            get
-            {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.ReuseStringBuffer : null)
-                    ?? sReuseStringBuffer
-                    ?? true;
-            }
-            set
-            {
-                if (!sReuseStringBuffer.HasValue) sReuseStringBuffer = value;
-            }
-        }
-
-        /// <summary>
         /// Sets the maximum depth to avoid circular dependencies
         /// </summary>
         private static int? sMaxDepth;
@@ -963,7 +936,6 @@ namespace ServiceStack.Text
             sEscapeUnicode = null;
             sOnDeserializationError = null;
             sIncludePublicFields = null;
-            sReuseStringBuffer = null;
             HasSerializeFn = new HashSet<Type>();
             HasIncludeDefaultValue = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
