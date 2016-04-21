@@ -35,6 +35,9 @@ namespace ServiceStack.Text
         }
     }
 
+    /// <summary>
+    /// Alternative Reusable StringBuilder ThreadStatic Cache
+    /// </summary>
     public static class StringBuilderCacheAlt
     {
         [ThreadStatic]
