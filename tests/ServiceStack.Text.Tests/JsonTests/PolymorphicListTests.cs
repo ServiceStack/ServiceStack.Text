@@ -348,14 +348,6 @@ namespace ServiceStack.Text.Tests.JsonTests
 					+ typeof(Cat).ToTypeString()
 					+ "\",\"Name\":\"Tigger\"}}";
             try {
-                //var originalPets = new Pets {Cat = new Cat {Name = "Tigger"}, Dog = new Dog {Name = "Fido"}};
-
-                //var newtonsoftSerializer = new Newtonsoft.Json.JsonSerializer { TypeNameHandling = TypeNameHandling.All };
-                //var buffer = new StringBuilder();
-                //using (var writer = new StringWriter(buffer)) {
-                //    newtonsoftSerializer.Serialize(writer, originalPets);
-                //}
-                //var json = buffer.ToString();
                 JsConfig.TypeAttr = "$type";
 		        var deserializedPets = JsonSerializer.DeserializeFromString<Pets>(json);
 
@@ -381,13 +373,6 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             try {
 		        var originalList = new List<Animal> {new Dog {Name = "Fido"}, new Cat {Name = "Tigger"}};
-
-                //var newtonsoftSerializer = new Newtonsoft.Json.JsonSerializer { TypeNameHandling = TypeNameHandling.All };
-                //var buffer = new StringBuilder();
-                //using (var writer = new StringWriter(buffer)) {
-                //    newtonsoftSerializer.Serialize(writer, originalList);
-                //}
-                //var json = buffer.ToString();
 
                 JsConfig.TypeAttr = "$type";
 		        var deserializedList = JsonSerializer.DeserializeFromString<List<Animal>>(json);

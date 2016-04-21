@@ -8,7 +8,7 @@ namespace ServiceStack.Text.Support
     {
         public static string ToXsdDuration(TimeSpan timeSpan)
         {
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
 
             sb.Append(timeSpan.Ticks < 0 ? "-P" : "P");
 
@@ -46,8 +46,7 @@ namespace ServiceStack.Text.Support
                 }
             }
 
-            var xsdDuration = sb.ToString();
-            return xsdDuration;
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static TimeSpan FromXsdDuration(string xsdDuration)

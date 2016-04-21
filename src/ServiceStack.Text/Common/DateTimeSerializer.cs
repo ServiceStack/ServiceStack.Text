@@ -17,6 +17,7 @@ using System.Text;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Support;
 using System.Text.RegularExpressions;
+using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Text.Common
 {
@@ -637,11 +638,11 @@ namespace ServiceStack.Text.Common
 
         public static string ToWcfJsonDate(DateTime dateTime)
         {
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
             using (var writer = new StringWriter(sb))
             {
                 WriteWcfJsonDate(writer, dateTime);
-                return sb.ToString();
+                return StringBuilderThreadStatic.ReturnAndFree(sb);
             }
         }
 
@@ -669,11 +670,11 @@ namespace ServiceStack.Text.Common
 
         public static string ToWcfJsonDateTimeOffset(DateTimeOffset dateTimeOffset)
         {
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
             using (var writer = new StringWriter(sb))
             {
                 WriteWcfJsonDateTimeOffset(writer, dateTimeOffset);
-                return sb.ToString();
+                return StringBuilderThreadStatic.ReturnAndFree(sb);
             }
         }
     }

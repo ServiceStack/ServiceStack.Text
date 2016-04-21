@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Linq;
 using ServiceStack.Text.Json;
+using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Text.Common
 {
@@ -124,7 +125,7 @@ namespace ServiceStack.Text.Common
 
         private static string GetTypesKey(params Type[] types)
         {
-            var sb = new StringBuilder(256);
+            var sb = StringBuilderThreadStatic.Allocate();
             foreach (var type in types)
             {
                 if (sb.Length > 0)
@@ -132,7 +133,7 @@ namespace ServiceStack.Text.Common
 
                 sb.Append(type.FullName);
             }
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
     }
 }

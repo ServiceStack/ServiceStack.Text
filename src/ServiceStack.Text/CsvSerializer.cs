@@ -9,6 +9,7 @@ using System.Threading;
 using ServiceStack.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
+using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Text
 {
@@ -86,12 +87,9 @@ namespace ServiceStack.Text
 
         public static string SerializeToCsv<T>(IEnumerable<T> records)
         {
-            var sb = new StringBuilder();
-            using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
-            {
-                writer.WriteCsv(records);
-                return sb.ToString();
-            }
+            var writer = StringWriterThreadStatic.Allocate();
+            writer.WriteCsv(records);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public static string SerializeToString<T>(T value)
@@ -99,12 +97,9 @@ namespace ServiceStack.Text
             if (value == null) return null;
             if (typeof(T) == typeof(string)) return value as string;
 
-            var sb = new StringBuilder();
-            using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
-            {
-                CsvSerializer<T>.WriteObject(writer, value);
-            }
-            return sb.ToString();
+            var writer = StringWriterThreadStatic.Allocate();
+            CsvSerializer<T>.WriteObject(writer, value);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public static void SerializeToWriter<T>(T value, TextWriter writer)

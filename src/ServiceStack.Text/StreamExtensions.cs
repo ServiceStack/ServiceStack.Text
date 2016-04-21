@@ -236,7 +236,7 @@ namespace ServiceStack
                 if (read == 0)
                 {
                     throw new EndOfStreamException
-                        (String.Format("End of stream reached with {0} byte{1} left to read.",
+                        (string.Format("End of stream reached with {0} byte{1} left to read.",
                                        bytesToRead - index,
                                        bytesToRead - index == 1 ? "s" : ""));
                 }
@@ -250,8 +250,7 @@ namespace ServiceStack
             if (str == null)
                 return null;
 
-            var sb = new StringBuilder();
-
+            var sb = StringBuilderThreadStatic.Allocate();
             var lastChar = (char)0;
             for (var i = 0; i < str.Length; i++)
             {
@@ -266,7 +265,7 @@ namespace ServiceStack
                 lastChar = c;
             }
 
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static byte[] Combine(this byte[] bytes, params byte[][] withBytes)

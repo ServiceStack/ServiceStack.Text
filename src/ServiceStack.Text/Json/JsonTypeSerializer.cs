@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Text.Json
 {
@@ -426,7 +427,7 @@ namespace ServiceStack.Text.Json
             var length = input.Length;
             int start = 0;
             int count = 0;
-            StringBuilder output = new StringBuilder(length);
+            var output = StringBuilderThreadStatic.Allocate();
             for (; count < length;)
             {
                 if (input[count] == JsonUtils.QuoteChar)
@@ -488,7 +489,7 @@ namespace ServiceStack.Text.Json
                             {
                                 var unicodeString = input.Substring(count + 1, 4);
                                 var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
-                                output.Append(JsonTypeSerializer.ConvertFromUtf32((int)unicodeIntVal));
+                                output.Append(ConvertFromUtf32((int)unicodeIntVal));
                                 count += 5;
                             }
                             else
@@ -500,16 +501,16 @@ namespace ServiceStack.Text.Json
                             if (count + 4 < length)
                             {
                                 var unicodeString = input.Substring(count + 1, 4);
-                                var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
-                                output.Append(JsonTypeSerializer.ConvertFromUtf32((int)unicodeIntVal));
+                                var unicodeIntVal = uint.Parse(unicodeString, NumberStyles.HexNumber);
+                                output.Append(ConvertFromUtf32((int)unicodeIntVal));
                                 count += 5;
                             }
                             else
                             if (count + 2 < length)
                             {
                                 var unicodeString = input.Substring(count + 1, 2);
-                                var unicodeIntVal = UInt32.Parse(unicodeString, NumberStyles.HexNumber);
-                                output.Append(JsonTypeSerializer.ConvertFromUtf32((int)unicodeIntVal));
+                                var unicodeIntVal = uint.Parse(unicodeString, NumberStyles.HexNumber);
+                                output.Append(ConvertFromUtf32((int)unicodeIntVal));
                                 count += 3;
                             }
                             else
@@ -530,7 +531,7 @@ namespace ServiceStack.Text.Json
                 }
             }
             output.Append(input, start, length - start);
-            return output.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(output);
         }
 
         /// <summary>

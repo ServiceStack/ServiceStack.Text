@@ -86,12 +86,9 @@ namespace ServiceStack
 
         public static string SerializeToString<T>(T value)
         {
-            var sb = new StringBuilder();
-            using (var writer = new StringWriter(sb, CultureInfo.InvariantCulture))
-            {
-                GetWriteFn(value.GetType())(writer, value);
-            }
-            return sb.ToString();
+            var writer = StringWriterThreadStatic.Allocate();
+            GetWriteFn(value.GetType())(writer, value);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
     }
 

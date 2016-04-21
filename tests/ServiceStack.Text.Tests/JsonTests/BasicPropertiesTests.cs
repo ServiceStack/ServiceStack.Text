@@ -169,9 +169,12 @@ namespace ServiceStack.Text.Tests.JsonTests
 
         static string DictStr(IDictionary d)
         {
-            var sb = new StringBuilder();
-            foreach (var key in d.Keys) { sb.AppendLine(key + " = " + d[key]); }
-            return sb.ToString();
+            var sb = StringBuilderCache.Allocate();
+            foreach (var key in d.Keys)
+            {
+                sb.AppendLine(key + " = " + d[key]);
+            }
+            return StringBuilderCache.ReturnAndFree(sb);
         }
 
         public class ModelWithHashSet

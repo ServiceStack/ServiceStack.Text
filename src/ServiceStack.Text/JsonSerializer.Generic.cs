@@ -16,6 +16,7 @@ using System.Text;
 using System.Reflection;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
+using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Text
 {
@@ -54,12 +55,9 @@ namespace ServiceStack.Text
                 return result;
             }
 
-            var sb = new StringBuilder();
-            using (var writer = new StringWriter(sb))
-            {
-                JsonWriter<T>.WriteObject(writer, value);
-            }
-            return sb.ToString();
+            var writer = StringWriterThreadStatic.Allocate();
+            JsonWriter<T>.WriteObject(writer, value);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public void SerializeToWriter(T value, TextWriter writer)

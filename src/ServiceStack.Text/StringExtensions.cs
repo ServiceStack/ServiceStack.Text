@@ -126,9 +126,9 @@ namespace ServiceStack
 
         public static string UrlEncode(this string text, bool upperCase=false)
         {
-            if (String.IsNullOrEmpty(text)) return text;
+            if (string.IsNullOrEmpty(text)) return text;
 
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
             var fmt = upperCase ? "X2" : "x2";
 
             foreach (var charCode in Encoding.UTF8.GetBytes(text))
@@ -153,7 +153,7 @@ namespace ServiceStack
                 }
             }
 
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string UrlDecode(this string text)
@@ -188,10 +188,10 @@ namespace ServiceStack
 
         public static string HexUnescape(this string text, params char[] anyCharOf)
         {
-            if (String.IsNullOrEmpty(text)) return null;
+            if (string.IsNullOrEmpty(text)) return null;
             if (anyCharOf == null || anyCharOf.Length == 0) return text;
 
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
 
             var textLength = text.Length;
             for (var i = 0; i < textLength; i++)
@@ -209,7 +209,7 @@ namespace ServiceStack
                 }
             }
 
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string UrlFormat(this string url, params string[] urlComponents)
@@ -261,26 +261,28 @@ namespace ServiceStack
 
         public static string AppendUrlPaths(this string uri, params string[] uriComponents)
         {
-            var sb = new StringBuilder(uri.WithTrailingSlash());
+            var sb = StringBuilderThreadStatic.Allocate();
+            sb.Append(uri.WithTrailingSlash());
             var i = 0;
             foreach (var uriComponent in uriComponents)
             {
                 if (i++ > 0) sb.Append('/');
                 sb.Append(uriComponent.UrlEncode());
             }
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string AppendUrlPathsRaw(this string uri, params string[] uriComponents)
         {
-            var sb = new StringBuilder(uri.WithTrailingSlash());
+            var sb = StringBuilderThreadStatic.Allocate();
+            sb.Append(uri.WithTrailingSlash());
             var i = 0;
             foreach (var uriComponent in uriComponents)
             {
                 if (i++ > 0) sb.Append('/');
                 sb.Append(uriComponent);
             }
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string FromUtf8Bytes(this byte[] bytes)
@@ -619,17 +621,17 @@ namespace ServiceStack
             if (value.IndexOf('_') >= 0)
             {
                 var parts = value.Split('_');
-                var sb = new StringBuilder();
+                var sb = StringBuilderThreadStatic.Allocate();
                 foreach (var part in parts)
                 {
                     var str = part.ToCamelCase();
-                    sb.Append(Char.ToUpper(str[0]) + str.SafeSubstring(1, str.Length));
+                    sb.Append(char.ToUpper(str[0]) + str.SafeSubstring(1, str.Length));
                 }
-                return sb.ToString();
+                return StringBuilderThreadStatic.ReturnAndFree(sb);
             }
 
             var camelCase = value.ToCamelCase();
-            return Char.ToUpper(camelCase[0]) + camelCase.SafeSubstring(1, camelCase.Length);
+            return char.ToUpper(camelCase[0]) + camelCase.SafeSubstring(1, camelCase.Length);
         }
 
         public static string ToTitleCase(this string value)
@@ -639,23 +641,23 @@ namespace ServiceStack
 
         public static string ToLowercaseUnderscore(this string value)
         {
-            if (String.IsNullOrEmpty(value)) return value;
+            if (string.IsNullOrEmpty(value)) return value;
             value = value.ToCamelCase();
 
-            var sb = new StringBuilder(value.Length);
+            var sb = StringBuilderThreadStatic.Allocate();
             foreach (char t in value)
             {
-                if (Char.IsDigit(t) || (Char.IsLetter(t) && Char.IsLower(t)) || t == '_')
+                if (char.IsDigit(t) || (char.IsLetter(t) && char.IsLower(t)) || t == '_')
                 {
                     sb.Append(t);
                 }
                 else
                 {
                     sb.Append("_");
-                    sb.Append(Char.ToLowerInvariant(t));
+                    sb.Append(char.ToLowerInvariant(t));
                 }
             }
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string ToLowerSafe(this string value)
@@ -692,7 +694,7 @@ namespace ServiceStack
 
         public static int CompareIgnoreCase(this string strA, string strB)
         {
-            return String.Compare(strA, strB, PclExport.Instance.InvariantComparisonIgnoreCase);
+            return string.Compare(strA, strB, PclExport.Instance.InvariantComparisonIgnoreCase);
         }
 
         public static bool EndsWithInvariant(this string str, string endsWith)
@@ -712,7 +714,7 @@ namespace ServiceStack
 
         public static T ToEnumOrDefault<T>(this string value, T defaultValue)
         {
-            if (String.IsNullOrEmpty(value)) return defaultValue;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
             return (T)Enum.Parse(typeof(T), value, true);
         }
 
@@ -743,22 +745,22 @@ namespace ServiceStack
 
         public static bool IsEmpty(this string value)
         {
-            return String.IsNullOrEmpty(value);
+            return string.IsNullOrEmpty(value);
         }
 
         public static bool IsNullOrEmpty(this string value)
         {
-            return String.IsNullOrEmpty(value);
+            return string.IsNullOrEmpty(value);
         }
 
         public static bool EqualsIgnoreCase(this string value, string other)
         {
-            return String.Equals(value, other, StringComparison.CurrentCultureIgnoreCase);
+            return string.Equals(value, other, StringComparison.CurrentCultureIgnoreCase);
         }
 
         public static string ReplaceFirst(this string haystack, string needle, string replacement)
         {
-            var pos = haystack.IndexOf(needle);
+            var pos = haystack.IndexOf(needle, StringComparison.Ordinal);
             if (pos < 0) return haystack;
 
             return haystack.Substring(0, pos) + replacement + haystack.Substring(pos + needle.Length);
@@ -769,7 +771,7 @@ namespace ServiceStack
             int pos;
             // Avoid a possible infinite loop
             if (needle == replacement) return haystack;
-            while ((pos = haystack.IndexOf(needle)) > 0)
+            while ((pos = haystack.IndexOf(needle, StringComparison.Ordinal)) > 0)
             {
                 haystack = haystack.Substring(0, pos)
                     + replacement
@@ -1025,12 +1027,12 @@ namespace ServiceStack
 #if !LITE
         public static string HexEscape(this string text, params char[] anyCharOf)
         {
-            if (String.IsNullOrEmpty(text)) return text;
+            if (string.IsNullOrEmpty(text)) return text;
             if (anyCharOf == null || anyCharOf.Length == 0) return text;
 
             var encodeCharMap = new HashSet<char>(anyCharOf);
 
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
             var textLength = text.Length;
             for (var i = 0; i < textLength; i++)
             {
@@ -1044,7 +1046,7 @@ namespace ServiceStack
                     sb.Append(c);
                 }
             }
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string ToXml<T>(this T obj)

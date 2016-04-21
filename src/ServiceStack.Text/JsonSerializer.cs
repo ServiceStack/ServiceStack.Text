@@ -17,6 +17,7 @@ using System.Net;
 using System.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
+using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Text
 {
@@ -54,57 +55,7 @@ namespace ServiceStack.Text
         {
             return DeserializeFromString(reader.ReadToEnd(), type);
         }
-
-        [ThreadStatic] //Reuse the thread static StringBuilder when serializing to strings
-        private static StringBuilderWriter LastWriter;
-
-        internal class StringBuilderWriter : IDisposable
-        {
-            protected StringBuilder sb;
-            protected StringWriter writer;
-
-            public StringWriter Writer
-            {
-                get { return writer; }
-            }
-
-            public StringBuilderWriter()
-            {
-                this.sb = new StringBuilder();
-                this.writer = new StringWriter(sb, CultureInfo.InvariantCulture);
-            }
-
-            public static StringBuilderWriter Create()
-            {
-                var ret = LastWriter;
-                if (JsConfig.ReuseStringBuffer && ret != null)
-                {
-                    LastWriter = null;
-                    ret.sb.Clear();
-                    return ret;
-                }
-
-                return new StringBuilderWriter();
-            }
-
-            public override string ToString()
-            {
-                return sb.ToString();
-            }
-
-            public void Dispose()
-            {
-                if (JsConfig.ReuseStringBuffer)
-                {
-                    LastWriter = this;
-                }
-                else
-                {
-                    Writer.Dispose();
-                }
-            }
-        }
-
+        
         public static string SerializeToString<T>(T value)
         {
             if (value == null || value is Delegate) return null;
@@ -120,36 +71,32 @@ namespace ServiceStack.Text
                 return result;
             }
 
-            using (var sb = StringBuilderWriter.Create())
+            var writer = StringWriterThreadStatic.Allocate();
+            if (typeof(T) == typeof(string))
             {
-                if (typeof(T) == typeof(string))
-                {
-                    JsonUtils.WriteString(sb.Writer, value as string);
-                }
-                else
-                {
-                    JsonWriter<T>.WriteRootObject(sb.Writer, value);
-                }
-                return sb.ToString();
+                JsonUtils.WriteString(writer, value as string);
             }
+            else
+            {
+                JsonWriter<T>.WriteRootObject(writer, value);
+            }
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public static string SerializeToString(object value, Type type)
         {
             if (value == null) return null;
 
-            using (var sb = StringBuilderWriter.Create())
+            var writer = StringWriterThreadStatic.Allocate();
+            if (type == typeof(string))
             {
-                if (type == typeof(string))
-                {
-                    JsonUtils.WriteString(sb.Writer, value as string);
-                }
-                else
-                {
-                    JsonWriter.GetWriteFn(type)(sb.Writer, value);
-                }
-                return sb.ToString();
+                JsonUtils.WriteString(writer, value as string);
             }
+            else
+            {
+                JsonWriter.GetWriteFn(type)(writer, value);
+            }
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public static void SerializeToWriter<T>(T value, TextWriter writer)

@@ -17,6 +17,7 @@ using System.IO;
 using System.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
+using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Text
 {
@@ -79,57 +80,7 @@ namespace ServiceStack.Text
         {
             return DeserializeFromString(reader.ReadToEnd(), type);
         }
-
-        [ThreadStatic] //Reuse the thread static StringBuilder when serializing to strings
-        private static StringBuilderWriter LastWriter;
-
-        internal class StringBuilderWriter : IDisposable
-        {
-            protected StringBuilder sb;
-            protected StringWriter writer;
-
-            public StringWriter Writer
-            {
-                get { return writer; }
-            }
-
-            public StringBuilderWriter()
-            {
-                this.sb = new StringBuilder();
-                this.writer = new StringWriter(sb, CultureInfo.InvariantCulture);
-            }
-
-            public static StringBuilderWriter Create()
-            {
-                var ret = LastWriter;
-                if (JsConfig.ReuseStringBuffer && ret != null)
-                {
-                    LastWriter = null;
-                    ret.sb.Clear();
-                    return ret;
-                }
-
-                return new StringBuilderWriter();
-            }
-
-            public override string ToString()
-            {
-                return sb.ToString();
-            }
-
-            public void Dispose()
-            {
-                if (JsConfig.ReuseStringBuffer)
-                {
-                    LastWriter = this;
-                }
-                else
-                {
-                    Writer.Dispose();
-                }
-            }
-        }
-
+        
         public static string SerializeToString<T>(T value)
         {
             if (value == null || value is Delegate) return null;
@@ -145,12 +96,9 @@ namespace ServiceStack.Text
                 return result;
             }
 
-            using (var sb = StringBuilderWriter.Create())
-            {
-                JsvWriter<T>.WriteRootObject(sb.Writer, value);
-
-                return sb.ToString();
-            }
+            var writer = StringWriterThreadStatic.Allocate();
+            JsvWriter<T>.WriteRootObject(writer, value);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public static string SerializeToString(object value, Type type)
@@ -159,12 +107,9 @@ namespace ServiceStack.Text
             if (type == typeof(string))
                 return value as string;
 
-            using (var sb = StringBuilderWriter.Create())
-            {
-                JsvWriter.GetWriteFn(type)(sb.Writer, value);
-
-                return sb.ToString();
-            }
+            var writer = StringWriterThreadStatic.Allocate();
+            JsvWriter.GetWriteFn(type)(writer, value);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public static void SerializeToWriter<T>(T value, TextWriter writer)
@@ -316,7 +261,7 @@ namespace ServiceStack.Text
         public static string Dump(this Delegate fn)
         {
             var method = fn.GetType().GetMethod("Invoke");
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
             foreach (var param in method.GetParameters())
             {
                 if (sb.Length > 0)
@@ -326,7 +271,8 @@ namespace ServiceStack.Text
             }
 
             var methodName = fn.Method().Name;
-            var info = "{0} {1}({2})".Fmt(method.ReturnType.Name, methodName, sb);
+            var info = "{0} {1}({2})".Fmt(method.ReturnType.Name, methodName, 
+                StringBuilderThreadStatic.ReturnAndFree(sb));
             return info;
         }
     }

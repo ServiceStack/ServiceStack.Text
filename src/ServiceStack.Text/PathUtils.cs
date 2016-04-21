@@ -56,6 +56,12 @@ namespace ServiceStack
 
         internal static string CombinePaths(StringBuilder sb, params string[] paths)
         {
+            AppendPaths(sb, paths);
+            return sb.ToString();
+        }
+
+        public static void AppendPaths(StringBuilder sb, string[] paths)
+        {
             foreach (var path in paths)
             {
                 if (string.IsNullOrEmpty(path))
@@ -66,13 +72,13 @@ namespace ServiceStack
 
                 sb.Append(path.Replace('\\', '/').TrimStart('/'));
             }
-
-            return sb.ToString();
         }
 
         public static string CombinePaths(params string[] paths)
         {
-            return CombinePaths(new StringBuilder(), paths);
+            var sb = StringBuilderThreadStatic.Allocate();
+            AppendPaths(sb, paths);
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string AssertDir(this string dirPath)
@@ -89,14 +95,31 @@ namespace ServiceStack
 
             if (thesePaths.Length == 1 && thesePaths[0] == null) return path;
             var startPath = path.Length > 1 ? path.TrimEnd('/', '\\') : path;
-            return CombinePaths(new StringBuilder(startPath), thesePaths);
+
+            var sb = StringBuilderThreadStatic.Allocate();
+            sb.Append(startPath);
+            AppendPaths(sb, thesePaths);
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static string CombineWith(this string path, params object[] thesePaths)
         {
             if (thesePaths.Length == 1 && thesePaths[0] == null) return path;
-            return CombinePaths(new StringBuilder(path.TrimEnd('/', '\\')),
-                Map(thesePaths, x => x.ToString()).ToArray());
+
+            var sb = StringBuilderThreadStatic.Allocate();
+            sb.Append(path.TrimEnd('/', '\\'));
+            AppendPaths(sb, ToStrings(thesePaths));
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
+        }
+
+        public static string[] ToStrings(object[] thesePaths)
+        {
+            var to = new string[thesePaths.Length];
+            for (var i = 0; i < thesePaths.Length; i++)
+            {
+                to[i] = thesePaths[i].ToString();
+            }
+            return to;
         }
 
         internal static List<To> Map<To>(System.Collections.IEnumerable items, Func<object, To> converter)

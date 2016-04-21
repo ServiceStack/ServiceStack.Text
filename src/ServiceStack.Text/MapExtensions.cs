@@ -12,6 +12,7 @@
 
 using System.Collections.Generic;
 using System.Text;
+using ServiceStack.Text;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack
@@ -25,7 +26,7 @@ namespace ServiceStack
 
         public static string Join<K, V>(this Dictionary<K, V> values, string itemSeperator, string keySeperator)
         {
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
             foreach (var entry in values)
             {
                 if (sb.Length > 0)
@@ -33,7 +34,7 @@ namespace ServiceStack
 
                 sb.Append(entry.Key).Append(keySeperator).Append(entry.Value);
             }
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
     }
 }

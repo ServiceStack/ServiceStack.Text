@@ -45,12 +45,9 @@ namespace ServiceStack.Text
             if (value == null) return null;
             if (typeof(T) == typeof(string)) return value as string;
 
-            var sb = new StringBuilder();
-            using (var writer = new StringWriter(sb))
-            {
-                JsvWriter<T>.WriteObject(writer, value);
-            }
-            return sb.ToString();
+            var writer = StringWriterThreadStatic.Allocate();
+            JsvWriter<T>.WriteObject(writer, value);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
         }
 
         public void SerializeToWriter(T value, TextWriter writer)
