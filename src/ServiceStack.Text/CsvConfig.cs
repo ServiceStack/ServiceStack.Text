@@ -144,6 +144,7 @@ namespace ServiceStack.Text
                 customHeadersMap = value;
                 if (value == null) return;
                 CsvWriter<T>.ConfigureCustomHeaders(customHeadersMap);
+                CsvReader<T>.ConfigureCustomHeaders(customHeadersMap);
             }
         }
 
