@@ -243,6 +243,22 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_Serialize_using_custom_CSV_ItemString()
+        {
+            CsvConfig.ItemSeperatorString = ";";
+            var csv = NorthwindData.OrderDetails[0].ToCsv();
+
+            Assert.That(csv, Is.EqualTo(
+                "Id;OrderId;ProductId;UnitPrice;Quantity;Discount\r\n10248/11;10248;11;14;12;0\r\n"));
+
+            var row = csv.FromCsv<OrderDetail>();
+
+            Assert.That(row, Is.EqualTo(NorthwindData.OrderDetails[0]));
+
+            CsvConfig.Reset();
+        }
+
+        [Test]
         public void serialize_Category()
         {
             SerializeAndDeserialize(NorthwindData.Categories[0]);

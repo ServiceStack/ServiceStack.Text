@@ -9,8 +9,6 @@ namespace ServiceStack.Text
 {
     public class CsvReader
     {
-        static readonly ITypeSerializer Serializer = JsvTypeSerializer.Instance;
-
         public static List<string> ParseLines(string csv)
         {
             var rows = new List<string>();
@@ -72,18 +70,103 @@ namespace ServiceStack.Text
             var len = line.Length;
             while (++i <= len)
             {
-                var value = Serializer.EatValue(line, ref i);
+                var value = EatValue(line, ref i);
                 to.Add(value.FromCsvField());
             }
 
             return to;
         }
+
+        //Originally from JsvTypeSerializer.EatValue()
+        public static string EatValue(string value, ref int i)
+        {
+            var tokenStartPos = i;
+            var valueLength = value.Length;
+            if (i == valueLength) return null;
+
+            var valueChar = value[i];
+            var withinQuotes = false;
+            var endsToEat = 1;
+            var itemSeperator = CsvConfig.ItemSeperatorString.Length == 1
+                ? CsvConfig.ItemSeperatorString[0]
+                : JsWriter.ItemSeperator;
+
+            if (valueChar == itemSeperator || valueChar == JsWriter.MapEndChar)
+                return null;
+
+            if (valueChar == JsWriter.QuoteChar) //Is Within Quotes, i.e. "..."
+            {
+                while (++i < valueLength)
+                {
+                    valueChar = value[i];
+
+                    if (valueChar != JsWriter.QuoteChar) continue;
+
+                    var isLiteralQuote = i + 1 < valueLength && value[i + 1] == JsWriter.QuoteChar;
+
+                    i++; //skip quote
+                    if (!isLiteralQuote)
+                        break;
+                }
+                return value.Substring(tokenStartPos, i - tokenStartPos);
+            }
+            if (valueChar == JsWriter.MapStartChar) //Is Type/Map, i.e. {...}
+            {
+                while (++i < valueLength && endsToEat > 0)
+                {
+                    valueChar = value[i];
+
+                    if (valueChar == JsWriter.QuoteChar)
+                        withinQuotes = !withinQuotes;
+
+                    if (withinQuotes)
+                        continue;
+
+                    if (valueChar == JsWriter.MapStartChar)
+                        endsToEat++;
+
+                    if (valueChar == JsWriter.MapEndChar)
+                        endsToEat--;
+                }
+                return value.Substring(tokenStartPos, i - tokenStartPos);
+            }
+            if (valueChar == JsWriter.ListStartChar) //Is List, i.e. [...]
+            {
+                while (++i < valueLength && endsToEat > 0)
+                {
+                    valueChar = value[i];
+
+                    if (valueChar == JsWriter.QuoteChar)
+                        withinQuotes = !withinQuotes;
+
+                    if (withinQuotes)
+                        continue;
+
+                    if (valueChar == JsWriter.ListStartChar)
+                        endsToEat++;
+
+                    if (valueChar == JsWriter.ListEndChar)
+                        endsToEat--;
+                }
+                return value.Substring(tokenStartPos, i - tokenStartPos);
+            }
+
+            while (++i < valueLength) //Is Value
+            {
+                valueChar = value[i];
+
+                if (valueChar == itemSeperator || valueChar == JsWriter.MapEndChar)
+                {
+                    break;
+                }
+            }
+
+            return value.Substring(tokenStartPos, i - tokenStartPos);
+        }
     }
 
     public class CsvReader<T>
     {
-        public const char DelimiterChar = ',';
-
         public static List<string> Headers { get; set; }
 
         internal static List<Action<T, object>> PropertySetters;
