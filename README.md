@@ -1,5 +1,4 @@
-[Join the ServiceStack Google+ group](http://groups.google.com/group/servicestack) or
-follow [@ServiceStack](http://twitter.com/servicestack) for project updates.
+Join the [ServiceStack Google+ Community](https://plus.google.com/communities/112445368900682590445) or follow [@ServiceStack](https://twitter.com/servicestack) for updates. 
 
 # [JSON](https://github.com/ServiceStackV3/mythz_blog/blob/master/pages/344.md), [JSV](https://github.com/ServiceStackV3/mythz_blog/blob/master/pages/176.md) and [CSV](https://github.com/ServiceStack/ServiceStack/wiki/CSV-Format) Text Serializers used in [servicestack.net](http://www.servicestack.net).
 
