@@ -601,7 +601,7 @@ namespace ServiceStack.Text.Common
             }
             if (JsConfig.DateHandler == DateHandler.ISO8601DateTime)
             {
-                writer.Write(dateTime.ToString("yyyy-MM-dd hh:mm:ss", CultureInfo.InvariantCulture));
+                writer.Write(dateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 return;
             }
             if (JsConfig.DateHandler == DateHandler.RFC1123)
