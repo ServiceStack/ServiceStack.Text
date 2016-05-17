@@ -251,6 +251,24 @@ namespace ServiceStack
             return SendStringToUrl(url, method: "HEAD", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<string> GetJsonFromUrlAsync(this string url,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.GetStringFromUrlAsync(MimeTypes.Json, requestFilter, responseFilter);
+        }
+
+        public static Task<string> GetXmlFromUrlAsync(this string url,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.GetStringFromUrlAsync(MimeTypes.Xml, requestFilter, responseFilter);
+        }
+
+        public static Task<string> GetCsvFromUrlAsync(this string url,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.GetStringFromUrlAsync(MimeTypes.Csv, requestFilter, responseFilter);
+        }
+
         public static Task<string> GetStringFromUrlAsync(this string url, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -403,6 +421,14 @@ namespace ServiceStack
                 requestFilter(webReq);
             }
 
+            if (ResultsFilter != null)
+            {
+                var result = ResultsFilter.GetString(webReq, requestBody);
+                var tcsResult = new TaskCompletionSource<string>();
+                tcsResult.SetResult(result);
+                return tcsResult.Task;
+            }
+
             if (requestBody != null)
             {
                 using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
@@ -494,6 +520,12 @@ namespace ServiceStack
             return url.SendBytesToUrl(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<byte[]> GetBytesFromUrlAsync(this string url, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.SendBytesToUrlAsync(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static byte[] PostBytesToUrl(this string url, byte[] requestBody = null, string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -502,10 +534,26 @@ namespace ServiceStack
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<byte[]> PostBytesToUrlAsync(this string url, byte[] requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendBytesToUrlAsync(url, method: "POST",
+                contentType: contentType, requestBody: requestBody,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static byte[] PutBytesToUrl(this string url, byte[] requestBody = null, string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendBytesToUrl(url, method: "PUT",
+                contentType: contentType, requestBody: requestBody,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<byte[]> PutBytesToUrlAsync(this string url, byte[] requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendBytesToUrlAsync(url, method: "PUT",
                 contentType: contentType, requestBody: requestBody,
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
@@ -552,6 +600,71 @@ namespace ServiceStack
                     return stream.ReadFully();
                 }
             }
+        }
+
+        public static Task<byte[]> SendBytesToUrlAsync(this string url, string method = null,
+            byte[] requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            if (method != null)
+                webReq.Method = method;
+            if (contentType != null)
+                webReq.ContentType = contentType;
+
+            webReq.Accept = accept;
+            PclExport.Instance.AddCompression(webReq);
+
+            if (requestFilter != null)
+            {
+                requestFilter(webReq);
+            }
+
+            if (ResultsFilter != null)
+            {
+                var result = ResultsFilter.GetBytes(webReq, requestBody);
+                var tcsResult = new TaskCompletionSource<byte[]>();
+                tcsResult.SetResult(result);
+                return tcsResult.Task;
+            }
+
+            if (requestBody != null)
+            {
+                using (var req = PclExport.Instance.GetRequestStream(webReq))
+                {
+                    req.Write(requestBody, 0, requestBody.Length);
+                }
+            }
+
+            var taskWebRes = webReq.GetResponseAsync();
+            var tcs = new TaskCompletionSource<byte[]>();
+
+            taskWebRes.ContinueWith(task =>
+            {
+                if (task.Exception != null)
+                {
+                    tcs.SetException(task.Exception);
+                    return;
+                }
+                if (task.IsCanceled)
+                {
+                    tcs.SetCanceled();
+                    return;
+                }
+
+                var webRes = task.Result;
+                if (responseFilter != null)
+                {
+                    responseFilter((HttpWebResponse)webRes);
+                }
+
+                using (var stream = webRes.GetResponseStream())
+                {
+                    tcs.SetResult(stream.ReadFully());
+                }
+            });
+
+            return tcs.Task;
         }
 
         public static bool IsAny300(this Exception ex)
