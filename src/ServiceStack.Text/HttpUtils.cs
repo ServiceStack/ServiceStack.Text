@@ -105,10 +105,22 @@ namespace ServiceStack
             return url.GetStringFromUrl(MimeTypes.Json, requestFilter, responseFilter);
         }
 
+        public static Task<string> GetJsonFromUrlAsync(this string url,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.GetStringFromUrlAsync(MimeTypes.Json, requestFilter, responseFilter);
+        }
+
         public static string GetXmlFromUrl(this string url,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return url.GetStringFromUrl(MimeTypes.Xml, requestFilter, responseFilter);
+        }
+
+        public static Task<string> GetXmlFromUrlAsync(this string url,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.GetStringFromUrlAsync(MimeTypes.Xml, requestFilter, responseFilter);
         }
 
         public static string GetCsvFromUrl(this string url,
@@ -117,10 +129,22 @@ namespace ServiceStack
             return url.GetStringFromUrl(MimeTypes.Csv, requestFilter, responseFilter);
         }
 
+        public static Task<string> GetCsvFromUrlAsync(this string url,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.GetStringFromUrlAsync(MimeTypes.Csv, requestFilter, responseFilter);
+        }
+
         public static string GetStringFromUrl(this string url, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> GetStringFromUrlAsync(this string url, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static string PostStringToUrl(this string url, string requestBody = null,
@@ -132,10 +156,27 @@ namespace ServiceStack
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<string> PostStringToUrlAsync(this string url, string requestBody = null,
+            string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "POST",
+                requestBody: requestBody, contentType: contentType,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PostToUrl(this string url, string formData = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "POST",
+                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PostToUrlAsync(this string url, string formData = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "POST",
                 contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
@@ -150,10 +191,27 @@ namespace ServiceStack
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<string> PostToUrlAsync(this string url, object formData = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
+
+            return SendStringToUrlAsync(url, method: "POST",
+                contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PostJsonToUrl(this string url, string json,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "POST", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PostJsonToUrlAsync(this string url, string json,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "POST", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -164,6 +222,13 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<string> PostJsonToUrlAsync(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "POST", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PostXmlToUrl(this string url, string xml,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -171,10 +236,24 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<string> PostXmlToUrlAsync(this string url, string xml,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "POST", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PostCsvToUrl(this string url, string csv,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "POST", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PostCsvToUrlAsync(this string url, string csv,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "POST", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -187,10 +266,27 @@ namespace ServiceStack
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static Task<string> PutStringToUrlAsync(this string url, string requestBody = null,
+            string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "PUT",
+                requestBody: requestBody, contentType: contentType,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string PutToUrl(this string url, string formData = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrl(url, method: "PUT",
+                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PutToUrlAsync(this string url, string formData = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "PUT",
                 contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
@@ -205,148 +301,6 @@ namespace ServiceStack
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
-        public static string PutJsonToUrl(this string url, string json,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "PUT", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static string PutJsonToUrl(this string url, object data,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static string PutXmlToUrl(this string url, string xml,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static string PutCsvToUrl(this string url, string csv,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "PUT", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static string DeleteFromUrl(this string url, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "DELETE", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static string OptionsFromUrl(this string url, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "OPTIONS", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static string HeadFromUrl(this string url, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrl(url, method: "HEAD", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> GetJsonFromUrlAsync(this string url,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return url.GetStringFromUrlAsync(MimeTypes.Json, requestFilter, responseFilter);
-        }
-
-        public static Task<string> GetXmlFromUrlAsync(this string url,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return url.GetStringFromUrlAsync(MimeTypes.Xml, requestFilter, responseFilter);
-        }
-
-        public static Task<string> GetCsvFromUrlAsync(this string url,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return url.GetStringFromUrlAsync(MimeTypes.Csv, requestFilter, responseFilter);
-        }
-
-        public static Task<string> GetStringFromUrlAsync(this string url, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PostStringToUrlAsync(this string url, string requestBody = null,
-            string contentType = null, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "POST",
-                requestBody: requestBody, contentType: contentType,
-                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PostToUrlAsync(this string url, string formData = null, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "POST",
-                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
-                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PostToUrlAsync(this string url, object formData = null, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
-
-            return SendStringToUrlAsync(url, method: "POST",
-                contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
-                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PostJsonToUrlAsync(this string url, string json,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "POST", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PostJsonToUrlAsync(this string url, object data,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "POST", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PostXmlToUrlAsync(this string url, string xml,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "POST", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PostCsvToUrlAsync(this string url, string csv,
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "POST", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
-                requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PutStringToUrlAsync(this string url, string requestBody = null,
-            string contentType = null, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "PUT",
-                requestBody: requestBody, contentType: contentType,
-                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
-        public static Task<string> PutToUrlAsync(this string url, string formData = null, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            return SendStringToUrlAsync(url, method: "PUT",
-                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
-                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
-        }
-
         public static Task<string> PutToUrlAsync(this string url, object formData = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -357,10 +311,24 @@ namespace ServiceStack
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PutJsonToUrl(this string url, string json,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static Task<string> PutJsonToUrlAsync(this string url, string json,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrlAsync(url, method: "PUT", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutJsonToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -371,10 +339,24 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PutXmlToUrl(this string url, string xml,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static Task<string> PutXmlToUrlAsync(this string url, string xml,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrlAsync(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PutCsvToUrl(this string url, string csv,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PUT", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
@@ -385,10 +367,22 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string DeleteFromUrl(this string url, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "DELETE", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static Task<string> DeleteFromUrlAsync(this string url, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrlAsync(url, method: "DELETE", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string OptionsFromUrl(this string url, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "OPTIONS", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
         public static Task<string> OptionsFromUrlAsync(this string url, string accept = "*/*",
@@ -397,10 +391,60 @@ namespace ServiceStack
             return SendStringToUrlAsync(url, method: "OPTIONS", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string HeadFromUrl(this string url, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "HEAD", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static Task<string> HeadFromUrlAsync(this string url, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
             return SendStringToUrlAsync(url, method: "HEAD", accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string SendStringToUrl(this string url, string method = null,
+            string requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            if (method != null)
+                webReq.Method = method;
+            if (contentType != null)
+                webReq.ContentType = contentType;
+
+            webReq.Accept = accept;
+            PclExport.Instance.AddCompression(webReq);
+
+            if (requestFilter != null)
+            {
+                requestFilter(webReq);
+            }
+
+            if (ResultsFilter != null)
+            {
+                return ResultsFilter.GetString(webReq, requestBody);
+            }
+
+            if (requestBody != null)
+            {
+                using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
+                using (var writer = new StreamWriter(reqStream))
+                {
+                    writer.Write(requestBody);
+                }
+            }
+
+            using (var webRes = PclExport.Instance.GetResponse(webReq))
+            using (var stream = webRes.GetResponseStream())
+            using (var reader = new StreamReader(stream))
+            {
+                if (responseFilter != null)
+                {
+                    responseFilter((HttpWebResponse)webRes);
+                }
+                return reader.ReadToEnd();
+            }
         }
 
         public static Task<string> SendStringToUrlAsync(this string url, string method = null, string requestBody = null,
@@ -468,50 +512,6 @@ namespace ServiceStack
             });
 
             return tcs.Task;
-        }
-
-        public static string SendStringToUrl(this string url, string method = null,
-            string requestBody = null, string contentType = null, string accept = "*/*",
-            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
-        {
-            var webReq = (HttpWebRequest)WebRequest.Create(url);
-            if (method != null)
-                webReq.Method = method;
-            if (contentType != null)
-                webReq.ContentType = contentType;
-
-            webReq.Accept = accept;
-            PclExport.Instance.AddCompression(webReq);
-
-            if (requestFilter != null)
-            {
-                requestFilter(webReq);
-            }
-
-            if (ResultsFilter != null)
-            {
-                return ResultsFilter.GetString(webReq, requestBody);
-            }
-
-            if (requestBody != null)
-            {
-                using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
-                using (var writer = new StreamWriter(reqStream))
-                {
-                    writer.Write(requestBody);
-                }
-            }
-
-            using (var webRes = PclExport.Instance.GetResponse(webReq))
-            using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream))
-            {
-                if (responseFilter != null)
-                {
-                    responseFilter((HttpWebResponse)webRes);
-                }
-                return reader.ReadToEnd();
-            }
         }
 
         public static byte[] GetBytesFromUrl(this string url, string accept = "*/*",
