@@ -19,7 +19,7 @@ namespace ServiceStack
 
         public static readonly PropertyInfo[] PublicPropertyInfos;
 
-        public static T[] EmptyArray = new T[0];
+        public static readonly T[] EmptyArray = new T[0];
 
         static TypeReflector()
         {
