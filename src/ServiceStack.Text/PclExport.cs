@@ -181,12 +181,12 @@ namespace ServiceStack
 
         public virtual string[] GetFileNames(string dirPath, string searchPattern = null)
         {
-            return new string[0];
+            return TypeConstants.EmptyStringArray;
         }
 
         public virtual string[] GetDirectoryNames(string dirPath, string searchPattern = null)
         {
-            return new string[0];
+            return TypeConstants.EmptyStringArray;
         }
 
         public virtual void WriteLine(string line)

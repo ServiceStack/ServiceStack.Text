@@ -734,7 +734,7 @@ namespace ServiceStack
             }
 
             if (!JsConfig.IncludePublicFields)
-                return new FieldInfo[0];
+                return TypeConstants.EmptyFieldInfoArray;
 
             var publicFields = type.GetPublicFields();
 
@@ -990,7 +990,7 @@ namespace ServiceStack
         {
             if (type.IsInterface())
             {
-                return new FieldInfo[0];
+                return TypeConstants.EmptyFieldInfoArray;
             }
 
 #if (NETFX_CORE || PCL)
@@ -1004,7 +1004,7 @@ namespace ServiceStack
         {
             if (type.IsInterface())
             {
-                return new FieldInfo[0];
+                return TypeConstants.EmptyFieldInfoArray;
             }
 
 #if (NETFX_CORE || PCL)

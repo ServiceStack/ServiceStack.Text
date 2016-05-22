@@ -366,7 +366,7 @@ namespace ServiceStack
                 return null;
 
             var getMethod = propertyInfo.GetMethodInfo();
-            return getMethod != null ? getMethod.Invoke(obj, new object[0]) : null;
+            return getMethod != null ? getMethod.Invoke(obj, TypeConstants.EmptyObjectArray) : null;
         }
 
         public static void SetValue(FieldInfo fieldInfo, PropertyInfo propertyInfo, object obj, object value)
@@ -464,7 +464,7 @@ namespace ServiceStack
 
                 if (hasEmptyConstructor)
                 {
-                    var value = constructorInfo.Invoke(new object[0]);
+                    var value = constructorInfo.Invoke(TypeConstants.EmptyObjectArray);
 
                     var genericCollectionType = PclExport.Instance.GetGenericCollectionType(type);
                     if (genericCollectionType != null)

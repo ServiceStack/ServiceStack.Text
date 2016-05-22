@@ -337,7 +337,7 @@ namespace ServiceStack
 
         public static string[] SplitOnFirst(this string strVal, char needle)
         {
-            if (strVal == null) return new string[0];
+            if (strVal == null) return TypeConstants.EmptyStringArray;
             var pos = strVal.IndexOf(needle);
             return pos == -1
                 ? new[] { strVal }
@@ -346,8 +346,8 @@ namespace ServiceStack
 
         public static string[] SplitOnFirst(this string strVal, string needle)
         {
-            if (strVal == null) return new string[0];
-            var pos = strVal.IndexOf(needle);
+            if (strVal == null) return TypeConstants.EmptyStringArray;
+            var pos = strVal.IndexOf(needle, StringComparison.InvariantCultureIgnoreCase);
             return pos == -1
                 ? new[] { strVal }
                 : new[] { strVal.Substring(0, pos), strVal.Substring(pos + needle.Length) };
@@ -355,7 +355,7 @@ namespace ServiceStack
 
         public static string[] SplitOnLast(this string strVal, char needle)
         {
-            if (strVal == null) return new string[0];
+            if (strVal == null) return TypeConstants.EmptyStringArray;
             var pos = strVal.LastIndexOf(needle);
             return pos == -1
                 ? new[] { strVal }
@@ -364,8 +364,8 @@ namespace ServiceStack
 
         public static string[] SplitOnLast(this string strVal, string needle)
         {
-            if (strVal == null) return new string[0];
-            var pos = strVal.LastIndexOf(needle);
+            if (strVal == null) return TypeConstants.EmptyStringArray;
+            var pos = strVal.LastIndexOf(needle, StringComparison.InvariantCultureIgnoreCase);
             return pos == -1
                 ? new[] { strVal }
                 : new[] { strVal.Substring(0, pos), strVal.Substring(pos + needle.Length) };

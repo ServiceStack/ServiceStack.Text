@@ -174,7 +174,7 @@ namespace ServiceStack.Text.Common
         {
             if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
             return value == string.Empty
-                    ? new string[0]
+                    ? TypeConstants.EmptyStringArray
                     : DeserializeListWithElements<TSerializer>.ParseStringList(value).ToArray();
         }
 
@@ -183,7 +183,7 @@ namespace ServiceStack.Text.Common
             if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
             if ((value = Serializer.UnescapeString(value)) == null) return null;
             return value == string.Empty
-                    ? new byte[0]
+                    ? TypeConstants.EmptyByteArray
                     : Convert.FromBase64String(value);
         }
     }

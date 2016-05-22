@@ -514,7 +514,7 @@ namespace ServiceStack.Text.Common
                         for (int j = 0; j < props.Length; j++)
                         {
                             var pi = props[j];
-                            var pValue = pi.GetValue(propertyValue, new object[0]);
+                            var pValue = pi.GetValue(propertyValue, TypeConstants.EmptyObjectArray);
                             if (pValue == null && !Serializer.IncludeNullValues)
                                 continue;
 

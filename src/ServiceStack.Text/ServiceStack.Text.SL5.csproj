@@ -67,6 +67,7 @@
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Common\DeserializeCustomGenericType.cs" />
     <Compile Include="Common\DeserializeKeyValuePair.cs" />
+    <Compile Include="TypeConstants.cs" />
     <Compile Include="CsvReader.cs" />
     <Compile Include="IStringSerializer.cs" />
     <Compile Include="Pcl.Dynamic.cs" />

@@ -24,8 +24,8 @@ namespace ServiceStack.Text
         {
             Type = type;
             EnableAnonymousFieldSetterses = false;
-            Properties = new PropertyInfo[0];
-            Fields = new FieldInfo[0];
+            Properties = TypeConstants.EmptyPropertyInfoArray;
+            Fields = TypeConstants.EmptyFieldInfoArray;
 
             JsConfig.AddUniqueType(Type);
         }
@@ -79,7 +79,7 @@ namespace ServiceStack.Text
         {
             config = new TypeConfig(typeof(T));
 
-            var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? new string[0];
+            var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? TypeConstants.EmptyStringArray;
 
             var properties = excludedProperties.Any()
                 ? config.Type.GetSerializableProperties().Where(x => !excludedProperties.Contains(x.Name))

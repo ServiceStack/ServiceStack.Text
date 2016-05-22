@@ -28,13 +28,13 @@ namespace ServiceStack.Reflection
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
         {
 #if NETFX_CORE
-			var getMethodInfo = propertyInfo.GetMethod;
-			if (getMethodInfo == null) return null;
-			return x => getMethodInfo.Invoke(x, new object[0]);
+            var getMethodInfo = propertyInfo.GetMethod;
+            if (getMethodInfo == null) return null;
+            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
 #elif (SL5 && !WP) || __IOS__ || XBOX
-			var getMethodInfo = propertyInfo.GetGetMethod();
-			if (getMethodInfo == null) return null;
-			return x => getMethodInfo.Invoke(x, new object[0]);
+            var getMethodInfo = propertyInfo.GetGetMethod();
+            if (getMethodInfo == null) return null;
+            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
 #else
 
             var instance = Expression.Parameter(typeof(object), "i");
@@ -48,13 +48,13 @@ namespace ServiceStack.Reflection
         public static Func<T, object> GetValueGetter<T>(this PropertyInfo propertyInfo)
         {
 #if NETFX_CORE
-			var getMethodInfo = propertyInfo.GetMethod;
+            var getMethodInfo = propertyInfo.GetMethod;
             if (getMethodInfo == null) return null;
-			return x => getMethodInfo.Invoke(x, new object[0]);
+            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
 #elif (SL5 && !WP) || __IOS__ || XBOX
-			var getMethodInfo = propertyInfo.GetGetMethod();
-			if (getMethodInfo == null) return null;
-			return x => getMethodInfo.Invoke(x, new object[0]);
+            var getMethodInfo = propertyInfo.GetGetMethod();
+            if (getMethodInfo == null) return null;
+            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
 #else
             var instance = Expression.Parameter(typeof(T), "i");
             var property = typeof(T) != propertyInfo.DeclaringType
