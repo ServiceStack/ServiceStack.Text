@@ -9,6 +9,7 @@ namespace ServiceStack.Text
         public static readonly string[] EmptyStringArray = new string[0];
         public static readonly long[] EmptyLongArray = new long[0];
         public static readonly int[] EmptyIntArray = new int[0];
+        public static readonly char[] EmptyCharArray = new char[0];
         public static readonly bool[] EmptyBoolArray = new bool[0];
         public static readonly byte[] EmptyByteArray = new byte[0];
         public static readonly object[] EmptyObjectArray = new object[0];
@@ -21,6 +22,7 @@ namespace ServiceStack.Text
         public static readonly List<string> EmptyStringList = new List<string>(0);
         public static readonly List<long> EmptyLongList = new List<long>(0);
         public static readonly List<int> EmptyIntList = new List<int>(0);
+        public static readonly List<char> EmptyCharList = new List<char>(0);
         public static readonly List<bool> EmptyBoolList = new List<bool>(0);
         public static readonly List<byte> EmptyByteList = new List<byte>(0);
         public static readonly List<object> EmptyObjectList = new List<object>(0);
