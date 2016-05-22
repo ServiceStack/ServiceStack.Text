@@ -347,7 +347,7 @@ namespace ServiceStack
         public static string[] SplitOnFirst(this string strVal, string needle)
         {
             if (strVal == null) return TypeConstants.EmptyStringArray;
-            var pos = strVal.IndexOf(needle, StringComparison.InvariantCultureIgnoreCase);
+            var pos = strVal.IndexOf(needle, StringComparison.OrdinalIgnoreCase);
             return pos == -1
                 ? new[] { strVal }
                 : new[] { strVal.Substring(0, pos), strVal.Substring(pos + needle.Length) };
@@ -365,7 +365,7 @@ namespace ServiceStack
         public static string[] SplitOnLast(this string strVal, string needle)
         {
             if (strVal == null) return TypeConstants.EmptyStringArray;
-            var pos = strVal.LastIndexOf(needle, StringComparison.InvariantCultureIgnoreCase);
+            var pos = strVal.LastIndexOf(needle, StringComparison.OrdinalIgnoreCase);
             return pos == -1
                 ? new[] { strVal }
                 : new[] { strVal.Substring(0, pos), strVal.Substring(pos + needle.Length) };
