@@ -87,7 +87,7 @@ namespace ServiceStack
             {
                 try
                 {
-                    return Convert.ChangeType(strValue, type);
+                    return Convert.ChangeType(strValue, type, provider: null);
                 }
                 catch (Exception ex)
                 {
