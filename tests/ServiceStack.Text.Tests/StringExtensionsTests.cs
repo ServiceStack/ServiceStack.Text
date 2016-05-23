@@ -21,10 +21,14 @@ namespace ServiceStack.Text.Tests
         {
             var str = "user:pass@w:rd";
             Assert.That(str.LeftPart(':'), Is.EqualTo("user"));
+            Assert.That(str.SplitOnFirst(':')[0], Is.EqualTo("user"));
             Assert.That(str.RightPart(':'), Is.EqualTo("pass@w:rd"));
+            Assert.That(str.SplitOnFirst(':').Last(), Is.EqualTo("pass@w:rd"));
 
             Assert.That(str.LeftPart('|'), Is.EqualTo("user:pass@w:rd"));
-            Assert.That(str.RightPart('|'), Is.Null);
+            Assert.That(str.SplitOnFirst('|')[0], Is.EqualTo("user:pass@w:rd"));
+            Assert.That(str.RightPart('|'), Is.EqualTo("user:pass@w:rd"));
+            Assert.That(str.SplitOnFirst('|').Last(), Is.EqualTo("user:pass@w:rd"));
         }
 
         [Test]
@@ -40,10 +44,14 @@ namespace ServiceStack.Text.Tests
         {
             var str = "user::pass@w:rd";
             Assert.That(str.LeftPart("::"), Is.EqualTo("user"));
+            Assert.That(str.SplitOnFirst("::")[0], Is.EqualTo("user"));
             Assert.That(str.RightPart("::"), Is.EqualTo("pass@w:rd"));
+            Assert.That(str.SplitOnFirst("::").Last(), Is.EqualTo("pass@w:rd"));
 
             Assert.That(str.LeftPart("||"), Is.EqualTo("user::pass@w:rd"));
-            Assert.That(str.RightPart("||"), Is.Null);
+            Assert.That(str.SplitOnFirst("||")[0], Is.EqualTo("user::pass@w:rd"));
+            Assert.That(str.RightPart("||"), Is.EqualTo("user::pass@w:rd"));
+            Assert.That(str.SplitOnFirst("||").Last(), Is.EqualTo("user::pass@w:rd"));
         }
 
         [Test]
@@ -59,10 +67,14 @@ namespace ServiceStack.Text.Tests
         {
             var str = "user:name:pass@word";
             Assert.That(str.LastLeftPart(':'), Is.EqualTo("user:name"));
+            Assert.That(str.SplitOnLast(':')[0], Is.EqualTo("user:name"));
             Assert.That(str.LastRightPart(':'), Is.EqualTo("pass@word"));
+            Assert.That(str.SplitOnLast(':').Last(), Is.EqualTo("pass@word"));
 
             Assert.That(str.LastLeftPart('|'), Is.EqualTo("user:name:pass@word"));
-            Assert.That(str.LastRightPart('|'), Is.Null);
+            Assert.That(str.SplitOnLast('|')[0], Is.EqualTo("user:name:pass@word"));
+            Assert.That(str.LastRightPart('|'), Is.EqualTo("user:name:pass@word"));
+            Assert.That(str.SplitOnLast('|').Last(), Is.EqualTo("user:name:pass@word"));
         }
 
         [Test]
@@ -78,10 +90,14 @@ namespace ServiceStack.Text.Tests
         {
             var str = "user::name::pass@word";
             Assert.That(str.LastLeftPart("::"), Is.EqualTo("user::name"));
+            Assert.That(str.SplitOnLast("::")[0], Is.EqualTo("user::name"));
             Assert.That(str.LastRightPart("::"), Is.EqualTo("pass@word"));
+            Assert.That(str.SplitOnLast("::").Last(), Is.EqualTo("pass@word"));
 
             Assert.That(str.LastLeftPart("||"), Is.EqualTo("user::name::pass@word"));
-            Assert.That(str.LastRightPart("||"), Is.Null);
+            Assert.That(str.SplitOnLast("||")[0], Is.EqualTo("user::name::pass@word"));
+            Assert.That(str.LastRightPart("||"), Is.EqualTo("user::name::pass@word"));
+            Assert.That(str.SplitOnLast("||").Last(), Is.EqualTo("user::name::pass@word"));
         }
 
         private static readonly char DirSep = Path.DirectorySeparatorChar;
