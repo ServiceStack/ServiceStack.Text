@@ -22,6 +22,9 @@ namespace ServiceStack.Text.Tests
             var str = "user:pass@w:rd";
             Assert.That(str.GetLeftPart(':'), Is.EqualTo("user"));
             Assert.That(str.GetRightPart(':'), Is.EqualTo("pass@w:rd"));
+
+            Assert.That(str.GetLeftPart('|'), Is.EqualTo("user:pass@w:rd"));
+            Assert.That(str.GetRightPart('|'), Is.Null);
         }
 
         [Test]
@@ -38,6 +41,9 @@ namespace ServiceStack.Text.Tests
             var str = "user::pass@w:rd";
             Assert.That(str.GetLeftPart("::"), Is.EqualTo("user"));
             Assert.That(str.GetRightPart("::"), Is.EqualTo("pass@w:rd"));
+
+            Assert.That(str.GetLeftPart("||"), Is.EqualTo("user::pass@w:rd"));
+            Assert.That(str.GetRightPart("||"), Is.Null);
         }
 
         [Test]

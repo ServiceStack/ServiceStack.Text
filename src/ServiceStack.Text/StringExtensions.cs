@@ -358,7 +358,7 @@ namespace ServiceStack
             if (strVal == null) return null;
             var pos = strVal.IndexOf(needle);
             return pos == -1
-                ? strVal
+                ? null
                 : strVal.Substring(pos + 1);
         }
 
@@ -367,7 +367,7 @@ namespace ServiceStack
             if (strVal == null) return null;
             var pos = strVal.IndexOf(needle, StringComparison.OrdinalIgnoreCase);
             return pos == -1
-                ? strVal
+                ? null
                 : strVal.Substring(pos + needle.Length);
         }
 
