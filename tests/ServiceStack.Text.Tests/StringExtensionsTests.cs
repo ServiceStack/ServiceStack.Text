@@ -17,11 +17,27 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_GetLeftPart_and_GetLeftPart_char_needle()
+        {
+            var str = "user:pass@w:rd";
+            Assert.That(str.GetLeftPart(':'), Is.EqualTo("user"));
+            Assert.That(str.GetRightPart(':'), Is.EqualTo("pass@w:rd"));
+        }
+
+        [Test]
         public void Can_SplitOnFirst_string_needle()
         {
             var parts = "user:pass@w:rd".SplitOnFirst(":");
             Assert.That(parts[0], Is.EqualTo("user"));
             Assert.That(parts[1], Is.EqualTo("pass@w:rd"));
+        }
+
+        [Test]
+        public void Can_GetLeftPart_and_GetLeftPart_string_needle()
+        {
+            var str = "user::pass@w:rd";
+            Assert.That(str.GetLeftPart("::"), Is.EqualTo("user"));
+            Assert.That(str.GetRightPart("::"), Is.EqualTo("pass@w:rd"));
         }
 
         [Test]
