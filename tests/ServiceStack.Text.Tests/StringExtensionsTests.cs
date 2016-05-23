@@ -17,14 +17,14 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Can_GetLeftPart_and_GetLeftPart_char_needle()
+        public void Can_LeftPart_and_LeftPart_char_needle()
         {
             var str = "user:pass@w:rd";
-            Assert.That(str.GetLeftPart(':'), Is.EqualTo("user"));
-            Assert.That(str.GetRightPart(':'), Is.EqualTo("pass@w:rd"));
+            Assert.That(str.LeftPart(':'), Is.EqualTo("user"));
+            Assert.That(str.RightPart(':'), Is.EqualTo("pass@w:rd"));
 
-            Assert.That(str.GetLeftPart('|'), Is.EqualTo("user:pass@w:rd"));
-            Assert.That(str.GetRightPart('|'), Is.Null);
+            Assert.That(str.LeftPart('|'), Is.EqualTo("user:pass@w:rd"));
+            Assert.That(str.RightPart('|'), Is.Null);
         }
 
         [Test]
@@ -36,14 +36,14 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Can_GetLeftPart_and_GetLeftPart_string_needle()
+        public void Can_LeftPart_and_RightPart_string_needle()
         {
             var str = "user::pass@w:rd";
-            Assert.That(str.GetLeftPart("::"), Is.EqualTo("user"));
-            Assert.That(str.GetRightPart("::"), Is.EqualTo("pass@w:rd"));
+            Assert.That(str.LeftPart("::"), Is.EqualTo("user"));
+            Assert.That(str.RightPart("::"), Is.EqualTo("pass@w:rd"));
 
-            Assert.That(str.GetLeftPart("||"), Is.EqualTo("user::pass@w:rd"));
-            Assert.That(str.GetRightPart("||"), Is.Null);
+            Assert.That(str.LeftPart("||"), Is.EqualTo("user::pass@w:rd"));
+            Assert.That(str.RightPart("||"), Is.Null);
         }
 
         [Test]
@@ -55,11 +55,33 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_LastLeftPart_and_LastRightPart_char_needle()
+        {
+            var str = "user:name:pass@word";
+            Assert.That(str.LastLeftPart(':'), Is.EqualTo("user:name"));
+            Assert.That(str.LastRightPart(':'), Is.EqualTo("pass@word"));
+
+            Assert.That(str.LastLeftPart('|'), Is.EqualTo("user:name:pass@word"));
+            Assert.That(str.LastRightPart('|'), Is.Null);
+        }
+
+        [Test]
         public void Can_SplitOnLast_string_needle()
         {
             var parts = "user:name:pass@word".SplitOnLast(":");
             Assert.That(parts[0], Is.EqualTo("user:name"));
             Assert.That(parts[1], Is.EqualTo("pass@word"));
+        }
+
+        [Test]
+        public void Can_LastLeftPart_and_LastRightPart_string_needle()
+        {
+            var str = "user::name::pass@word";
+            Assert.That(str.LastLeftPart("::"), Is.EqualTo("user::name"));
+            Assert.That(str.LastRightPart("::"), Is.EqualTo("pass@word"));
+
+            Assert.That(str.LastLeftPart("||"), Is.EqualTo("user::name::pass@word"));
+            Assert.That(str.LastRightPart("||"), Is.Null);
         }
 
         private static readonly char DirSep = Path.DirectorySeparatorChar;
