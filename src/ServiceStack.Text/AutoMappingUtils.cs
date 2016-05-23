@@ -79,7 +79,7 @@ namespace ServiceStack
 
         public static object ChangeTo(this string strValue, Type type)
         {
-            if (type.IsValueType && !type.IsEnum
+            if (type.IsValueType() && !type.IsEnum()
 #if !PCL
                 && type.HasInterface(typeof(IConvertible))
 #endif
