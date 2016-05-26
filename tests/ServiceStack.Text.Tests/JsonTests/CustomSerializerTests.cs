@@ -301,6 +301,64 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(dto.ToJsv(), Is.EqualTo("{Decimal:1,33}"));
             Assert.That(dto.ToJson(), Is.EqualTo("{\"Decimal\":1,33}"));
         }
+
+        public class FormatAttribute : Attribute
+        {
+            string Format;
+
+            public FormatAttribute(string format)
+            {
+                Format = format;
+            }
+        }
+
+        public class DcStatus
+        {
+            [Format("{0:0.0} V")]
+            public Double Voltage { get; set; }
+            [Format("{0:0.000} A")]
+            public Double Current { get; set; }
+            [Format("{0:0} W")]
+            public Double Power => Voltage * Current;
+
+            public string ToJson()
+            {
+                return new Dictionary<string, string>
+            {
+                { "Voltage", "{0:0.0} V".Fmt(Voltage) },
+                { "Current", "{0:0.000} A".Fmt(Current) },
+                { "Power", "{0:0} W".Fmt(Power) },
+            }.ToJson();
+            }
+        }
+
+        public class DcStatus2
+        {
+            [Format("{0:0.0} V")]
+            public Double Voltage { get; set; }
+            [Format("{0:0.000} A")]
+            public Double Current { get; set; }
+            [Format("{0:0} W")]
+            public Double Power => Voltage * Current;
+        }
+
+        [Test]
+        public void Can_deserialize_using_CustomFormat()
+        {
+            var test = new DcStatus { Voltage = 10, Current = 1.2 };
+            Assert.That(test.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
+
+            JsConfig<DcStatus2>.RawSerializeFn = o => new Dictionary<string, string> {
+                { "Voltage", "{0:0.0} V".Fmt(o.Voltage) },
+                { "Current", "{0:0.000} A".Fmt(o.Current) },
+                { "Power", "{0:0} W".Fmt(o.Power) },
+            }.ToJson();
+
+            var test2 = new DcStatus2 { Voltage = 10, Current = 1.2 };
+            Assert.That(test2.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
+
+            JsConfig.Reset();
+        }
     }
 
 }
