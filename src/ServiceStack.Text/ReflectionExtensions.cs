@@ -15,6 +15,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -1793,6 +1794,42 @@ namespace ServiceStack
             return type.ElementType() ?? type.GetTypeGenericArguments().FirstOrDefault();
         }
 
+        static Dictionary<string, Type> GenericTypeCache = new Dictionary<string, Type>();
+
+        public static Type GetCachedGenericType(this Type type, Type[] argTypes)
+        {
+            if (!type.IsGenericTypeDefinition)
+                throw new ArgumentException(type.FullName + " is not a Generic Type Definition");
+
+            var sb = StringBuilderThreadStatic.Allocate()
+                .Append(type.FullName);
+            foreach (var argType in argTypes)
+            {
+                sb.Append('|')
+                  .Append(argType.FullName);
+            }
+
+            var key = StringBuilderThreadStatic.ReturnAndFree(sb);
+
+            Type genericType;
+            if (GenericTypeCache.TryGetValue(key, out genericType))
+                return genericType;
+
+            genericType = type.MakeGenericType(argTypes);
+
+            Dictionary<string, Type> snapshot, newCache;
+            do
+            {
+                snapshot = GenericTypeCache;
+                newCache = new Dictionary<string, Type>(GenericTypeCache);
+                newCache[key] = genericType;
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref GenericTypeCache, newCache, snapshot), snapshot));
+
+            return genericType;
+        }
+
         private static readonly ConcurrentDictionary<Type, ObjectDictionaryDefinition> toObjectMapCache =
             new ConcurrentDictionary<Type, ObjectDictionaryDefinition>();
 
@@ -1901,6 +1938,11 @@ namespace ServiceStack
                 fieldDef.SetValue(to, entry.Value);
             }
             return to;
+        }
+
+        public static object FromObjectDictionary<T>(this Dictionary<string, object> values)
+        {
+            return values.FromObjectDictionary(typeof(T));
         }
 
         private static ObjectDictionaryDefinition CreateObjectDictionaryDefinition(Type type)
