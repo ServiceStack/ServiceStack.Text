@@ -13,7 +13,7 @@ namespace ServiceStack.Text
         public static readonly bool[] EmptyBoolArray = new bool[0];
         public static readonly byte[] EmptyByteArray = new byte[0];
         public static readonly object[] EmptyObjectArray = new object[0];
-        public static readonly Type[] EmptyTypeArray = new Type[0];
+        public static readonly Type[] EmptyTypeArray = Type.EmptyTypes;
         public static readonly FieldInfo[] EmptyFieldInfoArray = new FieldInfo[0];
         public static readonly PropertyInfo[] EmptyPropertyInfoArray = new PropertyInfo[0];
 

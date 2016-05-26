@@ -1796,13 +1796,17 @@ namespace ServiceStack
 
         static Dictionary<string, Type> GenericTypeCache = new Dictionary<string, Type>();
 
-        public static Type GetCachedGenericType(this Type type, Type[] argTypes)
+        public static Type GetCachedGenericType(this Type type, params Type[] argTypes)
         {
-            if (!type.IsGenericTypeDefinition)
+            if (!type.IsGenericTypeDefinition())
                 throw new ArgumentException(type.FullName + " is not a Generic Type Definition");
+
+            if (argTypes == null)
+                argTypes = Type.EmptyTypes;
 
             var sb = StringBuilderThreadStatic.Allocate()
                 .Append(type.FullName);
+
             foreach (var argType in argTypes)
             {
                 sb.Append('|')
