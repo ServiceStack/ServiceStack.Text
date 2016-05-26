@@ -1802,7 +1802,7 @@ namespace ServiceStack
                 throw new ArgumentException(type.FullName + " is not a Generic Type Definition");
 
             if (argTypes == null)
-                argTypes = Type.EmptyTypes;
+                argTypes = TypeConstants.EmptyTypeArray;
 
             var sb = StringBuilderThreadStatic.Allocate()
                 .Append(type.FullName);
