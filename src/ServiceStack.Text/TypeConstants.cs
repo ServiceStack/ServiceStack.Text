@@ -1,11 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace ServiceStack.Text
 {
     public static class TypeConstants
     {
+        static TypeConstants()
+        {
+            ZeroTask = InTask(0);
+            TrueTask = InTask(true);
+            FalseTask = InTask(false);
+            EmptyTask = InTask((object)null);
+        }
+
+        private static Task<T> InTask<T>(this T result)
+        {
+            var tcs = new TaskCompletionSource<T>();
+            tcs.SetResult(result);
+            return tcs.Task;
+        }
+
+        public static readonly Task<int> ZeroTask;
+        public static readonly Task<bool> TrueTask;
+        public static readonly Task<bool> FalseTask;
+        public static readonly Task<object> EmptyTask;
+
+        public static readonly object EmptyObject = new object();
+
         public static readonly string[] EmptyStringArray = new string[0];
         public static readonly long[] EmptyLongArray = new long[0];
         public static readonly int[] EmptyIntArray = new int[0];

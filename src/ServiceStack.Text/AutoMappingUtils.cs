@@ -42,6 +42,12 @@ namespace ServiceStack
             return to.PopulateWith(from);
         }
 
+        public static To ThenDo<To>(this To to, Action<To> fn)
+        {
+            fn(to);
+            return to;
+        }
+
         public static object ConvertTo(this object from, Type type)
         {
             if (from == null)
