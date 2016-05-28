@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
     public static class TypeConstants
     {
