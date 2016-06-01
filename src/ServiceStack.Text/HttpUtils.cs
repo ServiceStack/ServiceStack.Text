@@ -1174,6 +1174,9 @@ namespace ServiceStack
                 case "webm":
                     return "video/" + fileExt;
 
+                case "ogv":
+                    return "video/ogg";
+
                 case "rtf":
                     return "application/" + fileExt;
 
