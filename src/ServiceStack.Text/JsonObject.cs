@@ -23,6 +23,15 @@ namespace ServiceStack.Text
             return map.TryGetValue(key, out strVal) ? JsonSerializer.DeserializeFromString<T>(strVal) : default(T);
         }
 
+        public static T[] GetArray<T>(this Dictionary<string, string> map, string key)
+        {
+            var obj = map as JsonObject;
+            string value;
+            return map.TryGetValue(key, out value) 
+                ? (obj != null ? value.FromJson<T[]>() : value.FromJsv<T[]>()) 
+                : TypeConstants<T>.EmptyArray;
+        }
+
         /// <summary>
         /// Get JSON string value
         /// </summary>

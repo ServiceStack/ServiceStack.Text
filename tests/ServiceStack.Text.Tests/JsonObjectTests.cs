@@ -44,7 +44,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(jsonObject.Get("a"), Is.EqualTo(test));
             Assert.That(jsonObject.Get<string>("a"), Is.EqualTo(test));
 
-            Assert.That(jsonObject.GetUnescaped("a"), Is.EqualTo(test.Replace("\"","\\\"")));
+            Assert.That(jsonObject.GetUnescaped("a"), Is.EqualTo(test.Replace("\"", "\\\"")));
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace ServiceStack.Text.Tests
             public bool Prop3 { get; set; }
             public double Prop4 { get; set; }
             public string[] Prop5 { get; set; }
-            public Dictionary<string,string> Prop6 { get; set; }
+            public Dictionary<string, string> Prop6 { get; set; }
         }
 
         [Test]
@@ -195,8 +195,8 @@ namespace ServiceStack.Text.Tests
             Assert.That(typeObj.Prop2, Is.EqualTo(33));
             Assert.That(typeObj.Prop3, Is.EqualTo(true));
             Assert.That(typeObj.Prop4, Is.EqualTo(6.3d));
-            Assert.That(typeObj.Prop5, Is.EquivalentTo(new[] {"A","B","C"}));
-            Assert.That(typeObj.Prop6, Is.EquivalentTo(new Dictionary<string,string> { { "A", "a" } }));
+            Assert.That(typeObj.Prop5, Is.EquivalentTo(new[] { "A", "B", "C" }));
+            Assert.That(typeObj.Prop6, Is.EquivalentTo(new Dictionary<string, string> { { "A", "a" } }));
 
             var obj = JsonObject.Parse(json);
 
@@ -216,6 +216,74 @@ namespace ServiceStack.Text.Tests
             Assert.That(o.Prop4, Is.EqualTo(6.3d));
             Assert.That(o.Prop5, Is.EquivalentTo(new[] { "A", "B", "C" }));
             Assert.That(o.Prop6, Is.EquivalentTo(new Dictionary<string, string> { { "A", "a" } }));
+        }
+
+        [Test]
+        public void Can_deserialize_array_string_in_Map()
+        {
+            var json = "{\"name\":\"foo\",\"roles\":[\"Role1\",\"Role 2\"]}";
+            var obj = JsonObject.Parse(json);
+            Assert.That(obj.GetArray<string>("roles"), Is.EqualTo(new[] { "Role1", "Role 2" }));
+
+            var map = json.FromJson<Dictionary<string, string>>();
+            Assert.That(map.GetArray<string>("roles"), Is.EqualTo(new[] { "Role1", "Role 2" }));
+        }
+
+        [Test]
+        public void Can_deserialize_array_numbers_in_Map()
+        {
+            var json = "{\"name\":\"foo\",\"roles\":[1,2]}";
+            var obj = JsonObject.Parse(json);
+            Assert.That(obj.GetArray<int>("roles"), Is.EqualTo(new[] { 1, 2 }));
+
+            var map = json.FromJson<Dictionary<string, string>>();
+            Assert.That(map.GetArray<int>("roles"), Is.EqualTo(new[] { 1, 2 }));
+        }
+
+        public class TestJArray
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            protected bool Equals(TestJArray other)
+            {
+                return Id == other.Id && string.Equals(Name, other.Name);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != this.GetType()) return false;
+                return Equals((TestJArray) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (Id*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                }
+            }
+        }
+
+        [Test]
+        public void Can_deserialize_array_objects_in_Map()
+        {
+            var json = "{\"name\":\"foo\",\"roles\":[{\"Id\":1,\"Name\":\"Role1\"},{\"Id\":2,\"Name\":\"Role 2\"}]}";
+            var obj = JsonObject.Parse(json);
+            Assert.That(obj.GetArray<TestJArray>("roles"), Is.EqualTo(new[]
+            {
+                new TestJArray { Id = 1, Name = "Role1" },
+                new TestJArray { Id = 2, Name = "Role 2" },
+            }));
+
+            var map = json.FromJson<Dictionary<string, string>>();
+            Assert.That(map.GetArray<TestJArray>("roles"), Is.EqualTo(new[]
+            {
+                new TestJArray { Id = 1, Name = "Role1" },
+                new TestJArray { Id = 2, Name = "Role 2" },
+            }));
         }
     }
 }
