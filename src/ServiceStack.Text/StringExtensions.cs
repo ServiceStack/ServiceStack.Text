@@ -325,7 +325,7 @@ namespace ServiceStack
         public static string ToBase64UrlSafe(this byte[] input)
         {
             var output = Convert.ToBase64String(input);
-            output = output.Split('=')[0]; // Remove any trailing '='s
+            output = output.LeftPart('='); // Remove any trailing '='s
             output = output.Replace('+', '-'); // 62nd char of encoding
             output = output.Replace('/', '_'); // 63rd char of encoding
             return output;
