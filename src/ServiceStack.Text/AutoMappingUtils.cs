@@ -42,6 +42,23 @@ namespace ServiceStack
             return to.PopulateWith(from);
         }
 
+        public static T CreateCopy<T>(this T from)
+        {
+            if (typeof(T).IsValueType())
+                return (T)ChangeValueType(from, typeof(T));
+
+            if (typeof(IEnumerable).IsAssignableFromType(typeof(T)))
+            {
+                var listResult = TranslateListWithElements.TryTranslateCollections(
+                    from.GetType(), typeof(T), from);
+
+                return (T)listResult;
+            }
+
+            var to = typeof(T).CreateInstance<T>();
+            return to.PopulateWith(from);
+        }
+
         public static To ThenDo<To>(this To to, Action<To> fn)
         {
             fn(to);
