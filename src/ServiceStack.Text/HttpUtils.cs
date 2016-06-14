@@ -29,7 +29,11 @@ namespace ServiceStack
         public static string AddQueryParam(this string url, string key, string val, bool encode = true)
         {
             if (string.IsNullOrEmpty(url)) return null;
-            var prefix = url.IndexOf('?') == -1 ? "?" : "&";
+            var prefix = string.Empty;
+            if (!url.EndsWith("?") && !url.EndsWith("&"))
+            {
+                prefix = url.IndexOf('?') == -1 ? "?" : "&";
+            }
             return url + prefix + key + "=" + (encode ? val.UrlEncode() : val);
         }
 
