@@ -191,6 +191,7 @@
     <Compile Include="AttributeTests.cs" />
     <Compile Include="CsvTypeTests.cs" />
     <Compile Include="HttpUtilsTests.cs" />
+    <Compile Include="Issues\JsConfigIssues.cs" />
     <Compile Include="JsonTests\InheritAbstractTests.cs" />
     <Compile Include="JsonTests\JsonEnumTests.cs" />
     <Compile Include="JsonTests\InvalidJsonTests.cs" />

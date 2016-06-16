@@ -1093,7 +1093,7 @@ namespace ServiceStack.Text
         public static Func<T, T> OnSerializingFn
         {
             get { return onSerializingFn; }
-            set { onSerializingFn = value; Refresh(); }
+            set { onSerializingFn = value; RefreshWrite(); }
         }
 
         /// <summary>
@@ -1103,7 +1103,7 @@ namespace ServiceStack.Text
         public static Action<T> OnSerializedFn
         {
             get { return onSerializedFn; }
-            set { onSerializedFn = value; Refresh(); }
+            set { onSerializedFn = value; RefreshWrite(); }
         }
 
         /// <summary>
@@ -1113,7 +1113,7 @@ namespace ServiceStack.Text
         public static Func<string, T> DeSerializeFn
         {
             get { return deSerializeFn; }
-            set { deSerializeFn = value; Refresh(); }
+            set { deSerializeFn = value; RefreshRead(); }
         }
 
         /// <summary>
@@ -1123,7 +1123,7 @@ namespace ServiceStack.Text
         public static Func<string, T> RawDeserializeFn
         {
             get { return rawDeserializeFn; }
-            set { rawDeserializeFn = value; Refresh(); }
+            set { rawDeserializeFn = value; RefreshRead(); }
         }
 
         public static bool HasDeserializeFn
@@ -1135,7 +1135,7 @@ namespace ServiceStack.Text
         public static Func<T, T> OnDeserializedFn
         {
             get { return onDeserializedFn; }
-            set { onDeserializedFn = value; Refresh(); }
+            set { onDeserializedFn = value; RefreshRead(); }
         }
 
         public static bool HasDeserialingFn
@@ -1147,7 +1147,7 @@ namespace ServiceStack.Text
         public static Func<T, string, object, object> OnDeserializingFn
         {
             get { return onDeserializingFn; }
-            set { onDeserializingFn = value; Refresh(); }
+            set { onDeserializingFn = value; RefreshRead(); }
         }
 
         /// <summary>
@@ -1241,11 +1241,15 @@ namespace ServiceStack.Text
             EmitCamelCaseNames = EmitLowercaseUnderscoreNames = IncludeTypeInfo = ExcludeTypeInfo = null;
         }
 
-        public static void Refresh()
+        public static void RefreshRead()
         {
             JsonReader<T>.Refresh();
-            JsonWriter<T>.Refresh();
             JsvReader<T>.Refresh();
+        }
+
+        public static void RefreshWrite()
+        {
+            JsonWriter<T>.Refresh();
             JsvWriter<T>.Refresh();
         }
     }
