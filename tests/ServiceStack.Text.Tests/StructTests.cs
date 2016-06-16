@@ -69,12 +69,6 @@ namespace ServiceStack.Text.Tests
 #endif
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            JsConfig.Reset();
-        }
-
         [Test]
         public void Test_structs()
         {
