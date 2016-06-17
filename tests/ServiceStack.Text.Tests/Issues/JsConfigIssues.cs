@@ -38,8 +38,10 @@ namespace ServiceStack.Text.Tests.Issues
             TestRoundTripValue(dto);
 
             JsConfig.Reset();
-
+            
             ConfigureCustomFormatType();
+            JsConfig<Dto>.RefreshRead();
+
             TestRoundTripValue(dto);
         }
 
@@ -56,7 +58,7 @@ namespace ServiceStack.Text.Tests.Issues
         {
             var json = dto.ToJson();
             var fromJson = json.FromJson<Dto>();
-            Assert.AreEqual(dto.CustomFormatTypeProperty.Value, dto.CustomFormatTypeProperty.Value);
+            Assert.That(fromJson.CustomFormatTypeProperty.Value, Is.EqualTo(dto.CustomFormatTypeProperty.Value));
         }
     }
 }
