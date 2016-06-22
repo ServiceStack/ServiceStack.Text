@@ -625,14 +625,14 @@ namespace ServiceStack.Text.Tests.Utils
         }
     }
 
+    public class TestObject
+    {
+        public DateTime Date { get; set; }
+    }
+
     [TestFixture]
     public class UnixEpochMsTests
     {
-        public class TestObject
-        {
-            public DateTime Date { get; set; }
-        }
-
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
@@ -732,6 +732,27 @@ namespace ServiceStack.Text.Tests.Utils
         {
             Assert.That("31536000".FromJson<TimeSpan>(), Is.EqualTo(TimeSpan.FromDays(365)));
             Assert.That("31539661.001".FromJson<TimeSpan>(), Is.EqualTo(Time1Y1M1H1S1MS));
+        }
+    }
+
+    [TestFixture]
+    public class UnixTimeScopeTests
+    {
+        [Test]
+        public void Does_serialize_to_UnixTime_when_scoped()
+        {
+            var dto = new TestObject { Date = new DateTime(2001,01,01, 0, 0, 0, DateTimeKind.Utc) };
+            
+            using (var config = JsConfig.BeginScope())
+            {
+                config.DateHandler = DateHandler.UnixTime;
+
+                var json = dto.ToJson();
+                Assert.That(json, Is.EquivalentTo("{\"Date\":978307200}"));
+
+                var fromJson = JsonSerializer.DeserializeFromString<TestObject>(json);
+                Assert.That(fromJson.Date, Is.EqualTo(dto.Date));
+            }
         }
     }
 }
