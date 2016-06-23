@@ -24,20 +24,13 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data"
-				+ Environment.NewLine
-				+ ",Like,To,Read,Novels"
-				+ Environment.NewLine
-				+ "I am,,Cool,And,Awesome"
-				+ Environment.NewLine
-				+ "I, Like ,,,"
-				+ Environment.NewLine
-				+ "I,Don't,\"Know,\",,You?"
-				+ Environment.NewLine
-				+ "I,Saw,The,Movie,"
-				+ Environment.NewLine
-				+ "I,Went,To,\"Space\nCamp\",\"Last\r\nYear\""
-				+ Environment.NewLine
+				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data\r\n"
+				+ ",Like,To,Read,Novels\r\n"
+				+ "I am,,Cool,And,Awesome\r\n"
+				+ "I, Like ,,,\r\n"
+				+ "I,Don't,\"Know,\",,You?\r\n"
+				+ "I,Saw,The,Movie,\r\n"
+				+ "I,Went,To,\"Space\nCamp\",\"Last\r\nYear\"\r\n"
 			));
 		}
 
@@ -57,20 +50,13 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data"
-				+ Environment.NewLine
-				+ "I,Like,To,Read,Novels"
-				+ Environment.NewLine
-				+ "I am,Very,Cool,And,Awesome"
-				+ Environment.NewLine
-				+ "I, Like ,Reading,,"
-				+ Environment.NewLine
-				+ "I,Don't,\"Know,\",Do,You?"
-				+ Environment.NewLine
-				+ "I,Saw,The,Movie,\"\"\"Jaws\"\"\""
-				+ Environment.NewLine
-				+ "I,Went,To,\"Space\nCamp\",\"Last\r\nYear\""
-				+ Environment.NewLine
+				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data\r\n"
+				+ "I,Like,To,Read,Novels\r\n"
+				+ "I am,Very,Cool,And,Awesome\r\n"
+				+ "I, Like ,Reading,,\r\n"
+				+ "I,Don't,\"Know,\",Do,You?\r\n"
+				+ "I,Saw,The,Movie,\"\"\"Jaws\"\"\"\r\n"
+				+ "I,Went,To,\"Space\nCamp\",\"Last\r\nYear\"\r\n"
 			));
 		}
 
@@ -133,20 +119,13 @@ namespace ServiceStack.Text.Tests.CsvTests
             Console.WriteLine(csv);
 
             Assert.That(csv, Is.EqualTo(
-                "Column1Data,Column2Data,Column3Data,Column4Data,Column5Data"
-                + Environment.NewLine
-                + "I,Like,To,Read,123"
-                + Environment.NewLine
-                + "I am,Very,Cool,And,4"
-                + Environment.NewLine
-                + "I, Like ,2,,"
-                + Environment.NewLine
-                + "I,Don't,\"Know,\",Do,You?"
-                + Environment.NewLine
-                + "I,Saw,The,Movie,\"\"\"Jaws\"\"\""
-                + Environment.NewLine
-                + "I,Went,To,\"Space\nCamp\",\"Last\r\nYear\""
-                + Environment.NewLine
+				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data\r\n"
+				+ "I,Like,To,Read,123\r\n"
+				+ "I am,Very,Cool,And,4\r\n"
+				+ "I, Like ,2,,\r\n"
+				+ "I,Don't,\"Know,\",Do,You?\r\n"
+				+ "I,Saw,The,Movie,\"\"\"Jaws\"\"\"\r\n"
+				+ "I,Went,To,\"Space\nCamp\",\"Last\r\nYear\"\r\n"
                                  ));
         }
 
@@ -173,20 +152,13 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data"
-				+ Environment.NewLine
-				+ "I,Like,To,Read,Novels"
-				+ Environment.NewLine
-				+ "I am,Very,Cool,And,Awesome"
-				+ Environment.NewLine
-				+ "I, Like ,Reading,,"
-				+ Environment.NewLine
-				+ "I,Don't,^~^Know,^~^,Do,You?"
-				+ Environment.NewLine
-				+ "I,Saw,The,Movie,\"Jaws\""
-				+ Environment.NewLine
-				+ "I,Went,To,^~^Space\nCamp^~^,^~^Last\r\nYear^~^"
-				+ Environment.NewLine
+				"Column1Data,Column2Data,Column3Data,Column4Data,Column5Data\r\n"
+				+ "I,Like,To,Read,Novels\r\n"
+				+ "I am,Very,Cool,And,Awesome\r\n"
+				+ "I, Like ,Reading,,\r\n"
+				+ "I,Don't,^~^Know,^~^,Do,You?\r\n"
+				+ "I,Saw,The,Movie,\"Jaws\"\r\n"
+				+ "I,Went,To,^~^Space\nCamp^~^,^~^Last\r\nYear^~^\r\n"
 			));
 		}
 
@@ -207,20 +179,13 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"Column1Data|Column2Data|Column3Data|Column4Data|Column5Data"
-				+ Environment.NewLine
-				+ "I|Like|To|Read|Novels"
-				+ Environment.NewLine
-				+ "I am|Very|Cool|And|Awesome"
-				+ Environment.NewLine
-				+ "I| Like |Reading||"
-				+ Environment.NewLine
-				+ "I|Don't|Know,|Do|You?"
-				+ Environment.NewLine
-				+ "I|Saw|The|Movie|\"\"\"Jaws\"\"\""
-				+ Environment.NewLine
-				+ "I|Went|To|\"Space\nCamp\"|\"Last\r\nYear\""
-				+ Environment.NewLine
+				"Column1Data|Column2Data|Column3Data|Column4Data|Column5Data\r\n"
+				+ "I|Like|To|Read|Novels\r\n"
+				+ "I am|Very|Cool|And|Awesome\r\n"
+				+ "I| Like |Reading||\r\n"
+				+ "I|Don't|Know,|Do|You?\r\n"
+				+ "I|Saw|The|Movie|\"\"\"Jaws\"\"\"\r\n"
+				+ "I|Went|To|\"Space\nCamp\"|\"Last\r\nYear\"\r\n"
 			));
 		}
 	}

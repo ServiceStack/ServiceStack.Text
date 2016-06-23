@@ -107,7 +107,7 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsRowSeparatorString ?? sRowSeparatorString ?? Environment.NewLine;
+                return tsRowSeparatorString ?? sRowSeparatorString ?? "\r\n";
             }
             set
             {
