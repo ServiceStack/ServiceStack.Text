@@ -34,12 +34,9 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"Column 1,Column 2,\"Column,3\",\"Column\n4\",Column 5"
-				+ Environment.NewLine
-				+ "I,Like,To,Read,Novels"
-				+ Environment.NewLine
-				+ "I am,Very,Cool,And,Awesome"
-				+ Environment.NewLine
+				"Column 1,Column 2,\"Column,3\",\"Column\n4\",Column 5\r\n"
+				+ "I,Like,To,Read,Novels\r\n"
+				+ "I am,Very,Cool,And,Awesome\r\n"
 			));
 		}
 
@@ -63,12 +60,9 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"Column 1,Column 2,\"Column,3\",\"Column\n4\",Column 5"
-				+ Environment.NewLine
-				+ "I,Like,To,Read,Novels"
-				+ Environment.NewLine
-				+ "I am,Very,Cool,And,Awesome"
-				+ Environment.NewLine
+				"Column 1,Column 2,\"Column,3\",\"Column\n4\",Column 5\r\n"
+				+ "I,Like,To,Read,Novels\r\n"
+				+ "I am,Very,Cool,And,Awesome\r\n"
 			));
 		}
 
@@ -90,12 +84,9 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"Column 1,\"Column,3\",Column 5"
-				+ Environment.NewLine
-				+ "I,To,Novels"
-				+ Environment.NewLine
-				+ "I am,Cool,Awesome"
-				+ Environment.NewLine
+				"Column 1,\"Column,3\",Column 5\r\n"
+				+ "I,To,Novels\r\n"
+				+ "I am,Cool,Awesome\r\n"
 			));
 		}
 
@@ -121,10 +112,8 @@ namespace ServiceStack.Text.Tests.CsvTests
 			Console.WriteLine(csv);
 
 			Assert.That(csv, Is.EqualTo(
-				"I,Like,To,Read,Novels"
-				+ Environment.NewLine
-				+ "I am,Very,Cool,And,Awesome"
-				+ Environment.NewLine
+				"I,Like,To,Read,Novels\r\n"
+				+ "I am,Very,Cool,And,Awesome\r\n"
 			));
 		}
 

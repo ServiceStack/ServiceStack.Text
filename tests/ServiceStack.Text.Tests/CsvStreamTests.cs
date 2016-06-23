@@ -66,12 +66,9 @@ namespace ServiceStack.Text.Tests
 			var csv = CsvSerializer.SerializeToCsv(categories);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo(
-				"Id,CategoryName,Description,Picture"
-				+ Environment.NewLine 
-				+ "1,\"between \"\"quotes\"\" here\",\"with, comma\","
-				+ Environment.NewLine
-				+ "1,\"between \"\"quotes\"\" here\",\"with, comma\","
-				+ Environment.NewLine
+				"Id,CategoryName,Description,Picture\r\n"
+				+ "1,\"between \"\"quotes\"\" here\",\"with, comma\",\r\n"
+				+ "1,\"between \"\"quotes\"\" here\",\"with, comma\",\r\n"
 			));
 		}
 
@@ -85,12 +82,9 @@ namespace ServiceStack.Text.Tests
 			var csv = CsvSerializer.SerializeToCsv(categories);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo(
-				"Id|CategoryName|Description|Picture"
-				+ Environment.NewLine 
-				+ "1|\"between \"\"quotes\"\" here\"|with, comma|"
-				+ Environment.NewLine
-				+ "1|\"between \"\"quotes\"\" here\"|with, comma|"
-				+ Environment.NewLine
+				"Id|CategoryName|Description|Picture\r\n"
+				+ "1|\"between \"\"quotes\"\" here\"|with, comma|\r\n"
+				+ "1|\"between \"\"quotes\"\" here\"|with, comma|\r\n"
 			));
 		}
 
@@ -104,12 +98,9 @@ namespace ServiceStack.Text.Tests
 			var csv = CsvSerializer.SerializeToCsv(categories);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo(
-				"Id,CategoryName,Description,Picture"
-				+ Environment.NewLine 
-				+ "1,between \"quotes\" here,|with, comma|,"
-				+ Environment.NewLine
-				+ "1,between \"quotes\" here,|with, comma|,"
-				+ Environment.NewLine
+				"Id,CategoryName,Description,Picture\r\n"
+				+ "1,between \"quotes\" here,|with, comma|,\r\n"
+				+ "1,between \"quotes\" here,|with, comma|,\r\n"
 			));
 		}
 
@@ -123,12 +114,9 @@ namespace ServiceStack.Text.Tests
 			var csv = CsvSerializer.SerializeToCsv(categories);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo(
-				"Id,CategoryName,Description,Picture"
-				+ Environment.NewLine 
-				+ "1,between \"quotes\" here,~^~with, comma~^~,"
-				+ Environment.NewLine
-				+ "1,between \"quotes\" here,~^~with, comma~^~,"
-				+ Environment.NewLine
+				"Id,CategoryName,Description,Picture\r\n"
+				+ "1,between \"quotes\" here,~^~with, comma~^~,\r\n"
+				+ "1,between \"quotes\" here,~^~with, comma~^~,\r\n"
 			));
 		}
 
@@ -139,8 +127,7 @@ namespace ServiceStack.Text.Tests
 			var csv = CsvSerializer.SerializeToCsv(fields);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo(
-				"1,2,\"3\"\"\",4,\"5\"\"five,six\"\"\",\"7,7.1\",\"\"\"7,7.1\"\"\",8"
-				+ Environment.NewLine
+				"1,2,\"3\"\"\",4,\"5\"\"five,six\"\"\",\"7,7.1\",\"\"\"7,7.1\"\"\",8\r\n"
 			));
 		}
 
@@ -152,8 +139,7 @@ namespace ServiceStack.Text.Tests
 			var csv = CsvSerializer.SerializeToCsv(fields);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo(
-				"1,2,3\",4,|5\"five,six\"|,|7,7.1|,|\"7,7.1\"|,8"
-				+ Environment.NewLine
+				"1,2,3\",4,|5\"five,six\"|,|7,7.1|,|\"7,7.1\"|,8\r\n"
 			));
 		}
 
@@ -165,8 +151,7 @@ namespace ServiceStack.Text.Tests
 			var csv = CsvSerializer.SerializeToCsv(fields);
 			Log(csv);
 			Assert.That(csv, Is.EqualTo(
-				"1|2|\"3\"\"\"|4|\"5\"\"five,six\"\"\"|7,7.1|\"\"\"7,7.1\"\"\"|8"
-				+ Environment.NewLine
+				"1|2|\"3\"\"\"|4|\"5\"\"five,six\"\"\"|7,7.1|\"\"\"7,7.1\"\"\"|8\r\n"
 			));
 		}
 
