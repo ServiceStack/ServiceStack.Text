@@ -152,7 +152,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(((Dictionary<string, object>)deserialized)["foo"], Is.EqualTo("bar"));
         }
 
-        [Test, SetCulture("nl-NL")]
+        [Test, Culture("nl-NL")]
         public void Can_deserialize_object_dictionary_when_current_culture_has_decimal_comma()
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;

@@ -27,6 +27,15 @@ namespace ServiceStack.Text.Tests
 			Console.WriteLine("MAP: " + map.Dump());
 		}
 
+		[Test]
+		public void Can_reset_JsConfig_after_serialization()
+		{
+		    var t = new { Name="123"};
+
+	            var json = ServiceStack.Text.JsonSerializer.SerializeToString(t);
+        	    JsConfig.Reset();
+		}
+
         public class TestObj
         {
             public string Title1 { get; set; }

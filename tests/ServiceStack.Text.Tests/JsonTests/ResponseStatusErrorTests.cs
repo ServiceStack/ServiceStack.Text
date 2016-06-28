@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿#if !NETCORE
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using NUnit.Framework;
@@ -23,3 +24,4 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
     }
 }
+#endif

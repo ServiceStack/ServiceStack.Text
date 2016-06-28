@@ -771,7 +771,7 @@ namespace ServiceStack
         {
             var webEx = ex as WebException;
             if (webEx == null || webEx.Response == null
-#if !(SL5 || PCL)
+#if !(SL5 || PCL || NETSTANDARD)
                 || webEx.Status != WebExceptionStatus.ProtocolError
 #endif
             ) return null;

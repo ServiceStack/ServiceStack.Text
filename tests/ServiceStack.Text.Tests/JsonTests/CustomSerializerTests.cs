@@ -186,7 +186,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             using (JsConfig.With(modelFactory: type =>
             {
-                if (typeof(IHasVersion).IsAssignableFrom(type))
+                if (typeof(IHasVersion).AssignableFrom(type))
                 {
                     return () =>
                     {
@@ -277,7 +277,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var dto = new ModelInt { Int = 0 };
 
             using (JsConfig.With(includeNullValues: true))
-            {
+           {
                 Assert.That(dto.ToJson(), Is.EqualTo("{\"Int\":-1}"));
             }
 
@@ -293,7 +293,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_customize_JSON_decimal()
         {
             JsConfig<decimal>.RawSerializeFn = d =>
-                d.ToString(CultureInfo.CreateSpecificCulture("nl-NL"));
+                d.ToString(new CultureInfo("nl-NL"));
 
             var dto = new ModelDecimal { Decimal = 1.33m };
 
