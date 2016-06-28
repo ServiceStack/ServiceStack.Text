@@ -45,7 +45,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var obj = JsonObject.Parse(json);
             obj.Get<Guid>("Id").ToString().Print();
             obj.Get<string>("Name").Print();
-            obj.Get<DateTime>("DateOfBirth").ToLongDateString().Print();
+            obj.Get<DateTime>("DateOfBirth").ToString("D").Print();
 
             dynamic dyn = DynamicJson.Deserialize(json);
             string id = dyn.Id;

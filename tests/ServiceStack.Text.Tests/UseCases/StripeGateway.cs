@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Service Stack LLC. All Rights Reserved.
 // License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
+#if !NETCORE
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -1197,3 +1198,4 @@ namespace ServiceStack.Stripe.Types
         public const string SouthAfricanRand = "ZAR";
     }
 }
+#endif

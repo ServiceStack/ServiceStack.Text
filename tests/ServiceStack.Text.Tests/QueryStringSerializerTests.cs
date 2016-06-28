@@ -4,8 +4,10 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Web;
 using NUnit.Framework;
+#if !NETCORE_SUPPORT
 using ServiceStack.Host;
 using ServiceStack.Testing;
+#endif
 
 namespace ServiceStack.Text.Tests
 {
@@ -126,6 +128,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(QueryStringSerializer.SerializeToString(new B { Property = "\"quoted content, and with a comma\"" }), Is.EqualTo("Property=%22quoted+content,+and+with+a+comma%22"));
         }
 
+#if !NETCORE_SUPPORT
         private T StringToPoco<T>(string str)
         {
             using (new BasicAppHost().Init())
@@ -149,6 +152,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(StringToPoco<B>("Property=%22%22quoted%20content%22%22").Property, Is.EqualTo("\"\"quoted content\"\""));
             Assert.That(StringToPoco<B>("Property=%22%22quoted%20content,%20and%20with%20a%20comma%22%22").Property, Is.EqualTo("\"\"quoted content, and with a comma\"\""));
         }
+#endif
 
         [Test]
         public void Can_serialize_with_comma_in_property_in_list()
@@ -160,6 +164,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(QueryStringSerializer.SerializeToString(testPocos), Is.EqualTo("ListOfA={ListOfB:[{Property:%22Doe,+John%22,Property2:Doe,Property3:John}]}"));
         }
 
+#if !NETCORE_SUPPORT
         [Test]
         public void Can_deserialize_with_comma_in_property_in_list_from_QueryStringSerializer()
         {
@@ -183,6 +188,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(poco.ListOfA[0].ListOfB[0].Property2, Is.EqualTo("Doe"));
             Assert.That(poco.ListOfA[0].ListOfB[0].Property3, Is.EqualTo("John"));
         }
+#endif
 
         [Test]
         public void Can_serialize_Poco_with_comma_in_string()

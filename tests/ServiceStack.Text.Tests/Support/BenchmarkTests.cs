@@ -7,7 +7,7 @@ using ServiceStack.Text.Tests.JsonTests;
 
 namespace ServiceStack.Text.Tests.Support
 {
-	[Ignore]
+	[Ignore("Long-running benchmark")]
 	[TestFixture]
 	public class BenchmarkTests
 		: PerfTestBase

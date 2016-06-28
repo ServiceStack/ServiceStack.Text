@@ -7,6 +7,7 @@ namespace ServiceStack.Text.Tests
 {
     public class BclStructTests : TestBase
     {
+#if !NETFX_CORE
         static BclStructTests()
         {
             JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
@@ -22,7 +23,7 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(fromColor, Is.EqualTo(color));
         }
-
+#endif
         public enum MyEnum
         {
             Enum1,
@@ -59,6 +60,7 @@ namespace ServiceStack.Text.Tests
             public int Foo { get; set; }
         }
 
+#if !NETFX_CORE
         [Test]
         public void Can_serialize_dto_with_enum_flags()
         {
@@ -76,6 +78,7 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(deserialized.Enum, Is.EqualTo(ExampleEnum.One | ExampleEnum.Four));
         }
+#endif
 
         [DataContract]
         public class Item
@@ -103,10 +106,11 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void GetUnderlyingTypeCode_tests()
         {
-            Assert.That(Type.GetTypeCode(typeof(int)), Is.EqualTo(TypeCode.Int32));
-            Assert.That(Type.GetTypeCode(typeof(int?)), Is.EqualTo(TypeCode.Object));
-            Assert.That(Type.GetTypeCode(typeof(string)), Is.EqualTo(TypeCode.String));
-            Assert.That(Type.GetTypeCode(typeof(TypeCode)), Is.EqualTo(TypeCode.Int32)); //enum
+            //without explicit putting namespace 'System' before TypeCode test fails on .NET Core
+            Assert.That(Type.GetTypeCode(typeof(int)), Is.EqualTo(System.TypeCode.Int32));
+            Assert.That(Type.GetTypeCode(typeof(int?)), Is.EqualTo(System.TypeCode.Object));
+            Assert.That(Type.GetTypeCode(typeof(string)), Is.EqualTo(System.TypeCode.String));
+            Assert.That(Type.GetTypeCode(typeof(TypeCode)), Is.EqualTo(System.TypeCode.Int32)); //enum
 
             Assert.That(typeof(int).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Int32));
             Assert.That(typeof(int?).GetUnderlyingTypeCode(), Is.EqualTo(TypeCode.Int32));

@@ -258,6 +258,7 @@ namespace ServiceStack.Text.Tests
             Assert.IsNull(ret);
         }
 
+#if !NETFX_CORE
         [Explicit("Ensure this test has proven to work, before adding it to the test suite")]
         [Test]
         [TestCase("en")]
@@ -275,6 +276,7 @@ namespace ServiceStack.Text.Tests
             var r2 = s.DeserializeFromString(interim);
             Assert.AreEqual(r, r2);
         }
+#endif
     }
 
     public struct UserStruct

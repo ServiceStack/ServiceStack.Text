@@ -1,3 +1,4 @@
+#if !NETFX_CORE
 using System;
 using System.ComponentModel;
 using System.Security.Policy;
@@ -36,3 +37,4 @@ namespace ServiceStack.Text.Tests
 		}
 	}
 }
+#endif

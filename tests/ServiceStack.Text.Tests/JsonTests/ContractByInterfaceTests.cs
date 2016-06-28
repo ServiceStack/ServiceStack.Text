@@ -48,6 +48,9 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         [Test]
+#if NETFX_CORE
+	[Ignore("Throws StackOverflowException")]
+#endif
         public void Should_be_able_to_deserialise_based_on_an_interface_with_no_concrete()
         {
             using (JsConfig.With(preferInterfaces: true))

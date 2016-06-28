@@ -27,7 +27,7 @@ namespace ServiceStack.Reflection
 
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
         {
-#if NETFX_CORE
+#if NETFX_CORE || NETSTANDARD
             var getMethodInfo = propertyInfo.GetMethod;
             if (getMethodInfo == null) return null;
             return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
@@ -47,7 +47,7 @@ namespace ServiceStack.Reflection
 
         public static Func<T, object> GetValueGetter<T>(this PropertyInfo propertyInfo)
         {
-#if NETFX_CORE
+#if NETFX_CORE || NETSTANDARD
             var getMethodInfo = propertyInfo.GetMethod;
             if (getMethodInfo == null) return null;
             return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
@@ -67,7 +67,7 @@ namespace ServiceStack.Reflection
 
         public static Func<T, object> GetValueGetter<T>(this FieldInfo fieldInfo)
         {
-#if (SL5 && !WP) || __IOS__ || XBOX
+#if (SL5 && !WP) || __IOS__ || XBOX || NETSTANDARD
             return x => fieldInfo.GetValue(x);
 #else
 

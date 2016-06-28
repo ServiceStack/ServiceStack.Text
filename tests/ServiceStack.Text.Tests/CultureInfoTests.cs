@@ -1,3 +1,4 @@
+#if !NETFX_CORE
 using System;
 using System.Globalization;
 using System.Threading;
@@ -102,3 +103,4 @@ namespace ServiceStack.Text.Tests
 
 	}
 }
+#endif

@@ -27,6 +27,7 @@ namespace ServiceStack
             public const string Mac = "MAC";
             public const string Silverlight5 = "Silverlight5";
             public const string WindowsPhone = "WindowsPhone";
+            public const string NetStandard = "NETStandard";
         }
 
         public static PclExport Instance
@@ -36,6 +37,8 @@ namespace ServiceStack
           = new Sl5PclExport()
 #elif NETFX_CORE
           = new WinStorePclExport()
+#elif NETSTANDARD
+          = new NetStandardPclExport()
 #elif WP
           = new WpPclExport()
 #elif XBOX

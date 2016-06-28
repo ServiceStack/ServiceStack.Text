@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+#if !NETFX_CORE
 using System.Web.Script.Serialization;
+#endif
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels;
 
@@ -546,6 +548,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(dto.Ignored, Is.EqualTo(10));
         }
 
+#if !NETFX_CORE
         public class IgnoredModel
         {
             public int Id { get; set; }
@@ -574,6 +577,7 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":0,\"JsonIgnoreId\":1}"));
         }
+#endif
 
         [Test]
         public void Does_convert_to_ValueType()

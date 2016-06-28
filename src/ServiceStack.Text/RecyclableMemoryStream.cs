@@ -934,7 +934,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
                 Events.Write.MemoryStreamFinalized(this.id, this.tag, this.allocationStack);
 
-#if !PCL
+#if !(PCL || NETSTANDARD)
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
@@ -971,7 +971,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <summary>
         /// Equivalent to Dispose
         /// </summary>
-#if !PCL
+#if !(PCL || NETSTANDARD)
         public override void Close()
 #else
         public void Close()
@@ -1100,7 +1100,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <remarks>IMPORTANT: Doing a Write() after calling GetBuffer() invalidates the buffer. The old buffer is held onto
         /// until Dispose is called, but the next time GetBuffer() is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-#if !PCL
+#if !(PCL || NETSTANDARD)
         public override byte[] GetBuffer()
 #else
         public byte[] GetBuffer()

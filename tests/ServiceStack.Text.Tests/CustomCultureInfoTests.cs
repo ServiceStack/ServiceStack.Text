@@ -11,7 +11,11 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_not_use_custom_decimal()
         {
+#if NETFX_CORE
+            CsvConfig.RealNumberCultureInfo = new CultureInfo("nl-NL");
+#else
             CsvConfig.RealNumberCultureInfo = CultureInfo.CreateSpecificCulture("nl-NL");
+#endif
 
             var num = new NumberTypes
             {

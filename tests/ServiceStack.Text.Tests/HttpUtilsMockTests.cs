@@ -85,6 +85,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
+#if !NETFX_CORE
         [Test]
         public void Can_Mock_UploadFile()
         {
@@ -112,6 +113,7 @@ namespace ServiceStack.Text.Tests
                 Assert.That(fileNamesUploaded, Is.EquivalentTo(new[] { "test.txt" }));
             }
         }
+#endif
 
         [Test]
         public void Can_Mock_StringFn_Api_responses()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if !NETFX_CORE
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using NUnit.Framework;
@@ -38,3 +39,4 @@ namespace ServiceStack.Text.Tests.UseCases
         }
     }
 }
+#endif

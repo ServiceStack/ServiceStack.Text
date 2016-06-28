@@ -165,7 +165,7 @@ namespace ServiceStack
         public static void RegisterLicense(string licenseKeyText)
         {
             string cutomerId = null;
-#if !PCL
+#if !(PCL || NETSTANDARD)
             var hold = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 #endif
@@ -204,7 +204,7 @@ namespace ServiceStack
             }
             finally
             {
-#if !PCL
+#if !(PCL || NETSTANDARD)
                 Thread.CurrentThread.CurrentCulture = hold;
 #endif
             }

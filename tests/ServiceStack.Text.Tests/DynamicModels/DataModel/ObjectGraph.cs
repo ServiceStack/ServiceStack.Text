@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Runtime.Serialization;
+#if !NETFX_CORE
 using System.Security.Permissions;
+#endif
 
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
 	[Serializable]
-	public class ObjectGraph : ISerializable
+	public class ObjectGraph 
+#if !NETFX_CORE
+        : ISerializable
+#endif
 	{
 		private readonly CustomCollection internalCollection;
 
@@ -14,11 +19,13 @@ namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 			internalCollection = new CustomCollection();
 		}
 
+#if !NETFX_CORE
 		protected ObjectGraph(SerializationInfo info, StreamingContext context)
 		{
 			internalCollection = (CustomCollection)info.GetValue("col", typeof(CustomCollection));
 			Data = (DataContainer)info.GetValue("data", typeof(DataContainer));
 		}
+#endif
 
 		public CustomCollection MyCollection
 		{
@@ -45,6 +52,7 @@ namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 
 		public DataContainer Data { get; set; }
 
+#if !NETFX_CORE
 		#region ISerializable Members
 
 		[SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]
@@ -55,5 +63,6 @@ namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 		}
 
 		#endregion
+#endif
 	}
 }
