@@ -36,7 +36,7 @@ namespace ServiceStack.Text.Tests
         public void Does_get_Multiple_RouteDefault_Attributes()
         {
             // AllAttributes<T>() makes this call to get attrs
-#if (NETFX_CORE)
+#if NETCORE
             var referenceGeneric = typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
 			.Where(x => typeof(RouteDefaultAttribute).IsInstanceOf(x.GetType())).ToArray()
 			.OfType<RouteDefaultAttribute>();
@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(referenceGeneric.Count(), Is.EqualTo(4));
 
             // AllAttributes() makes this call to get attrs
-#if (NETFX_CORE)
+#if NETCORE
             var reference = typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
 			.Where(x => typeof(RouteDefaultAttribute).IsInstanceOf(x.GetType())).ToArray();
 #else
@@ -255,7 +255,7 @@ namespace ServiceStack.Text.Tests
         public string Path { get; set; }
         public string Verbs { get; set; }
 
-#if !NETFX_CORE
+#if !NETCORE
         public override object TypeId
 #else
         public object TypeId

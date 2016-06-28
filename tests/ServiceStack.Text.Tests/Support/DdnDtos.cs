@@ -469,7 +469,7 @@ namespace ServiceStack.Text.Tests.Support
 
 	[DataContract(Namespace = "http://schemas.ddnglobal.com/types/")]
 	public class GetContentStatsResponse
-#if !NETFX_CORE
+#if !NETCORE
 		: IExtensibleDataObject
 #endif
 	{
@@ -506,7 +506,7 @@ namespace ServiceStack.Text.Tests.Support
 			get;
 			set;
 		}
-#if !NETFX_CORE
+#if !NETCORE
 		public ExtensionDataObject ExtensionData
 		{
 			get;

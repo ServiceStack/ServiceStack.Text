@@ -85,7 +85,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-#if !NETFX_CORE
+#if !NETCORE
         [Test]
         public void Can_Mock_UploadFile()
         {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-#if !NETFX_CORE
+#if !NETCORE
 using System.Security.Permissions;
 #endif
 
@@ -8,7 +8,7 @@ namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
 	[Serializable]
 	public class ObjectGraph 
-#if !NETFX_CORE
+#if !NETCORE
         : ISerializable
 #endif
 	{
@@ -19,7 +19,7 @@ namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 			internalCollection = new CustomCollection();
 		}
 
-#if !NETFX_CORE
+#if !NETCORE
 		protected ObjectGraph(SerializationInfo info, StreamingContext context)
 		{
 			internalCollection = (CustomCollection)info.GetValue("col", typeof(CustomCollection));
@@ -52,7 +52,7 @@ namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 
 		public DataContainer Data { get; set; }
 
-#if !NETFX_CORE
+#if !NETCORE
 		#region ISerializable Members
 
 		[SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]

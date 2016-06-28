@@ -316,7 +316,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-#if NETFX_CORE
+#if NETCORE
 	[Ignore("Throws StackOverflowException")]
 #endif
         public void Can_Serialize_Cyclical_Dependency_via_interface()

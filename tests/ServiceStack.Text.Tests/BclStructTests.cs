@@ -7,7 +7,7 @@ namespace ServiceStack.Text.Tests
 {
     public class BclStructTests : TestBase
     {
-#if !NETFX_CORE
+#if !NETCORE
         static BclStructTests()
         {
             JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ", "").Replace("[", "").Replace("]", "");
@@ -60,7 +60,7 @@ namespace ServiceStack.Text.Tests
             public int Foo { get; set; }
         }
 
-#if !NETFX_CORE
+#if !NETCORE
         [Test]
         public void Can_serialize_dto_with_enum_flags()
         {

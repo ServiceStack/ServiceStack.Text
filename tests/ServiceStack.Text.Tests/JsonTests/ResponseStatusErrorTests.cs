@@ -1,4 +1,4 @@
-﻿#if !NETFX_CORE
+﻿#if !NETCORE
 using System.Globalization;
 using System.IO;
 using System.Threading;

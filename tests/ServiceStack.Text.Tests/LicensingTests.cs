@@ -202,7 +202,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(licenseKey.Expiry, Is.EqualTo(expectedKey.Expiry));
         }
 
-#if !NETFX_CORE
+#if !NETCORE
         [Explicit,Test]
         public void Test_dynamically_loaded_assemblies()
         {

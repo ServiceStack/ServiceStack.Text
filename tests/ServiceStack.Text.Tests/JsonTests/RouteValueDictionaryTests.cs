@@ -1,4 +1,4 @@
-﻿#if !NETFX_CORE
+﻿#if !NETCORE_SUPPORT
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;

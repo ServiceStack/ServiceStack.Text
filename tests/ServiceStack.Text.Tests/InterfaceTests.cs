@@ -29,7 +29,7 @@ namespace ServiceStack.Text.Tests
             var message = new Message<string> { Id = new Guid(), CreatedDate = new DateTime(), Body = "test" };
             var messageString = TypeSerializer.SerializeToString((IMessage<string>)message);
 
-#if NETFX_CORE
+#if NETCORE
             var assembly = "System.Private.CoreLib";
 #else
             var assembly = "mscorlib";
@@ -80,7 +80,7 @@ namespace ServiceStack.Text.Tests
         {
             get
             {
-#if NETFX_CORE
+#if NETCORE
                 var assembly = "System.Private.CoreLib";
 #else
                 var assembly = "mscorlib";

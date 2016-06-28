@@ -258,7 +258,7 @@ namespace ServiceStack.Text.Tests
             Assert.IsNull(ret);
         }
 
-#if !NETFX_CORE
+#if !NETCORE
         [Explicit("Ensure this test has proven to work, before adding it to the test suite")]
         [Test]
         [TestCase("en")]

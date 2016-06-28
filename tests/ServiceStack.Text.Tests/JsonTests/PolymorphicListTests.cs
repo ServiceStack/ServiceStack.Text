@@ -119,7 +119,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.Reset();
 			JsConfig<ICat>.ExcludeTypeInfo = false;
-#if NETFX_CORE
+#if NETCORE
 			assemblyName = GetType().GetTypeInfo().Assembly.GetName().Name;
 #else
 			assemblyName = GetType().Assembly.GetName().Name;
@@ -222,7 +222,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 		    try {
 		        var originalList = new List<Animal> {new Dog {Name = "Fido"}, new Cat {Name = "Tigger"}};
-#if NETFX_CORE
+#if NETCORE
 		        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (List<Animal>), new[] {typeof (Dog), typeof (Cat)});
 #else
 		        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (List<Animal>), new[] {typeof (Dog), typeof (Cat)}, int.MaxValue, true, null, true);
@@ -320,7 +320,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             try {
                 var originalPets = new Pets {Cat = new Cat {Name = "Tigger"}, Dog = new Dog {Name = "Fido"}};
 
-#if NETFX_CORE 
+#if NETCORE 
 	        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (Pets), new[] {typeof (Dog), typeof (Cat)});
 #else
 	        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (Pets), new[] {typeof (Dog), typeof (Cat)}, int.MaxValue, true, null, true);

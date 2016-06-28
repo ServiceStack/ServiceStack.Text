@@ -12,7 +12,7 @@ namespace ServiceStack.Text.Tests.Utils
     {
         public void PrintFormats(DateTime dateTime)
         {
-#if NETFX_CORE
+#if NETCORE
             Log("dateTime.ToShortDateString(): " + dateTime.ToString("d"));
             Log("dateTime.ToLongDateString(): " + dateTime.ToString("D"));
             Log("dateTime.ToShortTimeString(): " + dateTime.ToString("t"));

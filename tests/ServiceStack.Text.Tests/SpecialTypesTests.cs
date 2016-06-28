@@ -10,7 +10,7 @@ namespace ServiceStack.Text.Tests
     public class SpecialTypesTests
         : TestBase
     {
-#if !NETFX_CORE
+#if !NETCORE
         [Test]
         public void Can_Serialize_Version()
         {

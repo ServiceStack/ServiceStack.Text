@@ -1,4 +1,4 @@
-﻿#if !NETFX_CORE
+﻿#if !NETCORE
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
