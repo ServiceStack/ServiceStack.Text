@@ -119,7 +119,11 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.Reset();
 			JsConfig<ICat>.ExcludeTypeInfo = false;
+#if NETCORE
+			assemblyName = GetType().GetTypeInfo().Assembly.GetName().Name;
+#else
 			assemblyName = GetType().Assembly.GetName().Name;
+#endif
 		}
 
 		[Test]
@@ -218,8 +222,11 @@ namespace ServiceStack.Text.Tests.JsonTests
 
 		    try {
 		        var originalList = new List<Animal> {new Dog {Name = "Fido"}, new Cat {Name = "Tigger"}};
-
+#if NETCORE
+		        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (List<Animal>), new[] {typeof (Dog), typeof (Cat)});
+#else
 		        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (List<Animal>), new[] {typeof (Dog), typeof (Cat)}, int.MaxValue, true, null, true);
+#endif
 		        JsConfig.TypeFinder = typeFinder;
 		        List<Animal> deserializedList = null;
 		        using (var stream = new MemoryStream()) {
@@ -313,7 +320,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             try {
                 var originalPets = new Pets {Cat = new Cat {Name = "Tigger"}, Dog = new Dog {Name = "Fido"}};
 
-		        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (Pets), new[] {typeof (Dog), typeof (Cat)}, int.MaxValue, true, null, true);
+#if NETCORE 
+	        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (Pets), new[] {typeof (Dog), typeof (Cat)});
+#else
+	        var dataContractJsonSerializer = new DataContractJsonSerializer(typeof (Pets), new[] {typeof (Dog), typeof (Cat)}, int.MaxValue, true, null, true);
+#endif
                 JsConfig.TypeFinder = typeFinder;
 		        Pets deserializedPets = null;
 		        using (var stream = new MemoryStream()) {

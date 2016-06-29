@@ -46,16 +46,18 @@ namespace ServiceStack.Text.Tests
 			Assert.That(typedMessage.GetBody().Value, Is.EqualTo(dto.Value));
 		}
 
+#if !NETCORE_SUPPORT
 		[Test]
 		public void Can_serialize_IMessage_ToBytes_into_typed_Message()
 		{
 			var dto = new Incr { Value = 1 };
-            var iMsg = MessageFactory.Create(dto);
+                        var iMsg = MessageFactory.Create(dto);
 			var bytes = iMsg.ToBytes();
 			var typedMessage = bytes.ToMessage<Incr>();
 
 			Assert.That(typedMessage.GetBody().Value, Is.EqualTo(dto.Value));
 		}
+#endif
 
 		public class DtoWithInterface
 		{

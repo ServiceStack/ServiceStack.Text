@@ -1,0 +1,37 @@
+{
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": ["NETCORE_SUPPORT", "NETFX_CORE", "DEBUG", "TRACE"]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": ["NETCORE_SUPPORT", "NETFX_CORE", "TRACE"],
+        "optimize": true
+      }
+    }
+  },
+    "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": " 1.0.0"
+        },
+        "ServiceStack.Interfaces" : "4.1.*",
+    },
+    "frameworks" : {
+        "netcoreapp10" : {
+            "imports": "dnxcore50",
+	     "dependencies" : {
+		"System.Collections": "4.0.11",
+		"System.Drawing.Primitives" : "4.0.0",
+		"System.Collections.Specialized": "4.0.1",
+		"System.Runtime.Serialization.Json": "4.0.2",
+		"System.Runtime.Serialization.Primitives": "4.1.1",
+		"System.Collections.NonGeneric": "4.0.1"
+            },
+	   "bin" : { "assembly":"../../../lib/tests/netcore/Northwind.Common.dll", "pdb" : "../../../lib/tests/netcore/Northwind.Common.pdb" }
+        }
+    },
+    "version" : "1.0.0-*"
+}
