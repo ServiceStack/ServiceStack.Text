@@ -293,7 +293,7 @@ namespace ServiceStack.Text.Common
 
         private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
         {
-            if (propertyInfo.ReflectedType() != propertyInfo.DeclaringType)
+            if (typeConfig.Type != propertyInfo.DeclaringType)
                 propertyInfo = propertyInfo.DeclaringType.GetPropertyInfo(propertyInfo.Name);
 
             if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
@@ -345,7 +345,7 @@ namespace ServiceStack.Text.Common
 
         private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
         {
-            if (fieldInfo.ReflectedType() != fieldInfo.DeclaringType)
+            if (typeConfig.Type != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
             return PclExport.Instance.GetSetFieldMethod(fieldInfo);
