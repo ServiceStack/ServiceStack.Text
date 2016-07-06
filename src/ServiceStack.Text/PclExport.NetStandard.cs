@@ -10,6 +10,9 @@ using System.Reflection;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
+#if NETSTANDARD13
+using System.Collections.Specialized;
+#endif
 
 namespace ServiceStack
 {
@@ -102,6 +105,35 @@ namespace ServiceStack
         //    // .Net 4.0+ does this under the hood anyway.
         //    return TimeZoneInfo.ConvertTimeToUtc(dateTime);
         //}
+
+#if NETSTANDARD13
+        public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(StringCollection))
+            {
+                return SerializerUtils<TSerializer>.ParseStringCollection<TSerializer>;
+            }
+            return null;
+        }
+
+        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer
+        {
+            if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
+            return value == String.Empty
+                   ? new StringCollection()
+                   : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
+        }
+
+        public static StringCollection ToStringCollection(List<string> items)
+        {
+            var to = new StringCollection();
+            foreach (var item in items)
+            {
+                to.Add(item);
+            }
+            return to;
+        }
+#endif
 
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
