@@ -30,7 +30,8 @@
   <PropertyGroup>
     <DoBuildSolutionsDependsOn>
       BeforeBuildSolutions;
-      BuildSolutions
+      BuildSolutions;
+      BuildNetStandard;
     </DoBuildSolutionsDependsOn>
   </PropertyGroup>
 
@@ -49,11 +50,17 @@
   <Target Name="UnitTests" DependsOnTargets="$(DoBuildSolutionsDependsOn)">
       <Exec Command="$(BuildSolutionDir)/lib/tests/nunit-console/nunit-console-x86.exe $(BuildSolutionDir)/tests/ServiceStack.Text.Tests/bin/$(Configuration)/ServiceStack.Text.Tests.dll"/>
       <Exec Command="$(BuildSolutionDir)/lib/tests/nunit-console/nunit-console-x86.exe /framework=4.0 $(BuildSolutionDir)/tests/ServiceStack.Text.Net40.Tests/bin/$(Configuration)/ServiceStack.Text.Tests.dll"/>
+      <Exec Command="dotnet run -p $(BuildSolutionDir)/tests/ServiceStack.Text.Tests.NetCore/ServiceStack.Text.Tests"/>
   </Target>
 
   <Target Name="BuildSolutions">
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
       Properties="Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="BuildNetStandard">
+    <Exec Command="dotnet restore $(BuildSolutionDir)/tests/ServiceStack.Text.Tests.NetCore" />
+    <Exec Command="dotnet build -c $(Configuration) $(BuildSolutionDir)/tests/ServiceStack.Text.Tests.NetCore/ServiceStack.Text.Tests" />
   </Target>
 
   <Target Name="UpdateVersion">
@@ -92,6 +99,7 @@
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/ServiceStack.Text.*"></TextFiles>
+      <NetStandardFiles Include="$(SrcDir)/../tests/ServiceStack.Text.Tests.NetCore/ServiceStack.Text/bin/$(Configuration)/netstandard1.1/ServiceStack.Text.*"></NetStandardFiles>
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
@@ -101,6 +109,9 @@
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net40" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net40')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net40" />
  
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard1.1" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard1.1')" />
+    <Copy SourceFiles="%(NetStandardFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard1.1" />
+
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
             LogStandardErrorAsError="true" />
 
