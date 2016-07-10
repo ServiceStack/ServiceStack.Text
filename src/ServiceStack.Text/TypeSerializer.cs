@@ -315,7 +315,7 @@ namespace ServiceStack.Text
                     if (pi.GetIndexParameters().Length > 0)
                         continue;
 
-                    var mi = pi.GetGetMethod();
+                    var mi = pi.PropertyGetMethod();
                     var pValue = mi != null ? mi.Invoke(value, null) : null;
                     if (pValue == null)
                         continue;
