@@ -621,7 +621,7 @@ namespace ServiceStack
             {
                 foreach (var needle in needles)
                 {
-                    var pos = text.IndexOf(needle, startIndex);
+                    var pos = text.IndexOf(needle, startIndex, StringComparison.Ordinal);
                     if ((pos >= 0) && (firstPos == -1 || pos < firstPos))
                         firstPos = pos;
                 }
