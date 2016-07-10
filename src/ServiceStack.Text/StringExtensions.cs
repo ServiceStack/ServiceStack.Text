@@ -511,6 +511,13 @@ namespace ServiceStack
             return TypeSerializer.SerializeToString(obj);
         }
 
+        public static string ToSafeJsv<T>(this T obj)
+        {
+            return TypeSerializer.HasCircularReferences(obj)
+                ? obj.ToSafePartialObjectDictionary().ToJsv()
+                : obj.ToJsv();
+        }
+
         public static T FromJsv<T>(this string jsv)
         {
             return TypeSerializer.DeserializeFromString<T>(jsv);
@@ -521,6 +528,13 @@ namespace ServiceStack
             return JsConfig.PreferInterfaces
                 ? JsonSerializer.SerializeToString(obj, AssemblyUtils.MainInterface<T>())
                 : JsonSerializer.SerializeToString(obj);
+        }
+
+        public static string ToSafeJson<T>(this T obj)
+        {
+            return TypeSerializer.HasCircularReferences(obj)
+                ? obj.ToSafePartialObjectDictionary().ToJson()
+                : obj.ToJson();
         }
 
         public static T FromJson<T>(this string json)

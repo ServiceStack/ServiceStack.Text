@@ -1982,6 +1982,27 @@ namespace ServiceStack
             }
             return def;
         }
+
+        public static Dictionary<string, object> ToSafePartialObjectDictionary<T>(this T instance)
+        {
+            var to = new Dictionary<string, object>();
+            var propValues = instance.ToObjectDictionary();
+            if (propValues != null)
+            {
+                foreach (var entry in propValues)
+                {
+                    if (!TypeSerializer.HasCircularReferences(entry.Value))
+                    {
+                        to[entry.Key] = entry.Value.ToSafePartialObjectDictionary();
+                    }
+                    else
+                    {
+                        to[entry.Key] = entry.Value.ToString();
+                    }
+                }
+            }
+            return to;
+        }
     }
 
 }

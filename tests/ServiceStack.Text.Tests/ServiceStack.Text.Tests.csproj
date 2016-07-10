@@ -186,6 +186,7 @@
   <ItemGroup>
     <Compile Include="AutoMappingObjectDictionaryTests.cs" />
     <Compile Include="CustomCultureInfoTests.cs" />
+    <Compile Include="DumpTests.cs" />
     <Compile Include="DynamicModels\ODataTests.cs" />
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="AttributeTests.cs" />
