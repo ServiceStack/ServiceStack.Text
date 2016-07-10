@@ -1991,7 +1991,15 @@ namespace ServiceStack
             {
                 foreach (var entry in propValues)
                 {
-                    if (!TypeSerializer.HasCircularReferences(entry.Value))
+                    var valueType = entry.Value != null 
+                        ? entry.Value.GetType() 
+                        : null;
+
+                    if (valueType == null || !valueType.IsClass || valueType == typeof(string))
+                    {
+                        to[entry.Key] = entry.Value;
+                    }
+                    else if (!TypeSerializer.HasCircularReferences(entry.Value))
                     {
                         to[entry.Key] = entry.Value.ToSafePartialObjectDictionary();
                     }
