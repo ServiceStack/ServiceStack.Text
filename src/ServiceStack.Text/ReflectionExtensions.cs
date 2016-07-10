@@ -1995,7 +1995,7 @@ namespace ServiceStack
                         ? entry.Value.GetType() 
                         : null;
 
-                    if (valueType == null || !valueType.IsClass || valueType == typeof(string))
+                    if (valueType == null || !valueType.IsClass() || valueType == typeof(string))
                     {
                         to[entry.Key] = entry.Value;
                     }
