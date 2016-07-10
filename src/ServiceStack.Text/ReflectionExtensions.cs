@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -2001,7 +2002,15 @@ namespace ServiceStack
                     }
                     else if (!TypeSerializer.HasCircularReferences(entry.Value))
                     {
-                        to[entry.Key] = entry.Value.ToSafePartialObjectDictionary();
+                        var enumerable = entry.Value as IEnumerable;
+                        if (enumerable != null)
+                        {
+                            to[entry.Key] = entry.Value;
+                        }
+                        else
+                        {
+                            to[entry.Key] = entry.Value.ToSafePartialObjectDictionary();
+                        }
                     }
                     else
                     {

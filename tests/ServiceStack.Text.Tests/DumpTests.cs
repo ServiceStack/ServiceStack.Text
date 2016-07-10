@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
@@ -36,7 +37,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Can_PrintDump_ToSafeJson_ToSafeJsv()
+        public void Can_PrintDump_ToSafeJson_ToSafeJsv_recursive_Node()
         {
             var node = new Node(1,
                 new Node(11, new Node(111)),
@@ -52,6 +53,30 @@ namespace ServiceStack.Text.Tests
             root.PrintDump();
             root.ToSafeJson().Print();
             root.ToSafeJsv().Print();
+        }
+
+        public class CustomExecption : Exception
+        {
+            public string[] CustomData { get; set; }
+        }
+
+        [Test]
+        public void Can_PrintDump_ToSafeJson_ToSafeJsv_Exception()
+        {
+            try
+            {
+                throw new ArgumentException("param",
+                    new CustomExecption
+                    {
+                        CustomData = new[] { "A", "B", "C"}
+                    });
+            }
+            catch (Exception ex)
+            {
+                ex.PrintDump();
+                ex.ToSafeJson().Print();
+                ex.ToSafeJsv().Print();
+            }
         }
     }
 }
