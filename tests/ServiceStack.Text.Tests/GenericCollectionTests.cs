@@ -22,7 +22,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(queue);
 
-			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("one,two,three" + Environment.NewLine));
+			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("one,two,three\r\n"));
 		}
 
 		[Test]
@@ -36,7 +36,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(queue);
 
-			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("1,2,3" + Environment.NewLine));
+			Assert.That(CsvSerializer.SerializeToString(queue), Is.EqualTo("1,2,3\r\n"));
 		}
 
 		[Test]
@@ -52,14 +52,10 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(CsvSerializer.SerializeToString(queue), 
 				Is.EqualTo(
-					"Id,Name"
-					+ Environment.NewLine
-					+ "1,Name1"
-					+ Environment.NewLine
-					+ "2,Name2"
-					+ Environment.NewLine
-					+ "3,Name3"
-					+ Environment.NewLine
+					"Id,Name\r\n"
+					+ "1,Name1\r\n"
+					+ "2,Name2\r\n"
+					+ "3,Name3\r\n"
 				));
 		}
 
@@ -74,7 +70,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(stack);
 
-			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("three,two,one" + Environment.NewLine));
+			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("three,two,one\r\n"));
 		}
 
 		[Test]
@@ -88,7 +84,7 @@ namespace ServiceStack.Text.Tests
 
 			Serialize(stack);
 
-			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("3,2,1" + Environment.NewLine));
+			Assert.That(CsvSerializer.SerializeToString(stack), Is.EqualTo("3,2,1\r\n"));
 		}
 
 		[Test]
@@ -104,14 +100,10 @@ namespace ServiceStack.Text.Tests
 
 			Assert.That(CsvSerializer.SerializeToString(stack),
 				Is.EqualTo(
-					"Id,Name"
-					+ Environment.NewLine
-					+ "3,Name3"
-					+ Environment.NewLine
-					+ "2,Name2"
-					+ Environment.NewLine
-					+ "1,Name1"
-					+ Environment.NewLine
+					"Id,Name\r\n"
+					+ "3,Name3\r\n"
+					+ "2,Name2\r\n"
+					+ "1,Name1\r\n"
 				));
 		}
 	}
