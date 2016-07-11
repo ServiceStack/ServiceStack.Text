@@ -371,6 +371,88 @@ namespace ServiceStack
                 requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        public static string PatchStringToUrl(this string url, string requestBody = null,
+            string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PATCH",
+                requestBody: requestBody, contentType: contentType,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PatchStringToUrlAsync(this string url, string requestBody = null,
+            string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "PATCH",
+                requestBody: requestBody, contentType: contentType,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PatchToUrl(this string url, string formData = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PATCH",
+                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PatchToUrlAsync(this string url, string formData = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "PATCH",
+                contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PatchToUrl(this string url, object formData = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
+
+            return SendStringToUrl(url, method: "PATCH",
+                contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PatchToUrlAsync(this string url, object formData = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            string postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
+
+            return SendStringToUrlAsync(url, method: "PATCH",
+                contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PatchJsonToUrl(this string url, string json,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PATCH", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PatchJsonToUrlAsync(this string url, string json,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "PATCH", requestBody: json, contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static string PatchJsonToUrl(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrl(url, method: "PATCH", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<string> PatchJsonToUrlAsync(this string url, object data,
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStringToUrlAsync(url, method: "PATCH", requestBody: data.ToJson(), contentType: MimeTypes.Json, accept: MimeTypes.Json,
+                requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
         public static string DeleteFromUrl(this string url, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {

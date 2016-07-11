@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -1986,6 +1987,43 @@ namespace ServiceStack
                 }
             }
             return def;
+        }
+
+        public static Dictionary<string, object> ToSafePartialObjectDictionary<T>(this T instance)
+        {
+            var to = new Dictionary<string, object>();
+            var propValues = instance.ToObjectDictionary();
+            if (propValues != null)
+            {
+                foreach (var entry in propValues)
+                {
+                    var valueType = entry.Value != null 
+                        ? entry.Value.GetType() 
+                        : null;
+
+                    if (valueType == null || !valueType.IsClass() || valueType == typeof(string))
+                    {
+                        to[entry.Key] = entry.Value;
+                    }
+                    else if (!TypeSerializer.HasCircularReferences(entry.Value))
+                    {
+                        var enumerable = entry.Value as IEnumerable;
+                        if (enumerable != null)
+                        {
+                            to[entry.Key] = entry.Value;
+                        }
+                        else
+                        {
+                            to[entry.Key] = entry.Value.ToSafePartialObjectDictionary();
+                        }
+                    }
+                    else
+                    {
+                        to[entry.Key] = entry.Value.ToString();
+                    }
+                }
+            }
+            return to;
         }
     }
 
