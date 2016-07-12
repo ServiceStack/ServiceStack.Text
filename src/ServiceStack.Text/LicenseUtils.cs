@@ -164,6 +164,8 @@ namespace ServiceStack
         private static LicenseKey __activatedLicense;
         public static void RegisterLicense(string licenseKeyText)
         {
+            JsConfig.InitStatics();
+
             string cutomerId = null;
 #if !PCL
             var hold = Thread.CurrentThread.CurrentCulture;
