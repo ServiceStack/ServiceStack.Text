@@ -10,6 +10,7 @@ using System.Reflection;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
+using System.Globalization;
 #if NETSTANDARD13
 using System.Collections.Specialized;
 #endif
@@ -19,6 +20,34 @@ namespace ServiceStack
     public class NetStandardPclExport : PclExport
     {
         public static NetStandardPclExport Provider = new NetStandardPclExport();
+
+        static string[] allDateTimeFormats = new string[]
+        {
+                    "yyyy-MM-ddTHH:mm:ss.FFFFFFFzzzzzz",
+                    "yyyy-MM-ddTHH:mm:ss.FFFFFFF",
+                    "yyyy-MM-ddTHH:mm:ss.FFFFFFFZ",
+                    "HH:mm:ss.FFFFFFF",
+                    "HH:mm:ss.FFFFFFFZ",
+                    "HH:mm:ss.FFFFFFFzzzzzz",
+                    "yyyy-MM-dd",
+                    "yyyy-MM-ddZ",
+                    "yyyy-MM-ddzzzzzz",
+                    "yyyy-MM",
+                    "yyyy-MMZ",
+                    "yyyy-MMzzzzzz",
+                    "yyyy",
+                    "yyyyZ",
+                    "yyyyzzzzzz",
+                    "--MM-dd",
+                    "--MM-ddZ",
+                    "--MM-ddzzzzzz",
+                    "---dd",
+                    "---ddZ",
+                    "---ddzzzzzz",
+                    "--MM--",
+                    "--MM--Z",
+                    "--MM--zzzzzz",
+        };
 
         public NetStandardPclExport()
         {
@@ -97,6 +126,12 @@ namespace ServiceStack
         public override string GetAssemblyCodeBase(Assembly assembly)
         {
             return assembly.GetName().FullName;
+        }
+
+        public override DateTime ParseXsdDateTimeAsUtc(string dateTimeStr)
+        {
+            return DateTime.ParseExact(dateTimeStr, allDateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowLeadingWhite|DateTimeStyles.AllowTrailingWhite|DateTimeStyles.AdjustToUniversal)
+                     .Prepare(parsedAsUtc: true);
         }
 
         //public override DateTime ToStableUniversalTime(DateTime dateTime)
