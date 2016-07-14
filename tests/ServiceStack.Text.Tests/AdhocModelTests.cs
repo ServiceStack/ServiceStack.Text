@@ -316,9 +316,6 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-#if NETCORE
-	[Ignore("Throws StackOverflowException")]
-#endif
         public void Can_Serialize_Cyclical_Dependency_via_interface()
         {
             JsConfig.PreferInterfaces = true;

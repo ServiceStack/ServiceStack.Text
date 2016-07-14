@@ -262,6 +262,8 @@
     <Compile Include="XmlSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DynamicProxy.cs" />
+    <Compile Include="PclExport.NetStandard.cs" />
   </ItemGroup>
   <!--ItemGroup,Content-->
   <!--ItemGroup,None-->

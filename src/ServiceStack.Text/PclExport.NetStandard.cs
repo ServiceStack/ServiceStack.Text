@@ -11,6 +11,7 @@ using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Globalization;
+using System.Reflection.Emit;
 #if NETSTANDARD13
 using System.Collections.Specialized;
 #endif
@@ -169,6 +170,16 @@ namespace ServiceStack
             return to;
         }
 #endif
+
+        public override Type UseType(Type type)
+        {
+            if (type.IsInterface() || type.IsAbstract())
+            {
+                return DynamicProxy.GetInstanceFor(type).GetType();
+            }
+            return type;
+        }
+
 
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
