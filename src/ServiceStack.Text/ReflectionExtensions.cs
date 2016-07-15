@@ -89,6 +89,22 @@ namespace ServiceStack
         }
 #endif
 
+#if NETSTANDARD
+        private static readonly Func<Type, object> GetUninitializedObjectDelegate;
+
+        static ReflectionExtensions()
+        {
+            var formatterServices = typeof(string).GetTypeInfo().Assembly
+               .GetType("System.Runtime.Serialization.FormatterServices");
+            if (formatterServices != null)
+            {
+                var method = formatterServices.GetMethod("GetUninitializedObject");
+                if (method != null)
+                    GetUninitializedObjectDelegate = (Func<Type, object>)method.CreateDelegate(typeof(Func<Type, object>));
+            }
+        }
+#endif
+
         public static TypeCode GetTypeCode(this Type type)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD)
@@ -522,7 +538,12 @@ namespace ServiceStack
 #endif
             }
 
-#if (SL5 && !WP) || XBOX || NETSTANDARD
+#if (SL5 && !WP) || XBOX
+            return () => Activator.CreateInstance(type);
+#elif NETSTANDARD
+            if (GetUninitializedObjectDelegate != null)
+                return () => GetUninitializedObjectDelegate(type);
+
             return () => Activator.CreateInstance(type);
 #elif WP || PCL
             return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(
