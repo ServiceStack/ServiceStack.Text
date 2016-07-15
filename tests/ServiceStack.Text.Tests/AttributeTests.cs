@@ -37,9 +37,10 @@ namespace ServiceStack.Text.Tests
         {
             // AllAttributes<T>() makes this call to get attrs
 #if NETCORE
-            var referenceGeneric = typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
-			.Where(x => typeof(RouteDefaultAttribute).IsInstanceOf(x.GetType())).ToArray()
-			.OfType<RouteDefaultAttribute>();
+            var referenceGeneric =
+                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
+                    .Where(x => x.GetType().IsInstanceOf(typeof(RouteDefaultAttribute)))
+                    .OfType<RouteDefaultAttribute>();
 #else
             var referenceGeneric =
                 typeof(DefaultWithMultipleAttributes).GetCustomAttributes(typeof(RouteDefaultAttribute), true)
@@ -50,8 +51,9 @@ namespace ServiceStack.Text.Tests
 
             // AllAttributes() makes this call to get attrs
 #if NETCORE
-            var reference = typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
-			.Where(x => typeof(RouteDefaultAttribute).IsInstanceOf(x.GetType())).ToArray();
+            var reference =
+                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
+			        .Where(x => x.GetType().IsInstanceOf(typeof(RouteDefaultAttribute))).ToArray();
 #else
             var reference =
                 typeof(DefaultWithMultipleAttributes).GetCustomAttributes(typeof(RouteDefaultAttribute), true);

@@ -118,6 +118,7 @@ namespace ServiceStack
 
                 type = type.BaseType();
             }
+
             return false;
         }
 
@@ -1185,7 +1186,6 @@ namespace ServiceStack
             }
 
             typeAttrs.AddRange(attrs);
-
             return type;
         }
 
@@ -1342,8 +1342,10 @@ namespace ServiceStack
 
         public static object[] AllAttributes(this Type type)
         {
-#if (NETFX_CORE || PCL || NETSTANDARD)
+#if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes(true).ToArray();
+#elif NETSTANDARD
+            return type.GetTypeInfo().GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #else
             return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
@@ -1351,8 +1353,13 @@ namespace ServiceStack
 
         public static object[] AllAttributes(this Type type, Type attrType)
         {
-#if (NETFX_CORE || PCL || NETSTANDARD)
-            return type.GetTypeInfo().GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
+#if (NETFX_CORE || PCL)
+            return type.GetTypeInfo().GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
+#elif NETSTANDARD
+            return type.GetTypeInfo().GetCustomAttributes(true)
+                .Where(x => x.GetType().IsInstanceOf(attrType))
+                .Union(type.GetRuntimeAttributes())
+                .ToArray();
 #else
             return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 #endif
@@ -1408,8 +1415,12 @@ namespace ServiceStack
             where TAttr : Attribute
 #endif
         {
-#if (NETFX_CORE || PCL || NETSTANDARD)
+#if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes<TAttr>(true).ToArray();
+#elif NETSTANDARD
+            return type.GetTypeInfo().GetCustomAttributes<TAttr>(true)
+                .Union(type.GetRuntimeAttributes<TAttr>())
+                .ToArray();
 #else
             return type.GetCustomAttributes(typeof(TAttr), true)
                 .OfType<TAttr>()
