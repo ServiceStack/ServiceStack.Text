@@ -297,7 +297,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var model = new ModelWithIdAndName
             {
                 Id = 1,
-                Name = "Hi I'm" + Environment.NewLine + "new line :)"
+                Name = "Hi I'm\r\nnew line :)"
             };
 
             const string json = "{\"Id\":1,\"Name\":\"Hi I'm\\r\\nnew line :)\"}";

@@ -95,7 +95,8 @@ namespace ServiceStack.Text.Tests
             Action x = () => { };
             Assert.That(x.Dump(), Is.EqualTo("Void <Does_dump_delegate_info>b__4()")      //VS 2012
                                  .Or.EqualTo("Void <Does_dump_delegate_info>b__10_0()")   //VS 2015
-                                 .Or.EqualTo("Void <Does_dump_delegate_info>b__9_0()")   //NET Core
+                                 .Or.EqualTo("Void <Does_dump_delegate_info>b__9_0()")    //NET Core
+                                 .Or.EqualTo("Void <Does_dump_delegate_info>m__1()")      //Mono
                                  );
         }
 

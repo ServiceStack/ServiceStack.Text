@@ -35,9 +35,7 @@ namespace ServiceStack.Text.Tests
             csv = maps.ToCsv();
             Assert.That(csv, Is.EqualTo("Id|Name\n\n1|Value\n\n2|`Value|Escaped`\n\n"));
 
-            CsvConfig.ItemSeperatorString = JsWriter.ItemSeperatorString;
-            CsvConfig.ItemDelimiterString = JsWriter.QuoteString;
-            CsvConfig.RowSeparatorString = Environment.NewLine;
+            CsvConfig.Reset();
         }
     }
 }
