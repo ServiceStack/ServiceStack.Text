@@ -483,12 +483,17 @@ namespace ServiceStack
             }
             else if (type.IsGenericTypeDefinition())
             {
+#if NETSTANDARD
+                var genericArgs = type.GetTypeInfo().GenericTypeParameters;
+#else
                 var genericArgs = type.GetGenericArguments();
+#endif
                 var typeArgs = new Type[genericArgs.Length];
                 for (var i = 0; i < genericArgs.Length; i++)
                     typeArgs[i] = typeof(object);
 
                 var realizedType = type.MakeGenericType(typeArgs);
+
                 return realizedType.CreateInstance;
             }
 
