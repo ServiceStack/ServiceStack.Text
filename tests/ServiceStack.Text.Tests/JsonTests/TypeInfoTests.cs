@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [TestCase("[\n{'__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Tests'}]")]
         [TestCase("[\t{'__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Tests'}]")]
         [TestCase("[ { '__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Tests'}]")]
-        [TestCase("[\n{\n'__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Testsv'}]")]
+        [TestCase("[\n{\n'__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Tests'}]")]
         [TestCase("[\t{\t'__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Tests'}]")]
         [TestCase("[{'__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Tests'} ]")]
         [TestCase("[{ '__type':'ServiceStack.Text.Tests.JsonTests.TypeInfoTests+MyClass, ServiceStack.Text.Tests'}\t]")]
