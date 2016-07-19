@@ -17,7 +17,7 @@
           "type": "platform",
           "version": " 1.0.0"
         },
-        "ServiceStack.Interfaces" : "4.1.*",
+        "ServiceStack.Interfaces" : "4.0.*",
     },
     "frameworks" : {
         "netcoreapp10" : {

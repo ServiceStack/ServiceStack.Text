@@ -23,7 +23,7 @@
       "version": "1.0.0"
     },
     "NUnitLite" : "3.2.1",
-    "ServiceStack.Interfaces" : "4.1.*",
+    "ServiceStack.Interfaces" : "4.0.*",
     "Northwind.Common" : "1.*",
     "ServiceStack.Text" : "4.0.*",
     "ServiceStack.Common" : "4.0.*",
