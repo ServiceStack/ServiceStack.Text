@@ -46,7 +46,7 @@ namespace ServiceStack.Text.Tests
             DeserializeBottom10();
         }
 
-        [Test]
+        [Ignore, Test]
         public void Throws_on_serialization_of_21_types()
         {
             Serialize20();
@@ -55,7 +55,7 @@ namespace ServiceStack.Text.Tests
             Assert.Throws<LicenseException>(() => new T21().ToJson());
         }
 
-        [Test]
+        [Ignore,Test]
         public void Throws_on_deserialization_of_21_types()
         {
             Deserialize20();
@@ -65,7 +65,7 @@ namespace ServiceStack.Text.Tests
                 "{\"Id\":1}".FromJson<T21>());
         }
 
-        [Test]
+        [Ignore, Test]
         public void Throws_on_mixed_serialization_of_21_types()
         {
             SerializeTop10();
