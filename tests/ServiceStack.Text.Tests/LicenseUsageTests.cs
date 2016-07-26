@@ -1,5 +1,4 @@
-﻿#if !NETCORE_SUPPORT
-// Copyright (c) Service Stack LLC. All Rights Reserved.
+﻿// Copyright (c) Service Stack LLC. All Rights Reserved.
 // License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 
@@ -21,7 +20,11 @@ namespace ServiceStack.Text.Tests
         [TearDown]
         public void TearDown()
         {
+#if NETCORE
+            Licensing.RegisterLicense(System.Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE"));
+#else
             Licensing.RegisterLicense(new AppSettings().GetString("servicestack:license"));
+#endif
         }
 
         [Test]
@@ -47,7 +50,7 @@ namespace ServiceStack.Text.Tests
             DeserializeBottom10();
         }
 
-        [Ignore, Test]
+        [Ignore(""), Test]
         public void Throws_on_serialization_of_21_types()
         {
             Serialize20();
@@ -56,7 +59,7 @@ namespace ServiceStack.Text.Tests
             Assert.Throws<LicenseException>(() => new T21().ToJson());
         }
 
-        [Ignore,Test]
+        [Ignore(""),Test]
         public void Throws_on_deserialization_of_21_types()
         {
             Deserialize20();
@@ -66,7 +69,7 @@ namespace ServiceStack.Text.Tests
                 "{\"Id\":1}".FromJson<T21>());
         }
 
-        [Ignore, Test]
+        [Ignore(""), Test]
         public void Throws_on_mixed_serialization_of_21_types()
         {
             SerializeTop10();
@@ -84,7 +87,11 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Allows_serialization_of_21_types()
         {
+#if NETCORE
+            Licensing.RegisterLicense(System.Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE"));
+#else
             Licensing.RegisterLicense(new AppSettings().GetString("servicestack:license"));
+#endif
 
             Serialize20();
             Serialize20();
@@ -189,4 +196,3 @@ namespace ServiceStack.Text.Tests
         }        
     }
 }
-#endif
