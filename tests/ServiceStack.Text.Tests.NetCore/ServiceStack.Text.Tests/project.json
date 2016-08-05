@@ -23,11 +23,11 @@
       "version": "1.0.0"
     },
     "NUnitLite" : "3.2.1",
-    "ServiceStack.Interfaces" : "4.0.*",
+    "ServiceStack.Interfaces" : "1.0.*",
     "Northwind.Common" : "1.*",
-    "ServiceStack.Text" : "4.0.*",
-    "ServiceStack.Common" : "4.0.*",
-    "ServiceStack.Client" : "4.0.*",
+    "ServiceStack.Text" : "1.0.*",
+    "ServiceStack.Common" : "1.0.*",
+    "ServiceStack.Client" : "1.0.*",
   },
   "frameworks": {
    "netcoreapp1.0": { 

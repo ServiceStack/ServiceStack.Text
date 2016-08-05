@@ -15,9 +15,9 @@
   "dependencies": {
     "NETStandard.Library": "1.6.0",
     "ServiceStack.Text" : {
-       "version" : "4.0.*"
+       "version" : "1.0.*"
     },
-    "ServiceStack.Interfaces" : "4.0.*",
+    "ServiceStack.Interfaces" : "1.0.*",
   },
   "frameworks": {
     "netstandard1.1": { 
@@ -38,5 +38,5 @@
 	"bin" : { "assembly":"../../../lib/tests/netcore/ServiceStack.Client.dll", "pdb" : "../../../lib/tests/netcore/ServiceStack.Client.pdb" }
      }
   },
-  "version": "4.0.61"
+  "version": "1.0.0"
 }

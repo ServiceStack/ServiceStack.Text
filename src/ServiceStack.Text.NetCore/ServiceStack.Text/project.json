@@ -15,7 +15,7 @@
   "dependencies": {
     "NETStandard.Library": "1.6.0"
   },
-  "compile": ["../../../src/ServiceStack.Text/**/*.cs"],
+  "compile": ["../../ServiceStack.Text/**/*.cs"],
   "frameworks": {
     "netstandard1.1": { 
         "dependencies" : {
@@ -35,5 +35,5 @@
      }
    
   },
-  "version": "4.0.61"
+  "version": "1.0.0"
 }
