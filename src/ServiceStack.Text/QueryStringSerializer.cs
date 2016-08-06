@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
 namespace ServiceStack
@@ -235,6 +236,31 @@ namespace ServiceStack
 
         public static bool FormUrlEncoded(TextWriter writer, string propertyName, object obj)
         {
+            var map = obj as IDictionary;
+            if (map != null)
+            {
+                foreach (var key in map.Keys)
+                {
+                    var value = map[key];
+                    writer.Write(propertyName);
+                    writer.Write('[');
+                    writer.Write(key.ToString());
+                    writer.Write("]=");
+
+                    if (value == null)
+                    {
+                        writer.Write(JsonUtils.Null);
+                    }
+                    else
+                    {
+                        var writeFn = JsvWriter.GetWriteFn(value.GetType());
+                        writeFn(writer, value);
+                    }
+                }
+
+                return true;
+            }
+
             var typeConfig = typeConfigCache.GetOrAdd(obj.GetType(), t =>
                 {
                     var genericType = typeof(PropertyTypeConfig<>).MakeGenericType(t);

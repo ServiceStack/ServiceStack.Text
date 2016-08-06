@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -576,11 +577,14 @@ namespace ServiceStack.Text.Common
                         && !propertyType.IsValueType()
                         && propertyType.HasInterface(typeof(IEnumerable));
 
-                    if (QueryStringSerializer.ComplexTypeStrategy != null
-                        && !isEnumerable && (propertyType.IsUserType() || propertyType.IsInterface()))
+                    if (QueryStringSerializer.ComplexTypeStrategy != null)
                     {
-                        if (QueryStringSerializer.ComplexTypeStrategy(writer, propertyWriter.PropertyName, propertyValue))
-                            continue;
+                        var nonEnumerableUserType = !isEnumerable && (propertyType.IsUserType() || propertyType.IsInterface());
+                        if (nonEnumerableUserType || propertyType.IsOrHasGenericInterfaceTypeOf(typeof(IDictionary<,>)))
+                        {
+                            if (QueryStringSerializer.ComplexTypeStrategy(writer, propertyWriter.PropertyName, propertyValue))
+                                continue;
+                        }
                     }
 
                     Serializer.WritePropertyName(writer, propertyWriter.PropertyName);
