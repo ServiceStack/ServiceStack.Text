@@ -1296,7 +1296,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD)
-            return propertyInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
+            return propertyInfo.GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #else
             var attrs = propertyInfo.GetCustomAttributes(attrType, true);
             var runtimeAttrs = propertyInfo.GetAttributes(attrType);
@@ -1338,7 +1338,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this ParameterInfo paramInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD)
-            return paramInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
+            return paramInfo.GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #else
             return paramInfo.GetCustomAttributes(attrType, true);
 #endif
@@ -1347,7 +1347,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this MemberInfo memberInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD)
-            return memberInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
+            return memberInfo.GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #else
             var prop = memberInfo as PropertyInfo;
             if (prop != null)
@@ -1360,7 +1360,7 @@ namespace ServiceStack
         public static object[] AllAttributes(this FieldInfo fieldInfo, Type attrType)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD)
-            return fieldInfo.GetCustomAttributes(true).Where(x => attrType.IsInstanceOf(x.GetType())).ToArray();
+            return fieldInfo.GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #else
             return fieldInfo.GetCustomAttributes(attrType, true);
 #endif
