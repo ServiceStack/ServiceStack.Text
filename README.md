@@ -108,7 +108,7 @@ project. It provides a dynamic, but more succinct API than the above options.
 
     PM> Install-Package ServiceStack.Text
 
-_Latest v4+ on NuGet is a [commercial release](https://servicestack.net/text) with [free quotas](https://servicestack.net/download#free-quotas)._
+> From v4.0.62+ [ServiceStack.Text is now free!](https://github.com/ServiceStack/ServiceStack/blob/master/docs/2016/v4.0.62.md#servicestacktext-is-now-free)
 
 ### [Docs and Downloads for older v3 BSD releases](https://github.com/ServiceStackV3/ServiceStackV3)
 
