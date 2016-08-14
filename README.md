@@ -11,6 +11,13 @@ ServiceStack.Text is an **independent, dependency-free** serialization library t
 * StringExtensions - Xml/Json/Csv/Url encoding, BaseConvert, Rot13, Hex escape, etc.
 * Stream, Reflection, List, DateTime, etc extensions and utils
 
+### Try out [ServiceStack.Text Live](http://gistlyn.com/text)
+
+A great way to try out ServiceStack.Text is on [gistlyn.com](http://gistlyn.com) which lets you immediately 
+run and explore all ServiceStack.Text features from the comfort of your browser with zero software install:
+
+[![](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/gistlyn/home-screenshot.png)](http://gistlyn.com/text)
+
 # Simple API
 
 Like most of the interfaces in Service Stack, the API is simple. Methods that you would commonly use include:
