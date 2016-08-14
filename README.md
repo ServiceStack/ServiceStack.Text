@@ -1,6 +1,6 @@
 Join the [ServiceStack Google+ Community](https://plus.google.com/communities/112445368900682590445) or follow [@ServiceStack](https://twitter.com/servicestack) for updates. 
 
-# FREE high-performance, multi-platform Text Serializers and Core Utils powering [servicestack.net](https://servicestack.net).
+## FREE high-perf Text Serializers and Core Utils powering [servicestack.net](https://servicestack.net)
 
 ServiceStack.Text is a **independent, dependency-free** serialization library containing ServiceStack's core high-performance utils and text processing functionality, including:
 
