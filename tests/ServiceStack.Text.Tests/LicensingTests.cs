@@ -35,7 +35,6 @@ namespace ServiceStack.Text.Tests
         const string TestIndie2013Text = "1001-e1JlZjoxMDAxLE5hbWU6VGVzdCBJbmRpZSxUeXBlOkluZGllLEhhc2g6UGJyTWlRL205YkpCN3NoUGFBelZKVkppZERHRjQwK2JiVWpvOWtrLzgrTUF3UmZZOE0rUkNHMTRYZ055S2ZFT29aNDY4c0FXS2dLRGlVZzEvVmViNjN5M2FpNTh5T2JTZ3RIL2tEdzhDL1VFOEZrazRhMEMrdEtNVU4xQlFxVHBEU21HQUZESUxuOHQ1M2lFWE9tK014MWZCNFEvbitFQUJTMVhvbjBlUE1zPSxFeHBpcnk6MjAxNC0wMS0wMX0=";
         readonly LicenseKey TestIndie2013 = new LicenseKey { Ref = "1001", Name = "Test Indie", Type = LicenseType.Indie, Expiry = new DateTime(2014, 01, 01) };
         const string TestText2013Text = "1001-e1JlZjoxMDAxLE5hbWU6VGVzdCBUZXh0LFR5cGU6VGV4dEluZGllLEhhc2g6V3liaFpUejZiMWgxTGhCcmRRSzlNc09FVUsya3Z6Z2E5VDBaRCtEWnlBd0JxM1dabVFVanNaelgwTWR5OXJMSTlmbzJ0dVVOMk9iZ2srcmswdVZGeit6Q1dreTk3SFE5OHhkOGtDRkx0LzQxR2RiU054SnFIVUlmR1hMdS9CQTVOR0lKanN3SjhXTjdyY0R0VmYyTllKK2dEaFd1RzZ4cnB1ZXhYa01WSXFrPSxFeHBpcnk6MjAxMy0wMS0wMX0=";
-        readonly LicenseKey TestText2013 = new LicenseKey { Ref = "1001", Name = "Test Text", Type = LicenseType.TextIndie, Expiry = new DateTime(2013, 01, 01) };
 
         const string TestTrial2001Text = "TRIAL302001-e1JlZjpUUklBTDMwMjAwMSxOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOlRGRlNVQTRHYWtiY2tmYlpsOHpsbXhVZUpLZ0pORkxaQ1pJckxwSEJpdTVtSXAzWEx4NGFmd0ZGa2duYzNkZTlUUjczR3hKdVdjMkVnQXF0dzdERVNxVWQwOTBFQ09UOXZ3eGNsMjR4V3BXSkwvM1A5TW1RN283bGp1ckJzV2wvL3AzVFpXajlmeTIzcVA0T3B5YmEzTzhLcmhoTXNnZ3k3c0dGL0JOVmdjbz0sRXhwaXJ5OjIwMDEtMDEtMDF9";
         readonly LicenseKey TestTrial2001 = new LicenseKey { Ref = "TRIAL302001", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2001, 01, 01) };
@@ -48,7 +47,6 @@ namespace ServiceStack.Text.Tests
             {
                 return new[]
                 {
-                    new LicenseUseCase(LicenseFeature.Text, QuotaType.Types, LicenseUtils.FreeQuotas.TextTypes),
                     new LicenseUseCase(LicenseFeature.Redis, QuotaType.Types, LicenseUtils.FreeQuotas.RedisTypes),
                     new LicenseUseCase(LicenseFeature.OrmLite, QuotaType.Tables, LicenseUtils.FreeQuotas.OrmLiteTables),
                     new LicenseUseCase(LicenseFeature.Aws, QuotaType.Tables, LicenseUtils.FreeQuotas.AwsTables),
@@ -186,7 +184,6 @@ namespace ServiceStack.Text.Tests
             AssertKey(TestIndie2000Text, TestIndie2000);
             AssertKey(TestBusiness2013Text, TestBusiness2013);
             AssertKey(TestIndie2013Text, TestIndie2013);
-            AssertKey(TestText2013Text, TestText2013);
             AssertKey(TestTrial2001Text, TestTrial2001);
             AssertKey(TestTrial2016Text, TestTrial2016);
         }

@@ -197,10 +197,6 @@ namespace ServiceStack
             return null;
         }
 
-        public override void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
-        {
-        }
-
         public static void InitForAot()
         {
         }

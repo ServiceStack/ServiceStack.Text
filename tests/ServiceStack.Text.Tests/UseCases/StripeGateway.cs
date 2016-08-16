@@ -5,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using ServiceStack.Stripe.Types;
 using ServiceStack.Text;
 
 namespace ServiceStack.Stripe
 {
-    /* Charges 
+    /* Charges
 	 * https://stripe.com/docs/api/curl#charges
 	 */
     [Route("/charges")]
@@ -83,7 +84,7 @@ namespace ServiceStack.Stripe
         }
     }
 
-    /* Customers 
+    /* Customers
 	 * https://stripe.com/docs/api/curl#customers
 	 */
     [Route("/customers")]
@@ -97,6 +98,9 @@ namespace ServiceStack.Stripe
         public string Plan { get; set; }
         public int? Quantity { get; set; }
         public DateTime? TrialEnd { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
+        public string Currency { get; set; }
+        public string BusinessVatId { get; set; }
     }
 
     [Route("/customers")]
@@ -110,6 +114,9 @@ namespace ServiceStack.Stripe
         public string Plan { get; set; }
         public int? Quantity { get; set; }
         public DateTime? TrialEnd { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
+        public string Currency { get; set; }
+        public string BusinessVatId { get; set; }
     }
 
     [Route("/customers/{Id}")]
@@ -130,6 +137,9 @@ namespace ServiceStack.Stripe
         public string Description { get; set; }
         public string Email { get; set; }
         public string Source { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
+        public string Currency { get; set; }
+        public string BusinessVatId { get; set; }
     }
 
     [Route("/customers/{Id}")]
@@ -376,12 +386,22 @@ namespace ServiceStack.Stripe
     }
 
     [Route("/invoices")]
-    public class GetStripeInvoices : IGet, IReturn<StripeCollection<StripeInvoice>>
+    public class GetStripeInvoices : IGet, IReturn<StripeCollection<StripeInvoice>>, IUrlFilter
     {
         public string Customer { get; set; }
         public DateTime? Date { get; set; }
         public int? Count { get; set; }
         public int? Offset { get; set; }
+
+        [IgnoreDataMember]
+        public StripeDateOptions DateOptions { get; set; }
+
+        public string ToUrl(string absoluteUrl)
+        {
+            return Date != null || DateOptions == null
+                ? absoluteUrl
+                : absoluteUrl.AppendOptions("date", DateOptions);
+        }
     }
 
     [Route("/invoices/upcoming")]
@@ -408,18 +428,22 @@ namespace ServiceStack.Stripe
         public StripeCard Card { get; set; }
     }
 
-    /* 
-        Accounts 
+    /*
+        Accounts
     */
-
     [Route("/accounts")]
-    public class CreateStripeAccount : IPost, IReturn<StripeAccount>
+    public class CreateStripeAccount : IPost, IReturn<CreateStripeAccountResponse>
     {
         public string Country { get; set; }
         public bool Managed { get; set; }
         public string Email { get; set; }
         public StripeTosAcceptance TosAcceptance { get; set; }
         public StripeLegalEntity LegalEntity { get; set; }
+    }
+
+    public class CreateStripeAccountResponse : StripeAccount
+    {
+        public Dictionary<string, string> Keys { get; set; }
     }
 
     public class StripeTosAcceptance
@@ -431,18 +455,74 @@ namespace ServiceStack.Stripe
 
     public class StripeLegalEntity
     {
-        public StripeDob Dob { get; set; }
+        public StripeOwner[] AdditionalOwners { get; set; }
+        public StripeAddress Address { get; set; }
+        public string BusinessName { get; set; }
+        public bool? BusinessTaxIdProvided { get; set; }
+        public StripeDate Dob { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public StripeAddress PersonalAddress { get; set; }
+        public bool? PersonalIdNumberProvided { get; set; }
+        public bool? SsnLast4Provided { get; set; }
+        public string Type { get; set; }
+        public StripeVerificationBusiness Verification { get; set; }
     }
 
     public class StripeAccount : StripeId
     {
-        public Dictionary<string, string> Keys { get; set; }
+        public string BusinessName { get; set; }
+        public string BusinessPrimaryColor { get; set; }
+        public string BusinessUrl { get; set; }
+        public bool ChargesEnabled { get; set; }
+        public string Country { get; set; }
+        public string[] CurrenciesSupported { get; set; }
+        public bool DebitNegativeBalances { get; set; }
+        public StripeDeclineCharge DeclineChargeOn { get; set; }
+        public string DefaultCurrency { get; set; }
+        public bool DetailsSubmitted { get; set; }
+        public string DisplayName { get; set; }
+        public string Email { get; set; }
+        public StripeLegalEntity LegalEntity { get; set; }
+        public bool Managed { get; set; }
+        public string ProductDescription { get; set; }
+        public string StatementDescriptor { get; set; }
+        public string SupportEmail { get; set; }
+        public string SupportPhone { get; set; }
+        public string SupportUrl { get; set; }
+        public string Timezone { get; set; }
+        public StripeTosAcceptance TosAcceptance { get; set; }
+        public StripeVerificationAccount Verification { get; set; }
     }
 
-    public class StripeDob
+    public class StripeDeclineCharge
     {
-        public StripeDob() {}
-        public StripeDob(int year, int month, int day)
+        public bool AvsFailure { get; set; }
+        public bool CvcFailure { get; set; }
+    }
+
+    public class StripeOwner
+    {
+        public StripeAddress Address { get; set; }
+        public StripeDate Dob { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+
+    public class StripeAddress
+    {
+        public string City { get; set; }
+        public string Country { get; set; }
+        public string Line1 { get; set; }
+        public string Line2 { get; set; }
+        public string PostalCode { get; set; }
+        public string State { get; set; }
+    }
+
+    public class StripeDate
+    {
+        public StripeDate() { }
+        public StripeDate(int year, int month, int day)
         {
             Year = year;
             Month = month;
@@ -452,6 +532,30 @@ namespace ServiceStack.Stripe
         public int Year { get; set; }
         public int Month { get; set; }
         public int Day { get; set; }
+    }
+
+    public class StripeVerificationBusiness
+    {
+        public string Details { get; set; }
+        public string DetailsCode { get; set; }
+        public string Document { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class StripeTransferSchedule
+    {
+        public int DelayDays { get; set; }
+        public string Interval { get; set; }
+        public int MonthlyAnchor { get; set; }
+        public string WeeklyAnchor { get; set; }
+        public bool TransfersEnabled { get; set; }
+    }
+
+    public class StripeVerificationAccount
+    {
+        public string DisabledReason { get; set; }
+        public DateTime? DueBy { get; set; }
+        public string[] FieldsNeeded { get; set; }
     }
 
 
@@ -637,12 +741,14 @@ namespace ServiceStack.Stripe
 
         public T Send<T>(IReturn<T> request)
         {
-            return Send(request, GetMethod(request), sendRequestBody: false);
+            var method = GetMethod(request);
+            return Send(request, method, sendRequestBody: method == HttpMethods.Post || method == HttpMethods.Put);
         }
 
         public Task<T> SendAsync<T>(IReturn<T> request)
         {
-            return SendAsync(request, GetMethod(request), sendRequestBody: false);
+            var method = GetMethod(request);
+            return SendAsync(request, method, sendRequestBody: method == HttpMethods.Post || method == HttpMethods.Put);
         }
 
         public T Get<T>(IReturn<T> request)
@@ -695,6 +801,42 @@ namespace ServiceStack.Stripe
             return SendAsync(request, HttpMethods.Delete, sendRequestBody: false);
         }
     }
+
+    public class StripeDateOptions
+    {
+        public DateTime? After { get; set; }
+        public DateTime? OnOrAfter { get; set; }
+        public DateTime? Before { get; set; }
+        public DateTime? OnOrBefore { get; set; }
+    }
+
+    internal static class UrlExtensions
+    {
+        public static string AppendOptions(this string url, string name, StripeDateOptions options)
+        {
+            var sb = new StringBuilder();
+            var map = new Dictionary<string, DateTime?>
+            {
+                { "gt", options.After },
+                { "gte", options.OnOrAfter },
+                { "lt", options.Before },
+                { "lte", options.OnOrBefore },
+            };
+
+            foreach (var entry in map)
+            {
+                if (entry.Value == null)
+                    continue;
+
+                url = url.AddQueryParam(
+                    "{0}[{1}]".Fmt(name, entry.Key),
+                    entry.Value.Value.ToUnixTime());
+            }
+
+            return url;
+        }
+    }
+
 }
 
 namespace ServiceStack.Stripe.Types
@@ -877,6 +1019,8 @@ namespace ServiceStack.Stripe.Types
 
         public bool Deleted { get; set; }
         public string DefaultSource { get; set; }
+        public string Currency { get; set; }
+        public string BusinessVatId { get; set; }
     }
 
     public class GetAllStripeCustomers

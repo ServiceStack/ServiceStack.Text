@@ -1,19 +1,45 @@
 Join the [ServiceStack Google+ Community](https://plus.google.com/communities/112445368900682590445) or follow [@ServiceStack](https://twitter.com/servicestack) for updates. 
 
-# [JSON](https://github.com/ServiceStackV3/mythz_blog/blob/master/pages/344.md), [JSV](https://github.com/ServiceStackV3/mythz_blog/blob/master/pages/176.md) and [CSV](https://github.com/ServiceStack/ServiceStack/wiki/CSV-Format) Text Serializers used in [servicestack.net](http://www.servicestack.net).
+## FREE high-perf Text Serializers and Core Utils powering [servicestack.net](https://servicestack.net)
 
-ServiceStack.Text is an **independent, dependency-free** serialization library that contains ServiceStack's text processing functionality, including:
+ServiceStack.Text is a **independent, dependency-free** serialization library containing ServiceStack's core high-performance utils and text processing functionality, including:
 
-* [JsonSerializer](https://github.com/ServiceStackV3/mythz_blog/blob/master/pages/344.md)
-* [TypeSerializer (JSV-Format)](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format)
-* [CsvSerializer](https://github.com/ServiceStack/ServiceStack/wiki/CSV-Format)
-* [T.Dump extension method](https://github.com/ServiceStackV3/mythz_blog/blob/master/pages/202.md)
-* StringExtensions - Xml/Json/Csv/Url encoding, BaseConvert, Rot13, Hex escape, etc.
-* Stream, Reflection, List, DateTime, etc extensions and utils
+ - [JSON](https://github.com/ServiceStack/ServiceStack.Text), 
+ [JSV](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format) and 
+ [CSV](https://github.com/ServiceStack/ServiceStack/wiki/CSV-Format) Text Serializers
+ - [AutoMapping Utils](https://github.com/ServiceStack/ServiceStack/wiki/Auto-mapping)
+ - [HTTP Utils](https://github.com/ServiceStack/ServiceStack/wiki/Http-Utils)
+ - [Dump Utils](https://github.com/ServiceStack/ServiceStack/wiki/Dump-Utils)
+ - Several String Extensions, Collection extensions, Reflection Utils and lots more.
 
-# Simple API
+### Try out [ServiceStack.Text Live](http://gistlyn.com/text)
+
+A great way to try out ServiceStack.Text is on [gistlyn.com](http://gistlyn.com) which lets you immediately 
+run and explore all ServiceStack.Text features from the comfort of your browser with zero software install:
+
+[![](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/gistlyn/home-screenshot.png)](http://gistlyn.com/text)
+
+## Simple API
 
 Like most of the interfaces in Service Stack, the API is simple. Methods that you would commonly use include:
+
+### Convenience Serialization Extension Methods
+
+```csharp
+string ToJson(T)
+T FromJson()
+
+string ToJsv(T)
+T FromJsv()
+
+string ToCsv(T)
+T FromCsv()
+
+string ToXml(T)
+T FromXml()
+```
+
+### Explicit API
 
 ```csharp
 string TypeSerializer.SerializeToString<T>(T value)
@@ -22,26 +48,11 @@ void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer)
 T TypeSerializer.DeserializeFromString<T>(string value)
 T TypeSerializer.DeserializeFromReader<T>(TextReader reader)
 ```
-    
+
 Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
-    
-### Dynamic JSON parsing API
 
-```csharp
-JsonObject.Parse()
-JsonArrayObjects.Parse()
-```
-	
-### Extension Methods
+### Dump Utils
 
-```csharp
-T FromJson()
-string ToJson(T)
-
-T FromJsv()
-string ToJsv(T)
-```
-    
 Dump / Diagnostic Extensions:
 
 ```csharp
@@ -50,7 +61,14 @@ T Print()
 T PrintDump()
 string Fmt(args)
 ```
-    
+
+### Dynamic JSON parsing API
+
+```csharp
+JsonObject.Parse()
+JsonArrayObjects.Parse()
+```
+	
 URL Extensions:
 
 ```csharp
@@ -63,7 +81,7 @@ string UrlFormat() / AppendPath() / AppendPaths() / WithTrailingSlash()
 string WithoutExtension() / ParentDirectory() / ReadAllText()
 ```
     
-Stream Extensions:
+#### Stream Extensions:
 
 ```csharp
 Stream WriteTo(Stream) / CopyTo()
@@ -71,7 +89,7 @@ Stream ReadLines()
 Stream ReadFully() / ReadExactly()
 ```
     
-String Utils:
+#### String Utils:
 
 ```csharp
 string SplitOnFirst() / SplitOnLast()
@@ -79,6 +97,7 @@ string IndexOfAny()
 string StripHtml() / ToCamelCase()
 string SafeSubstring()
 string ToUtf8Bytes() / FromUtf8Bytes()
+string LeftPart() / LastLeftPart() / RightPart() / LastRightPart()
 ```
     
 more String, Reflection, List, Dictionary, DateTime extensions...    
@@ -101,7 +120,7 @@ project. It provides a dynamic, but more succinct API than the above options.
 
     PM> Install-Package ServiceStack.Text
 
-_Latest v4+ on NuGet is a [commercial release](https://servicestack.net/text) with [free quotas](https://servicestack.net/download#free-quotas)._
+> From v4.0.62+ [ServiceStack.Text is now free!](https://github.com/ServiceStack/ServiceStack/blob/master/docs/2016/v4.0.62.md#servicestacktext-is-now-free)
 
 ### [Docs and Downloads for older v3 BSD releases](https://github.com/ServiceStackV3/ServiceStackV3)
 

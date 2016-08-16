@@ -131,7 +131,6 @@ namespace ServiceStack
         public static class ErrorMessages
         {
             private const string UpgradeInstructions = " Please see https://servicestack.net to upgrade to a commercial license or visit https://github.com/ServiceStackV3/ServiceStackV3 to revert back to the free ServiceStack v3.";
-            internal const string ExceededTextTypes = "The free-quota limit on '{0} ServiceStack.Text Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisTypes = "The free-quota limit on '{0} Redis Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisRequests = "The free-quota limit on '{0} Redis requests per hour' has been reached." + UpgradeInstructions;
             internal const string ExceededOrmLiteTables = "The free-quota limit on '{0} OrmLite Tables' has been reached." + UpgradeInstructions;
@@ -146,7 +145,6 @@ namespace ServiceStack
         {
             public const int ServiceStackOperations = 10;
             public const int TypeFields = 20;
-            public const int TextTypes = 80;
             public const int RedisTypes = 20;
             public const int RedisRequestPerHour = 6000;
             public const int OrmLiteTables = 10;
@@ -176,11 +174,7 @@ namespace ServiceStack
                 var parts = licenseKeyText.SplitOnFirst('-');
                 cutomerId = parts[0];
 
-                LicenseKey key;
-                using (new AccessToken(LicenseFeature.Text))
-                {
-                    key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
-                }
+                var key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
 
                 var releaseDate = Env.GetReleaseDate();
                 if (releaseDate > key.Expiry)
@@ -245,24 +239,9 @@ namespace ServiceStack
             if ((LicenseFeature.All & licensedFeatures) == LicenseFeature.All) //Standard Usage
                 return;
 
-            if (AccessTokenScope != null)
-            {
-                if ((feature & AccessTokenScope.tempFeatures) == feature)
-                    return;
-            }
-
             //Free Quotas
             switch (feature)
             {
-                case LicenseFeature.Text:
-                    switch (quotaType)
-                    {
-                        case QuotaType.Types:
-                            ApprovedUsage(licensedFeatures, feature, FreeQuotas.TextTypes, count, ErrorMessages.ExceededTextTypes);
-                            return;
-                    }
-                    break;
-
                 case LicenseFeature.Redis:
                     switch (quotaType)
                     {
@@ -403,71 +382,6 @@ namespace ServiceStack
                 ex = ex.InnerException;
             }
             return ex;
-        }
-
-        [ThreadStatic]
-        private static AccessToken AccessTokenScope;
-        private class AccessToken : IDisposable
-        {
-            private readonly AccessToken prevToken;
-            internal readonly LicenseFeature tempFeatures;
-            internal AccessToken(LicenseFeature requested)
-            {
-                prevToken = AccessTokenScope;
-                AccessTokenScope = this;
-                tempFeatures = requested;
-            }
-
-            public void Dispose()
-            {
-                AccessTokenScope = prevToken;
-            }
-        }
-
-        static class _approved
-        {
-            internal static readonly HashSet<string> __tokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "ServiceStack.ServiceClientBase+AccessToken",
-                "ServiceStack.JsonHttpClient+AccessToken",
-                "ServiceStack.RabbitMq.RabbitMqProducer+AccessToken",
-                "ServiceStack.Messaging.RedisMessageQueueClient+AccessToken",
-                "ServiceStack.Messaging.RedisMessageProducer+AccessToken",
-                "ServiceStack.Aws.Support.AwsClientUtils+AccessToken",
-            };
-
-            internal static readonly HashSet<string> __dlls = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "ServiceStack.HttpClient.dll",
-                "ServiceStack.Client.dll",
-                "ServiceStack.RabbitMq.dll",
-                "ServiceStack.Aws.dll",
-                "<Unknown>"
-            };
-        }
-
-        public static IDisposable RequestAccess(object accessToken, LicenseFeature srcFeature, LicenseFeature requestedAccess)
-        {
-            var accessType = accessToken.GetType();
-
-            if (srcFeature != LicenseFeature.Client || requestedAccess != LicenseFeature.Text || accessToken == null)
-                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest).Trace();
-
-            if (accessType.Name == "AccessToken" && accessType.GetAssembly().ManifestModule.Name.StartsWith("<")) //Smart Assembly
-                return new AccessToken(requestedAccess);
-
-            if (!_approved.__tokens.Contains(accessType.FullName))
-            {
-                var errorDetails = " __token: '{0}', Assembly: '{1}'".Fmt(
-                    accessType.Name,
-                    accessType.GetAssembly().ManifestModule.Name);
-
-                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest + errorDetails).Trace();
-            }
-
-            PclExport.Instance.VerifyInAssembly(accessType, _approved.__dlls);
-
-            return new AccessToken(requestedAccess);
         }
     }
 }

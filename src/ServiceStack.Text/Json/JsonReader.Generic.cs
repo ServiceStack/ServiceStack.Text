@@ -65,7 +65,7 @@ namespace ServiceStack.Text.Json
 
         public static object Parse(string value)
         {
-            TypeConfig<T>.AssertValidUsage();
+            TypeConfig<T>.Init();
 
             if (ReadFn == null)
             {

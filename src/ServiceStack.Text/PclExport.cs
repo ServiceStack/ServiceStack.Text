@@ -452,10 +452,6 @@ namespace ServiceStack
             return licenseKeyText.ToLicenseKey();
         }
 
-        public virtual void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
-        {
-        }
-
         public virtual void BeginThreadAffinity()
         {
         }

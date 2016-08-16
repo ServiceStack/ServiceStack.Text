@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using ServiceStack.Stripe;
 using ServiceStack.Stripe.Types;
@@ -47,10 +48,25 @@ namespace ServiceStack.Text.Tests.UseCases
                 Email = "Email",
                 Quantity = 1,
                 TrialEnd = new DateTime(2014, 1, 1),
+                Metadata = new Dictionary<string, string> { { "order_id", "1234" } },
             };
 
             var qs = QueryStringSerializer.SerializeToString(dto);
             qs.Print();
+        }
+
+        [Test]
+        public void Serializes_Customer_Metadata()
+        {
+            var dto = new CreateStripeCustomer
+            {
+                AccountBalance = 100,
+                Metadata = new Dictionary<string, string> { { "order_id", "1234" } },
+            };
+
+            var qs = QueryStringSerializer.SerializeToString(dto);
+            qs.Print();
+            Assert.That(qs, Is.EqualTo("account_balance=100&metadata[order_id]=1234"));
         }
 
         [Test]
@@ -109,7 +125,7 @@ namespace ServiceStack.Text.Tests.UseCases
                 Email = "the@email.com",
                 LegalEntity = new StripeLegalEntity
                 {
-                    Dob = new StripeDob
+                    Dob = new StripeDate
                     {
                         Day = 1,
                         Month = 1,
