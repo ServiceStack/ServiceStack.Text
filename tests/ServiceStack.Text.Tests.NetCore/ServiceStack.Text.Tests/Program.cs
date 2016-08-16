@@ -19,14 +19,7 @@ namespace NUnitLite.Tests
         /// <param name="args"></param>
         public static int Main(string[] args)
         {
-            var licenseKey = Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE");
-            if (licenseKey.IsNullOrEmpty())
-                throw new ArgumentNullException("SERVICESTACK_LICENSE", "Add Environment variable for SERVICESTACK_LICENSE");
-
-            Licensing.RegisterLicense(licenseKey);
-            //"ActivatedLicenseFeatures: ".Print(LicenseUtils.ActivatedLicenseFeatures());
-
-	    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+    	    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
             JsConfig.InitStatics();
             //JsonServiceClient client = new JsonServiceClient();
             var writer = new ExtendedTextWrapper(Console.Out);
