@@ -2,7 +2,7 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>ServiceStack.Text.Core</id>
-    <title>.NET's fastest JSON Serializer by ServiceStack</title>
+    <title>ServiceStack.Text.Core</title>
     <version>1.0.0</version> 
     <authors>Service Stack</authors> 
     <owners>Service Stack</owners>
