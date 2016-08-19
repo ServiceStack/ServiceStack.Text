@@ -3,7 +3,7 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>ServiceStack.Text.Signed</id>
     <title>ServiceStack.Text.Signed</title>
-    <version>4.0.0</version> 
+    <version>4.5.0</version> 
     <authors>Service Stack</authors> 
     <owners>Service Stack</owners>
     <summary>.NET's fastest JSON, JSV and CSV Text Serializers</summary>
@@ -24,4 +24,3 @@
     <file src="..\..\src\ServiceStack.Text\**\*.cs" target="src" />
   </files>
 </package>
-
