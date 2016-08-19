@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 
@@ -213,20 +212,10 @@ namespace ServiceStack.Text
             this.json = json;
         }
 
-        public T As<T>()
-        {
-            return JsonSerializer.DeserializeFromString<T>(json);
-        }
+        public T As<T>() => JsonSerializer.DeserializeFromString<T>(json);
 
-        public override string ToString()
-        {
-            return json;
-        }
+        public override string ToString() => json;
 
-        public void WriteTo(ITypeSerializer serializer, TextWriter writer)
-        {
-            writer.Write(json ?? JsonUtils.Null);
-        }
+        public void WriteTo(ITypeSerializer serializer, TextWriter writer) => writer.Write(json ?? JsonUtils.Null);
     }
-
 }
