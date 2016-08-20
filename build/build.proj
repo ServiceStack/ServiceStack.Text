@@ -5,7 +5,7 @@
 
   <PropertyGroup>
     <MajorVersion Condition="$(MajorVersion) == ''">4</MajorVersion>
-    <MinorVersion Condition="$(MinorVersion) == ''">0</MinorVersion>
+    <MinorVersion Condition="$(MinorVersion) == ''">5</MinorVersion>
     <PatchVersion Condition="$(PatchVersion) == ''">$(BUILD_NUMBER)</PatchVersion>
   </PropertyGroup>
 
@@ -84,7 +84,7 @@
       </RegexTransform>
       <!--Update Min Dependency Version -->
       <RegexTransform Include="$(NuGetPackageDir)/**/*.nuspec">
-        <Find>version="4\.0[^"]*"</Find>
+        <Find>version="4\.5[^"]*"</Find>
         <ReplaceWith>version="$(PackageVersion)"</ReplaceWith>
       </RegexTransform>
     </ItemGroup>
@@ -106,8 +106,8 @@
              Targets="Build"
              Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
 
-    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net40" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net40')" />
-    <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net40" />
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net45')" />
+    <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" />
  
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard1.1" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard1.1')" />
     <Copy SourceFiles="%(NetStandardFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard1.1" />

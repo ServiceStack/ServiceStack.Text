@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>ServiceStack.Text.Signed</id>
-    <title>ServiceStack.Text.Signed</title>
+    <id>ServiceStack.Text</id>
+    <title>.NET's fastest JSON Serializer by ServiceStack</title>
     <version>4.5.0</version> 
     <authors>Service Stack</authors> 
     <owners>Service Stack</owners>
@@ -24,3 +24,4 @@
     <file src="..\..\src\ServiceStack.Text\**\*.cs" target="src" />
   </files>
 </package>
+

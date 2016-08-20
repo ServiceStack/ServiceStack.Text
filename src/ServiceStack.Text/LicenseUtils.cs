@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ServiceStack.Text;
@@ -159,12 +160,14 @@ namespace ServiceStack
                     "See https://servicestack.net to upgrade to a valid license.").Trace();
         }
 
+        private static readonly int[] revokedSubs = new[] { 4018, 4019, 4041 };
+
         private static LicenseKey __activatedLicense;
         public static void RegisterLicense(string licenseKeyText)
         {
             JsConfig.InitStatics();
 
-            string cutomerId = null;
+            string subId = null;
 #if !(PCL || NETSTANDARD)
             var hold = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -172,7 +175,11 @@ namespace ServiceStack
             try
             {
                 var parts = licenseKeyText.SplitOnFirst('-');
-                cutomerId = parts[0];
+                subId = parts[0];
+
+                int subIdInt;
+                if (int.TryParse(subId, out subIdInt) && revokedSubs.Contains(subIdInt))
+                    throw new LicenseException("This subscription has been revoked. " + ContactDetails);
 
                 var key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
 
@@ -193,8 +200,8 @@ namespace ServiceStack
                     throw;
 
                 var msg = "This license is invalid." + ContactDetails;
-                if (!string.IsNullOrEmpty(cutomerId))
-                    msg += " The id for this license is '{0}'".Fmt(cutomerId);
+                if (!string.IsNullOrEmpty(subId))
+                    msg += " The id for this license is '{0}'".Fmt(subId);
 
                 throw new LicenseException(msg).Trace();
             }
