@@ -733,7 +733,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-#if NETCORE && !NETSTANDARD13
+#if NETCORE && !NETSTANDARD1_3
 	[Ignore("StringCollection is available only since netstandard1.3 platform")]
 #endif
         public void Can_serialize_StringCollection()

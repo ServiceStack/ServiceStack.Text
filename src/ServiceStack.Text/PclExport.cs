@@ -37,7 +37,7 @@ namespace ServiceStack
           = new Sl5PclExport()
 #elif NETFX_CORE
           = new WinStorePclExport()
-#elif NETSTANDARD
+#elif NETSTANDARD1_1
           = new NetStandardPclExport()
 #elif WP
           = new WpPclExport()

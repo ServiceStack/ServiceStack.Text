@@ -1,7 +1,7 @@
 //Copyright (c) Service Stack LLC. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
-#if NETSTANDARD
+#if NETSTANDARD1_1
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +12,7 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Globalization;
 using System.Reflection.Emit;
-#if NETSTANDARD13
+#if NETSTANDARD1_3
 using System.Collections.Specialized;
 #endif
 
@@ -147,7 +147,7 @@ namespace ServiceStack
         //    return TimeZoneInfo.ConvertTimeToUtc(dateTime);
         //}
 
-#if NETSTANDARD13
+#if NETSTANDARD1_3
         public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))

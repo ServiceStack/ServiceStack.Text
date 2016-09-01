@@ -36,7 +36,7 @@ namespace ServiceStack
         static DynamicProxy()
         {
             var assemblyName = new AssemblyName("DynImpl");
-#if NETSTANDARD
+#if NETSTANDARD1_1
             DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #else
             DynamicAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
@@ -60,7 +60,7 @@ namespace ServiceStack
             foreach (var face in targetType.GetTypeInterfaces())
                 IncludeType(face, typeBuilder);
 
-#if NETSTANDARD
+#if NETSTANDARD1_1
             return typeBuilder.CreateTypeInfo().AsType();
 #else
             return typeBuilder.CreateType();
@@ -104,7 +104,7 @@ namespace ServiceStack
             {
                 if (methodInfo.ReturnType.IsValueType() || methodInfo.ReturnType.IsEnum())
                 {
-#if NETSTANDARD
+#if NETSTANDARD1_1
                     MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance");
 #else
                     MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance",
