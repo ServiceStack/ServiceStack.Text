@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using NUnit.Framework;
-using ServiceStack.Common.Extensions;
 
 namespace ServiceStack.Text.Tests.UseCases
 {

@@ -269,6 +269,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ParseAsType.cs" />
+    <Compile Include="DynamicProxy.cs" />
+    <Compile Include="PclExport.NetStandard.cs" />
   </ItemGroup>
   <!--ItemGroup,Content-->
   <!--ItemGroup,None-->

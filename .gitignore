@@ -43,6 +43,8 @@ App_Data/
 *.suo
 *.user
 .vs/
+.vscode/
+*.lock.json
 
 NuGet/
 NuGet.Pcl/

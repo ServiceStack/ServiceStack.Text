@@ -103,7 +103,7 @@ namespace ServiceStack
         public static object ChangeTo(this string strValue, Type type)
         {
             if (type.IsValueType() && !type.IsEnum()
-#if !PCL
+#if !(PCL || NETSTANDARD1_1)
                 && type.HasInterface(typeof(IConvertible))
 #endif
                 )

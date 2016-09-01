@@ -41,7 +41,7 @@ namespace ServiceStack.Text.Tests
         const string TestTrial2016Text = "TRIAL302016-e1JlZjpUUklBTDMwMjAxNixOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOkFSSThkVzlHZ210NWZGZ09MTytIRi9vQ29iOWgwN1c4bGxuNHZrUm9CQ2M5aysxVlh3WWJEd2Nxais3cHhFbEwrTkgwbGF2NXoyZGdJV1NndUpXYjZrUC9aQWdqNVIvMmlHamp4ZlduQjExOWY2WHgvRzFERmQ5cndJdjNMejhzR0V5RitNcGhlN3RTbEhJVlR4UjA1amI2SDFaZHlIYjNDNFExcTJaWEFzQT0sRXhwaXJ5OjIwMTYtMDEtMDF9";
         readonly LicenseKey TestTrial2016 = new LicenseKey { Ref = "TRIAL302016", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2016, 01, 01) };
 
-        public IEnumerable AllLicenseUseCases
+        public static IEnumerable AllLicenseUseCases
         {
             get
             {
@@ -121,7 +121,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_register_valid_license()
         {
-#if !SL5
+#if !SL5 && !NETCORE_SUPPORT
             Licensing.RegisterLicense(new ServiceStack.Configuration.AppSettings().GetString("servicestack:license"));
 #else
             Licensing.RegisterLicense("1001-e1JlZjoxMDAxLE5hbWU6VGVzdCBCdXNpbmVzcyxUeXBlOkJ1c2luZXNzLEhhc2g6UHVNTVRPclhvT2ZIbjQ5MG5LZE1mUTd5RUMzQnBucTFEbTE3TDczVEF4QUNMT1FhNXJMOWkzVjFGL2ZkVTE3Q2pDNENqTkQyUktRWmhvUVBhYTBiekJGUUZ3ZE5aZHFDYm9hL3lydGlwUHI5K1JsaTBYbzNsUC85cjVJNHE5QVhldDN6QkE4aTlvdldrdTgyTk1relY2eis2dFFqTThYN2lmc0JveHgycFdjPSxFeHBpcnk6MjAxMy0wMS0wMX0=");
@@ -199,6 +199,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(licenseKey.Expiry, Is.EqualTo(expectedKey.Expiry));
         }
 
+#if !NETCORE
         [Explicit,Test]
         public void Test_dynamically_loaded_assemblies()
         {
@@ -208,6 +209,7 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(assembly.ManifestModule.Name, Is.EqualTo("<Unknown>"));
         }
+#endif
 
         [Test]
         public void Doesnt_override_DateTime_config()

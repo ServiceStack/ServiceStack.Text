@@ -269,7 +269,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_serialize_windows_new_line()
         {
             const string expected = "\"Hi I\'m\\r\\nnew line :)\"";
-            var text = "Hi I\'m" + Environment.NewLine + "new line :)";
+            var text = "Hi I\'m\r\nnew line :)";
 
             var result = JsonSerializer.SerializeToString(text);
 
@@ -283,7 +283,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var model = new ModelWithIdAndName
             {
                 Id = 1,
-                Name = "Hi I'm" + Environment.NewLine + "new line :)"
+                Name = "Hi I'm\r\nnew line :)"
             };
 
             var result = JsonSerializer.SerializeToString(model);
@@ -297,7 +297,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var model = new ModelWithIdAndName
             {
                 Id = 1,
-                Name = "Hi I'm" + Environment.NewLine + "new line :)"
+                Name = "Hi I'm\r\nnew line :)"
             };
 
             const string json = "{\"Id\":1,\"Name\":\"Hi I'm\\r\\nnew line :)\"}";

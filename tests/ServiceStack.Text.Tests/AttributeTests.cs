@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
+using ServiceStack;
+using System.Runtime.Serialization;
+using System.Reflection;
 
 namespace ServiceStack.Text.Tests
 {
@@ -33,17 +36,28 @@ namespace ServiceStack.Text.Tests
         public void Does_get_Multiple_RouteDefault_Attributes()
         {
             // AllAttributes<T>() makes this call to get attrs
+#if NETCORE
+            var referenceGeneric =
+                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
+                    .Where(x => x.GetType().IsInstanceOf(typeof(RouteDefaultAttribute)))
+                    .OfType<RouteDefaultAttribute>();
+#else
             var referenceGeneric =
                 typeof(DefaultWithMultipleAttributes).GetCustomAttributes(typeof(RouteDefaultAttribute), true)
                     .OfType<RouteDefaultAttribute>();
-
+#endif
             // Attribute inheritance hierarchies (InheritedRouteAttribute) are returned in results
             Assert.That(referenceGeneric.Count(), Is.EqualTo(4));
 
             // AllAttributes() makes this call to get attrs
+#if NETCORE
+            var reference =
+                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
+			        .Where(x => x.GetType().IsInstanceOf(typeof(RouteDefaultAttribute))).ToArray();
+#else
             var reference =
                 typeof(DefaultWithMultipleAttributes).GetCustomAttributes(typeof(RouteDefaultAttribute), true);
-
+#endif
             // Attribute inheritance hierarchies (InheritedRouteAttribute) are returned in results
             Assert.That(reference.Count(), Is.EqualTo(4));
 
@@ -243,7 +257,11 @@ namespace ServiceStack.Text.Tests
         public string Path { get; set; }
         public string Verbs { get; set; }
 
+#if !NETCORE
         public override object TypeId
+#else
+        public object TypeId
+#endif
         {
             get
             {

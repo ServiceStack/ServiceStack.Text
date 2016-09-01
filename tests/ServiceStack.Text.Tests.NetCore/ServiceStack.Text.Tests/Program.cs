@@ -1,0 +1,29 @@
+using NUnitLite;
+using NUnit.Common;
+using System.Reflection;
+using ServiceStack;
+using ServiceStack.Text;
+using System;
+using System.Globalization;
+using System.Threading;
+
+namespace NUnitLite.Tests
+{
+    public class Program
+    {
+        /// <summary>
+        /// The main program executes the tests. Output may be routed to
+        /// various locations, depending on the arguments passed.
+        /// </summary>
+        /// <remarks>Run with --help for a full list of arguments supported</remarks>
+        /// <param name="args"></param>
+        public static int Main(string[] args)
+        {
+    	    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+            JsConfig.InitStatics();
+            //JsonServiceClient client = new JsonServiceClient();
+            var writer = new ExtendedTextWrapper(Console.Out);
+            return new AutoRun(((IReflectableType)typeof(Program)).GetTypeInfo().Assembly).Execute(args, writer, Console.In);
+        }
+    }
+}

@@ -12,10 +12,17 @@ namespace ServiceStack.Text.Tests.Utils
     {
         public void PrintFormats(DateTime dateTime)
         {
+#if NETCORE
+            Log("dateTime.ToShortDateString(): " + dateTime.ToString("d"));
+            Log("dateTime.ToLongDateString(): " + dateTime.ToString("D"));
+            Log("dateTime.ToShortTimeString(): " + dateTime.ToString("t"));
+            Log("dateTime.ToLongTimeString(): " + dateTime.ToString("T"));
+#else
             Log("dateTime.ToShortDateString(): " + dateTime.ToShortDateString());
+            Log("dateTime.ToLongDateString(): " + dateTime.ToLongDateString());
             Log("dateTime.ToShortTimeString(): " + dateTime.ToShortTimeString());
             Log("dateTime.ToLongTimeString(): " + dateTime.ToLongTimeString());
-            Log("dateTime.ToShortTimeString(): " + dateTime.ToShortTimeString());
+#endif
             Log("dateTime.ToString(): " + dateTime.ToString());
             Log("DateTimeSerializer.ToShortestXsdDateTimeString(dateTime): " + DateTimeSerializer.ToShortestXsdDateTimeString(dateTime));
             Log("DateTimeSerializer.ToDateTimeString(dateTime): " + DateTimeSerializer.ToDateTimeString(dateTime));
@@ -66,9 +73,9 @@ namespace ServiceStack.Text.Tests.Utils
                 ? "1979-05-09T00:00:00.001Z"
                 : "1979-05-08T23:00:00.001Z";
 
-            Assert.That(shortDateString, Is.EqualTo(DateTimeSerializer.ToShortestXsdDateTimeString(shortDate)));
-            Assert.That(shortDateTimeString, Is.EqualTo(DateTimeSerializer.ToShortestXsdDateTimeString(shortDateTime)));
-            Assert.That(longDateTimeString, Is.EqualTo(DateTimeSerializer.ToShortestXsdDateTimeString(longDateTime)));
+            Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(shortDate), Is.EqualTo(shortDateString));
+            Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(shortDateTime), Is.EqualTo(shortDateTimeString));
+            Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(longDateTime), Is.EqualTo(longDateTimeString));
         }
 
         [Test]
@@ -86,7 +93,7 @@ namespace ServiceStack.Text.Tests.Utils
         }
 
         [Test]
-        [Ignore]
+        [Ignore("TODO: add reason")]
         public void Utc_Local_Equals()
         {
             var now = DateTime.Now;

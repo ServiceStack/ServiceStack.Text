@@ -29,8 +29,14 @@ namespace ServiceStack.Text.Tests
             var message = new Message<string> { Id = new Guid(), CreatedDate = new DateTime(), Body = "test" };
             var messageString = TypeSerializer.SerializeToString((IMessage<string>)message);
 
+#if NETCORE
+            var assembly = "System.Private.CoreLib";
+#else
+            var assembly = "mscorlib";
+#endif
+
             Assert.That(messageString, Is.EqualTo(
-            "{__type:\"ServiceStack.Messaging.Message`1[[System.String, mscorlib]], ServiceStack.Interfaces\","
+            "{__type:\"ServiceStack.Messaging.Message`1[[System.String, " + assembly + "]], ServiceStack.Interfaces\","
              + "Id:00000000000000000000000000000000,CreatedDate:0001-01-01,Priority:0,RetryAttempts:0,Options:1,Body:test}"));
         }
 
@@ -74,8 +80,14 @@ namespace ServiceStack.Text.Tests
         {
             get
             {
+#if NETCORE
+                var assembly = "System.Private.CoreLib";
+#else
+                var assembly = "mscorlib";
+#endif
+
                 yield return new TestCaseData(typeof(Message<string>),
-                    "ServiceStack.Messaging.Message`1[[System.String, mscorlib]], ServiceStack.Interfaces");
+                    "ServiceStack.Messaging.Message`1[[System.String, " + assembly + "]], ServiceStack.Interfaces");
 
                 yield return new TestCaseData(typeof(Cat),
                     "ServiceStack.Text.Tests.JsonTests.Cat, ServiceStack.Text.Tests");
@@ -116,6 +128,7 @@ namespace ServiceStack.Text.Tests
             public Dictionary<string, IAuthTokens> ProviderOAuthAccess { get; set; }
         }
 
+#if !NETCORE_SUPPORT
         [Test]
         public void Can_Serialize_User_OAuthSession_map()
         {
@@ -195,7 +208,7 @@ namespace ServiceStack.Text.Tests
                 JsConfig.Reset();
             }
         }
-
+#endif
         public class AggregateEvents
         {
             public Guid Id { get; set; }

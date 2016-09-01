@@ -1,0 +1,29 @@
+{
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": ["DEBUG", "TRACE"]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": ["TRACE"],
+        "optimize": true
+      }
+    }
+  },
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "ServiceStack.Text" : {
+       "version" : "1.0.*"
+    }
+  },
+  "frameworks": {
+    "netstandard1.3": { 
+        "dependencies" : {
+         },
+	"bin" : { "assembly":"../../../lib/tests/netcore/ServiceStack.Common.dll", "pdb" : "../../../lib/tests/netcore/ServiceStack.Common.pdb" }
+     }
+  },
+  "version": "1.0.0"
+}

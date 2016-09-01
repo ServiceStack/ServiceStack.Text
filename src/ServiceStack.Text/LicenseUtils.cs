@@ -168,7 +168,7 @@ namespace ServiceStack
             JsConfig.InitStatics();
 
             string subId = null;
-#if !PCL
+#if !(PCL || NETSTANDARD1_1)
             var hold = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 #endif
@@ -207,7 +207,7 @@ namespace ServiceStack
             }
             finally
             {
-#if !PCL
+#if !(PCL || NETSTANDARD1_1)
                 Thread.CurrentThread.CurrentCulture = hold;
 #endif
             }
