@@ -277,7 +277,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var dto = new ModelInt { Int = 0 };
 
             using (JsConfig.With(includeNullValues: true))
-           {
+            {
                 Assert.That(dto.ToJson(), Is.EqualTo("{\"Int\":-1}"));
             }
 

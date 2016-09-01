@@ -36,7 +36,8 @@
 		"System.Drawing.Primitives" : "4.0.0",
 		"System.Collections.Specialized": "4.0.1",
 		"System.Runtime.Serialization.Json": "4.0.2",
-		"System.Collections.NonGeneric": "4.0.1"
+		"System.Collections.NonGeneric": "4.0.1",
+		"System.Diagnostics.TraceSource": "4.0.0"
             }	
      }
   }
