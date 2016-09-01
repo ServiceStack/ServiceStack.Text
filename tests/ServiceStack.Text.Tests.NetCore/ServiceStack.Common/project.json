@@ -2,12 +2,12 @@
   "configurations": {
     "Debug": {
       "buildOptions": {
-        "define": ["NETSTANDARD", "DEBUG", "TRACE"]
+        "define": ["DEBUG", "TRACE"]
       }
     },
     "Release": {
       "buildOptions": {
-        "define": ["NETSTANDARD", "TRACE"],
+        "define": ["TRACE"],
         "optimize": true
       }
     }
@@ -19,7 +19,7 @@
     }
   },
   "frameworks": {
-    "netstandard1.1": { 
+    "netstandard1.3": { 
         "dependencies" : {
          },
 	"bin" : { "assembly":"../../../lib/tests/netcore/ServiceStack.Common.dll", "pdb" : "../../../lib/tests/netcore/ServiceStack.Common.pdb" }
