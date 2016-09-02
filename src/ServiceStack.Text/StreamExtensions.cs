@@ -284,5 +284,13 @@ namespace ServiceStack
 
             return to;
         }
+
+#if NETSTANDARD1_1
+        public static void Close(this Stream stream)
+        {
+            stream.Dispose();
+        }
+#endif
+
     }
 }
