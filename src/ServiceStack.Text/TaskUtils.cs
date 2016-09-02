@@ -156,5 +156,14 @@ namespace ServiceStack
             Thread.Sleep(timeMs);
 #endif
         }
+
+        public static void Sleep(TimeSpan time)
+        {
+#if PCL || NETSTANDARD1_1
+            Task.Delay(time).Wait();
+#else
+            Thread.Sleep(time);
+#endif
+        }
     }
 }
