@@ -147,5 +147,14 @@ namespace ServiceStack
             if (iterationTask != null)
                 iterationTask.ContinueWith(next, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
+
+        public static void Sleep(int timeMs)
+        {
+#if PCL || NETSTANDARD1_1
+            Task.Delay(timeMs).Wait();
+#else
+            Thread.Sleep(timeMs);
+#endif
+        }
     }
 }

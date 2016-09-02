@@ -285,9 +285,10 @@ namespace ServiceStack
             return to;
         }
 
-#if NETSTANDARD1_1
+#if PCL || NETSTANDARD1_1
         public static void Close(this Stream stream)
         {
+            PclExport.Instance?.CloseStream(stream);
             stream.Dispose();
         }
 #endif
