@@ -58,22 +58,23 @@ namespace ServiceStack
         public override string ReadAllText(string filePath)
         {
             //NET Standard 1.1 does not supported Stream Reader with string constructor
-            /*using (StreamReader rdr = new StreamReader(filePath))
+#if NETSTANDARD1_3
+            using (StreamReader rdr = File.OpenText(filePath))
             {
                 return rdr.ReadToEnd();
-            } */
+            }
+#else            
             return String.Empty;
+#endif
         }
 
+#if NETSTANDARD1_3
         public override bool FileExists(string filePath)
         {
-            //File and Directory do not supported in NET Standard 1.1
-            //File operations are available from NET Standard 1.3
-            //return File.Exists(filePath);
-            return false;
+            return File.Exists(filePath);
         }
 
-/*      public override bool DirectoryExists(string dirPath)
+      public override bool DirectoryExists(string dirPath)
         {
             return Directory.Exists(dirPath);
         }
@@ -102,7 +103,24 @@ namespace ServiceStack
                 ? Directory.GetDirectories(dirPath, searchPattern)
                 : Directory.GetDirectories(dirPath);
         }
-  */
+
+        public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
+        {
+            if (relativePath.StartsWith("~"))
+            {
+                var assemblyDirectoryPath = AppContext.BaseDirectory;
+
+                // Escape the assembly bin directory to the hostname directory
+                var hostDirectoryPath = appendPartialPathModifier != null
+                                            ? assemblyDirectoryPath + appendPartialPathModifier
+                                            : assemblyDirectoryPath;
+
+                return Path.GetFullPath(relativePath.Replace("~", hostDirectoryPath));
+            }
+            return relativePath;
+        }
+#endif
+
         public static PclExport Configure()
         {
             Configure(Provider);
@@ -146,35 +164,6 @@ namespace ServiceStack
         //    // .Net 4.0+ does this under the hood anyway.
         //    return TimeZoneInfo.ConvertTimeToUtc(dateTime);
         //}
-
-#if NETSTANDARD1_3
-        public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
-        {
-            if (type == typeof(StringCollection))
-            {
-                return SerializerUtils<TSerializer>.ParseStringCollection<TSerializer>;
-            }
-            return null;
-        }
-
-        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer
-        {
-            if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
-            return value == String.Empty
-                   ? new StringCollection()
-                   : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
-        }
-
-        public static StringCollection ToStringCollection(List<string> items)
-        {
-            var to = new StringCollection();
-            foreach (var item in items)
-            {
-                to.Add(item);
-            }
-            return to;
-        }
-#endif
 
         public override Type UseType(Type type)
         {
