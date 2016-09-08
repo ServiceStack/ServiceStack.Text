@@ -1295,10 +1295,14 @@ namespace ServiceStack
 
         public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType)
         {
-#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+#if (NETFX_CORE || PCL)
             return propertyInfo.GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #else
+#if NETSTANDARD1_1
+            var attrs = propertyInfo.GetCustomAttributes(attrType, true).ToArray();
+#else
             var attrs = propertyInfo.GetCustomAttributes(attrType, true);
+#endif
             var runtimeAttrs = propertyInfo.GetAttributes(attrType);
             if (runtimeAttrs.Count == 0)
                 return attrs;
@@ -1382,12 +1386,11 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #elif NETSTANDARD1_1
-            return type.GetTypeInfo().GetCustomAttributes(true)
-                .Where(x => x.GetType().IsInstanceOf(attrType))
-                .Union(type.GetRuntimeAttributes())
+            return type.GetTypeInfo().GetCustomAttributes(attrType, true)
+                .Union(type.GetRuntimeAttributes(attrType))
                 .ToArray();
 #else
-            return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
+            return type.GetCustomAttributes(attrType, true).Union(type.GetRuntimeAttributes(attrType)).ToArray();
 #endif
         }
 
