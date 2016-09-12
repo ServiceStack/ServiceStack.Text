@@ -1280,10 +1280,14 @@ namespace ServiceStack
 
         public static object[] AllAttributes(this PropertyInfo propertyInfo)
         {
-#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+#if (NETFX_CORE || PCL)
             return propertyInfo.GetCustomAttributes(true).ToArray();
 #else
+#if NETSTANDARD1_1
+            var attrs = propertyInfo.GetCustomAttributes(true).ToArray();
+#else
             var attrs = propertyInfo.GetCustomAttributes(true);
+#endif
             var runtimeAttrs = propertyInfo.GetAttributes();
             if (runtimeAttrs.Count == 0)
                 return attrs;
@@ -1460,11 +1464,16 @@ namespace ServiceStack
 
         public static TAttr FirstAttribute<TAttr>(this Type type) where TAttr : class
         {
-#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+#if (NETFX_CORE || PCL )
 
             return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
                     .Cast<TAttr>()
                     .FirstOrDefault();
+#elif NETSTANDARD1_1                   
+            return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
+                    .Cast<TAttr>()
+                    .FirstOrDefault()
+                   ?? type.GetRuntimeAttributes<TAttr>().FirstOrDefault();
 #else
             return (TAttr)type.GetCustomAttributes(typeof(TAttr), true)
                    .FirstOrDefault()
