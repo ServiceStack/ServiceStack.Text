@@ -517,9 +517,9 @@ namespace ServiceStack
             if (emptyCtor != null)
             {
 
-#if __IOS__ || XBOX || NETFX_CORE || NETSTANDARD1_1
+#if __IOS__ || XBOX || NETFX_CORE
 				return () => Activator.CreateInstance(type);
-#elif WP || PCL
+#elif WP || PCL || NETSTANDARD1_1
                 return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(
                     System.Linq.Expressions.Expression.New(type)).Compile();
 #else
