@@ -45,8 +45,7 @@ namespace ServiceStack.Text
             do
             {
                 snapshot = TypeCache;
-                newCache = new Dictionary<string, Type>(TypeCache);
-                newCache[typeName] = type;
+                newCache = new Dictionary<string, Type>(TypeCache) { [typeName] = type };
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref TypeCache, newCache, snapshot), snapshot));

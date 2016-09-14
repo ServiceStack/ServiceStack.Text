@@ -10,7 +10,9 @@
 // Licensed under the same terms of ServiceStack.
 //
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using ServiceStack.Text;
 #if !XBOX
 using System.Linq.Expressions;
@@ -20,6 +22,52 @@ namespace ServiceStack.Reflection
     //Also exists in ServiceStack.Common in ServiceStack.Reflection namespace
     public static class StaticAccessors
     {
+        private static Dictionary<string, Func<object, object>> getterFnCache = new Dictionary<string, Func<object, object>>();
+
+        public static Func<object, object> GetFastGetter(this Type type, string propName)
+        {
+            var key = $"{type.Namespace}.{type.Name}::{propName}";
+            Func<object, object> fn;
+            if (getterFnCache.TryGetValue(key, out fn))
+                return fn;
+
+            fn = GetValueGetter(type.GetProperty(propName));
+
+            Dictionary<string, Func<object, object>> snapshot, newCache;
+            do
+            {
+                snapshot = getterFnCache;
+                newCache = new Dictionary<string, Func<object, object>>(getterFnCache) { [key] = fn };
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref getterFnCache, newCache, snapshot), snapshot));
+
+            return fn;
+        }
+
+        private static Dictionary<string, Action<object, object>> setterFnCache = new Dictionary<string, Action<object, object>>();
+
+        public static Action<object, object> GetFastSetter(this Type type, string propName)
+        {
+            var key = $"{type.Namespace}.{type.Name}::{propName}";
+            Action<object, object> fn;
+            if (setterFnCache.TryGetValue(key, out fn))
+                return fn;
+
+            fn = GetValueSetter(type.GetProperty(propName));
+
+            Dictionary<string, Action<object, object>> snapshot, newCache;
+            do
+            {
+                snapshot = setterFnCache;
+                newCache = new Dictionary<string, Action<object, object>>(setterFnCache) { [key] = fn };
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref setterFnCache, newCache, snapshot), snapshot));
+
+            return fn;
+        }
+
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo)
         {
             return GetValueGetter(propertyInfo, propertyInfo.DeclaringType);
