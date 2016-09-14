@@ -31,7 +31,7 @@ namespace ServiceStack.Reflection
             if (getterFnCache.TryGetValue(key, out fn))
                 return fn;
 
-            fn = GetValueGetter(type.GetProperty(propName));
+            fn = GetValueGetter(type.GetPropertyInfo(propName));
 
             Dictionary<string, Func<object, object>> snapshot, newCache;
             do
@@ -54,7 +54,7 @@ namespace ServiceStack.Reflection
             if (setterFnCache.TryGetValue(key, out fn))
                 return fn;
 
-            fn = GetValueSetter(type.GetProperty(propName));
+            fn = GetValueSetter(type.GetPropertyInfo(propName));
 
             Dictionary<string, Action<object, object>> snapshot, newCache;
             do

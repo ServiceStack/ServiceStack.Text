@@ -1747,6 +1747,15 @@ namespace ServiceStack
 #endif
         }
 
+        public static bool ContainsGenericParameters(this Type type)
+        {
+#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+            return type.GetTypeInfo().ContainsGenericParameters;
+#else
+            return type.ContainsGenericParameters;
+#endif
+        }
+
 #if (NETFX_CORE)
         public static object GetDefaultValue(this Type type)
         {
