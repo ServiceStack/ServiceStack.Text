@@ -520,8 +520,10 @@ namespace ServiceStack
 #if __IOS__ || XBOX || NETFX_CORE
 				return () => Activator.CreateInstance(type);
 #elif WP || PCL || NETSTANDARD1_1
-                return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(
-                    System.Linq.Expressions.Expression.New(type)).Compile();
+                System.Linq.Expressions.Expression conversion = Expression.Convert(
+                    System.Linq.Expressions.Expression.New(type), typeof(object));
+
+                return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(conversion).Compile();
 #else
 
 #if SL5 

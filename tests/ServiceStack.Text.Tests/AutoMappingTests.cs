@@ -628,7 +628,26 @@ namespace ServiceStack.Text.Tests
             Assert.That(to[0].Age, Is.EqualTo(0));
             Assert.That(to[0].Name, Is.EqualTo("Name0"));
         }
+
+        [Test]
+        public void Can_create_Dictionary_default_value()
+        {
+            var obj = (Dictionary<string, ClassWithEnum>)AutoMappingUtils.CreateDefaultValue(typeof(Dictionary<string, ClassWithEnum>), new Dictionary<Type, int>());
+            Assert.That(obj, Is.Not.Null);
+        }
     }
+
+    public enum ClassWithEnumType
+    {
+        One = 1,
+        Two = 2,
+        Three = 3
+    }
+
+    public class ClassWithEnum
+    {
+        public ClassWithEnumType Type { get; set; }
+    }    
 
     public class Test
     {
