@@ -16,7 +16,6 @@
     "debugType": "portable",
     "emitEntryPoint": true
   },
-  "compile": ["../../ServiceStack.Text.Tests/**/*.cs"],
   "dependencies": {
     "Microsoft.NETCore.App": {
           "type": "platform",
