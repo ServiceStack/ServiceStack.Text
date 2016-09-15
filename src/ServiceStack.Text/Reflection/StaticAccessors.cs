@@ -27,7 +27,7 @@ namespace ServiceStack.Reflection
 
         public static Func<object, object> GetFastGetter(this Type type, string propName)
         {
-            var key = GetTypePropertyKey(type, propName);
+            var key = $"{type.FullName}::{propName}";
             Func<object, object> fn;
             if (getterFnCache.TryGetValue(key, out fn))
                 return fn;
@@ -36,7 +36,7 @@ namespace ServiceStack.Reflection
             if (pi == null)
                 return null;
 
-            fn = GetValueGetter(pi);
+            fn = GetValueGetter(pi, type);
 
             Dictionary<string, Func<object, object>> snapshot, newCache;
             do
@@ -50,33 +50,11 @@ namespace ServiceStack.Reflection
             return fn;
         }
 
-        private static string GetTypePropertyKey(Type type, string propName)
-        {
-            var key = StringBuilderThreadStatic.Allocate()
-                .Append($"{type.Namespace}.{type.Name}::{propName}");
-
-            if (type.IsGenericType())
-            {
-                key.Append("<");
-                var i = 0;
-                foreach (var arg in type.GetGenericArguments())
-                {
-                    if (i++ > 0)
-                        key.Append(",");
-
-                    key.Append($"{arg.Namespace}.{arg.Name}");
-                }
-                key.Append(">");
-            }
-
-            return StringBuilderThreadStatic.ReturnAndFree(key);
-        }
-
         private static Dictionary<string, Action<object, object>> setterFnCache = new Dictionary<string, Action<object, object>>();
 
         public static Action<object, object> GetFastSetter(this Type type, string propName)
         {
-            var key = GetTypePropertyKey(type, propName);
+            var key = $"{type.FullName}::{propName}";
             Action<object, object> fn;
             if (setterFnCache.TryGetValue(key, out fn))
                 return fn;
@@ -85,7 +63,7 @@ namespace ServiceStack.Reflection
             if (pi == null)
                 return null;
 
-            fn = GetValueSetter(pi);
+            fn = GetValueSetter(pi, type);
 
             Dictionary<string, Action<object, object>> snapshot, newCache;
             do
