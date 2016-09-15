@@ -82,10 +82,9 @@ namespace ServiceStack
             return type.GetTypeInfo().GenericTypeArguments;
         }
 
-        public static TypeInfo GetTypeInfo(this Type type)
+        internal static TypeInfo GetTypeInfo(this Type type)
         {
-            IReflectableType reflectableType = (IReflectableType)type;
-            return reflectableType.GetTypeInfo();
+            return ((IReflectableType)type).GetTypeInfo();
         }
 #endif
 
@@ -1758,6 +1757,15 @@ namespace ServiceStack
             return type.GetTypeInfo().IsGenericType;
 #else
             return type.IsGenericType;
+#endif
+        }
+
+        public static bool ContainsGenericParameters(this Type type)
+        {
+#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+            return type.GetTypeInfo().ContainsGenericParameters;
+#else
+            return type.ContainsGenericParameters;
 #endif
         }
 
