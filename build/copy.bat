@@ -16,4 +16,5 @@ COPY ..\src\ServiceStack.Text.SL5\bin\%BUILD%\ServiceStack.Text.* ..\..\ServiceS
 
 COPY ..\src\ServiceStack.Text\bin\Pcl\ServiceStack.Text.dll ..\..\ServiceStack\lib\pcl
 
-COPY ..\src\ServiceStack.Text\bin\Debug\netstandard1.1\*.* ..\..\ServiceStack\lib\netcore
+COPY ..\src\ServiceStack.Text\bin\%BUILD%\netstandard1.1\*.* ..\..\ServiceStack\lib\netstandard1.1
+COPY ..\src\ServiceStack.Text\bin\%BUILD%\netstandard1.3\*.* ..\..\ServiceStack\lib\netstandard1.3
