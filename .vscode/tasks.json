@@ -8,7 +8,7 @@
     "tasks": [
         {
             "taskName": "build",
-            "args": [ ],
+            "args": [ "tests/ServiceStack.Text.Tests" ],
             "isBuildCommand": true,
             "showOutput": "silent",
             "problemMatcher": "$msCompile"
