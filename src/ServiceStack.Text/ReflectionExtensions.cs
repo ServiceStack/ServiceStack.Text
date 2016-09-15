@@ -82,10 +82,9 @@ namespace ServiceStack
             return type.GetTypeInfo().GenericTypeArguments;
         }
 
-        public static TypeInfo GetTypeInfo(this Type type)
+        internal static TypeInfo GetTypeInfo(this Type type)
         {
-            IReflectableType reflectableType = (IReflectableType)type;
-            return reflectableType.GetTypeInfo();
+            return ((IReflectableType)type).GetTypeInfo();
         }
 #endif
 
