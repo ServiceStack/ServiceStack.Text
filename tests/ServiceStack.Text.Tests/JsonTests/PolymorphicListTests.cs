@@ -120,11 +120,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 		{
 			JsConfig.Reset();
 			JsConfig<ICat>.ExcludeTypeInfo = false;
-#if NETCORE
-			assemblyName = GetType().GetTypeInfo().Assembly.GetName().Name;
-#else
-			assemblyName = GetType().Assembly.GetName().Name;
-#endif
+			assemblyName = GetType().GetAssembly().GetName().Name;
 		}
 
 		[Test]
