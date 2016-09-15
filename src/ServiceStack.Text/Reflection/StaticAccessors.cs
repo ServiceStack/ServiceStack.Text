@@ -36,7 +36,7 @@ namespace ServiceStack.Reflection
             if (pi == null)
                 return null;
 
-            fn = GetValueGetter(pi, type);
+            fn = GetValueGetter(pi);
 
             Dictionary<string, Func<object, object>> snapshot, newCache;
             do
@@ -63,7 +63,7 @@ namespace ServiceStack.Reflection
             if (pi == null)
                 return null;
 
-            fn = GetValueSetter(pi, type);
+            fn = GetValueSetter(pi);
 
             Dictionary<string, Action<object, object>> snapshot, newCache;
             do
