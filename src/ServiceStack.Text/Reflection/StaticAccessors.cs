@@ -11,6 +11,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ServiceStack.Text;
@@ -26,12 +27,16 @@ namespace ServiceStack.Reflection
 
         public static Func<object, object> GetFastGetter(this Type type, string propName)
         {
-            var key = $"{type.Namespace}.{type.Name}::{propName}";
+            var key = $"{type.FullName}::{propName}";
             Func<object, object> fn;
             if (getterFnCache.TryGetValue(key, out fn))
                 return fn;
 
-            fn = GetValueGetter(type.GetPropertyInfo(propName));
+            var pi = type.GetPropertyInfo(propName);
+            if (pi == null)
+                return null;
+
+            fn = GetValueGetter(pi);
 
             Dictionary<string, Func<object, object>> snapshot, newCache;
             do
@@ -49,12 +54,16 @@ namespace ServiceStack.Reflection
 
         public static Action<object, object> GetFastSetter(this Type type, string propName)
         {
-            var key = $"{type.Namespace}.{type.Name}::{propName}";
+            var key = $"{type.FullName}::{propName}";
             Action<object, object> fn;
             if (setterFnCache.TryGetValue(key, out fn))
                 return fn;
 
-            fn = GetValueSetter(type.GetPropertyInfo(propName));
+            var pi = type.GetPropertyInfo(propName);
+            if (pi == null)
+                return null;
+
+            fn = GetValueSetter(pi);
 
             Dictionary<string, Action<object, object>> snapshot, newCache;
             do
@@ -86,7 +95,7 @@ namespace ServiceStack.Reflection
 #else
 
             var instance = Expression.Parameter(typeof(object), "i");
-            var convertInstance = Expression.TypeAs(instance, propertyInfo.DeclaringType);
+            var convertInstance = Expression.TypeAs(instance, type);
             var property = Expression.Property(convertInstance, propertyInfo);
             var convertProperty = Expression.TypeAs(property, typeof(object));
             return Expression.Lambda<Func<object, object>>(convertProperty, instance).Compile();
@@ -129,17 +138,17 @@ namespace ServiceStack.Reflection
         }
 
 #if !XBOX
-        public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo, Type instanceType)
+        public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo)
         {
-            return GetValueSetter(propertyInfo);
+            return GetValueSetter(propertyInfo, propertyInfo.DeclaringType);
         }
 
-        public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo)
+        public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo, Type instanceType)
         {
             var instance = Expression.Parameter(typeof(object), "i");
             var argument = Expression.Parameter(typeof(object), "a");
 
-            var type = (Expression)Expression.TypeAs(instance, propertyInfo.DeclaringType);
+            var type = (Expression)Expression.TypeAs(instance, instanceType);
 
             var setterCall = Expression.Call(
                 type,
