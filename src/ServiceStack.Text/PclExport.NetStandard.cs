@@ -165,6 +165,33 @@ namespace ServiceStack
         //    return TimeZoneInfo.ConvertTimeToUtc(dateTime);
         //}
 
+#if NETSTANDARD1_3
+        public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(StringCollection))
+            {
+                return ParseStringCollection<TSerializer>;
+            }
+            return null;
+        }
+
+        private static StringCollection ParseStringCollection<TSerializer>(string value) where TSerializer : ITypeSerializer
+        {
+            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
+
+            var result = new StringCollection();
+
+            if (value != String.Empty)
+            {
+                foreach (var item in DeserializeListWithElements<TSerializer>.ParseStringList(value))
+                {
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+#endif
         public override Type UseType(Type type)
         {
             if (type.IsInterface() || type.IsAbstract())
@@ -173,7 +200,6 @@ namespace ServiceStack
             }
             return type;
         }
-
 
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
