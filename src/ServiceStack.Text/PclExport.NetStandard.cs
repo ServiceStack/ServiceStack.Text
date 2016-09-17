@@ -24,30 +24,30 @@ namespace ServiceStack
 
         static string[] allDateTimeFormats = new string[]
         {
-                    "yyyy-MM-ddTHH:mm:ss.FFFFFFFzzzzzz",
-                    "yyyy-MM-ddTHH:mm:ss.FFFFFFF",
-                    "yyyy-MM-ddTHH:mm:ss.FFFFFFFZ",
-                    "HH:mm:ss.FFFFFFF",
-                    "HH:mm:ss.FFFFFFFZ",
-                    "HH:mm:ss.FFFFFFFzzzzzz",
-                    "yyyy-MM-dd",
-                    "yyyy-MM-ddZ",
-                    "yyyy-MM-ddzzzzzz",
-                    "yyyy-MM",
-                    "yyyy-MMZ",
-                    "yyyy-MMzzzzzz",
-                    "yyyy",
-                    "yyyyZ",
-                    "yyyyzzzzzz",
-                    "--MM-dd",
-                    "--MM-ddZ",
-                    "--MM-ddzzzzzz",
-                    "---dd",
-                    "---ddZ",
-                    "---ddzzzzzz",
-                    "--MM--",
-                    "--MM--Z",
-                    "--MM--zzzzzz",
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFFzzzzzz",
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFF",
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFFZ",
+            "HH:mm:ss.FFFFFFF",
+            "HH:mm:ss.FFFFFFFZ",
+            "HH:mm:ss.FFFFFFFzzzzzz",
+            "yyyy-MM-dd",
+            "yyyy-MM-ddZ",
+            "yyyy-MM-ddzzzzzz",
+            "yyyy-MM",
+            "yyyy-MMZ",
+            "yyyy-MMzzzzzz",
+            "yyyy",
+            "yyyyZ",
+            "yyyyzzzzzz",
+            "--MM-dd",
+            "--MM-ddZ",
+            "--MM-ddzzzzzz",
+            "---dd",
+            "---ddZ",
+            "---ddzzzzzz",
+            "--MM--",
+            "--MM--Z",
+            "--MM--zzzzzz",
         };
 
         public NetStandardPclExport()
@@ -176,6 +176,26 @@ namespace ServiceStack
         }
 #endif
 
+        public string BinPath = null;
+
+        public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
+        {
+            if (BinPath == null)
+            {
+                var dll = typeof(PclExport).GetAssembly();
+                var pi = dll.GetType().GetProperty("CodeBase");
+                var codeBase = pi?.GetProperty(dll).ToString();
+                if (codeBase == null)
+                    throw new Exception("NetStandardPclExport.BinPath must be initialized");
+
+                BinPath = Path.GetDirectoryName(codeBase.Replace("file:///", ""));
+            }
+
+            return relativePath.StartsWith("~")
+                ? relativePath.Replace("~", BinPath)
+                : relativePath;
+        }
+
         public override Type UseType(Type type)
         {
             if (type.IsInterface() || type.IsAbstract())
@@ -184,7 +204,6 @@ namespace ServiceStack
             }
             return type;
         }
-
 
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
