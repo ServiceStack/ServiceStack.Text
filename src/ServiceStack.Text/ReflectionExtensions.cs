@@ -519,8 +519,10 @@ namespace ServiceStack
 #if __IOS__ || XBOX || NETFX_CORE
 				return () => Activator.CreateInstance(type);
 #elif WP || PCL || NETSTANDARD1_1
-                return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(
-                    System.Linq.Expressions.Expression.New(type)).Compile();
+                System.Linq.Expressions.Expression conversion = Expression.Convert(
+                    System.Linq.Expressions.Expression.New(type), typeof(object));
+
+                return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(conversion).Compile();
 #else
 
 #if SL5 
@@ -1279,10 +1281,14 @@ namespace ServiceStack
 
         public static object[] AllAttributes(this PropertyInfo propertyInfo)
         {
-#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+#if (NETFX_CORE || PCL)
             return propertyInfo.GetCustomAttributes(true).ToArray();
 #else
+#if NETSTANDARD1_1
+            var attrs = propertyInfo.GetCustomAttributes(true).ToArray();
+#else
             var attrs = propertyInfo.GetCustomAttributes(true);
+#endif
             var runtimeAttrs = propertyInfo.GetAttributes();
             if (runtimeAttrs.Count == 0)
                 return attrs;
@@ -1294,10 +1300,14 @@ namespace ServiceStack
 
         public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType)
         {
-#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+#if (NETFX_CORE || PCL)
             return propertyInfo.GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #else
+#if NETSTANDARD1_1
+            var attrs = propertyInfo.GetCustomAttributes(attrType, true).ToArray();
+#else
             var attrs = propertyInfo.GetCustomAttributes(attrType, true);
+#endif
             var runtimeAttrs = propertyInfo.GetAttributes(attrType);
             if (runtimeAttrs.Count == 0)
                 return attrs;
@@ -1381,12 +1391,11 @@ namespace ServiceStack
 #if (NETFX_CORE || PCL)
             return type.GetTypeInfo().GetCustomAttributes(true).Where(x => x.GetType().IsInstanceOf(attrType)).ToArray();
 #elif NETSTANDARD1_1
-            return type.GetTypeInfo().GetCustomAttributes(true)
-                .Where(x => x.GetType().IsInstanceOf(attrType))
-                .Union(type.GetRuntimeAttributes())
+            return type.GetTypeInfo().GetCustomAttributes(attrType, true)
+                .Union(type.GetRuntimeAttributes(attrType))
                 .ToArray();
 #else
-            return type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
+            return type.GetCustomAttributes(attrType, true).Union(type.GetRuntimeAttributes(attrType)).ToArray();
 #endif
         }
 
@@ -1456,11 +1465,16 @@ namespace ServiceStack
 
         public static TAttr FirstAttribute<TAttr>(this Type type) where TAttr : class
         {
-#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+#if (NETFX_CORE || PCL )
 
             return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
                     .Cast<TAttr>()
                     .FirstOrDefault();
+#elif NETSTANDARD1_1                   
+            return (TAttr)type.GetTypeInfo().GetCustomAttributes(typeof(TAttr), true)
+                    .Cast<TAttr>()
+                    .FirstOrDefault()
+                   ?? type.GetRuntimeAttributes<TAttr>().FirstOrDefault();
 #else
             return (TAttr)type.GetCustomAttributes(typeof(TAttr), true)
                    .FirstOrDefault()

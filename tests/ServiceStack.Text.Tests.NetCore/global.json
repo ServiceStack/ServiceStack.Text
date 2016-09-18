@@ -1,6 +1,0 @@
-{
-    "projects" : [
-	"../../src/ServiceStack.Text.NetCore",
-	"ServiceStack.Text.Tests"
-    ]
-}

@@ -12,17 +12,11 @@ namespace ServiceStack.Text.Tests.Utils
     {
         public void PrintFormats(DateTime dateTime)
         {
-#if NETCORE
             Log("dateTime.ToShortDateString(): " + dateTime.ToString("d"));
             Log("dateTime.ToLongDateString(): " + dateTime.ToString("D"));
             Log("dateTime.ToShortTimeString(): " + dateTime.ToString("t"));
             Log("dateTime.ToLongTimeString(): " + dateTime.ToString("T"));
-#else
-            Log("dateTime.ToShortDateString(): " + dateTime.ToShortDateString());
-            Log("dateTime.ToLongDateString(): " + dateTime.ToLongDateString());
-            Log("dateTime.ToShortTimeString(): " + dateTime.ToShortTimeString());
-            Log("dateTime.ToLongTimeString(): " + dateTime.ToLongTimeString());
-#endif
+            
             Log("dateTime.ToString(): " + dateTime.ToString());
             Log("DateTimeSerializer.ToShortestXsdDateTimeString(dateTime): " + DateTimeSerializer.ToShortestXsdDateTimeString(dateTime));
             Log("DateTimeSerializer.ToDateTimeString(dateTime): " + DateTimeSerializer.ToDateTimeString(dateTime));

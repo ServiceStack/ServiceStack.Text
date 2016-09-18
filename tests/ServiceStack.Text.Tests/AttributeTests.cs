@@ -38,8 +38,7 @@ namespace ServiceStack.Text.Tests
             // AllAttributes<T>() makes this call to get attrs
 #if NETCORE
             var referenceGeneric =
-                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
-                    .Where(x => x.GetType().IsInstanceOf(typeof(RouteDefaultAttribute)))
+                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(typeof(RouteDefaultAttribute), true)
                     .OfType<RouteDefaultAttribute>();
 #else
             var referenceGeneric =
@@ -52,8 +51,7 @@ namespace ServiceStack.Text.Tests
             // AllAttributes() makes this call to get attrs
 #if NETCORE
             var reference =
-                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(true)
-			        .Where(x => x.GetType().IsInstanceOf(typeof(RouteDefaultAttribute))).ToArray();
+                typeof(DefaultWithMultipleAttributes).GetTypeInfo().GetCustomAttributes(typeof(RouteDefaultAttribute), true);
 #else
             var reference =
                 typeof(DefaultWithMultipleAttributes).GetCustomAttributes(typeof(RouteDefaultAttribute), true);
@@ -257,11 +255,11 @@ namespace ServiceStack.Text.Tests
         public string Path { get; set; }
         public string Verbs { get; set; }
 
+        public
 #if !NETCORE
-        public override object TypeId
-#else
-        public object TypeId
+        override
 #endif
+        object TypeId
         {
             get
             {

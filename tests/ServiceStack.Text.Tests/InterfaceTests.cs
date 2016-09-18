@@ -29,11 +29,7 @@ namespace ServiceStack.Text.Tests
             var message = new Message<string> { Id = new Guid(), CreatedDate = new DateTime(), Body = "test" };
             var messageString = TypeSerializer.SerializeToString((IMessage<string>)message);
 
-#if NETCORE
-            var assembly = "System.Private.CoreLib";
-#else
-            var assembly = "mscorlib";
-#endif
+            var assembly = typeof(string).GetAssembly().GetName().Name;
 
             Assert.That(messageString, Is.EqualTo(
             "{__type:\"ServiceStack.Messaging.Message`1[[System.String, " + assembly + "]], ServiceStack.Interfaces\","
@@ -80,11 +76,7 @@ namespace ServiceStack.Text.Tests
         {
             get
             {
-#if NETCORE
-                var assembly = "System.Private.CoreLib";
-#else
-                var assembly = "mscorlib";
-#endif
+                var assembly = typeof(string).GetAssembly().GetName().Name;
 
                 yield return new TestCaseData(typeof(Message<string>),
                     "ServiceStack.Messaging.Message`1[[System.String, " + assembly + "]], ServiceStack.Interfaces");

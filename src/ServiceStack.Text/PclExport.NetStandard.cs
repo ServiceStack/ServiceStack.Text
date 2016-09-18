@@ -58,22 +58,23 @@ namespace ServiceStack
         public override string ReadAllText(string filePath)
         {
             //NET Standard 1.1 does not supported Stream Reader with string constructor
-            /*using (StreamReader rdr = new StreamReader(filePath))
+#if NETSTANDARD1_3
+            using (StreamReader rdr = File.OpenText(filePath))
             {
                 return rdr.ReadToEnd();
-            } */
+            }
+#else            
             return String.Empty;
+#endif
         }
 
+#if NETSTANDARD1_3
         public override bool FileExists(string filePath)
         {
-            //File and Directory do not supported in NET Standard 1.1
-            //File operations are available from NET Standard 1.3
-            //return File.Exists(filePath);
-            return false;
+            return File.Exists(filePath);
         }
 
-/*      public override bool DirectoryExists(string dirPath)
+      public override bool DirectoryExists(string dirPath)
         {
             return Directory.Exists(dirPath);
         }
@@ -102,7 +103,44 @@ namespace ServiceStack
                 ? Directory.GetDirectories(dirPath, searchPattern)
                 : Directory.GetDirectories(dirPath);
         }
-  */
+
+        public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
+        {
+            if (relativePath.StartsWith("~"))
+            {
+                var assemblyDirectoryPath = AppContext.BaseDirectory;
+
+                // Escape the assembly bin directory to the hostname directory
+                var hostDirectoryPath = appendPartialPathModifier != null
+                                            ? assemblyDirectoryPath + appendPartialPathModifier
+                                            : assemblyDirectoryPath;
+
+                return Path.GetFullPath(relativePath.Replace("~", hostDirectoryPath));
+            }
+            return relativePath;
+        }
+#elif NETSTANDARD1_1
+        public string BinPath = null;
+
+        public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
+        {
+            if (BinPath == null)
+            {
+                var dll = typeof(PclExport).GetAssembly();
+                var pi = dll.GetType().GetProperty("CodeBase");
+                var codeBase = pi?.GetProperty(dll).ToString();
+                if (codeBase == null)
+                    throw new Exception("NetStandardPclExport.BinPath must be initialized");
+
+                BinPath = Path.GetDirectoryName(codeBase.Replace("file:///", ""));
+            }
+
+            return relativePath.StartsWith("~")
+                ? relativePath.Replace("~", BinPath)
+                : relativePath;
+        }
+#endif
+
         public static PclExport Configure()
         {
             Configure(Provider);
@@ -152,49 +190,28 @@ namespace ServiceStack
         {
             if (type == typeof(StringCollection))
             {
-                return SerializerUtils<TSerializer>.ParseStringCollection<TSerializer>;
+                return ParseStringCollection<TSerializer>;
             }
             return null;
         }
 
-        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer
+        private static StringCollection ParseStringCollection<TSerializer>(string value) where TSerializer : ITypeSerializer
         {
-            if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
-            return value == String.Empty
-                   ? new StringCollection()
-                   : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
-        }
+            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 
-        public static StringCollection ToStringCollection(List<string> items)
-        {
-            var to = new StringCollection();
-            foreach (var item in items)
+            var result = new StringCollection();
+
+            if (value != String.Empty)
             {
-                to.Add(item);
+                foreach (var item in DeserializeListWithElements<TSerializer>.ParseStringList(value))
+                {
+                    result.Add(item);
+                }
             }
-            return to;
+
+            return result;
         }
 #endif
-
-        public string BinPath = null;
-
-        public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
-        {
-            if (BinPath == null)
-            {
-                var dll = typeof(PclExport).GetAssembly();
-                var pi = dll.GetType().GetProperty("CodeBase");
-                var codeBase = pi?.GetProperty(dll).ToString();
-                if (codeBase == null)
-                    throw new Exception("NetStandardPclExport.BinPath must be initialized");
-
-                BinPath = Path.GetDirectoryName(codeBase.Replace("file:///", ""));
-            }
-
-            return relativePath.StartsWith("~")
-                ? relativePath.Replace("~", BinPath)
-                : relativePath;
-        }
 
         public override Type UseType(Type type)
         {

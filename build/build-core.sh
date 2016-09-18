@@ -34,7 +34,7 @@ sed -i "s/<version>[^<]\+/<version>${PackageVersion}/g" ./NuGet.Core/ServiceStac
 
 
 #restore packages
-#(cd ./src/ServiceStack.Text.NetCore && dotnet restore)
+#(cd ./src && dotnet restore)
 #(cd ./tests/ServiceStack.Text.Tests.NetCore && dotnet restore)
 
 #execute tests

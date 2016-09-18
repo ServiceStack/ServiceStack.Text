@@ -24,7 +24,7 @@
             "imports": "dnxcore50",
 	     "dependencies" : {
             },
-	   "bin" : { "assembly":"../../../lib/tests/netcore/Northwind.Common.dll", "pdb" : "../../../lib/tests/netcore/Northwind.Common.pdb" }
+	   "bin" : { "assembly":"../../lib/tests/netstandard1.3/Northwind.Common.dll", "pdb" : "../../lib/tests/netstandard1.3/Northwind.Common.pdb" }
         }
     },
     "version" : "1.0.0-*"

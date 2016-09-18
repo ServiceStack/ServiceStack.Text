@@ -1,8 +1,9 @@
-#if !NETCORE
 using System;
 using System.ComponentModel;
-using System.Security.Policy;
 using NUnit.Framework;
+#if !NETCORE
+using System.Security.Policy;
+#endif
 
 namespace ServiceStack.Text.Tests
 {
@@ -23,8 +24,10 @@ namespace ServiceStack.Text.Tests
 		[Test]
 		public void View_TypeConverter_outputs()
 		{
+#if !NETCORE
 			var converter1 = TypeDescriptor.GetConverter(typeof(Url));
 			Console.WriteLine(converter1.ConvertToString(new Url("http://io/")));
+#endif
 
 			var converter2 = TypeDescriptor.GetConverter(typeof(Type));
 			Console.WriteLine(converter2.ConvertToString(typeof(TypeConverterTests)));
@@ -37,4 +40,3 @@ namespace ServiceStack.Text.Tests
 		}
 	}
 }
-#endif

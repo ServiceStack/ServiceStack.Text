@@ -32,6 +32,24 @@
         "System.Linq.Expressions": "4.1.0"
       }
     },
+    "netstandard1.3": {
+      "buildOptions": {
+        "define": [
+          "NETSTANDARD1_1"
+        ]
+      },
+      "dependencies": {
+        "System.Runtime.Serialization.Primitives": "4.1.1-*",
+        "System.Runtime.Serialization.Xml": "4.1.1",
+        "System.Net.Requests": "4.0.11",
+        "System.Dynamic.Runtime": "4.0.11",
+        "Microsoft.CSharp": "4.0.1-*",
+        "System.Reflection.Emit": "4.0.1",
+        "System.Reflection.Extensions": "4.0.1",
+        "System.Linq.Expressions": "4.1.0",
+        "System.Collections.Specialized": "4.0.1"
+      }
+    },
     ".NETPortable,Version=v4.5,Profile=Profile7": {
       "buildOptions": {
         "define": [

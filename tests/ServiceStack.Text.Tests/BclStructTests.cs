@@ -60,7 +60,6 @@ namespace ServiceStack.Text.Tests
             public int Foo { get; set; }
         }
 
-#if !NETCORE
         [Test]
         public void Can_serialize_dto_with_enum_flags()
         {
@@ -78,7 +77,6 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(deserialized.Enum, Is.EqualTo(ExampleEnum.One | ExampleEnum.Four));
         }
-#endif
 
         [DataContract]
         public class Item
