@@ -18,7 +18,7 @@ namespace ServiceStack
         }
 
         /// <summary>
-        /// Maps the path of a file in the context of a VS project
+        /// Maps the path of a file in the context of a VS project in a Consle App
         /// </summary>
         /// <param name="relativePath">the relative path</param>
         /// <returns>the absolute path</returns>
@@ -26,34 +26,37 @@ namespace ServiceStack
         /// eg. in a unit test scenario  the assembly would be in /bin/Debug/.</remarks>
         public static string MapProjectPath(this string relativePath)
         {
-            var mapPath = MapAbsolutePath(relativePath, string.Format("{0}..{0}..", PclExport.Instance.DirSep));
-            return mapPath;
+            var sep = PclExport.Instance.DirSep;
+#if !NETSTANDARD1_1
+            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..");
+#else
+            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
+#endif
         }
 
         /// <summary>
-        /// Maps the path of a file in a self-hosted scenario
+        /// Maps the path of a file in the bin\ folder of a self-hosted scenario
         /// </summary>
         /// <param name="relativePath">the relative path</param>
         /// <returns>the absolute path</returns>
         /// <remarks>Assumes static content is copied to /bin/ folder with the assemblies</remarks>
         public static string MapAbsolutePath(this string relativePath)
         {
-            var mapPath = MapAbsolutePath(relativePath, null);
-            return mapPath;
+            return PclExport.Instance.MapAbsolutePath(relativePath, null);
         }
 
         /// <summary>
-        /// Maps the path of a file in an Asp.Net hosted scenario
+        /// Maps the path of a file in an ASP.NET hosted scenario
         /// </summary>
         /// <param name="relativePath">the relative path</param>
         /// <returns>the absolute path</returns>
         /// <remarks>Assumes static content is in the parent folder of the /bin/ directory</remarks>
         public static string MapHostAbsolutePath(this string relativePath)
         {
-#if !NETSTANDARD1_1
-            return PclExport.Instance.MapAbsolutePath(relativePath, $"{PclExport.Instance.DirSep}..");
-#else
             var sep = PclExport.Instance.DirSep;
+#if !NETSTANDARD1_1
+            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..");
+#else
             return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
 #endif
         }
