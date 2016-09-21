@@ -50,8 +50,12 @@ namespace ServiceStack
         /// <remarks>Assumes static content is in the parent folder of the /bin/ directory</remarks>
         public static string MapHostAbsolutePath(this string relativePath)
         {
-            var mapPath = MapAbsolutePath(relativePath, $"{PclExport.Instance.DirSep}..");
-            return mapPath;
+#if !NETSTANDARD1_1
+            return PclExport.Instance.MapAbsolutePath(relativePath, $"{PclExport.Instance.DirSep}..");
+#else
+            var sep = PclExport.Instance.DirSep;
+            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
+#endif
         }
 
         internal static string CombinePaths(StringBuilder sb, params string[] paths)
