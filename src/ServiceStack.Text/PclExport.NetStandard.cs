@@ -12,8 +12,12 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Globalization;
 using System.Reflection.Emit;
+
 #if NETSTANDARD1_3
 using System.Collections.Specialized;
+using System.Net;
+using System.Linq.Expressions;
+using System.Runtime.Serialization;
 #endif
 
 namespace ServiceStack
@@ -74,7 +78,7 @@ namespace ServiceStack
             return File.Exists(filePath);
         }
 
-      public override bool DirectoryExists(string dirPath)
+        public override bool DirectoryExists(string dirPath)
         {
             return Directory.Exists(dirPath);
         }
@@ -112,13 +116,14 @@ namespace ServiceStack
 
                 // Escape the assembly bin directory to the hostname directory
                 var hostDirectoryPath = appendPartialPathModifier != null
-                                            ? assemblyDirectoryPath + appendPartialPathModifier
-                                            : assemblyDirectoryPath;
+                    ? assemblyDirectoryPath + appendPartialPathModifier
+                    : assemblyDirectoryPath;
 
                 return Path.GetFullPath(relativePath.Replace("~", hostDirectoryPath));
             }
             return relativePath;
         }
+        
 #elif NETSTANDARD1_1
         public string BinPath = null;
 
@@ -126,9 +131,7 @@ namespace ServiceStack
         {
             if (BinPath == null)
             {
-                var dll = typeof(PclExport).GetAssembly();
-                var pi = dll.GetType().GetProperty("CodeBase");
-                var codeBase = pi?.GetProperty(dll).ToString();
+                var codeBase = GetAssemblyCodeBase(typeof(PclExport).GetTypeInfo().Assembly);
                 if (codeBase == null)
                     throw new Exception("NetStandardPclExport.BinPath must be initialized");
 
@@ -140,22 +143,53 @@ namespace ServiceStack
                 : relativePath;
         }
 #endif
-
         public static PclExport Configure()
         {
             Configure(Provider);
             return Provider;
         }
 
+        public override string GetEnvironmentVariable(string name)
+        {
+#if NETSTANDARD1_3
+            return Environment.GetEnvironmentVariable(name);
+#else
+            return null;
+#endif
+        }
+
         public override void WriteLine(string line)
         {
+#if NETSTANDARD1_3
+            Console.WriteLine(line);
+#else
             System.Diagnostics.Debug.WriteLine(line);
+#endif
         }
 
         public override void WriteLine(string format, params object[] args)
         {
+#if NETSTANDARD1_3
+            Console.WriteLine(format, args);
+#else
             System.Diagnostics.Debug.WriteLine(format, args);
+#endif
         }
+
+#if NETSTANDARD1_3
+        public override void AddCompression(WebRequest webReq)
+        {
+            var httpReq = (HttpWebRequest)webReq;
+            //TODO: Restore when AutomaticDecompression added to WebRequest
+            //httpReq.Headers[HttpRequestHeader.AcceptEncoding] = "gzip,deflate";
+            //httpReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+        }
+
+        public override void AddHeader(WebRequest webReq, string name, string value)
+        {
+            webReq.Headers[name] = value;
+        }
+#endif
 
         public override Assembly[] GetAllAssemblies()
         {
@@ -164,8 +198,201 @@ namespace ServiceStack
 
         public override string GetAssemblyCodeBase(Assembly assembly)
         {
-            return assembly.GetName().FullName;
+            var dll = typeof(PclExport).GetAssembly();
+            var pi = dll.GetType().GetProperty("CodeBase");
+            var codeBase = pi?.GetProperty(dll).ToString();
+            return codeBase;
         }
+
+#if NETSTANDARD1_3
+        public override string GetAssemblyPath(Type source)
+        {
+            var codeBase = GetAssemblyCodeBase(source.GetTypeInfo().Assembly);
+            if (codeBase == null)
+                return null;
+
+            var assemblyUri = new Uri(codeBase);
+            return assemblyUri.LocalPath;
+        }
+
+        public override string GetAsciiString(byte[] bytes, int index, int count)
+        {
+            return System.Text.Encoding.ASCII.GetString(bytes, index, count);
+        }
+
+        public override byte[] GetAsciiBytes(string str)
+        {
+            return System.Text.Encoding.ASCII.GetBytes(str);
+        }
+#endif
+
+        public override bool InSameAssembly(Type t1, Type t2)
+        {
+            return t1.GetAssembly() == t2.GetAssembly();
+        }
+
+        public override Type GetGenericCollectionType(Type type)
+        {
+            return type.GetTypeInfo().ImplementedInterfaces.FirstOrDefault(t =>
+                t.IsGenericType()
+                && t.GetGenericTypeDefinition() == typeof(ICollection<>));
+        }
+
+#if NETSTANDARD1_3
+
+        public override PropertySetterDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
+        {
+            var propertySetMethod = propertyInfo.SetMethod();
+            if (propertySetMethod == null) return null;
+
+            if (!SupportsExpression)
+            {
+                return (o, convertedValue) =>
+                    propertySetMethod.Invoke(o, new[] { convertedValue });
+            }
+
+            try
+            {
+                var instance = Expression.Parameter(typeof(object), "i");
+                var argument = Expression.Parameter(typeof(object), "a");
+
+                var instanceParam = Expression.Convert(instance, propertyInfo.ReflectedType());
+                var valueParam = Expression.Convert(argument, propertyInfo.PropertyType);
+
+                var setterCall = Expression.Call(instanceParam, propertySetMethod, valueParam);
+
+                return Expression.Lambda<PropertySetterDelegate>(setterCall, instance, argument).Compile();
+            }
+            catch //fallback for Android
+            {
+                return (o, convertedValue) =>
+                    propertySetMethod.Invoke(o, new[] { convertedValue });
+            }
+        }
+
+        public override PropertyGetterDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
+        {
+            if (!SupportsExpression)
+                return base.GetPropertyGetterFn(propertyInfo);
+
+            var getMethodInfo = propertyInfo.GetMethodInfo();
+            if (getMethodInfo == null) return null;
+            try
+            {
+                var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
+                var instanceParam = Expression.Convert(oInstanceParam, propertyInfo.ReflectedType()); //propertyInfo.DeclaringType doesn't work on Proxy types
+                
+                var exprCallPropertyGetFn = Expression.Call(instanceParam, getMethodInfo);
+                var oExprCallPropertyGetFn = Expression.Convert(exprCallPropertyGetFn, typeof(object));
+
+                var propertyGetFn = Expression.Lambda<PropertyGetterDelegate>
+                    (
+                        oExprCallPropertyGetFn,
+                        oInstanceParam
+                    ).Compile();
+
+                return propertyGetFn;
+
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                throw;
+            }
+        }
+
+        private static readonly MethodInfo setFieldMethod =
+            typeof(NetStandardPclExport).GetStaticMethod("SetField");
+
+        internal static void SetField<TValue>(ref TValue field, TValue newValue)
+        {
+            field = newValue;
+        }
+
+        public override PropertySetterDelegate GetFieldSetterFn(FieldInfo fieldInfo)
+        {
+            if (!SupportsExpression)
+                return base.GetFieldSetterFn(fieldInfo);
+
+            var fieldDeclaringType = fieldInfo.DeclaringType;
+
+            var sourceParameter = Expression.Parameter(typeof(object), "source");
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+
+            var sourceExpression = this.GetCastOrConvertExpression(sourceParameter, fieldDeclaringType);
+
+            var fieldExpression = Expression.Field(sourceExpression, fieldInfo);
+
+            var valueExpression = this.GetCastOrConvertExpression(valueParameter, fieldExpression.Type);
+
+            var genericSetFieldMethodInfo = setFieldMethod.MakeGenericMethod(fieldExpression.Type);
+
+            var setFieldMethodCallExpression = Expression.Call(
+                null, genericSetFieldMethodInfo, fieldExpression, valueExpression);
+
+            var setterFn = Expression.Lambda<PropertySetterDelegate>(
+                setFieldMethodCallExpression, sourceParameter, valueParameter).Compile();
+
+            return setterFn;
+        }
+
+        public override PropertyGetterDelegate GetFieldGetterFn(FieldInfo fieldInfo)
+        {
+            if (!SupportsExpression)
+                return base.GetFieldGetterFn(fieldInfo);
+
+            try
+            {
+                var fieldDeclaringType = fieldInfo.DeclaringType;
+
+                var oInstanceParam = Expression.Parameter(typeof(object), "source");
+                var instanceParam = this.GetCastOrConvertExpression(oInstanceParam, fieldDeclaringType);
+
+                var exprCallFieldGetFn = Expression.Field(instanceParam, fieldInfo);
+                //var oExprCallFieldGetFn = this.GetCastOrConvertExpression(exprCallFieldGetFn, typeof(object));
+                var oExprCallFieldGetFn = Expression.Convert(exprCallFieldGetFn, typeof(object));
+
+                var fieldGetterFn = Expression.Lambda<PropertyGetterDelegate>
+                    (
+                        oExprCallFieldGetFn,
+                        oInstanceParam
+                    )
+                    .Compile();
+
+                return fieldGetterFn;
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                throw;
+            }
+        }
+
+        private Expression GetCastOrConvertExpression(Expression expression, Type targetType)
+        {
+            Expression result;
+            var expressionType = expression.Type;
+
+            if (targetType.IsAssignableFromType(expressionType))
+            {
+                result = expression;
+            }
+            else
+            {
+                // Check if we can use the as operator for casting or if we must use the convert method
+                if (targetType.IsValueType() && !targetType.IsNullableType())
+                {
+                    result = Expression.Convert(expression, targetType);
+                }
+                else
+                {
+                    result = Expression.TypeAs(expression, targetType);
+                }
+            }
+
+            return result;
+        }
+#endif
 
         public override string ToXsdDateTimeString(DateTime dateTime)
         {
@@ -231,6 +458,46 @@ namespace ServiceStack
             }
 
             return null;
+        }
+
+#if NETSTANDARD1_3
+        public override void InitHttpWebRequest(HttpWebRequest httpReq,
+            long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
+        {
+            httpReq.Headers[HttpRequestHeader.UserAgent] = Env.ServerUserAgent;
+            //httpReq.AllowAutoRedirect = allowAutoRedirect;
+            //httpReq.KeepAlive = keepAlive;
+
+            if (contentLength != null)
+            {
+                httpReq.Headers[HttpRequestHeader.ContentLength] = contentLength.Value.ToString();
+            }
+        }
+
+        public override void Config(HttpWebRequest req,
+            bool? allowAutoRedirect = null,
+            TimeSpan? timeout = null,
+            TimeSpan? readWriteTimeout = null,
+            string userAgent = null,
+            bool? preAuthenticate = null)
+        {
+            //req.MaximumResponseHeadersLength = int.MaxValue; //throws "The message length limit was exceeded" exception
+            //if (allowAutoRedirect.HasValue) req.AllowAutoRedirect = allowAutoRedirect.Value;
+            //if (readWriteTimeout.HasValue) req.ReadWriteTimeout = (int)readWriteTimeout.Value.TotalMilliseconds;
+            //if (timeout.HasValue) req.Timeout = (int)timeout.Value.TotalMilliseconds;
+            if (userAgent != null) req.Headers[HttpRequestHeader.UserAgent] = userAgent;
+            //if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
+        }
+        
+        public override string GetStackTrace()
+        {
+            return Environment.StackTrace;
+        }
+#endif
+
+        public override void CloseStream(Stream stream)
+        {
+            stream.Close();
         }
 
         public static void InitForAot()
