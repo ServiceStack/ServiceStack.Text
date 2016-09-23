@@ -989,11 +989,11 @@ namespace ServiceStack
             if (requestFilter != null)
                 requestFilter(httpReq);
 
-            var boundary = "----------------------------" + Guid.NewGuid().ToString("N");
+            var boundary = Guid.NewGuid().ToString("N");
 
-            httpReq.ContentType = "multipart/form-data; boundary=" + boundary;
+            httpReq.ContentType = "multipart/form-data; boundary=\"" + boundary + "\"";
 
-            var boundarybytes = ("\r\n--" + boundary + "\r\n").ToAsciiBytes();
+            var boundarybytes = ("\r\n--" + boundary + "--\r\n").ToAsciiBytes();
 
             var headerTemplate = "\r\n--" + boundary +
                                  "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\nContent-Type: {1}\r\n\r\n";
