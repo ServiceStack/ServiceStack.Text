@@ -495,11 +495,6 @@ namespace ServiceStack
         }
 #endif
 
-        public override void CloseStream(Stream stream)
-        {
-            stream.Close();
-        }
-
         public static void InitForAot()
         {
         }
