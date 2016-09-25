@@ -6,18 +6,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Globalization;
+using System.Reflection;
 using System.Reflection.Emit;
 
 #if NETSTANDARD1_3
 using System.Collections.Specialized;
 using System.Net;
 using System.Linq.Expressions;
-using System.Runtime.Serialization;
 #endif
 
 namespace ServiceStack
@@ -439,16 +438,6 @@ namespace ServiceStack
             return result;
         }
 #endif
-
-        public override Type UseType(Type type)
-        {
-            if (type.IsInterface() || type.IsAbstract())
-            {
-                return DynamicProxy.GetInstanceFor(type).GetType();
-            }
-            return type;
-        }
-
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
             if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
@@ -494,6 +483,87 @@ namespace ServiceStack
             return Environment.StackTrace;
         }
 #endif
+
+        public override SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
+        {
+            return CreateIlPropertySetter(propertyInfo);
+        }
+
+        public override SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
+        {
+            return CreateIlFieldSetter(fieldInfo);
+        }
+
+        public override SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        {
+            return propertyInfo.CanWrite
+                ? CreateIlPropertySetter(propertyInfo)
+                : CreateIlFieldSetter(fieldInfo);
+        }
+
+        public override Type UseType(Type type)
+        {
+            if (type.IsInterface() || type.IsAbstract())
+            {
+                return DynamicProxy.GetInstanceFor(type).GetType();
+            }
+            return type;
+        }
+
+        public static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
+        {
+            var propSetMethod = propertyInfo.SetMethod;
+            if (propSetMethod == null)
+                return null;
+
+            var setter = CreateDynamicSetMethod(propertyInfo);
+
+            var generator = setter.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
+            generator.Emit(OpCodes.Ldarg_1);
+
+            generator.Emit(propertyInfo.PropertyType.IsClass()
+                               ? OpCodes.Castclass
+                               : OpCodes.Unbox_Any,
+                           propertyInfo.PropertyType);
+
+            generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
+            generator.Emit(OpCodes.Ret);
+
+            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+        }
+
+        public static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
+        {
+            var setter = CreateDynamicSetMethod(fieldInfo);
+
+            var generator = setter.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
+            generator.Emit(OpCodes.Ldarg_1);
+
+            generator.Emit(fieldInfo.FieldType.IsClass()
+                               ? OpCodes.Castclass
+                               : OpCodes.Unbox_Any,
+                           fieldInfo.FieldType);
+
+            generator.Emit(OpCodes.Stfld, fieldInfo);
+            generator.Emit(OpCodes.Ret);
+
+            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
+        }
+
+        private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
+        {
+            var args = new[] { typeof(object), typeof(object) };
+            var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
+            var returnType = typeof(void);
+
+            return !memberInfo.DeclaringType.IsInterface()
+                       ? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
+                       : new DynamicMethod(name, returnType, args, memberInfo.Module, true);
+        }
 
         public static void InitForAot()
         {
