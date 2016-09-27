@@ -101,7 +101,7 @@ namespace ServiceStack.Text.Tests
         }
 
         private static readonly char DirSep = Path.DirectorySeparatorChar;
-        private static readonly char AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
+        private static readonly char AltDirSep = '/';
 
         [Test]
         public void Does_get_ParentDirectory()

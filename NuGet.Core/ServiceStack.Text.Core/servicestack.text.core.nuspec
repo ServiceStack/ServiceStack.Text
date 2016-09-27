@@ -27,7 +27,8 @@
         <dependency id="Microsoft.CSharp" version="[4.0.1, )" />
         <dependency id="System.Reflection.Emit" version="[4.0.1, )" />
         <dependency id="System.Reflection.Extensions" version="[4.0.1, )" />
-         <dependency id="NETStandard.Library" version="[1.6.0, )" />
+        <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="[4.0.0, )" />
+        <dependency id="NETStandard.Library" version="[1.6.0, )" />
       </group>
       <group targetFramework=".NETStandard1.3">
         <dependency id="System.Runtime.Serialization.Primitives" version="[4.1.1, )" />
