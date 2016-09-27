@@ -2,7 +2,7 @@ Join the [ServiceStack Google+ Community](https://plus.google.com/communities/11
 
 ## FREE high-perf Text Serializers and Core Utils powering [servicestack.net](https://servicestack.net)
 
-ServiceStack.Text is a **independent, dependency-free** serialization library containing ServiceStack's core high-performance utils and text processing functionality, including:
+ServiceStack.Text is an **independent, dependency-free** serialization library containing ServiceStack's core high-performance utils and text processing functionality, including:
 
  - [JSON](https://github.com/ServiceStack/ServiceStack.Text), 
  [JSV](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format) and 
