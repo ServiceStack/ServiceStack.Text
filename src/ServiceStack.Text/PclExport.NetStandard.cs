@@ -12,6 +12,7 @@ using ServiceStack.Text.Json;
 using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 
 #if NETSTANDARD1_3
 using System.Collections.Specialized;
@@ -56,6 +57,11 @@ namespace ServiceStack
         public NetStandardPclExport()
         {
             this.PlatformName = Platforms.NetStandard;
+#if NETSTANDARD1_3
+            this.DirSep = Path.DirectorySeparatorChar;
+#else 
+            this.DirSep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
+#endif
         }
 
         public override string ReadAllText(string filePath)
