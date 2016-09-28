@@ -590,7 +590,11 @@ namespace ServiceStack.Text
             {
                 return (JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames : null)
                     ?? sEmitCamelCaseNames
+#if !NETSTANDARD1_1
                     ?? false;
+#else
+                    ?? true; //Follow default .NET Core JSON convention
+#endif
             }
             set
             {
