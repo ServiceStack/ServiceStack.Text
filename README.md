@@ -113,7 +113,7 @@ JSON payload without it's concrete type, see these real-world examples:
   - [Parsing Centroid](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/CentroidTests.cs)
 
 Also a thin **.NET 4.0 Dynamic JSON** wrapper around ServiceStack's JSON library is included in the 
-[ServiceStack.Razor](https://github.com/ServiceStack/ServiceStack/blob/master/src/ServiceStack.Razor/DynamicJson.cs) 
+[ServiceStack.Razor](https://github.com/ServiceStack/ServiceStack.Text/blob/master/src/ServiceStack.Text/Pcl.Dynamic.cs) 
 project. It provides a dynamic, but more succinct API than the above options.
 
 ## Install ServiceStack.Text
