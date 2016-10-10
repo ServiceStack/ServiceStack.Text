@@ -502,10 +502,7 @@ namespace ServiceStack
             webReq.Accept = accept;
             PclExport.Instance.AddCompression(webReq);
 
-            if (requestFilter != null)
-            {
-                requestFilter(webReq);
-            }
+            requestFilter?.Invoke(webReq);
 
             if (ResultsFilter != null)
             {
@@ -525,10 +522,8 @@ namespace ServiceStack
             using (var stream = webRes.GetResponseStream())
             using (var reader = new StreamReader(stream))
             {
-                if (responseFilter != null)
-                {
-                    responseFilter((HttpWebResponse)webRes);
-                }
+                responseFilter?.Invoke((HttpWebResponse)webRes);
+
                 return reader.ReadToEnd();
             }
         }
@@ -546,10 +541,7 @@ namespace ServiceStack
             webReq.Accept = accept;
             PclExport.Instance.AddCompression(webReq);
 
-            if (requestFilter != null)
-            {
-                requestFilter(webReq);
-            }
+            requestFilter?.Invoke(webReq);
 
             if (ResultsFilter != null)
             {
@@ -585,10 +577,7 @@ namespace ServiceStack
                 }
 
                 var webRes = task.Result;
-                if (responseFilter != null)
-                {
-                    responseFilter((HttpWebResponse)webRes);
-                }
+                responseFilter?.Invoke((HttpWebResponse)webRes);
 
                 using (var stream = webRes.GetResponseStream())
                 using (var reader = new StreamReader(stream))
