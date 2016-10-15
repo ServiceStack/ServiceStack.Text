@@ -239,8 +239,12 @@ namespace ServiceStack
             var map = obj as IDictionary;
             if (map != null)
             {
+                var i = 0;
                 foreach (var key in map.Keys)
                 {
+                    if (i++ > 0)
+                        writer.Write('&');
+
                     var value = map[key];
                     writer.Write(propertyName);
                     writer.Write('[');

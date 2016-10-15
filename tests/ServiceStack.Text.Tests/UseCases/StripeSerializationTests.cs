@@ -61,12 +61,16 @@ namespace ServiceStack.Text.Tests.UseCases
             var dto = new CreateStripeCustomer
             {
                 AccountBalance = 100,
-                Metadata = new Dictionary<string, string> { { "order_id", "1234" } },
+                Metadata = new Dictionary<string, string>
+                {
+                    { "order_id", "1234" },
+                    { "ref_id", "456" },
+                },
             };
 
             var qs = QueryStringSerializer.SerializeToString(dto);
             qs.Print();
-            Assert.That(qs, Is.EqualTo("account_balance=100&metadata[order_id]=1234"));
+            Assert.That(qs, Is.EqualTo("account_balance=100&metadata[order_id]=1234&metadata[ref_id]=456"));
         }
 
         [Test]
