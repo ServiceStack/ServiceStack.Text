@@ -113,6 +113,21 @@ namespace ServiceStack
                 : Directory.GetDirectories(dirPath);
         }
 
+        public const string AppSettingsKey = "servicestack:license";
+        public const string EnvironmentKey = "SERVICESTACK_LICENSE";
+
+        public override void RegisterLicenseFromConfig()
+        {
+            //Automatically register license key stored in <appSettings/> is done in .NET Core AppHost
+
+            //or SERVICESTACK_LICENSE Environment variable
+            var licenceKeyText = GetEnvironmentVariable(EnvironmentKey);
+            if (!string.IsNullOrEmpty(licenceKeyText))
+            {
+                LicenseUtils.RegisterLicense(licenceKeyText);
+            }
+        }
+
         public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
         {
             if (relativePath.StartsWith("~"))
