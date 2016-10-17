@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceStack
@@ -12,6 +13,8 @@ namespace ServiceStack
     public static class HttpUtils
     {
         public static string UserAgent = "ServiceStack.Text";
+
+        public static Encoding UseEncoding { get; set; } = Encoding.UTF8;
 
         [ThreadStatic]
         public static IHttpResultsFilter ResultsFilter;
@@ -512,7 +515,7 @@ namespace ServiceStack
             if (requestBody != null)
             {
                 using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
-                using (var writer = new StreamWriter(reqStream))
+                using (var writer = new StreamWriter(reqStream, UseEncoding))
                 {
                     writer.Write(requestBody);
                 }
@@ -520,7 +523,7 @@ namespace ServiceStack
 
             using (var webRes = PclExport.Instance.GetResponse(webReq))
             using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream))
+            using (var reader = new StreamReader(stream, UseEncoding))
             {
                 responseFilter?.Invoke((HttpWebResponse)webRes);
 
@@ -554,7 +557,7 @@ namespace ServiceStack
             if (requestBody != null)
             {
                 using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
-                using (var writer = new StreamWriter(reqStream))
+                using (var writer = new StreamWriter(reqStream, UseEncoding))
                 {
                     writer.Write(requestBody);
                 }
@@ -580,7 +583,7 @@ namespace ServiceStack
                 responseFilter?.Invoke((HttpWebResponse)webRes);
 
                 using (var stream = webRes.GetResponseStream())
-                using (var reader = new StreamReader(stream))
+                using (var reader = new StreamReader(stream, UseEncoding))
                 {
                     tcs.SetResult(reader.ReadToEnd());
                 }
@@ -647,10 +650,7 @@ namespace ServiceStack
             webReq.Accept = accept;
             PclExport.Instance.AddCompression(webReq);
 
-            if (requestFilter != null)
-            {
-                requestFilter(webReq);
-            }
+            requestFilter?.Invoke(webReq);
 
             if (ResultsFilter != null)
             {
@@ -667,8 +667,7 @@ namespace ServiceStack
 
             using (var webRes = PclExport.Instance.GetResponse(webReq))
             {
-                if (responseFilter != null)
-                    responseFilter((HttpWebResponse)webRes);
+                responseFilter?.Invoke((HttpWebResponse)webRes);
 
                 using (var stream = webRes.GetResponseStream())
                 {
@@ -690,10 +689,7 @@ namespace ServiceStack
             webReq.Accept = accept;
             PclExport.Instance.AddCompression(webReq);
 
-            if (requestFilter != null)
-            {
-                requestFilter(webReq);
-            }
+            requestFilter?.Invoke(webReq);
 
             if (ResultsFilter != null)
             {
@@ -728,10 +724,7 @@ namespace ServiceStack
                 }
 
                 var webRes = task.Result;
-                if (responseFilter != null)
-                {
-                    responseFilter((HttpWebResponse)webRes);
-                }
+                responseFilter?.Invoke((HttpWebResponse)webRes);
 
                 using (var stream = webRes.GetResponseStream())
                 {
@@ -798,7 +791,7 @@ namespace ServiceStack
                 using (var webRes = PclExport.Instance.GetResponse(webReq))
                 {
                     var httpRes = webRes as HttpWebResponse;
-                    return httpRes != null ? httpRes.StatusCode : (HttpStatusCode?)null;
+                    return httpRes?.StatusCode;
                 }
             }
             catch (Exception ex)
@@ -825,12 +818,8 @@ namespace ServiceStack
 
         public static HttpStatusCode? GetStatus(this WebException webEx)
         {
-            if (webEx == null) return null;
-            var httpRes = webEx.Response as HttpWebResponse;
-            if (httpRes != null)
-                return httpRes.StatusCode;
-
-            return null;
+            var httpRes = webEx?.Response as HttpWebResponse;
+            return httpRes?.StatusCode;
         }
 
         public static bool HasStatus(this Exception ex, HttpStatusCode statusCode)
@@ -847,8 +836,8 @@ namespace ServiceStack
 #endif
             ) return null;
 
-            var errorResponse = ((HttpWebResponse)webEx.Response);
-            using (var reader = new StreamReader(errorResponse.GetResponseStream()))
+            var errorResponse = (HttpWebResponse)webEx.Response;
+            using (var reader = new StreamReader(errorResponse.GetResponseStream(), UseEncoding))
             {
                 return reader.ReadToEnd();
             }
@@ -857,7 +846,7 @@ namespace ServiceStack
         public static string ReadToEnd(this WebResponse webRes)
         {
             using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream))
+            using (var reader = new StreamReader(stream, UseEncoding))
             {
                 return reader.ReadToEnd();
             }
@@ -866,7 +855,7 @@ namespace ServiceStack
         public static IEnumerable<string> ReadLines(this WebResponse webRes)
         {
             using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream))
+            using (var reader = new StreamReader(stream, UseEncoding))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -975,8 +964,7 @@ namespace ServiceStack
             if (accept != null)
                 httpReq.Accept = accept;
 
-            if (requestFilter != null)
-                requestFilter(httpReq);
+            requestFilter?.Invoke(httpReq);
 
             var boundary = Guid.NewGuid().ToString("N");
 
@@ -1016,7 +1004,7 @@ namespace ServiceStack
         public static void UploadFile(this WebRequest webRequest, Stream fileStream, string fileName)
         {
             if (fileName == null)
-                throw new ArgumentNullException("fileName");
+                throw new ArgumentNullException(nameof(fileName));
             var mimeType = MimeTypes.GetMimeType(fileName);
             if (mimeType == null)
                 throw new ArgumentException("Mime-type not found for file: " + fileName);
@@ -1112,10 +1100,7 @@ namespace ServiceStack
 
         public void UploadStream(HttpWebRequest webRequest, Stream fileStream, string fileName)
         {
-            if (UploadFileFn != null)
-            {
-                UploadFileFn(webRequest, fileStream, fileName);
-            }
+            UploadFileFn?.Invoke(webRequest, fileStream, fileName);
         }
     }
 }
