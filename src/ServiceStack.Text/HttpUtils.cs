@@ -14,7 +14,7 @@ namespace ServiceStack
     {
         public static string UserAgent = "ServiceStack.Text";
 
-        public static Encoding UseEncoding { get; set; } = Encoding.UTF8;
+        public static Encoding UseEncoding { get; set; } = new UTF8Encoding(false);
 
         [ThreadStatic]
         public static IHttpResultsFilter ResultsFilter;
