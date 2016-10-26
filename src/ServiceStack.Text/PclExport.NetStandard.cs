@@ -121,7 +121,7 @@ namespace ServiceStack
             //Automatically register license key stored in <appSettings/> is done in .NET Core AppHost
 
             //or SERVICESTACK_LICENSE Environment variable
-            var licenceKeyText = GetEnvironmentVariable(EnvironmentKey);
+            var licenceKeyText = GetEnvironmentVariable(EnvironmentKey)?.Trim();
             if (!string.IsNullOrEmpty(licenceKeyText))
             {
                 LicenseUtils.RegisterLicense(licenceKeyText);

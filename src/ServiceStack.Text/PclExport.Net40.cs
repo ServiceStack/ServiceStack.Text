@@ -138,7 +138,7 @@ namespace ServiceStack
             }
 
             //or SERVICESTACK_LICENSE Environment variable
-            licenceKeyText = Environment.GetEnvironmentVariable(EnvironmentKey);
+            licenceKeyText = Environment.GetEnvironmentVariable(EnvironmentKey)?.Trim();
             if (!string.IsNullOrEmpty(licenceKeyText))
             {
                 LicenseUtils.RegisterLicense(licenceKeyText);
