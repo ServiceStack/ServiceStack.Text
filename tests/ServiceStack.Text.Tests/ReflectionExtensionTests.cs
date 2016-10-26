@@ -54,6 +54,12 @@ namespace ServiceStack.Text.Tests
 		}
 
         [Test]
+        public void Can_create_instance_of_string()
+        {
+            Assert.That(typeof(string).CreateInstance(), Is.EqualTo(String.Empty));
+        }
+
+        [Test]
         public void Can_create_instances_of_common_collections()
         {
             Assert.That(typeof(IEnumerable<TestModel>).CreateInstance() as IEnumerable<TestModel>, Is.Not.Null);
