@@ -466,7 +466,11 @@ namespace ServiceStack
 
         public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
         {
-            if (type.IsInterface())
+            if (type == typeof(string))
+            {
+                return () => String.Empty;
+            }
+            else if (type.IsInterface())
             {
                 if (type.HasGenericType())
                 {
@@ -550,9 +554,6 @@ namespace ServiceStack
             return System.Linq.Expressions.Expression.Lambda<EmptyCtorDelegate>(
                 System.Linq.Expressions.Expression.New(type)).Compile();
 #else
-            if (type == typeof(string))
-                return () => String.Empty;
-
             //Anonymous types don't have empty constructors
             return () => FormatterServices.GetUninitializedObject(type);
 #endif
