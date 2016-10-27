@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
@@ -333,6 +334,71 @@ namespace ServiceStack.Text
             }
 
             return false;
+        }
+
+        private static void times(int count, Action fn)
+        {
+            for (var i = 0; i < count; i++) fn();
+        }
+
+        private const string Indent = "    ";
+        public static string IndentJson(this string json)
+        {
+            var indent = 0;
+            var quoted = false;
+            var sb = StringBuilderThreadStatic.Allocate();
+
+            for (var i = 0; i < json.Length; i++)
+            {
+                var ch = json[i];
+                switch (ch)
+                {
+                    case '{':
+                    case '[':
+                        sb.Append(ch);
+                        if (!quoted)
+                        {
+                            sb.AppendLine();
+                            times(++indent, () => sb.Append(Indent));
+                        }
+                        break;
+                    case '}':
+                    case ']':
+                        if (!quoted)
+                        {
+                            sb.AppendLine();
+                            times(--indent, () => sb.Append(Indent));
+                        }
+                        sb.Append(ch);
+                        break;
+                    case '"':
+                        sb.Append(ch);
+                        var escaped = false;
+                        var index = i;
+                        while (index > 0 && json[--index] == '\\')
+                            escaped = !escaped;
+                        if (!escaped)
+                            quoted = !quoted;
+                        break;
+                    case ',':
+                        sb.Append(ch);
+                        if (!quoted)
+                        {
+                            sb.AppendLine();
+                            times(indent, () => sb.Append(Indent));
+                        }
+                        break;
+                    case ':':
+                        sb.Append(ch);
+                        if (!quoted)
+                            sb.Append(" ");
+                        break;
+                    default:
+                        sb.Append(ch);
+                        break;
+                }
+            }
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
     }
 

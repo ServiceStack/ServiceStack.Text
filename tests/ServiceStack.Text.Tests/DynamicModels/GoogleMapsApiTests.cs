@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Platform;
 
 namespace ServiceStack.Text.Tests.DynamicModels
 {
@@ -357,7 +358,10 @@ namespace ServiceStack.Text.Tests.DynamicModels
         {
             //short for JsonSerializer.DeserializeFromString<GeoLocationResults>(Json)
             var geoApiResponse = JsonDto.FromJson<GeoLocationResponse>();
-            Console.WriteLine(geoApiResponse.Dump());
+            //geoApiResponse.PrintDump();
+
+            //"Pretty Print:".Print();
+            //geoApiResponse.ToJson().IndentJson().Print();
         }
     }
 }
