@@ -15,7 +15,8 @@ namespace ServiceStack.Text
 {
     public class CsvSerializer
     {
-        public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
+        //Don't emit UTF8 BOM by default
+        public static Encoding UseEncoding { get; set; } = new UTF8Encoding(false);
 
         private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
         internal static WriteObjectDelegate GetWriteFn(Type type)
@@ -116,7 +117,7 @@ namespace ServiceStack.Text
         public static void SerializeToStream<T>(T value, Stream stream)
         {
             if (value == null) return;
-            var writer = new StreamWriter(stream, UTF8Encoding);
+            var writer = new StreamWriter(stream, UseEncoding);
             CsvSerializer<T>.WriteObject(writer, value);
             writer.Flush();
         }
@@ -124,7 +125,7 @@ namespace ServiceStack.Text
         public static void SerializeToStream(object obj, Stream stream)
         {
             if (obj == null) return;
-            var writer = new StreamWriter(stream, UTF8Encoding);
+            var writer = new StreamWriter(stream, UseEncoding);
             var writeFn = GetWriteFn(obj.GetType());
             writeFn(writer, obj);
             writer.Flush();
@@ -133,7 +134,7 @@ namespace ServiceStack.Text
         public static T DeserializeFromStream<T>(Stream stream)
         {
             if (stream == null) return default(T);
-            using (var reader = new StreamReader(stream, UTF8Encoding))
+            using (var reader = new StreamReader(stream, UseEncoding))
             {
                 return DeserializeFromString<T>(reader.ReadToEnd());
             }
@@ -142,7 +143,7 @@ namespace ServiceStack.Text
         public static object DeserializeFromStream(Type type, Stream stream)
         {
             if (stream == null) return null;
-            using (var reader = new StreamReader(stream, UTF8Encoding))
+            using (var reader = new StreamReader(stream, UseEncoding))
             {
                 return DeserializeFromString(type, reader.ReadToEnd());
             }
