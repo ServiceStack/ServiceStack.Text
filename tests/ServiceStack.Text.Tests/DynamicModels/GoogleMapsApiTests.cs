@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
-using Platform;
 
 namespace ServiceStack.Text.Tests.DynamicModels
 {
