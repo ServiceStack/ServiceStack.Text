@@ -29,7 +29,8 @@ namespace ServiceStack.Text.TestsConsole
             }
 
             var tasks = new List<Task>();
-            for (int jj = 0; jj < 3; jj++)
+            var tasksCount = args.Length > 0 ? int.Parse(args[0]) : 3;
+            for (int jj = 0; jj < tasksCount; jj++)
             {
                 int j = jj;
                 tasks.Add(Task.Run(() => {
@@ -48,7 +49,7 @@ namespace ServiceStack.Text.TestsConsole
             }
             tasks.ForEach(task => task.Wait());
 
-            Console.WriteLine($"There were {violations} viloations");
+            Console.WriteLine($"There were {violations} viloations, running {tasksCount} Tasks");
         }
     }
 }
