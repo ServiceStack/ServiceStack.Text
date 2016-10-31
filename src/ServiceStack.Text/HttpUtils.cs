@@ -1364,6 +1364,42 @@ namespace ServiceStack
         public const string Range = "Range";
 
         public const string SOAPAction = "SOAPAction";
+
+        public const string Allow = "Allow";
+
+        public const string AcceptCharset = "Accept-Charset";
+
+        public const string AcceptLanguage = "Accept-Language";
+
+        public const string Connection = "Connection";
+
+        public const string Cookie = "Cookie";
+
+        public const string ContentLanguage = "Content-Language";
+
+        public const string Expect = "Expect";
+
+        public const string Pragma = "Pragma";
+        
+        public const string ProxyAuthenticate = "Proxy-Authenticate";
+
+        public const string ProxyAuthorization = "Proxy-Authorization";
+
+        public const string ProxyConnection = "Proxy-Connection";
+
+        public const string SetCookie2 = "Set-Cookie2";
+
+        public const string TE = "TE";
+
+        public const string Trailer = "Trailer";
+
+        public const string TransferEncoding = "Transfer-Encoding";
+
+        public const string Upgrade = "Upgrade";
+
+        public const string Via = "Via";
+
+        public const string Warning = "Warning";
     }
 
     public static class HttpMethods
