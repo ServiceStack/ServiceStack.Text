@@ -589,25 +589,20 @@ namespace ServiceStack.Text.Common
                 dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
             }
 
-            if (JsConfig.DateHandler == DateHandler.ISO8601)
+            switch (JsConfig.DateHandler)
             {
-                writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
-                return;
-            }
-            if (JsConfig.DateHandler == DateHandler.ISO8601DateOnly)
-            {
-                writer.Write(dateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-                return;
-            }
-            if (JsConfig.DateHandler == DateHandler.ISO8601DateTime)
-            {
-                writer.Write(dateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
-                return;
-            }
-            if (JsConfig.DateHandler == DateHandler.RFC1123)
-            {
-                writer.Write(dateTime.ToUniversalTime().ToString("R", CultureInfo.InvariantCulture));
-                return;
+                case DateHandler.ISO8601:
+                    writer.Write(dateTime.ToString("o", CultureInfo.InvariantCulture));
+                    return;
+                case DateHandler.ISO8601DateOnly:
+                    writer.Write(dateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                    return;
+                case DateHandler.ISO8601DateTime:
+                    writer.Write(dateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+                    return;
+                case DateHandler.RFC1123:
+                    writer.Write(dateTime.ToUniversalTime().ToString("R", CultureInfo.InvariantCulture));
+                    return;
             }
 
             var timestamp = dateTime.ToUnixTimeMs();
