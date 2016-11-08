@@ -297,6 +297,13 @@ namespace ServiceStack.Text.Tests.Utils
 
             AssertDatesAreEqual(fromStr, dateTime);
         }
+
+        [Test]
+        public void Can_serialize_MaxDateTime()
+        {
+            var maxDate = DateTime.MaxValue.ToUnixTime();
+            var minDate = DateTime.MinValue.ToUnixTime();
+        }
     }
 
     public class DateModel
