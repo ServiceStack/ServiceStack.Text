@@ -5,7 +5,9 @@ using System.Text;
 
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
+#if !NETCORE
 	[Serializable]
+#endif
 	public class CustomCollectionItem
 	{
 		public CustomCollectionItem()

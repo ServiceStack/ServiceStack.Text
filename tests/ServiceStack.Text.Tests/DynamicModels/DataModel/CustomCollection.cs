@@ -4,7 +4,9 @@ using System.Linq;
 
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
+#if !NETCORE
 	[Serializable]
+#endif
 	public class CustomCollection : Collection<CustomCollectionItem>
 	{
 		public int FindItemIndex(string name)

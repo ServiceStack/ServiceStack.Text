@@ -24,7 +24,9 @@ namespace ServiceStack.Text.Tests.Support
 		public ArrayOfPost Posts { get; set; }
 	}
 
+#if !NETCORE
 	[Serializable]
+#endif
 	[DataContract(Namespace = "http://schemas.ddnglobal.com/types/")]
 	public class UserPublicProfile
 	{
@@ -156,7 +158,9 @@ namespace ServiceStack.Text.Tests.Support
 		}
 	}
 
+#if !NETCORE
 	[Serializable]
+#endif
 	[CollectionDataContract(Namespace = "http://schemas.ddnglobal.com/types/", ItemName = "String")]
 	public class ArrayOfString : List<string>
 	{
@@ -169,7 +173,9 @@ namespace ServiceStack.Text.Tests.Support
 		//public ArrayOfString(params string[] ids) : base(ids) { }
 	}
 
+#if !NETCORE
 	[Serializable]
+#endif
 	[DataContract(Namespace = "http://schemas.ddnglobal.com/types/")]
 	public class UserSearchResult
 		: IHasId<Guid>
@@ -214,7 +220,9 @@ namespace ServiceStack.Text.Tests.Support
 		public DateTime ActivationDate { get; set; }
 	}
 
+#if !NETCORE
 	[Serializable]
+#endif
 	[CollectionDataContract(Namespace = "http://schemas.ddnglobal.com/types/", ItemName = "Post")]
 	public class ArrayOfPost : List<Post>
 	{
@@ -224,7 +232,9 @@ namespace ServiceStack.Text.Tests.Support
 		public static ArrayOfPost New(params Post[] ids) { return new ArrayOfPost(ids); }
 	}
 
+#if !NETCORE
 	[Serializable]
+#endif
 	[DataContract(Namespace = "http://schemas.ddnglobal.com/types/")]
 	public class Post
 		: IHasStringId
@@ -677,7 +687,9 @@ namespace ServiceStack.Text.Tests.Support
 	}
 
 	[DataContract(Namespace = "http://schemas.ddnglobal.com/types/")]
+#if !NETCORE
 	[Serializable]
+#endif
 	public class ImageAsset
 	{
 		[DataMember(EmitDefaultValue = false)]

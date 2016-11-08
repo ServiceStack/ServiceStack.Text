@@ -12,7 +12,9 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class StructTests
     {
+#if !NETCORE
         [Serializable]
+#endif
         public class Foo
         {
             public string Name { get; set; }
@@ -24,7 +26,9 @@ namespace ServiceStack.Text.Tests
 
         public interface IText { }
 
+#if !NETCORE
         [Serializable]
+#endif
         public struct Text
         {
             private readonly string _value;
@@ -209,7 +213,9 @@ namespace ServiceStack.Text.Tests
             JsConfig.Reset();
         }
 
+#if !NETCORE 
         [Serializable]
+#endif
         protected struct DangerousText1
         {
             public static object Parse(string text)
@@ -218,7 +224,9 @@ namespace ServiceStack.Text.Tests
             }
         }
 
+#if !NETCORE
         [Serializable]
+#endif
         protected struct DangerousText2
         {
             public static int Parse(string text)

@@ -27,7 +27,7 @@ echo replace Env
 sed -i "s/ServiceStackVersion = [[:digit:]]\+.[[:digit:]]\+m/ServiceStackVersion = ${EnvVersion}m/g" ./src/ServiceStack.Text/Env.cs
 
 echo replace project.json
-sed -i "s/\"version\": \"[^\"]\+\"/\"version\": \"${Version}\"/g" ./src/ServiceStack.Text.NetCore/ServiceStack.Text/project.json
+sed -i "s/\"version\": \"[^\"]\+\"/\"version\": \"${Version}\"/g" ./src/ServiceStack.Text/project.json
 
 echo replace package
 sed -i "s/<version>[^<]\+/<version>${PackageVersion}/g" ./NuGet.Core/ServiceStack.Text.Core/servicestack.text.core.nuspec
