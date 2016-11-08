@@ -6,7 +6,9 @@ using System.Security.Permissions;
 
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
+#if !NETCORE
 	[Serializable]
+#endif
 	public class ObjectGraph 
 #if !NETCORE
         : ISerializable
