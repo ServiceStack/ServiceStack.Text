@@ -15,5 +15,14 @@ namespace ServiceStack.Text.Tests
 
             Assert.AreEqual(monday, lastMonday);
         } 
+
+        [Test]
+        public void Can_convert_DateTime_MaxValue()
+        {
+            var date = DateTime.MaxValue.ToUnixTime();
+            DateTime dt = date.FromUnixTime();
+
+            Assert.That(dt, Is.EqualTo(DateTime.MaxValue).Within(TimeSpan.FromSeconds(1)));
+        }
     }
 }
