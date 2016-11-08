@@ -3,7 +3,9 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
+#if !NETCORE
 	[Serializable]
+#endif
 	public class TypeWithPublicFields
 	{
 		public readonly string Text;
