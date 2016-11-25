@@ -199,23 +199,20 @@ namespace ServiceStack.Text.Common
     public static class DeserializeList<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private readonly static ParseStringDelegate CacheFn;
+        private static readonly ParseStringDelegate CacheFn;
 
         static DeserializeList()
         {
             CacheFn = GetParseFn();
         }
 
-        public static ParseStringDelegate Parse
-        {
-            get { return CacheFn; }
-        }
+        public static ParseStringDelegate Parse => CacheFn;
 
         public static ParseStringDelegate GetParseFn()
         {
             var listInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IList<>));
             if (listInterface == null)
-                throw new ArgumentException(string.Format("Type {0} is not of type IList<>", typeof(T).FullName));
+                throw new ArgumentException($"Type {typeof(T).FullName} is not of type IList<>");
 
             //optimized access for regularly used types
             if (typeof(T) == typeof(List<string>))
@@ -244,23 +241,20 @@ namespace ServiceStack.Text.Common
     internal static class DeserializeEnumerable<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private readonly static ParseStringDelegate CacheFn;
+        private static readonly ParseStringDelegate CacheFn;
 
         static DeserializeEnumerable()
         {
             CacheFn = GetParseFn();
         }
 
-        public static ParseStringDelegate Parse
-        {
-            get { return CacheFn; }
-        }
+        public static ParseStringDelegate Parse => CacheFn;
 
         public static ParseStringDelegate GetParseFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
             if (enumerableInterface == null)
-                throw new ArgumentException(string.Format("Type {0} is not of type IEnumerable<>", typeof(T).FullName));
+                throw new ArgumentException($"Type {typeof(T).FullName} is not of type IEnumerable<>");
 
             //optimized access for regularly used types
             if (typeof(T) == typeof(IEnumerable<string>))
