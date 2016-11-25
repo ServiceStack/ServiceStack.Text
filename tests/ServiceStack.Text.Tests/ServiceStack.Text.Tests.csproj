@@ -196,6 +196,7 @@
     <Compile Include="JsonTests\InheritAbstractTests.cs" />
     <Compile Include="JsonTests\InheritanceTests.cs" />
     <Compile Include="JsonTests\JsonDecimalTests.cs" />
+    <Compile Include="JsonTests\JsonEnnumerableTests.cs" />
     <Compile Include="JsonTests\JsonEnumTests.cs" />
     <Compile Include="JsonTests\InvalidJsonTests.cs" />
     <Compile Include="JsonTests\OnDeserializationErrorTests.cs" />

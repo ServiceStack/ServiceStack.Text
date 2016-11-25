@@ -128,7 +128,8 @@ namespace ServiceStack.Text.Common
                 ? new List<T>()
                 : (ICollection<T>)createListType.CreateInstance();
 
-            if (value == string.Empty) return to;
+            if (value == string.Empty)
+                return isReadOnly ? (ICollection<T>)Activator.CreateInstance(createListType, to) : to;
 
             var tryToParseItemsAsPrimitiveTypes =
                 JsConfig.TryToParsePrimitiveTypeValues && typeof(T) == typeof(object);
