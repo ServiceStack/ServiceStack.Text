@@ -39,6 +39,8 @@ namespace ServiceStack.Text.Tests
             Assert.That(!"dir/abc/file.txt".GlobPath("dir/a?/file.txt"));
             Assert.That("dir/abc/file.txt".GlobPath("dir/a?c/file.txt"));
 
+            Assert.That("dir/file.txt".GlobPath("dir/**/file.txt"));
+            Assert.That(!"Dir/file.txt".GlobPath("dir/**/file.txt"));
             Assert.That("dir/a/file.txt".GlobPath("dir/**/file.txt"));
             Assert.That("dir/a/b/file.txt".GlobPath("dir/**/file.txt"));
             Assert.That("dir/a/b/c/d/e/file.txt".GlobPath("dir/**/file.txt"));
