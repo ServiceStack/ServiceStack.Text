@@ -1100,7 +1100,7 @@ namespace ServiceStack
 
             if (dirPattern.IndexOf("**", StringComparison.Ordinal) >= 0)
             {
-                if (!filePath.StartsWith(dirPattern.LeftPart("**").TrimEnd('*', '/')))
+                if (!sanitizedPath.StartsWith(dirPattern.LeftPart("**").TrimEnd('*', '/')))
                     return false;
             }
             else if (dirPattern.IndexOf('*') >= 0 || dirPattern.IndexOf('?') >= 0)
