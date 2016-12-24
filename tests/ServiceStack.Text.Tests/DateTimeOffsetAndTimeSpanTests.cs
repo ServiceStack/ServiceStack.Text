@@ -10,13 +10,13 @@ namespace ServiceStack.Text.Tests
     public class DateTimeOffsetAndTimeSpanTests : TestBase
     {
 #if !IOS && !NETCORE_SUPPORT
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsonDataContractSerializer.Instance.UseBcl = true;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsonDataContractSerializer.Instance.UseBcl = false;            
@@ -33,7 +33,7 @@ namespace ServiceStack.Text.Tests
             //DataContractSerializer.Instance.Parse(model).Print();
 
             var json = JsonSerializer.SerializeToString(model);
-            Assert.That(json, Is.StringContaining("\"TimeSpan\":\"PT0S\""));
+            Assert.That(json, Does.Contain("\"TimeSpan\":\"PT0S\""));
 
             var fromJson = json.FromJson<SampleModel>();
 
@@ -52,7 +52,7 @@ namespace ServiceStack.Text.Tests
 
             var model = new SampleModel { Id = 1, TimeSpan = period };
             var json = JsonSerializer.SerializeToString(model);
-            Assert.That(json, Is.StringContaining("\"TimeSpan\":\"P3652D\""));
+            Assert.That(json, Does.Contain("\"TimeSpan\":\"P3652D\""));
 
             //Behaviour of .NET's BCL classes
             //JsonDataContractSerializer.Instance.SerializeToString(model).Print();
@@ -70,7 +70,7 @@ namespace ServiceStack.Text.Tests
 
                 var model = new SampleModel { Id = 1, TimeSpan = period };
                 var json = JsonSerializer.SerializeToString(model);
-                Assert.That(json, Is.StringContaining("\"TimeSpan\":\"00:01:10\""));
+                Assert.That(json, Does.Contain("\"TimeSpan\":\"00:01:10\""));
             }
         }
 
@@ -83,7 +83,7 @@ namespace ServiceStack.Text.Tests
 
                 var model = new NullableSampleModel { Id = 1, TimeSpan = period };
                 var json = JsonSerializer.SerializeToString(model);
-                Assert.That(json, Is.StringContaining("\"TimeSpan\":\"00:01:10\""));
+                Assert.That(json, Does.Contain("\"TimeSpan\":\"00:01:10\""));
             }
         }
 
@@ -94,7 +94,7 @@ namespace ServiceStack.Text.Tests
             {
                 var model = new NullableSampleModel { Id = 1 };
                 var json = JsonSerializer.SerializeToString(model);
-                Assert.That(json, Is.Not.StringContaining("\"TimeSpan\""));
+                Assert.That(json, Does.Not.Contain("\"TimeSpan\""));
             }
         }
 

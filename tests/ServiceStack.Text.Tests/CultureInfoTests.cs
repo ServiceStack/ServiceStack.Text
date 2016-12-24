@@ -13,7 +13,7 @@ namespace ServiceStack.Text.Tests
 
 		private CultureInfo previousCulture = CultureInfo.InvariantCulture;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void TestFixtureSetUp()
 		{
 #if NETCORE
@@ -27,7 +27,7 @@ namespace ServiceStack.Text.Tests
 #endif
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void TestFixtureTearDown()
 		{
 #if NETCORE
@@ -104,9 +104,9 @@ namespace ServiceStack.Text.Tests
             dto.ToJsv().Print();
             dto.ToCsv().Print();
 
-            Assert.That(dto.ToJson(), Is.Not.StringContaining("1000,9"));
-            Assert.That(dto.ToJsv(), Is.Not.StringContaining("1000,9"));
-            Assert.That(dto.ToCsv(), Is.Not.StringContaining("1000,9"));
+            Assert.That(dto.ToJson(), Does.Not.Contain("1000,9"));
+            Assert.That(dto.ToJsv(), Does.Not.Contain("1000,9"));
+            Assert.That(dto.ToCsv(), Does.Not.Contain("1000,9"));
 	    }
 
 	}

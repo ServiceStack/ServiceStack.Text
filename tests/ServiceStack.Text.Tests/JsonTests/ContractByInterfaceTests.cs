@@ -17,7 +17,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             {
                 var json = new Concrete("boo", 1).ToJson();
 
-                Assert.That(json, Is.StringContaining("\"ServiceStack.Text.Tests.JsonTests.IContract, ServiceStack.Text.Tests\""));
+                Assert.That(json, Does.Contain("\"ServiceStack.Text.Tests.JsonTests.IContract, ServiceStack.Text.Tests\""));
             }
         }
 
@@ -30,7 +30,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                 var json = JsonSerializer.SerializeToString(myConcrete, typeof(IContract));
 
                 Console.WriteLine(json);
-                Assert.That(json, Is.StringContaining("\"ServiceStack.Text.Tests.JsonTests.IContract, ServiceStack.Text.Tests\""));
+                Assert.That(json, Does.Contain("\"ServiceStack.Text.Tests.JsonTests.IContract, ServiceStack.Text.Tests\""));
             }
         }
 
@@ -43,7 +43,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                 var json = JsonSerializer.SerializeToString(myConcrete, typeof(IContract));
 
                 Console.WriteLine(json);
-                Assert.That(json, Is.StringContaining("\"ServiceStack.Text.Tests.JsonTests.Concrete, ServiceStack.Text.Tests\""));
+                Assert.That(json, Does.Contain("\"ServiceStack.Text.Tests.JsonTests.Concrete, ServiceStack.Text.Tests\""));
             }
         }
 

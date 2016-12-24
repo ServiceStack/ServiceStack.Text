@@ -7,14 +7,14 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class JsConfigTests
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsConfig.EmitLowercaseUnderscoreNames = true;
             JsConfig<Bar>.EmitLowercaseUnderscoreNames = false;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();

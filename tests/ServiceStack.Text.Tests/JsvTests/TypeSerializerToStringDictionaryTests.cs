@@ -10,7 +10,7 @@ namespace ServiceStack.Text.Tests.JsvTests
 	[TestFixture]
 	public class TypeSerializerToStringDictionaryTests
 	{
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void TestFixtureSetUp()
 		{
 			NorthwindData.LoadData(false);
