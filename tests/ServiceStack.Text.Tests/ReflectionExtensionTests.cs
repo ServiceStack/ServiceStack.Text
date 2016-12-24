@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using ServiceStack;
 
 namespace ServiceStack.Text.Tests
 {
@@ -34,6 +35,21 @@ namespace ServiceStack.Text.Tests
         public int IntMethod()
         {
             return this.PublicInt;
+        }
+    }
+
+    public class MethodsForReflection
+    {
+        public string Result = String.Empty;
+
+        public void HelloVoid()
+        {
+            Result = "Hello";
+        }
+
+        public void Hello(bool a, int b)
+        {
+            Result = String.Format($"Hello {a} {b}");
         }
     }
 
@@ -83,6 +99,26 @@ namespace ServiceStack.Text.Tests
         public void Can_create_intances_of_recursive_generic_type()
         {
             //Assert.That(typeof(GenericType<>).MakeGenericType(new[] { typeof(GenericType<>) }).CreateInstance(), Is.Not.Null);
+        }
+
+        [Test]
+        public void Can_get_method_from_type()
+        {
+            var testInstance = new MethodsForReflection();
+
+            var helloVoidMethod = typeof(MethodsForReflection).GetMethodInfo(nameof(MethodsForReflection.HelloVoid));
+            Assert.That(helloVoidMethod, Is.Not.Null);
+            var helloVoidDelegate = (Action<MethodsForReflection>)helloVoidMethod.MakeDelegate(typeof(Action<MethodsForReflection>));
+            Assert.That(helloVoidDelegate, Is.Not.Null);
+            helloVoidDelegate(testInstance);
+            Assert.That(testInstance.Result, Is.EqualTo("Hello"));
+
+            var helloVoidBoolIntMethod = typeof(MethodsForReflection).GetMethodInfo(nameof(MethodsForReflection.Hello), new Type[] { typeof(bool), typeof(int)});
+            Assert.That(helloVoidBoolIntMethod, Is.Not.Null);
+            var helloVoidBoolIntDelegate = (Action<MethodsForReflection, bool, int>)helloVoidBoolIntMethod.MakeDelegate(typeof(Action<MethodsForReflection, bool, int>));
+            Assert.That(helloVoidBoolIntDelegate, Is.Not.Null);
+            helloVoidBoolIntDelegate(testInstance, true, 5);
+            Assert.That(testInstance.Result, Is.EqualTo("Hello True 5"));
         }
     }
 
