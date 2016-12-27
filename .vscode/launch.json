@@ -6,8 +6,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/tests/ServiceStack.Text.Tests/bin/Debug/netcoreapp1.0/ServiceStack.Text.Tests.dll",
-            //"args": ["--test=ServiceStack.Text.Tests.AutoMappingTests.Can_create_Dictionary_default_value"],
+            "program": "${workspaceRoot}/tests/ServiceStack.Text.Tests/bin/Debug/netcoreapp1.1/ServiceStack.Text.Tests.dll",
+            //"args": ["--test=ServiceStack.Text.Tests.ReflectionExtensionTests", "--labels=All"],
+            "args": ["--labels=All"],
             "cwd": "${workspaceRoot}",
             "stopAtEntry": false,
             "externalConsole": false

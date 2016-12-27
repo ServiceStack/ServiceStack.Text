@@ -14,7 +14,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var obj = new Foo { X = "abc", Z = "def" }; // don't touch Y...
 
             string json = JsonSerializer.SerializeToString(obj);
-            Assert.That(json, Is.StringMatching("{\"X\":\"abc\",\"Z\":\"def\"}"));   
+            Assert.That(json, Does.Match("{\"X\":\"abc\",\"Z\":\"def\"}"));   
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var obj = new SuperFoo { X = "abc", Z = "def", A =123, C = 456 }; // don't touch Y or B...
 
             string json = JsonSerializer.SerializeToString(obj);
-            Assert.That(json, Is.StringMatching("{\"A\":123,\"C\":456,\"X\":\"abc\",\"Z\":\"def\"}"));
+            Assert.That(json, Does.Match("{\"A\":123,\"C\":456,\"X\":\"abc\",\"Z\":\"def\"}"));
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var obj = new ByNameFoo { A = 123, B = 456 };
 
             string json = JsonSerializer.SerializeToString(obj);
-            Assert.That(json, Is.StringMatching("{\"A\":123,\"B\":456}"));
+            Assert.That(json, Does.Match("{\"A\":123,\"B\":456}"));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var obj = new ByNameFoo { A = 123, B = 456, hasAttribute = new HashSet<string> { "A" } };
 
             string json = JsonSerializer.SerializeToString(obj);
-            Assert.That(json, Is.StringMatching("{\"A\":123"));
+            Assert.That(json, Does.Match("{\"A\":123"));
 
             var cpy = JsonSerializer.DeserializeFromString<ByNameFoo>(json);
             Assert.That(cpy.A, Is.EqualTo(obj.A));
@@ -54,7 +54,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             var obj = new ByNameFoo { A = 123, B = null, hasAttribute = new HashSet<string> { "B" } };
 
             string json = JsonSerializer.SerializeToString(obj);
-            Assert.That(json, Is.StringMatching("{\"B\":null"));
+            Assert.That(json, Does.Match("{\"B\":null"));
 
             var cpy = JsonSerializer.DeserializeFromString<ByNameFoo>(json);
             Assert.That(cpy.A, Is.EqualTo(0));

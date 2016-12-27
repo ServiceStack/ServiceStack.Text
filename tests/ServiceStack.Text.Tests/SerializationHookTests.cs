@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests
     public class SerializationHookTests
         : TestBase
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             AddSerializeHooksForType<HookTestClass>();

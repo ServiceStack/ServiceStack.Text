@@ -17,7 +17,7 @@ namespace ServiceStack.Text.Tests.UseCases
             QueryStringSerializer.ComplexTypeStrategy = QueryStringStrategy.FormUrlEncoded;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();
@@ -147,7 +147,7 @@ namespace ServiceStack.Text.Tests.UseCases
             var qs = QueryStringSerializer.SerializeToString(dto);
             qs.Print();
 
-            Assert.That(qs, Is.StringContaining(
+            Assert.That(qs, Does.Contain(
                 @"&legal_entity[dob][year]=1970&legal_entity[dob][month]=1&legal_entity[dob][day]=1"));
         }
     }

@@ -321,13 +321,13 @@ namespace ServiceStack.Text.Tests.Utils
             public DateTime Date { get; set; }
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsConfig.DateHandler = DateHandler.ISO8601;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();
@@ -525,13 +525,13 @@ namespace ServiceStack.Text.Tests.Utils
             public DateTime Date { get; set; }
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsConfig.DateHandler = DateHandler.RFC1123;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();
@@ -585,13 +585,13 @@ namespace ServiceStack.Text.Tests.Utils
             public DateTime Date { get; set; }
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsConfig.DateHandler = DateHandler.UnixTime;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();
@@ -641,13 +641,13 @@ namespace ServiceStack.Text.Tests.Utils
     [TestFixture]
     public class UnixEpochMsTests
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsConfig.DateHandler = DateHandler.UnixTimeMs;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();

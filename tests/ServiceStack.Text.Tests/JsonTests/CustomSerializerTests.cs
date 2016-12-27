@@ -15,7 +15,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             JsConfig<EntityWithValues>.RawDeserializeFn = DeserializeEntity;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();

@@ -8,7 +8,7 @@ namespace ServiceStack.Text.Tests.JsonTests
     [TestFixture]
     public class CustomRawSerializerTests
     {
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();
@@ -59,7 +59,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             };
 
             var json = dto.ToJson();
-            Assert.That(json, Is.StringContaining("FF-00-00"));
+            Assert.That(json, Does.Contain("FF-00-00"));
 
             var fromJson = json.FromJson<RealType>();
 
@@ -167,8 +167,8 @@ namespace ServiceStack.Text.Tests.JsonTests
             var luxaryParentJson = luxaryParent.ToJson();
             var cheapParentJson = cheapParent.ToJson();
 
-            Assert.That(luxaryParentJson, Is.Not.StringContaining("__type"));
-            Assert.That(cheapParentJson, Is.Not.StringContaining("__type"));
+            Assert.That(luxaryParentJson, Does.Not.Contain("__type"));
+            Assert.That(cheapParentJson, Does.Not.Contain("__type"));
 
             ICar luxary = new LuxaryCar() { Sunroof = "Big" };
             ICar cheap = new CheapCar() { HasCupHolder = true };
@@ -177,8 +177,8 @@ namespace ServiceStack.Text.Tests.JsonTests
             var luxaryJson = JsonSerializer.SerializeToString(luxary, typeof(ICar));
             var cheapJson = JsonSerializer.SerializeToString(cheap, typeof(ICar));
 
-            Assert.That(luxaryJson, Is.Not.StringContaining("__type"));
-            Assert.That(cheapJson, Is.Not.StringContaining("__type"));
+            Assert.That(luxaryJson, Does.Not.Contain("__type"));
+            Assert.That(cheapJson, Does.Not.Contain("__type"));
 
             JsConfig.Reset();
         }
@@ -202,7 +202,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             var luxaryJson = luxary.ToJson();
 
-            Assert.That(luxaryJson, Is.StringContaining("foo"));
+            Assert.That(luxaryJson, Does.Contain("foo"));
 
             JsConfig.Reset();
         }

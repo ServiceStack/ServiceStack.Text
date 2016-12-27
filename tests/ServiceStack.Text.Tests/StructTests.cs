@@ -59,7 +59,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
 #if IOS

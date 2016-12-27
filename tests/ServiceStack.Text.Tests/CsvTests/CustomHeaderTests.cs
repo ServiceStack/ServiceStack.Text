@@ -8,7 +8,7 @@ namespace ServiceStack.Text.Tests.CsvTests
 	[TestFixture]
 	public class CustomHeaderTests
 	{
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void TestFixtureTearDown()
 		{
 			CsvConfig<TableItem>.Reset();

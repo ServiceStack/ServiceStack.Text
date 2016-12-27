@@ -795,7 +795,19 @@ namespace ServiceStack
         public static MethodInfo GetMethodInfo(this Type type, string methodName, Type[] types = null)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD1_1)
-            return type.GetRuntimeMethods().FirstOrDefault(p => p.Name.Equals(methodName));
+            if (types == null) 
+                return type.GetRuntimeMethods().FirstOrDefault(p => p.Name.Equals(methodName));
+
+            foreach(var mi in type.GetRuntimeMethods().Where(p => p.Name.Equals(methodName)))
+            {
+                var methodParams = mi.GetParameters().Select(p => p.ParameterType);
+                if (methodParams.SequenceEqual(types))
+                {
+                    return mi;
+                }
+            }
+
+            return null;
 #else
             return types == null
                 ? type.GetMethod(methodName)

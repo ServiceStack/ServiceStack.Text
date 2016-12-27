@@ -16,13 +16,13 @@ namespace ServiceStack.Text.Tests
             NorthwindData.LoadData(false);
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsConfig.SkipDateTimeConversion = true;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();
@@ -150,7 +150,7 @@ namespace ServiceStack.Text.Tests
             var csv = CsvSerializer.SerializeToString(subMovies);
 
             csv.Print();
-            Assert.That(csv, Is.StringStarting("ReleaseDate,Title,Rating,ImdbId\r\n"));
+            Assert.That(csv, Does.StartWith("ReleaseDate,Title,Rating,ImdbId\r\n"));
 
             var movies = csv.FromCsv<List<Movie>>();
 
