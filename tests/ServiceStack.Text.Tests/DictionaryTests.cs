@@ -11,7 +11,7 @@ namespace ServiceStack.Text.Tests
     public class DictionaryTests
         : TestBase
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
 #if IOS

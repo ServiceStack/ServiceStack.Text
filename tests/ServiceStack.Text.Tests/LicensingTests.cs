@@ -150,7 +150,7 @@ namespace ServiceStack.Text.Tests
             catch (LicenseException ex)
             {
                 ex.Message.Print();
-                Assert.That(ex.Message, Is.StringStarting("This license has expired"));
+                Assert.That(ex.Message, Does.StartWith("This license has expired"));
             }
 
             try
@@ -161,7 +161,7 @@ namespace ServiceStack.Text.Tests
             catch (LicenseException ex)
             {
                 ex.Message.Print();
-                Assert.That(ex.Message, Is.StringStarting("This license has expired"));
+                Assert.That(ex.Message, Does.StartWith("This license has expired"));
             }
 
             try
@@ -172,8 +172,8 @@ namespace ServiceStack.Text.Tests
             catch (LicenseException ex)
             {
                 ex.Message.Print();
-                Assert.That(ex.Message, Is.StringStarting("This trial license has expired")
-                                       .Or.StringStarting("This license has expired"));
+                Assert.That(ex.Message, Does.StartWith("This trial license has expired")
+                                       .Or.StartWith("This license has expired"));
             }
         }
 

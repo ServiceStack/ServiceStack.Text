@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests
     public class SerializationDelegatePerformanceTests
         : TestBase
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             AddSerializeHooksForType<PerformanceTestHookClass>();

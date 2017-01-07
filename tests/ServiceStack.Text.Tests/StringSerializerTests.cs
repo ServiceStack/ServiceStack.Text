@@ -12,7 +12,7 @@ namespace ServiceStack.Text.Tests
 	public class StringSerializerTests
 		: TestBase
 	{
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void TestFixtureSetUp()
 		{
 			NorthwindData.LoadData(false);
