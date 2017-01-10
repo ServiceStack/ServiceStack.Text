@@ -9,12 +9,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ServiceStack.Text;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack
 {
     public class LicenseException : Exception
     {
         public LicenseException(string message) : base(message) { }
+        public LicenseException(string message, Exception innerException) : base(message, innerException) {}
     }
 
     public enum LicenseType
@@ -182,17 +184,7 @@ namespace ServiceStack
                     throw new LicenseException("This subscription has been revoked. " + ContactDetails);
 
                 var key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
-
-                var releaseDate = Env.GetReleaseDate();
-                if (releaseDate > key.Expiry)
-                    throw new LicenseException("This license has expired on {0} and is not valid for use with this release."
-                        .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
-
-                if (key.Type == LicenseType.Trial && DateTime.UtcNow > key.Expiry)
-                    throw new LicenseException("This trial license has expired on {0}."
-                        .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
-
-                __activatedLicense = key;
+                ValidateLicenseKey(key);
             }
             catch (Exception ex)
             {
@@ -201,9 +193,22 @@ namespace ServiceStack
 
                 var msg = "This license is invalid." + ContactDetails;
                 if (!string.IsNullOrEmpty(subId))
-                    msg += " The id for this license is '{0}'".Fmt(subId);
+                    msg += $" The id for this license is '{subId}'";
 
-                throw new LicenseException(msg).Trace();
+                lock (typeof(LicenseUtils))
+                {
+                    try
+                    {
+                        var key = PclExport.Instance.VerifyLicenseKeyTextFallback(licenseKeyText);
+                        ValidateLicenseKey(key);
+                    }
+                    catch (Exception exFallback)
+                    {
+                        throw new LicenseException(msg, exFallback).Trace();
+                    }
+                }
+
+                throw new LicenseException(msg, ex).Trace();
             }
             finally
             {
@@ -211,6 +216,19 @@ namespace ServiceStack
                 Thread.CurrentThread.CurrentCulture = hold;
 #endif
             }
+        }
+
+        private static void ValidateLicenseKey(LicenseKey key)
+        {
+            var releaseDate = Env.GetReleaseDate();
+            if (releaseDate > key.Expiry)
+                throw new LicenseException($"This license has expired on {key.Expiry:d} and is not valid for use with this release."
+                                           + ContactDetails).Trace();
+
+            if (key.Type == LicenseType.Trial && DateTime.UtcNow > key.Expiry)
+                throw new LicenseException($"This trial license has expired on {key.Expiry:d}." + ContactDetails).Trace();
+
+            __activatedLicense = key;
         }
 
         public static void RemoveLicense()
@@ -365,7 +383,7 @@ namespace ServiceStack
                 var key = jsv.FromJsv<LicenseKey>();
 
                 if (key.Ref != refId)
-                    throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64)).Trace();
+                    throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64, refId)).Trace();
 
                 return key;
             }
@@ -376,9 +394,33 @@ namespace ServiceStack
             }
         }
 
+        public static LicenseKey ToLicenseKeyFallback(this string licenseKeyText)
+        {
+            licenseKeyText = Regex.Replace(licenseKeyText, @"\s+", "");
+            var parts = licenseKeyText.SplitOnFirst('-');
+            var refId = parts[0];
+            var base64 = parts[1];
+            var jsv = Convert.FromBase64String(base64).FromUtf8Bytes();
+
+            var map = jsv.FromJsv<Dictionary<string, string>>();
+            var key = new LicenseKey
+            {
+                Ref = map.Get("Ref"),
+                Name = map.Get("Name"),
+                Type = (LicenseType)Enum.Parse(typeof(LicenseType), map.Get("Type")),
+                Hash = map.Get("Hash"),
+                Expiry = DateTimeSerializer.ParseManual(map.Get("Expiry"), DateTimeKind.Utc).GetValueOrDefault(),
+            };
+
+            if (key.Ref != refId)
+                throw new LicenseException($"The license '{base64}' is not assigned to CustomerId '{refId}'.").Trace();
+
+            return key;
+        }
+
         public static string GetHashKeyToSign(this LicenseKey key)
         {
-            return "{0}:{1}:{2}:{3}".Fmt(key.Ref, key.Name, key.Expiry.ToString("yyyy-MM-dd"), key.Type);
+            return $"{key.Ref}:{key.Name}:{key.Expiry:yyyy-MM-dd}:{key.Type}";
         }
 
         public static Exception GetInnerMostException(this Exception ex)

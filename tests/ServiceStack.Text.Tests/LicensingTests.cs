@@ -199,6 +199,28 @@ namespace ServiceStack.Text.Tests
             Assert.That(licenseKey.Expiry, Is.EqualTo(expectedKey.Expiry));
         }
 
+        [Test]
+        public void Can_deserialize_all_license_key_fallback()
+        {
+            AssertKeyFallback(TestBusiness2000Text, TestBusiness2000);
+            AssertKeyFallback(TestIndie2000Text, TestIndie2000);
+            AssertKeyFallback(TestBusiness2013Text, TestBusiness2013);
+            AssertKeyFallback(TestIndie2013Text, TestIndie2013);
+            AssertKeyFallback(TestTrial2001Text, TestTrial2001);
+            AssertKeyFallback(TestTrial2016Text, TestTrial2016);
+        }
+
+        private void AssertKeyFallback(string licenseKeyText, LicenseKey expectedKey)
+        {
+            var licenseKey = licenseKeyText.ToLicenseKeyFallback();
+
+            Assert.That(licenseKey.Ref, Is.EqualTo(expectedKey.Ref));
+            Assert.That(licenseKey.Name, Is.EqualTo(expectedKey.Name));
+            Assert.That(licenseKey.Type, Is.EqualTo(expectedKey.Type));
+            //Assert.That(licenseKey.Hash, Is.EqualTo(expectedKey.Hash));
+            Assert.That(licenseKey.Expiry, Is.EqualTo(expectedKey.Expiry));
+        }
+
 #if !NETCORE
         [Explicit,Test]
         public void Test_dynamically_loaded_assemblies()

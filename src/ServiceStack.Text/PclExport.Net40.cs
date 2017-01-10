@@ -1133,9 +1133,66 @@ namespace ServiceStack
             return VerifySignedHash(originalData, signedData, publicKeyParams);
         }
 
+        public static bool VerifyLicenseKeyTextFallback(this string licenseKeyText, out LicenseKey key)
+        {
+            RSAParameters publicKeyParams;
+            try
+            {
+                var publicRsaProvider = new RSACryptoServiceProvider();
+                publicRsaProvider.FromXmlString(LicenseUtils.LicensePublicKey);
+                publicKeyParams = publicRsaProvider.ExportParameters(false);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not import LicensePublicKey", ex);
+            }
+
+            try
+            {
+                key = licenseKeyText.ToLicenseKeyFallback();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not deserialize LicenseKeyText Manually", ex);
+            }
+
+            byte[] originalData;
+            byte[] signedData;
+
+            try
+            {
+                originalData = key.GetHashKeyToSign().ToUtf8Bytes();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not convert HashKey to UTF-8", ex);
+            }
+
+            try
+            {
+                signedData = Convert.FromBase64String(key.Hash);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not convert key.Hash from Base64", ex);
+            }
+
+            try
+            {
+                return VerifySignedHash(originalData, signedData, publicKeyParams);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not Verify License Key ({originalData.Length}, {signedData.Length})", ex);
+            }
+        }
+
         public static bool VerifySha1Data(this RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
         {
-            return RSAalg.VerifyData(unsignedData, new SHA1CryptoServiceProvider(), encryptedData);
+            using (var sha = new SHA1CryptoServiceProvider())
+            {
+                return RSAalg.VerifyData(unsignedData, sha, encryptedData);
+            }
             //SL5 || WP
             //return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1()); 
         }
