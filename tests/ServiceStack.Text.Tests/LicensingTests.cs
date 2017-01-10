@@ -41,6 +41,12 @@ namespace ServiceStack.Text.Tests
         const string TestTrial2016Text = "TRIAL302016-e1JlZjpUUklBTDMwMjAxNixOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOkFSSThkVzlHZ210NWZGZ09MTytIRi9vQ29iOWgwN1c4bGxuNHZrUm9CQ2M5aysxVlh3WWJEd2Nxais3cHhFbEwrTkgwbGF2NXoyZGdJV1NndUpXYjZrUC9aQWdqNVIvMmlHamp4ZlduQjExOWY2WHgvRzFERmQ5cndJdjNMejhzR0V5RitNcGhlN3RTbEhJVlR4UjA1amI2SDFaZHlIYjNDNFExcTJaWEFzQT0sRXhwaXJ5OjIwMTYtMDEtMDF9";
         readonly LicenseKey TestTrial2016 = new LicenseKey { Ref = "TRIAL302016", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2016, 01, 01) };
 
+        [SetUp]
+        public void SetUp()
+        {
+            LicenseUtils.RemoveLicense();
+        }
+
         public static IEnumerable AllLicenseUseCases
         {
             get
@@ -152,6 +158,8 @@ namespace ServiceStack.Text.Tests
                 ex.Message.Print();
                 Assert.That(ex.Message, Does.StartWith("This license has expired"));
             }
+
+            LicenseUtils.RemoveLicense();
 
             try
             {
