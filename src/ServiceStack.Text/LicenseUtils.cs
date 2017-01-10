@@ -407,7 +407,7 @@ namespace ServiceStack
             {
                 Ref = map.Get("Ref"),
                 Name = map.Get("Name"),
-                Type = (LicenseType)Enum.Parse(typeof(LicenseType), map.Get("Type")),
+                Type = (LicenseType)Enum.Parse(typeof(LicenseType), map.Get("Type"), ignoreCase: true),
                 Hash = map.Get("Hash"),
                 Expiry = DateTimeSerializer.ParseManual(map.Get("Expiry"), DateTimeKind.Utc).GetValueOrDefault(),
             };
