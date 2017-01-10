@@ -169,6 +169,9 @@ namespace ServiceStack
         {
             JsConfig.InitStatics();
 
+            if (__activatedLicense != null) //Skip multple license registrations. Use RemoveLicense() to reset.
+                return;
+
             string subId = null;
 #if !(PCL || NETSTANDARD1_1)
             var hold = Thread.CurrentThread.CurrentCulture;
