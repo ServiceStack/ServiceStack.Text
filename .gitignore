@@ -1,5 +1,6 @@
 bin/
 obj/
+packages/
 .idea/
 latest/
 /env-vars.bat
