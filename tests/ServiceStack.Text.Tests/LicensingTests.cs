@@ -41,6 +41,12 @@ namespace ServiceStack.Text.Tests
         const string TestTrial2016Text = "TRIAL302016-e1JlZjpUUklBTDMwMjAxNixOYW1lOlRyaWFsIFRlc3QsVHlwZTpUcmlhbCxIYXNoOkFSSThkVzlHZ210NWZGZ09MTytIRi9vQ29iOWgwN1c4bGxuNHZrUm9CQ2M5aysxVlh3WWJEd2Nxais3cHhFbEwrTkgwbGF2NXoyZGdJV1NndUpXYjZrUC9aQWdqNVIvMmlHamp4ZlduQjExOWY2WHgvRzFERmQ5cndJdjNMejhzR0V5RitNcGhlN3RTbEhJVlR4UjA1amI2SDFaZHlIYjNDNFExcTJaWEFzQT0sRXhwaXJ5OjIwMTYtMDEtMDF9";
         readonly LicenseKey TestTrial2016 = new LicenseKey { Ref = "TRIAL302016", Name = "Trial Test", Type = LicenseType.Trial, Expiry = new DateTime(2016, 01, 01) };
 
+        [SetUp]
+        public void SetUp()
+        {
+            LicenseUtils.RemoveLicense();
+        }
+
         public static IEnumerable AllLicenseUseCases
         {
             get
@@ -153,6 +159,8 @@ namespace ServiceStack.Text.Tests
                 Assert.That(ex.Message, Does.StartWith("This license has expired"));
             }
 
+            LicenseUtils.RemoveLicense();
+
             try
             {
                 Licensing.RegisterLicense(TestBusiness2000Text);
@@ -191,6 +199,28 @@ namespace ServiceStack.Text.Tests
         private void AssertKey(string licenseKeyText, LicenseKey expectedKey)
         {
             var licenseKey = licenseKeyText.ToLicenseKey();
+
+            Assert.That(licenseKey.Ref, Is.EqualTo(expectedKey.Ref));
+            Assert.That(licenseKey.Name, Is.EqualTo(expectedKey.Name));
+            Assert.That(licenseKey.Type, Is.EqualTo(expectedKey.Type));
+            //Assert.That(licenseKey.Hash, Is.EqualTo(expectedKey.Hash));
+            Assert.That(licenseKey.Expiry, Is.EqualTo(expectedKey.Expiry));
+        }
+
+        [Test]
+        public void Can_deserialize_all_license_key_fallback()
+        {
+            AssertKeyFallback(TestBusiness2000Text, TestBusiness2000);
+            AssertKeyFallback(TestIndie2000Text, TestIndie2000);
+            AssertKeyFallback(TestBusiness2013Text, TestBusiness2013);
+            AssertKeyFallback(TestIndie2013Text, TestIndie2013);
+            AssertKeyFallback(TestTrial2001Text, TestTrial2001);
+            AssertKeyFallback(TestTrial2016Text, TestTrial2016);
+        }
+
+        private void AssertKeyFallback(string licenseKeyText, LicenseKey expectedKey)
+        {
+            var licenseKey = licenseKeyText.ToLicenseKeyFallback();
 
             Assert.That(licenseKey.Ref, Is.EqualTo(expectedKey.Ref));
             Assert.That(licenseKey.Name, Is.EqualTo(expectedKey.Name));

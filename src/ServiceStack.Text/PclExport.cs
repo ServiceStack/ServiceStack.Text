@@ -452,6 +452,11 @@ namespace ServiceStack
             return licenseKeyText.ToLicenseKey();
         }
 
+        public virtual LicenseKey VerifyLicenseKeyTextFallback(string licenseKeyText)
+        {
+            return licenseKeyText.ToLicenseKeyFallback();
+        }
+
         public virtual void BeginThreadAffinity()
         {
         }
