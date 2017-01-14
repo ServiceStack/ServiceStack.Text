@@ -67,7 +67,7 @@ namespace ServiceStack.Text.Benchmarks
     {
         static ModelWithAllTypes allTypesModel = ModelWithAllTypes.Create(3);
         static ModelWithCommonTypes commonTypesModel = ModelWithCommonTypes.Create(3);
-        static MemoryStream stream = new MemoryStream(16384);
+        static MemoryStream stream = new MemoryStream(32768);
         const string serializedString = "this is the test string";
         readonly string serializedString256 = new string('t', 256);
         readonly string serializedString512 = new string('t', 512);

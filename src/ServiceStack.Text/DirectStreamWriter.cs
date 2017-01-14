@@ -11,7 +11,8 @@ namespace ServiceStack.Text
         
         private Stream stream;
         private StreamWriter writer = null;
-        private char[] curChar = new char[1];
+        private byte[] curChar = new byte[1];
+        private bool needFlush = false;
 
         private Encoding encoding;
         public override Encoding Encoding => encoding;
@@ -26,25 +27,44 @@ namespace ServiceStack.Text
         {
             if (s.Length <= optimizedBufferLength)
             {
+                if (needFlush) 
+                {
+                    writer.Flush();
+                    needFlush = false;
+                }
+
                 byte[] buffer = Encoding.GetBytes(s);
                 stream.Write(buffer, 0, buffer.Length);
-            } 
-            else 
+            } else 
             {
                 if (writer == null)
                     writer = new StreamWriter(stream, Encoding, s.Length < maxBufferLength ? s.Length : maxBufferLength);
                 
                 writer.Write(s);
-                writer.Flush();
+                needFlush = true;
             }
         }
 
         public override void Write(char c)
         {
-            curChar[0] = c;
+            if ((int)c < 128)
+            {
+                if (needFlush)
+                {
+                    writer.Flush();
+                    needFlush = false;
+                }
 
-            byte[] buffer = Encoding.GetBytes(curChar);
-            stream.Write(buffer, 0, buffer.Length);
+                curChar[0] = (byte)c;
+                stream.Write(curChar, 0, 1);
+            } else
+            {
+                if (writer == null)
+                    writer = new StreamWriter(stream, Encoding, optimizedBufferLength);
+                
+                writer.Write(c);
+                needFlush = true;
+            }
         }
 
         public override void Flush()
