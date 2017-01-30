@@ -78,7 +78,10 @@ namespace ServiceStack
 
         public static Type[] GetGenericArguments(this Type type)
         {
-            return type.GetTypeInfo().GenericTypeArguments;
+            //http://stackoverflow.com/a/39140220/85785
+            return type.GetTypeInfo().IsGenericTypeDefinition
+                ? type.GetTypeInfo().GenericTypeParameters
+                : type.GetTypeInfo().GenericTypeArguments;
         }
 
         internal static TypeInfo GetTypeInfo(this Type type)
