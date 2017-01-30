@@ -129,14 +129,14 @@ namespace ServiceStack.Text.Benchmarks
         }
 
 
-  //      [Benchmark]
+        [Benchmark]
         public void SerializeJsonAllTypesToStream()
         {
             stream.Position = 0;
             JsonSerializer.SerializeToStream<ModelWithAllTypes>(allTypesModel, stream);
         }
         
-//        [Benchmark]
+        [Benchmark]
         public void SerializeJsonCommonTypesToStream()
         {
             stream.Position = 0;
