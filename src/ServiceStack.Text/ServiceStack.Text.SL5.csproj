@@ -157,6 +157,9 @@
     <Compile Include="DateTimeExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DirectStreamWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="CsvAttribute.cs" />
     <Compile Include="Env.cs">
       <SubType>Code</SubType>
