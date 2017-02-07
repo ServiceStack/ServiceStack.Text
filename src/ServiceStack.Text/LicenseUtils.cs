@@ -162,7 +162,7 @@ namespace ServiceStack
                     "See https://servicestack.net to upgrade to a valid license.").Trace();
         }
 
-        private static readonly int[] revokedSubs = { 4018, 4019, 4041, 4331 };
+        private static readonly int[] revokedSubs = { 4018, 4019, 4041, 4331, 4581 };
 
         private static LicenseKey __activatedLicense;
         public static void RegisterLicense(string licenseKeyText)
