@@ -76,6 +76,7 @@ namespace ServiceStack.Text
         public bool? AssumeUtc { get; set; }
         public bool? AppendUtcOffset { get; set; }
         public bool? EscapeUnicode { get; set; }
+        public bool? HandleGuidsAsStrings { get; set; }
         public bool? PreferInterfaces { get; set; }
         public bool? IncludePublicFields { get; set; }
         public int? MaxDepth { get; set; }

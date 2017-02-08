@@ -225,6 +225,7 @@ namespace ServiceStack.Text
             bool? assumeUtc = null,
             bool? appendUtcOffset = null,
             bool? escapeUnicode = null,
+            bool? handleGuidsAsStrings = null,
             bool? includePublicFields = null,
             int? maxDepth = null,
             EmptyCtorFactoryDelegate modelFactory = null,
@@ -261,6 +262,7 @@ namespace ServiceStack.Text
                 AssumeUtc = assumeUtc ?? sAssumeUtc,
                 AppendUtcOffset = appendUtcOffset ?? sAppendUtcOffset,
                 EscapeUnicode = escapeUnicode ?? sEscapeUnicode,
+                HandleGuidsAsStrings = handleGuidsAsStrings ?? sHandleGuidsAsStrings,
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
@@ -757,6 +759,22 @@ namespace ServiceStack.Text
             }
         }
 
+        private static bool? sHandleGuidsAsStrings;
+        public static bool HandleGuidsAsStrings
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return ( JsConfigScope.Current != null ? JsConfigScope.Current.HandleGuidsAsStrings : null )
+                    ?? sHandleGuidsAsStrings
+                    ?? false;
+            }
+            set
+            {
+                if ( !sHandleGuidsAsStrings.HasValue ) sHandleGuidsAsStrings = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating if the framework should call an error handler when
         /// an exception happens during the deserialization.
@@ -934,6 +952,7 @@ namespace ServiceStack.Text
             sSkipDateTimeConversion = null;
             sAppendUtcOffset = null;
             sEscapeUnicode = null;
+            sHandleGuidsAsStrings = null;
             sOnDeserializationError = null;
             sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();
