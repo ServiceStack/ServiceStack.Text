@@ -102,13 +102,37 @@ namespace ServiceStack.Text.Common
             if ((value = StripList(value)) == null) return null;
             if (value == string.Empty) return new List<int>();
 
-            var intParts = value.Split(JsWriter.ItemSeperator);
-            var intValues = new List<int>(intParts.Length);
-            foreach (var intPart in intParts)
+            var to = new List<int>();
+            var valueLength = value.Length;
+
+            var i = 0;
+            while (i < valueLength)
             {
-                intValues.Add(int.Parse(intPart));
+                var elementValue = Serializer.EatValue(value, ref i);
+                to.Add(int.Parse(elementValue));
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
             }
-            return intValues;
+
+            return to;
+        }
+
+        public static List<byte> ParseByteList(string value)
+        {
+            if ((value = StripList(value)) == null) return null;
+            if (value == string.Empty) return new List<byte>();
+
+            var to = new List<byte>();
+            var valueLength = value.Length;
+
+            var i = 0;
+            while (i < valueLength)
+            {
+                var elementValue = Serializer.EatValue(value, ref i);
+                to.Add(byte.Parse(elementValue));
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
+            }
+
+            return to;
         }
     }
 

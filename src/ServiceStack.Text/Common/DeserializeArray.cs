@@ -180,11 +180,14 @@ namespace ServiceStack.Text.Common
 
         public static byte[] ParseByteArray(string value)
         {
+            var isArray = !string.IsNullOrEmpty(value) && value.Length > 1 && value[0] == '[';
             if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
             if ((value = Serializer.UnescapeString(value)) == null) return null;
             return value == string.Empty
                     ? TypeConstants.EmptyByteArray
-                    : Convert.FromBase64String(value);
+                    : !isArray 
+                        ? Convert.FromBase64String(value)
+                        : DeserializeListWithElements<TSerializer>.ParseByteList(value).ToArray();
         }
     }
 }
