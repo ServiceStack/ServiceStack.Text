@@ -59,7 +59,7 @@ namespace ServiceStack.Text.Common
             if (string.IsNullOrEmpty(value))
                 return null;
 
-            value = value.TrimEnd();
+            value = value.Trim();
 
             const int startQuotePos = 1;
             const int endQuotePos = 2;
@@ -69,7 +69,8 @@ namespace ServiceStack.Text.Common
 
             var pos = 0;
             Serializer.EatWhitespace(ret, ref pos);
-            return ret.Substring(pos, ret.Length - pos);
+            var val = ret.Substring(pos, ret.Length - pos);
+            return val;
         }
 
         public static List<string> ParseStringList(string value)

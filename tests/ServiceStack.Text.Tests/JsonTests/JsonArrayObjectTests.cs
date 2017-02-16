@@ -160,5 +160,21 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.Null(items[0]);
             Assert.NotNull(items[1]);
         }
+
+        [Test]
+        public void Can_parse_array_with_whitespaces()
+        {
+            var json = "[{}, {}]";
+            var arrayObjs = JsonArrayObjects.Parse(json);
+            Assert.That(arrayObjs.Count, Is.EqualTo(2));
+
+            json = "  [{}, {}]";
+            arrayObjs = JsonArrayObjects.Parse(json);
+            Assert.That(arrayObjs.Count, Is.EqualTo(2));
+
+            json = "  [  {  }  ,  {  }  ]  ";
+            arrayObjs = JsonArrayObjects.Parse(json);
+            Assert.That(arrayObjs.Count, Is.EqualTo(2));
+        }
     }
 }
