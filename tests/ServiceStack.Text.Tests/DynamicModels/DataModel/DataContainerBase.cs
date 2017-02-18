@@ -6,11 +6,11 @@ using System.Text;
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
 #if !NETCORE
-	[Serializable]
+    [Serializable]
 #endif
-	public abstract class DataContainerBase
-	{
-		public Guid Identifier { get; set; }
+    public abstract class DataContainerBase
+    {
+        public Guid Identifier { get; set; }
 
-	}
+    }
 }

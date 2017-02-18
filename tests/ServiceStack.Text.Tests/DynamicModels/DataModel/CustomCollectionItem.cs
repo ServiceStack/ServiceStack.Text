@@ -6,25 +6,25 @@ using System.Text;
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
 #if !NETCORE
-	[Serializable]
+    [Serializable]
 #endif
-	public class CustomCollectionItem
-	{
-		public CustomCollectionItem()
-		{}
+    public class CustomCollectionItem
+    {
+        public CustomCollectionItem()
+        { }
 
-		public CustomCollectionItem(string name, object value)
-		{
-			Name = name;
-			Value = value;
-		}
+        public CustomCollectionItem(string name, object value)
+        {
+            Name = name;
+            Value = value;
+        }
 
-		public string Name { get; set; }
-		public object Value { get; set; }
+        public string Name { get; set; }
+        public object Value { get; set; }
 
-		public override string ToString()
-		{
-			return string.Concat("Name = '", Name, "' Value = '", Value, "'");
-		}
-	}
+        public override string ToString()
+        {
+            return string.Concat("Name = '", Name, "' Value = '", Value, "'");
+        }
+    }
 }

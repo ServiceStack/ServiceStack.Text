@@ -519,7 +519,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [DataContract]
         class ModelWithDataMemberField
         {
-            public ModelWithDataMemberField() {}
+            public ModelWithDataMemberField() { }
 
             public ModelWithDataMemberField(string privateField, string privateProperty)
             {
@@ -533,7 +533,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             public string Name { get; set; }
             [DataMember]
             private string PrivateProperty { get; set; }
-            [DataMember] 
+            [DataMember]
             private string PrivateField;
 
             public string GetPrivateProperty()
@@ -577,7 +577,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             Assert.That(new Foo().ToJson(), Is.EqualTo("{}"));
 
-            JsConfig<Foo>.RawSerializeFn = obj => 
+            JsConfig<Foo>.RawSerializeFn = obj =>
             {
                 using (JsConfig.With(includeNullValues: true))
                     return obj.ToJson();
@@ -605,7 +605,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Does_include_null_values_in_lists()
         {
-            using (JsConfig.With(includeNullValues:true))
+            using (JsConfig.With(includeNullValues: true))
             {
                 var dto = new List<DateTime?>
                 {
@@ -615,7 +615,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                 };
 
                 var json = dto.ToJson();
-                
+
                 Assert.That(json, Is.EqualTo(@"[""\/Date(946684800000)\/"",null,""\/Date(978220800000)\/""]"));
 
                 var fromJson = json.FromJson<List<DateTime?>>();

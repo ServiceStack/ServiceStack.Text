@@ -316,7 +316,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Can_serialize_string_with_new_line()
         {
             Assert.That("Line1\nLine2".ToJson(), Is.EqualTo("\"Line1\\nLine2\""));
-            Assert.That(new MyModel { Name = "Line1\nLine2" }.ToJson(), 
+            Assert.That(new MyModel { Name = "Line1\nLine2" }.ToJson(),
                 Is.EqualTo("{\"Name\":\"Line1\\nLine2\"}"));
         }
     }

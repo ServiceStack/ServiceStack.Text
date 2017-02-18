@@ -15,10 +15,10 @@ namespace ServiceStack.Text.Tests.JsonTests
             var dict = new Dictionary<string, object>();
 
             dict["ChildDict"] = new Dictionary<string, object>
-                                    {
-                                        {"age", 12},
-                                        {"name", "mike"}
-                                    };
+            {
+                {"age", 12},
+                {"name", "mike"}
+            };
 
             dict["ChildIntList"] = new List<int> {1, 2, 3};
             dict["ChildStringList"] = new List<string> {"a", "b", "c"};

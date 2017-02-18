@@ -8,48 +8,48 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
-	[TestFixture]
-	public class StringSerializerTests
-		: TestBase
-	{
-		[OneTimeSetUp]
-		public void TestFixtureSetUp()
-		{
-			NorthwindData.LoadData(false);
-		}
+    [TestFixture]
+    public class StringSerializerTests
+        : TestBase
+    {
+        [OneTimeSetUp]
+        public void TestFixtureSetUp()
+        {
+            NorthwindData.LoadData(false);
+        }
 
-		[Test]
-		public void Can_convert_CustomerOrderListDto()
-		{
-			var dto = DtoFactory.CustomerOrderListDto;
+        [Test]
+        public void Can_convert_CustomerOrderListDto()
+        {
+            var dto = DtoFactory.CustomerOrderListDto;
 
-			Serialize(dto);
-		}
+            Serialize(dto);
+        }
 
-		[Test]
-		public void Can_convert_to_CustomerOrderListDto()
-		{
-			var dto = DtoFactory.CustomerOrderListDto;
+        [Test]
+        public void Can_convert_to_CustomerOrderListDto()
+        {
+            var dto = DtoFactory.CustomerOrderListDto;
 
-			Serialize(dto);
-		}
+            Serialize(dto);
+        }
 
-		[Test]
-		public void Can_convert_to_Customers()
-		{
-			var dto = NorthwindData.Customers;
+        [Test]
+        public void Can_convert_to_Customers()
+        {
+            var dto = NorthwindData.Customers;
 
-			Serialize(dto);
-		}
+            Serialize(dto);
+        }
 
-		[Test]
-		public void Can_convert_to_Orders()
-		{
-			NorthwindData.LoadData(false);
-			var dto = NorthwindData.Orders;
+        [Test]
+        public void Can_convert_to_Orders()
+        {
+            NorthwindData.LoadData(false);
+            var dto = NorthwindData.Orders;
 
-			Serialize(dto);
-		}
+            Serialize(dto);
+        }
 
         [Test]
         public void Can_serialize_null_object_to_Stream()
@@ -62,7 +62,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-	}
+    }
 }
 
 #endif

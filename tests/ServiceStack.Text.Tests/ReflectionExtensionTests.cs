@@ -53,21 +53,21 @@ namespace ServiceStack.Text.Tests
         }
     }
 
-	[TestFixture]
-	public class ReflectionExtensionTests
-		: TestBase
-	{
+    [TestFixture]
+    public class ReflectionExtensionTests
+        : TestBase
+    {
 
-		[Test]
-		public void Only_serializes_public_readable_properties()
-		{
-			var model = new TestModel();
-			var modelStr = TypeSerializer.SerializeToString(model);
+        [Test]
+        public void Only_serializes_public_readable_properties()
+        {
+            var model = new TestModel();
+            var modelStr = TypeSerializer.SerializeToString(model);
 
-			Assert.That(modelStr, Is.EqualTo("{PublicInt:0,PublicGetInt:1}"));
+            Assert.That(modelStr, Is.EqualTo("{PublicInt:0,PublicGetInt:1}"));
 
-			Serialize(model);
-		}
+            Serialize(model);
+        }
 
         [Test]
         public void Can_create_instance_of_string()
@@ -113,7 +113,7 @@ namespace ServiceStack.Text.Tests
             helloVoidDelegate(testInstance);
             Assert.That(testInstance.Result, Is.EqualTo("Hello"));
 
-            var helloVoidBoolIntMethod = typeof(MethodsForReflection).GetMethodInfo(nameof(MethodsForReflection.Hello), new Type[] { typeof(bool), typeof(int)});
+            var helloVoidBoolIntMethod = typeof(MethodsForReflection).GetMethodInfo(nameof(MethodsForReflection.Hello), new Type[] { typeof(bool), typeof(int) });
             Assert.That(helloVoidBoolIntMethod, Is.Not.Null);
             var helloVoidBoolIntDelegate = (Action<MethodsForReflection, bool, int>)helloVoidBoolIntMethod.MakeDelegate(typeof(Action<MethodsForReflection, bool, int>));
             Assert.That(helloVoidBoolIntDelegate, Is.Not.Null);

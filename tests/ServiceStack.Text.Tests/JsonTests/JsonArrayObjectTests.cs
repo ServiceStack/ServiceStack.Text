@@ -7,12 +7,12 @@ namespace ServiceStack.Text.Tests.JsonTests
     public class JsonArrayObjectTests
     {
 
-		[Test]
-		public void Can_serialize_int_array() 
-		{
-			var array = new [] {1,2};
-			Assert.That(JsonSerializer.SerializeToString(array), Is.EqualTo("[1,2]"));
-		}
+        [Test]
+        public void Can_serialize_int_array()
+        {
+            var array = new[] { 1, 2 };
+            Assert.That(JsonSerializer.SerializeToString(array), Is.EqualTo("[1,2]"));
+        }
 
         [Test]
         public void Can_parse_empty_array()
@@ -29,13 +29,13 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_parse_array_with_null()
         {
-            Assert.That(JsonArrayObjects.Parse("[null]"), Is.EqualTo(new string[]{null}));
+            Assert.That(JsonArrayObjects.Parse("[null]"), Is.EqualTo(new string[] { null }));
         }
 
         [Test]
         public void Can_parse_array_with_nulls()
         {
-            Assert.That(JsonArrayObjects.Parse("[null,null]"), Is.EqualTo(new string[]{null, null}));
+            Assert.That(JsonArrayObjects.Parse("[null,null]"), Is.EqualTo(new string[] { null, null }));
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             dto.PrintDump();
 
             using (JsConfig.With(
-                emitLowercaseUnderscoreNames: true, 
+                emitLowercaseUnderscoreNames: true,
                 propertyConvention: PropertyConvention.Lenient))
             {
                 var response = json.FromJson<CustomAuthResponse>();

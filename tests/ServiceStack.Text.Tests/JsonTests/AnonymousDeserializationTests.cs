@@ -4,38 +4,38 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
-	[TestFixture]
-	public class AnonymousDeserializationTests
-		: TestBase
-	{
-		private class Item
-		{
-			public int IntValue { get; set; }
-			public string StringValue { get; set; }
+    [TestFixture]
+    public class AnonymousDeserializationTests
+        : TestBase
+    {
+        private class Item
+        {
+            public int IntValue { get; set; }
+            public string StringValue { get; set; }
 
-			public static Item Create()
-			{
-				return new Item { IntValue = 42, StringValue = "Foo" };
-			}
-		}
+            public static Item Create()
+            {
+                return new Item { IntValue = 42, StringValue = "Foo" };
+            }
+        }
 
-		[Test]
-		public void Can_deserialize_to_anonymous_type()
-		{
-			var original = Item.Create();
-			var json = JsonSerializer.SerializeToString(original);
-			
-			var item = DeserializeAnonymousType(new { IntValue = default(int), StringValue = default(string) }, json);
+        [Test]
+        public void Can_deserialize_to_anonymous_type()
+        {
+            var original = Item.Create();
+            var json = JsonSerializer.SerializeToString(original);
 
-			Assert.That(item.IntValue, Is.EqualTo(42));
-			Assert.That(item.StringValue, Is.EqualTo("Foo"));
-		}
+            var item = DeserializeAnonymousType(new { IntValue = default(int), StringValue = default(string) }, json);
 
-		private static T DeserializeAnonymousType<T>(T template, string json) 
-		{
-			TypeConfig<T>.EnableAnonymousFieldSetters = true;
-			return (T)JsonSerializer.DeserializeFromString(json, template.GetType());
-		}
+            Assert.That(item.IntValue, Is.EqualTo(42));
+            Assert.That(item.StringValue, Is.EqualTo("Foo"));
+        }
+
+        private static T DeserializeAnonymousType<T>(T template, string json)
+        {
+            TypeConfig<T>.EnableAnonymousFieldSetters = true;
+            return (T)JsonSerializer.DeserializeFromString(json, template.GetType());
+        }
 
         [Test]
         public void Deserialize_dynamic_json()
@@ -77,5 +77,5 @@ namespace ServiceStack.Text.Tests.JsonTests
             var phone2 = dyn.obj.phones[1].number;
             Assert.AreEqual(phone2, "39967");
         }
-	}
+    }
 }
