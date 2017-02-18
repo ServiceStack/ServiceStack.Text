@@ -203,7 +203,10 @@
     <Compile Include="JsonTests\InvalidJsonTests.cs" />
     <Compile Include="JsonTests\OnDeserializationErrorTests.cs" />
     <Compile Include="JsonTests\TypeInfoTests.cs" />
+    <Compile Include="JsvTests\JsvBasicDataTests.cs" />
     <Compile Include="PclApiTests.cs" />
+    <Compile Include="Shared\ModelWithFloatTypes.cs" />
+    <Compile Include="Shared\ModelWithIntegerTypes.cs" />
     <Compile Include="Support\NumberTypes.cs" />
     <Compile Include="Support\Point.cs" />
     <Compile Include="SerializationDelegatePerformanceTests.cs" />
