@@ -281,7 +281,7 @@ namespace ServiceStack.Text.Json
                 if (Equals(floatVal, float.MaxValue) || Equals(floatVal, float.MinValue))
                     writer.Write(floatVal.ToString("r", CultureInfo.InvariantCulture));
                 else
-                    writer.Write(floatVal.ToString(CultureInfo.InvariantCulture));
+                    writer.Write(floatVal.ToString("r", CultureInfo.InvariantCulture));
             }
         }
 

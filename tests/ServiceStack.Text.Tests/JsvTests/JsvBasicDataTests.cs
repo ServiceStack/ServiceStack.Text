@@ -16,20 +16,20 @@ namespace ServiceStack.Text.Tests.JsvTests
             };
 
             var jsv = dto.ToJsv();
-            Assert.That(jsv,Is.EqualTo("{Float:1.1,Double:2.2,Decimal:3.3}"));
+            Assert.That(jsv, Is.EqualTo("{Float:1.1,Double:2.2,Decimal:3.3}"));
 
             var fromJsv = jsv.FromJsv<ModelWithFloatTypes>();
             Assert.That(fromJsv, Is.EqualTo(dto));
 
             dto = new ModelWithFloatTypes
             {
-                Float   = 1111111.11f,
-                Double  = 2222222.22d,
-                Decimal = 33333333.33m
+                Float = 111111.1f,
+                Double = 2222222.22d,
+                Decimal = 33333333.333m
             };
 
             jsv = dto.ToJsv();
-            Assert.That(jsv, Is.EqualTo("{Float:1111111,Double:2222222.22,Decimal:33333333.33}"));
+            Assert.That(jsv, Is.EqualTo("{Float:111111.1,Double:2222222.22,Decimal:33333333.333}"));
 
             fromJsv = jsv.FromJsv<ModelWithFloatTypes>();
             Assert.That(fromJsv, Is.EqualTo(dto));
