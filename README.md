@@ -5,11 +5,11 @@ Join the [ServiceStack Google+ Community](https://plus.google.com/communities/11
 ServiceStack.Text is an **independent, dependency-free** serialization library containing ServiceStack's core high-performance utils and text processing functionality, including:
 
  - [JSON](https://github.com/ServiceStack/ServiceStack.Text), 
- [JSV](https://github.com/ServiceStack/ServiceStack.Text/wiki/JSV-Format) and 
- [CSV](https://github.com/ServiceStack/ServiceStack/wiki/CSV-Format) Text Serializers
- - [AutoMapping Utils](https://github.com/ServiceStack/ServiceStack/wiki/Auto-mapping)
- - [HTTP Utils](https://github.com/ServiceStack/ServiceStack/wiki/Http-Utils)
- - [Dump Utils](https://github.com/ServiceStack/ServiceStack/wiki/Dump-Utils)
+ [JSV](http://docs.servicestack.net/jsv-format) and 
+ [CSV](http://docs.servicestack.net/csv-format) Text Serializers
+ - [AutoMapping Utils](http://docs.servicestack.net/auto-mapping)
+ - [HTTP Utils](http://docs.servicestack.net/http-utils)
+ - [Dump Utils](http://docs.servicestack.net/dump-utils)
  - Several String Extensions, Collection extensions, Reflection Utils and lots more.
 
 ### Try out [ServiceStack.Text Live](http://gistlyn.com/text)
