@@ -264,6 +264,24 @@ namespace ServiceStack
             webReq.Headers[name] = value;
         }
 
+        public virtual void SetUserAgent(HttpWebRequest httpReq, string value)
+        {
+            httpReq.Headers[HttpRequestHeader.UserAgent] = value;
+        }
+
+        public virtual void SetContentLength(HttpWebRequest httpReq, long value)
+        {
+            httpReq.Headers[HttpRequestHeader.ContentLength] = value.ToString();
+        }
+
+        public virtual void SetAllowAutoRedirect(HttpWebRequest httpReq, bool value)
+        {
+        }
+
+        public virtual void SetKeepAlive(HttpWebRequest httpReq, bool value)
+        {
+        }
+
         public virtual Assembly[] GetAllAssemblies()
         {
             return new Assembly[0];
