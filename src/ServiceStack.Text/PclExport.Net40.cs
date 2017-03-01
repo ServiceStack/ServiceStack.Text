@@ -545,6 +545,26 @@ namespace ServiceStack
             if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
         }
 
+        public override void SetUserAgent(HttpWebRequest httpReq, string value)
+        {
+            httpReq.UserAgent = value;
+        }
+
+        public override void SetContentLength(HttpWebRequest httpReq, long value)
+        {
+            httpReq.ContentLength = value;
+        }
+
+        public override void SetAllowAutoRedirect(HttpWebRequest httpReq, bool value)
+        {
+            httpReq.AllowAutoRedirect = value;
+        }
+
+        public override void SetKeepAlive(HttpWebRequest httpReq, bool value)
+        {
+            httpReq.KeepAlive = value;
+        }
+
         public override string GetStackTrace()
         {
             return Environment.StackTrace;

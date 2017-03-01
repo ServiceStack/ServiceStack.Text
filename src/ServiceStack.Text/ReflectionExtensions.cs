@@ -88,19 +88,11 @@ namespace ServiceStack
 #endif
 
 #if NETSTANDARD1_1
-        private static readonly Func<Type, object> GetUninitializedObjectDelegate;
-
-        static ReflectionExtensions()
-        {
-            var formatterServices = typeof(string).GetTypeInfo().Assembly
-               .GetType("System.Runtime.Serialization.FormatterServices");
-            if (formatterServices != null)
-            {
-                var method = formatterServices.GetMethod("GetUninitializedObject");
-                if (method != null)
-                    GetUninitializedObjectDelegate = (Func<Type, object>)method.CreateDelegate(typeof(Func<Type, object>));
-            }
-        }
+        private static readonly Func<Type, object> GetUninitializedObjectDelegate = 
+            (Func<Type, object>) typeof(string).GetTypeInfo().Assembly
+               .GetType("System.Runtime.Serialization.FormatterServices")
+               ?.GetMethod("GetUninitializedObject")
+               ?.CreateDelegate(typeof(Func<Type, object>));
 #endif
 
         public static TypeCode GetTypeCode(this Type type)
