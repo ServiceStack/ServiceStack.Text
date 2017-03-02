@@ -123,6 +123,10 @@ namespace ServiceStack.Text
                     case "escapeunicode":
                         scope.EscapeUnicode = boolValue;
                         break;
+                    case "ehc":
+                    case "escapehtmlchars":
+                        scope.EscapeHtmlChars = boolValue;
+                        break;
                     case "ipf":
                     case "includepublicfields":
                         scope.IncludePublicFields = boolValue;
@@ -748,12 +752,31 @@ namespace ServiceStack.Text
             get
             {
                 return (JsConfigScope.Current != null ? JsConfigScope.Current.EscapeUnicode : null)
-                    ?? sEscapeUnicode
-                    ?? false;
+                       ?? sEscapeUnicode
+                       ?? false;
             }
             set
             {
                 if (!sEscapeUnicode.HasValue) sEscapeUnicode = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating if HTML entity chars [&gt; &lt; &amp; = '] should be escaped as "\uXXXX".
+        /// </summary>
+        private static bool? sEscapeHtmlChars;
+        public static bool EscapeHtmlChars
+        {
+            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.EscapeHtmlChars : null)
+                       ?? sEscapeHtmlChars
+                       ?? false;
+            }
+            set
+            {
+                if (!sEscapeHtmlChars.HasValue) sEscapeHtmlChars = value;
             }
         }
 
@@ -934,6 +957,7 @@ namespace ServiceStack.Text
             sSkipDateTimeConversion = null;
             sAppendUtcOffset = null;
             sEscapeUnicode = null;
+            sEscapeHtmlChars = null;
             sOnDeserializationError = null;
             sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();

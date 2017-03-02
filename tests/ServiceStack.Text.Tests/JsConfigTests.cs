@@ -4,6 +4,34 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
+    public class Foo
+    {
+        public string FooBar { get; set; }
+    }
+
+    public class Bar
+    {
+        public string FooBar { get; set; }
+    }
+
+    [TestFixture]
+    public class JsConfigAdhocTests
+    {
+        [Test]
+        public void Can_escape_Html_Chars()
+        {
+            var dto = new Foo { FooBar = "<script>danger();</script>" };
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"FooBar\":\"<script>danger();</script>\"}"));
+
+            JsConfig.EscapeHtmlChars = true;
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"FooBar\":\"\\u003cscript\\u003edanger();\\u003c/script\\u003e\"}"));
+
+            JsConfig.Reset();
+        }
+    }
+
     [TestFixture]
     public class JsConfigTests
     {
@@ -37,25 +65,14 @@ namespace ServiceStack.Text.Tests
         }
     }
 
-    public class Foo
-    {
-        public string FooBar { get; set; }
-    }
-
-    public class Bar
-    {
-        public string FooBar { get; set; }
-    }
-
-
     [TestFixture]
     public class SerializEmitLowerCaseUnderscoreNamesTests
     {
         [Test]
         public void TestJsonDataWithJsConfigScope()
         {
-            using (JsConfig.With(emitLowercaseUnderscoreNames:true, 
-                propertyConvention:PropertyConvention.Lenient))
+            using (JsConfig.With(emitLowercaseUnderscoreNames: true,
+                propertyConvention: PropertyConvention.Lenient))
                 AssertObjectJson();
         }
 

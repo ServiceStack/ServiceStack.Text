@@ -2,6 +2,7 @@
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace ServiceStack.Text.Json
 {
@@ -43,7 +44,11 @@ namespace ServiceStack.Text.Json
                 writer.Write(Null);
                 return;
             }
-            if (!HasAnyEscapeChars(value))
+
+            var escapeHtmlChars = JsConfig.EscapeHtmlChars;
+            var escapeUnicode = JsConfig.EscapeUnicode;
+
+            if (!HasAnyEscapeChars(value, escapeHtmlChars))
             {
                 writer.Write(QuoteChar);
                 writer.Write(value);
@@ -90,6 +95,28 @@ namespace ServiceStack.Text.Json
                         continue;
                 }
 
+                if (escapeHtmlChars)
+                {
+                    switch (c)
+                    {
+                        case '<':
+                            writer.Write("\\u003c");
+                            continue;
+                        case '>':
+                            writer.Write("\\u003e");
+                            continue;
+                        case '&':
+                            writer.Write("\\u0026");
+                            continue;
+                        case '=':
+                            writer.Write("\\u003d");
+                            continue;
+                        case '\'':
+                            writer.Write("\\u0027");
+                            continue;
+                    }
+                }
+
                 if (c.IsPrintable())
                 {
                     writer.Write(c);
@@ -97,7 +124,7 @@ namespace ServiceStack.Text.Json
                 }
 
                 // http://json.org/ spec requires any control char to be escaped
-                if (JsConfig.EscapeUnicode || char.IsControl(c))
+                if (escapeUnicode || char.IsControl(c))
                 {
                     // Default, turn into a \uXXXX sequence
                     IntToHex(c, hexSeqBuffer);
@@ -105,7 +132,9 @@ namespace ServiceStack.Text.Json
                     writer.Write(hexSeqBuffer);
                 }
                 else
+                {
                     writer.Write(c);
+                }
             }
 
             writer.Write(QuoteChar);
@@ -121,6 +150,7 @@ namespace ServiceStack.Text.Json
         /// Searches the string for one or more non-printable characters.
         /// </summary>
         /// <param name="value">The string to search.</param>
+        /// <param name="escapeHtmlChars"></param>
         /// <returns>True if there are any characters that require escaping. False if the value can be written verbatim.</returns>
         /// <remarks>
         /// Micro optimizations: since quote and backslash are the only printable characters requiring escaping, removed previous optimization
@@ -128,8 +158,8 @@ namespace ServiceStack.Text.Json
         /// Also slightly reduced code size by re-arranging conditions.
         /// TODO: Possible Linq-only solution requires profiling: return value.Any(c => !c.IsPrintable() || c == QuoteChar || c == EscapeChar);
         /// </remarks>
-        private static bool HasAnyEscapeChars(string value)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool HasAnyEscapeChars(string value, bool escapeHtmlChars)
         {
             var len = value.Length;
             for (var i = 0; i < len; i++)
@@ -138,7 +168,11 @@ namespace ServiceStack.Text.Json
 
                 // c is not printable
                 // OR c is a printable that requires escaping (quote and backslash).
-                if (!c.IsPrintable() || c == QuoteChar || c == EscapeChar) return true;
+                if (!c.IsPrintable() || c == QuoteChar || c == EscapeChar)
+                    return true;
+
+                if (escapeHtmlChars && (c == '<' || c == '>' || c == '&' || c == '=' || c == '\\'))
+                    return true;
             }
             return false;
         }
