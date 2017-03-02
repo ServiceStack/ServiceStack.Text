@@ -111,6 +111,7 @@ namespace ServiceStack.Text.Json
             writer.Write(QuoteChar);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsPrintable(this char c)
         {
             return c >= 32 && c <= 126;
@@ -128,6 +129,7 @@ namespace ServiceStack.Text.Json
         /// TODO: Possible Linq-only solution requires profiling: return value.Any(c => !c.IsPrintable() || c == QuoteChar || c == EscapeChar);
         /// </remarks>
         private static bool HasAnyEscapeChars(string value)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         {
             var len = value.Length;
             for (var i = 0; i < len; i++)
@@ -142,6 +144,7 @@ namespace ServiceStack.Text.Json
         }
 
         // Micro optimized
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void IntToHex(int intValue, char[] hex)
         {
             // TODO: test if unrolling loop is faster
@@ -157,6 +160,7 @@ namespace ServiceStack.Text.Json
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsJsObject(string value)
         {
             return !string.IsNullOrEmpty(value)
@@ -164,6 +168,7 @@ namespace ServiceStack.Text.Json
                 && value[value.Length - 1] == '}';
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsJsArray(string value)
         {
             return !string.IsNullOrEmpty(value)
