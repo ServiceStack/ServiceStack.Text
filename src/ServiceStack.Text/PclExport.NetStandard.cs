@@ -13,10 +13,10 @@ using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
+using System.Net;
 
 #if NETSTANDARD1_3
 using System.Collections.Specialized;
-using System.Net;
 using System.Linq.Expressions;
 #endif
 
@@ -53,6 +53,27 @@ namespace ServiceStack
             "--MM--Z",
             "--MM--zzzzzz",
         };
+
+        static readonly Action<HttpWebRequest, string> SetUserAgentDelegate =
+            (Action<HttpWebRequest, string>)typeof(HttpWebRequest)
+                .GetProperty("UserAgent")
+                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, string>));
+
+        static readonly Action<HttpWebRequest, bool> SetAllowAutoRedirectDelegate =
+            (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
+                .GetProperty("AllowAutoRedirect")
+                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
+
+        static readonly Action<HttpWebRequest, bool> SetKeepAliveDelegate =
+            (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
+                .GetProperty("KeepAlive")
+                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
+
+        static readonly Action<HttpWebRequest, long> SetContentLengthDelegate =
+            (Action<HttpWebRequest, long>)typeof(HttpWebRequest)
+                .GetProperty("ContentLength")
+                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, long>));
+
 
         public NetStandardPclExport()
         {
@@ -470,17 +491,48 @@ namespace ServiceStack
             return null;
         }
 
-#if NETSTANDARD1_3
+        public override void SetUserAgent(HttpWebRequest httpReq, string value)
+        {
+            if (SetUserAgentDelegate != null)
+            {
+                SetUserAgentDelegate(httpReq, value);
+            } else 
+            {
+                httpReq.Headers[HttpRequestHeader.UserAgent] = value;
+            }
+        }
+
+        public override void SetContentLength(HttpWebRequest httpReq, long value)
+        {
+            if (SetContentLengthDelegate != null)
+            {
+                SetContentLengthDelegate(httpReq, value);
+            } else 
+            {
+                httpReq.Headers[HttpRequestHeader.ContentLength] = value.ToString();
+            }
+        }
+
+        public override void SetAllowAutoRedirect(HttpWebRequest httpReq, bool value)
+        {
+            SetAllowAutoRedirectDelegate?.Invoke(httpReq, value);
+        }
+
+        public override void SetKeepAlive(HttpWebRequest httpReq, bool value)
+        {
+            SetKeepAliveDelegate?.Invoke(httpReq, value);
+        }
+
         public override void InitHttpWebRequest(HttpWebRequest httpReq,
             long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
         {
-            httpReq.Headers[HttpRequestHeader.UserAgent] = Env.ServerUserAgent;
-            //httpReq.AllowAutoRedirect = allowAutoRedirect;
-            //httpReq.KeepAlive = keepAlive;
+            SetUserAgent(httpReq, Env.ServerUserAgent);
+            SetAllowAutoRedirect(httpReq, allowAutoRedirect);
+            SetKeepAlive(httpReq, keepAlive);
 
             if (contentLength != null)
             {
-                httpReq.Headers[HttpRequestHeader.ContentLength] = contentLength.Value.ToString();
+                SetContentLength(httpReq, contentLength.Value);
             }
         }
 
@@ -492,13 +544,14 @@ namespace ServiceStack
             bool? preAuthenticate = null)
         {
             //req.MaximumResponseHeadersLength = int.MaxValue; //throws "The message length limit was exceeded" exception
-            //if (allowAutoRedirect.HasValue) req.AllowAutoRedirect = allowAutoRedirect.Value;
+            if (allowAutoRedirect.HasValue) SetAllowAutoRedirect(req, allowAutoRedirect.Value);
             //if (readWriteTimeout.HasValue) req.ReadWriteTimeout = (int)readWriteTimeout.Value.TotalMilliseconds;
             //if (timeout.HasValue) req.Timeout = (int)timeout.Value.TotalMilliseconds;
             if (userAgent != null) req.Headers[HttpRequestHeader.UserAgent] = userAgent;
             //if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
         }
         
+#if NETSTANDARD1_3
         public override string GetStackTrace()
         {
             return Environment.StackTrace;
