@@ -12,6 +12,8 @@ ServiceStack.Text is an **independent, dependency-free** serialization library c
  - [Dump Utils](http://docs.servicestack.net/dump-utils)
  - Several String Extensions, Collection extensions, Reflection Utils and lots more.
 
+### [Portable Class Library Support](https://github.com/ServiceStackApps/HelloMobile#portable-class-library-support)
+
 ### Try out [ServiceStack.Text Live](http://gistlyn.com/text)
 
 A great way to try out ServiceStack.Text is on [gistlyn.com](http://gistlyn.com) which lets you immediately 
@@ -41,12 +43,34 @@ T FromXml()
 
 ### Explicit API
 
+#### JSON
+
+```csharp
+string JsonSerializer.SerializeToString<T>(T value)
+void JsonSerializer.SerializeToWriter<T>(T value, TextWriter writer)
+
+T JsonSerializer.DeserializeFromString<T>(string value)
+T JsonSerializer.DeserializeFromReader<T>(TextReader reader)
+```
+
+#### JSV
+
 ```csharp
 string TypeSerializer.SerializeToString<T>(T value)
 void TypeSerializer.SerializeToWriter<T>(T value, TextWriter writer)
 
 T TypeSerializer.DeserializeFromString<T>(string value)
 T TypeSerializer.DeserializeFromReader<T>(TextReader reader)
+```
+
+#### CSV
+
+```csharp
+string CsvSerializer.SerializeToString<T>(T value)
+void CsvSerializer.SerializeToWriter<T>(T value, TextWriter writer)
+
+T CsvSerializer.DeserializeFromString<T>(string value)
+T CsvSerializer.DeserializeFromReader<T>(TextReader reader)
 ```
 
 Where *T* can be any .NET POCO type. That's all there is - the API was intentionally left simple :)
@@ -78,6 +102,7 @@ string GetResponseStatus()
 string UrlEncode() / UrlDecode()
 string HexEscape() / HexUnescape()
 string UrlFormat() / AppendPath() / AppendPaths() / WithTrailingSlash()    
+string AddQueryParam() / SetQueryParam() AddHashParam() / SetHashParam()
 string WithoutExtension() / ParentDirectory() / ReadAllText()
 ```
     
@@ -121,6 +146,10 @@ project. It provides a dynamic, but more succinct API than the above options.
     PM> Install-Package ServiceStack.Text
 
 > From v4.0.62+ [ServiceStack.Text is now free!](https://github.com/ServiceStack/ServiceStack/blob/master/docs/2016/v4.0.62.md#servicestacktext-is-now-free)
+
+Support for PCL platfroms requires PCL adapters in:
+
+    PM> Install-Package ServiceStack.Client
 
 ### [Docs and Downloads for older v3 BSD releases](https://github.com/ServiceStackV3/ServiceStackV3)
 
