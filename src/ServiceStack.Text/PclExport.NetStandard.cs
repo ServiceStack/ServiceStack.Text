@@ -74,6 +74,7 @@ namespace ServiceStack
                 .GetProperty("ContentLength")
                 ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, long>));
 
+        private bool allowToChangeRestrictedHeaders;
 
         public NetStandardPclExport()
         {
@@ -83,6 +84,15 @@ namespace ServiceStack
 #else 
             this.DirSep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
 #endif
+            var req = HttpWebRequest.Create("http://servicestack.net");
+            try
+            {
+                req.Headers[HttpRequestHeader.UserAgent] = "ServiceStack";
+                allowToChangeRestrictedHeaders = true;
+            } catch (ArgumentException)
+            {
+                allowToChangeRestrictedHeaders = false;
+            }
         }
 
         public override string ReadAllText(string filePath)
@@ -498,7 +508,8 @@ namespace ServiceStack
                 SetUserAgentDelegate(httpReq, value);
             } else 
             {
-                httpReq.Headers[HttpRequestHeader.UserAgent] = value;
+                if (allowToChangeRestrictedHeaders)
+                    httpReq.Headers[HttpRequestHeader.UserAgent] = value;
             }
         }
 
@@ -509,7 +520,8 @@ namespace ServiceStack
                 SetContentLengthDelegate(httpReq, value);
             } else 
             {
-                httpReq.Headers[HttpRequestHeader.ContentLength] = value.ToString();
+                if (allowToChangeRestrictedHeaders)
+                    httpReq.Headers[HttpRequestHeader.ContentLength] = value.ToString();
             }
         }
 
@@ -547,7 +559,7 @@ namespace ServiceStack
             if (allowAutoRedirect.HasValue) SetAllowAutoRedirect(req, allowAutoRedirect.Value);
             //if (readWriteTimeout.HasValue) req.ReadWriteTimeout = (int)readWriteTimeout.Value.TotalMilliseconds;
             //if (timeout.HasValue) req.Timeout = (int)timeout.Value.TotalMilliseconds;
-            if (userAgent != null) req.Headers[HttpRequestHeader.UserAgent] = userAgent;
+            if (userAgent != null) SetUserAgent(req, userAgent);
             //if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
         }
         
