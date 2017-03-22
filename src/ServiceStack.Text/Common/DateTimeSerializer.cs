@@ -338,7 +338,7 @@ namespace ServiceStack.Text.Common
 
         public static string ToDateTimeString(DateTime dateTime)
         {
-            return dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormat);
+            return dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormat, CultureInfo.InvariantCulture);
         }
 
         public static DateTime ParseDateTime(string dateTimeStr)
@@ -446,7 +446,7 @@ namespace ServiceStack.Text.Common
 
             var isStartOfDay = timeOfDay.Ticks == 0;
             if (isStartOfDay && !JsConfig.SkipDateTimeConversion)
-                return dateTime.ToString(ShortDateTimeFormat);
+                return dateTime.ToString(ShortDateTimeFormat, CultureInfo.InvariantCulture);
 
             var hasFractionalSecs = (timeOfDay.Milliseconds != 0)
                 || (timeOfDay.Ticks % TimeSpan.TicksPerMillisecond != 0);
@@ -455,13 +455,13 @@ namespace ServiceStack.Text.Common
             {
                 if (!hasFractionalSecs)
                     return dateTime.Kind == DateTimeKind.Local
-                        ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
+                        ? dateTime.ToString(DateTimeFormatSecondsUtcOffset, CultureInfo.InvariantCulture)
                         : dateTime.Kind == DateTimeKind.Unspecified
-                        ? dateTime.ToString(DateTimeFormatSecondsNoOffset)
-                        : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
+                        ? dateTime.ToString(DateTimeFormatSecondsNoOffset, CultureInfo.InvariantCulture)
+                        : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds, CultureInfo.InvariantCulture);
 
                 return dateTime.Kind == DateTimeKind.Local
-                    ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
+                    ? dateTime.ToString(DateTimeFormatTicksUtcOffset, CultureInfo.InvariantCulture)
                     : dateTime.Kind == DateTimeKind.Unspecified
                     ? dateTime.ToString(DateTimeFormatTicksNoUtcOffset)
                     : PclExport.Instance.ToXsdDateTimeString(dateTime);
@@ -469,11 +469,11 @@ namespace ServiceStack.Text.Common
 
             if (!hasFractionalSecs)
                 return dateTime.Kind != DateTimeKind.Utc
-                    ? dateTime.ToString(DateTimeFormatSecondsUtcOffset)
+                    ? dateTime.ToString(DateTimeFormatSecondsUtcOffset, CultureInfo.InvariantCulture)
                     : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
 
             return dateTime.Kind != DateTimeKind.Utc
-                ? dateTime.ToString(DateTimeFormatTicksUtcOffset)
+                ? dateTime.ToString(DateTimeFormatTicksUtcOffset, CultureInfo.InvariantCulture)
                 : PclExport.Instance.ToXsdDateTimeString(dateTime);
         }
 
