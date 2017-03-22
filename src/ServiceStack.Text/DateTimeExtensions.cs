@@ -116,12 +116,12 @@ namespace ServiceStack.Text
 
         public static DateTime RoundToMs(this DateTime dateTime)
         {
-            return new DateTime((dateTime.Ticks / TimeSpan.TicksPerMillisecond) * TimeSpan.TicksPerMillisecond);
+            return new DateTime((dateTime.Ticks / TimeSpan.TicksPerMillisecond) * TimeSpan.TicksPerMillisecond, dateTime.Kind);
         }
 
         public static DateTime RoundToSecond(this DateTime dateTime)
         {
-            return new DateTime((dateTime.Ticks / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond);
+            return new DateTime((dateTime.Ticks / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond, dateTime.Kind);
         }
 
         public static DateTime Truncate(this DateTime dateTime, TimeSpan timeSpan)
