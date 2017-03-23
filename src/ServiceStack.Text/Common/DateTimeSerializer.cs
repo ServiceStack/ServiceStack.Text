@@ -463,14 +463,14 @@ namespace ServiceStack.Text.Common
                 return dateTime.Kind == DateTimeKind.Local
                     ? dateTime.ToString(DateTimeFormatTicksUtcOffset, CultureInfo.InvariantCulture)
                     : dateTime.Kind == DateTimeKind.Unspecified
-                    ? dateTime.ToString(DateTimeFormatTicksNoUtcOffset)
+                    ? dateTime.ToString(DateTimeFormatTicksNoUtcOffset, CultureInfo.InvariantCulture)
                     : PclExport.Instance.ToXsdDateTimeString(dateTime);
             }
 
             if (!hasFractionalSecs)
                 return dateTime.Kind != DateTimeKind.Utc
                     ? dateTime.ToString(DateTimeFormatSecondsUtcOffset, CultureInfo.InvariantCulture)
-                    : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds);
+                    : dateTime.ToStableUniversalTime().ToString(XsdDateTimeFormatSeconds, CultureInfo.InvariantCulture);
 
             return dateTime.Kind != DateTimeKind.Utc
                 ? dateTime.ToString(DateTimeFormatTicksUtcOffset, CultureInfo.InvariantCulture)
