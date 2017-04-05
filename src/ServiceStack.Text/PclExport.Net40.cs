@@ -16,6 +16,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -690,7 +691,7 @@ namespace ServiceStack
 #if NET45 || NETFX_CORE
     public class Net45PclExport : Net40PclExport
     {
-        public static new Net45PclExport Provider = new IosPclExport();
+        public static new Net45PclExport Provider = new Net45PclExport();
 
         public Net45PclExport()
         {

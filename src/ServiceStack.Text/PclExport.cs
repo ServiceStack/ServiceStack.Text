@@ -317,6 +317,15 @@ namespace ServiceStack
             return Encoding.UTF8.GetBytes(str);
         }
 
+        public virtual Encoding GetUTF8Encoding(bool emitBom=false)
+        {
+#if !PCL
+            return new UTF8Encoding(emitBom);
+#else
+            return Encoding.UTF8;
+#endif
+        }
+
         public virtual SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
         {
             var setMethodInfo = propertyInfo.SetMethod();

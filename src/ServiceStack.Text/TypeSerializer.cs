@@ -33,7 +33,7 @@ namespace ServiceStack.Text
             JsConfig.InitStatics();
         }
 
-        public static UTF8Encoding UTF8Encoding = new UTF8Encoding(false); //Don't emit UTF8 BOM by default
+        public static Encoding UTF8Encoding = PclExport.Instance.GetUTF8Encoding(false);
 
         public const string DoubleQuoteString = "\"\"";
 

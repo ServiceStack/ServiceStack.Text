@@ -38,7 +38,9 @@ using System.Runtime.CompilerServices;
     /// </summary>
     public class ObjectPool<T> where T : class
     {
+#if !PCL
         [DebuggerDisplay("{Value,nq}")]
+#endif
         private struct Element
         {
             internal T Value;
@@ -107,7 +109,9 @@ using System.Runtime.CompilerServices;
 
         internal ObjectPool(Factory factory, int size)
         {
+#if !PCL
             Debug.Assert(size >= 1);
+#endif
             _factory = factory;
             _items = new Element[size - 1];
         }
@@ -255,12 +259,16 @@ using System.Runtime.CompilerServices;
         }
 #endif
 
+#if !PCL
         [Conditional("DEBUG")]
+#endif
         private void Validate(object obj)
         {
+#if !PCL
             Debug.Assert(obj != null, "freeing null?");
 
             Debug.Assert(_firstItem != obj, "freeing twice?");
+#endif
 
             var items = _items;
             for (int i = 0; i < items.Length; i++)
@@ -271,7 +279,9 @@ using System.Runtime.CompilerServices;
                     return;
                 }
 
+#if !PCL
                 Debug.Assert(value != obj, "freeing twice?");
+#endif
             }
         }
     }
