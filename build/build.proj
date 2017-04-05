@@ -82,7 +82,7 @@
         <ReplaceWith>version="$(PackageVersion)"</ReplaceWith>
       </RegexTransform>
       <RegexTransform Include="$(NuGetPackageCoreDir)/**/*.nuspec">
-        <Find>version="1\.0[^"]*"</Find>
+        <Find>version="1\.0\.[^"]*"</Find>
         <ReplaceWith>version="$(PackageCoreVersion)"</ReplaceWith>
       </RegexTransform>
     </ItemGroup>
