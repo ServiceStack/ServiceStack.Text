@@ -1,7 +1,7 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26114.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ServiceStack.Text.Tests", "..\tests\ServiceStack.Text.Tests\ServiceStack.Text.Tests.xproj", "{93AC6B4C-73DB-413D-BD87-EF874DCC71A2}"
 EndProject
@@ -13,7 +13,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ServiceStack.Common", "..\t
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ServiceStack.Interfaces", "..\tests\ServiceStack.Interfaces\ServiceStack.Interfaces.xproj", "{065DB7A1-3161-4798-AEA6-78023618A4E1}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ServiceStack.Text", "ServiceStack.Text\ServiceStack.Text.xproj", "{8F56DF61-B041-4B95-B658-EB51EBEF4EF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text", "ServiceStack.Text\ServiceStack.Text.csproj", "{8F56DF61-B041-4B95-B658-EB51EBEF4EF6}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NetCore.Console.Tests", "..\tests\NetCore.Console.Tests\NetCore.Console.Tests.xproj", "{2C558857-B489-44BF-945A-CF8E0F286F3B}"
 EndProject

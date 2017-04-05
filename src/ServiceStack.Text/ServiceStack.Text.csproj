@@ -1,356 +1,166 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{579B3FDB-CDAD-44E1-8417-885C38E49A0E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceStack.Text</RootNamespace>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;portable45-net45+win8</TargetFrameworks>
+    <!--<TargetFrameworks>net45;netstandard1.1;netstandard1.3;portable45-net45+win8;sl5</TargetFrameworks>-->
     <AssemblyName>ServiceStack.Text</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
+    <PackageId>ServiceStack.Text</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Release\ServiceStack.Text.xml</DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MonoTouch|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\MonoTouch</OutputPath>
-    <DefineConstants>MONOTOUCH;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Signed|AnyCPU'">
-    <OutputPath>bin\Signed\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>bin\Release\ServiceStack.Text.XML</DocumentationFile>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
+    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Threading" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <DefineConstants>$(DefineConstants);NETSTANDARD1_1</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1-*" />
+    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.1.1" />
+    <PackageReference Include="System.Net.Requests" Version="4.0.11" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.0.11" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.0.1-*" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.0.1" />
+    <PackageReference Include="System.Reflection.Emit.LightWeight" Version="4.0.1" />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.0.1" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.1.0" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <DefineConstants>$(DefineConstants);NETSTANDARD1_1;NETSTANDARD1_3</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1-*" />
+    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.1.1" />
+    <PackageReference Include="System.Net.Requests" Version="4.0.11" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.0.11" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.0.1-*" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.1.0" />
+    <PackageReference Include="System.Collections" Version="4.0.11" />
+    <PackageReference Include="System.Collections.Concurrent" Version="4.0.12" />
+    <PackageReference Include="System.Collections.NonGeneric" Version="4.0.1" />
+    <PackageReference Include="System.Collections.Specialized" Version="4.0.1" />
+    <PackageReference Include="System.Reflection" Version="4.1.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.0.1" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.0.1" />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.0.1" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'portable45-net45+win8' ">
+    <DefineConstants>$(DefineConstants);PCL;PORTABLE7</DefineConstants>
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <LanguageTargets>$(MSBuildProgramFiles32)\MSBuild\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'portable45-net45+win8' ">
+    <Reference Include="System" />
+    <Reference Include="System.IO" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Linq" />
+    <Reference Include="System.Linq.Expressions" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Requests" />
+    <Reference Include="System.Net.Primitives" />
+    <Reference Include="System.Globalization" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.Extensions" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization.Primitives" />
+    <Reference Include="System.Runtime.Serialization.Xml" />
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Reflection" />
+    <Reference Include="System.Reflection.Extensions" />
+    <Reference Include="System.Threading" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Collections" />
+    <Reference Include="System.Collections.Concurrent" />
+    <Reference Include="System.Text.Encoding" />
+    <Reference Include="System.Text.RegularExpressions" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.ReaderWriter" />
+    <Reference Include="System.Dynamic.Runtime" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyUtils.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AutoMappingUtils.cs" />
-    <Compile Include="Build.Silverlight.cs" />
-    <Compile Include="CollectionExtensions.cs" />
-    <Compile Include="Common\DeserializeCustomGenericType.cs" />
-    <Compile Include="Common\DeserializeKeyValuePair.cs" />
-    <Compile Include="PlatformExtensions.cs" />
-    <Compile Include="TypeConstants.cs" />
-    <Compile Include="CsvReader.cs" />
-    <Compile Include="IStringSerializer.cs" />
-    <Compile Include="Pcl.Dynamic.cs" />
-    <Compile Include="Common\DateTimeSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeArray.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeBuiltin.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeCollection.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeDictionary.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeListWithElements.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeSpecializedCollections.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeType.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeTypeRef.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeTypeRefJson.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeTypeRefJsv.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\DeserializeTypeUtils.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\ITypeSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\JsDelegates.cs" />
-    <Compile Include="Common\JsReader.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\JsState.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\JsWriter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\ParseUtils.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\StaticParseMethod.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\WriteDictionary.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\WriteLists.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\WriteType.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Controller\CommandProcessor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Controller\PathInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CsvConfig.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CsvSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CsvStreamExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CsvWriter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DateTimeExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DirectStreamWriter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CsvAttribute.cs" />
-    <Compile Include="Env.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="HashSet.cs" />
-    <Compile Include="ITracer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ITypeSerializer.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsConfig.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsConfigScope.cs" />
-    <Compile Include="JsonObject.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonSerializer.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Json\JsonReader.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Json\JsonTypeSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Json\JsonUtils.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Json\JsonWriter.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsvFormatter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Jsv\JsvDeserializeType.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Jsv\JsvReader.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Jsv\JsvSerializer.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Jsv\JsvTypeSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Jsv\JsvWriter.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="LicenseUtils.cs" />
-    <Compile Include="ListExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MapExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Marc\Link.cs" />
-    <Compile Include="PclExport.Net40.cs" />
-    <Compile Include="PathUtils.cs" />
-    <Compile Include="PclExport.cs" />
-    <Compile Include="Pools\ObjectPool.cs" />
-    <Compile Include="Pools\PooledObject.cs" />
-    <Compile Include="Pools\SharedPoolExtensions.cs" />
-    <Compile Include="Pools\SharedPools.cs" />
-    <Compile Include="Pools\StringBuilderPool.cs" />
-    <Compile Include="StringBuilderCache.cs" />
-    <Compile Include="StringWriterCache.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryStringSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="RecyclableMemoryStream.cs" />
-    <Compile Include="ReflectionExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Reflection\StaticAccessors.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Rsa\BigInteger.cs" />
-    <Compile Include="Rsa\Providers.cs" />
-    <Compile Include="Rsa\RSACryptoServiceProvider.cs" />
-    <Compile Include="Rsa\Scrypt.cs" />
-    <Compile Include="Rsa\Utils.cs" />
-    <Compile Include="PclExport.Sl5.cs" />
-    <Compile Include="StreamExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="StringExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Support\AssemblyTypeDefinition.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Support\DoubleConverter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Support\TimeSpanConverter.cs" />
-    <Compile Include="Support\TypePair.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="SystemTime.cs" />
-    <Compile Include="TaskExtensions.cs" />
-    <Compile Include="TaskResult.cs" />
-    <Compile Include="TaskUtils.cs" />
-    <Compile Include="TextExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tracer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="TranslateListWithElements.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="TypeConfig.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="TypeReflector.cs" />
-    <Compile Include="TypeSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="TypeSerializer.Generic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="HttpUtils.cs" />
-    <Compile Include="PclExport.WinStore.cs" />
-    <Compile Include="PclExport.WP.cs" />
-    <Compile Include="PclExport.Xbox.cs" />
-    <Compile Include="XmlSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ParseAsType.cs" />
-    <Compile Include="PclExport.NetStandard.cs" />
+
+  <!-- SL5 SDK https://www.microsoft.com/en-us/download/confirmation.aspx?id=28359 -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'sl5' ">
+    <DefineConstants>$(DefineConstants);SL5;NO_DYNAMIC</DefineConstants>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <!--<OutputPath>Release\bin\sl5</OutputPath>-->
+    <TargetFrameworkDirectory>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\Silverlight\v5.0\</TargetFrameworkDirectory>
+    <TargetFrameworkSDKDirectory>$(MSBuildProgramFiles32)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\</TargetFrameworkSDKDirectory>
+    <SilverlightRuntimeVersion>5.1.50905.0</SilverlightRuntimeVersion>
+  </PropertyGroup>
+
+  <!--<PropertyGroup Condition=" '$(Configuration)' == 'Debug' and '$(TargetFramework)' == 'sl5' ">
+    <OutputPath>Debug\bin\sl5</OutputPath>
+  </PropertyGroup>-->
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'sl5' ">
+    <Reference Include="System" />
+    <Reference Include="System.IO" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Linq" />
+    <Reference Include="System.Linq.Expressions" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Requests" />
+    <Reference Include="System.Net.Primitives" />
+    <Reference Include="System.Globalization" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.Extensions" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Runtime.Serialization.Primitives" />
+    <Reference Include="System.Runtime.Serialization.Xml" />
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Reflection" />
+    <Reference Include="System.Reflection.Extensions" />
+    <Reference Include="System.Threading" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Collections" />
+    <Reference Include="System.Collections.Concurrent" />
+    <Reference Include="System.Text.Encoding" />
+    <Reference Include="System.Text.RegularExpressions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.ReaderWriter" />
+    <Reference Include="System.Dynamic.Runtime" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Dynamic" />
+    <Reference Include="System.Windows" />
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
+  <!--<Import Project="$(MSBuildProgramFiles32)\MSBuild\Microsoft\Silverlight\v5.0\Microsoft.Silverlight.CSharp.targets" />-->
 </Project>
