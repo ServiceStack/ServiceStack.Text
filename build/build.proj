@@ -19,6 +19,7 @@
     <Version>$(MajorVersion).$(MinorVersion).$(PatchVersion).0</Version>
     <UnstableTag Condition="$(RELEASE) == ''">-unstable</UnstableTag>
     <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)$(UnstableTag)</PackageVersion>
+    <PackageCoreVersion>$(MajorVersion).$(MinorVersion).$(PatchCoreVersion)$(UnstableTag)</PackageCoreVersion>
     <EnvVersion>$(MajorVersion).$(MinorVersion)$(PatchVersion)</EnvVersion>
   </PropertyGroup>
 
@@ -82,7 +83,7 @@
       </RegexTransform>
       <RegexTransform Include="$(NuGetPackageCoreDir)/**/*.nuspec">
         <Find>version="1\.0[^"]*"</Find>
-        <ReplaceWith>version="1.0.$(PatchCoreVersion)"</ReplaceWith>
+        <ReplaceWith>version="$(PackageCoreVersion)"</ReplaceWith>
       </RegexTransform>
     </ItemGroup>
 
@@ -132,7 +133,7 @@
     <MakeDir Directories="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3" Condition="!Exists('$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3')" />
     <Copy SourceFiles="%(TextFilesNetStardard13.Identity)" DestinationFolder="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3" />
 
-    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageCoreDir)/ServiceStack.Text.Core/servicestack.text.core.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
+    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageCoreDir)/ServiceStack.Text.Core/servicestack.text.core.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageCoreVersion) -Symbols"
           LogStandardErrorAsError="true" />
 
   </Target>
