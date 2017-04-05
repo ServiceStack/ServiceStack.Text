@@ -17,7 +17,7 @@
     <iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <tags>JSON Text Serializer CSV JSV Dump PrettyPrint Fast</tags>
     <language>en-US</language> 
-    <copyright>ServiceStack 2016 and contributors</copyright>
+    <copyright>ServiceStack 2017 and contributors</copyright>
   </metadata>
   <files>
     <file src="lib\**\*.*" target="lib" />
