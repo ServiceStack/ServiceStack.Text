@@ -133,7 +133,7 @@
     <MakeDir Directories="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3" Condition="!Exists('$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3')" />
     <Copy SourceFiles="%(TextFilesNetStardard13.Identity)" DestinationFolder="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3" />
 
-    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageCoreDir)/ServiceStack.Text.Core/servicestack.text.core.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageCoreVersion) -Symbols"
+    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageCoreDir)/ServiceStack.Text.Core/servicestack.text.core.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageCoreDir)&quot; -Version $(PackageCoreVersion) -Symbols"
           LogStandardErrorAsError="true" />
 
   </Target>
