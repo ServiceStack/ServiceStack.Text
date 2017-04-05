@@ -22,7 +22,6 @@
     <EnvVersion>$(MajorVersion).$(MinorVersion)$(PatchVersion)</EnvVersion>
   </PropertyGroup>
 
-
   <ItemGroup>
       <NugetPackageFilesToDelete Include="$(NuGetPackageDir)/*.nupkg"/>
   </ItemGroup>
@@ -80,6 +79,10 @@
       <RegexTransform Include="$(NuGetPackageDir)/**/*.nuspec">
         <Find>version="4\.5[^"]*"</Find>
         <ReplaceWith>version="$(PackageVersion)"</ReplaceWith>
+      </RegexTransform>
+      <RegexTransform Include="$(NuGetPackageCoreDir)/**/*.nuspec">
+        <Find>version="1\.0[^"]*"</Find>
+        <ReplaceWith>version="1.0.$(PatchCoreVersion)"</ReplaceWith>
       </RegexTransform>
     </ItemGroup>
 
