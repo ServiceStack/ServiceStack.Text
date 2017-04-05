@@ -15,6 +15,7 @@
     <Configuration Condition="$(Configuration) == ''">Release</Configuration>
     <NuGetPath>$(BuildSolutionDir)/src/.nuget/nuget.exe</NuGetPath>
     <NuGetPackageDir>$(BuildSolutionDir)/NuGet/</NuGetPackageDir>
+    <NuGetPackageCoreDir>$(BuildSolutionDir)/NuGet.Core/</NuGetPackageCoreDir>
     <Version>$(MajorVersion).$(MinorVersion).$(PatchVersion).0</Version>
     <UnstableTag Condition="$(RELEASE) == ''">-unstable</UnstableTag>
     <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)$(UnstableTag)</PackageVersion>
@@ -92,6 +93,11 @@
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/net45/ServiceStack.Text.*"></TextFiles>
+      <TextFilesPortable Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/portable45-net45+win8/ServiceStack.Text.*"></TextFilesPortable>
+      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text/bin/SL5/ServiceStack.Text.*"></TextSl5Files>
+      
+      <TextFilesNetStardard11 Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard1.1/ServiceStack.Text.*"></TextFilesNetStardard11>
+      <TextFilesNetStardard13 Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard1.3/ServiceStack.Text.*"></TextFilesNetStardard13>
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
@@ -100,9 +106,31 @@
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net45')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" />
- 
+
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10')" />
+    <Copy SourceFiles="%(TextFilesPortable.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" />
+
+    <!-- Silverlight -->
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.SL5.csproj"
+             Targets="Build"
+             Properties="Version=$(PackageVersion);Configuration=$(Configuration);Optimize=True;DebugSymbols=True;DefineConstants=SL5;NO_DYNAMIC;Platform=Any CPU;OutputPath=bin/SL5;DocumentationFile=bin/SL5/ServiceStack.Text.xml" />
+
+    <MakeDir Directories="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5" Condition="!Exists('$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5')" />
+    <Copy SourceFiles="%(TextSl5Files.Identity)" DestinationFolder="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5" />
+
+    <!-- Pack ServiceStack.Text -->
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
             LogStandardErrorAsError="true" />
+
+    <!-- .NET Core -->
+    <MakeDir Directories="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.1" Condition="!Exists('$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.1')" />
+    <Copy SourceFiles="%(TextFilesNetStardard11.Identity)" DestinationFolder="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.1" />
+
+    <MakeDir Directories="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3" Condition="!Exists('$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3')" />
+    <Copy SourceFiles="%(TextFilesNetStardard13.Identity)" DestinationFolder="$(NuGetPackageCoreDir)/ServiceStack.Text.Core/lib/netstandard1.3" />
+
+    <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageCoreDir)/ServiceStack.Text.Core/servicestack.text.core.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
+          LogStandardErrorAsError="true" />
 
   </Target>
 </Project>

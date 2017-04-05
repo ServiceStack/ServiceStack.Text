@@ -90,7 +90,7 @@
     <Delete Files="@(NugetPackageFilesToDelete)" />
 
     <ItemGroup>
-      <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/ServiceStack.Text.*"></TextFiles>
+      <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/net45/ServiceStack.Text.*"></TextFiles>
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Signed.csproj"
