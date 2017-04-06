@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net45;netcoreapp1.1</TargetFrameworks>-->
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp1.1</TargetFrameworks>
+    <!--<TargetFrameworks>netcoreapp1.1</TargetFrameworks>-->
     <DebugType>portable</DebugType>
     <AssemblyName>ServiceStack.Text.Tests</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>ServiceStack.Text.Tests</PackageId>
     <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81+xamarinmac</PackageTargetFallback>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -18,10 +19,6 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" />
@@ -57,6 +54,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+    <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
     <PackageReference Include="System.Drawing.Primitives" Version="4.*" />
     <PackageReference Include="System.Collections.Specialized" Version="4.0.1" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.0.2" />
@@ -65,9 +63,10 @@
     <PackageReference Include="System.Reflection.Extensions" Version="4.0.1" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.1.0" />
 
-    <Reference Include="..\..\lib\tests\netstandard1.1\ServiceStack.Interfaces.dll" />
+    <Reference Include="..\..\lib\tests\ServiceStack.Interfaces.dll" />
     <Reference Include="..\..\lib\tests\netstandard1.1\ServiceStack.Client.dll" />
     <Reference Include="..\..\lib\tests\netstandard1.3\ServiceStack.Common.dll" />
+    <Reference Include="..\..\lib\tests\netstandard1.6\ServiceStack.dll" />
     <Reference Include="..\..\lib\tests\netstandard1.3\Northwind.Common.dll" />
   </ItemGroup>
 

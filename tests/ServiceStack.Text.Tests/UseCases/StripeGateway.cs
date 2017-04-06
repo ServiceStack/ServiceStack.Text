@@ -695,9 +695,14 @@ namespace ServiceStack.Stripe
 
         public T Send<T>(IReturn<T> request, string method, bool sendRequestBody = true, string idempotencyKey = null)
         {
+            string relativeUrl = null;
+
             using (new ConfigScope())
             {
-                var relativeUrl = request.ToUrl(method);
+//TODO: Find out why .netcoreapp1.1 is failing
+#if !NETCORE
+                relativeUrl = request.ToUrl(method);
+#endif
                 var body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
 
                 var json = Send(relativeUrl, method, body, idempotencyKey);
@@ -709,12 +714,15 @@ namespace ServiceStack.Stripe
 
         public async Task<T> SendAsync<T>(IReturn<T> request, string method, bool sendRequestBody = true, string idempotencyKey = null)
         {
-            string relativeUrl;
-            string body;
+            string body = null;
+            string relativeUrl = null;
 
             using (new ConfigScope())
             {
+//TODO: Find out why .netcoreapp1.1 is failing
+#if !NETCORE
                 relativeUrl = request.ToUrl(method);
+#endif
                 body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
             }
 
