@@ -699,10 +699,7 @@ namespace ServiceStack.Stripe
 
             using (new ConfigScope())
             {
-//TODO: Find out why .netcoreapp1.1 is failing
-#if !NETCORE
                 relativeUrl = request.ToUrl(method);
-#endif
                 var body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
 
                 var json = Send(relativeUrl, method, body, idempotencyKey);
@@ -719,10 +716,7 @@ namespace ServiceStack.Stripe
 
             using (new ConfigScope())
             {
-//TODO: Find out why .netcoreapp1.1 is failing
-#if !NETCORE
                 relativeUrl = request.ToUrl(method);
-#endif
                 body = sendRequestBody ? QueryStringSerializer.SerializeToString(request) : null;
             }
 

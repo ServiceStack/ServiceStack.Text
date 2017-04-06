@@ -24,9 +24,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <NugetPackageFilesToDelete Include="$(NuGetPackageDir)/*.nupkg"/>
+    <NugetPackageFilesToDelete Include="$(NuGetPackageDir)/*.nupkg"/>
+    <NugetPackageFilesToDelete Include="$(NuGetPackageCoreDir)/*.nupkg"/>
   </ItemGroup>
-
 
   <PropertyGroup>
     <DoBuildSolutionsDependsOn>

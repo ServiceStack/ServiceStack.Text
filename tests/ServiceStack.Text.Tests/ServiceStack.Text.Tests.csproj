@@ -64,7 +64,7 @@
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.1.0" />
 
     <Reference Include="..\..\lib\tests\ServiceStack.Interfaces.dll" />
-    <Reference Include="..\..\lib\tests\netstandard1.1\ServiceStack.Client.dll" />
+    <Reference Include="..\..\lib\tests\netstandard1.6\ServiceStack.Client.dll" />
     <Reference Include="..\..\lib\tests\netstandard1.3\ServiceStack.Common.dll" />
     <Reference Include="..\..\lib\tests\netstandard1.6\ServiceStack.dll" />
     <Reference Include="..\..\lib\tests\netstandard1.3\Northwind.Common.dll" />
