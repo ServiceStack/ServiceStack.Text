@@ -20,11 +20,9 @@
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
-    <OutputPath>bin\Signed\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <OutputPath>bin\Debug\Signed\</OutputPath>
   </PropertyGroup>  
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
