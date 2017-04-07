@@ -5,10 +5,15 @@
     "command": "dotnet",
     "isShellCommand": true,
     "args": [],
+    "options": {
+        "env": {
+            "FrameworkPathOverride": "/usr/lib/mono/4.5/"
+        }
+    },    
     "tasks": [
         {
             "taskName": "build",
-            "args": [ "tests/ServiceStack.Text.Tests" ],
+            "args": [ "src/ServiceStack.Text.sln", "-v", "m" ],
             "isBuildCommand": true,
             "showOutput": "silent",
             "problemMatcher": "$msCompile"
