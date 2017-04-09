@@ -25,6 +25,9 @@ namespace ServiceStack.Text
 
         public override void Write(string s)
         {
+            if (s.IsNullOrEmpty())
+                return;
+
             if (s.Length <= optimizedBufferLength)
             {
                 if (needFlush) 
