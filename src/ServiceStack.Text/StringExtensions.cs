@@ -1007,6 +1007,11 @@ namespace ServiceStack
             return text == null ? default(float) : float.Parse(text);
         }
 
+        public static float ToFloatInvariant(this string text)
+        {
+            return text == null ? default(float) : float.Parse(text, CultureInfo.InvariantCulture);
+        }
+
         public static float ToFloat(this string text, float defaultValue)
         {
             float ret;
@@ -1018,6 +1023,11 @@ namespace ServiceStack
             return text == null ? default(double) : double.Parse(text);
         }
 
+        public static double ToDoubleInvariant(this string text)
+        {
+            return text == null ? default(double) : double.Parse(text, CultureInfo.InvariantCulture);
+        }
+
         public static double ToDouble(this string text, double defaultValue)
         {
             double ret;
@@ -1027,6 +1037,11 @@ namespace ServiceStack
         public static decimal ToDecimal(this string text)
         {
             return text == null ? default(decimal) : decimal.Parse(text);
+        }
+
+        public static decimal ToDecimalInvariant(this string text)
+        {
+            return text == null ? default(decimal) : decimal.Parse(text, CultureInfo.InvariantCulture);
         }
 
         public static decimal ToDecimal(this string text, decimal defaultValue)
