@@ -18,7 +18,7 @@ namespace ServiceStack
         }
 
         /// <summary>
-        /// Maps the path of a file in the context of a VS project in a Consle App
+        /// Maps the path of a file in the context of a VS project in a Console App
         /// </summary>
         /// <param name="relativePath">the relative path</param>
         /// <returns>the absolute path</returns>
@@ -32,6 +32,18 @@ namespace ServiceStack
 #else
             return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
 #endif
+        }
+        /// <summary>
+        /// Maps the path of a file in the context of a VS 2017+ multi-platform project in a Console App
+        /// </summary>
+        /// <param name="relativePath">the relative path</param>
+        /// <returns>the absolute path</returns>
+        /// <remarks>Assumes static content is two directories above the /bin/ directory,
+        /// eg. in a unit test scenario  the assembly would be in /bin/Debug/net45</remarks>
+        public static string MapProjectPlatformPath(this string relativePath)
+        {
+            var sep = PclExport.Instance.DirSep;
+            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
         }
 
         /// <summary>
