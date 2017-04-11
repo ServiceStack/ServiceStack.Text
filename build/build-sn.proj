@@ -94,7 +94,7 @@
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Signed.csproj"
-             Targets="Build" Properties="Configuration=$(Configuration)" />
+             Targets="Build" Properties="Version=$(PackageVersion)" />
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Signed/lib/net45" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Signed/lib/net45')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Signed/lib/net45" />
