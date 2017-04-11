@@ -1,14 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.1;netstandard1.3</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(OS)' != 'Unix' ">
-    <TargetFrameworks>$(TargetFrameworks);portable45-net45+win8</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;portable45-net45+win8</TargetFrameworks>
     <!--<TargetFrameworks>net45;netstandard1.1;netstandard1.3;portable45-net45+win8;sl5</TargetFrameworks>-->
     <AssemblyName>ServiceStack.Text</AssemblyName>
     <PackageId>ServiceStack.Text</PackageId>
