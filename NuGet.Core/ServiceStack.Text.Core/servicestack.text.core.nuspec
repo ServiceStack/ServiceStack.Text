@@ -45,7 +45,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="lib/**/*.*" target="lib" />
+    <file src="lib/**/*.*" />
     <file src="../../src/ServiceStack.Text/**/*.cs" target="src" />
   </files>
 </package>
