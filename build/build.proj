@@ -89,6 +89,11 @@
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net45')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" />
 
+    <!-- PCL -->
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.PCL.csproj"
+             Targets="Build"
+             Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
+
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10')" />
     <Copy SourceFiles="%(TextFilesPortable.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" />
 

@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;portable45-net45+win8</TargetFrameworks>
-    <!--<TargetFrameworks>net45;netstandard1.1;netstandard1.3;portable45-net45+win8;sl5</TargetFrameworks>-->
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3</TargetFrameworks>
     <AssemblyName>ServiceStack.Text</AssemblyName>
     <PackageId>ServiceStack.Text</PackageId>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
@@ -24,10 +23,6 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugType>portable</DebugType>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.1" PrivateAssets="all" />
-  </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
@@ -79,93 +74,4 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'portable45-net45+win8' ">
-    <DefineConstants>$(DefineConstants);PCL;PORTABLE7</DefineConstants>
-    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
-    <LanguageTargets>$(MSBuildProgramFiles32)\MSBuild\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'portable45-net45+win8' ">
-    <Reference Include="System" />
-    <Reference Include="System.IO" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Linq" />
-    <Reference Include="System.Linq.Expressions" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Net.Requests" />
-    <Reference Include="System.Net.Primitives" />
-    <Reference Include="System.Globalization" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Runtime.Extensions" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Runtime.Serialization.Primitives" />
-    <Reference Include="System.Runtime.Serialization.Xml" />
-    <Reference Include="System.Runtime.InteropServices" />
-    <Reference Include="System.Reflection" />
-    <Reference Include="System.Reflection.Extensions" />
-    <Reference Include="System.Threading" />
-    <Reference Include="System.Threading.Tasks" />
-    <Reference Include="System.Collections" />
-    <Reference Include="System.Collections.Concurrent" />
-    <Reference Include="System.Text.Encoding" />
-    <Reference Include="System.Text.RegularExpressions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.ReaderWriter" />
-    <Reference Include="System.Dynamic.Runtime" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <!-- SL5 SDK https://www.microsoft.com/en-us/download/confirmation.aspx?id=28359 -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'sl5' ">
-    <DefineConstants>$(DefineConstants);SL5;NO_DYNAMIC</DefineConstants>
-    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
-    <!--<OutputPath>Release\bin\sl5</OutputPath>-->
-    <TargetFrameworkDirectory>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\Silverlight\v5.0\</TargetFrameworkDirectory>
-    <TargetFrameworkSDKDirectory>$(MSBuildProgramFiles32)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\</TargetFrameworkSDKDirectory>
-    <SilverlightRuntimeVersion>5.1.50905.0</SilverlightRuntimeVersion>
-  </PropertyGroup>
-
-  <!--<PropertyGroup Condition=" '$(Configuration)' == 'Debug' and '$(TargetFramework)' == 'sl5' ">
-    <OutputPath>Debug\bin\sl5</OutputPath>
-  </PropertyGroup>-->
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'sl5' ">
-    <Reference Include="System" />
-    <Reference Include="System.IO" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Linq" />
-    <Reference Include="System.Linq.Expressions" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Net.Requests" />
-    <Reference Include="System.Net.Primitives" />
-    <Reference Include="System.Globalization" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Runtime.Extensions" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Runtime.Serialization.Primitives" />
-    <Reference Include="System.Runtime.Serialization.Xml" />
-    <Reference Include="System.Runtime.InteropServices" />
-    <Reference Include="System.Reflection" />
-    <Reference Include="System.Reflection.Extensions" />
-    <Reference Include="System.Threading" />
-    <Reference Include="System.Threading.Tasks" />
-    <Reference Include="System.Collections" />
-    <Reference Include="System.Collections.Concurrent" />
-    <Reference Include="System.Text.Encoding" />
-    <Reference Include="System.Text.RegularExpressions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.ReaderWriter" />
-    <Reference Include="System.Dynamic.Runtime" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Dynamic" />
-    <Reference Include="System.Windows" />
-  </ItemGroup>
-
-  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
-  <!--<Import Project="$(MSBuildProgramFiles32)\MSBuild\Microsoft\Silverlight\v5.0\Microsoft.Silverlight.CSharp.targets" />-->
 </Project>
