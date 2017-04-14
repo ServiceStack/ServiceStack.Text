@@ -40,16 +40,16 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1-*" />
-    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.1.1" />
-    <PackageReference Include="System.Net.Requests" Version="4.0.11" />
-    <PackageReference Include="System.Dynamic.Runtime" Version="4.0.11" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.0.1-*" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.0.1" />
-    <PackageReference Include="System.Reflection.Emit.LightWeight" Version="4.0.1" />
-    <PackageReference Include="System.Reflection.Extensions" Version="4.0.1" />
-    <PackageReference Include="System.Linq.Expressions" Version="4.1.0" />
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.0.0" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.LightWeight" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -57,21 +57,17 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1-*" />
-    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.1.1" />
-    <PackageReference Include="System.Net.Requests" Version="4.0.11" />
-    <PackageReference Include="System.Dynamic.Runtime" Version="4.0.11" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.0.1-*" />
-    <PackageReference Include="System.Linq.Expressions" Version="4.1.0" />
-    <PackageReference Include="System.Collections" Version="4.0.11" />
-    <PackageReference Include="System.Collections.Concurrent" Version="4.0.12" />
-    <PackageReference Include="System.Collections.NonGeneric" Version="4.0.1" />
-    <PackageReference Include="System.Collections.Specialized" Version="4.0.1" />
-    <PackageReference Include="System.Reflection" Version="4.1.0" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.0.1" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.0.1" />
-    <PackageReference Include="System.Reflection.Extensions" Version="4.0.1" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.LightWeight" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="System.Collections.Specialized" Version="4.3.0" /> 
   </ItemGroup>
 
 </Project>
