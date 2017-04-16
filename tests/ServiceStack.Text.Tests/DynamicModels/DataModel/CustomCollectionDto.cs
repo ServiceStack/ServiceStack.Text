@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
+    [RuntimeSerializable]
     public class CustomCollectionDto
     {
         public Exception Exception { get; set; }

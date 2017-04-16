@@ -152,6 +152,41 @@ namespace ServiceStack.Text.Common
                     break;
             }
         }
+
+        public static void AssertAllowedRuntimeType(Type type)
+        {
+            if (!JsState.IsRuntimeType)
+                return;
+
+            if (JsConfig.AllowRuntimeType?.Invoke(type) == true)
+                return;
+
+            var allowAttributesNamed = JsConfig.AllowRuntimeTypeWithAttributesNamed;
+            if (allowAttributesNamed?.Count > 0)
+            {
+                var OAttrs = type.AllAttributes();
+                foreach (var oAttr in OAttrs)
+                {
+                    var attr = oAttr as Attribute;
+                    if (attr == null) continue;
+                    if (allowAttributesNamed.Contains(attr.GetType().Name))
+                        return;
+                }
+            }
+
+            var allowInterfacesNamed = JsConfig.AllowRuntimeTypeWithInterfacesNamed;
+            if (allowInterfacesNamed?.Count > 0)
+            {
+                var interfaces = type.GetTypeInterfaces();
+                foreach (var interfaceType in interfaces)
+                {
+                    if (allowInterfacesNamed.Contains(interfaceType.Name))
+                        return;
+                }
+            }
+
+            throw new NotSupportedException($"{type.Name} is not an allowed Runtime Type. Whitelist Type with [RuntimeSerializable] or IRuntimeSerializable.");
+        }
     }
 
     public class JsWriter<TSerializer>

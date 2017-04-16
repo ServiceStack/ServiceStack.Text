@@ -59,6 +59,7 @@ namespace ServiceStack.Text.Common
                     }
                     else
                     {
+                        JsWriter.AssertAllowedRuntimeType(explicitType);
                         instance = explicitType.CreateInstance();
                     }
 
@@ -130,6 +131,7 @@ namespace ServiceStack.Text.Common
                             propertyValue = typeConfig.OnDeserializing(instance, propertyName, propertyValue);
                         typeAccessor.SetProperty(instance, propertyValue);
                     }
+                    catch (NotSupportedException) { throw; }
                     catch (Exception e)
                     {
                         if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType ?? typeAccessor.PropertyType, propertyName, propertyValueStr, e);

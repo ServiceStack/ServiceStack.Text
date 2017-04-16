@@ -16,6 +16,9 @@ namespace ServiceStack.Text.Common
         internal static bool IsWritingDynamic = false;
 
         [ThreadStatic]
+        internal static bool IsRuntimeType = false;
+
+        [ThreadStatic]
         internal static bool QueryStringMode = false;
 
         [ThreadStatic]

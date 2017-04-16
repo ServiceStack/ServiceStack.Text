@@ -92,6 +92,8 @@ namespace ServiceStack.Text.Common
 
                 var type = JsConfig.TypeFinder(typeName);
 
+                JsWriter.AssertAllowedRuntimeType(type);
+
                 if (type == null)
                 {
                     Tracer.Instance.WriteWarning("Could not find type: " + typeName);
@@ -285,9 +287,36 @@ namespace ServiceStack.Text.Common
             return new TypeAccessor
             {
                 PropertyType = propertyInfo.PropertyType,
-                GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
+                GetProperty = GetPropertyMethod(serializer, propertyInfo),
                 SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
             };
+        }
+
+        internal static ParseStringDelegate GetPropertyMethod(ITypeSerializer serializer, PropertyInfo propertyInfo)
+        {
+            var getPropertyFn = serializer.GetParseFn(propertyInfo.PropertyType);
+            if (propertyInfo.PropertyType == typeof(object) || 
+                propertyInfo.PropertyType.HasInterface(typeof(IEnumerable<object>)))
+            {
+                var declaringTypeNamespace = propertyInfo.DeclaringType?.Namespace;
+                if (declaringTypeNamespace == null || !JsConfig.AllowRuntimeTypeInTypesWithNamespaces.Contains(declaringTypeNamespace))
+                {
+                    return value =>
+                    {
+                        var hold = JsState.IsRuntimeType;
+                        try
+                        {
+                            JsState.IsRuntimeType = true;
+                            return getPropertyFn(value);
+                        }
+                        finally
+                        {
+                            JsState.IsRuntimeType = hold;
+                        }
+                    };
+                }
+            }
+            return getPropertyFn;
         }
 
         private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)

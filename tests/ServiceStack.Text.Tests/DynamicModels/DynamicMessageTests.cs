@@ -41,6 +41,7 @@ namespace ServiceStack.Text.Tests.DynamicModels
         public MessageBody Body { get; set; }
     }
 
+    [RuntimeSerializable]
     public class MessageBody
     {
         public MessageBody()
