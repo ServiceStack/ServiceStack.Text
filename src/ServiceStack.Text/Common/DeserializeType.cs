@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -76,7 +75,7 @@ namespace ServiceStack.Text.Common
         {
             if (strType == null || strType.Length <= 1) return null;
 
-            var hasWhitespace = JsonUtils.WhiteSpaceChars.Contains(strType[1]);
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType[1]);
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
@@ -237,7 +236,7 @@ namespace ServiceStack.Text.Common
 
         internal static object ParsePrimitive(string value, char firstChar)
         {
-            if (typeof(TSerializer) == typeof(JsonTypeSerializer))
+            if (typeof(TSerializer) == typeof(Json.JsonTypeSerializer))
             {
                 return firstChar == JsWriter.QuoteChar
                     ? ParseQuotedPrimitive(value)
@@ -257,7 +256,7 @@ namespace ServiceStack.Text.Common
         {
             if (strType == null || strType.Length <= 1) return null;
 
-            var hasWhitespace = JsonUtils.WhiteSpaceChars.Contains(strType[1]);
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType[1]);
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
