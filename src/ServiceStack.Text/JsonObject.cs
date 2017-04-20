@@ -179,6 +179,11 @@ namespace ServiceStack.Text
 
         public T ConvertTo<T>()
         {
+            return (T)this.ConvertTo(typeof(T));
+        }
+
+        public object ConvertTo(Type type)
+        {
             var map = new Dictionary<string, object>();
 
             foreach (var entry in this)
@@ -186,7 +191,7 @@ namespace ServiceStack.Text
                 map[entry.Key] = entry.Value;
             }
 
-            return (T)map.FromObjectDictionary(typeof(T));
+            return map.FromObjectDictionary(type);
         }
     }
 
