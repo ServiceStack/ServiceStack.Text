@@ -30,6 +30,8 @@ namespace ServiceStack.Text.Common
 
     public delegate object ParseStringDelegate(string stringValue);
 
+    public delegate object ParseStringPartDelegate(StringSegment value);
+
     public delegate object ConvertObjectDelegate(object fromObject);
 
     public delegate object ConvertInstanceDelegate(object obj, Type type);

@@ -55,6 +55,11 @@ namespace ServiceStack.Text.Common
         }
 
         public static string StripList(string value)
+        {   
+            StripList(new StringSegment(value)).Value;
+        }
+
+        public static string StripList(StringSegment value)
         {
             if (string.IsNullOrEmpty(value))
                 return null;
@@ -144,6 +149,12 @@ namespace ServiceStack.Text.Common
 
         public static ICollection<T> ParseGenericList(string value, Type createListType, ParseStringDelegate parseFn)
         {
+            ParseGenericList(new StringSegment(value), createListType, (val, s, l) => parseFn(val.Substring(s, l)));
+        }
+
+
+        public static ICollection<T> ParseGenericList(string value, int start, int length, Type createListType, ParseStringPartDelegate parseFn)
+        {
             if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
 
             var isReadOnly = createListType != null
@@ -168,10 +179,11 @@ namespace ServiceStack.Text.Common
                 {
                     do
                     {
-                        var itemValue = Serializer.EatTypeValue(value, ref i);
-                        if (itemValue != null)
+                        var l = length;
+                        Serializer.EatTypeValue(value, ref i, ref l);
+                        if (l >= 0)
                         {
-                            to.Add((T)parseFn(itemValue));
+                            to.Add((T)parseFn(value, i, l));
                         }
                         else
                         {
@@ -186,18 +198,20 @@ namespace ServiceStack.Text.Common
                     while (i < valueLength)
                     {
                         var startIndex = i;
-                        var elementValue = Serializer.EatValue(value, ref i);
-                        var listValue = elementValue;
-                        if (listValue != null)
+                        var l = length;
+                        var elementValue = Serializer.EatValue(value, ref i, ref l);
+                        var elementValueLength = l;
+                        var listValueLength = l;
+                        if (listValueLength >= 0)
                         {
                             if (tryToParseItemsAsPrimitiveTypes)
                             {
                                 Serializer.EatWhitespace(value, ref startIndex);
-                                to.Add((T)DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[startIndex]));
+                                to.Add((T)DeserializeType<TSerializer>.ParsePrimitive(value, i, elementValueLength, value[startIndex]));
                             }
                             else
                             {
-                                to.Add((T)parseFn(elementValue));
+                                to.Add((T)parseFn(value, i, elementValueLength));
                             }
                         }
 
@@ -209,7 +223,7 @@ namespace ServiceStack.Text.Common
                             continue;
                         }
 
-                        if (listValue == null)
+                        if (listValueLength < 0)
                             to.Add(default(T));
                     }
 

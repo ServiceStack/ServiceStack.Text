@@ -288,6 +288,12 @@ namespace ServiceStack.Text.Common
 
         private static string GetTypesKey(params Type[] types)
         {
+            if (types.Length == 1)
+                return types[0].FullName;
+                
+            if (types.Length == 2)
+                return types[0].FullName + ">" + types[1].FullName;
+
             var sb = StringBuilderThreadStatic.Allocate();
             foreach (var type in types)
             {
