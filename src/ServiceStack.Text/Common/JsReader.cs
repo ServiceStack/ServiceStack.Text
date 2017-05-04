@@ -2,6 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -22,12 +27,29 @@ namespace ServiceStack.Text.Common
             return GetCoreParseFn<T>();
         }
 
+        public ParseStringSegmentDelegate GetParseStringSegmentFn<T>()
+        {
+            var onDeserializedFn = JsConfig<T>.OnDeserializedFn;
+            if (onDeserializedFn != null)
+            {
+                var parseFn = GetCoreParseStringSegmentFn<T>();
+                return value => onDeserializedFn((T)parseFn(value));
+            }
+
+            return GetCoreParseStringSegmentFn<T>();
+        }
+
         private ParseStringDelegate GetCoreParseFn<T>()
+        {
+            return v => GetCoreParseStringSegmentFn<T>()(new StringSegment(v));
+        }
+
+        private ParseStringSegmentDelegate GetCoreParseStringSegmentFn<T>()
         {
             var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
             if (JsConfig<T>.HasDeserializeFn)
-                return value => JsConfig<T>.ParseFn(Serializer, value);
+                return value => JsConfig<T>.ParseFn(Serializer, value.Value);
 
             if (type.IsEnum())
                 return x => ParseUtils.TryParseEnum(type, Serializer.UnescapeSafeString(x));
@@ -40,11 +62,11 @@ namespace ServiceStack.Text.Common
 
             var specialParseFn = ParseUtils.GetSpecialParseMethod(type);
             if (specialParseFn != null)
-                return specialParseFn;
+                return v => specialParseFn(v.Value);
 
             if (type.IsArray)
             {
-                return DeserializeArray<T, TSerializer>.Parse;
+                return DeserializeArray<T, TSerializer>.ParseStringSegment;
             }
 
             var builtInMethod = DeserializeBuiltin<T>.Parse;
@@ -54,13 +76,13 @@ namespace ServiceStack.Text.Common
             if (type.HasGenericType())
             {
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(IList<>)))
-                    return DeserializeList<T, TSerializer>.Parse;
+                    return DeserializeList<T, TSerializer>.ParseStringSegment;
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(IDictionary<,>)))
-                    return DeserializeDictionary<TSerializer>.GetParseMethod(type);
+                    return DeserializeDictionary<TSerializer>.GetParseStringSegmentMethod(type);
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(ICollection<>)))
-                    return DeserializeCollection<TSerializer>.GetParseMethod(type);
+                    return DeserializeCollection<TSerializer>.GetParseStringSegmentMethod(type);
 
                 if (type.HasAnyTypeDefinitionsOf(typeof(Queue<>))
                     || type.HasAnyTypeDefinitionsOf(typeof(Stack<>)))

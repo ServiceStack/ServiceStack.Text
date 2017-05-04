@@ -15,6 +15,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using ServiceStack.Text.Support;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -39,19 +45,21 @@ namespace ServiceStack.Text.Common
                 : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, map);
         }
 
-        public static object ObjectStringToType(string strType)
+        public static object ObjectStringToType(string strType) => ObjectStringToType(new StringSegment(strType));
+
+        public static object ObjectStringToType(StringSegment strType)
         {
             var type = ExtractType(strType);
             if (type != null)
             {
-                var parseFn = Serializer.GetParseFn(type);
+                var parseFn = Serializer.GetParseStringSegmentFn(type);
                 var propertyValue = parseFn(strType);
                 return propertyValue;
             }
 
-            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType))
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && strType.IsNullOrEmpty())
             {
-                if (strType[0] == JsWriter.MapStartChar)
+                if (strType.GetChar(0) == JsWriter.MapStartChar)
                 {
                     var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
                     if (dynamicMatch != null && dynamicMatch.Count > 0)
@@ -60,14 +68,14 @@ namespace ServiceStack.Text.Common
                     }
                 }
 
-                if (strType[0] == JsWriter.ListStartChar)
+                if (strType.GetChar(0) == JsWriter.ListStartChar)
                 {
-                    return DeserializeList<List<object>, TSerializer>.Parse(strType);
+                    return DeserializeList<List<object>, TSerializer>.ParseStringSegment(strType);
                 }
             }
 
             return (JsConfig.TryToParsePrimitiveTypeValues
-                ? ParsePrimitive(strType)
+                ? ParsePrimitive(strType.Value)
                 : null) ?? Serializer.UnescapeString(strType);
         }
 

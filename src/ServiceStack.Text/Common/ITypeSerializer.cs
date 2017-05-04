@@ -1,6 +1,12 @@
 using System;
 using System.IO;
 using ServiceStack.Text.Json;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
+
 
 namespace ServiceStack.Text.Common
 {
@@ -50,18 +56,29 @@ namespace ServiceStack.Text.Common
         //object EncodeMapKey(object value);
 
         ParseStringDelegate GetParseFn<T>();
+        ParseStringSegmentDelegate GetParseStringSegmentFn<T>();
         ParseStringDelegate GetParseFn(Type type);
+        ParseStringSegmentDelegate GetParseStringSegmentFn(Type type);
 
         string ParseRawString(string value);
         string ParseString(string value);
         string UnescapeString(string value);
+        string UnescapeString(StringSegment value);
         string UnescapeSafeString(string value);
+        string UnescapeSafeString(StringSegment value);
         string EatTypeValue(string value, ref int i);
+        StringSegment EatTypeValue(StringSegment value, ref int i);
         bool EatMapStartChar(string value, ref int i);
+        bool EatMapStartChar(StringSegment value, ref int i);
         string EatMapKey(string value, ref int i);
+        StringSegment EatMapKey(StringSegment value, ref int i);
         bool EatMapKeySeperator(string value, ref int i);
+        bool EatMapKeySeperator(StringSegment value, ref int i);
         void EatWhitespace(string value, ref int i);
+        void EatWhitespace(StringSegment value, ref int i);
         string EatValue(string value, ref int i);
+        StringSegment EatValue(StringSegment value, ref int i);
         bool EatItemSeperatorOrMapEndChar(string value, ref int i);
+        bool EatItemSeperatorOrMapEndChar(StringSegment value, ref int i);
     }
 }

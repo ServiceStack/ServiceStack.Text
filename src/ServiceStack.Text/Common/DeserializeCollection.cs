@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Linq;
+using Microsoft.Extensions.Primitives;
 
 namespace ServiceStack.Text.Common
 {
@@ -23,7 +24,9 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        public static ParseStringDelegate GetParseMethod(Type type)
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentMethod(Type type)
         {
             var collectionInterface = type.GetTypeWithGenericInterfaceOf(typeof(ICollection<>));
             if (collectionInterface == null)
@@ -49,13 +52,19 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-        public static ICollection<string> ParseStringCollection(string value, Type createType)
+        public static ICollection<string> ParseStringCollection(string value, Type createType) => ParseStringCollection(
+            new StringSegment(value), createType);
+
+        public static ICollection<string> ParseStringCollection(StringSegment value, Type createType)
         {
             var items = DeserializeArrayWithElements<string, TSerializer>.ParseGenericArray(value, Serializer.ParseString);
             return CollectionExtensions.CreateAndPopulate(createType, items);
         }
 
-        public static ICollection<int> ParseIntCollection(string value, Type createType)
+        public static ICollection<int> ParseIntCollection(string value, Type createType) => ParseIntCollection(
+            new StringSegment(value), createType);
+
+        public static ICollection<int> ParseIntCollection(StringSegment value, Type createType)
         {
             var items = DeserializeArrayWithElements<int, TSerializer>.ParseGenericArray(value, x => int.Parse(x));
             return CollectionExtensions.CreateAndPopulate(createType, items);
@@ -72,9 +81,13 @@ namespace ServiceStack.Text.Common
         private static Dictionary<Type, ParseCollectionDelegate> ParseDelegateCache
             = new Dictionary<Type, ParseCollectionDelegate>();
 
-        private delegate object ParseCollectionDelegate(string value, Type createType, ParseStringDelegate parseFn);
+        private delegate object ParseCollectionDelegate(StringSegment value, Type createType, ParseStringSegmentDelegate parseFn);
 
-        public static object ParseCollectionType(string value, Type createType, Type elementType, ParseStringDelegate parseFn)
+        public static object ParseCollectionType(string value, Type createType, Type elementType, ParseStringDelegate parseFn) =>
+            ParseCollectionType(new StringSegment(value), createType, elementType, v => parseFn(v.Value));
+
+
+        public static object ParseCollectionType(StringSegment value, Type createType, Type elementType, ParseStringSegmentDelegate parseFn)
         {
             ParseCollectionDelegate parseDelegate;
             if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))

@@ -18,6 +18,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Linq;
+using Microsoft.Extensions.Primitives;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Pools;
 
@@ -31,15 +32,17 @@ namespace ServiceStack.Text.Common
         const int KeyIndex = 0;
         const int ValueIndex = 1;
 
-        public static ParseStringDelegate GetParseMethod(Type type)
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentMethod(Type type)
         {
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(KeyValuePair<,>));
 
             var keyValuePairArgs = mapInterface.GenericTypeArguments();
-            var keyTypeParseMethod = Serializer.GetParseFn(keyValuePairArgs[KeyIndex]);
+            var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(keyValuePairArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 
-            var valueTypeParseMethod = Serializer.GetParseFn(keyValuePairArgs[ValueIndex]);
+            var valueTypeParseMethod = Serializer.GetParseStringSegmentFn(keyValuePairArgs[ValueIndex]);
             if (valueTypeParseMethod == null) return null;
 
             var createMapType = type.HasAnyTypeDefinitionsOf(typeof(KeyValuePair<,>))
@@ -94,11 +97,17 @@ namespace ServiceStack.Text.Common
         private static Dictionary<string, ParseKeyValuePairDelegate> ParseDelegateCache
             = new Dictionary<string, ParseKeyValuePairDelegate>();
 
-        private delegate object ParseKeyValuePairDelegate(string value, Type createMapType,
-            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn);
+        private delegate object ParseKeyValuePairDelegate(StringSegment value, Type createMapType,
+            ParseStringSegmentDelegate keyParseFn, ParseStringSegmentDelegate valueParseFn);
 
         public static object ParseKeyValuePairType(string value, Type createMapType, Type[] argTypes,
-            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn)
+            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn) =>
+            ParseKeyValuePairType(new StringSegment(value), createMapType, argTypes,
+                v => keyParseFn(v.Value), v => valueParseFn(v.Value));
+
+
+        public static object ParseKeyValuePairType(StringSegment value, Type createMapType, Type[] argTypes,
+            ParseStringSegmentDelegate keyParseFn, ParseStringSegmentDelegate valueParseFn)
         {
 
             ParseKeyValuePairDelegate parseDelegate;

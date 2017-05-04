@@ -473,6 +473,15 @@ namespace ServiceStack
             return null;
         }
 
+        public override ParseStringSegmentDelegate GetDictionaryParseStringSegmentMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(Hashtable))
+            {
+                return SerializerUtils<TSerializer>.ParseStringSegmentHashtable;
+            }
+            return null;
+        }
+
         public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))

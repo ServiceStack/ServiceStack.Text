@@ -17,6 +17,11 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Threading;
 using ServiceStack.Text.Json;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#endif
+using ServiceStack.Text.Support;
+
 
 namespace ServiceStack.Text.Common
 {
@@ -28,10 +33,17 @@ namespace ServiceStack.Text.Common
         private static Dictionary<Type, ParseListDelegate> ParseDelegateCache
             = new Dictionary<Type, ParseListDelegate>();
 
-        private delegate object ParseListDelegate(string value, Type createListType, ParseStringDelegate parseFn);
+        private delegate object ParseListDelegate(StringSegment value, Type createListType, ParseStringSegmentDelegate parseFn);
 
         public static Func<string, Type, ParseStringDelegate, object> GetListTypeParseFn(
             Type createListType, Type elementType, ParseStringDelegate parseFn)
+        {
+            var func = GetListTypeParseStringSegmentFn(createListType, elementType, v => parseFn(v.Value));
+            return (s, t, d) => func(new StringSegment(s), t, v => d(v.Value));
+        }
+
+        public static Func<StringSegment, Type, ParseStringSegmentDelegate, object> GetListTypeParseStringSegmentFn(
+            Type createListType, Type elementType, ParseStringSegmentDelegate parseFn)
         {
             ParseListDelegate parseDelegate;
             if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
@@ -56,32 +68,36 @@ namespace ServiceStack.Text.Common
 
         public static string StripList(string value)
         {   
-            StripList(new StringSegment(value)).Value;
+            return StripList(new StringSegment(value)).Value;
         }
 
-        public static string StripList(StringSegment value)
+        public static StringSegment StripList(StringSegment value)
         {
-            if (string.IsNullOrEmpty(value))
-                return null;
+            if (value.IsNullOrEmpty())
+                return default(StringSegment);
 
             value = value.Trim();
 
             const int startQuotePos = 1;
             const int endQuotePos = 2;
-            var ret = value[0] == JsWriter.ListStartChar
-                    ? value.Substring(startQuotePos, value.Length - endQuotePos)
+            var ret = value.GetChar(0) == JsWriter.ListStartChar
+                    ? value.Subsegment(startQuotePos, value.Length - endQuotePos)
                     : value;
-
             var pos = 0;
             Serializer.EatWhitespace(ret, ref pos);
-            var val = ret.Substring(pos, ret.Length - pos);
+            var val = ret.Subsegment(pos, ret.Length - pos);
             return val;
         }
 
         public static List<string> ParseStringList(string value)
         {
-            if ((value = StripList(value)) == null) return null;
-            if (value == string.Empty) return new List<string>();
+            return ParseStringList(new StringSegment(value));
+        }
+
+        public static List<string> ParseStringList(StringSegment value)
+        {
+            if (!(value = StripList(value)).HasValue) return null;
+            if (value.Length == 0) return new List<string>();
 
             var to = new List<string>();
             var valueLength = value.Length;
@@ -103,10 +119,12 @@ namespace ServiceStack.Text.Common
             return to;
         }
 
-        public static List<int> ParseIntList(string value)
+        public static List<int> ParseIntList(string value) => ParseIntList(new StringSegment(value));
+
+        public static List<int> ParseIntList(StringSegment value)
         {
-            if ((value = StripList(value)) == null) return null;
-            if (value == string.Empty) return new List<int>();
+            if (!(value = StripList(value)).HasValue) return null;
+            if (value.Length == 0) return new List<int>();
 
             var to = new List<int>();
             var valueLength = value.Length;
@@ -115,7 +133,7 @@ namespace ServiceStack.Text.Common
             while (i < valueLength)
             {
                 var elementValue = Serializer.EatValue(value, ref i);
-                to.Add(int.Parse(elementValue));
+                to.Add(int.Parse(elementValue.Value));
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref i);
             }
 
@@ -149,13 +167,13 @@ namespace ServiceStack.Text.Common
 
         public static ICollection<T> ParseGenericList(string value, Type createListType, ParseStringDelegate parseFn)
         {
-            ParseGenericList(new StringSegment(value), createListType, (val, s, l) => parseFn(val.Substring(s, l)));
+            return ParseGenericList(new StringSegment(value), createListType, v => parseFn(v.Value));
         }
 
 
-        public static ICollection<T> ParseGenericList(string value, int start, int length, Type createListType, ParseStringPartDelegate parseFn)
+        public static ICollection<T> ParseGenericList(StringSegment value, Type createListType, ParseStringSegmentDelegate parseFn)
         {
-            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
+            if (!(value = DeserializeListWithElements<TSerializer>.StripList(value)).HasValue) return null;
 
             var isReadOnly = createListType != null
                 && (createListType.IsGeneric() && createListType.GenericTypeDefinition() == typeof(ReadOnlyCollection<>));
@@ -164,26 +182,25 @@ namespace ServiceStack.Text.Common
                 ? new List<T>()
                 : (ICollection<T>)createListType.CreateInstance();
 
-            if (value == string.Empty)
+            if (value.Length == 0)
                 return isReadOnly ? (ICollection<T>)Activator.CreateInstance(createListType, to) : to;
 
             var tryToParseItemsAsPrimitiveTypes =
                 JsConfig.TryToParsePrimitiveTypeValues && typeof(T) == typeof(object);
 
-            if (!string.IsNullOrEmpty(value))
+            if (!value.IsNullOrEmpty())
             {
                 var valueLength = value.Length;
                 var i = 0;
                 Serializer.EatWhitespace(value, ref i);
-                if (i < valueLength && value[i] == JsWriter.MapStartChar)
+                if (i < valueLength && value.GetChar(i) == JsWriter.MapStartChar)
                 {
                     do
                     {
-                        var l = length;
-                        Serializer.EatTypeValue(value, ref i, ref l);
-                        if (l >= 0)
+                        var itemValue = Serializer.EatTypeValue(value, ref i);
+                        if (itemValue.HasValue)
                         {
-                            to.Add((T)parseFn(value, i, l));
+                            to.Add((T)parseFn(value));
                         }
                         else
                         {
@@ -194,24 +211,22 @@ namespace ServiceStack.Text.Common
                 }
                 else
                 {
-
+                    
                     while (i < valueLength)
                     {
                         var startIndex = i;
-                        var l = length;
-                        var elementValue = Serializer.EatValue(value, ref i, ref l);
-                        var elementValueLength = l;
-                        var listValueLength = l;
-                        if (listValueLength >= 0)
+                        var elementValue = Serializer.EatValue(value, ref i);
+                        var listValue = elementValue;
+                        if (listValue.HasValue)
                         {
                             if (tryToParseItemsAsPrimitiveTypes)
                             {
                                 Serializer.EatWhitespace(value, ref startIndex);
-                                to.Add((T)DeserializeType<TSerializer>.ParsePrimitive(value, i, elementValueLength, value[startIndex]));
+                                to.Add((T)DeserializeType<TSerializer>.ParsePrimitive(elementValue.Value, value.GetChar(startIndex)));
                             }
                             else
                             {
-                                to.Add((T)parseFn(value, i, elementValueLength));
+                                to.Add((T)parseFn(elementValue));
                             }
                         }
 
@@ -223,7 +238,7 @@ namespace ServiceStack.Text.Common
                             continue;
                         }
 
-                        if (listValueLength < 0)
+                        if (!listValue.HasValue)
                             to.Add(default(T));
                     }
 
@@ -239,16 +254,20 @@ namespace ServiceStack.Text.Common
     public static class DeserializeList<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private static readonly ParseStringDelegate CacheFn;
+        private static readonly ParseStringSegmentDelegate CacheFn;
 
         static DeserializeList()
         {
-            CacheFn = GetParseFn();
+            CacheFn = GetParseStringSegmentFn();
         }
 
-        public static ParseStringDelegate Parse => CacheFn;
+        public static ParseStringDelegate Parse => v => CacheFn(new StringSegment(v));
 
-        public static ParseStringDelegate GetParseFn()
+        public static ParseStringSegmentDelegate ParseStringSegment => CacheFn;
+
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn()
         {
             var listInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IList<>));
             if (listInterface == null)
@@ -263,13 +282,13 @@ namespace ServiceStack.Text.Common
 
             var elementType = listInterface.GenericTypeArguments()[0];
 
-            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseFn(elementType);
+            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSegmentFn(elementType);
             if (supportedTypeParseMethod != null)
             {
                 var createListType = typeof(T).HasAnyTypeDefinitionsOf(typeof(List<>), typeof(IList<>))
                     ? null : typeof(T);
 
-                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseFn(createListType, elementType, supportedTypeParseMethod);
+                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseStringSegmentFn(createListType, elementType, supportedTypeParseMethod);
                 return value => parseFn(value, createListType, supportedTypeParseMethod);
             }
 
@@ -281,16 +300,18 @@ namespace ServiceStack.Text.Common
     internal static class DeserializeEnumerable<T, TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private static readonly ParseStringDelegate CacheFn;
+        private static readonly ParseStringSegmentDelegate CacheFn;
 
         static DeserializeEnumerable()
         {
-            CacheFn = GetParseFn();
+            CacheFn = GetParseStringSegmentFn();
         }
 
-        public static ParseStringDelegate Parse => CacheFn;
+        public static ParseStringDelegate Parse => v => CacheFn(new StringSegment(v));
 
-        public static ParseStringDelegate GetParseFn()
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
             if (enumerableInterface == null)
@@ -305,12 +326,12 @@ namespace ServiceStack.Text.Common
 
             var elementType = enumerableInterface.GenericTypeArguments()[0];
 
-            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseFn(elementType);
+            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSegmentFn(elementType);
             if (supportedTypeParseMethod != null)
             {
                 const Type createListTypeWithNull = null; //Use conversions outside this class. see: Queue
 
-                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseFn(
+                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseStringSegmentFn(
                     createListTypeWithNull, elementType, supportedTypeParseMethod);
 
                 return value => parseFn(value, createListTypeWithNull, supportedTypeParseMethod);

@@ -1,4 +1,4 @@
-#if !NETSTATNDARD1_1
+#if !NETSTANDARD1_1
 
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
@@ -58,20 +58,20 @@ namespace ServiceStack.Text.Support
         {
             if (buffer == null)
             {
-                return ThrowHelper.GetArgumentNullException(ExceptionArgument.buffer);
+                return new ArgumentNullException(nameof(buffer));
             }
 
             if (offset < 0)
             {
-                return ThrowHelper.GetArgumentOutOfRangeException(ExceptionArgument.offset);
+                return new ArgumentOutOfRangeException(nameof(offset));
             }
 
             if (length < 0)
             {
-                return ThrowHelper.GetArgumentOutOfRangeException(ExceptionArgument.length);
+                return new ArgumentOutOfRangeException(nameof(length));
             }
 
-            return ThrowHelper.GetArgumentException(ExceptionResource.Argument_InvalidOffsetLength);
+            return new ArgumentException("invalid offset or length");
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace ServiceStack.Text.Support
         {
             if (text == null)
             {
-                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.text);
+                throw new ArgumentNullException(nameof(text));
             }
 
             int textLength = text.Length;
@@ -236,7 +236,7 @@ namespace ServiceStack.Text.Support
         {
             if (text == null)
             {
-                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.text);
+                throw new ArgumentNullException(nameof(text));
             }
 
             var textLength = text.Length;
@@ -258,7 +258,7 @@ namespace ServiceStack.Text.Support
         {
             if (text == null)
             {
-                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.text);
+                throw  new ArgumentNullException(nameof(text));
             }
 
             var textLength = text.Length;
@@ -281,17 +281,17 @@ namespace ServiceStack.Text.Support
         {
             if (!HasValue)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             if (offset < 0 || offset + length > Length)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             if (length < 0 || Offset + offset + length > Buffer.Length)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.length);
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
 
             return Buffer.Substring(Offset + offset, length);
@@ -308,17 +308,17 @@ namespace ServiceStack.Text.Support
         {
             if (!HasValue)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             if (offset < 0 || offset + length > Length)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             if (length < 0 || Offset + offset + length > Buffer.Length)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.length);
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
 
             return new StringSegment(Buffer, Offset + offset, length);
@@ -336,12 +336,12 @@ namespace ServiceStack.Text.Support
         {
             if (start < 0 || Offset + start > Buffer.Length)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+                throw new ArgumentOutOfRangeException(nameof(start));
             }
 
             if (count < 0 || Offset + start + count > Buffer.Length)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count);
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
             var index = Buffer.IndexOf(c, start + Offset, count);
             if (index != -1)

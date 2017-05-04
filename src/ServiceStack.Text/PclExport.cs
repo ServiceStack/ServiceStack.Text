@@ -440,7 +440,19 @@ namespace ServiceStack
             return null;
         }
 
+        public virtual ParseStringSegmentDelegate GetDictionaryParseStringSegmentMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
         public virtual ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
+        public virtual ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
             where TSerializer : ITypeSerializer
         {
             return null;
