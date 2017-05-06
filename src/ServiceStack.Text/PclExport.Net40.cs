@@ -130,12 +130,30 @@ namespace ServiceStack
 #elif __IOS__
 #elif __MAC__
 #else
-            //Automatically register license key stored in <appSettings/>
-            var licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
-            if (!string.IsNullOrEmpty(licenceKeyText))
+            string licenceKeyText;
+            try
             {
-                LicenseUtils.RegisterLicense(licenceKeyText);
-                return;
+                //Automatically register license key stored in <appSettings/>
+                licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
+                if (!string.IsNullOrEmpty(licenceKeyText))
+                {
+                    LicenseUtils.RegisterLicense(licenceKeyText);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                licenceKeyText = Environment.GetEnvironmentVariable(EnvironmentKey)?.Trim();
+                if (string.IsNullOrEmpty(licenceKeyText))
+                    throw;
+                try
+                {
+                    LicenseUtils.RegisterLicense(licenceKeyText);
+                }
+                catch
+                {
+                    throw ex;
+                }
             }
 
             //or SERVICESTACK_LICENSE Environment variable
