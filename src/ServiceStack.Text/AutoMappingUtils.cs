@@ -475,6 +475,9 @@ namespace ServiceStack
 #endif
             }
 
+            if (type.IsAbstract())
+                return null;
+
             // If we have hit our recursion limit for this type, then return null
             int recurseLevel; // will get set to 0 if TryGetValue() fails
             recursionInfo.TryGetValue(type, out recurseLevel);
