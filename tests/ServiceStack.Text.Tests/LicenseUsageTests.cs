@@ -20,11 +20,7 @@ namespace ServiceStack.Text.Tests
         [TearDown]
         public void TearDown()
         {
-#if NETCORE
-            Licensing.RegisterLicense(System.Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE"));
-#else
-            Licensing.RegisterLicense(new AppSettings().GetString("servicestack:license"));
-#endif
+            LicenseHelper.RegisterLicense();
         }
 
         [Test]
@@ -87,11 +83,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Allows_serialization_of_21_types()
         {
-#if NETCORE
-            Licensing.RegisterLicense(System.Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE"));
-#else
-            Licensing.RegisterLicense(new AppSettings().GetString("servicestack:license"));
-#endif
+            LicenseHelper.RegisterLicense();
 
             Serialize20();
             Serialize20();
@@ -100,6 +92,22 @@ namespace ServiceStack.Text.Tests
 
             new T21().ToJson();
             "{\"Id\":1}".FromJson<T21>();
+        }
+    }
+
+    public static class LicenseHelper
+    {
+        public static void RegisterLicense()
+        {
+            var envKey = System.Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE");
+            if (envKey != null)
+            {
+                Licensing.RegisterLicense(envKey);
+            }
+
+#if !NETCORE
+            Licensing.RegisterLicense(new AppSettings().GetString("servicestack:license"));
+#endif
         }
     }
     
