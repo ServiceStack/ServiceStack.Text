@@ -351,6 +351,11 @@ namespace ServiceStack.Text.Json
             return value;
         }
 
+        public string ParseString(StringSegment value)
+        {
+            return value.IsNullOrEmpty() ? value.Value : ParseRawString(value.Value);
+        }
+
         public string ParseString(string value)
         {
             return string.IsNullOrEmpty(value) ? value : ParseRawString(value);
@@ -404,12 +409,14 @@ namespace ServiceStack.Text.Json
             return UnEscapeJsonString(value, ref i);
         }
 
-        public string UnescapeSafeString(string value)
+        public string UnescapeSafeString(string value) => UnescapeSafeString(new StringSegment(value));
+
+        public string UnescapeSafeString(StringSegment value)
         {
-            if (string.IsNullOrEmpty(value)) return value;
-            return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
+            if (value.IsNullOrEmpty()) return value.Value;
+            return value.GetChar(0) == JsonUtils.QuoteChar && value.GetChar(value.Length - 1) == JsonUtils.QuoteChar
                 ? value.Substring(1, value.Length - 2)
-                : value;
+                : value.Value;
 
             //if (value[0] != JsonUtils.QuoteChar)
             //    throw new Exception("Invalid unquoted string starting with: " + value.SafeSubstring(50));
@@ -419,9 +426,9 @@ namespace ServiceStack.Text.Json
 
         static readonly char[] IsSafeJsonChars = new[] { JsonUtils.QuoteChar, JsonUtils.EscapeChar };
 
-        internal static string ParseJsonString(string json, ref int index)
+        internal static string ParseJsonString(StringSegment json, ref int index)
         {
-            for (; index < json.Length; index++) { var ch = json[index]; if (ch >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[ch]) break; } //Whitespace inline
+            for (; index < json.Length; index++) { var ch = json.GetChar(index); if (ch >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[ch]) break; } //Whitespace inline
 
             return UnEscapeJsonString(json, ref index);
         }
@@ -598,26 +605,30 @@ namespace ServiceStack.Text.Json
             return EatValue(value, ref i);
         }
 
-        public bool EatMapStartChar(string value, ref int i)
+        public bool EatMapStartChar(string value, ref int i) => EatMapStartChar(new StringSegment(value), ref i);
+
+        public bool EatMapStartChar(StringSegment value, ref int i)
         {
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
-            return value[i++] == JsWriter.MapStartChar;
+            for (; i < value.Length; i++) { var c = value.GetChar(i); if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            return value.GetChar(i++) == JsWriter.MapStartChar;
         }
 
-        public string EatMapKey(string value, ref int i)
+        public string EatMapKey(string value, ref int i) => EatMapKey(new StringSegment(value), ref i).Value;
+
+        public StringSegment EatMapKey(StringSegment value, ref int i)
         {
             var valueLength = value.Length;
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value.GetChar(i); if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
 
             var tokenStartPos = i;
-            var valueChar = value[i];
+            var valueChar = value.GetChar(i);
 
             switch (valueChar)
             {
                 //If we are at the end, return.
                 case JsWriter.ItemSeperator:
                 case JsWriter.MapEndChar:
-                    return null;
+                    return default(StringSegment);
 
                 //Is Within Quotes, i.e. "..."
                 case JsWriter.QuoteChar:
@@ -627,7 +638,7 @@ namespace ServiceStack.Text.Json
             //Is Value
             while (++i < valueLength)
             {
-                valueChar = value[i];
+                valueChar = value.GetChar(i);
 
                 if (valueChar == JsWriter.ItemSeperator
                     //If it doesn't have quotes it's either a keyword or number so also has a ws boundary
@@ -638,14 +649,17 @@ namespace ServiceStack.Text.Json
                 }
             }
 
-            return value.Substring(tokenStartPos, i - tokenStartPos);
+            return value.Subsegment(tokenStartPos, i - tokenStartPos);
         }
 
-        public bool EatMapKeySeperator(string value, ref int i)
+        public bool EatMapKeySeperator(string value, ref int i) => EatMapKeySeperator(new StringSegment(value), ref i);
+
+
+        public bool EatMapKeySeperator(StringSegment value, ref int i)
         {
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value.GetChar(i); if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
             if (value.Length == i) return false;
-            return value[i++] == JsWriter.MapKeySeperator;
+            return value.GetChar(i++) == JsWriter.MapKeySeperator;
         }
 
         public bool EatItemSeperatorOrMapEndChar(string value, ref int i)

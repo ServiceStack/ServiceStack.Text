@@ -12,17 +12,24 @@
 
 using System;
 using System.Reflection;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Common
 {
     public class DeserializeTypeUtils
     {
-        public static ParseStringDelegate GetParseMethod(Type type)
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentMethod(Type type)
         {
             var typeConstructor = GetTypeStringConstructor(type);
             if (typeConstructor != null)
             {
-                return value => typeConstructor.Invoke(new object[] { value });
+                return value => typeConstructor.Invoke(new object[] { value.Value });
             }
 
             return null;

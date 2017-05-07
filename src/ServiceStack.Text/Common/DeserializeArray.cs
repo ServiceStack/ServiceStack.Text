@@ -45,7 +45,7 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn.Invoke;
 
             var genericType = typeof(DeserializeArrayWithElements<,>).MakeGenericType(type, typeof(TSerializer));
-            var mi = genericType.GetStaticMethod("ParseGenericArray");
+            var mi = genericType.GetStaticMethod("ParseGenericArray", new [] {typeof(StringSegment), typeof(ParseStringSegmentDelegate)});
             parseFn = (ParseArrayOfElementsDelegate)mi.CreateDelegate(typeof(ParseArrayOfElementsDelegate));
 
             Dictionary<Type, ParseArrayOfElementsDelegate> snapshot, newCache;
@@ -120,25 +120,27 @@ namespace ServiceStack.Text.Common
     internal static class DeserializeArray<TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private static Dictionary<Type, ParseStringDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringDelegate>();
+        private static Dictionary<Type, ParseStringSegmentDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringSegmentDelegate>();
 
-        public static ParseStringDelegate GetParseFn(Type type)
+        public static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn(Type type)
         {
-            ParseStringDelegate parseFn;
+            ParseStringSegmentDelegate parseFn;
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn;
 
             var genericType = typeof(DeserializeArray<,>).MakeGenericType(type, typeof(TSerializer));
 
-            var mi = genericType.GetStaticMethod("GetParseFn");
-            var parseFactoryFn = (Func<ParseStringDelegate>)mi.MakeDelegate(
-                typeof(Func<ParseStringDelegate>));
+            var mi = genericType.GetStaticMethod("GetParseStringSegmentFn");
+            var parseFactoryFn = (Func<ParseStringSegmentDelegate>)mi.MakeDelegate(
+                typeof(Func<ParseStringSegmentDelegate>));
             parseFn = parseFactoryFn();
 
-            Dictionary<Type, ParseStringDelegate> snapshot, newCache;
+            Dictionary<Type, ParseStringSegmentDelegate> snapshot, newCache;
             do
             {
                 snapshot = ParseDelegateCache;
-                newCache = new Dictionary<Type, ParseStringDelegate>(ParseDelegateCache);
+                newCache = new Dictionary<Type, ParseStringSegmentDelegate>(ParseDelegateCache);
                 newCache[type] = parseFn;
 
             } while (!ReferenceEquals(
@@ -164,11 +166,7 @@ namespace ServiceStack.Text.Common
 
         public static ParseStringSegmentDelegate ParseStringSegment => CacheFn;
 
-
-        public static ParseStringDelegate GetParseFn()
-        {
-            return v => GetParseStringSegmentFn()(new StringSegment(v));
-        }
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(new StringSegment(v));
 
         public static ParseStringSegmentDelegate GetParseStringSegmentFn()
         {

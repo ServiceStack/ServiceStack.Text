@@ -62,6 +62,7 @@ namespace ServiceStack.Text.Common
 
         string ParseRawString(string value);
         string ParseString(string value);
+        string ParseString(StringSegment value);
         string UnescapeString(string value);
         string UnescapeString(StringSegment value);
         string UnescapeSafeString(string value);

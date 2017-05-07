@@ -18,6 +18,7 @@ using System.Net;
 #if NETSTANDARD1_3
 using System.Collections.Specialized;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Primitives;
 #endif
 
 namespace ServiceStack
@@ -468,18 +469,27 @@ namespace ServiceStack
         {
             if (type == typeof(StringCollection))
             {
+                return v => ParseStringCollection<TSerializer>(new StringSegment(v));
+            }
+            return null;
+        }
+
+        public override ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(StringCollection))
+            {
                 return ParseStringCollection<TSerializer>;
             }
             return null;
         }
 
-        private static StringCollection ParseStringCollection<TSerializer>(string value) where TSerializer : ITypeSerializer
+        private static StringCollection ParseStringCollection<TSerializer>(StringSegment value) where TSerializer : ITypeSerializer
         {
-            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
+            if (!(value = DeserializeListWithElements<TSerializer>.StripList(value)).HasValue) return null;
 
             var result = new StringCollection();
 
-            if (value != String.Empty)
+            if (value.Length > 0)
             {
                 foreach (var item in DeserializeListWithElements<TSerializer>.ParseStringList(value))
                 {
@@ -498,6 +508,17 @@ namespace ServiceStack
                 return DeserializeDynamic<TSerializer>.Parse;
             }
 
+            return null;
+        }
+
+        public override ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+        {
+            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
+            {
+                return DeserializeDynamic<TSerializer>.ParseStringSegment;
+            }
+            
             return null;
         }
 

@@ -17,10 +17,13 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
-using System.Linq;
-using Microsoft.Extensions.Primitives;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Pools;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#endif
+using ServiceStack.Text.Support;
+
 
 namespace ServiceStack.Text.Common
 {
@@ -53,9 +56,15 @@ namespace ServiceStack.Text.Common
 
         public static object ParseKeyValuePair<TKey, TValue>(
             string value, Type createMapType,
-            ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn)
+            ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn) =>
+            ParseKeyValuePair<TKey, TValue>(new StringSegment(value), createMapType,
+                v => parseKeyFn(v.Value), v => parseValueFn(v.Value));
+
+        public static object ParseKeyValuePair<TKey, TValue>(
+            StringSegment value, Type createMapType,
+            ParseStringSegmentDelegate parseKeyFn, ParseStringSegmentDelegate parseValueFn)
         {
-            if (value == null) return default(KeyValuePair<TKey, TValue>);
+            if (!value.HasValue) return default(KeyValuePair<TKey, TValue>);
 
             var index = VerifyAndGetStartIndex(value, createMapType);
 
@@ -70,9 +79,9 @@ namespace ServiceStack.Text.Common
                 Serializer.EatMapKeySeperator(value, ref index);
                 var keyElementValue = Serializer.EatTypeValue(value, ref index);
 
-                if (key.CompareIgnoreCase("key") == 0)
+                if (key.CompareIgnoreCase("key"))
                     keyValue = (TKey)parseKeyFn(keyElementValue);
-                else if (key.CompareIgnoreCase("value") == 0)
+                else if (key.CompareIgnoreCase("value"))
                     valueValue = (TValue)parseValueFn(keyElementValue);
                 else
                     throw new SerializationException("Incorrect KeyValuePair property: " + key);
@@ -82,7 +91,7 @@ namespace ServiceStack.Text.Common
             return new KeyValuePair<TKey, TValue>(keyValue, valueValue);
         }
 
-        private static int VerifyAndGetStartIndex(string value, Type createMapType)
+        private static int VerifyAndGetStartIndex(StringSegment value, Type createMapType)
         {
             var index = 0;
             if (!Serializer.EatMapStartChar(value, ref index))
@@ -115,7 +124,8 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-            var mi = typeof(DeserializeKeyValuePair<TSerializer>).GetStaticMethod("ParseKeyValuePair");
+            var mi = typeof(DeserializeKeyValuePair<TSerializer>).GetStaticMethod("ParseKeyValuePair",
+                new [] {typeof(StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate), typeof(ParseStringSegmentDelegate)});
             var genericMi = mi.MakeGenericMethod(argTypes);
             parseDelegate = (ParseKeyValuePairDelegate)genericMi.MakeDelegate(typeof(ParseKeyValuePairDelegate));
 

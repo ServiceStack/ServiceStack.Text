@@ -29,7 +29,9 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
+        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig) => v => GetParseStringSegmentMethod(typeConfig)(new StringSegment(v));
+
+        internal static ParseStringSegmentDelegate GetParseStringSegmentMethod(TypeConfig typeConfig)
         {
             var type = typeConfig.Type;
 
@@ -41,8 +43,8 @@ namespace ServiceStack.Text.Common
                 return value => ctorFn();
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-                ? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
-                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, map);
+                ? (ParseStringSegmentDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value.Value, ctorFn, map))
+                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value.Value, ctorFn, map);
         }
 
         public static object ObjectStringToType(string strType) => ObjectStringToType(new StringSegment(strType));
@@ -57,7 +59,7 @@ namespace ServiceStack.Text.Common
                 return propertyValue;
             }
 
-            if (JsConfig.ConvertObjectTypesIntoStringDictionary && strType.IsNullOrEmpty())
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !strType.IsNullOrEmpty())
             {
                 if (strType.GetChar(0) == JsWriter.MapStartChar)
                 {
@@ -79,16 +81,19 @@ namespace ServiceStack.Text.Common
                 : null) ?? Serializer.UnescapeString(strType);
         }
 
-        public static Type ExtractType(string strType)
-        {
-            if (strType == null || strType.Length <= 1) return null;
+        public static Type ExtractType(string strType) => ExtractType(new StringSegment(strType));
 
-            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType[1]);
+        //TODO: optimize ExtractType
+        public static Type ExtractType(StringSegment strType)
+        {
+            if (!strType.HasValue || strType.Length <= 1) return null;
+
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType.GetChar(1));
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
                 if (pos >= 0)
-                    strType = "{" + strType.Substring(pos);
+                    strType = new StringSegment("{" + strType.Substring(pos, strType.Length - pos));
             }
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
@@ -113,15 +118,17 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-        public static object ParseAbstractType<T>(string value)
+        public static object ParseAbstractType<T>(string value) => ParseAbstractType<T>(new StringSegment(value));
+
+        public static object ParseAbstractType<T>(StringSegment value)
         {
             if (typeof(T).IsAbstract())
             {
-                if (string.IsNullOrEmpty(value)) return null;
+                if (value.IsNullOrEmpty()) return null;
                 var concreteType = ExtractType(value);
                 if (concreteType != null)
                 {
-                    return Serializer.GetParseFn(concreteType)(value);
+                    return Serializer.GetParseStringSegmentFn(concreteType)(value);
                 }
                 Tracer.Instance.WriteWarning(
                     "Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
@@ -177,6 +184,8 @@ namespace ServiceStack.Text.Common
 
             return Serializer.UnescapeString(value);
         }
+
+        public static object ParsePrimitive(StringSegment value) => ParsePrimitive(value.Value);
 
         public static object ParsePrimitive(string value)
         {
@@ -263,15 +272,18 @@ namespace ServiceStack.Text.Common
         internal Type PropertyType;
 
         public static Type ExtractType(ITypeSerializer Serializer, string strType)
-        {
-            if (strType == null || strType.Length <= 1) return null;
+            => ExtractType(Serializer, new StringSegment(strType));
 
-            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType[1]);
+        public static Type ExtractType(ITypeSerializer Serializer, StringSegment strType)
+        {
+            if (!strType.HasValue || strType.Length <= 1) return null;
+
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType.GetChar(1));
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
                 if (pos >= 0)
-                    strType = "{" + strType.Substring(pos);
+                    strType = new StringSegment("{" + strType.Substring(pos));
             }
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
@@ -279,7 +291,7 @@ namespace ServiceStack.Text.Common
                 && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.EatValue(strType, ref propIndex);
+                var typeName = Serializer.EatValue(strType, ref propIndex).Value;
                 var type = JsConfig.TypeFinder(typeName);
 
                 if (type == null)

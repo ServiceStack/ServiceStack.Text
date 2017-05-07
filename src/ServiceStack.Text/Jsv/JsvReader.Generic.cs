@@ -5,6 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using ServiceStack.Text.Common;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Jsv
 {
@@ -14,7 +19,9 @@ namespace ServiceStack.Text.Jsv
 
         private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
-        public static ParseStringDelegate GetParseFn(Type type)
+        public static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn(Type type)
         {
             ParseFactoryDelegate parseFactoryFn;
             ParseFnCache.TryGetValue(type, out parseFactoryFn);
@@ -22,7 +29,7 @@ namespace ServiceStack.Text.Jsv
             if (parseFactoryFn != null) return parseFactoryFn();
 
             var genericType = typeof(JsvReader<>).MakeGenericType(type);
-            var mi = genericType.GetStaticMethod("GetParseFn");
+            var mi = genericType.GetStaticMethod("GetParseStringSegmentFn");
             parseFactoryFn = (ParseFactoryDelegate)mi.MakeDelegate(typeof(ParseFactoryDelegate));
 
             Dictionary<Type, ParseFactoryDelegate> snapshot, newCache;
@@ -41,7 +48,7 @@ namespace ServiceStack.Text.Jsv
 
     internal static class JsvReader<T>
     {
-        private static ParseStringDelegate ReadFn;
+        private static ParseStringSegmentDelegate ReadFn;
 
         static JsvReader()
         {
@@ -55,15 +62,19 @@ namespace ServiceStack.Text.Jsv
             if (JsvReader.Instance == null)
                 return;
 
-            ReadFn = JsvReader.Instance.GetParseFn<T>();
+            ReadFn = JsvReader.Instance.GetParseStringSegmentFn<T>();
         }
 
         public static ParseStringDelegate GetParseFn()
         {
-            return ReadFn ?? Parse;
+            return ReadFn != null ? (ParseStringDelegate)(v => ReadFn(new StringSegment(v))) : Parse;
         }
 
-        public static object Parse(string value)
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn() => ReadFn ?? ParseStringSegment;
+
+        public static object Parse(string value) => ParseStringSegment(new StringSegment(value));
+
+        public static object ParseStringSegment(StringSegment value)
         {
             TypeConfig<T>.Init();
 
@@ -78,9 +89,7 @@ namespace ServiceStack.Text.Jsv
                 Refresh();
             }
 
-            return value == null
-                       ? null
-                       : ReadFn(value);
+            return value.HasValue ? ReadFn(value) : null;
         }
     }
 }

@@ -60,10 +60,7 @@ namespace ServiceStack.Text.Common
 
         private static readonly ParseStringDelegate CacheFn;
 
-        public static ParseStringDelegate Parse
-        {
-            get { return CacheFn; }
-        }
+        public static ParseStringDelegate Parse => CacheFn;
 
         static StaticParseMethod()
         {

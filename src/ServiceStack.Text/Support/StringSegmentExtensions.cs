@@ -42,10 +42,10 @@ namespace ServiceStack.Text.Support
             }
         }
 
-        public static int IndexOfAny(this StringSegment value, char[] chars, int start)
-        {
-            return value.IndexOfAny(chars, start, value.Length);
-        }
+        public static int IndexOfAny(this StringSegment value, char[] chars, int start) => value.IndexOfAny(chars, start, value.Length - start);
 
+        public static string Substring(this StringSegment value, int pos) => value.Substring(pos, value.Length - pos);
+
+        public static bool CompareIgnoreCase(this StringSegment value, string text) => value.Equals(text, StringComparison.OrdinalIgnoreCase);
     }
 }

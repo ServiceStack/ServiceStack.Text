@@ -5,6 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Support;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Json
 {
@@ -14,7 +20,9 @@ namespace ServiceStack.Text.Json
 
         private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
-        internal static ParseStringDelegate GetParseFn(Type type)
+        internal static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(new StringSegment(v));
+
+        internal static ParseStringSegmentDelegate GetParseStringSegmentFn(Type type)
         {
             ParseFactoryDelegate parseFactoryFn;
             ParseFnCache.TryGetValue(type, out parseFactoryFn);
@@ -22,7 +30,7 @@ namespace ServiceStack.Text.Json
             if (parseFactoryFn != null) return parseFactoryFn();
 
             var genericType = typeof(JsonReader<>).MakeGenericType(type);
-            var mi = genericType.GetStaticMethod("GetParseFn");
+            var mi = genericType.GetStaticMethod("GetParseStringSegmentFn");    
             parseFactoryFn = (ParseFactoryDelegate)mi.MakeDelegate(typeof(ParseFactoryDelegate));
 
             Dictionary<Type, ParseFactoryDelegate> snapshot, newCache;
@@ -41,7 +49,7 @@ namespace ServiceStack.Text.Json
 
     public static class JsonReader<T>
     {
-        private static ParseStringDelegate ReadFn;
+        private static ParseStringSegmentDelegate ReadFn;
 
         static JsonReader()
         {
@@ -55,15 +63,19 @@ namespace ServiceStack.Text.Json
             if (JsonReader.Instance == null)
                 return;
 
-            ReadFn = JsonReader.Instance.GetParseFn<T>();
+            ReadFn = JsonReader.Instance.GetParseStringSegmentFn<T>();
         }
 
-        public static ParseStringDelegate GetParseFn()
-        {
-            return ReadFn ?? Parse;
-        }
+        public static ParseStringDelegate GetParseFn() => 
+            ReadFn != null 
+            ? (ParseStringDelegate)(v => ReadFn(new StringSegment(v))) 
+            : Parse;
 
-        public static object Parse(string value)
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn() => ReadFn ?? Parse;
+
+        public static object Parse(string value) => Parse(new StringSegment(value));
+
+        public static object Parse(StringSegment value)
         {
             TypeConfig<T>.Init();
 
@@ -71,11 +83,11 @@ namespace ServiceStack.Text.Json
             {
                 if (typeof(T).IsAbstract() || typeof(T).IsInterface())
                 {
-                    if (string.IsNullOrEmpty(value)) return null;
+                    if (value.IsNullOrEmpty()) return null;
                     var concreteType = DeserializeType<JsonTypeSerializer>.ExtractType(value);
                     if (concreteType != null)
                     {
-                        return JsonReader.GetParseFn(concreteType)(value);
+                        return JsonReader.GetParseStringSegmentFn(concreteType)(value);
                     }
                     throw new NotSupportedException("Can not deserialize interface type: "
                         + typeof(T).Name);
@@ -84,9 +96,9 @@ namespace ServiceStack.Text.Json
                 Refresh();
             }
 
-            return value == null
-                    ? null
-                    : ReadFn(value);
+            return value.HasValue
+                    ? ReadFn(value)
+                    : null;
         }
     }
 }

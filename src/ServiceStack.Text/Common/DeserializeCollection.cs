@@ -15,7 +15,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Linq;
+#if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -40,7 +44,7 @@ namespace ServiceStack.Text.Common
                 return value => ParseIntCollection(value, type);
 
             var elementType = collectionInterface.GenericTypeArguments()[0];
-            var supportedTypeParseMethod = Serializer.GetParseFn(elementType);
+            var supportedTypeParseMethod = Serializer.GetParseStringSegmentFn(elementType);
             if (supportedTypeParseMethod != null)
             {
                 var createCollectionType = type.HasAnyTypeDefinitionsOf(typeof(ICollection<>))
@@ -66,13 +70,16 @@ namespace ServiceStack.Text.Common
 
         public static ICollection<int> ParseIntCollection(StringSegment value, Type createType)
         {
-            var items = DeserializeArrayWithElements<int, TSerializer>.ParseGenericArray(value, x => int.Parse(x));
+            var items = DeserializeArrayWithElements<int, TSerializer>.ParseGenericArray(value, x => int.Parse(x.Value));
             return CollectionExtensions.CreateAndPopulate(createType, items);
         }
 
-        public static ICollection<T> ParseCollection<T>(string value, Type createType, ParseStringDelegate parseFn)
+        public static ICollection<T> ParseCollection<T>(string value, Type createType, ParseStringDelegate parseFn) =>
+            ParseCollection<T>(new StringSegment(value), createType, v => parseFn(v.Value));
+
+        public static ICollection<T> ParseCollection<T>(StringSegment value, Type createType, ParseStringSegmentDelegate parseFn)
         {
-            if (value == null) return null;
+            if (!value.HasValue) return null;
 
             var items = DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(value, parseFn);
             return CollectionExtensions.CreateAndPopulate(createType, items);
@@ -93,7 +100,8 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
                 return parseDelegate(value, createType, parseFn);
 
-            var mi = typeof(DeserializeCollection<TSerializer>).GetStaticMethod("ParseCollection");
+            var mi = typeof(DeserializeCollection<TSerializer>).GetStaticMethod("ParseCollection", 
+                new[] { typeof (StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate)});
             var genericMi = mi.MakeGenericMethod(new[] { elementType });
             parseDelegate = (ParseCollectionDelegate)genericMi.MakeDelegate(typeof(ParseCollectionDelegate));
 

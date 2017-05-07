@@ -86,20 +86,20 @@ namespace ServiceStack.Text.Common
 
                 if (type.HasAnyTypeDefinitionsOf(typeof(Queue<>))
                     || type.HasAnyTypeDefinitionsOf(typeof(Stack<>)))
-                    return DeserializeSpecializedCollections<T, TSerializer>.Parse;
+                    return DeserializeSpecializedCollections<T, TSerializer>.ParseStringSegment;
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(KeyValuePair<,>)))
-                    return DeserializeKeyValuePair<TSerializer>.GetParseMethod(type);
+                    return DeserializeKeyValuePair<TSerializer>.GetParseStringSegmentMethod(type);
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
-                    return DeserializeEnumerable<T, TSerializer>.Parse;
+                    return DeserializeEnumerable<T, TSerializer>.ParseStringSegment;
 
-                var customFn = DeserializeCustomGenericType<TSerializer>.GetParseMethod(type);
+                var customFn = DeserializeCustomGenericType<TSerializer>.GetParseStringSegmentMethod(type);
                 if (customFn != null)
                     return customFn;
             }
 
-            var pclParseFn = PclExport.Instance.GetJsReaderParseMethod<TSerializer>(typeof(T));
+            var pclParseFn = PclExport.Instance.GetJsReaderParseStringSegmentMethod<TSerializer>(typeof(T));
             if (pclParseFn != null)
                 return pclParseFn;
 
@@ -107,14 +107,14 @@ namespace ServiceStack.Text.Common
                 && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
             if (isDictionary)
             {
-                return DeserializeDictionary<TSerializer>.GetParseMethod(type);
+                return DeserializeDictionary<TSerializer>.GetParseStringSegmentMethod(type);
             }
 
             var isEnumerable = typeof(T).AssignableFrom(typeof(IEnumerable))
                 || typeof(T).HasInterface(typeof(IEnumerable));
             if (isEnumerable)
             {
-                var parseFn = DeserializeSpecializedCollections<T, TSerializer>.Parse;
+                var parseFn = DeserializeSpecializedCollections<T, TSerializer>.ParseStringSegment;
                 if (parseFn != null) return parseFn;
             }
 
@@ -131,11 +131,11 @@ namespace ServiceStack.Text.Common
                     return value => staticParseMethod(Serializer.UnescapeSafeString(value));
             }
 
-            var typeConstructor = DeserializeType<TSerializer>.GetParseMethod(TypeConfig<T>.GetState());
+            var typeConstructor = DeserializeType<TSerializer>.GetParseStringSegmentMethod(TypeConfig<T>.GetState());
             if (typeConstructor != null)
                 return typeConstructor;
 
-            var stringConstructor = DeserializeTypeUtils.GetParseMethod(type);
+            var stringConstructor = DeserializeTypeUtils.GetParseStringSegmentMethod(type);
             if (stringConstructor != null) return stringConstructor;
 
             return DeserializeType<TSerializer>.ParseAbstractType<T>;

@@ -18,42 +18,21 @@ namespace ServiceStack.Text.Jsv
     {
         public static ITypeSerializer Instance = new JsvTypeSerializer();
 
-        public bool IncludeNullValues
-        {
-            get { return false; } //Doesn't support null values, treated as "null" string literal
-        }
+        public bool IncludeNullValues => false;
 
-        public bool IncludeNullValuesInDictionaries
-        {
-            get { return false; } //Doesn't support null values, treated as "null" string literal
-        }
+        public bool IncludeNullValuesInDictionaries => false;
 
-        public string TypeAttrInObject
-        {
-            get { return JsConfig.JsvTypeAttrInObject; }
-        }
+        public string TypeAttrInObject => JsConfig.JsvTypeAttrInObject;
 
-        internal static string GetTypeAttrInObject(string typeAttr)
-        {
-            return string.Format("{{{0}:", typeAttr);
-        }
+        internal static string GetTypeAttrInObject(string typeAttr) => $"{{{typeAttr}:";
 
-        public WriteObjectDelegate GetWriteFn<T>()
-        {
-            return JsvWriter<T>.WriteFn();
-        }
+        public WriteObjectDelegate GetWriteFn<T>() => JsvWriter<T>.WriteFn();
 
-        public WriteObjectDelegate GetWriteFn(Type type)
-        {
-            return JsvWriter.GetWriteFn(type);
-        }
+        public WriteObjectDelegate GetWriteFn(Type type) => JsvWriter.GetWriteFn(type);
 
         static readonly TypeInfo DefaultTypeInfo = new TypeInfo { EncodeMapKey = false };
 
-        public TypeInfo GetTypeInfo(Type type)
-        {
-            return DefaultTypeInfo;
-        }
+        public TypeInfo GetTypeInfo(Type type) => DefaultTypeInfo;
 
         public void WriteRawString(TextWriter writer, string value)
         {
@@ -279,83 +258,67 @@ namespace ServiceStack.Text.Jsv
             return value;
         }
 
-        public ParseStringDelegate GetParseFn<T>()
-        {
-            return JsvReader.Instance.GetParseFn<T>();
-        }
+        public ParseStringDelegate GetParseFn<T>() => JsvReader.Instance.GetParseFn<T>();
 
-        public ParseStringDelegate GetParseFn(Type type)
-        {
-            return JsvReader.GetParseFn(type);
-        }
+        public ParseStringDelegate GetParseFn(Type type) => JsvReader.GetParseFn(type);
 
-        public string UnescapeSafeString(string value)
-        {
-            return value.FromCsvField();
-        }
+        public ParseStringSegmentDelegate GetParseStringSegmentFn<T>() => JsvReader.Instance.GetParseStringSegmentFn<T>();
 
-        public string ParseRawString(string value)
-        {
-            return value;
-        }
+        public ParseStringSegmentDelegate GetParseStringSegmentFn(Type type) => JsvReader.GetParseStringSegmentFn(type);
 
-        public string ParseString(string value)
-        {
-            return value.FromCsvField();
-        }
+        public string UnescapeSafeString(string value) => value.FromCsvField();
 
-        public string UnescapeString(string value)
-        {
-            return value.FromCsvField();
-        }
+        public string UnescapeSafeString(StringSegment value) => value.Value.FromCsvField();
 
-        public string UnescapeString(StringSegment value)
-        {
-            return value.Value.FromCsvField();
-        }
+        public string ParseRawString(string value) => value;
 
-        public string EatTypeValue(string value, ref int i)
-        {
-            return EatValue(new StringSegment(value), ref i).Value;
-        }
+        public string ParseString(string value) => value.FromCsvField();
 
-        public StringSegment EatTypeValue(StringSegment value, ref int i)
-        {
-            return EatValue(value, ref i);
-        }
+        public string ParseString(StringSegment value) => value.Value.FromCsvField();
 
+        public string UnescapeString(string value) => value.FromCsvField();
 
-        public bool EatMapStartChar(string value, ref int i)
+        public string UnescapeString(StringSegment value) => value.Value.FromCsvField();
+
+        public string EatTypeValue(string value, ref int i) => EatValue(new StringSegment(value), ref i).Value;
+
+        public StringSegment EatTypeValue(StringSegment value, ref int i) => EatValue(value, ref i);
+
+        public bool EatMapStartChar(string value, ref int i) => EatMapStartChar(new StringSegment(value), ref i);
+
+        public bool EatMapStartChar(StringSegment value, ref int i)
         {
-            var success = value[i] == JsWriter.MapStartChar;
+            var success = value.GetChar(i) == JsWriter.MapStartChar;
             if (success) i++;
             return success;
         }
 
-        public string EatMapKey(string value, ref int i)
+        public string EatMapKey(string value, ref int i) => EatMapKey(new StringSegment(value), ref i).Value;
+
+        public StringSegment EatMapKey(StringSegment value, ref int i)
         {
             var tokenStartPos = i;
 
             var valueLength = value.Length;
 
-            var valueChar = value[tokenStartPos];
+            var valueChar = value.GetChar(tokenStartPos);
 
             switch (valueChar)
             {
                 case JsWriter.QuoteChar:
                     while (++i < valueLength)
                     {
-                        valueChar = value[i];
+                        valueChar = value.GetChar(i);
 
                         if (valueChar != JsWriter.QuoteChar) continue;
 
-                        var isLiteralQuote = i + 1 < valueLength && value[i + 1] == JsWriter.QuoteChar;
+                        var isLiteralQuote = i + 1 < valueLength && value.GetChar(i + 1) == JsWriter.QuoteChar;
 
                         i++; //skip quote
                         if (!isLiteralQuote)
                             break;
                     }
-                    return value.Substring(tokenStartPos, i - tokenStartPos);
+                    return value.Subsegment(tokenStartPos, i - tokenStartPos);
 
                 //Is Type/Map, i.e. {...}
                 case JsWriter.MapStartChar:
@@ -363,7 +326,7 @@ namespace ServiceStack.Text.Jsv
                     var withinQuotes = false;
                     while (++i < valueLength && endsToEat > 0)
                     {
-                        valueChar = value[i];
+                        valueChar = value.GetChar(i);
 
                         if (valueChar == JsWriter.QuoteChar)
                             withinQuotes = !withinQuotes;
@@ -377,17 +340,23 @@ namespace ServiceStack.Text.Jsv
                         if (valueChar == JsWriter.MapEndChar)
                             endsToEat--;
                     }
-                    return value.Substring(tokenStartPos, i - tokenStartPos);
+                    return value.Subsegment(tokenStartPos, i - tokenStartPos);
             }
 
-            while (value[++i] != JsWriter.MapKeySeperator) { }
-            return value.Substring(tokenStartPos, i - tokenStartPos);
+            while (value.GetChar(++i) != JsWriter.MapKeySeperator) { }
+            return value.Subsegment(tokenStartPos, i - tokenStartPos);
         }
 
         public bool EatMapKeySeperator(string value, ref int i)
         {
             return value[i++] == JsWriter.MapKeySeperator;
         }
+
+        public bool EatMapKeySeperator(StringSegment value, ref int i)
+        {
+            return value.GetChar(i++) == JsWriter.MapKeySeperator;
+        }
+
 
         public bool EatItemSeperatorOrMapEndChar(string value, ref int i)
         {

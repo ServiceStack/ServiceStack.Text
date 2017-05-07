@@ -50,7 +50,7 @@ namespace ServiceStack.Text.Common
                 return parseDelegate.Invoke;
 
             var genericType = typeof(DeserializeListWithElements<,>).MakeGenericType(elementType, typeof(TSerializer));
-            var mi = genericType.GetStaticMethod("ParseGenericList");
+            var mi = genericType.GetStaticMethod("ParseGenericList", new [] {typeof(StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate)});
             parseDelegate = (ParseListDelegate)mi.MakeDelegate(typeof(ParseListDelegate));
 
             Dictionary<Type, ParseListDelegate> snapshot, newCache;
@@ -200,7 +200,7 @@ namespace ServiceStack.Text.Common
                         var itemValue = Serializer.EatTypeValue(value, ref i);
                         if (itemValue.HasValue)
                         {
-                            to.Add((T)parseFn(value));
+                            to.Add((T)parseFn(itemValue));
                         }
                         else
                         {
@@ -308,6 +308,8 @@ namespace ServiceStack.Text.Common
         }
 
         public static ParseStringDelegate Parse => v => CacheFn(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate ParseStringSegment => CacheFn;
 
         public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(new StringSegment(v));
 

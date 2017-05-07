@@ -471,6 +471,13 @@ namespace ServiceStack
             return null;
         }
 
+        public virtual ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
+
         public virtual void InitHttpWebRequest(HttpWebRequest httpReq,
             long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
         {            

@@ -23,10 +23,9 @@ namespace ServiceStack.Text.Common
             CachedParseFn = GetParseFn();
         }
 
-        public static ParseStringDelegate Parse
-        {
-            get { return CachedParseFn; }
-        }
+        public static ParseStringDelegate Parse => CachedParseFn;
+
+        public static ParseStringSegmentDelegate ParseStringSegment => v => CachedParseFn(v.Value);
 
         private static ParseStringDelegate GetParseFn()
         {
