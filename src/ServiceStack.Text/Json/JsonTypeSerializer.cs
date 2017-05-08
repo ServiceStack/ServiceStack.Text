@@ -393,6 +393,8 @@ namespace ServiceStack.Text.Json
                     index += 4;
                 }
             } while (index++ < jsonLength);
+            if (index == jsonLength)
+                throw new Exception("Invalid unquoted string ending with: " + json.Value.SafeSubstring(json.Length - 50, 50));
             index++;
             return json.Subsegment(startIndex, Math.Min(index, jsonLength) - startIndex - 1);
         }
