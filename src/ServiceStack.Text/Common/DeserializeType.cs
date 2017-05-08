@@ -43,7 +43,7 @@ namespace ServiceStack.Text.Common
                 return value => ctorFn();
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-                ? (ParseStringSegmentDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value.Value, ctorFn, map))
+                ? (ParseStringSegmentDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
                 : value => DeserializeTypeRefJsv.StringToType(typeConfig, value.Value, ctorFn, map);
         }
 
@@ -267,7 +267,7 @@ namespace ServiceStack.Text.Common
 
     internal class TypeAccessor
     {
-        internal ParseStringDelegate GetProperty;
+        internal ParseStringSegmentDelegate GetProperty;
         internal SetPropertyDelegate SetProperty;
         internal Type PropertyType;
 
@@ -312,9 +312,9 @@ namespace ServiceStack.Text.Common
             };
         }
 
-        internal static ParseStringDelegate GetPropertyMethod(ITypeSerializer serializer, PropertyInfo propertyInfo)
+        internal static ParseStringSegmentDelegate GetPropertyMethod(ITypeSerializer serializer, PropertyInfo propertyInfo)
         {
-            var getPropertyFn = serializer.GetParseFn(propertyInfo.PropertyType);
+            var getPropertyFn = serializer.GetParseStringSegmentFn(propertyInfo.PropertyType);
             if (propertyInfo.PropertyType == typeof(object) || 
                 propertyInfo.PropertyType.HasInterface(typeof(IEnumerable<object>)))
             {
@@ -386,7 +386,7 @@ namespace ServiceStack.Text.Common
             return new TypeAccessor
             {
                 PropertyType = fieldInfo.FieldType,
-                GetProperty = serializer.GetParseFn(fieldInfo.FieldType),
+                GetProperty = serializer.GetParseStringSegmentFn(fieldInfo.FieldType),
                 SetProperty = GetSetFieldMethod(typeConfig, fieldInfo),
             };
         }

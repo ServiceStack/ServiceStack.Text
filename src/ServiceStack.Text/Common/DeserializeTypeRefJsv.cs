@@ -2,6 +2,11 @@ using System;
 using System.Collections.Generic;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -126,7 +131,7 @@ namespace ServiceStack.Text.Common
                 {
                     try
                     {
-                        var propertyValue = typeAccessor.GetProperty(propertyValueStr);
+                        var propertyValue = typeAccessor.GetProperty(new StringSegment(propertyValueStr));
                         if (typeConfig.OnDeserializing != null)
                             propertyValue = typeConfig.OnDeserializing(instance, propertyName, propertyValue);
                         typeAccessor.SetProperty(instance, propertyValue);

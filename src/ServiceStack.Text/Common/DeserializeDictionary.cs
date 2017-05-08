@@ -280,8 +280,8 @@ namespace ServiceStack.Text.Common
             return index;
         }
 
-        private static Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
-            = new Dictionary<string, ParseDictionaryDelegate>();
+        private static Dictionary<TypesKey, ParseDictionaryDelegate> ParseDelegateCache
+            = new Dictionary<TypesKey, ParseDictionaryDelegate>();
 
         private delegate object ParseDictionaryDelegate(StringSegment value, Type createMapType,
             ParseStringSegmentDelegate keyParseFn, ParseStringSegmentDelegate valueParseFn);
@@ -297,7 +297,7 @@ namespace ServiceStack.Text.Common
         {
 
             ParseDictionaryDelegate parseDelegate;
-            var key = GetTypesKey(argTypes);
+            var key = new TypesKey(argTypes[0], argTypes[1]);
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
@@ -306,11 +306,11 @@ namespace ServiceStack.Text.Common
             var genericMi = mi.MakeGenericMethod(argTypes);
             parseDelegate = (ParseDictionaryDelegate)genericMi.MakeDelegate(typeof(ParseDictionaryDelegate));
 
-            Dictionary<string, ParseDictionaryDelegate> snapshot, newCache;
+            Dictionary<TypesKey, ParseDictionaryDelegate> snapshot, newCache;
             do
             {
                 snapshot = ParseDelegateCache;
-                newCache = new Dictionary<string, ParseDictionaryDelegate>(ParseDelegateCache);
+                newCache = new Dictionary<TypesKey, ParseDictionaryDelegate>(ParseDelegateCache);
                 newCache[key] = parseDelegate;
 
             } while (!ReferenceEquals(
@@ -319,23 +319,31 @@ namespace ServiceStack.Text.Common
             return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
         }
 
-        private static string GetTypesKey(params Type[] types)
+        struct TypesKey
         {
-            if (types.Length == 1)
-                return types[0].FullName;
-                
-            if (types.Length == 2)
-                return types[0].FullName + ">" + types[1].FullName;
+            Type Type1 { get; }
+            Type Type2 { get; }
 
-            var sb = StringBuilderThreadStatic.Allocate();
-            foreach (var type in types)
+            readonly int hashcode;
+
+            public TypesKey(Type type1, Type type2)
             {
-                if (sb.Length > 0)
-                    sb.Append(">");
-
-                sb.Append(type.FullName);
+                Type1 = type1;
+                Type2 = type2;
+                unchecked
+                {
+                    hashcode = Type1.GetHashCode() ^ (37 * Type2.GetHashCode());
+                }
             }
-            return StringBuilderThreadStatic.ReturnAndFree(sb);
+
+            public override bool Equals(object obj)
+            {
+                var types = (TypesKey)obj;
+
+                return Type1 == types.Type1 && Type2 == types.Type2;
+            }
+
+            public override int GetHashCode() => hashcode;
         }
     }
 }

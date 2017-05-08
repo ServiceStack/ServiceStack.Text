@@ -187,7 +187,7 @@ namespace ServiceStack.Text.Common
                 {
                     try
                     {
-                        var propertyValue = typeAccessor.GetProperty(propertyValueStr.Value);
+                        var propertyValue = typeAccessor.GetProperty(propertyValueStr);
                         if (typeConfig.OnDeserializing != null)
                             propertyValue = typeConfig.OnDeserializing(instance, propertyName, propertyValue);
                         typeAccessor.SetProperty(instance, propertyValue);
