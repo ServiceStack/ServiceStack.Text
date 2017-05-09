@@ -44,7 +44,7 @@ namespace ServiceStack.Text.Common
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
                 ? (ParseStringSegmentDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
-                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value.Value, ctorFn, map);
+                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, map);
         }
 
         public static object ObjectStringToType(string strType) => ObjectStringToType(new StringSegment(strType));
@@ -63,7 +63,7 @@ namespace ServiceStack.Text.Common
             {
                 if (strType.GetChar(0) == JsWriter.MapStartChar)
                 {
-                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
+                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, v => Serializer.UnescapeString(v).Value, v => Serializer.UnescapeString(v).Value);
                     if (dynamicMatch != null && dynamicMatch.Count > 0)
                     {
                         return dynamicMatch;
@@ -78,7 +78,7 @@ namespace ServiceStack.Text.Common
 
             return (JsConfig.TryToParsePrimitiveTypeValues
                 ? ParsePrimitive(strType.Value)
-                : null) ?? Serializer.UnescapeString(strType);
+                : null) ?? Serializer.UnescapeString(strType).Value;
         }
 
         public static Type ExtractType(string strType) => ExtractType(new StringSegment(strType));

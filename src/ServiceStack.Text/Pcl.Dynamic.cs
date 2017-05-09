@@ -60,7 +60,7 @@ namespace ServiceStack
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
 
-                var mapKey = Serializer.UnescapeString(keyValue);
+                var mapKey = Serializer.UnescapeString(keyValue).Value;
 
                 if (JsonUtils.IsJsObject(elementValue))
                 {

@@ -107,7 +107,7 @@ namespace ServiceStack.Text.Common
             {
                 var elementValue = Serializer.EatValue(value, ref i);
                 var listValue = Serializer.UnescapeString(elementValue);
-                to.Add(listValue);
+                to.Add(listValue.Value);
                 if (Serializer.EatItemSeperatorOrMapEndChar(value, ref i) && i == valueLength)
                 {
                     // If we ate a separator and we are at the end of the value, 

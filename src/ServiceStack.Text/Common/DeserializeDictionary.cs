@@ -135,7 +135,7 @@ namespace ServiceStack.Text.Common
                 var mapKey = Serializer.UnescapeString(keyValue);
                 var mapValue = Serializer.UnescapeString(elementValue);
 
-                result[mapKey] = mapValue;
+                result[mapKey.Value] = mapValue.Value;
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
             }

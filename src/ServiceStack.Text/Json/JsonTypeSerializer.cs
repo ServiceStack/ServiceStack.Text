@@ -405,7 +405,7 @@ namespace ServiceStack.Text.Json
             return UnEscapeJsonString(value, ref i);
         }
 
-        public string UnescapeString(StringSegment value)
+        public StringSegment UnescapeString(StringSegment value)
         {
             var i = 0;
             return UnEscapeJsonString(value, ref i);
@@ -428,7 +428,7 @@ namespace ServiceStack.Text.Json
 
         static readonly char[] IsSafeJsonChars = new[] { JsonUtils.QuoteChar, JsonUtils.EscapeChar };
 
-        internal static string ParseJsonString(StringSegment json, ref int index)
+        internal static StringSegment ParseJsonString(StringSegment json, ref int index)
         {
             for (; index < json.Length; index++) { var ch = json.GetChar(index); if (ch >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[ch]) break; } //Whitespace inline
 
@@ -437,12 +437,12 @@ namespace ServiceStack.Text.Json
 
         private static string UnEscapeJsonString(string json, ref int index)
         {
-            return UnEscapeJsonString(new StringSegment(json), ref index);
+            return UnEscapeJsonString(new StringSegment(json), ref index).Value;
         }
 
-        private static string UnEscapeJsonString(StringSegment json, ref int index)
+        private static StringSegment UnEscapeJsonString(StringSegment json, ref int index)
         {
-            if (json.IsNullOrEmpty()) return json.Value;
+            if (json.IsNullOrEmpty()) return json;
             var jsonLength = json.Length;
             var firstChar = json.GetChar(index);
             if (firstChar == JsonUtils.QuoteChar)
@@ -451,10 +451,10 @@ namespace ServiceStack.Text.Json
 
                 //MicroOp: See if we can short-circuit evaluation (to avoid StringBuilder)
                 var strEndPos = json.IndexOfAny(IsSafeJsonChars, index);
-                if (strEndPos == -1) return json.Substring(index, jsonLength - index);
+                if (strEndPos == -1) return json.Subsegment(index, jsonLength - index);
                 if (json.GetChar(strEndPos) == JsonUtils.QuoteChar)
                 {
-                    var potentialValue = json.Substring(index, strEndPos - index);
+                    var potentialValue = json.Subsegment(index, strEndPos - index);
                     index = strEndPos + 1;
                     return potentialValue;
                 }
@@ -465,10 +465,10 @@ namespace ServiceStack.Text.Json
 
         public static string Unescape(string input)
         {
-            return Unescape(new StringSegment(input));
+            return Unescape(new StringSegment(input)).Value;
         }
 
-        public static string Unescape(StringSegment input)
+        public static StringSegment Unescape(StringSegment input)
         {
             var length = input.Length;
             int start = 0;
@@ -577,7 +577,7 @@ namespace ServiceStack.Text.Json
                 }
             }
             output.Append(input.Buffer, input.Offset + start, length - start);
-            return StringBuilderThreadStatic.ReturnAndFree(output);
+            return new StringSegment(StringBuilderThreadStatic.ReturnAndFree(output));
         }
 
         /// <summary>

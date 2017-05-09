@@ -64,7 +64,7 @@ namespace ServiceStack.Text.Common
         string ParseString(string value);
         string ParseString(StringSegment value);
         string UnescapeString(string value);
-        string UnescapeString(StringSegment value);
+        StringSegment UnescapeString(StringSegment value);
         string UnescapeSafeString(string value);
         string UnescapeSafeString(StringSegment value);
         string EatTypeValue(string value, ref int i);

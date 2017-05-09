@@ -278,7 +278,7 @@ namespace ServiceStack.Text.Jsv
 
         public string UnescapeString(string value) => value.FromCsvField();
 
-        public string UnescapeString(StringSegment value) => value.Value.FromCsvField();
+        public StringSegment UnescapeString(StringSegment value) => new StringSegment(value.Value.FromCsvField());
 
         public string EatTypeValue(string value, ref int i) => EatValue(new StringSegment(value), ref i).Value;
 
