@@ -55,6 +55,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="1.*" />
     <PackageReference Include="System.Drawing.Primitives" Version="4.*" />
     <PackageReference Include="System.Collections.Specialized" Version="4.*" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.*" />

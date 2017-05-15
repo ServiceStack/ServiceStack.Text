@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using ServiceStack.Text.Common;
-using ServiceStack.Text.Support;
 #if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
 #endif
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Json
 {

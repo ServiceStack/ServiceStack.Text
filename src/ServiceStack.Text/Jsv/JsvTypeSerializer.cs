@@ -268,7 +268,7 @@ namespace ServiceStack.Text.Jsv
 
         public string UnescapeSafeString(string value) => value.FromCsvField();
 
-        public string UnescapeSafeString(StringSegment value) => value.Value.FromCsvField();
+        public StringSegment UnescapeSafeString(StringSegment value) => value.FromCsvField();
 
         public string ParseRawString(string value) => value;
 

@@ -5,8 +5,6 @@ using ServiceStack.Text.Jsv;
 using ServiceStack.Text.Support;
 #if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
 #endif
 
 namespace ServiceStack.Text.Common

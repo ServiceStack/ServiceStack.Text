@@ -66,7 +66,7 @@ namespace ServiceStack.Text.Common
         string UnescapeString(string value);
         StringSegment UnescapeString(StringSegment value);
         string UnescapeSafeString(string value);
-        string UnescapeSafeString(StringSegment value);
+        StringSegment UnescapeSafeString(StringSegment value);
         string EatTypeValue(string value, ref int i);
         StringSegment EatTypeValue(StringSegment value, ref int i);
         bool EatMapStartChar(string value, ref int i);

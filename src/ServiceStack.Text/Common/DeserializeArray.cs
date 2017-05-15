@@ -15,12 +15,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Threading;
-using ServiceStack.Text.Support;
 #if NETSTANDARD1_1 
 using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
 #endif
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {

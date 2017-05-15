@@ -52,7 +52,7 @@ namespace ServiceStack.Text.Common
                 return value => JsConfig<T>.ParseFn(Serializer, value.Value);
 
             if (type.IsEnum())
-                return x => ParseUtils.TryParseEnum(type, Serializer.UnescapeSafeString(x));
+                return x => ParseUtils.TryParseEnum(type, Serializer.UnescapeSafeString(x).Value);
 
             if (type == typeof(string))
                 return v => Serializer.UnescapeString(v).Value;
@@ -69,7 +69,7 @@ namespace ServiceStack.Text.Common
                 return DeserializeArray<T, TSerializer>.ParseStringSegment;
             }
 
-            var builtInMethod = DeserializeBuiltin<T>.Parse;
+            var builtInMethod = DeserializeBuiltin<T>.ParseStringSegment;
             if (builtInMethod != null)
                 return value => builtInMethod(Serializer.UnescapeSafeString(value));
 
@@ -120,15 +120,25 @@ namespace ServiceStack.Text.Common
 
             if (type.IsValueType())
             {
+                //at first try to find more faster `ParseStringSegment` method
+                var staticParseStringSegmentMethod = StaticParseMethod<T>.ParseStringSegment;
+                if (staticParseStringSegmentMethod != null)
+                    return value => staticParseStringSegmentMethod(Serializer.UnescapeSafeString(value));
+                
+                //then try to find `Parse` method
                 var staticParseMethod = StaticParseMethod<T>.Parse;
                 if (staticParseMethod != null)
-                    return value => staticParseMethod(Serializer.UnescapeSafeString(value));
+                    return value => staticParseMethod(Serializer.UnescapeSafeString(value).Value);
             }
             else
             {
+                var staticParseStringSegmentMethod = StaticParseRefTypeMethod<TSerializer, T>.ParseStringSegment;
+                if (staticParseStringSegmentMethod != null)
+                    return value => staticParseStringSegmentMethod(Serializer.UnescapeSafeString(value));
+
                 var staticParseMethod = StaticParseRefTypeMethod<TSerializer, T>.Parse;
                 if (staticParseMethod != null)
-                    return value => staticParseMethod(Serializer.UnescapeSafeString(value));
+                    return value => staticParseMethod(Serializer.UnescapeSafeString(value).Value);
             }
 
             var typeConstructor = DeserializeType<TSerializer>.GetParseStringSegmentMethod(TypeConfig<T>.GetState());

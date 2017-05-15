@@ -411,14 +411,14 @@ namespace ServiceStack.Text.Json
             return UnEscapeJsonString(value, ref i);
         }
 
-        public string UnescapeSafeString(string value) => UnescapeSafeString(new StringSegment(value));
+        public string UnescapeSafeString(string value) => UnescapeSafeString(new StringSegment(value)).Value;
 
-        public string UnescapeSafeString(StringSegment value)
+        public StringSegment UnescapeSafeString(StringSegment value)
         {
-            if (value.IsNullOrEmpty()) return value.Value;
+            if (value.IsNullOrEmpty()) return value;
             return value.GetChar(0) == JsonUtils.QuoteChar && value.GetChar(value.Length - 1) == JsonUtils.QuoteChar
-                ? value.Substring(1, value.Length - 2)
-                : value.Value;
+                ? value.Subsegment(1, value.Length - 2)
+                : value;
 
             //if (value[0] != JsonUtils.QuoteChar)
             //    throw new Exception("Invalid unquoted string starting with: " + value.SafeSubstring(50));

@@ -18,8 +18,6 @@ using System.Reflection;
 using ServiceStack.Text.Support;
 #if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
 #endif
 
 namespace ServiceStack.Text.Common
@@ -101,7 +99,7 @@ namespace ServiceStack.Text.Common
                 && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
+                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex)).Value;
 
                 var type = JsConfig.TypeFinder(typeName);
 
@@ -185,29 +183,29 @@ namespace ServiceStack.Text.Common
             return Serializer.UnescapeString(value);
         }
 
-        public static object ParsePrimitive(StringSegment value) => ParsePrimitive(value.Value);
+        public static object ParsePrimitive(string value) => ParsePrimitive(new StringSegment(value));
 
-        public static object ParsePrimitive(string value)
+        public static object ParsePrimitive(StringSegment value)
         {
             var fn = JsConfig.ParsePrimitiveFn;
             if (fn != null)
             {
-                var result = fn(value);
+                var result = fn(value.Value);
                 if (result != null)
                     return result;
             }
 
-            if (string.IsNullOrEmpty(value))
+            if (value.IsNullOrEmpty())
                 return null;
 
             bool boolValue;
-            if (bool.TryParse(value, out boolValue))
+            if (value.TryParseBoolean(out boolValue))
                 return boolValue;
 
             // Parse as decimal
             decimal decimalValue;
             var acceptDecimal = JsConfig.ParsePrimitiveFloatingPointTypes.Has(ParseAsType.Decimal);
-            var isDecimal = decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue);
+            var isDecimal = value.TryParseDecimal(out decimalValue);
 
             // Check if the number is an Primitive Integer type given that we have a decimal
             if (isDecimal && decimalValue == decimal.Truncate(decimalValue))
@@ -233,13 +231,13 @@ namespace ServiceStack.Text.Common
 
             float floatValue;
             var acceptFloat = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Single);
-            var isFloat = float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue);
+            var isFloat = value.TryParseFloat(out floatValue);
             if (acceptFloat && isFloat)
                 return floatValue;
 
             double doubleValue;
             var acceptDouble = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Double);
-            var isDouble = double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue);
+            var isDouble = value.TryParseDouble(out doubleValue);
             if (acceptDouble && isDouble)
                 return doubleValue;
 
