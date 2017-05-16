@@ -108,6 +108,11 @@ namespace ServiceStack.Text.Support
             LeadingWhite,
             Sign,
             Number,
+            DecimalPoint,
+            FractionNumber,
+            Exponent,
+            ExponentSign,
+            ExponentValue,
             TrailingWhite
         }
 
@@ -125,6 +130,9 @@ namespace ServiceStack.Text.Support
 
         private static ulong ParseUnsignedInteger(StringSegment value, ulong maxValue)
         {
+            if (value.Length == 0)
+                throw new FormatException("Input string was not in a correct format");
+
             ulong result = 0;
             int i = 0;
             var state = ParseState.LeadingWhite;
@@ -194,9 +202,11 @@ namespace ServiceStack.Text.Support
             return result;
         }
 
-
         private static long ParseSignedInteger(StringSegment value, long maxValue, long minValue)
         {
+            if (value.Length == 0)
+                throw new FormatException("Input string was not in a correct format");
+
             long result = 0;
             int i = 0;
             var state = ParseState.LeadingWhite;
@@ -215,9 +225,24 @@ namespace ServiceStack.Text.Support
                         } else if (c == '-')
                         {
                             negative = true;
-                            state = ParseState.Number;
+                            state = ParseState.Sign;
                             i++;
                         } else if ( c == '0')
+                        {
+                            state = ParseState.TrailingWhite;
+                            i++;
+                        } else if (c > '0' && c <= '9')
+                        {
+                            result = - (c - '0');
+                            state = ParseState.Number;
+                            i++;
+                        } else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                    case ParseState.Sign:
+                        if (c == '0')
                         {
                             state = ParseState.TrailingWhite;
                             i++;
@@ -274,6 +299,184 @@ namespace ServiceStack.Text.Support
 
             if (result > maxValue)
                 throw new OverflowException();
+
+            return result;
+        }
+
+        public static decimal ParseDecimal(this StringSegment value, bool allowThousands = false)
+        {
+            if (value.Length == 0)
+                throw new FormatException("Input string was not in a correct format");
+
+            decimal result = 0;
+            int i = 0;
+            var state = ParseState.LeadingWhite;
+            bool negative = false;
+            bool noIntegerPart = false;
+            decimal fraction = 0.1m;
+
+            while (i < value.Length)
+            {
+                var c = value.GetChar(i);
+
+                switch (state)
+                {
+                    case ParseState.LeadingWhite:
+                        if (Char.IsWhiteSpace(c))
+                        {
+                            i++;
+                        }
+                        else if (c == '-')
+                        {
+                            negative = true;
+                            state = ParseState.Sign;
+                            i++;
+                        } else if (c == '.')
+                        {
+                            noIntegerPart = true;
+                            state = ParseState.FractionNumber;
+                            i++;
+
+                            if (i == value.Length)
+                            {
+                                throw new FormatException("Input string was not in a correct format");
+                            }
+                        }
+                        else if (c == '0')
+                        {
+                            state = ParseState.DecimalPoint;
+                            i++;
+                        }
+                        else if (c > '0' && c <= '9')
+                        {
+                            result = (c - '0');
+                            state = ParseState.Number;
+                            i++;
+                        }
+                        else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                    case ParseState.Sign:
+                        if (c == '.')
+                        {
+                            noIntegerPart = true;
+                            state = ParseState.FractionNumber;
+                            i++;
+
+                            if (i == value.Length)
+                            {
+                                throw new FormatException("Input string was not in a correct format");
+                            }
+                        } else if (c == '0')
+                        {
+                            state = ParseState.DecimalPoint;
+                            i++;
+                        }
+                        else if (c > '0' && c <= '9')
+                        {
+                            result = -(c - '0');
+                            state = ParseState.Number;
+                            i++;
+                        }
+                        else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                    case ParseState.Number:
+                        if (c == '.')
+                        {
+                            state = ParseState.FractionNumber;
+                            i++;
+                        } else if (c >= '0' && c <= '9')
+                        {
+                            checked
+                            {
+                                result = negative
+                                    ? 10 * result - (c - '0')
+                                    : 10 * result + (c - '0');
+                            }
+                            i++;
+                        }
+                        else if (Char.IsWhiteSpace(c))
+                        {
+                            state = ParseState.TrailingWhite;
+                            i++;
+                        }
+                        else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                    case ParseState.DecimalPoint:
+                        if (c == '.')
+                        {
+                            state = ParseState.FractionNumber;
+                            i++;
+                        } else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                    case ParseState.FractionNumber:
+                        if (Char.IsWhiteSpace(c))
+                        {
+                            if (noIntegerPart)
+                                throw new FormatException("Input string was not in a correct format");
+                            state = ParseState.TrailingWhite;
+                            i++;
+                        } else if (c == 'e' || c == 'E')
+                        {
+                            if (noIntegerPart && fraction == 0.1m)
+                                throw new FormatException("Input string was not in a correct format");
+                            state = ParseState.Exponent;
+                            i++;
+                        } else if (c >= '0' && c <= '9')
+                        {
+                            checked
+                            {
+                                result = negative
+                                ? result - fraction * (c - '0')
+                                : result + fraction * (c - '0');
+                                fraction *= 0.1m;
+                            }
+                            i++;
+                        } else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                    case ParseState.Exponent:
+                        if (c == '-' || (c >= '0' && c <= '9'))
+                        {
+                            int exp = value.Subsegment(i, value.Length - i).ParseInt16();
+                            checked
+                            {
+                                result *= (decimal)Math.Pow(10.0, exp);
+                            }
+
+                            //set i to end of string, because ParseInt16 eats number and all trailing whites
+                            i = value.Length;
+                        } else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                    case ParseState.TrailingWhite:
+                        if (Char.IsWhiteSpace(c))
+                        {
+                            state = ParseState.TrailingWhite;
+                            i++;
+                        }
+                        else
+                        {
+                            throw new FormatException("Input string was not in a correct format");
+                        }
+                        break;
+                }
+            }
 
             return result;
         }

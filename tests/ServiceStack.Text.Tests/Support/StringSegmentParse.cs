@@ -8,12 +8,13 @@ using Microsoft.Extensions.Primitives;
 namespace ServiceStack.Text.Tests.Support
 {
     [TestFixture]
-    public class StringSegmentParse
+    public class StringSegmentParseTests
     {
         [Test]
         public void Can_parse_int32()
         {
             Assert.That(new StringSegment("0").ParseInt32(), Is.EqualTo(0));
+            Assert.That(new StringSegment("-0").ParseInt32(), Is.EqualTo(0));
             Assert.That(new StringSegment("1").ParseInt32(), Is.EqualTo(1));
             Assert.That(new StringSegment(int.MaxValue.ToString()).ParseInt32(), Is.EqualTo(int.MaxValue));
             Assert.That(new StringSegment(int.MinValue.ToString()).ParseInt32(), Is.EqualTo(int.MinValue));
@@ -23,6 +24,9 @@ namespace ServiceStack.Text.Tests.Support
             Assert.That(new StringSegment("234  ").ParseInt32(), Is.EqualTo(234));
             Assert.That(new StringSegment("   234").ParseInt32(), Is.EqualTo(234));
             Assert.That(new StringSegment("   -234    ").ParseInt32(), Is.EqualTo(-234));
+            Assert.Throws<FormatException>(() => new StringSegment("").ParseInt32());
+            Assert.Throws<FormatException>(() => new StringSegment("01").ParseInt32());
+            Assert.Throws<FormatException>(() => new StringSegment("-01").ParseInt32());
             Assert.Throws<FormatException>(() => new StringSegment("   - 234    ").ParseInt32());
             Assert.Throws<FormatException>(() => new StringSegment("   2.34    ").ParseInt32());
             Assert.Throws<OverflowException>(() => new StringSegment("12345678901234567890").ParseInt32());
@@ -31,5 +35,30 @@ namespace ServiceStack.Text.Tests.Support
             Assert.Throws<FormatException>(() => new StringSegment("    1234  123").ParseInt32());
         }
 
+        [Test]
+        public void Can_parse_decimal()
+        {
+            Assert.Throws<FormatException>(() => new StringSegment(".").ParseDecimal());
+            Assert.Throws<FormatException>(() => new StringSegment("").ParseDecimal());
+            Assert.That(new StringSegment("0").ParseDecimal(), Is.EqualTo(0));
+            Assert.That(new StringSegment("-0").ParseDecimal(), Is.EqualTo(0));
+            Assert.That(new StringSegment("0.").ParseDecimal(), Is.EqualTo(0));
+            Assert.That(new StringSegment("-0.").ParseDecimal(), Is.EqualTo(0));
+            Assert.That(new StringSegment(".1").ParseDecimal(), Is.EqualTo(.1m));
+            Assert.That(new StringSegment("-.1").ParseDecimal(), Is.EqualTo(-.1m));
+            Assert.That(new StringSegment("10.001").ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That(new StringSegment("  10.001").ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That(new StringSegment("10.001  ").ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That(new StringSegment(" 10.001  ").ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That(new StringSegment("-10.001").ParseDecimal(), Is.EqualTo(-10.001m));
+            //exponent
+            Assert.That(new StringSegment("10.001E3").ParseDecimal(), Is.EqualTo(10001m));
+            Assert.That(new StringSegment(".001e5").ParseDecimal(), Is.EqualTo(100m));
+            Assert.That(new StringSegment("10.001E-2").ParseDecimal(), Is.EqualTo(0.10001m));
+            Assert.That(new StringSegment("10.001e-8").ParseDecimal(), Is.EqualTo(0.00000010001m));
+            Assert.That(new StringSegment("2.e2").ParseDecimal(), Is.EqualTo(200m));
+            Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
+
+        }
     }
-}
+    }
