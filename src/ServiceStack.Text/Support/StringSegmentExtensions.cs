@@ -141,25 +141,21 @@ namespace ServiceStack.Text.Support
 
             while (i < value.Length)
             {
-                var c = value.GetChar(i);
+                var c = value.GetChar(i++);
 
                 switch (state)
                 {
                     case ParseState.LeadingWhite:
                         if (Char.IsWhiteSpace(c))
-                        {
-                            i++;
-                        }
-                        else if (c == '0')
+                            break;
+                        if (c == '0')
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         }
                         else if (c > '0' && c <= '9')
                         {
                             result = (ulong)(c - '0');
                             state = ParseState.Number;
-                            i++;
                         }
                         else
                         {
@@ -175,12 +171,10 @@ namespace ServiceStack.Text.Support
                             }
                             if (result > maxValue) //check only minvalue, because in absolute value it's greater than maxvalue
                                 throw new OverflowException();
-                            i++;
                         }
                         else if (Char.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         }
                         else
                         {
@@ -191,7 +185,6 @@ namespace ServiceStack.Text.Support
                         if (Char.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         }
                         else
                         {
@@ -216,28 +209,25 @@ namespace ServiceStack.Text.Support
 
             while (i < value.Length)
             {
-                var c = value.GetChar(i);
+                var c = value.GetChar(i++);
 
                 switch (state)
                 {
                     case ParseState.LeadingWhite:
                         if (Char.IsWhiteSpace(c))
-                        {
-                            i++;
-                        } else if (c == '-')
+                            break;
+
+                        if (c == '-')
                         {
                             negative = true;
                             state = ParseState.Sign;
-                            i++;
                         } else if ( c == '0')
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         } else if (c > '0' && c <= '9')
                         {
                             result = - (c - '0');
                             state = ParseState.Number;
-                            i++;
                         } else
                         {
                             throw new FormatException(BadFormat);
@@ -247,12 +237,10 @@ namespace ServiceStack.Text.Support
                         if (c == '0')
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         } else if (c > '0' && c <= '9')
                         {
                             result = - (c - '0');
                             state = ParseState.Number;
-                            i++;
                         } else
                         {
                             throw new FormatException(BadFormat);
@@ -267,12 +255,10 @@ namespace ServiceStack.Text.Support
                             }
                             if (result < minValue) //check only minvalue, because in absolute value it's greater than maxvalue
                                 throw new OverflowException();
-                            i++;
                         }
                         else if (Char.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         } else
                         {
                             throw new FormatException(BadFormat);
@@ -282,7 +268,6 @@ namespace ServiceStack.Text.Support
                         if (Char.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         } else
                         {
                             throw new FormatException(BadFormat);
@@ -322,25 +307,22 @@ namespace ServiceStack.Text.Support
 
             while (i < end)
             {
-                var c = value.Buffer[i];
+                var c = value.Buffer[i++];
 
                 switch (state)
                 {
                     case ParseState.LeadingWhite:
                         if (Char.IsWhiteSpace(c))
-                        {
-                            i++;
-                        }
-                        else if (c == '-')
+                            break;
+
+                        if (c == '-')
                         {
                             negative = true;
                             state = ParseState.Sign;
-                            i++;
                         } else if (c == '.')
                         {
                             noIntegerPart = true;
                             state = ParseState.FractionNumber;
-                            i++;
 
                             if (i == end)
                             {
@@ -350,13 +332,11 @@ namespace ServiceStack.Text.Support
                         else if (c == '0')
                         {
                             state = ParseState.DecimalPoint;
-                            i++;
                         }
                         else if (c > '0' && c <= '9')
                         {
                             preResult = (ulong)(c - '0');
                             state = ParseState.Number;
-                            i++;
                         }
                         else
                         {
@@ -368,7 +348,6 @@ namespace ServiceStack.Text.Support
                         {
                             noIntegerPart = true;
                             state = ParseState.FractionNumber;
-                            i++;
 
                             if (i == end)
                             {
@@ -377,13 +356,11 @@ namespace ServiceStack.Text.Support
                         } else if (c == '0')
                         {
                             state = ParseState.DecimalPoint;
-                            i++;
                         }
                         else if (c > '0' && c <= '9')
                         {
                             preResult = (ulong)(c - '0');
                             state = ParseState.Number;
-                            i++;
                         }
                         else
                         {
@@ -394,7 +371,6 @@ namespace ServiceStack.Text.Support
                         if (c == '.')
                         {
                             state = ParseState.FractionNumber;
-                            i++;
                         } else if (c >= '0' && c <= '9')
                         {
                             if (isLargeNumber)
@@ -412,12 +388,10 @@ namespace ServiceStack.Text.Support
                                     result = preResult;
                                 }
                             }
-                            i++;
                         }
                         else if (Char.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
-                            i++;
                         }
                         else
                         {
@@ -428,7 +402,6 @@ namespace ServiceStack.Text.Support
                         if (c == '.')
                         {
                             state = ParseState.FractionNumber;
-                            i++;
                         } else
                         {
                             throw new FormatException(BadFormat);
@@ -440,13 +413,11 @@ namespace ServiceStack.Text.Support
                             if (noIntegerPart)
                                 throw new FormatException(BadFormat);
                             state = ParseState.TrailingWhite;
-                            i++;
                         } else if (c == 'e' || c == 'E')
                         {
                             if (noIntegerPart && scale == 0.1m)
                                 throw new FormatException(BadFormat);
                             state = ParseState.Exponent;
-                            i++;
                         } else if (c >= '0' && c <= '9')
                         {
                             if (isLargeNumber)
@@ -466,7 +437,6 @@ namespace ServiceStack.Text.Support
                                 }
                             }
                             scale++;
-                            i++;
                         } else
                         {
                             throw new FormatException(BadFormat);
@@ -475,11 +445,8 @@ namespace ServiceStack.Text.Support
                     case ParseState.Exponent:
                         if (c == '-' || (c >= '0' && c <= '9'))
                         {
-                            var exp = (sbyte)- new StringSegment(value.Buffer, i, end - i).ParseSByte();
-                            if (exp >= 0)
-                            {
-                                scale += exp;
-                            } else if (scale > -exp)
+                            var exp = (sbyte)- new StringSegment(value.Buffer, i - 1, end - i + 1).ParseSByte();
+                            if (exp >= 0 || scale > -exp)
                             {
                                 scale += exp;
                             } else
@@ -514,29 +481,25 @@ namespace ServiceStack.Text.Support
                         }
                         break;
                     case ParseState.TrailingWhite:
-                        if (Char.IsWhiteSpace(c))
-                        {
-                            state = ParseState.TrailingWhite;
-                            i++;
-                        }
-                        else
-                        {
+                        if (!Char.IsWhiteSpace(c))
                             throw new FormatException(BadFormat);
-                        }
                         break;
                 }
             }
 
             if (!isLargeNumber)
             {
-                var mid = (int)(preResult >> 32);
-                var lo = (int)(preResult & 0xffffffff);
-                return new decimal(lo, mid, 0, negative, (byte)scale);
+                var mid = (int) (preResult >> 32);
+                var lo = (int) (preResult & 0xffffffff);
+                result = new decimal(lo, mid, 0, negative, (byte) scale);
+            }
+            else
+            {
+                var bits = decimal.GetBits(result);
+                result = new decimal(bits[0], bits[1], bits[2], negative, (byte) scale);
             }
 
-            var bits = decimal.GetBits(result);
-            return new decimal(bits[0], bits[1], bits[2], negative, (byte)scale);
-            //return new decimal(negative? -result : result, 0, 0, negative, (byte)fraction);
+            return result;
         }
 
     }
