@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using ServiceStack.Text.Support;
 using System;
+using System.Globalization;
 #if NETCORE
 using Microsoft.Extensions.Primitives;
 #endif
@@ -38,6 +39,8 @@ namespace ServiceStack.Text.Tests.Support
         [Test]
         public void Can_parse_decimal()
         {
+            Assert.That(new StringSegment("1234.5678").ParseDecimal(), Is.EqualTo(1234.5678m));
+            Assert.That(new StringSegment("1234").ParseDecimal(), Is.EqualTo(1234m));
             Assert.Throws<FormatException>(() => new StringSegment(".").ParseDecimal());
             Assert.Throws<FormatException>(() => new StringSegment("").ParseDecimal());
             Assert.That(new StringSegment("0").ParseDecimal(), Is.EqualTo(0));
@@ -51,13 +54,20 @@ namespace ServiceStack.Text.Tests.Support
             Assert.That(new StringSegment("10.001  ").ParseDecimal(), Is.EqualTo(10.001m));
             Assert.That(new StringSegment(" 10.001  ").ParseDecimal(), Is.EqualTo(10.001m));
             Assert.That(new StringSegment("-10.001").ParseDecimal(), Is.EqualTo(-10.001m));
+            //large
+            Assert.That(new StringSegment("12345678901234567890").ParseDecimal(), Is.EqualTo(12345678901234567890m));
+            Assert.That(new StringSegment("12345678901234567890.12").ParseDecimal(), Is.EqualTo(12345678901234567890.12m));
+            Assert.That(new StringSegment(decimal.MaxValue.ToString(CultureInfo.InvariantCulture)).ParseDecimal(), Is.EqualTo(decimal.MaxValue));
+            Assert.That(new StringSegment(decimal.MinValue.ToString(CultureInfo.InvariantCulture)).ParseDecimal(), Is.EqualTo(decimal.MinValue));
+
             //exponent
+            Assert.That(new StringSegment("7.67e-6").ParseDecimal(), Is.EqualTo(7.67e-6f));
             Assert.That(new StringSegment("10.001E3").ParseDecimal(), Is.EqualTo(10001m));
             Assert.That(new StringSegment(".001e5").ParseDecimal(), Is.EqualTo(100m));
             Assert.That(new StringSegment("10.001E-2").ParseDecimal(), Is.EqualTo(0.10001m));
             Assert.That(new StringSegment("10.001e-8").ParseDecimal(), Is.EqualTo(0.00000010001m));
             Assert.That(new StringSegment("2.e2").ParseDecimal(), Is.EqualTo(200m));
-            Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
+            //Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
 
         }
     }

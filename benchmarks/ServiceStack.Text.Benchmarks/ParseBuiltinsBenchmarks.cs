@@ -15,11 +15,15 @@ namespace ServiceStack.Text.Benchmarks
         const string int32_2 = "-1234";
         const string decimal_1 = "1234.5678";
         const string decimal_2 = "-1234.5678";
+        const string decimal_3 = "1234.5678901234567890";
+        const string decimal_4 = "-1234.5678901234567890";
 
         readonly StringSegment ss_int32_1 = new StringSegment(int32_1);
         readonly StringSegment ss_int32_2 = new StringSegment(int32_2);
         readonly StringSegment ss_decimal_1 = new StringSegment(decimal_1);
         readonly StringSegment ss_decimal_2 = new StringSegment(decimal_2);
+        readonly StringSegment ss_decimal_3 = new StringSegment(decimal_3);
+        readonly StringSegment ss_decimal_4 = new StringSegment(decimal_4);
 
         [Benchmark]
         public void Int32Parse()
@@ -43,10 +47,26 @@ namespace ServiceStack.Text.Benchmarks
         }
 
         [Benchmark]
+        public void BigDecimalParse()
+        {
+            var res1 = decimal.Parse(decimal_3, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+            var res2 = decimal.Parse(decimal_4, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+        }
+
+
+        [Benchmark]
         public void StringSegment_DecimalParse()
         {
             var res1 = ss_decimal_1.ParseDecimal(true);
             var res2 = ss_decimal_2.ParseDecimal(true);
         }
+
+        [Benchmark]
+        public void StringSegment_BigDecimalParse()
+        {
+            var res1 = ss_decimal_3.ParseDecimal(true);
+            var res2 = ss_decimal_4.ParseDecimal(true);
+        }
+
     }
 }

@@ -9,6 +9,8 @@ namespace ServiceStack.Text.Support
 {
     public static class StringSegmentExtensions
     {
+        const string BadFormat = "Input string was not in a correct format";
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty(this StringSegment value)
         {
@@ -64,7 +66,7 @@ namespace ServiceStack.Text.Support
             bool result = false;
 
             if (!value.TryParseBoolean(out result))
-                throw new FormatException("Input string was not in a correct format");
+                throw new FormatException(BadFormat);
 
             return result;
         }
@@ -131,7 +133,7 @@ namespace ServiceStack.Text.Support
         private static ulong ParseUnsignedInteger(StringSegment value, ulong maxValue)
         {
             if (value.Length == 0)
-                throw new FormatException("Input string was not in a correct format");
+                throw new FormatException(BadFormat);
 
             ulong result = 0;
             int i = 0;
@@ -161,7 +163,7 @@ namespace ServiceStack.Text.Support
                         }
                         else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.Number:
@@ -182,7 +184,7 @@ namespace ServiceStack.Text.Support
                         }
                         else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.TrailingWhite:
@@ -193,7 +195,7 @@ namespace ServiceStack.Text.Support
                         }
                         else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                 }
@@ -205,7 +207,7 @@ namespace ServiceStack.Text.Support
         private static long ParseSignedInteger(StringSegment value, long maxValue, long minValue)
         {
             if (value.Length == 0)
-                throw new FormatException("Input string was not in a correct format");
+                throw new FormatException(BadFormat);
 
             long result = 0;
             int i = 0;
@@ -238,7 +240,7 @@ namespace ServiceStack.Text.Support
                             i++;
                         } else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.Sign:
@@ -253,7 +255,7 @@ namespace ServiceStack.Text.Support
                             i++;
                         } else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.Number:
@@ -273,7 +275,7 @@ namespace ServiceStack.Text.Support
                             i++;
                         } else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.TrailingWhite:
@@ -283,7 +285,7 @@ namespace ServiceStack.Text.Support
                             i++;
                         } else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                 }
@@ -306,18 +308,21 @@ namespace ServiceStack.Text.Support
         public static decimal ParseDecimal(this StringSegment value, bool allowThousands = false)
         {
             if (value.Length == 0)
-                throw new FormatException("Input string was not in a correct format");
+                throw new FormatException(BadFormat);
 
             decimal result = 0;
-            int i = 0;
+            ulong preResult = 0;
+            bool isLargeNumber = false;
+            int i = value.Offset;
+            int end = i + value.Length;
             var state = ParseState.LeadingWhite;
             bool negative = false;
             bool noIntegerPart = false;
-            decimal fraction = 0.1m;
+            sbyte scale = 0;
 
-            while (i < value.Length)
+            while (i < end)
             {
-                var c = value.GetChar(i);
+                var c = value.Buffer[i];
 
                 switch (state)
                 {
@@ -337,9 +342,9 @@ namespace ServiceStack.Text.Support
                             state = ParseState.FractionNumber;
                             i++;
 
-                            if (i == value.Length)
+                            if (i == end)
                             {
-                                throw new FormatException("Input string was not in a correct format");
+                                throw new FormatException(BadFormat);
                             }
                         }
                         else if (c == '0')
@@ -349,13 +354,13 @@ namespace ServiceStack.Text.Support
                         }
                         else if (c > '0' && c <= '9')
                         {
-                            result = (c - '0');
+                            preResult = (ulong)(c - '0');
                             state = ParseState.Number;
                             i++;
                         }
                         else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.Sign:
@@ -365,9 +370,9 @@ namespace ServiceStack.Text.Support
                             state = ParseState.FractionNumber;
                             i++;
 
-                            if (i == value.Length)
+                            if (i == end)
                             {
-                                throw new FormatException("Input string was not in a correct format");
+                                throw new FormatException(BadFormat);
                             }
                         } else if (c == '0')
                         {
@@ -376,13 +381,13 @@ namespace ServiceStack.Text.Support
                         }
                         else if (c > '0' && c <= '9')
                         {
-                            result = -(c - '0');
+                            preResult = (ulong)(c - '0');
                             state = ParseState.Number;
                             i++;
                         }
                         else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.Number:
@@ -392,11 +397,20 @@ namespace ServiceStack.Text.Support
                             i++;
                         } else if (c >= '0' && c <= '9')
                         {
-                            checked
+                            if (isLargeNumber)
                             {
-                                result = negative
-                                    ? 10 * result - (c - '0')
-                                    : 10 * result + (c - '0');
+                                checked
+                                {
+                                    result = 10 * result + (c - '0');
+                                }
+                            } else
+                            {
+                                preResult = 10 * preResult + (ulong)(c - '0');
+                                if (preResult > ulong.MaxValue / 10 - 10)
+                                {
+                                    isLargeNumber = true;
+                                    result = preResult;
+                                }
                             }
                             i++;
                         }
@@ -407,7 +421,7 @@ namespace ServiceStack.Text.Support
                         }
                         else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.DecimalPoint:
@@ -417,51 +431,86 @@ namespace ServiceStack.Text.Support
                             i++;
                         } else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.FractionNumber:
                         if (Char.IsWhiteSpace(c))
                         {
                             if (noIntegerPart)
-                                throw new FormatException("Input string was not in a correct format");
+                                throw new FormatException(BadFormat);
                             state = ParseState.TrailingWhite;
                             i++;
                         } else if (c == 'e' || c == 'E')
                         {
-                            if (noIntegerPart && fraction == 0.1m)
-                                throw new FormatException("Input string was not in a correct format");
+                            if (noIntegerPart && scale == 0.1m)
+                                throw new FormatException(BadFormat);
                             state = ParseState.Exponent;
                             i++;
                         } else if (c >= '0' && c <= '9')
                         {
-                            checked
+                            if (isLargeNumber)
                             {
-                                result = negative
-                                ? result - fraction * (c - '0')
-                                : result + fraction * (c - '0');
-                                fraction *= 0.1m;
+                                checked
+                                {
+                                    result = 10 * result + (c - '0');
+                                }
                             }
+                            else
+                            {
+                                preResult = 10 * preResult + (ulong)(c - '0');
+                                if (preResult > ulong.MaxValue / 10 - 10)
+                                {
+                                    isLargeNumber = true;
+                                    result = preResult;
+                                }
+                            }
+                            scale++;
                             i++;
                         } else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.Exponent:
                         if (c == '-' || (c >= '0' && c <= '9'))
                         {
-                            int exp = value.Subsegment(i, value.Length - i).ParseInt16();
-                            checked
+                            var exp = (sbyte)- new StringSegment(value.Buffer, i, end - i).ParseSByte();
+                            if (exp >= 0)
                             {
-                                result *= (decimal)Math.Pow(10.0, exp);
+                                scale += exp;
+                            } else if (scale > -exp)
+                            {
+                                scale += exp;
+                            } else
+                            {
+                                for (int j = 0; j < -exp - scale; j++)
+                                {
+                                    if (isLargeNumber)
+                                    {
+                                        checked
+                                        {
+                                            result = 10 * result;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        preResult = 10 * preResult;
+                                        if (preResult > ulong.MaxValue / 10)
+                                        {
+                                            isLargeNumber = true;
+                                            result = preResult;
+                                        }
+                                    }
+                                }
+                                scale = 0;
                             }
 
                             //set i to end of string, because ParseInt16 eats number and all trailing whites
-                            i = value.Length;
+                            i = end;
                         } else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                     case ParseState.TrailingWhite:
@@ -472,13 +521,22 @@ namespace ServiceStack.Text.Support
                         }
                         else
                         {
-                            throw new FormatException("Input string was not in a correct format");
+                            throw new FormatException(BadFormat);
                         }
                         break;
                 }
             }
 
-            return result;
+            if (!isLargeNumber)
+            {
+                var mid = (int)(preResult >> 32);
+                var lo = (int)(preResult & 0xffffffff);
+                return new decimal(lo, mid, 0, negative, (byte)scale);
+            }
+
+            var bits = decimal.GetBits(result);
+            return new decimal(bits[0], bits[1], bits[2], negative, (byte)scale);
+            //return new decimal(negative? -result : result, 0, 0, negative, (byte)fraction);
         }
 
     }

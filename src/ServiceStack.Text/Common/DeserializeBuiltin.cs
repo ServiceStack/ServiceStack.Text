@@ -71,7 +71,7 @@ namespace ServiceStack.Text.Common
                     case TypeCode.Double:
                         return value => double.Parse(value.Value, CultureInfo.InvariantCulture);
                     case TypeCode.Decimal:
-                        return value => decimal.Parse(value.Value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+                        return value => value.ParseDecimal(allowThousands: true);
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestXsdDateTime(value.Value);
                     case TypeCode.Char:
