@@ -501,6 +501,165 @@ namespace ServiceStack.Text.Support
 
             return result;
         }
+        private static readonly byte[] lo16 = {
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 0, 1,
+            2, 3, 4, 5, 6, 7, 8, 9, 255, 255,
+            255, 255, 255, 255, 255, 10, 11, 12, 13, 14,
+            15, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 10, 11, 12,
+            13, 14, 15
+        };
 
+        private static readonly byte[] hi16 = {
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 0, 16,
+            32, 48, 64, 80, 96, 112, 128, 144, 255, 255,
+            255, 255, 255, 255, 255, 160, 176, 192, 208, 224,
+            240, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 160, 176, 192,
+            208, 224, 240
+        };
+
+        public static Guid ParseGuid(this StringSegment value)
+        {
+            //Guid can be in one of 3 forms:
+            //1. General `{dddddddd-dddd-dddd-dddd-dddddddddddd}` or `(dddddddd-dddd-dddd-dddd-dddddddddddd)` 8-4-4-4-12 chars
+            //2. Hex `{0xdddddddd,0xdddd,0xdddd,{0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd}}`  8-4-4-8x2 chars
+            //3. No style `dddddddddddddddddddddddddddddddd` 32 chars
+
+            int i = value.Offset;
+            int end = value.Offset + value.Length;
+            while (Char.IsWhiteSpace(value.Buffer[i]) && i < end) i++;
+
+            if (i == end)
+                throw new FormatException(BadFormat);
+
+            Guid result;
+
+            int guidLen;
+            result = ParseGeneralStyleGuid(new StringSegment(value.Buffer, i, end - i), out guidLen);
+            i += guidLen;
+
+            while (i < end && Char.IsWhiteSpace(value.Buffer[i])) i++;
+
+            if (i < end)
+                throw new FormatException(BadFormat);
+
+            return result;
+        }
+
+        private static Guid ParseGeneralStyleGuid(StringSegment value, out int len)
+        {
+            var buf = value.Buffer;
+            var n = value.Offset;
+
+            int dash = 0;
+            len = 32;
+            bool hasParentesis = false;
+
+            if (value.Length < len)
+                throw new FormatException(BadFormat);
+
+            var cs = value.GetChar(0);
+            if (cs == '{' || cs == '(')
+            {
+                n++;
+                len += 2;
+                hasParentesis = true;
+            }
+
+            if (buf[8 + n] == '-')
+            {
+                if (buf[13 + n] != '-'
+                    || buf[18 + n] != '-'
+                    || buf[23 + n] != '-')
+                    throw new FormatException(BadFormat);
+                len += 4;
+                dash = 1;
+            }
+
+            if (value.Length < len)
+                throw new FormatException(BadFormat);
+
+            if (hasParentesis)
+            {
+                var ce = buf[value.Offset + len - 1];
+
+                if ((cs != '{' || ce != '}') && (cs != '(' || ce != ')'))
+                    throw new FormatException(BadFormat);
+            }
+
+            int a;
+            short b, c;
+            byte d, e, f, g, h, i, j, k;
+
+            byte a1 = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            byte a2 = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            byte a3 = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            byte a4 = ParseHexByte(buf[n], buf[n + 1]);
+            a = (a1 << 24) + (a2 << 16) + (a3 << 8) + a4;
+            n += 2 + dash;
+
+            byte b1 = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            byte b2 = ParseHexByte(buf[n], buf[n + 1]);
+            b = (short)((b1 << 8) + b2);
+            n += 2 + dash;
+
+            byte c1 = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            byte c2 = ParseHexByte(buf[n], buf[n + 1]);
+            c = (short)((c1 << 8) + c2);
+            n += 2 + dash;
+
+            d = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            e = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2 + dash;
+
+            f = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            g = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            h = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            i = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            j = ParseHexByte(buf[n], buf[n + 1]);
+            n += 2;
+            k = ParseHexByte(buf[n], buf[n + 1]);
+
+            return new Guid(a, b, c, d, e, f, g, h, i, j, k);
+        }
+
+        private static byte ParseHexByte(char c1, char c2)
+        {
+            try
+            {
+                byte lo = lo16[c2];
+                byte hi = hi16[c1];
+
+                if (lo == 255 || hi == 255)
+                    throw new FormatException(BadFormat);
+
+                return (byte)(hi + lo);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new FormatException(BadFormat);
+            }
+        }
     }
 }

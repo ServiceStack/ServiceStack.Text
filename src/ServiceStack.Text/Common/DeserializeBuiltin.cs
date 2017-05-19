@@ -83,7 +83,7 @@ namespace ServiceStack.Text.Common
                 }
 
                 if (typeof(T) == typeof(Guid))
-                    return value => new Guid(value.Value);
+                    return value => value.ParseGuid();
                 if (typeof(T) == typeof(DateTimeOffset))
                     return value => DateTimeSerializer.ParseDateTimeOffset(value.Value);
                 if (typeof(T) == typeof(TimeSpan))
@@ -138,7 +138,7 @@ namespace ServiceStack.Text.Common
                 if (typeof(T) == typeof(TimeSpan?))
                     return value => DateTimeSerializer.ParseNullableTimeSpan(value.Value);
                 if (typeof(T) == typeof(Guid?))
-                    return value => value.IsNullOrEmpty() ? (Guid?)null : new Guid(value.Value);
+                    return value => value.IsNullOrEmpty() ? (Guid?)null : value.ParseGuid();
                 if (typeof(T) == typeof(DateTimeOffset?))
                     return value => DateTimeSerializer.ParseNullableDateTimeOffset(value.Value);
             }

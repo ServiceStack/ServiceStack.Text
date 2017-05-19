@@ -70,5 +70,13 @@ namespace ServiceStack.Text.Tests.Support
             //Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
 
         }
+
+        [Test]
+        public void Can_parse_guid()
+        {
+            Assert.That(new StringSegment("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}").ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
+            Assert.That(new StringSegment("b6170a18-3dd7-4a9b-b5d6-21033b5ad162").ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
+            Assert.That(new StringSegment("b6170a183dd74a9bb5d621033b5ad162").ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
+        }
     }
-    }
+}

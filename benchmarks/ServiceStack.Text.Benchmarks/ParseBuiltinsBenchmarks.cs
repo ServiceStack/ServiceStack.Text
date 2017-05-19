@@ -17,6 +17,7 @@ namespace ServiceStack.Text.Benchmarks
         const string decimal_2 = "-1234.5678";
         const string decimal_3 = "1234.5678901234567890";
         const string decimal_4 = "-1234.5678901234567890";
+        const string guid_1 = "{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}";
 
         readonly StringSegment ss_int32_1 = new StringSegment(int32_1);
         readonly StringSegment ss_int32_2 = new StringSegment(int32_2);
@@ -24,6 +25,7 @@ namespace ServiceStack.Text.Benchmarks
         readonly StringSegment ss_decimal_2 = new StringSegment(decimal_2);
         readonly StringSegment ss_decimal_3 = new StringSegment(decimal_3);
         readonly StringSegment ss_decimal_4 = new StringSegment(decimal_4);
+        readonly StringSegment ss_guid_1 = new StringSegment(guid_1);
 
         [Benchmark]
         public void Int32Parse()
@@ -68,5 +70,16 @@ namespace ServiceStack.Text.Benchmarks
             var res2 = ss_decimal_4.ParseDecimal(true);
         }
 
+        [Benchmark]
+        public void GuidParse()
+        {
+            var res1 = Guid.Parse(guid_1);
+        }
+
+        [Benchmark]
+        public void StringSegment_GuidParse()
+        {
+            var res1 = ss_guid_1.ParseGuid();
+        }
     }
 }
