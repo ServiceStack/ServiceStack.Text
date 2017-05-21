@@ -393,6 +393,9 @@ namespace ServiceStack.Text.Support
                         {
                             state = ParseState.TrailingWhite;
                         }
+                        else if (allowThousands && c == ',')
+                        {
+                        }
                         else
                         {
                             throw new FormatException(BadFormat);

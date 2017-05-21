@@ -69,6 +69,10 @@ namespace ServiceStack.Text.Tests.Support
             Assert.That(new StringSegment("2.e2").ParseDecimal(), Is.EqualTo(200m));
             //Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
 
+            //allow thouthands
+            Assert.That(new StringSegment("1,234.5678").ParseDecimal(true), Is.EqualTo(1234.5678m));
+            Assert.Throws<FormatException>(() => new StringSegment(",1234.5678").ParseDecimal(true));
+
         }
 
         [Test]
