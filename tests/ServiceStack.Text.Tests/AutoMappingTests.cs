@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
@@ -8,6 +9,7 @@ using System.Web.Script.Serialization;
 #endif
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels;
+using ServiceStack.Web;
 
 namespace ServiceStack.Text.Tests
 {
@@ -691,6 +693,20 @@ namespace ServiceStack.Text.Tests
             var test = new Test();
             fn(test, "Foo");
             Assert.That(test.Name, Is.EqualTo("Foo"));
+        }
+
+        public class RawRequest : IRequiresRequestStream
+        {
+            public Stream RequestStream { get; set; }
+        }
+
+        [Test]
+        public void Can_create_DTO_with_Stream()
+        {
+            var o = typeof(RawRequest).CreateInstance();
+            var requestObj = AutoMappingUtils.PopulateWith(o);
+
+            Assert.That(requestObj, Is.Not.Null);
         }
     }
 }

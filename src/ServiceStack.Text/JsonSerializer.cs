@@ -147,7 +147,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                var writer = new DirectStreamWriter(stream, UTF8Encoding);
+                var writer = new StreamWriter(stream, UTF8Encoding);
                 JsonWriter<T>.WriteRootObject(writer, value);
                 writer.Flush();
             }
@@ -155,7 +155,7 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object value, Type type, Stream stream)
         {
-            var writer = new DirectStreamWriter(stream, UTF8Encoding);
+            var writer = new StreamWriter(stream, UTF8Encoding);
             JsonWriter.GetWriteFn(type)(writer, value);
             writer.Flush();
         }

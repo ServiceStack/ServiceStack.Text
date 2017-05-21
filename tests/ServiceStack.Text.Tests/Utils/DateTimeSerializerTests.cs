@@ -741,6 +741,21 @@ namespace ServiceStack.Text.Tests.Utils
             Assert.That("31536000".FromJson<TimeSpan>(), Is.EqualTo(TimeSpan.FromDays(365)));
             Assert.That("31539661.001".FromJson<TimeSpan>(), Is.EqualTo(Time1Y1M1H1S1MS));
         }
+
+        [Test]
+        public void Does_not_lose_precision()
+        {
+            Assert.Multiple(() =>
+            {
+                for (int i = 1; i <= 999; i++)
+                {
+                    TimeSpan timeSpan = new TimeSpan(0, 0, 0, 0, i);
+                    string json = JsonSerializer.SerializeToString(timeSpan);
+                    TimeSpan timeSpanAfter = JsonSerializer.DeserializeFromString<TimeSpan>(json);
+                    Assert.AreEqual(TimeSpan.FromMilliseconds(i), timeSpanAfter);
+                }
+            });
+        }
     }
 
     [TestFixture]
