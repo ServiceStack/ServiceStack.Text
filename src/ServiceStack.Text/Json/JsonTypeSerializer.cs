@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Pools;
@@ -33,16 +34,6 @@ namespace ServiceStack.Text.Json
         internal static string GetTypeAttrInObject(string typeAttr)
         {
             return string.Format("{{\"{0}\":", typeAttr);
-        }
-
-        public static readonly bool[] WhiteSpaceFlags = new bool[' ' + 1];
-
-        static JsonTypeSerializer()
-        {
-            foreach (var c in JsonUtils.WhiteSpaceChars)
-            {
-                WhiteSpaceFlags[c] = true;
-            }
         }
 
         public WriteObjectDelegate GetWriteFn<T>()
@@ -343,7 +334,7 @@ namespace ServiceStack.Text.Json
 
         public static bool IsEmptyMap(string value, int i = 1)
         {
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             if (value.Length == i) return true;
             return value[i++] == JsWriter.MapEndChar;
         }
@@ -393,7 +384,7 @@ namespace ServiceStack.Text.Json
 
         internal static string ParseJsonString(string json, ref int index)
         {
-            for (; index < json.Length; index++) { var ch = json[index]; if (ch >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[ch]) break; } //Whitespace inline
+            for (; index < json.Length; index++) { var ch = json[index]; if (!JsonUtils.IsWhiteSpace(ch)) break; } //Whitespace inline
 
             return UnEscapeJsonString(json, ref index);
         }
@@ -558,14 +549,14 @@ namespace ServiceStack.Text.Json
 
         public bool EatMapStartChar(string value, ref int i)
         {
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             return value[i++] == JsWriter.MapStartChar;
         }
 
         public string EatMapKey(string value, ref int i)
         {
             var valueLength = value.Length;
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
 
             var tokenStartPos = i;
             var valueChar = value[i];
@@ -589,7 +580,7 @@ namespace ServiceStack.Text.Json
 
                 if (valueChar == JsWriter.ItemSeperator
                     //If it doesn't have quotes it's either a keyword or number so also has a ws boundary
-                    || (valueChar < WhiteSpaceFlags.Length && WhiteSpaceFlags[valueChar])
+                    || (JsonUtils.IsWhiteSpace(valueChar))
                 )
                 {
                     break;
@@ -601,14 +592,14 @@ namespace ServiceStack.Text.Json
 
         public bool EatMapKeySeperator(string value, ref int i)
         {
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             if (value.Length == i) return false;
             return value[i++] == JsWriter.MapKeySeperator;
         }
 
         public bool EatItemSeperatorOrMapEndChar(string value, ref int i)
         {
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
 
             if (i == value.Length) return false;
 
@@ -619,7 +610,7 @@ namespace ServiceStack.Text.Json
 
             if (success)
             {
-                for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+                for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             }
 
             return success;
@@ -627,7 +618,7 @@ namespace ServiceStack.Text.Json
 
         public void EatWhitespace(string value, ref int i)
         {
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
         }
 
         public string EatValue(string value, ref int i)
@@ -635,7 +626,7 @@ namespace ServiceStack.Text.Json
             var valueLength = value.Length;
             if (i == valueLength) return null;
 
-            for (; i < value.Length; i++) { var c = value[i]; if (c >= WhiteSpaceFlags.Length || !WhiteSpaceFlags[c]) break; } //Whitespace inline
+            for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             if (i == valueLength) return null;
 
             var tokenStartPos = i;
@@ -715,7 +706,7 @@ namespace ServiceStack.Text.Json
                 if (valueChar == JsWriter.ItemSeperator
                     || valueChar == JsWriter.MapEndChar
                     //If it doesn't have quotes it's either a keyword or number so also has a ws boundary
-                    || (valueChar < WhiteSpaceFlags.Length && WhiteSpaceFlags[valueChar])
+                    || JsonUtils.IsWhiteSpace(valueChar)
                 )
                 {
                     break;

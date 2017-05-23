@@ -1,6 +1,7 @@
 //Copyright (c) Service Stack LLC. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -18,11 +19,12 @@ namespace ServiceStack.Text.Json
         public const string True = "true";
         public const string False = "false";
 
-        private const char TabChar = '\t';
-        private const char CarriageReturnChar = '\r';
-        private const char LineFeedChar = '\n';
-        private const char FormFeedChar = '\f';
-        private const char BackspaceChar = '\b';
+        public const char SpaceChar = ' ';
+        public const char TabChar = '\t';
+        public const char CarriageReturnChar = '\r';
+        public const char LineFeedChar = '\n';
+        public const char FormFeedChar = '\f';
+        public const char BackspaceChar = '\b';
 
         /// <summary>
         /// Micro-optimization keep pre-built char arrays saving a .ToCharArray() + function call (see .net implementation of .Write(string))
@@ -36,6 +38,12 @@ namespace ServiceStack.Text.Json
         private static readonly char[] EscapedQuote = { EscapeChar, QuoteChar };
 
         public static readonly char[] WhiteSpaceChars = { ' ', TabChar, CarriageReturnChar, LineFeedChar };
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsWhiteSpace(char c)
+        {
+            return c == ' ' || (c >= '\x0009' && c <= '\x000d') || c == '\x00a0' || c == '\x0085';
+        }
 
         public static void WriteString(TextWriter writer, string value)
         {
