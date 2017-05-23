@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Globalization;
+using ServiceStack.Text.Json;
 #if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
 #endif
@@ -118,17 +119,63 @@ namespace ServiceStack.Text.Support
             TrailingWhite
         }
 
-        public static sbyte ParseSByte(this StringSegment value) => (sbyte)ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
-        public static byte ParseByte(this StringSegment value) => (byte)ParseUnsignedInteger(value, byte.MaxValue);
+        public static sbyte ParseSByte(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? sbyte.Parse(value.Value)
+                : (sbyte) ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
+        }
 
-        public static short ParseInt16(this StringSegment value) => (short)ParseSignedInteger(value, short.MaxValue, short.MinValue);
-        public static ushort ParseUInt16(this StringSegment value) => (ushort)ParseUnsignedInteger(value, ushort.MaxValue);
+        public static byte ParseByte(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? byte.Parse(value.Value)
+                : (byte) ParseUnsignedInteger(value, byte.MaxValue);
+        }
 
-        public static int ParseInt32(this StringSegment value) => (int)ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
-        public static uint ParseUInt32(this StringSegment value) => (uint)ParseUnsignedInteger(value, UInt32.MaxValue);
+        public static short ParseInt16(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? short.Parse(value.Value)
+                : (short) ParseSignedInteger(value, short.MaxValue, short.MinValue);
+        }
 
-        public static long ParseInt64(this StringSegment value) => ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
-        public static ulong ParseUInt64(this StringSegment value) => ParseUnsignedInteger(value, UInt64.MaxValue);
+        public static ushort ParseUInt16(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? ushort.Parse(value.Value)
+                : (ushort) ParseUnsignedInteger(value, ushort.MaxValue);
+        }
+
+
+        public static int ParseInt32(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? int.Parse(value.Value)
+                : (int) ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
+        }
+
+        public static uint ParseUInt32(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? uint.Parse(value.Value)
+                : (uint) ParseUnsignedInteger(value, UInt32.MaxValue);
+        }
+
+        public static long ParseInt64(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? long.Parse(value.Value)
+                : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
+
+        }
+
+        public static ulong ParseUInt64(this StringSegment value)
+        {
+            return JsConfig.UseSystemParseMethods
+                ? ulong.Parse(value.Value)
+                : ParseUnsignedInteger(value, UInt64.MaxValue);
+        }
 
         private static ulong ParseUnsignedInteger(StringSegment value, ulong maxValue)
         {
@@ -146,7 +193,7 @@ namespace ServiceStack.Text.Support
                 switch (state)
                 {
                     case ParseState.LeadingWhite:
-                        if (Char.IsWhiteSpace(c))
+                        if (JsonUtils.IsWhiteSpace(c))
                             break;
                         if (c == '0')
                         {
@@ -172,7 +219,7 @@ namespace ServiceStack.Text.Support
                             if (result > maxValue) //check only minvalue, because in absolute value it's greater than maxvalue
                                 throw new OverflowException();
                         }
-                        else if (Char.IsWhiteSpace(c))
+                        else if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
                         }
@@ -182,7 +229,7 @@ namespace ServiceStack.Text.Support
                         }
                         break;
                     case ParseState.TrailingWhite:
-                        if (Char.IsWhiteSpace(c))
+                        if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
                         }
@@ -214,7 +261,7 @@ namespace ServiceStack.Text.Support
                 switch (state)
                 {
                     case ParseState.LeadingWhite:
-                        if (Char.IsWhiteSpace(c))
+                        if (JsonUtils.IsWhiteSpace(c))
                             break;
 
                         if (c == '-')
@@ -256,7 +303,7 @@ namespace ServiceStack.Text.Support
                             if (result < minValue) //check only minvalue, because in absolute value it's greater than maxvalue
                                 throw new OverflowException();
                         }
-                        else if (Char.IsWhiteSpace(c))
+                        else if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
                         } else
@@ -265,7 +312,7 @@ namespace ServiceStack.Text.Support
                         }
                         break;
                     case ParseState.TrailingWhite:
-                        if (Char.IsWhiteSpace(c))
+                        if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
                         } else
@@ -292,6 +339,13 @@ namespace ServiceStack.Text.Support
 
         public static decimal ParseDecimal(this StringSegment value, bool allowThousands = false)
         {
+            if (JsConfig.UseSystemParseMethods)
+            {
+                return decimal.Parse(value.Value,
+                    allowThousands ? NumberStyles.Float : (NumberStyles.Float | NumberStyles.AllowThousands),
+                    CultureInfo.InvariantCulture);
+            }
+
             if (value.Length == 0)
                 throw new FormatException(BadFormat);
 
@@ -312,7 +366,7 @@ namespace ServiceStack.Text.Support
                 switch (state)
                 {
                     case ParseState.LeadingWhite:
-                        if (Char.IsWhiteSpace(c))
+                        if (JsonUtils.IsWhiteSpace(c))
                             break;
 
                         if (c == '-')
@@ -389,7 +443,7 @@ namespace ServiceStack.Text.Support
                                 }
                             }
                         }
-                        else if (Char.IsWhiteSpace(c))
+                        else if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
                         }
@@ -411,7 +465,7 @@ namespace ServiceStack.Text.Support
                         }
                         break;
                     case ParseState.FractionNumber:
-                        if (Char.IsWhiteSpace(c))
+                        if (JsonUtils.IsWhiteSpace(c))
                         {
                             if (noIntegerPart)
                                 throw new FormatException(BadFormat);
@@ -484,7 +538,7 @@ namespace ServiceStack.Text.Support
                         }
                         break;
                     case ParseState.TrailingWhite:
-                        if (!Char.IsWhiteSpace(c))
+                        if (!JsonUtils.IsWhiteSpace(c))
                             throw new FormatException(BadFormat);
                         break;
                 }
@@ -534,6 +588,9 @@ namespace ServiceStack.Text.Support
 
         public static Guid ParseGuid(this StringSegment value)
         {
+            if (JsConfig.UseSystemParseMethods)
+                return Guid.Parse(value.Value);
+
             //Guid can be in one of 3 forms:
             //1. General `{dddddddd-dddd-dddd-dddd-dddddddddddd}` or `(dddddddd-dddd-dddd-dddd-dddddddddddd)` 8-4-4-4-12 chars
             //2. Hex `{0xdddddddd,0xdddd,0xdddd,{0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd}}`  8-4-4-8x2 chars
@@ -541,7 +598,7 @@ namespace ServiceStack.Text.Support
 
             int i = value.Offset;
             int end = value.Offset + value.Length;
-            while (Char.IsWhiteSpace(value.Buffer[i]) && i < end) i++;
+            while (JsonUtils.IsWhiteSpace(value.Buffer[i]) && i < end) i++;
 
             if (i == end)
                 throw new FormatException(BadFormat);
@@ -552,7 +609,7 @@ namespace ServiceStack.Text.Support
             result = ParseGeneralStyleGuid(new StringSegment(value.Buffer, i, end - i), out guidLen);
             i += guidLen;
 
-            while (i < end && Char.IsWhiteSpace(value.Buffer[i])) i++;
+            while (i < end && JsonUtils.IsWhiteSpace(value.Buffer[i])) i++;
 
             if (i < end)
                 throw new FormatException(BadFormat);
