@@ -921,6 +921,8 @@ namespace ServiceStack.Text
 
         public static HashSet<string> AllowRuntimeTypeWithInterfacesNamed { get; set; }
 
+        public static HashSet<string> DenyRuntimeTypeInNamespaces { get; set; }
+
         public static HashSet<string> AllowRuntimeTypeInTypesWithNamespaces { get; set; }
 
         public static Func<Type, bool> AllowRuntimeType { get; set; }
@@ -998,6 +1000,10 @@ namespace ServiceStack.Text
             AllowRuntimeTypeInTypesWithNamespaces = new HashSet<string>
             {
                 "ServiceStack.Messaging",
+            };
+            DenyRuntimeTypeInNamespaces = new HashSet<string>
+            {
+                "System.CodeDom.Compiler",
             };
             PlatformExtensions.ClearRuntimeAttributes();
             ReflectionExtensions.Reset();

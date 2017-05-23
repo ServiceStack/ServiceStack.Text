@@ -205,5 +205,32 @@ namespace ServiceStack.Text.Tests
             var fromJson = json.FromJson<Message>();
             Assert.That(fromJson.Body.GetType(), Is.EqualTo(typeof(AType)));
         }
+
+        [Test]
+        public void Does_not_allow_Types_in_DenyRuntimeTypeInTypesWithNamespaces()
+        {
+            //Uses JsConfig.DenyRuntimeTypeInNamespaces
+
+            var types = new Type[]
+            {
+#if NET45
+                typeof(System.CodeDom.Compiler.TempFileCollection)
+#endif
+            };
+
+            foreach (var type in types)
+            {
+                var json = CreateJson(type);
+                try
+                {
+                    var instance = json.FromJson<RuntimeObject>();
+                    Assert.Fail("Should throw " + type.Name);
+                }
+                catch (NotSupportedException ex)
+                {
+                    ex.Message.Print();
+                }
+            }
+        }
     }
 }
