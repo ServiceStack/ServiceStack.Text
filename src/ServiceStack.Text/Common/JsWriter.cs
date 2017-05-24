@@ -161,16 +161,6 @@ namespace ServiceStack.Text.Common
             if (JsConfig.AllowRuntimeType?.Invoke(type) == true)
                 return;
 
-            var denyTypesInNamespaces = JsConfig.DenyRuntimeTypeInNamespaces;
-            if (denyTypesInNamespaces?.Count > 0)
-            {
-                foreach (var ns in denyTypesInNamespaces)
-                {
-                    if (type.Namespace == ns)
-                        throw new NotSupportedException($"{type.Name} is not an allowed Runtime Type. Denied in JsConfig.DenyRuntimeTypeInNamespaces");
-                }
-            }
-
             var allowAttributesNamed = JsConfig.AllowRuntimeTypeWithAttributesNamed;
             if (allowAttributesNamed?.Count > 0)
             {
