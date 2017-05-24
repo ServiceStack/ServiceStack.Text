@@ -122,28 +122,28 @@ namespace ServiceStack.Text.Support
         public static sbyte ParseSByte(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? sbyte.Parse(value.Value)
+                ? sbyte.Parse(value.Value, CultureInfo.InvariantCulture)
                 : (sbyte) ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
         }
 
         public static byte ParseByte(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? byte.Parse(value.Value)
+                ? byte.Parse(value.Value, CultureInfo.InvariantCulture)
                 : (byte) ParseUnsignedInteger(value, byte.MaxValue);
         }
 
         public static short ParseInt16(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? short.Parse(value.Value)
+                ? short.Parse(value.Value, CultureInfo.InvariantCulture)
                 : (short) ParseSignedInteger(value, short.MaxValue, short.MinValue);
         }
 
         public static ushort ParseUInt16(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? ushort.Parse(value.Value)
+                ? ushort.Parse(value.Value, CultureInfo.InvariantCulture)
                 : (ushort) ParseUnsignedInteger(value, ushort.MaxValue);
         }
 
@@ -151,21 +151,21 @@ namespace ServiceStack.Text.Support
         public static int ParseInt32(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? int.Parse(value.Value)
+                ? int.Parse(value.Value, CultureInfo.InvariantCulture)
                 : (int) ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
         }
 
         public static uint ParseUInt32(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? uint.Parse(value.Value)
+                ? uint.Parse(value.Value, CultureInfo.InvariantCulture)
                 : (uint) ParseUnsignedInteger(value, UInt32.MaxValue);
         }
 
         public static long ParseInt64(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? long.Parse(value.Value)
+                ? long.Parse(value.Value, CultureInfo.InvariantCulture)
                 : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
 
         }
@@ -173,7 +173,7 @@ namespace ServiceStack.Text.Support
         public static ulong ParseUInt64(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
-                ? ulong.Parse(value.Value)
+                ? ulong.Parse(value.Value, CultureInfo.InvariantCulture)
                 : ParseUnsignedInteger(value, UInt64.MaxValue);
         }
 
