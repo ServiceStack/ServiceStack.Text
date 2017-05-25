@@ -43,9 +43,9 @@ namespace ServiceStack
             return GenericPublicSetters.TryGetValue(name, out SetPropertyDelegateRefGeneric<T> fn)
                 ? delegate (ref object instance, object arg)
                   {
-                    var valueInstance = (T)instance;
-                    fn(ref valueInstance, arg);
-                    instance = valueInstance;
+                      var valueInstance = (T)instance;
+                      fn(ref valueInstance, arg);
+                      instance = valueInstance;
                   }
             : (SetPropertyDelegateRef)null;
         }
@@ -68,7 +68,8 @@ namespace ServiceStack
             do
             {
                 snapshot = CacheMap;
-                newCache = new Dictionary<Type, TypeFields>(CacheMap) {
+                newCache = new Dictionary<Type, TypeFields>(CacheMap)
+                {
                     [type] = instance
                 };
             } while (!ReferenceEquals(
