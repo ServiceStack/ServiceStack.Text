@@ -67,7 +67,8 @@ namespace ServiceStack.Text.Tests.Support
             Assert.That(new StringSegment("10.001E-2").ParseDecimal(), Is.EqualTo(0.10001m));
             Assert.That(new StringSegment("10.001e-8").ParseDecimal(), Is.EqualTo(0.00000010001m));
             Assert.That(new StringSegment("2.e2").ParseDecimal(), Is.EqualTo(200m));
-            //Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
+            Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
+            Assert.That(new StringSegment("9.e+000027").ParseDecimal(), Is.EqualTo(decimal.Parse("9.e+000027", NumberStyles.Float, CultureInfo.InvariantCulture)));
 
             //allow thouthands
             Assert.That(new StringSegment("1,234.5678").ParseDecimal(true), Is.EqualTo(1234.5678m));

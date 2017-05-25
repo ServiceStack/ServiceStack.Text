@@ -472,7 +472,7 @@ namespace ServiceStack.Text.Support
                             state = ParseState.TrailingWhite;
                         } else if (c == 'e' || c == 'E')
                         {
-                            if (noIntegerPart && scale == 0.1m)
+                            if (noIntegerPart && scale == 0)
                                 throw new FormatException(BadFormat);
                             state = ParseState.Exponent;
                         } else if (c >= '0' && c <= '9')
@@ -500,9 +500,33 @@ namespace ServiceStack.Text.Support
                         }
                         break;
                     case ParseState.Exponent:
-                        if (c == '-' || (c >= '0' && c <= '9'))
+                        bool expNegative = false;
+                        if (c == '-')
                         {
-                            var exp = (sbyte)- new StringSegment(value.Buffer, i - 1, end - i + 1).ParseSByte();
+                            if (i == end)
+                                throw new FormatException(BadFormat);
+
+                            expNegative = true;
+                            c = value.Buffer[i++];
+                        }
+                        else if (c == '+')
+                        {
+                            if (i == end)
+                                throw new FormatException(BadFormat);
+                            c = value.Buffer[i++];
+                        }
+
+                        //skip leading zeroes
+                        while (c == '0' && i < end) c = value.Buffer[i++];
+
+                        if (c > '0' && c <= '9')
+                        {
+                            var exp = new StringSegment(value.Buffer, i - 1, end - i + 1).ParseSByte();
+                            if (!expNegative)
+                            {
+                                exp = (sbyte) -exp;
+                            }
+
                             if (exp >= 0 || scale > -exp)
                             {
                                 scale += exp;
