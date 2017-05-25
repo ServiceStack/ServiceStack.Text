@@ -28,6 +28,10 @@ namespace ServiceStack.Text.Common
 
     public delegate void SetPropertyDelegate(object instance, object propertyValue);
 
+    public delegate void SetPropertyDelegateRef(ref object instance, object propertyValue);
+
+    public delegate void SetPropertyDelegateRefGeneric<T>(ref T instance, object value);
+
     public delegate object ParseStringDelegate(string stringValue);
 
     public delegate object ConvertObjectDelegate(object fromObject);

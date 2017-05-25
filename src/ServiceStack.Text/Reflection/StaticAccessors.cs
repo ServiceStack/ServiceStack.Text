@@ -15,6 +15,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ServiceStack.Text;
+using ServiceStack.Text.Common;
 #if !XBOX
 using System.Linq.Expressions;
 #endif
@@ -181,6 +182,25 @@ namespace ServiceStack.Reflection
             ).Compile();
         }
 
+        public static Action<object, object> GetValueSetter(this FieldInfo fieldInfo, Type instanceType)
+        {
+            var instance = Expression.Parameter(typeof(object), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var field = instanceType != fieldInfo.DeclaringType
+                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
+                : Expression.Field(Expression.Convert(instance, instanceType), fieldInfo);
+
+            var setterCall = Expression.Assign(
+                field,
+                Expression.Convert(argument, fieldInfo.FieldType));
+
+            return Expression.Lambda<Action<object, object>>
+            (
+                setterCall, instance, argument
+            ).Compile();
+        }
+
         public static Action<T, object> GetValueSetter<T>(this FieldInfo fieldInfo)
         {
             var instance = Expression.Parameter(typeof(T), "i");
@@ -195,6 +215,25 @@ namespace ServiceStack.Reflection
                 Expression.Convert(argument, fieldInfo.FieldType));
 
             return Expression.Lambda<Action<T, object>>
+            (
+                setterCall, instance, argument
+            ).Compile();
+        }
+
+        public static SetPropertyDelegateRefGeneric<T> GetValueSetterGenericRef<T>(this FieldInfo fieldInfo)
+        {
+            var instance = Expression.Parameter(typeof(T).MakeByRefType(), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var field = typeof(T) != fieldInfo.DeclaringType
+                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
+                : Expression.Field(instance, fieldInfo);
+
+            var setterCall = Expression.Assign(
+                field,
+                Expression.Convert(argument, fieldInfo.FieldType));
+
+            return Expression.Lambda<SetPropertyDelegateRefGeneric<T>>
             (
                 setterCall, instance, argument
             ).Compile();
