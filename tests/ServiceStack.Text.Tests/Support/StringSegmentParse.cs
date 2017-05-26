@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using ServiceStack.Text.Support;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 #if NETCORE
 using Microsoft.Extensions.Primitives;
@@ -34,6 +35,98 @@ namespace ServiceStack.Text.Tests.Support
             Assert.Throws<FormatException>(() => new StringSegment("abbababab").ParseInt32());
             Assert.Throws<FormatException>(() => new StringSegment("x10").ParseInt32());
             Assert.Throws<FormatException>(() => new StringSegment("    1234  123").ParseInt32());
+        }
+
+        [Test]
+        public void Can_parse_invalid_int32()
+        {
+            foreach (var data in Parse_Invalid_TestData())
+            {
+                Assert.Throws((Type)data[3], () => new StringSegment((string) data[0]).ParseInt32());
+            }
+        }
+
+
+        //ivalid tests data from 
+        //https://github.com/dotnet/corefx/blob/df8d8ac7c49e6c4acdce2ea684d8815be5da6a25/src/System.Runtime/tests/System/Int32Tests.cs#L150
+        public static IEnumerable<object[]> Parse_Invalid_TestData()
+        {
+            // String is null, empty or entirely whitespace
+            yield return new object[] { null, NumberStyles.Integer, null, typeof(ArgumentNullException) };
+            yield return new object[] { null, NumberStyles.Any, null, typeof(ArgumentNullException) };
+            yield return new object[] { "", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { "", NumberStyles.Any, null, typeof(FormatException) };
+            yield return new object[] { " \t \n \r ", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { " \t \n \r ", NumberStyles.Any, null, typeof(FormatException) };
+
+            // String is garbage
+            yield return new object[] { "Garbage", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { "Garbage", NumberStyles.Any, null, typeof(FormatException) };
+
+            // String has leading zeros
+            yield return new object[] { "\0\0123", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { "\0\0123", NumberStyles.Any, null, typeof(FormatException) };
+
+            // String has internal zeros
+            yield return new object[] { "1\023", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { "1\023", NumberStyles.Any, null, typeof(FormatException) };
+
+            // Integer doesn't allow hex, exponents, paretheses, currency, thousands, decimal
+            yield return new object[] { "abc", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { "1E23", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { "(123)", NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { 1000.ToString("C0"), NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { 1000.ToString("N0"), NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { 678.90.ToString("F2"), NumberStyles.Integer, null, typeof(FormatException) };
+
+            // HexNumber
+            yield return new object[] { "0xabc", NumberStyles.HexNumber, null, typeof(FormatException) };
+            yield return new object[] { "&habc", NumberStyles.HexNumber, null, typeof(FormatException) };
+            yield return new object[] { "G1", NumberStyles.HexNumber, null, typeof(FormatException) };
+            yield return new object[] { "g1", NumberStyles.HexNumber, null, typeof(FormatException) };
+            yield return new object[] { "+abc", NumberStyles.HexNumber, null, typeof(FormatException) };
+            yield return new object[] { "-abc", NumberStyles.HexNumber, null, typeof(FormatException) };
+
+            // AllowLeadingSign
+            yield return new object[] { "+", NumberStyles.AllowLeadingSign, null, typeof(FormatException) };
+            yield return new object[] { "-", NumberStyles.AllowLeadingSign, null, typeof(FormatException) };
+            yield return new object[] { "+-123", NumberStyles.AllowLeadingSign, null, typeof(FormatException) };
+            yield return new object[] { "-+123", NumberStyles.AllowLeadingSign, null, typeof(FormatException) };
+            yield return new object[] { "- 123", NumberStyles.AllowLeadingSign, null, typeof(FormatException) };
+            yield return new object[] { "+ 123", NumberStyles.AllowLeadingSign, null, typeof(FormatException) };
+
+            // AllowTrailingSign
+            yield return new object[] { "123-+", NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+            yield return new object[] { "123+-", NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+            yield return new object[] { "123 -", NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+            yield return new object[] { "123 +", NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+
+            // Parentheses has priority over CurrencySymbol and PositiveSign
+            NumberFormatInfo currencyNegativeParenthesesFormat = new NumberFormatInfo()
+            {
+                CurrencySymbol = "(",
+                PositiveSign = "))"
+            };
+            yield return new object[] { "(100))", NumberStyles.AllowParentheses | NumberStyles.AllowCurrencySymbol | NumberStyles.AllowTrailingSign, currencyNegativeParenthesesFormat, typeof(FormatException) };
+
+            // AllowTrailingSign and AllowLeadingSign
+            yield return new object[] { "+123+", NumberStyles.AllowLeadingSign | NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+            yield return new object[] { "+123-", NumberStyles.AllowLeadingSign | NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+            yield return new object[] { "-123+", NumberStyles.AllowLeadingSign | NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+            yield return new object[] { "-123-", NumberStyles.AllowLeadingSign | NumberStyles.AllowTrailingSign, null, typeof(FormatException) };
+
+            // AllowLeadingSign and AllowParentheses
+            yield return new object[] { "-(1000)", NumberStyles.AllowLeadingSign | NumberStyles.AllowParentheses, null, typeof(FormatException) };
+            yield return new object[] { "(-1000)", NumberStyles.AllowLeadingSign | NumberStyles.AllowParentheses, null, typeof(FormatException) };
+
+            // Not in range of Int32
+            yield return new object[] { "2147483648", NumberStyles.Any, null, typeof(OverflowException) };
+            yield return new object[] { "2147483648", NumberStyles.Integer, null, typeof(OverflowException) };
+            yield return new object[] { "-2147483649", NumberStyles.Any, null, typeof(OverflowException) };
+            yield return new object[] { "-2147483649", NumberStyles.Integer, null, typeof(OverflowException) };
+
+            yield return new object[] { "9223372036854775808", NumberStyles.Integer, null, typeof(OverflowException) };
+            yield return new object[] { "-9223372036854775809", NumberStyles.Integer, null, typeof(OverflowException) };
         }
 
         [Test]

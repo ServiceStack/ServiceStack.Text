@@ -241,29 +241,38 @@ namespace ServiceStack.Text.Support
                 }
             }
 
+            if (state != ParseState.Number && state != ParseState.TrailingWhite)
+                throw new FormatException(BadFormat);
+
             return result;
         }
 
         private static long ParseSignedInteger(StringSegment value, long maxValue, long minValue)
         {
+            if (value.Buffer == null)
+                throw new ArgumentNullException();
+
             if (value.Length == 0)
                 throw new FormatException(BadFormat);
 
             long result = 0;
-            int i = 0;
+            int i = value.Offset;
+            int end = value.Offset + value.Length;
             var state = ParseState.LeadingWhite;
             bool negative = false;
 
-            while (i < value.Length)
+            //skip leading whitespaces
+            while (i < end && JsonUtils.IsWhiteSpace(value.Buffer[i])) i++;
+            if (i == end)
+                throw new FormatException(BadFormat);
+
+            while (i < end)
             {
-                var c = value.GetChar(i++);
+                var c = value.Buffer[i++];
 
                 switch (state)
                 {
                     case ParseState.LeadingWhite:
-                        if (JsonUtils.IsWhiteSpace(c))
-                            break;
-
                         if (c == '-')
                         {
                             negative = true;
@@ -322,6 +331,9 @@ namespace ServiceStack.Text.Support
                         break;
                 }
             }
+
+            if (state != ParseState.Number && state != ParseState.TrailingWhite)
+                throw new FormatException(BadFormat);
 
             if (negative)
                 return result;
