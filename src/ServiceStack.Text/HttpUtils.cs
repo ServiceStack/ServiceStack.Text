@@ -1403,9 +1403,9 @@ namespace ServiceStack
 
         public const string Date = "Date";
         public const string Host = "Host";
-        public const string UserAgent = "UserAgent";
+        public const string UserAgent = "User-Agent";
 
-        public static HashSet<string> RestrictedHeaders = new HashSet<string>
+        public static HashSet<string> RestrictedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             Accept,
             Connection,
