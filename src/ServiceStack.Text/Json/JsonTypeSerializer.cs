@@ -435,6 +435,7 @@ namespace ServiceStack.Text.Json
         {
             if (json.IsNullOrEmpty()) return json;
             var jsonLength = json.Length;
+
             var firstChar = json.GetChar(index);
             if (firstChar == JsonUtils.QuoteChar)
             {
@@ -443,12 +444,18 @@ namespace ServiceStack.Text.Json
                 //MicroOp: See if we can short-circuit evaluation (to avoid StringBuilder)
                 var strEndPos = json.IndexOfAny(IsSafeJsonChars, index);
                 if (strEndPos == -1) return json.Subsegment(index, jsonLength - index);
+
                 if (json.GetChar(strEndPos) == JsonUtils.QuoteChar)
                 {
                     var potentialValue = json.Subsegment(index, strEndPos - index);
                     index = strEndPos + 1;
                     return potentialValue;
                 }
+            }
+            else
+            {
+                var strEndPos = json.IndexOfAny(IsSafeJsonChars, index);
+                if (strEndPos == -1) return json.Subsegment(index, jsonLength - index);
             }
 
             return Unescape(json);

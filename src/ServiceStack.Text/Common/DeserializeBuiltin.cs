@@ -124,7 +124,7 @@ namespace ServiceStack.Text.Common
                     case TypeCode.Double:
                         return value => value.IsNullOrEmpty() ? (double?)null : double.Parse(value.Value, CultureInfo.InvariantCulture);
                     case TypeCode.Decimal:
-                        return value => value.IsNullOrEmpty() ? (decimal?)null : decimal.Parse(value.Value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+                        return value => value.IsNullOrEmpty() ? (decimal?)null : value.ParseDecimal(allowThousands: true);
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestNullableXsdDateTime(value.Value);
                     case TypeCode.Char:

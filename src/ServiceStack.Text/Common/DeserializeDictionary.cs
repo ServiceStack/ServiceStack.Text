@@ -291,6 +291,7 @@ namespace ServiceStack.Text.Common
             ParseDictionaryType(new StringSegment(value), createMapType, argTypes,
                 v => keyParseFn(v.Value), v => valueParseFn(v.Value));
 
+        static readonly Type[] signature = {typeof(StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate), typeof(ParseStringSegmentDelegate)};
 
         public static object ParseDictionaryType(StringSegment value, Type createMapType, Type[] argTypes,
             ParseStringSegmentDelegate keyParseFn, ParseStringSegmentDelegate valueParseFn)
@@ -301,8 +302,7 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-            var mi = typeof(DeserializeDictionary<TSerializer>).GetStaticMethod("ParseDictionary",
-                new [] {typeof(StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate), typeof(ParseStringSegmentDelegate)});
+            var mi = typeof(DeserializeDictionary<TSerializer>).GetStaticMethod("ParseDictionary", signature);
             var genericMi = mi.MakeGenericMethod(argTypes);
             parseDelegate = (ParseDictionaryDelegate)genericMi.MakeDelegate(typeof(ParseDictionaryDelegate));
 

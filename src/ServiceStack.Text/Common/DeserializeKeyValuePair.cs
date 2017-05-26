@@ -114,6 +114,7 @@ namespace ServiceStack.Text.Common
             ParseKeyValuePairType(new StringSegment(value), createMapType, argTypes,
                 v => keyParseFn(v.Value), v => valueParseFn(v.Value));
 
+        static readonly Type[] signature = { typeof(StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate), typeof(ParseStringSegmentDelegate) };
 
         public static object ParseKeyValuePairType(StringSegment value, Type createMapType, Type[] argTypes,
             ParseStringSegmentDelegate keyParseFn, ParseStringSegmentDelegate valueParseFn)
@@ -124,8 +125,7 @@ namespace ServiceStack.Text.Common
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-            var mi = typeof(DeserializeKeyValuePair<TSerializer>).GetStaticMethod("ParseKeyValuePair",
-                new [] {typeof(StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate), typeof(ParseStringSegmentDelegate)});
+            var mi = typeof(DeserializeKeyValuePair<TSerializer>).GetStaticMethod("ParseKeyValuePair", signature);
             var genericMi = mi.MakeGenericMethod(argTypes);
             parseDelegate = (ParseKeyValuePairDelegate)genericMi.MakeDelegate(typeof(ParseKeyValuePairDelegate));
 
