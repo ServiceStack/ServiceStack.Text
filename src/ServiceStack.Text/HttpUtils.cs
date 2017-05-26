@@ -1400,6 +1400,27 @@ namespace ServiceStack
         public const string Via = "Via";
 
         public const string Warning = "Warning";
+
+        public const string Date = "Date";
+        public const string Host = "Host";
+        public const string UserAgent = "UserAgent";
+
+        public static HashSet<string> RestrictedHeaders = new HashSet<string>
+        {
+            Accept,
+            Connection,
+            ContentLength,
+            ContentType,
+            Date,
+            Expect,
+            Host,
+            IfModifiedSince,
+            Range,
+            Referer,
+            TransferEncoding,
+            UserAgent,
+            ProxyConnection,
+        };
     }
 
     public static class HttpMethods
