@@ -55,12 +55,14 @@ namespace ServiceStack
     {
         static Dictionary<Type, TypeFields> CacheMap = new Dictionary<Type, TypeFields>();
 
+        public static Type FactoryType = typeof(TypeFields<>);
+
         public static TypeFields Get(Type type)
         {
             if (CacheMap.TryGetValue(type, out TypeFields value))
                 return value;
 
-            var genericType = typeof(TypeFields<>).MakeGenericType(type);
+            var genericType = FactoryType.MakeGenericType(type);
             var instanceFi = genericType.GetPublicStaticField("Instance");
             var instance = (TypeFields)instanceFi.GetValue(null);
 

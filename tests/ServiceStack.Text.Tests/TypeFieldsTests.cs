@@ -4,7 +4,7 @@ namespace ServiceStack.Text.Tests
 {
     public class TypeFieldsTests
     {
-        (string s, int i, long l, double d) CreateValueTuple() =>
+        static (string s, int i, long l, double d) CreateValueTuple() =>
             ("foo", 1, 2, 3.3);
 
         [Test]
