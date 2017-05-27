@@ -78,7 +78,7 @@ namespace ServiceStack
             return instance;
         }
 
-        public Type Type;
+        public Type Type { get; protected set; }
 
         public readonly Dictionary<string, PropertyGetterDelegate> PublicGetters =
             new Dictionary<string, PropertyGetterDelegate>(PclExport.Instance.InvariantComparerIgnoreCase);
