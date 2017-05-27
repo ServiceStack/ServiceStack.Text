@@ -627,6 +627,12 @@ namespace ServiceStack.Text.Support
             if (JsConfig.UseSystemParseMethods)
                 return Guid.Parse(value.Value);
 
+            if (value.Buffer == null)
+                throw new ArgumentNullException();
+
+            if (value.Length == 0)
+                throw new FormatException(BadFormat);
+
             //Guid can be in one of 3 forms:
             //1. General `{dddddddd-dddd-dddd-dddd-dddddddddddd}` or `(dddddddd-dddd-dddd-dddd-dddddddddddd)` 8-4-4-4-12 chars
             //2. Hex `{0xdddddddd,0xdddd,0xdddd,{0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd}}`  8-4-4-8x2 chars
@@ -634,7 +640,7 @@ namespace ServiceStack.Text.Support
 
             int i = value.Offset;
             int end = value.Offset + value.Length;
-            while (JsonUtils.IsWhiteSpace(value.Buffer[i]) && i < end) i++;
+            while (i < end && JsonUtils.IsWhiteSpace(value.Buffer[i])) i++;
 
             if (i == end)
                 throw new FormatException(BadFormat);
@@ -671,6 +677,9 @@ namespace ServiceStack.Text.Support
                 n++;
                 len += 2;
                 hasParentesis = true;
+
+                if (buf[8 + n] != '-')
+                    throw new FormatException(BadFormat);
             }
 
             if (buf[8 + n] == '-')
@@ -679,6 +688,7 @@ namespace ServiceStack.Text.Support
                     || buf[18 + n] != '-'
                     || buf[23 + n] != '-')
                     throw new FormatException(BadFormat);
+
                 len += 4;
                 dash = 1;
             }
