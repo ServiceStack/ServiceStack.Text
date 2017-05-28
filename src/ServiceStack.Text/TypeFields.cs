@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Threading;
 using ServiceStack.Reflection;
 using ServiceStack.Text;
-using ServiceStack.Text.Common;
 
 namespace ServiceStack
 {
@@ -13,11 +12,13 @@ namespace ServiceStack
         public TypeFieldInfo(
             FieldInfo fieldInfo,
             PropertyGetterDelegate publicGetter,
-            PropertySetterDelegate publicSetter)
+            PropertySetterDelegate publicSetter,
+            PropertySetterRefDelegate publicSetterRef)
         {
             FieldInfo = fieldInfo;
             PublicGetter = publicGetter;
             PublicSetter = publicSetter;
+            PublicSetterRef = publicSetterRef;
         }
 
         public FieldInfo FieldInfo { get; }
@@ -25,14 +26,13 @@ namespace ServiceStack
         public PropertyGetterDelegate PublicGetter { get; }
 
         public PropertySetterDelegate PublicSetter { get; }
+
+        public PropertySetterRefDelegate PublicSetterRef { get; }
     }
 
     public class TypeFields<T> : TypeFields
     {
         public static readonly TypeFields<T> Instance = new TypeFields<T>();
-
-        public readonly Dictionary<string, SetPropertyDelegateRefGeneric<T>> GenericPublicSetters =
-            new Dictionary<string, SetPropertyDelegateRefGeneric<T>>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         static TypeFields()
         {
@@ -42,33 +42,23 @@ namespace ServiceStack
             {
                 try
                 {
+                    var fnRef = fi.GetValueSetterGenericRef<T>();
                     Instance.FieldsMap[fi.Name] = new TypeFieldInfo(
                         fi,
                         PclExport.Instance.GetFieldGetterFn(fi),
-                        PclExport.Instance.GetFieldSetterFn(fi));
-
-                    Instance.GenericPublicSetters[fi.Name] = fi.GetValueSetterGenericRef<T>();
+                        PclExport.Instance.GetFieldSetterFn(fi),
+                        delegate (ref object instance, object arg)
+                        {
+                            var valueInstance = (T)instance;
+                            fnRef(ref valueInstance, arg);
+                            instance = valueInstance;
+                        });
                 }
                 catch (Exception ex)
                 {
                     Tracer.Instance.WriteError(ex);
                 }
             }
-        }
-
-        public override SetPropertyDelegateRef GetPublicSetterRef(string name)
-        {
-            if (name == null)
-                return null;
-
-            return GenericPublicSetters.TryGetValue(name, out SetPropertyDelegateRefGeneric<T> fn)
-                ? delegate (ref object instance, object arg)
-                  {
-                      var valueInstance = (T)instance;
-                      fn(ref valueInstance, arg);
-                      instance = valueInstance;
-                  }
-            : (SetPropertyDelegateRef)null;
         }
     }
 
@@ -142,9 +132,14 @@ namespace ServiceStack
                 : null;
         }
 
-        public virtual SetPropertyDelegateRef GetPublicSetterRef(string name)
+        public virtual PropertySetterRefDelegate GetPublicSetterRef(string name)
         {
-            throw new NotImplementedException();
+            if (name == null)
+                return null;
+
+            return FieldsMap.TryGetValue(name, out TypeFieldInfo info)
+                ? info.PublicSetterRef
+                : null;
         }
     }
 }

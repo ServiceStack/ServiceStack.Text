@@ -766,6 +766,9 @@ namespace ServiceStack
     public delegate void PropertySetterDelegate(object instance, object value);
     public delegate object PropertyGetterDelegate(object instance);
 
+    public delegate void PropertySetterRefDelegate(ref object instance, object propertyValue);
+    public delegate void PropertySetterRefGenericDelegate<T>(ref T instance, object value);
+
     internal static class PropertyInvoker
     {
         public static PropertySetterDelegate GetPropertySetterFn(this PropertyInfo propertyInfo)
