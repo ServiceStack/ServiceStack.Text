@@ -10,6 +10,25 @@ namespace ServiceStack
     [Obsolete("Use TypeProperties<T>.Instance")]
     public static class TypeReflector<T> { }
 
+    public class TypePropertyInfo
+    {
+        public TypePropertyInfo(
+            PropertyInfo propertyInfo, 
+            Func<object, object> publicGetter, 
+            Action<object, object> publicSetter)
+        {
+            PropertyInfo = propertyInfo;
+            PublicGetter = publicGetter;
+            PublicSetter = publicSetter;
+        }
+
+        public PropertyInfo PropertyInfo { get; }
+
+        public Func<object, object> PublicGetter { get; }
+
+        public Action<object, object> PublicSetter { get; }
+    }
+
     public class TypeProperties<T> : TypeProperties
     {
         public static readonly TypeProperties<T> Instance = new TypeProperties<T>();
@@ -22,9 +41,11 @@ namespace ServiceStack
             {
                 try
                 {
-                    Instance.PublicGetters[pi.Name] = pi.GetValueGetter(typeof(T));
-                    Instance.PublicSetters[pi.Name] = pi.GetValueSetter(typeof(T));
-                    Instance.PublicProperties[pi.Name] = pi;
+                    Instance.PropertyMap[pi.Name] = new TypePropertyInfo(
+                        pi,
+                        pi.GetValueGetter(typeof(T)),
+                        pi.GetValueSetter(typeof(T))
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -65,14 +86,8 @@ namespace ServiceStack
 
         public Type Type { get; protected set; }
 
-        public readonly Dictionary<string, Func<object, object>> PublicGetters =
-            new Dictionary<string, Func<object, object>>(PclExport.Instance.InvariantComparerIgnoreCase);
-
-        public readonly Dictionary<string, Action<object, object>> PublicSetters =
-            new Dictionary<string, Action<object, object>>(PclExport.Instance.InvariantComparerIgnoreCase);
-
-        public readonly Dictionary<string, PropertyInfo> PublicProperties =
-            new Dictionary<string, PropertyInfo>(PclExport.Instance.InvariantComparerIgnoreCase);
+        public readonly Dictionary<string, TypePropertyInfo> PropertyMap =
+            new Dictionary<string, TypePropertyInfo>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         public PropertyInfo[] PublicPropertyInfos { get; protected set; }
 
@@ -86,43 +101,27 @@ namespace ServiceStack
             return null;
         }
 
-        public Func<object, object> GetPublicGetter(PropertyInfo pi)
-        {
-            if (pi == null)
-                return null;
-
-            return PublicGetters.TryGetValue(pi.Name, out Func<object, object> fn)
-                ? fn
-                : pi.GetValueGetter();
-        }
+        public Func<object, object> GetPublicGetter(PropertyInfo pi) => GetPublicGetter(pi?.Name);
 
         public Func<object, object> GetPublicGetter(string name)
         {
             if (name == null)
                 return null;
 
-            return PublicGetters.TryGetValue(name, out Func<object, object> fn)
-                ? fn
+            return PropertyMap.TryGetValue(name, out TypePropertyInfo info)
+                ? info.PublicGetter
                 : null;
         }
 
-        public Action<object, object> GetPublicSetter(PropertyInfo pi)
-        {
-            if (pi == null)
-                return null;
-
-            return PublicSetters.TryGetValue(pi.Name, out Action<object, object> fn)
-                ? fn
-                : pi.GetValueSetter();
-        }
+        public Action<object, object> GetPublicSetter(PropertyInfo pi) => GetPublicSetter(pi?.Name);
 
         public Action<object, object> GetPublicSetter(string name)
         {
             if (name == null)
                 return null;
 
-            return PublicSetters.TryGetValue(name, out Action<object, object> fn)
-                ? fn
+            return PropertyMap.TryGetValue(name, out TypePropertyInfo info)
+                ? info.PublicSetter
                 : null;
         }
     }

@@ -8,6 +8,25 @@ using ServiceStack.Text.Common;
 
 namespace ServiceStack
 {
+    public class TypeFieldInfo
+    {
+        public TypeFieldInfo(
+            FieldInfo fieldInfo,
+            PropertyGetterDelegate publicGetter,
+            PropertySetterDelegate publicSetter)
+        {
+            FieldInfo = fieldInfo;
+            PublicGetter = publicGetter;
+            PublicSetter = publicSetter;
+        }
+
+        public FieldInfo FieldInfo { get; }
+
+        public PropertyGetterDelegate PublicGetter { get; }
+
+        public PropertySetterDelegate PublicSetter { get; }
+    }
+
     public class TypeFields<T> : TypeFields
     {
         public static readonly TypeFields<T> Instance = new TypeFields<T>();
@@ -23,10 +42,12 @@ namespace ServiceStack
             {
                 try
                 {
-                    Instance.PublicGetters[fi.Name] = PclExport.Instance.GetFieldGetterFn(fi);
-                    Instance.PublicSetters[fi.Name] = fi.GetValueSetter(typeof(T));
+                    Instance.FieldsMap[fi.Name] = new TypeFieldInfo(
+                        fi,
+                        PclExport.Instance.GetFieldGetterFn(fi),
+                        PclExport.Instance.GetFieldSetterFn(fi));
+
                     Instance.GenericPublicSetters[fi.Name] = fi.GetValueSetterGenericRef<T>();
-                    Instance.PublicFields[fi.Name] = fi;
                 }
                 catch (Exception ex)
                 {
@@ -82,14 +103,8 @@ namespace ServiceStack
 
         public Type Type { get; protected set; }
 
-        public readonly Dictionary<string, PropertyGetterDelegate> PublicGetters =
-            new Dictionary<string, PropertyGetterDelegate>(PclExport.Instance.InvariantComparerIgnoreCase);
-
-        public readonly Dictionary<string, Action<object, object>> PublicSetters =
-            new Dictionary<string, Action<object, object>>(PclExport.Instance.InvariantComparerIgnoreCase);
-
-        public readonly Dictionary<string, FieldInfo> PublicFields =
-            new Dictionary<string, FieldInfo>(PclExport.Instance.InvariantComparerIgnoreCase);
+        public readonly Dictionary<string, TypeFieldInfo> FieldsMap =
+            new Dictionary<string, TypeFieldInfo>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         public FieldInfo[] PublicFieldInfos { get; protected set; }
 
@@ -103,43 +118,27 @@ namespace ServiceStack
             return null;
         }
 
-        public virtual PropertyGetterDelegate GetPublicGetter(FieldInfo fi)
-        {
-            if (fi == null)
-                return null;
-
-            return PublicGetters.TryGetValue(fi.Name, out PropertyGetterDelegate fn)
-                ? fn
-                : PclExport.Instance.GetFieldGetterFn(fi);
-        }
+        public virtual PropertyGetterDelegate GetPublicGetter(FieldInfo fi) => GetPublicGetter(fi?.Name);
 
         public virtual PropertyGetterDelegate GetPublicGetter(string name)
         {
             if (name == null)
                 return null;
 
-            return PublicGetters.TryGetValue(name, out PropertyGetterDelegate fn)
-                ? fn
+            return FieldsMap.TryGetValue(name, out TypeFieldInfo info)
+                ? info.PublicGetter
                 : null;
         }
 
-        public virtual Action<object, object> GetPublicSetter(FieldInfo fi)
-        {
-            if (fi == null)
-                return null;
+        public virtual PropertySetterDelegate GetPublicSetter(FieldInfo fi) => GetPublicSetter(fi?.Name);
 
-            return PublicSetters.TryGetValue(fi.Name, out Action<object, object> fn)
-                ? fn
-                : fi.GetValueSetter(Type);
-        }
-
-        public virtual Action<object, object> GetPublicSetter(string name)
+        public virtual PropertySetterDelegate GetPublicSetter(string name)
         {
             if (name == null)
                 return null;
 
-            return PublicSetters.TryGetValue(name, out Action<object, object> fn)
-                ? fn
+            return FieldsMap.TryGetValue(name, out TypeFieldInfo info)
+                ? info.PublicSetter
                 : null;
         }
 
