@@ -1,55 +1,70 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ServiceStack.Text.TestsConsole
 {
-    public class T
+    public struct T
     {
-        public Guid X { get; set; }
-        public char Y { get; set; }
+        public int PropValue { get; set; }
+        public string PropRef { get; set; }
+
+        public int FieldValue;
+        public string FieldRef;
     }
 
     class Program
     {
         static void Main(string[] args)
         {
-            var violations = 0;
-            const int count = 1000 * 1000;
-            var json = new List<string>();
-            var serializer = new JsonSerializer<T>();
-            for (int i = 0; i < count; i++)
-            {
-                var t = new T
-                {
-                    X = Guid.NewGuid(),
-                    Y = i % 2 == 0 ? 'C' : 'P',
-                };
-                json.Add(serializer.SerializeToString(t));
-            }
+            var t = new T { PropValue = 1, PropRef = "foo", FieldValue = 2, FieldRef = "bar" };
 
-            var tasks = new List<Task>();
-            var tasksCount = args.Length > 0 ? int.Parse(args[0]) : 3;
-            for (int jj = 0; jj < tasksCount; jj++)
-            {
-                int j = jj;
-                tasks.Add(Task.Run(() => {
-                    for (int i = 0; i < count; i++)
-                    {
-                        string s = json[i];
-                        var t = serializer.DeserializeFromString(s);
-                        if (t.Y != (i % 2 == 0 ? 'C' : 'P'))
-                        {
-                            violations++;
-                            Console.WriteLine("Constraint violation index {0} thread {1} expected: {2} received: {3} json: {4}",
-                                i, j, i % 2 == 0 ? 'C' : 'P', t.Y, s);
-                        }
-                    }
-                }));
-            }
-            tasks.ForEach(task => task.Wait());
+            //var i1 = GetPropInt(t);
+            //var s1 = GetPropString(t);
 
-            Console.WriteLine($"There were {violations} viloations, running {tasksCount} Tasks");
+            //var i2 = GetFieldInt(t);
+            //var s2 = GetFieldString(t);
+
+            //$"PropValue: ${i1}, PropRef: ${s1}".Print();
+            //$"FieldValue: ${i2}, FieldRef: ${s2}".Print();
+
+            var tuple = ((int i, string s))new ValueTuple<int,string>(1,"foo");
+
+            var oTuple = (object) tuple;
+            var value = GetValueTupleItem2(oTuple);
+
+            value.PrintDump();
+        }
+
+        static object GetPropInt(object instance)
+        {
+            var t = (T)instance;
+            return t.PropValue;
+        }
+
+        static object GetPropString(object instance)
+        {
+            var t = (T)instance;
+            return t.PropRef;
+        }
+
+        static object GetFieldInt(object instance)
+        {
+            var t = (T)instance;
+            return t.FieldValue;
+        }
+
+        static object GetFieldString(object instance)
+        {
+            return ((T)instance).FieldRef;
+        }
+
+        static object GetValueTupleItem1(object instance)
+        {
+            return ((ValueTuple<int, string>)instance).Item1;
+        }
+
+        static object GetValueTupleItem2(object instance)
+        {
+            return ((ValueTuple<int, string>)instance).Item2;
         }
     }
 }
