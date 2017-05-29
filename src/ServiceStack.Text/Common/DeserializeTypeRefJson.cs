@@ -59,6 +59,7 @@ namespace ServiceStack.Text.Common
             Dictionary<HashedStringSegment, TypeAccessor> typeAccessorMap) =>
             StringToType(typeConfig, new StringSegment(strType), ctorFn, typeAccessorMap);
 
+        static readonly StringSegment typeAttr = new StringSegment(JsWriter.TypeAttr);
 
         internal static object StringToType(
         TypeConfig typeConfig,
@@ -72,11 +73,16 @@ namespace ServiceStack.Text.Common
             if (!strType.HasValue)
                 return null;
 
+            var buffer = strType.Buffer;
+            var offset = strType.Offset;
+            var strTypeLength = strType.Length;
+
             //if (!Serializer.EatMapStartChar(strType, ref index))
-            for (; index < strType.Length; index++) { var c = strType.GetChar(index); if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
-            if (strType.GetChar(index++) != JsWriter.MapStartChar)
+            for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+            if (buffer[offset + index] != JsWriter.MapStartChar)
                 throw DeserializeTypeRef.CreateSerializationError(type, strType.Value);
 
+            index++;
             if (JsonTypeSerializer.IsEmptyMap(strType, index)) return ctorFn();
 
             object instance = null;
@@ -85,21 +91,20 @@ namespace ServiceStack.Text.Common
                 ? ParseUtils.LenientPropertyNameResolver
                 : ParseUtils.DefaultPropertyNameResolver;
 
-            var strTypeLength = strType.Length;
             while (index < strTypeLength)
             {
                 var propertyName = JsonTypeSerializer.ParseJsonString(strType, ref index);
 
                 //Serializer.EatMapKeySeperator(strType, ref index);
-                for (; index < strType.Length; index++) { var c = strType.GetChar(index); if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
-                if (strType.Length != index) index++;
+                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+                if (strTypeLength != index) index++;
 
                 var propertyValueStr = Serializer.EatValue(strType, ref index);
                 var possibleTypeInfo = propertyValueStr != null && propertyValueStr.Length > 1;
 
                 //if we already have an instance don't check type info, because then we will have a half deserialized object
                 //we could throw here or just use the existing instance.
-                if (instance == null && possibleTypeInfo && propertyName == new StringSegment(JsWriter.TypeAttr))
+                if (instance == null && possibleTypeInfo && propertyName == typeAttr)
                 {
                     var explicitTypeName = Serializer.ParseString(propertyValueStr);
                     var explicitType = JsConfig.TypeFinder(explicitTypeName);
@@ -165,13 +170,13 @@ namespace ServiceStack.Text.Common
                         }
 
                         //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-                        for (; index < strType.Length; index++) { var c = strType.GetChar(index); if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
-                        if (index != strType.Length)
+                        for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+                        if (index != strTypeLength)
                         {
-                            var success = strType.GetChar(index) == JsWriter.ItemSeperator || strType.GetChar(index) == JsWriter.MapEndChar;
+                            var success = buffer[offset + index] == JsWriter.ItemSeperator || buffer[offset + index] == JsWriter.MapEndChar;
                             index++;
                             if (success)
-                                for (; index < strType.Length; index++) { var c = strType.GetChar(index); if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
+                                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
                         }
 
                         continue;
@@ -208,13 +213,13 @@ namespace ServiceStack.Text.Common
                 }
 
                 //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-                for (; index < strType.Length; index++) { var c = strType.GetChar(index); if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
+                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
                 if (index != strType.Length)
                 {
-                    var success = strType.GetChar(index) == JsWriter.ItemSeperator || strType.GetChar(index) == JsWriter.MapEndChar;
+                    var success = buffer[offset + index] == JsWriter.ItemSeperator || buffer[offset + index] == JsWriter.MapEndChar;
                     index++;
                     if (success)
-                        for (; index < strType.Length; index++) { var c = strType.GetChar(index); if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
+                        for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
                 }
 
             }

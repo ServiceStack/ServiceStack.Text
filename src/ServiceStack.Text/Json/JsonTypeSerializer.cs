@@ -369,16 +369,20 @@ namespace ServiceStack.Text.Json
         internal static StringSegment ParseString(StringSegment json, ref int index)
         {
             var jsonLength = json.Length;
-            if (json.GetChar(index) != JsonUtils.QuoteChar)
+            var buffer = json.Buffer;
+            var offset = json.Offset;
+
+            if (buffer[offset + index] != JsonUtils.QuoteChar)
                 throw new Exception("Invalid unquoted string starting with: " + json.Value.SafeSubstring(50));
 
             var startIndex = ++index;
             do
             {
-                char c = json.GetChar(index);
+                char c = buffer[offset + index];
                 if (c == JsonUtils.QuoteChar) break;
                 if (c != JsonUtils.EscapeChar) continue;
-                c = json.GetChar(index++);
+                c = buffer[offset + index];
+                index++;
                 if (c == 'u')
                 {
                     index += 4;
@@ -387,7 +391,7 @@ namespace ServiceStack.Text.Json
             if (index == jsonLength)
                 throw new Exception("Invalid unquoted string ending with: " + json.Value.SafeSubstring(json.Length - 50, 50));
             index++;
-            return json.Subsegment(startIndex, Math.Min(index, jsonLength) - startIndex - 1);
+            return new StringSegment(buffer, offset + startIndex, Math.Min(index, jsonLength) - startIndex - 1);
         }
 
         public string UnescapeString(string value)
@@ -435,8 +439,10 @@ namespace ServiceStack.Text.Json
         {
             if (json.IsNullOrEmpty()) return json;
             var jsonLength = json.Length;
+            var buffer = json.Buffer;
+            var offset = json.Offset;
 
-            var firstChar = json.GetChar(index);
+            var firstChar = buffer[offset + index];
             if (firstChar == JsonUtils.QuoteChar)
             {
                 index++;
@@ -455,7 +461,7 @@ namespace ServiceStack.Text.Json
             else
             {
                 var strEndPos = json.IndexOfAny(IsSafeJsonChars, index);
-                if (strEndPos == -1) return json.Subsegment(index, jsonLength - index);
+                if (strEndPos == -1) return new StringSegment(buffer, offset + index, jsonLength - index);
             }
 
             return Unescape(json);
@@ -708,7 +714,7 @@ namespace ServiceStack.Text.Json
             var offset = value.Offset;
             if (i == valueLength) return default(StringSegment);
 
-            for (; i < value.Length; i++) { var c = buf[offset + i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
+            while (i < valueLength && JsonUtils.IsWhiteSpace(buf[offset + i])) i++; //Whitespace inline
             if (i == valueLength) return default(StringSegment);
 
             var tokenStartPos = i;
@@ -729,7 +735,7 @@ namespace ServiceStack.Text.Json
 
                 //Is Type/Map, i.e. {...}
                 case JsWriter.MapStartChar:
-                    while (++i < valueLength && endsToEat > 0)
+                    while (++i < valueLength)
                     {
                         valueChar = buf[offset +i];
 
@@ -748,14 +754,17 @@ namespace ServiceStack.Text.Json
                         if (valueChar == JsWriter.MapStartChar)
                             endsToEat++;
 
-                        if (valueChar == JsWriter.MapEndChar)
-                            endsToEat--;
+                        if (valueChar == JsWriter.MapEndChar && --endsToEat == 0)
+                        {
+                            i++;
+                            break;
+                        }
                     }
                     return value.Subsegment(tokenStartPos, i - tokenStartPos);
 
                 //Is List, i.e. [...]
                 case JsWriter.ListStartChar:
-                    while (++i < valueLength && endsToEat > 0)
+                    while (++i < valueLength)
                     {
                         valueChar = buf[offset + i];
 
@@ -774,8 +783,11 @@ namespace ServiceStack.Text.Json
                         if (valueChar == JsWriter.ListStartChar)
                             endsToEat++;
 
-                        if (valueChar == JsWriter.ListEndChar)
-                            endsToEat--;
+                        if (valueChar == JsWriter.ListEndChar && --endsToEat == 0)
+                        {
+                            i++;
+                            break;
+                        }
                     }
                     return value.Subsegment(tokenStartPos, i - tokenStartPos);
             }
