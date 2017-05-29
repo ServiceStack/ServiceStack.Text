@@ -630,7 +630,7 @@ namespace ServiceStack
             if (type == null)
                 return null;
 
-#if NETSTANDARD1_1
+#if PCL || NETSTANDARD1_1
             return type.GetTypeInfo().Module;
 #else
             return type.Module;
