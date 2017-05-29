@@ -141,6 +141,8 @@ namespace ServiceStack
         public static SetMemberDelegate GetPropertySetterFn(this PropertyInfo propertyInfo) =>
             PclExport.Instance.GetPropertySetterFn(propertyInfo);
 
+#if !SL5
+
         public static GetMemberDelegate GetReflection(PropertyInfo propertyInfo) => propertyInfo.GetValue;
         public static SetMemberDelegate SetReflection(PropertyInfo propertyInfo) => propertyInfo.SetValue;
 
@@ -265,5 +267,7 @@ namespace ServiceStack
         }
 #endif
 
+#endif
     }
 }
+

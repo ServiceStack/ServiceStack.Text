@@ -159,6 +159,8 @@ namespace ServiceStack
         public static SetMemberDelegate GetFieldSetterFn(this FieldInfo fieldInfo) =>
             PclExport.Instance.GetFieldSetterFn(fieldInfo);
 
+#if !SL5
+
         public static GetMemberDelegate GetReflection(FieldInfo fieldInfo) => fieldInfo.GetValue;
         public static SetMemberDelegate SetReflection(FieldInfo fieldInfo) => fieldInfo.SetValue;
 
@@ -336,5 +338,6 @@ namespace ServiceStack
         }
 #endif
 
-        }
+#endif
+    }
 }
