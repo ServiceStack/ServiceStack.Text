@@ -607,9 +607,9 @@ namespace ServiceStack
         public string Name;
         public AssignmentMember From;
         public AssignmentMember To;
-        public PropertyGetterDelegate GetValueFn;
-        public PropertySetterDelegate SetValueFn;
-        public PropertyGetterDelegate ConvertValueFn;
+        public GetMemberDelegate GetValueFn;
+        public SetMemberDelegate SetValueFn;
+        public GetMemberDelegate ConvertValueFn;
 
         public AssignmentEntry(string name, AssignmentMember @from, AssignmentMember to)
         {
@@ -648,27 +648,27 @@ namespace ServiceStack
         public FieldInfo FieldInfo;
         public MethodInfo MethodInfo;
 
-        public PropertyGetterDelegate GetGetValueFn()
+        public GetMemberDelegate GetGetValueFn()
         {
             if (PropertyInfo != null)
                 return PropertyInfo.GetPropertyGetterFn();
             if (FieldInfo != null)
                 return FieldInfo.GetFieldGetterFn();
             if (MethodInfo != null)
-                return (PropertyGetterDelegate)
-                    MethodInfo.CreateDelegate(typeof(PropertyGetterDelegate));
+                return (GetMemberDelegate)
+                    MethodInfo.CreateDelegate(typeof(GetMemberDelegate));
 
             return null;
         }
 
-        public PropertySetterDelegate GetSetValueFn()
+        public SetMemberDelegate GetSetValueFn()
         {
             if (PropertyInfo != null)
                 return PropertyInfo.GetPropertySetterFn();
             if (FieldInfo != null)
                 return FieldInfo.GetFieldSetterFn();
             if (MethodInfo != null)
-                return (PropertySetterDelegate)MethodInfo.MakeDelegate(typeof(PropertySetterDelegate));
+                return (SetMemberDelegate)MethodInfo.MakeDelegate(typeof(SetMemberDelegate));
 
             return null;
         }
@@ -763,41 +763,15 @@ namespace ServiceStack
         }
     }
 
-    public delegate void PropertySetterDelegate(object instance, object value);
-    public delegate object PropertyGetterDelegate(object instance);
+    public delegate object GetMemberDelegate(object instance);
 
-    public delegate void PropertySetterRefDelegate(ref object instance, object propertyValue);
-    public delegate void PropertySetterRefGenericDelegate<T>(ref T instance, object value);
-
-    internal static class PropertyInvoker
-    {
-        public static PropertySetterDelegate GetPropertySetterFn(this PropertyInfo propertyInfo)
-        {
-            return PclExport.Instance.GetPropertySetterFn(propertyInfo);
-        }
-
-        public static PropertyGetterDelegate GetPropertyGetterFn(this PropertyInfo propertyInfo)
-        {
-            return PclExport.Instance.GetPropertyGetterFn(propertyInfo);
-        }
-    }
-
-    internal static class FieldInvoker
-    {
-        public static PropertySetterDelegate GetFieldSetterFn(this FieldInfo fieldInfo)
-        {
-            return PclExport.Instance.GetFieldSetterFn(fieldInfo);
-        }
-
-        public static PropertyGetterDelegate GetFieldGetterFn(this FieldInfo fieldInfo)
-        {
-            return PclExport.Instance.GetFieldGetterFn(fieldInfo);
-        }
-    }
+    public delegate void SetMemberDelegate(object instance, object value);
+    public delegate void SetMemberRefDelegate(ref object instance, object propertyValue);
+    public delegate void SetMemberRefGenericDelegate<T>(ref T instance, object value);
 
     internal static class TypeConverter
     {
-        public static PropertyGetterDelegate CreateTypeConverter(Type fromType, Type toType)
+        public static GetMemberDelegate CreateTypeConverter(Type fromType, Type toType)
         {
             if (fromType == toType)
                 return null;

@@ -1223,11 +1223,11 @@ namespace ServiceStack
             public string Name;
             public Type Type;
 
-            public PropertyGetterDelegate GetValueFn;
-            public PropertySetterDelegate SetValueFn;
+            public GetMemberDelegate GetValueFn;
+            public SetMemberDelegate SetValueFn;
 
             public Type ConvertType;
-            public PropertyGetterDelegate ConvertValueFn;
+            public GetMemberDelegate ConvertValueFn;
 
             public void SetValue(object instance, object value)
             {

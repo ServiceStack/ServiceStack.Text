@@ -251,7 +251,7 @@ namespace ServiceStack.Text.Common
     internal class TypeAccessor
     {
         internal ParseStringDelegate GetProperty;
-        internal SetPropertyDelegate SetProperty;
+        internal SetMemberDelegate SetProperty;
         internal Type PropertyType;
 
         public static Type ExtractType(ITypeSerializer Serializer, string strType)
@@ -319,12 +319,12 @@ namespace ServiceStack.Text.Common
             return getPropertyFn;
         }
 
-        private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+        private static SetMemberDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
         {
             if (typeConfig.Type != propertyInfo.DeclaringType)
                 propertyInfo = propertyInfo.DeclaringType.GetPropertyInfo(propertyInfo.Name);
 
-            if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
+            if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetters) return null;
 
             FieldInfo fieldInfo = null;
             if (!propertyInfo.CanWrite)
@@ -349,16 +349,16 @@ namespace ServiceStack.Text.Common
             return PclExport.Instance.GetSetMethod(propertyInfo, fieldInfo);
         }
 
-        internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
+        internal static SetMemberDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
         {
             if (!propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Any()) return null;
 
-            return PclExport.Instance.GetSetPropertyMethod(propertyInfo);
+            return PclExport.Instance.GetPropertySetterFn(propertyInfo);
         }
 
-        internal static SetPropertyDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
+        internal static SetMemberDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
         {
-            return PclExport.Instance.GetSetFieldMethod(fieldInfo);
+            return PclExport.Instance.GetFieldSetterFn(fieldInfo);
         }
 
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
@@ -371,12 +371,12 @@ namespace ServiceStack.Text.Common
             };
         }
 
-        private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
+        private static SetMemberDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
         {
             if (typeConfig.Type != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
-            return PclExport.Instance.GetSetFieldMethod(fieldInfo);
+            return PclExport.Instance.GetFieldSetterFn(fieldInfo);
         }
     }
 

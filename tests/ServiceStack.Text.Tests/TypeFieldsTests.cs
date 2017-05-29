@@ -2,6 +2,27 @@
 
 namespace ServiceStack.Text.Tests
 {
+    class RefTypeFields
+    {
+        public string S;
+        public int I;
+        public long L;
+        public double D;
+    }
+
+    struct ValueTypeFields
+    {
+        public string S;
+        public int I;
+    }
+
+    struct ValueTypeGenericFields<T>
+    {
+        public string S;
+        public int I;
+        public T G;
+    }
+
     public class TypeFieldsTests
     {
         static (string s, int i, long l, double d) CreateValueTuple() =>
@@ -30,6 +51,62 @@ namespace ServiceStack.Text.Tests
             Assert.That(tuple.i, Is.EqualTo(10));
             Assert.That(tuple.l, Is.EqualTo(20));
             Assert.That(tuple.d, Is.EqualTo(4.4));
+        }
+
+        [Test]
+        public void Can_use_getter_and_setter_on_RefTypeFields()
+        {
+            var typeFields = TypeFields.Get(typeof(RefTypeFields));
+
+            var o = (object)new RefTypeFields { S = "foo", I = 1 };
+
+            typeFields.GetPublicSetter("S")(o, "bar");
+            Assert.That(typeFields.GetPublicGetter("S")(o), Is.EqualTo("bar"));
+
+            typeFields.GetPublicSetter("I")(o, 2);
+            Assert.That(typeFields.GetPublicGetter("I")(o), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Can_use_getter_and_setter_on_ValueTypeFields()
+        {
+            var typeFields = TypeFields.Get(typeof(ValueTypeFields));
+
+            var o = (object)new ValueTypeFields { S = "foo", I = 1 };
+
+            typeFields.GetPublicSetter("S")(o, "bar");
+            Assert.That(typeFields.GetPublicGetter("S")(o), Is.EqualTo("bar"));
+
+            typeFields.GetPublicSetter("I")(o, 2);
+            Assert.That(typeFields.GetPublicGetter("I")(o), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Can_use_getter_and_setter_on_ValueTypeFields_ref()
+        {
+            var typeFields = TypeFields.Get(typeof(ValueTypeFields));
+
+            var o = (object)new ValueTypeFields { S = "foo", I = 1 };
+
+            typeFields.GetPublicSetterRef("S")(ref o, "bar");
+            Assert.That(typeFields.GetPublicGetter("S")(o), Is.EqualTo("bar"));
+
+            typeFields.GetPublicSetterRef("I")(ref o, 2);
+            Assert.That(typeFields.GetPublicGetter("I")(o), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Can_use_getter_and_setter_on_ValueTypeGenericFields()
+        {
+            var typeFields = TypeFields.Get(typeof(ValueTypeGenericFields<string>));
+
+            var o = (object)new ValueTypeGenericFields<string> { S = "foo", I = 1, G = "foo" };
+
+            typeFields.GetPublicSetterRef("S")(ref o, "bar");
+            Assert.That(typeFields.GetPublicGetter("S")(o), Is.EqualTo("bar"));
+
+            typeFields.GetPublicSetterRef("I")(ref o, 2);
+            Assert.That(typeFields.GetPublicGetter("I")(o), Is.EqualTo(2));
         }
     }
 }

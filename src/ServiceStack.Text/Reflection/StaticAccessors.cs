@@ -220,7 +220,7 @@ namespace ServiceStack.Reflection
             ).Compile();
         }
 
-        public static PropertySetterRefGenericDelegate<T> GetValueSetterGenericRef<T>(this FieldInfo fieldInfo)
+        public static SetMemberRefGenericDelegate<T> GetValueSetterGenericRef<T>(this FieldInfo fieldInfo)
         {
             var instance = Expression.Parameter(typeof(T).MakeByRefType(), "i");
             var argument = Expression.Parameter(typeof(object), "a");
@@ -233,7 +233,7 @@ namespace ServiceStack.Reflection
                 field,
                 Expression.Convert(argument, fieldInfo.FieldType));
 
-            return Expression.Lambda<PropertySetterRefGenericDelegate<T>>
+            return Expression.Lambda<SetMemberRefGenericDelegate<T>>
             (
                 setterCall, instance, argument
             ).Compile();

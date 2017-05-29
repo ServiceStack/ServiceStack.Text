@@ -326,18 +326,17 @@ namespace ServiceStack
 #endif
         }
 
-        public virtual SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
-        {
-            var setMethodInfo = propertyInfo.SetMethod();
-            return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
-        }
-
-        public virtual SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
+        public virtual SetMemberDelegate GetFieldSetterFn(FieldInfo fieldInfo)
         {
             return fieldInfo.SetValue;
         }
 
-        public virtual SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        public virtual GetMemberDelegate GetFieldGetterFn(FieldInfo fieldInfo)
+        {
+            return fieldInfo.GetValue;
+        }
+
+        public virtual SetMemberDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
         {
             if (propertyInfo.CanWrite)
             {
@@ -368,7 +367,7 @@ namespace ServiceStack
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
-        public virtual PropertySetterDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
+        public virtual SetMemberDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
         {
             var propertySetMethod = propertyInfo.SetMethod();
             if (propertySetMethod == null) return null;
@@ -377,22 +376,12 @@ namespace ServiceStack
                 propertySetMethod.Invoke(o, new[] { convertedValue });
         }
 
-        public virtual PropertyGetterDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
+        public virtual GetMemberDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
         {
             var getMethodInfo = propertyInfo.GetMethodInfo();
             if (getMethodInfo == null) return null;
 
             return o => propertyInfo.GetMethodInfo().Invoke(o, new object[] { });
-        }
-
-        public virtual PropertySetterDelegate GetFieldSetterFn(FieldInfo fieldInfo)
-        {
-            return fieldInfo.SetValue;
-        }
-
-        public virtual PropertyGetterDelegate GetFieldGetterFn(FieldInfo fieldInfo)
-        {
-            return fieldInfo.GetValue;
         }
 
         public virtual string ToXsdDateTimeString(DateTime dateTime)

@@ -2,8 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using ServiceStack.Reflection;
 using ServiceStack.Text;
+
+#if !NETSTANDARD1_1 || NETSTANDARD1_3
+using System.Linq.Expressions;
+#endif
+
+#if NET45 || NETSTANDARD1_3
+using System.Reflection.Emit;
+#endif
 
 namespace ServiceStack
 {
@@ -14,8 +21,8 @@ namespace ServiceStack
     {
         public TypePropertyInfo(
             PropertyInfo propertyInfo, 
-            Func<object, object> publicGetter, 
-            Action<object, object> publicSetter)
+            GetMemberDelegate publicGetter, 
+            SetMemberDelegate publicSetter)
         {
             PropertyInfo = propertyInfo;
             PublicGetter = publicGetter;
@@ -24,9 +31,9 @@ namespace ServiceStack
 
         public PropertyInfo PropertyInfo { get; }
 
-        public Func<object, object> PublicGetter { get; }
+        public GetMemberDelegate PublicGetter { get; }
 
-        public Action<object, object> PublicSetter { get; }
+        public SetMemberDelegate PublicSetter { get; }
     }
 
     public class TypeProperties<T> : TypeProperties
@@ -43,8 +50,8 @@ namespace ServiceStack
                 {
                     Instance.PropertyMap[pi.Name] = new TypePropertyInfo(
                         pi,
-                        pi.GetValueGetter(typeof(T)),
-                        pi.GetValueSetter(typeof(T))
+                        PclExport.Instance.GetPropertyGetterFn(pi),
+                        PclExport.Instance.GetPropertySetterFn(pi)
                     );
                 }
                 catch (Exception ex)
@@ -101,9 +108,9 @@ namespace ServiceStack
             return null;
         }
 
-        public Func<object, object> GetPublicGetter(PropertyInfo pi) => GetPublicGetter(pi?.Name);
+        public GetMemberDelegate GetPublicGetter(PropertyInfo pi) => GetPublicGetter(pi?.Name);
 
-        public Func<object, object> GetPublicGetter(string name)
+        public GetMemberDelegate GetPublicGetter(string name)
         {
             if (name == null)
                 return null;
@@ -113,9 +120,9 @@ namespace ServiceStack
                 : null;
         }
 
-        public Action<object, object> GetPublicSetter(PropertyInfo pi) => GetPublicSetter(pi?.Name);
+        public SetMemberDelegate GetPublicSetter(PropertyInfo pi) => GetPublicSetter(pi?.Name);
 
-        public Action<object, object> GetPublicSetter(string name)
+        public SetMemberDelegate GetPublicSetter(string name)
         {
             if (name == null)
                 return null;
@@ -124,5 +131,139 @@ namespace ServiceStack
                 ? info.PublicSetter
                 : null;
         }
+    }
+
+    public static class PropertyInvoker
+    {
+        public static GetMemberDelegate GetPropertyGetterFn(this PropertyInfo propertyInfo) =>
+            PclExport.Instance.GetPropertyGetterFn(propertyInfo);
+
+        public static SetMemberDelegate GetPropertySetterFn(this PropertyInfo propertyInfo) =>
+            PclExport.Instance.GetPropertySetterFn(propertyInfo);
+
+        public static GetMemberDelegate GetReflection(PropertyInfo propertyInfo) => propertyInfo.GetValue;
+        public static SetMemberDelegate SetReflection(PropertyInfo propertyInfo) => propertyInfo.SetValue;
+
+#if !NETSTANDARD1_1 || NETSTANDARD1_3
+        public static GetMemberDelegate GetExpression(PropertyInfo propertyInfo)
+        {
+            var getMethodInfo = propertyInfo.GetMethodInfo();
+            if (getMethodInfo == null) return null;
+            try
+            {
+                var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
+                var instanceParam = Expression.Convert(oInstanceParam, propertyInfo.ReflectedType()); //propertyInfo.DeclaringType doesn't work on Proxy types
+
+                var exprCallPropertyGetFn = Expression.Call(instanceParam, getMethodInfo);
+                var oExprCallPropertyGetFn = Expression.Convert(exprCallPropertyGetFn, typeof(object));
+
+                var propertyGetFn = Expression.Lambda<GetMemberDelegate>
+                (
+                    oExprCallPropertyGetFn,
+                    oInstanceParam
+                ).Compile();
+
+                return propertyGetFn;
+
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                throw;
+            }
+        }
+
+        public static SetMemberDelegate SetExpression(PropertyInfo propertyInfo)
+        {
+            var propertySetMethod = propertyInfo.SetMethod();
+            if (propertySetMethod == null) return null;
+
+            try
+            {
+                var instance = Expression.Parameter(typeof(object), "i");
+                var argument = Expression.Parameter(typeof(object), "a");
+
+                var instanceParam = Expression.Convert(instance, propertyInfo.ReflectedType());
+                var valueParam = Expression.Convert(argument, propertyInfo.PropertyType);
+
+                var setterCall = Expression.Call(instanceParam, propertySetMethod, valueParam);
+
+                return Expression.Lambda<SetMemberDelegate>(setterCall, instance, argument).Compile();
+            }
+            catch //fallback for Android
+            {
+                return (o, convertedValue) =>
+                    propertySetMethod.Invoke(o, new[] { convertedValue });
+            }
+        }
+#endif
+
+#if NET45 || NETSTANDARD1_3
+        public static GetMemberDelegate GetEmit(PropertyInfo propertyInfo)
+        {
+            var getter = FieldInvoker.CreateDynamicGetMethod(propertyInfo);
+
+            var gen = getter.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+
+            if (propertyInfo.DeclaringType.IsValueType())
+            {
+                gen.Emit(OpCodes.Unbox, propertyInfo.DeclaringType);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
+            }
+
+            gen.Emit(OpCodes.Callvirt, propertyInfo.GetGetMethod());
+
+            if (propertyInfo.PropertyType.IsValueType())
+            {
+                gen.Emit(OpCodes.Box, propertyInfo.PropertyType);
+            }
+
+            gen.Emit(OpCodes.Ret);
+
+            return (GetMemberDelegate)getter.CreateDelegate(typeof(GetMemberDelegate));
+        }
+
+        public static SetMemberDelegate SetEmit(PropertyInfo propertyInfo)
+        {
+            var propSetMethod = propertyInfo.GetSetMethod(true);
+            if (propSetMethod == null)
+                return null;
+
+            var setter = FieldInvoker.CreateDynamicSetMethod(propertyInfo);
+
+            var gen = setter.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+
+            if (propertyInfo.DeclaringType.IsValueType())
+            {
+                gen.Emit(OpCodes.Unbox, propertyInfo.DeclaringType);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
+            }
+
+            gen.Emit(OpCodes.Ldarg_1);
+
+            if (propertyInfo.PropertyType.IsValueType())
+            {
+                gen.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
+            }
+
+            gen.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
+            gen.Emit(OpCodes.Ret);
+
+            return (SetMemberDelegate)setter.CreateDelegate(typeof(SetMemberDelegate));
+        }
+#endif
+
     }
 }

@@ -5,15 +5,23 @@ using System.Threading;
 using ServiceStack.Reflection;
 using ServiceStack.Text;
 
+#if !NETSTANDARD1_1 || NETSTANDARD1_3
+using System.Linq.Expressions;
+#endif
+
+#if NET45 || NETSTANDARD1_3
+using System.Reflection.Emit;
+#endif
+
 namespace ServiceStack
 {
     public class TypeFieldInfo
     {
         public TypeFieldInfo(
             FieldInfo fieldInfo,
-            PropertyGetterDelegate publicGetter,
-            PropertySetterDelegate publicSetter,
-            PropertySetterRefDelegate publicSetterRef)
+            GetMemberDelegate publicGetter,
+            SetMemberDelegate publicSetter,
+            SetMemberRefDelegate publicSetterRef)
         {
             FieldInfo = fieldInfo;
             PublicGetter = publicGetter;
@@ -23,11 +31,11 @@ namespace ServiceStack
 
         public FieldInfo FieldInfo { get; }
 
-        public PropertyGetterDelegate PublicGetter { get; }
+        public GetMemberDelegate PublicGetter { get; }
 
-        public PropertySetterDelegate PublicSetter { get; }
+        public SetMemberDelegate PublicSetter { get; }
 
-        public PropertySetterRefDelegate PublicSetterRef { get; }
+        public SetMemberRefDelegate PublicSetterRef { get; }
     }
 
     public class TypeFields<T> : TypeFields
@@ -108,9 +116,9 @@ namespace ServiceStack
             return null;
         }
 
-        public virtual PropertyGetterDelegate GetPublicGetter(FieldInfo fi) => GetPublicGetter(fi?.Name);
+        public virtual GetMemberDelegate GetPublicGetter(FieldInfo fi) => GetPublicGetter(fi?.Name);
 
-        public virtual PropertyGetterDelegate GetPublicGetter(string name)
+        public virtual GetMemberDelegate GetPublicGetter(string name)
         {
             if (name == null)
                 return null;
@@ -120,9 +128,9 @@ namespace ServiceStack
                 : null;
         }
 
-        public virtual PropertySetterDelegate GetPublicSetter(FieldInfo fi) => GetPublicSetter(fi?.Name);
+        public virtual SetMemberDelegate GetPublicSetter(FieldInfo fi) => GetPublicSetter(fi?.Name);
 
-        public virtual PropertySetterDelegate GetPublicSetter(string name)
+        public virtual SetMemberDelegate GetPublicSetter(string name)
         {
             if (name == null)
                 return null;
@@ -132,7 +140,7 @@ namespace ServiceStack
                 : null;
         }
 
-        public virtual PropertySetterRefDelegate GetPublicSetterRef(string name)
+        public virtual SetMemberRefDelegate GetPublicSetterRef(string name)
         {
             if (name == null)
                 return null;
@@ -142,4 +150,191 @@ namespace ServiceStack
                 : null;
         }
     }
+
+    public static class FieldInvoker
+    {
+        public static GetMemberDelegate GetFieldGetterFn(this FieldInfo fieldInfo) =>
+            PclExport.Instance.GetFieldGetterFn(fieldInfo);
+
+        public static SetMemberDelegate GetFieldSetterFn(this FieldInfo fieldInfo) =>
+            PclExport.Instance.GetFieldSetterFn(fieldInfo);
+
+        public static GetMemberDelegate GetReflection(FieldInfo fieldInfo) => fieldInfo.GetValue;
+        public static SetMemberDelegate SetReflection(FieldInfo fieldInfo) => fieldInfo.SetValue;
+
+        private static readonly MethodInfo setFieldMethod =
+            typeof(FieldInvoker).GetStaticMethod("SetField");
+
+        internal static void SetField<TValue>(ref TValue field, TValue newValue)
+        {
+            field = newValue;
+        }
+
+#if (!NETSTANDARD1_1 || NETSTANDARD1_3)
+        public static GetMemberDelegate GetExpression(FieldInfo fieldInfo)
+        {
+            try
+            {
+                var fieldDeclaringType = fieldInfo.DeclaringType;
+
+                var oInstanceParam = Expression.Parameter(typeof(object), "source");
+                var instanceParam = GetCastOrConvertExpression(oInstanceParam, fieldDeclaringType);
+
+                var exprCallFieldGetFn = Expression.Field(instanceParam, fieldInfo);
+                //var oExprCallFieldGetFn = this.GetCastOrConvertExpression(exprCallFieldGetFn, typeof(object));
+                var oExprCallFieldGetFn = Expression.Convert(exprCallFieldGetFn, typeof(object));
+
+                var fieldGetterFn = Expression.Lambda<GetMemberDelegate>
+                    (
+                        oExprCallFieldGetFn,
+                        oInstanceParam
+                    )
+                    .Compile();
+
+                return fieldGetterFn;
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                throw;
+            }
+        }
+
+        public static SetMemberDelegate SetExpression(FieldInfo fieldInfo)
+        {
+            var fieldDeclaringType = fieldInfo.DeclaringType;
+
+            var sourceParameter = Expression.Parameter(typeof(object), "source");
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+
+            var sourceExpression = GetCastOrConvertExpression(sourceParameter, fieldDeclaringType);
+
+            var fieldExpression = Expression.Field(sourceExpression, fieldInfo);
+
+            var valueExpression = GetCastOrConvertExpression(valueParameter, fieldExpression.Type);
+
+            var genericSetFieldMethodInfo = setFieldMethod.MakeGenericMethod(fieldExpression.Type);
+
+            var setFieldMethodCallExpression = Expression.Call(
+                null, genericSetFieldMethodInfo, fieldExpression, valueExpression);
+
+            var setterFn = Expression.Lambda<SetMemberDelegate>(
+                setFieldMethodCallExpression, sourceParameter, valueParameter).Compile();
+
+            return setterFn;
+        }
+
+        private static Expression GetCastOrConvertExpression(Expression expression, Type targetType)
+        {
+            Expression result;
+            var expressionType = expression.Type;
+
+            if (targetType.IsAssignableFromType(expressionType))
+            {
+                result = expression;
+            }
+            else
+            {
+                // Check if we can use the as operator for casting or if we must use the convert method
+                if (targetType.IsValueType() && !targetType.IsNullableType())
+                {
+                    result = Expression.Convert(expression, targetType);
+                }
+                else
+                {
+                    result = Expression.TypeAs(expression, targetType);
+                }
+            }
+
+            return result;
+        }
+#endif
+
+#if NET45 || NETSTANDARD1_3
+        public static GetMemberDelegate GetEmit(FieldInfo fieldInfo)
+        {
+            var getter = CreateDynamicGetMethod(fieldInfo);
+
+            var gen = getter.GetILGenerator();
+
+            gen.Emit(OpCodes.Ldarg_0);
+
+            if (fieldInfo.DeclaringType.IsValueType())
+            {
+                gen.Emit(OpCodes.Unbox, fieldInfo.DeclaringType);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
+            }
+
+            gen.Emit(OpCodes.Ldfld, fieldInfo);
+
+            if (fieldInfo.FieldType.IsValueType())
+            {
+                gen.Emit(OpCodes.Box, fieldInfo.FieldType);
+            }
+
+            gen.Emit(OpCodes.Ret);
+
+            return (GetMemberDelegate)getter.CreateDelegate(typeof(GetMemberDelegate));
+        }
+
+        static readonly Type[] DynamicGetMethodArgs = { typeof(object) };
+
+        internal static DynamicMethod CreateDynamicGetMethod(MemberInfo memberInfo)
+        {
+            var memberType = memberInfo is FieldInfo ? "Field" : "Property";
+            var name = $"_Get{memberType}_{memberInfo.Name}_";
+            var returnType = typeof(object);
+
+            return !memberInfo.DeclaringType.IsInterface()
+                ? new DynamicMethod(name, returnType, DynamicGetMethodArgs, memberInfo.DeclaringType, true)
+                : new DynamicMethod(name, returnType, DynamicGetMethodArgs, memberInfo.Module, true);
+        }
+
+        public static SetMemberDelegate SetEmit(FieldInfo fieldInfo)
+        {
+            var setter = CreateDynamicSetMethod(fieldInfo);
+
+            var gen = setter.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+
+            if (fieldInfo.DeclaringType.IsValueType())
+            {
+                gen.Emit(OpCodes.Unbox, fieldInfo.DeclaringType);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
+            }
+
+            gen.Emit(OpCodes.Ldarg_1);
+
+            gen.Emit(fieldInfo.FieldType.IsClass()
+                    ? OpCodes.Castclass
+                    : OpCodes.Unbox_Any,
+                fieldInfo.FieldType);
+
+            gen.Emit(OpCodes.Stfld, fieldInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (SetMemberDelegate)setter.CreateDelegate(typeof(SetMemberDelegate));
+        }
+
+        static readonly Type[] DynamicSetMethodArgs = { typeof(object), typeof(object) };
+
+        internal static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
+        {
+            var memberType = memberInfo is FieldInfo ? "Field" : "Property";
+            var name = $"_Set{memberType}_{memberInfo.Name}_";
+            var returnType = typeof(void);
+
+            return !memberInfo.DeclaringType.IsInterface()
+                ? new DynamicMethod(name, returnType, DynamicSetMethodArgs, memberInfo.DeclaringType, true)
+                : new DynamicMethod(name, returnType, DynamicSetMethodArgs, memberInfo.Module, true);
+        }
+#endif
+
+        }
 }

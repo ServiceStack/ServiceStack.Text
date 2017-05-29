@@ -7,7 +7,7 @@ namespace ServiceStack.Text
     internal class TypeConfig
     {
         internal readonly Type Type;
-        internal bool EnableAnonymousFieldSetterses;
+        internal bool EnableAnonymousFieldSetters;
         internal PropertyInfo[] Properties;
         internal FieldInfo[] Fields;
         internal Func<object, string, object, object> OnDeserializing;
@@ -16,7 +16,7 @@ namespace ServiceStack.Text
         internal TypeConfig(Type type)
         {
             Type = type;
-            EnableAnonymousFieldSetterses = false;
+            EnableAnonymousFieldSetters = false;
             Properties = TypeConstants.EmptyPropertyInfoArray;
             Fields = TypeConstants.EmptyFieldInfoArray;
 
@@ -47,8 +47,8 @@ namespace ServiceStack.Text
 
         public static bool EnableAnonymousFieldSetters
         {
-            get { return Config.EnableAnonymousFieldSetterses; }
-            set { Config.EnableAnonymousFieldSetterses = value; }
+            get { return Config.EnableAnonymousFieldSetters; }
+            set { Config.EnableAnonymousFieldSetters = value; }
         }
 
         public static bool IsUserType
