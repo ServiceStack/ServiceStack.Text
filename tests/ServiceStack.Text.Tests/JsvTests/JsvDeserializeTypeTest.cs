@@ -15,7 +15,7 @@ namespace ServiceStack.Text.Tests.JsvTests
         {
             Type type = typeof (Test);
             PropertyInfo propertyInfo = type.GetProperty("TestProperty");
-            SetPropertyDelegate setMethod = JsvDeserializeType.GetSetPropertyMethod(type, propertyInfo);
+            SetMemberDelegate setMethod = JsvDeserializeType.GetSetPropertyMethod(type, propertyInfo);
             Test test = new Test();
             setMethod.Invoke(test, "test");
             Assert.AreEqual("test", test.TestProperty);
@@ -27,7 +27,7 @@ namespace ServiceStack.Text.Tests.JsvTests
             var dict = new Dictionary<string, string>();
             Type type = typeof (Dictionary<string,string>);
             foreach (var propertyInfo in type.GetProperties()) {
-                SetPropertyDelegate setMethod = JsvDeserializeType.GetSetPropertyMethod(type, propertyInfo);
+                SetMemberDelegate setMethod = JsvDeserializeType.GetSetPropertyMethod(type, propertyInfo);
                 if (setMethod == null) continue;
                 Console.WriteLine(propertyInfo.Name);
                 setMethod.Invoke(dict, propertyInfo.Name);

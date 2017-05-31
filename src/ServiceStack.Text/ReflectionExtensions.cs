@@ -624,6 +624,19 @@ namespace ServiceStack
             return ctorFn();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Module GetModule(this Type type)
+        {
+            if (type == null)
+                return null;
+
+#if PCL || NETSTANDARD1_1
+            return type.GetTypeInfo().Module;
+#else
+            return type.Module;
+#endif
+        }
+
         public static PropertyInfo[] GetAllProperties(this Type type)
         {
             if (type.IsInterface())

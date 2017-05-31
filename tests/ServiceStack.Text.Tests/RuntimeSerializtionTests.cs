@@ -108,9 +108,6 @@ namespace ServiceStack.Text.Tests
                 typeof(UserAuth),
                 typeof(UserAuthDetails),
                 typeof(Message),
-#if NET45
-                typeof(SerialiazableType),
-#endif
             };
 
             foreach (var allowType in allowTypes)
@@ -176,9 +173,6 @@ namespace ServiceStack.Text.Tests
                 typeof(UserAuth),
                 typeof(UserAuthDetails),
                 typeof(Message),
-#if NET45
-                typeof(SerialiazableType),
-#endif
             };
 
             foreach (var allowType in allowTypes)

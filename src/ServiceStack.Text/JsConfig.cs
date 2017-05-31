@@ -1002,7 +1002,6 @@ namespace ServiceStack.Text
             {
                 nameof(DataContractAttribute),
                 nameof(RuntimeSerializableAttribute),
-                "SerializableAttribute",
             };
             AllowRuntimeTypeWithInterfacesNamed = new HashSet<string>
             {

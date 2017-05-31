@@ -291,158 +291,40 @@ namespace ServiceStack
         }
 
 #if NETSTANDARD1_3
-
-        public override PropertySetterDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
+        public override GetMemberDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
         {
-            var propertySetMethod = propertyInfo.SetMethod();
-            if (propertySetMethod == null) return null;
-
-            if (!SupportsExpression)
-            {
-                return (o, convertedValue) =>
-                    propertySetMethod.Invoke(o, new[] { convertedValue });
-            }
-
-            try
-            {
-                var instance = Expression.Parameter(typeof(object), "i");
-                var argument = Expression.Parameter(typeof(object), "a");
-
-                var instanceParam = Expression.Convert(instance, propertyInfo.ReflectedType());
-                var valueParam = Expression.Convert(argument, propertyInfo.PropertyType);
-
-                var setterCall = Expression.Call(instanceParam, propertySetMethod, valueParam);
-
-                return Expression.Lambda<PropertySetterDelegate>(setterCall, instance, argument).Compile();
-            }
-            catch //fallback for Android
-            {
-                return (o, convertedValue) =>
-                    propertySetMethod.Invoke(o, new[] { convertedValue });
-            }
+            return SupportsEmit
+                ? PropertyInvoker.GetEmit(propertyInfo)
+                : SupportsExpression
+                    ? PropertyInvoker.GetExpression(propertyInfo)
+                    : base.GetPropertyGetterFn(propertyInfo);
         }
 
-        public override PropertyGetterDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
+        public override SetMemberDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
         {
-            if (!SupportsExpression)
-                return base.GetPropertyGetterFn(propertyInfo);
-
-            var getMethodInfo = propertyInfo.GetMethodInfo();
-            if (getMethodInfo == null) return null;
-            try
-            {
-                var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
-                var instanceParam = Expression.Convert(oInstanceParam, propertyInfo.ReflectedType()); //propertyInfo.DeclaringType doesn't work on Proxy types
-                
-                var exprCallPropertyGetFn = Expression.Call(instanceParam, getMethodInfo);
-                var oExprCallPropertyGetFn = Expression.Convert(exprCallPropertyGetFn, typeof(object));
-
-                var propertyGetFn = Expression.Lambda<PropertyGetterDelegate>
-                    (
-                        oExprCallPropertyGetFn,
-                        oInstanceParam
-                    ).Compile();
-
-                return propertyGetFn;
-
-            }
-            catch (Exception ex)
-            {
-                Tracer.Instance.WriteError(ex);
-                throw;
-            }
+            return SupportsEmit
+                ? PropertyInvoker.SetEmit(propertyInfo)
+                : SupportsExpression
+                    ? PropertyInvoker.SetExpression(propertyInfo)
+                    : base.GetPropertySetterFn(propertyInfo);
         }
 
-        private static readonly MethodInfo setFieldMethod =
-            typeof(NetStandardPclExport).GetStaticMethod("SetField");
-
-        internal static void SetField<TValue>(ref TValue field, TValue newValue)
+        public override GetMemberDelegate GetFieldGetterFn(FieldInfo fieldInfo)
         {
-            field = newValue;
+            return SupportsEmit
+                ? FieldInvoker.GetEmit(fieldInfo)
+                : SupportsExpression
+                    ? FieldInvoker.GetExpression(fieldInfo)
+                    : base.GetFieldGetterFn(fieldInfo);
         }
 
-        public override PropertySetterDelegate GetFieldSetterFn(FieldInfo fieldInfo)
+        public override SetMemberDelegate GetFieldSetterFn(FieldInfo fieldInfo)
         {
-            if (!SupportsExpression)
-                return base.GetFieldSetterFn(fieldInfo);
-
-            var fieldDeclaringType = fieldInfo.DeclaringType;
-
-            var sourceParameter = Expression.Parameter(typeof(object), "source");
-            var valueParameter = Expression.Parameter(typeof(object), "value");
-
-            var sourceExpression = this.GetCastOrConvertExpression(sourceParameter, fieldDeclaringType);
-
-            var fieldExpression = Expression.Field(sourceExpression, fieldInfo);
-
-            var valueExpression = this.GetCastOrConvertExpression(valueParameter, fieldExpression.Type);
-
-            var genericSetFieldMethodInfo = setFieldMethod.MakeGenericMethod(fieldExpression.Type);
-
-            var setFieldMethodCallExpression = Expression.Call(
-                null, genericSetFieldMethodInfo, fieldExpression, valueExpression);
-
-            var setterFn = Expression.Lambda<PropertySetterDelegate>(
-                setFieldMethodCallExpression, sourceParameter, valueParameter).Compile();
-
-            return setterFn;
-        }
-
-        public override PropertyGetterDelegate GetFieldGetterFn(FieldInfo fieldInfo)
-        {
-            if (!SupportsExpression)
-                return base.GetFieldGetterFn(fieldInfo);
-
-            try
-            {
-                var fieldDeclaringType = fieldInfo.DeclaringType;
-
-                var oInstanceParam = Expression.Parameter(typeof(object), "source");
-                var instanceParam = this.GetCastOrConvertExpression(oInstanceParam, fieldDeclaringType);
-
-                var exprCallFieldGetFn = Expression.Field(instanceParam, fieldInfo);
-                //var oExprCallFieldGetFn = this.GetCastOrConvertExpression(exprCallFieldGetFn, typeof(object));
-                var oExprCallFieldGetFn = Expression.Convert(exprCallFieldGetFn, typeof(object));
-
-                var fieldGetterFn = Expression.Lambda<PropertyGetterDelegate>
-                    (
-                        oExprCallFieldGetFn,
-                        oInstanceParam
-                    )
-                    .Compile();
-
-                return fieldGetterFn;
-            }
-            catch (Exception ex)
-            {
-                Tracer.Instance.WriteError(ex);
-                throw;
-            }
-        }
-
-        private Expression GetCastOrConvertExpression(Expression expression, Type targetType)
-        {
-            Expression result;
-            var expressionType = expression.Type;
-
-            if (targetType.IsAssignableFromType(expressionType))
-            {
-                result = expression;
-            }
-            else
-            {
-                // Check if we can use the as operator for casting or if we must use the convert method
-                if (targetType.IsValueType() && !targetType.IsNullableType())
-                {
-                    result = Expression.Convert(expression, targetType);
-                }
-                else
-                {
-                    result = Expression.TypeAs(expression, targetType);
-                }
-            }
-
-            return result;
+            return SupportsEmit
+                ? FieldInvoker.SetEmit(fieldInfo)
+                : SupportsExpression
+                    ? FieldInvoker.SetExpression(fieldInfo)
+                    : base.GetFieldSetterFn(fieldInfo);
         }
 #endif
 
@@ -591,21 +473,11 @@ namespace ServiceStack
         }
 #endif
 
-        public override SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
-        {
-            return CreateIlPropertySetter(propertyInfo);
-        }
-
-        public override SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
-        {
-            return CreateIlFieldSetter(fieldInfo);
-        }
-
-        public override SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        public override SetMemberDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
         {
             return propertyInfo.CanWrite
-                ? CreateIlPropertySetter(propertyInfo)
-                : CreateIlFieldSetter(fieldInfo);
+                ? GetPropertySetterFn(propertyInfo)
+                : GetFieldSetterFn(fieldInfo);
         }
 
         public override Type UseType(Type type)
@@ -615,61 +487,6 @@ namespace ServiceStack
                 return DynamicProxy.GetInstanceFor(type).GetType();
             }
             return type;
-        }
-
-        public static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
-        {
-            var propSetMethod = propertyInfo.SetMethod;
-            if (propSetMethod == null)
-                return null;
-
-            var setter = CreateDynamicSetMethod(propertyInfo);
-
-            var generator = setter.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
-            generator.Emit(OpCodes.Ldarg_1);
-
-            generator.Emit(propertyInfo.PropertyType.IsClass()
-                               ? OpCodes.Castclass
-                               : OpCodes.Unbox_Any,
-                           propertyInfo.PropertyType);
-
-            generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
-            generator.Emit(OpCodes.Ret);
-
-            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-        }
-
-        public static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
-        {
-            var setter = CreateDynamicSetMethod(fieldInfo);
-
-            var generator = setter.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
-            generator.Emit(OpCodes.Ldarg_1);
-
-            generator.Emit(fieldInfo.FieldType.IsClass()
-                               ? OpCodes.Castclass
-                               : OpCodes.Unbox_Any,
-                           fieldInfo.FieldType);
-
-            generator.Emit(OpCodes.Stfld, fieldInfo);
-            generator.Emit(OpCodes.Ret);
-
-            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-        }
-
-        private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
-        {
-            var args = new[] { typeof(object), typeof(object) };
-            var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
-            var returnType = typeof(void);
-
-            return !memberInfo.DeclaringType.IsInterface()
-                       ? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
-                       : new DynamicMethod(name, returnType, args, memberInfo.Module, true);
         }
 
         public static void InitForAot()

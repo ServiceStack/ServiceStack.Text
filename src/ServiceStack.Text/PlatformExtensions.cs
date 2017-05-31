@@ -313,6 +313,17 @@ namespace ServiceStack
 #endif
         }
 
+
+#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MethodInfo GetGetMethod(this PropertyInfo pi) => 
+            pi.GetMethod;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MethodInfo GetSetMethod(this PropertyInfo pi, bool nonPublic=true) => 
+            pi.SetMethod(nonPublic);
+#endif
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this Type type)
         {
@@ -1212,11 +1223,11 @@ namespace ServiceStack
             public string Name;
             public Type Type;
 
-            public PropertyGetterDelegate GetValueFn;
-            public PropertySetterDelegate SetValueFn;
+            public GetMemberDelegate GetValueFn;
+            public SetMemberDelegate SetValueFn;
 
             public Type ConvertType;
-            public PropertyGetterDelegate ConvertValueFn;
+            public GetMemberDelegate ConvertValueFn;
 
             public void SetValue(object instance, object value)
             {
