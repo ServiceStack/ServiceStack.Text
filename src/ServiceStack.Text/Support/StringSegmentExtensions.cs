@@ -10,7 +10,8 @@ namespace ServiceStack.Text.Support
 {
     public static class StringSegmentExtensions
     {
-        const string BadFormat = "Input string was not in a correct format";
+        const string BadFormat = "Input string was not in a correct format.";
+        const string OverflowMessage = "Value was either too large or too small for an {0}.";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty(this StringSegment value)
@@ -119,62 +120,119 @@ namespace ServiceStack.Text.Support
             TrailingWhite
         }
 
+        private static Exception GetOverflowException(Type type) => new OverflowException(String.Format(OverflowMessage, type.Name));
+
         public static sbyte ParseSByte(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? sbyte.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (sbyte) ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
+            try
+            {
+                return JsConfig.UseSystemParseMethods
+                    ? sbyte.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : (sbyte) ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(byte));
+            }
         }
 
         public static byte ParseByte(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? byte.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (byte) ParseUnsignedInteger(value, byte.MaxValue);
+            try
+            {
+                 return JsConfig.UseSystemParseMethods
+                    ? byte.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : (byte) ParseUnsignedInteger(value, byte.MaxValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(byte));
+            }
         }
 
         public static short ParseInt16(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? short.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (short) ParseSignedInteger(value, short.MaxValue, short.MinValue);
+            try
+            { 
+                return JsConfig.UseSystemParseMethods
+                    ? short.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : (short) ParseSignedInteger(value, short.MaxValue, short.MinValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(Int16));
+            }
         }
 
         public static ushort ParseUInt16(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? ushort.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (ushort) ParseUnsignedInteger(value, ushort.MaxValue);
+            try
+            {
+                return JsConfig.UseSystemParseMethods
+                    ? ushort.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : (ushort) ParseUnsignedInteger(value, ushort.MaxValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(UInt16));
+            }
         }
 
 
         public static int ParseInt32(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? int.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (int) ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
+            try
+            {
+                return JsConfig.UseSystemParseMethods
+                    ? int.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : (int) ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(Int32));
+            }
         }
 
         public static uint ParseUInt32(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? uint.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (uint) ParseUnsignedInteger(value, UInt32.MaxValue);
+            try
+            {
+                return JsConfig.UseSystemParseMethods
+                    ? uint.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : (uint) ParseUnsignedInteger(value, UInt32.MaxValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(UInt32));
+            }
         }
 
         public static long ParseInt64(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? long.Parse(value.Value, CultureInfo.InvariantCulture)
-                : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
-
+            try
+            {
+                return JsConfig.UseSystemParseMethods
+                    ? long.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(Int64));
+            }
         }
 
         public static ulong ParseUInt64(this StringSegment value)
         {
-            return JsConfig.UseSystemParseMethods
-                ? ulong.Parse(value.Value, CultureInfo.InvariantCulture)
-                : ParseUnsignedInteger(value, UInt64.MaxValue);
+            try
+            {
+                return JsConfig.UseSystemParseMethods
+                    ? ulong.Parse(value.Value, CultureInfo.InvariantCulture)
+                    : ParseUnsignedInteger(value, UInt64.MaxValue);
+            }
+            catch (OverflowException)
+            {
+                throw GetOverflowException(typeof(UInt64));
+            }
         }
 
         private static ulong ParseUnsignedInteger(StringSegment value, ulong maxValue)
