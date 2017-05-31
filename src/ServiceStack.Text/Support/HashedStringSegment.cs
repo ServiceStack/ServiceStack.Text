@@ -30,29 +30,23 @@ namespace ServiceStack.Text.Support
 
         public static int ComputeHashCode(StringSegment value)
         {
-            return value.Length;
+            var length = value.Length;
+            if (length == 0)
+                return 0;
 
-            //this implementation of case insensitive hash code is temporary commented
-            //because we need to implement fast char.ToUpperInvariant() at first
-/*            int c;
-            int last = value.Offset + value.Length;
-            int i = value.Offset;
-            int hash1 = 5381;
-            int hash2 = hash1;
+            var offset = value.Offset;
+            var hash = 37 * length;
 
-            while (i < last)
+            char c1 = Char.ToUpperInvariant(value.Buffer[offset]);
+            hash += 53 * c1;
+
+            if (length > 1)
             {
-                c = char.ToUpperInvariant(value.Buffer[i]);
-                hash1 = ((hash1 << 5) + hash1) ^ c;
-                if ((i += 5) >= last)
-                    break;
-                c = char.ToUpperInvariant(value.Buffer[i]);
-                hash2 = ((hash2 << 5) + hash2) ^ c;
-                i += 5;
+                char c2 = Char.ToUpperInvariant(value.Buffer[offset + length - 1]);
+                hash += 37 * c2;
             }
 
-            return hash1 + (hash2 * 1566083941);
-*/
+            return hash;
         }
     }
 }

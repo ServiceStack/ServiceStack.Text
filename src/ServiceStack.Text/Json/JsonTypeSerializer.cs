@@ -460,8 +460,17 @@ namespace ServiceStack.Text.Json
             }
             else
             {
-                var strEndPos = json.IndexOfAny(IsSafeJsonChars, index);
-                if (strEndPos == -1) return new StringSegment(buffer, offset + index, jsonLength - index);
+                var i = index + offset;
+                var end = offset + jsonLength;
+
+                while (i < end)
+                {
+                    var c = buffer[i];
+                    if (c == JsonUtils.QuoteChar || c == JsonUtils.EscapeChar)
+                        break;
+                    i++;
+                }
+                if (i == end) return new StringSegment(buffer, offset + index, jsonLength - index);
             }
 
             return Unescape(json);
