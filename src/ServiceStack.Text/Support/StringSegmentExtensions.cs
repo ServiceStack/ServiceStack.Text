@@ -40,10 +40,13 @@ namespace ServiceStack.Text.Support
             return index;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOfAny(this StringSegment value, char[] chars, int start) => value.IndexOfAny(chars, start, value.Length - start);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Substring(this StringSegment value, int pos) => value.Substring(pos, value.Length - pos);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CompareIgnoreCase(this StringSegment value, string text) => value.Equals(text, StringComparison.OrdinalIgnoreCase);
 
         public static StringSegment FromCsvField(this StringSegment text)
@@ -56,6 +59,7 @@ namespace ServiceStack.Text.Support
                     .Replace(CsvConfig.EscapedItemDelimiterString, CsvConfig.ItemDelimiterString));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ParseBoolean(this StringSegment value)
         {
             if (!value.TryParseBoolean(out bool result))
@@ -77,16 +81,19 @@ namespace ServiceStack.Text.Support
             return value.CompareIgnoreCase(bool.FalseString);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryParseDecimal(this StringSegment value, out decimal result)
         {
             return decimal.TryParse(value.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryParseFloat(this StringSegment value, out float result)
         {
             return float.TryParse(value.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryParseDouble(this StringSegment value, out double result)
         {
             return double.TryParse(value.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
@@ -144,6 +151,7 @@ namespace ServiceStack.Text.Support
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sbyte ParseSByte(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
@@ -151,6 +159,7 @@ namespace ServiceStack.Text.Support
                 : (sbyte)ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ParseByte(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
@@ -158,6 +167,7 @@ namespace ServiceStack.Text.Support
                 : (byte)ParseUnsignedInteger(value, byte.MaxValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static short ParseInt16(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
@@ -165,6 +175,7 @@ namespace ServiceStack.Text.Support
                 : (short)ParseSignedInteger(value, short.MaxValue, short.MinValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort ParseUInt16(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
@@ -172,7 +183,7 @@ namespace ServiceStack.Text.Support
                 : (ushort)ParseUnsignedInteger(value, ushort.MaxValue);
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ParseInt32(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
@@ -180,6 +191,7 @@ namespace ServiceStack.Text.Support
                 : (int)ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ParseUInt32(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
@@ -187,6 +199,7 @@ namespace ServiceStack.Text.Support
                 : (uint)ParseUnsignedInteger(value, UInt32.MaxValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long ParseInt64(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
@@ -194,6 +207,7 @@ namespace ServiceStack.Text.Support
                 : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong ParseUInt64(this StringSegment value)
         {
             return JsConfig.UseSystemParseMethods
