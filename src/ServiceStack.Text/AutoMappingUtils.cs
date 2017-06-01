@@ -764,10 +764,11 @@ namespace ServiceStack
     }
 
     public delegate object GetMemberDelegate(object instance);
+    public delegate object GetMemberDelegate<T>(T instance);
 
     public delegate void SetMemberDelegate(object instance, object value);
     public delegate void SetMemberRefDelegate(ref object instance, object propertyValue);
-    public delegate void SetMemberRefGenericDelegate<T>(ref T instance, object value);
+    public delegate void SetMemberRefDelegate<T>(ref T instance, object value);
 
     internal static class TypeConverter
     {
