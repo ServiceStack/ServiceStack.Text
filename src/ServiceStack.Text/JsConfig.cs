@@ -233,7 +233,8 @@ namespace ServiceStack.Text
             bool? includePublicFields = null,
             int? maxDepth = null,
             EmptyCtorFactoryDelegate modelFactory = null,
-            string[] excludePropertyReferences = null)
+            string[] excludePropertyReferences = null,
+            bool? useSystemParseMethods = null)
         {
             return new JsConfigScope
             {
@@ -269,9 +270,26 @@ namespace ServiceStack.Text
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
-                ExcludePropertyReferences = excludePropertyReferences ?? sExcludePropertyReferences
+                ExcludePropertyReferences = excludePropertyReferences ?? sExcludePropertyReferences,
+                UseSystemParseMethods = useSystemParseMethods ?? sUseSystemParseMethods
             };
         }
+
+        private static bool? sUseSystemParseMethods;
+        public static bool UseSystemParseMethods
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.UseSystemParseMethods : null)
+                       ?? sUseSystemParseMethods
+                       ?? false;
+            }
+            set
+            {
+                if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
+            }
+        }
+
 
         private static bool? sConvertObjectTypesIntoStringDictionary;
         public static bool ConvertObjectTypesIntoStringDictionary

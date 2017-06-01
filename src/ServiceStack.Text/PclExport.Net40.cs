@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
+using ServiceStack.Text.Support;
 
 #if !__IOS__
 using System.Reflection.Emit;
@@ -389,6 +390,15 @@ namespace ServiceStack
             return null;
         }
 
+        public override ParseStringSegmentDelegate GetDictionaryParseStringSegmentMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(Hashtable))
+            {
+                return SerializerUtils<TSerializer>.ParseHashtable;
+            }
+            return null;
+        }
+
         public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))
@@ -398,6 +408,16 @@ namespace ServiceStack
             return null;
         }
 
+        public override ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(StringCollection))
+            {
+                return SerializerUtils<TSerializer>.ParseStringCollection<TSerializer>;
+            }
+            return null;
+        }
+
+
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
 #if !(__IOS__ || LITE)
@@ -405,6 +425,18 @@ namespace ServiceStack
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.Parse;
+            }
+#endif
+            return null;
+        }
+
+        public override ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+        {
+#if !(__IOS__ || LITE)
+            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
+            {
+                return DeserializeDynamic<TSerializer>.ParseStringSegment;
             }
 #endif
             return null;
@@ -824,7 +856,7 @@ namespace ServiceStack
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        private static int VerifyAndGetStartIndex(string value, Type createMapType)
+        private static int VerifyAndGetStartIndex(StringSegment value, Type createMapType)
         {
             var index = 0;
             if (!Serializer.EatMapStartChar(value, ref index))
@@ -836,9 +868,11 @@ namespace ServiceStack
             return index;
         }
 
-        public static Hashtable ParseHashtable(string value)
+        public static Hashtable ParseHashtable(string value) => ParseHashtable(new StringSegment(value));
+
+        public static Hashtable ParseHashtable(StringSegment value)
         {
-            if (value == null)
+            if (!value.HasValue)
                 return null;
 
             var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
@@ -853,10 +887,10 @@ namespace ServiceStack
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
-                if (keyValue == null) continue;
+                if (!keyValue.HasValue) continue;
 
-                var mapKey = keyValue;
-                var mapValue = elementValue;
+                var mapKey = keyValue.Value;
+                var mapValue = elementValue.Value;
 
                 result[mapKey] = mapValue;
 
@@ -866,10 +900,13 @@ namespace ServiceStack
             return result;
         }
 
-        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer
+        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer => ParseStringCollection<TS>(new StringSegment(value));
+
+
+        public static StringCollection ParseStringCollection<TS>(StringSegment value) where TS : ITypeSerializer
         {
             if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
-            return value == String.Empty
+            return value.Length == 0
                    ? new StringCollection()
                    : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
         }

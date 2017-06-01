@@ -19,6 +19,12 @@ using System.Threading;
 using System.Linq;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Pools;
+using ServiceStack.Text.Support;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -30,18 +36,20 @@ namespace ServiceStack.Text.Common
         const int KeyIndex = 0;
         const int ValueIndex = 1;
 
-        public static ParseStringDelegate GetParseMethod(Type type)
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentMethod(Type type)
         {
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
             if (mapInterface == null)
             {
-                var fn = PclExport.Instance.GetDictionaryParseMethod<TSerializer>(type);
+                var fn = PclExport.Instance.GetDictionaryParseStringSegmentMethod<TSerializer>(type);
                 if (fn != null)
                     return fn;
 
                 if (type == typeof(IDictionary))
                 {
-                    return GetParseMethod(typeof(Dictionary<object, object>));
+                    return GetParseStringSegmentMethod(typeof(Dictionary<object, object>));
                 }
                 if (typeof(IDictionary).IsAssignableFromType(type))
                 {
@@ -62,10 +70,10 @@ namespace ServiceStack.Text.Common
             }
 
             var dictionaryArgs = mapInterface.GenericTypeArguments();
-            var keyTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[KeyIndex]);
+            var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(dictionaryArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 
-            var valueTypeParseMethod = Serializer.GetParseFn(dictionaryArgs[ValueIndex]);
+            var valueTypeParseMethod = Serializer.GetParseStringSegmentFn(dictionaryArgs[ValueIndex]);
             if (valueTypeParseMethod == null) return null;
 
             var createMapType = type.HasAnyTypeDefinitionsOf(typeof(Dictionary<,>), typeof(IDictionary<,>))
@@ -74,7 +82,9 @@ namespace ServiceStack.Text.Common
             return value => ParseDictionaryType(value, createMapType, dictionaryArgs, keyTypeParseMethod, valueTypeParseMethod);
         }
 
-        public static JsonObject ParseJsonObject(string value)
+        public static JsonObject ParseJsonObject(string value) => ParseJsonObject(new StringSegment(value));
+
+        public static JsonObject ParseJsonObject(StringSegment value)
         {
             var index = VerifyAndGetStartIndex(value, typeof(JsonObject));
 
@@ -88,10 +98,10 @@ namespace ServiceStack.Text.Common
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
-                if (keyValue == null) continue;
+                if (!keyValue.HasValue) continue;
 
-                var mapKey = keyValue;
-                var mapValue = elementValue;
+                var mapKey = keyValue.Value;
+                var mapValue = elementValue.Value;
 
                 result[mapKey] = mapValue;
 
@@ -101,9 +111,11 @@ namespace ServiceStack.Text.Common
             return result;
         }
 
-        public static Dictionary<string, string> ParseStringDictionary(string value)
+        public static Dictionary<string, string> ParseStringDictionary(string value) => ParseStringDictionary(new StringSegment(value));
+
+        public static Dictionary<string, string> ParseStringDictionary(StringSegment value)
         {
-            if (value == null)
+            if (!value.HasValue)
                 return null;
 
             var index = VerifyAndGetStartIndex(value, typeof(Dictionary<string, string>));
@@ -118,12 +130,12 @@ namespace ServiceStack.Text.Common
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
-                if (keyValue == null) continue;
+                if (!keyValue.HasValue) continue;
 
                 var mapKey = Serializer.UnescapeString(keyValue);
                 var mapValue = Serializer.UnescapeString(elementValue);
 
-                result[mapKey] = mapValue;
+                result[mapKey.Value] = mapValue.Value;
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
             }
@@ -131,13 +143,15 @@ namespace ServiceStack.Text.Common
             return result;
         }
 
-        public static IDictionary ParseIDictionary(string value, Type dictType)
+        public static IDictionary ParseIDictionary(string value, Type dictType) => ParseIDictionary(new StringSegment(value), dictType);
+
+        public static IDictionary ParseIDictionary(StringSegment value, Type dictType)
         {
-            if (value == null) return null;
+            if (!value.HasValue) return null;
 
             var index = VerifyAndGetStartIndex(value, dictType);
 
-            var valueParseMethod = Serializer.GetParseFn(typeof(object));
+            var valueParseMethod = Serializer.GetParseStringSegmentFn(typeof(object));
             if (valueParseMethod == null) return null;
 
             var to = (IDictionary)dictType.CreateInstance();
@@ -151,14 +165,14 @@ namespace ServiceStack.Text.Common
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementStartIndex = index;
                 var elementValue = Serializer.EatTypeValue(value, ref index);
-                if (keyValue == null) continue;
+                if (!keyValue.HasValue) continue;
 
                 var mapKey = valueParseMethod(keyValue);
 
                 if (elementStartIndex < valueLength)
                 {
                     Serializer.EatWhitespace(value, ref elementStartIndex);
-                    to[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
+                    to[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue.Value, value.GetChar(elementStartIndex));
                 }
                 else
                 {
@@ -175,7 +189,19 @@ namespace ServiceStack.Text.Common
             string value, Type createMapType,
             ParseStringDelegate parseKeyFn, ParseStringDelegate parseValueFn)
         {
-            if (value == null) return null;
+            return ParseDictionary<TKey, TValue>(new StringSegment(value),
+                createMapType,
+                v => parseKeyFn(v.Value),
+                v => parseValueFn(v.Value)
+                );
+        }
+
+
+        public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue>(
+            StringSegment value, Type createMapType,
+            ParseStringSegmentDelegate parseKeyFn, ParseStringSegmentDelegate parseValueFn)
+        {
+            if (!value.HasValue) return null;
 
             var tryToParseItemsAsDictionaries =
                 JsConfig.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
@@ -197,14 +223,14 @@ namespace ServiceStack.Text.Common
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementStartIndex = index;
                 var elementValue = Serializer.EatTypeValue(value, ref index);
-                if (keyValue == null) continue;
+                if (!keyValue.HasValue) continue;
 
                 TKey mapKey = (TKey)parseKeyFn(keyValue);
 
                 if (tryToParseItemsAsDictionaries)
                 {
                     Serializer.EatWhitespace(value, ref elementStartIndex);
-                    if (elementStartIndex < valueLength && value[elementStartIndex] == JsWriter.MapStartChar)
+                    if (elementStartIndex < valueLength && value.GetChar(elementStartIndex) == JsWriter.MapStartChar)
                     {
                         var tmpMap = ParseDictionary<TKey, TValue>(elementValue, createMapType, parseKeyFn, parseValueFn);
                         if (tmpMap != null && tmpMap.Count > 0)
@@ -212,14 +238,14 @@ namespace ServiceStack.Text.Common
                             to[mapKey] = (TValue)tmpMap;
                         }
                     }
-                    else if (elementStartIndex < valueLength && value[elementStartIndex] == JsWriter.ListStartChar)
+                    else if (elementStartIndex < valueLength && value.GetChar(elementStartIndex) == JsWriter.ListStartChar)
                     {
-                        to[mapKey] = (TValue)DeserializeList<List<object>, TSerializer>.Parse(elementValue);
+                        to[mapKey] = (TValue)DeserializeList<List<object>, TSerializer>.ParseStringSegment(elementValue);
                     }
                     else
                     {
                         to[mapKey] = (TValue)(tryToParseItemsAsPrimitiveTypes && elementStartIndex < valueLength
-                                        ? DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex])
+                                        ? DeserializeType<TSerializer>.ParsePrimitive(elementValue.Value, value.GetChar(elementStartIndex))
                                         : parseValueFn(elementValue));
                     }
                 }
@@ -228,7 +254,7 @@ namespace ServiceStack.Text.Common
                     if (tryToParseItemsAsPrimitiveTypes && elementStartIndex < valueLength)
                     {
                         Serializer.EatWhitespace(value, ref elementStartIndex);
-                        to[mapKey] = (TValue)DeserializeType<TSerializer>.ParsePrimitive(elementValue, value[elementStartIndex]);
+                        to[mapKey] = (TValue)DeserializeType<TSerializer>.ParsePrimitive(elementValue.Value, value.GetChar(elementStartIndex));
                     }
                     else
                     {
@@ -242,7 +268,7 @@ namespace ServiceStack.Text.Common
             return to;
         }
 
-        private static int VerifyAndGetStartIndex(string value, Type createMapType)
+        private static int VerifyAndGetStartIndex(StringSegment value, Type createMapType)
         {
             var index = 0;
             if (!Serializer.EatMapStartChar(value, ref index))
@@ -254,30 +280,37 @@ namespace ServiceStack.Text.Common
             return index;
         }
 
-        private static Dictionary<string, ParseDictionaryDelegate> ParseDelegateCache
-            = new Dictionary<string, ParseDictionaryDelegate>();
+        private static Dictionary<TypesKey, ParseDictionaryDelegate> ParseDelegateCache
+            = new Dictionary<TypesKey, ParseDictionaryDelegate>();
 
-        private delegate object ParseDictionaryDelegate(string value, Type createMapType,
-            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn);
+        private delegate object ParseDictionaryDelegate(StringSegment value, Type createMapType,
+            ParseStringSegmentDelegate keyParseFn, ParseStringSegmentDelegate valueParseFn);
 
         public static object ParseDictionaryType(string value, Type createMapType, Type[] argTypes,
-            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn)
+            ParseStringDelegate keyParseFn, ParseStringDelegate valueParseFn) =>
+            ParseDictionaryType(new StringSegment(value), createMapType, argTypes,
+                v => keyParseFn(v.Value), v => valueParseFn(v.Value));
+
+        static readonly Type[] signature = {typeof(StringSegment), typeof(Type), typeof(ParseStringSegmentDelegate), typeof(ParseStringSegmentDelegate)};
+
+        public static object ParseDictionaryType(StringSegment value, Type createMapType, Type[] argTypes,
+            ParseStringSegmentDelegate keyParseFn, ParseStringSegmentDelegate valueParseFn)
         {
 
             ParseDictionaryDelegate parseDelegate;
-            var key = GetTypesKey(argTypes);
+            var key = new TypesKey(argTypes[0], argTypes[1]);
             if (ParseDelegateCache.TryGetValue(key, out parseDelegate))
                 return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
 
-            var mi = typeof(DeserializeDictionary<TSerializer>).GetStaticMethod("ParseDictionary");
+            var mi = typeof(DeserializeDictionary<TSerializer>).GetStaticMethod("ParseDictionary", signature);
             var genericMi = mi.MakeGenericMethod(argTypes);
             parseDelegate = (ParseDictionaryDelegate)genericMi.MakeDelegate(typeof(ParseDictionaryDelegate));
 
-            Dictionary<string, ParseDictionaryDelegate> snapshot, newCache;
+            Dictionary<TypesKey, ParseDictionaryDelegate> snapshot, newCache;
             do
             {
                 snapshot = ParseDelegateCache;
-                newCache = new Dictionary<string, ParseDictionaryDelegate>(ParseDelegateCache);
+                newCache = new Dictionary<TypesKey, ParseDictionaryDelegate>(ParseDelegateCache);
                 newCache[key] = parseDelegate;
 
             } while (!ReferenceEquals(
@@ -286,17 +319,31 @@ namespace ServiceStack.Text.Common
             return parseDelegate(value, createMapType, keyParseFn, valueParseFn);
         }
 
-        private static string GetTypesKey(params Type[] types)
+        struct TypesKey
         {
-            var sb = StringBuilderThreadStatic.Allocate();
-            foreach (var type in types)
-            {
-                if (sb.Length > 0)
-                    sb.Append(">");
+            Type Type1 { get; }
+            Type Type2 { get; }
 
-                sb.Append(type.FullName);
+            readonly int hashcode;
+
+            public TypesKey(Type type1, Type type2)
+            {
+                Type1 = type1;
+                Type2 = type2;
+                unchecked
+                {
+                    hashcode = Type1.GetHashCode() ^ (37 * Type2.GetHashCode());
+                }
             }
-            return StringBuilderThreadStatic.ReturnAndFree(sb);
+
+            public override bool Equals(object obj)
+            {
+                var types = (TypesKey)obj;
+
+                return Type1 == types.Type1 && Type2 == types.Type2;
+            }
+
+            public override int GetHashCode() => hashcode;
         }
     }
 }

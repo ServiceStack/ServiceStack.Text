@@ -429,7 +429,19 @@ namespace ServiceStack
             return null;
         }
 
+        public virtual ParseStringSegmentDelegate GetDictionaryParseStringSegmentMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
         public virtual ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
+        public virtual ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
             where TSerializer : ITypeSerializer
         {
             return null;
@@ -447,6 +459,13 @@ namespace ServiceStack
 #endif
             return null;
         }
+
+        public virtual ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
 
         public virtual void InitHttpWebRequest(HttpWebRequest httpReq,
             long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)

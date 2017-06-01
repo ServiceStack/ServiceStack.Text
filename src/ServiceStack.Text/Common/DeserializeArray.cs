@@ -15,6 +15,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Threading;
+#if NETSTANDARD1_1 
+using Microsoft.Extensions.Primitives;
+#endif
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
@@ -24,15 +28,23 @@ namespace ServiceStack.Text.Common
         private static Dictionary<Type, ParseArrayOfElementsDelegate> ParseDelegateCache
             = new Dictionary<Type, ParseArrayOfElementsDelegate>();
 
-        private delegate object ParseArrayOfElementsDelegate(string value, ParseStringDelegate parseFn);
+        private delegate object ParseArrayOfElementsDelegate(StringSegment value, ParseStringSegmentDelegate parseFn);
 
         public static Func<string, ParseStringDelegate, object> GetParseFn(Type type)
+        {
+            var func = GetParseStringSegmentFn(type);
+            return (s, d) => func(new StringSegment(s), v => d(v.Value));
+        }
+
+        private static readonly Type[] signature = {typeof(StringSegment), typeof(ParseStringSegmentDelegate)};
+
+        public static Func<StringSegment, ParseStringSegmentDelegate, object> GetParseStringSegmentFn(Type type)
         {
             ParseArrayOfElementsDelegate parseFn;
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn.Invoke;
 
             var genericType = typeof(DeserializeArrayWithElements<,>).MakeGenericType(type, typeof(TSerializer));
-            var mi = genericType.GetStaticMethod("ParseGenericArray");
+            var mi = genericType.GetStaticMethod("ParseGenericArray", signature);
             parseFn = (ParseArrayOfElementsDelegate)mi.CreateDelegate(typeof(ParseArrayOfElementsDelegate));
 
             Dictionary<Type, ParseArrayOfElementsDelegate> snapshot, newCache;
@@ -54,14 +66,17 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        public static T[] ParseGenericArray(string value, ParseStringDelegate elementParseFn)
-        {
-            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)) == null) return null;
-            if (value == string.Empty) return new T[0];
+        public static T[] ParseGenericArray(string value, ParseStringDelegate elementParseFn) =>
+            ParseGenericArray(new StringSegment(value), v => elementParseFn(v.Value));
 
-            if (value[0] == JsWriter.MapStartChar)
+        public static T[] ParseGenericArray(StringSegment value, ParseStringSegmentDelegate elementParseFn)
+        {
+            if (!(value = DeserializeListWithElements<TSerializer>.StripList(value)).HasValue) return null;
+            if (value.Length == 0) return new T[0];
+
+            if (value.GetChar(0) == JsWriter.MapStartChar)
             {
-                var itemValues = new List<string>();
+                var itemValues = new List<StringSegment>();
                 var i = 0;
                 do
                 {
@@ -104,25 +119,27 @@ namespace ServiceStack.Text.Common
     internal static class DeserializeArray<TSerializer>
         where TSerializer : ITypeSerializer
     {
-        private static Dictionary<Type, ParseStringDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringDelegate>();
+        private static Dictionary<Type, ParseStringSegmentDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringSegmentDelegate>();
 
-        public static ParseStringDelegate GetParseFn(Type type)
+        public static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn(Type type)
         {
-            ParseStringDelegate parseFn;
+            ParseStringSegmentDelegate parseFn;
             if (ParseDelegateCache.TryGetValue(type, out parseFn)) return parseFn;
 
             var genericType = typeof(DeserializeArray<,>).MakeGenericType(type, typeof(TSerializer));
 
-            var mi = genericType.GetStaticMethod("GetParseFn");
-            var parseFactoryFn = (Func<ParseStringDelegate>)mi.MakeDelegate(
-                typeof(Func<ParseStringDelegate>));
+            var mi = genericType.GetStaticMethod("GetParseStringSegmentFn");
+            var parseFactoryFn = (Func<ParseStringSegmentDelegate>)mi.MakeDelegate(
+                typeof(Func<ParseStringSegmentDelegate>));
             parseFn = parseFactoryFn();
 
-            Dictionary<Type, ParseStringDelegate> snapshot, newCache;
+            Dictionary<Type, ParseStringSegmentDelegate> snapshot, newCache;
             do
             {
                 snapshot = ParseDelegateCache;
-                newCache = new Dictionary<Type, ParseStringDelegate>(ParseDelegateCache);
+                newCache = new Dictionary<Type, ParseStringSegmentDelegate>(ParseDelegateCache);
                 newCache[type] = parseFn;
 
             } while (!ReferenceEquals(
@@ -137,19 +154,20 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        private static readonly ParseStringDelegate CacheFn;
+        private static readonly ParseStringSegmentDelegate CacheFn;
 
         static DeserializeArray()
         {
-            CacheFn = GetParseFn();
+            CacheFn = GetParseStringSegmentFn();
         }
 
-        public static ParseStringDelegate Parse
-        {
-            get { return CacheFn; }
-        }
+        public static ParseStringDelegate Parse => v => CacheFn(new StringSegment(v));
 
-        public static ParseStringDelegate GetParseFn()
+        public static ParseStringSegmentDelegate ParseStringSegment => CacheFn;
+
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(new StringSegment(v));
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn()
         {
             var type = typeof(T);
             if (!type.IsArray)
@@ -158,17 +176,26 @@ namespace ServiceStack.Text.Common
             if (type == typeof(string[]))
                 return ParseStringArray;
             if (type == typeof(byte[]))
-                return ParseByteArray;
+                return v => ParseByteArray(v.Value);
 
             var elementType = type.GetElementType();
-            var elementParseFn = Serializer.GetParseFn(elementType);
+            var elementParseFn = Serializer.GetParseStringSegmentFn(elementType);
             if (elementParseFn != null)
             {
-                var parseFn = DeserializeArrayWithElements<TSerializer>.GetParseFn(elementType);
+                var parseFn = DeserializeArrayWithElements<TSerializer>.GetParseStringSegmentFn(elementType);
                 return value => parseFn(value, elementParseFn);
             }
             return null;
         }
+
+        public static string[] ParseStringArray(StringSegment value)
+        {
+            if (!(value = DeserializeListWithElements<TSerializer>.StripList(value)).HasValue) return null;
+            return value.Length == 0
+                ? TypeConstants.EmptyStringArray
+                : DeserializeListWithElements<TSerializer>.ParseStringList(value).ToArray();
+        }
+
 
         public static string[] ParseStringArray(string value)
         {

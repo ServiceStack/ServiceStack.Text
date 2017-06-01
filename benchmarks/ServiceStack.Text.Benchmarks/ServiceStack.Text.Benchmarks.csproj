@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net45;netcoreapp1.1</TargetFrameworks>
+    <AssemblyName>ServiceStack.Text.Benchmarks</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>ServiceStack.Text.Benchmarks</PackageId>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' != 'Debug' ">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" Version="1.0.*" />
+    <ProjectReference Include="..\..\tests\ServiceStack.Text.Tests\ServiceStack.Text.Tests.csproj" Version="1.0.*" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

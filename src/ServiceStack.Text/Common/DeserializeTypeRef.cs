@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
@@ -33,7 +34,7 @@ namespace ServiceStack.Text.Common
             return serializationException;
         }
 
-        internal static Dictionary<string, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
+        internal static Dictionary<HashedStringSegment, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
             var isDataContract = type.IsDto();
@@ -42,7 +43,7 @@ namespace ServiceStack.Text.Common
             var fieldInfos = type.GetSerializableFields();
             if (propertyInfos.Length == 0 && fieldInfos.Length == 0) return null;
 
-            var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
+            var map = new Dictionary<HashedStringSegment, TypeAccessor>();
 
             if (propertyInfos.Length != 0)
             {
@@ -57,7 +58,7 @@ namespace ServiceStack.Text.Common
                             propertyName = dcsDataMember.Name;
                         }
                     }
-                    map[propertyName] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
+                    map[new HashedStringSegment(propertyName)] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
                 }
             }
 
@@ -74,7 +75,7 @@ namespace ServiceStack.Text.Common
                             field = dcsDataMember.Name;
                         }
                     }
-                    map[field] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
+                    map[new HashedStringSegment(field)] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
                 }
             }
             return map;

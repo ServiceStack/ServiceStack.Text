@@ -4,6 +4,11 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#endif
+using ServiceStack.Text.Support;
+
 
 namespace ServiceStack.Text.Json
 {
@@ -211,11 +216,29 @@ namespace ServiceStack.Text.Json
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsJsObject(StringSegment value)
+        {
+            return !value.IsNullOrEmpty()
+                   && value.GetChar(0) == '{'
+                   && value.GetChar(value.Length - 1) == '}';
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsJsArray(string value)
         {
             return !string.IsNullOrEmpty(value)
                 && value[0] == '['
                 && value[value.Length - 1] == ']';
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsJsArray(StringSegment value)
+        {
+            return !value.IsNullOrEmpty()
+                   && value.GetChar(0) == '['
+                   && value.GetChar(value.Length - 1) == ']';
+        }
+
     }
 }
