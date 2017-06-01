@@ -10,12 +10,13 @@ namespace ServiceStack.Text.Benchmarks
     {
         public static void Main(string[] args)
         {
-            //BenchmarkRunner.Run<JsonSerializationBenchmarks>(
-            BenchmarkRunner.Run<ParseBuiltinBenchmarks>(
+            Console.WriteLine("Hello World!");
+            BenchmarkRunner.Run<JsonSerializationBenchmarks>(
               ManualConfig
                 .Create(DefaultConfig.Instance)
                 //.With(Job.RyuJitX64)
-                .With(Job.Core)
+                //.With(Job.Core)
+		.With(Job.Clr)
                 .With(new BenchmarkDotNet.Diagnosers.CompositeDiagnoser())
                 .With(ExecutionValidator.FailOnError)
             );
