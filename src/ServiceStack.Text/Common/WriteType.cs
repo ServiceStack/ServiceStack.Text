@@ -184,7 +184,7 @@ namespace ServiceStack.Text.Common
                     propertyOrder,
                     propertySuppressDefaultConfig,
                     propertySuppressDefaultAttribute,
-                    propertyInfo.GetValueGetter<T>(),
+                    propertyInfo.GetPropertyGetterFn(),
                     Serializer.GetWriteFn(propertyType),
                     propertyType.GetDefaultValue(),
                     shouldSerialize,
@@ -241,7 +241,7 @@ namespace ServiceStack.Text.Common
                     propertyOrder,
                     propertySuppressDefaultConfig,
                     propertySuppressDefaultAttribute,
-                    fieldInfo.GetValueGetter<T>(),
+                    fieldInfo.GetFieldGetterFn(),
                     Serializer.GetWriteFn(propertyType),
                     defaultValue,
                     shouldSerialize,
@@ -276,7 +276,7 @@ namespace ServiceStack.Text.Common
             internal readonly string propertyReferenceName;
             internal readonly string propertyNameCLSFriendly;
             internal readonly string propertyNameLowercaseUnderscore;
-            internal readonly Func<T, object> GetterFn;
+            internal readonly GetMemberDelegate GetterFn;
             internal readonly WriteObjectDelegate WriteFn;
             internal readonly object DefaultValue;
             internal readonly Func<T, bool> shouldSerialize;
@@ -285,7 +285,7 @@ namespace ServiceStack.Text.Common
 
             public TypePropertyWriter(Type propertyType, string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly,
                 string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig, bool propertySuppressDefaultAttribute,
-                Func<T, object> getterFn, WriteObjectDelegate writeFn, object defaultValue,
+                GetMemberDelegate getterFn, WriteObjectDelegate writeFn, object defaultValue,
                 Func<T, bool> shouldSerialize,
                 Func<T, string, bool?> shouldSerializeDynamic,
                 bool isEnum)

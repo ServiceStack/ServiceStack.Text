@@ -20,8 +20,8 @@ namespace ServiceStack
     public class TypePropertyInfo
     {
         public TypePropertyInfo(
-            PropertyInfo propertyInfo, 
-            GetMemberDelegate publicGetter, 
+            PropertyInfo propertyInfo,
+            GetMemberDelegate publicGetter,
             SetMemberDelegate publicSetter)
         {
             PropertyInfo = propertyInfo;
@@ -142,7 +142,6 @@ namespace ServiceStack
             PclExport.Instance.GetPropertySetterFn(propertyInfo);
 
 #if !SL5
-
         public static GetMemberDelegate GetReflection(PropertyInfo propertyInfo) => propertyInfo.GetValue;
         public static SetMemberDelegate SetReflection(PropertyInfo propertyInfo) => propertyInfo.SetValue;
 
@@ -217,7 +216,8 @@ namespace ServiceStack
                 gen.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
             }
 
-            gen.Emit(OpCodes.Callvirt, propertyInfo.GetGetMethod());
+            var mi = propertyInfo.GetGetMethod(true);
+            gen.Emit(OpCodes.Callvirt, mi);
 
             if (propertyInfo.PropertyType.IsValueType())
             {

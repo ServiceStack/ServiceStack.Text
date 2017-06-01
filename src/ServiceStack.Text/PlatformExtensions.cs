@@ -316,7 +316,7 @@ namespace ServiceStack
 
 #if (NETFX_CORE || PCL || NETSTANDARD1_1)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MethodInfo GetGetMethod(this PropertyInfo pi) => 
+        public static MethodInfo GetGetMethod(this PropertyInfo pi, bool nonPublic=true) => 
             pi.GetMethod;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
