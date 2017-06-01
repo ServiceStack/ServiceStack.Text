@@ -416,9 +416,7 @@ namespace ServiceStack.Text.Support
                             state = ParseState.FractionNumber;
 
                             if (i == end)
-                            {
                                 throw new FormatException(BadFormat);
-                            }
                         }
                         else if (c == '0')
                         {
@@ -429,10 +427,7 @@ namespace ServiceStack.Text.Support
                             preResult = (ulong)(c - '0');
                             state = ParseState.Number;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.Sign:
                         if (c == '.')
@@ -441,9 +436,7 @@ namespace ServiceStack.Text.Support
                             state = ParseState.FractionNumber;
 
                             if (i == end)
-                            {
                                 throw new FormatException(BadFormat);
-                            }
                         }
                         else if (c == '0')
                         {
@@ -454,10 +447,7 @@ namespace ServiceStack.Text.Support
                             preResult = (ulong)(c - '0');
                             state = ParseState.Number;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.Number:
                         if (c == '.')
@@ -490,20 +480,14 @@ namespace ServiceStack.Text.Support
                         else if (allowThousands && c == ',')
                         {
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.DecimalPoint:
                         if (c == '.')
                         {
                             state = ParseState.FractionNumber;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.FractionNumber:
                         if (JsonUtils.IsWhiteSpace(c))
@@ -538,10 +522,7 @@ namespace ServiceStack.Text.Support
                             }
                             scale++;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.Exponent:
                         bool expNegative = false;
@@ -602,10 +583,7 @@ namespace ServiceStack.Text.Support
                             //set i to end of string, because ParseInt16 eats number and all trailing whites
                             i = end;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.TrailingWhite:
                         if (!JsonUtils.IsWhiteSpace(c))
