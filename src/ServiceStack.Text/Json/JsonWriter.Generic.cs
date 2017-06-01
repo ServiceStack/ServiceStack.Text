@@ -44,8 +44,10 @@ namespace ServiceStack.Text.Json
                 do
                 {
                     snapshot = WriteFnCache;
-                    newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache);
-                    newCache[type] = writeFn;
+                    newCache = new Dictionary<Type, WriteObjectDelegate>(WriteFnCache)
+                    {
+                        [type] = writeFn
+                    };
 
                 } while (!ReferenceEquals(
                     Interlocked.CompareExchange(ref WriteFnCache, newCache, snapshot), snapshot));
@@ -77,8 +79,10 @@ namespace ServiceStack.Text.Json
                 do
                 {
                     snapshot = JsonTypeInfoCache;
-                    newCache = new Dictionary<Type, TypeInfo>(JsonTypeInfoCache);
-                    newCache[type] = writeFn;
+                    newCache = new Dictionary<Type, TypeInfo>(JsonTypeInfoCache)
+                    {
+                        [type] = writeFn
+                    };
 
                 } while (!ReferenceEquals(
                     Interlocked.CompareExchange(ref JsonTypeInfoCache, newCache, snapshot), snapshot));

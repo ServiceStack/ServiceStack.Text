@@ -258,7 +258,7 @@ namespace ServiceStack.Text.Support
         {
             if (text == null)
             {
-                throw  new ArgumentNullException(nameof(text));
+                throw new ArgumentNullException(nameof(text));
             }
 
             var textLength = text.Length;

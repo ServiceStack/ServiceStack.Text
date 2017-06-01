@@ -1285,7 +1285,8 @@ namespace ServiceStack.Text.FastMember
         /// <summary>
         /// Does this type support new instances via a parameterless constructor?
         /// </summary>
-        public virtual bool CreateNewSupported { get { return false; } }
+        public virtual bool CreateNewSupported => false;
+
         /// <summary>
         /// Create a new instance of this type
         /// </summary>
@@ -1297,8 +1298,8 @@ namespace ServiceStack.Text.FastMember
         /// <remarks>The accessor is cached internally; a pre-existing accessor may be returned</remarks>
         public static TypeAccessor Create(Type type)
         {
-            if (type == null) throw new ArgumentNullException("type");
-            TypeAccessor obj = (TypeAccessor)typeLookyp[type];
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            var obj = (TypeAccessor)typeLookyp[type];
             if (obj != null) return obj;
 
             lock (typeLookyp)
@@ -1449,15 +1450,16 @@ namespace ServiceStack.Text.FastMember
                 this.setter = setter;
                 this.ctor = ctor;
             }
-            public override bool CreateNewSupported { get { return ctor != null; } }
+            public override bool CreateNewSupported => ctor != null;
+
             public override object CreateNew()
             {
                 return ctor != null ? ctor() : base.CreateNew();
             }
             public override object this[object target, string name]
             {
-                get { return getter(target, name); }
-                set { setter(target, name, value); }
+                get => getter(target, name);
+                set => setter(target, name, value);
             }
         }
 
@@ -1474,8 +1476,8 @@ namespace ServiceStack.Text.FastMember
             //    return DynamicAccessor.Singleton;
             //}
 
-            PropertyInfo[] props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             ConstructorInfo ctor = null;
             if (type.IsClass && !type.IsAbstract)
             {
