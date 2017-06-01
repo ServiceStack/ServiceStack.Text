@@ -31,15 +31,11 @@ namespace ServiceStack.Text.Common
         internal static TypePropertyWriter[] PropertyWriters;
         private static readonly WriteObjectDelegate WriteTypeInfo;
 
-        private static bool IsIncluded
-        {
-            get { return (JsConfig<T>.IncludeTypeInfo.GetValueOrDefault(JsConfig.IncludeTypeInfo)); }
-        }
+        private static bool IsIncluded => 
+            JsConfig<T>.IncludeTypeInfo.GetValueOrDefault(JsConfig.IncludeTypeInfo);
 
-        private static bool IsExcluded
-        {
-            get { return (JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault(JsConfig.ExcludeTypeInfo)); }
-        }
+        private static bool IsExcluded => 
+            JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault(JsConfig.ExcludeTypeInfo);
 
         static WriteType()
         {
@@ -264,9 +260,9 @@ namespace ServiceStack.Text.Common
             {
                 get
                 {
-                    return (JsConfig<T>.EmitCamelCaseNames.GetValueOrDefault(JsConfig.EmitCamelCaseNames))
+                    return JsConfig<T>.EmitCamelCaseNames.GetValueOrDefault(JsConfig.EmitCamelCaseNames)
                         ? propertyNameCLSFriendly
-                        : (JsConfig<T>.EmitLowercaseUnderscoreNames.GetValueOrDefault(JsConfig.EmitLowercaseUnderscoreNames))
+                        : JsConfig<T>.EmitLowercaseUnderscoreNames.GetValueOrDefault(JsConfig.EmitLowercaseUnderscoreNames)
                             ? propertyNameLowercaseUnderscore
                             : propertyName;
                 }
@@ -375,18 +371,18 @@ namespace ServiceStack.Text.Common
                     : propertyName;
         }
 
-        public static void WriteProperties(TextWriter writer, object value)
+        public static void WriteProperties(TextWriter writer, object instance)
         {
-            if (value == null)
+            if (instance == null)
             {
                 writer.Write(JsWriter.EmptyMap);
                 return;
             }
 
-            var valueType = value.GetType();
+            var valueType = instance.GetType();
             if (PropertyWriters != null && valueType != typeof(T) && !typeof(T).IsAbstract())
             {
-                WriteLateboundProperties(writer, value, valueType);
+                WriteLateboundProperties(writer, instance, valueType);
                 return;
             }
 
@@ -399,7 +395,7 @@ namespace ServiceStack.Text.Common
             if (WriteTypeInfo != null || JsState.IsWritingDynamic)
             {
                 if (JsConfig.PreferInterfaces && TryWriteSelfType(writer)) i++;
-                else if (TryWriteTypeInfo(writer, value)) i++;
+                else if (TryWriteTypeInfo(writer, instance)) i++;
                 JsState.IsWritingDynamic = false;
             }
 
@@ -410,13 +406,13 @@ namespace ServiceStack.Text.Common
                 {
                     var propertyWriter = PropertyWriters[index];
 
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value))
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)instance))
                         continue;
 
                     var dontSkipDefault = false;
                     if (propertyWriter.shouldSerializeDynamic != null)
                     {
-                        var shouldSerialize = propertyWriter.shouldSerializeDynamic((T)value, propertyWriter.PropertyName);
+                        var shouldSerialize = propertyWriter.shouldSerializeDynamic((T)instance, propertyWriter.PropertyName);
                         if (shouldSerialize.HasValue)
                         {
                             if (shouldSerialize.Value)
@@ -426,7 +422,7 @@ namespace ServiceStack.Text.Common
                         }
                     }
 
-                    var propertyValue = propertyWriter.GetterFn((T)value);
+                    var propertyValue = propertyWriter.GetterFn(instance);
 
                     if (!dontSkipDefault)
                     {
@@ -476,25 +472,25 @@ namespace ServiceStack.Text.Common
             if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
         }
 
-        private static readonly char[] ArrayBrackets = new[] { '[', ']' };
+        private static readonly char[] ArrayBrackets = { '[', ']' };
 
-        public static void WriteComplexQueryStringProperties(string typeName, TextWriter writer, object value)
+        public static void WriteComplexQueryStringProperties(string typeName, TextWriter writer, object instance)
         {
             var i = 0;
             if (PropertyWriters != null)
             {
                 var len = PropertyWriters.Length;
-                for (int index = 0; index < len; index++)
+                for (var index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)value)) continue;
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)instance)) continue;
 
-                    var propertyValue = value != null ? propertyWriter.GetterFn((T)value) : null;
+                    var propertyValue = instance != null ? propertyWriter.GetterFn(instance) : null;
                     if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
                         continue;
 
                     if ((propertyValue == null
-                         || (propertyWriter.propertySuppressDefaultConfig && Equals(propertyWriter.DefaultValue, propertyValue)))
+                         || propertyWriter.propertySuppressDefaultConfig && Equals(propertyWriter.DefaultValue, propertyValue))
                         && !Serializer.IncludeNullValues)
                         continue;
 
@@ -504,7 +500,7 @@ namespace ServiceStack.Text.Common
                     if (i++ > 0)
                         writer.Write('&');
 
-                    var propertyValueType = propertyValue != null ? propertyValue.GetType() : null;
+                    var propertyValueType = propertyValue?.GetType();
                     if (propertyValueType != null && 
                         propertyValueType.IsUserType() && 
                         !propertyValueType.HasInterface(typeof(IEnumerable)))
@@ -557,7 +553,7 @@ namespace ServiceStack.Text.Common
             }
         }
 
-        public static void WriteQueryString(TextWriter writer, object value)
+        public static void WriteQueryString(TextWriter writer, object instance)
         {
             try
             {
@@ -565,7 +561,7 @@ namespace ServiceStack.Text.Common
                 var i = 0;
                 foreach (var propertyWriter in PropertyWriters)
                 {
-                    var propertyValue = propertyWriter.GetterFn((T)value);
+                    var propertyValue = propertyWriter.GetterFn(instance);
                     if (propertyValue == null) continue;
 
                     if (i++ > 0)

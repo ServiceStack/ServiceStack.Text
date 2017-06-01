@@ -328,6 +328,13 @@ namespace ServiceStack
         }
 #endif
 
+        public override SetMemberDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        {
+            return propertyInfo.CanWrite
+                ? GetPropertySetterFn(propertyInfo)
+                : GetFieldSetterFn(fieldInfo);
+        }
+
         public override string ToXsdDateTimeString(DateTime dateTime)
         {
             return System.Xml.XmlConvert.ToString(dateTime.ToStableUniversalTime());
@@ -472,13 +479,6 @@ namespace ServiceStack
             return Environment.StackTrace;
         }
 #endif
-
-        public override SetMemberDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
-        {
-            return propertyInfo.CanWrite
-                ? GetPropertySetterFn(propertyInfo)
-                : GetFieldSetterFn(fieldInfo);
-        }
 
         public override Type UseType(Type type)
         {

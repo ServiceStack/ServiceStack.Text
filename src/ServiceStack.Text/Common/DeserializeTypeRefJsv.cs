@@ -126,7 +126,7 @@ namespace ServiceStack.Text.Common
                     }
                 }
 
-                if (typeAccessor != null && typeAccessor.GetProperty != null && typeAccessor.SetProperty != null)
+                if (typeAccessor?.GetProperty != null && typeAccessor.SetProperty != null)
                 {
                     try
                     {
@@ -143,10 +143,10 @@ namespace ServiceStack.Text.Common
                         else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
                     }
                 }
-                else if (typeConfig.OnDeserializing != null)
+                else
                 {
                     // the property is not known by the DTO
-                    typeConfig.OnDeserializing(instance, propertyName.Value, propertyValueStr);
+                    typeConfig.OnDeserializing?.Invoke(instance, propertyName.Value, propertyValueStr);
                 }
 
                 //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);

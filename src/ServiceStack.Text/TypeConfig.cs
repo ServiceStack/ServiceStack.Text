@@ -28,33 +28,31 @@ namespace ServiceStack.Text
     {
         internal static TypeConfig config;
 
-        static TypeConfig Config
-        {
-            get { return config ?? (config = Create()); }
-        }
+        static TypeConfig Config => 
+            config ?? (config = Create());
 
         public static PropertyInfo[] Properties
         {
-            get { return Config.Properties; }
-            set { Config.Properties = value; }
+            get => Config.Properties;
+            set => Config.Properties = value;
         }
 
         public static FieldInfo[] Fields
         {
-            get { return Config.Fields; }
-            set { Config.Fields = value; }
+            get => Config.Fields;
+            set => Config.Fields = value;
         }
 
         public static bool EnableAnonymousFieldSetters
         {
-            get { return Config.EnableAnonymousFieldSetters; }
-            set { Config.EnableAnonymousFieldSetters = value; }
+            get => Config.EnableAnonymousFieldSetters;
+            set => Config.EnableAnonymousFieldSetters = value;
         }
 
         public static bool IsUserType
         {
-            get { return Config.IsUserType; }
-            set { Config.IsUserType = value; }
+            get => Config.IsUserType;
+            set => Config.IsUserType = value;
         }
 
         static TypeConfig()
@@ -72,8 +70,8 @@ namespace ServiceStack.Text
 
         public static Func<object, string, object, object> OnDeserializing
         {
-            get { return config.OnDeserializing; }
-            set { config.OnDeserializing = value; }
+            get => config.OnDeserializing;
+            set => config.OnDeserializing = value;
         }
 
         static TypeConfig Create()
@@ -82,7 +80,7 @@ namespace ServiceStack.Text
 
             var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? TypeConstants.EmptyStringArray;
 
-            var properties = excludedProperties.Any()
+            var properties = excludedProperties.Length > 0
                 ? config.Type.GetSerializableProperties().Where(x => !excludedProperties.Contains(x.Name))
                 : config.Type.GetSerializableProperties();
             Properties = properties.Where(x => x.GetIndexParameters().Length == 0).ToArray();

@@ -337,7 +337,7 @@ namespace ServiceStack.Text.Common
 
         private WriteObjectDelegate GetCoreWriteFn<T>()
         {
-            if ((typeof(T).IsValueType() && !JsConfig.TreatAsRefType(typeof(T))) || JsConfig<T>.HasSerializeFn)
+            if (typeof(T).IsValueType() && !JsConfig.TreatAsRefType(typeof(T)) || JsConfig<T>.HasSerializeFn)
             {
                 return JsConfig<T>.HasSerializeFn
                     ? JsConfig<T>.WriteFn<TSerializer>

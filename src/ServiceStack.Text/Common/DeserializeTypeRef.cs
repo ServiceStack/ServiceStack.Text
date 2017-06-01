@@ -53,7 +53,7 @@ namespace ServiceStack.Text.Common
                     if (isDataContract)
                     {
                         var dcsDataMember = propertyInfo.GetDataMember();
-                        if (dcsDataMember != null && dcsDataMember.Name != null)
+                        if (dcsDataMember?.Name != null)
                         {
                             propertyName = dcsDataMember.Name;
                         }
@@ -66,16 +66,16 @@ namespace ServiceStack.Text.Common
             {
                 foreach (var fieldInfo in fieldInfos)
                 {
-                    var field = fieldInfo.Name;
+                    var fieldName = fieldInfo.Name;
                     if (isDataContract)
                     {
                         var dcsDataMember = fieldInfo.GetDataMember();
-                        if (dcsDataMember != null && dcsDataMember.Name != null)
+                        if (dcsDataMember?.Name != null)
                         {
-                            field = dcsDataMember.Name;
+                            fieldName = dcsDataMember.Name;
                         }
                     }
-                    map[new HashedStringSegment(field)] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
+                    map[new HashedStringSegment(fieldName)] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
                 }
             }
             return map;
