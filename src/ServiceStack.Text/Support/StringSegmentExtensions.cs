@@ -28,23 +28,16 @@ namespace ServiceStack.Text.Support
         public static int IndexOfAny(this StringSegment value, char[] chars, int start, int count)
         {
             if (start < 0 || value.Offset + start > value.Buffer.Length)
-            {
                 throw new ArgumentOutOfRangeException(nameof(start));
-            }
 
             if (count < 0 || value.Offset + start + count > value.Buffer.Length)
-            {
                 throw new ArgumentOutOfRangeException(nameof(count));
-            }
+
             var index = value.Buffer.IndexOfAny(chars, start + value.Offset, count);
             if (index != -1)
-            {
                 return index - value.Offset;
-            }
-            else
-            {
-                return index;
-            }
+
+            return index;
         }
 
         public static int IndexOfAny(this StringSegment value, char[] chars, int start) => value.IndexOfAny(chars, start, value.Length - start);
@@ -65,9 +58,7 @@ namespace ServiceStack.Text.Support
 
         public static bool ParseBoolean(this StringSegment value)
         {
-            bool result = false;
-
-            if (!value.TryParseBoolean(out result))
+            if (!value.TryParseBoolean(out bool result))
                 throw new FormatException(BadFormat);
 
             return result;
@@ -83,13 +74,7 @@ namespace ServiceStack.Text.Support
                 return true;
             }
 
-            if (value.CompareIgnoreCase(bool.FalseString))
-            {
-                result = false;
-                return true;
-            }
-
-            return false;
+            return value.CompareIgnoreCase(bool.FalseString);
         }
 
         public static bool TryParseDecimal(this StringSegment value, out decimal result)
@@ -120,119 +105,100 @@ namespace ServiceStack.Text.Support
             TrailingWhite
         }
 
-        private static Exception GetOverflowException(Type type) => new OverflowException(String.Format(OverflowMessage, type.Name));
+        private static Exception CreateOverflowException(long maxValue) =>
+            new OverflowException(string.Format(OverflowMessage, SignedMaxValueToIntType(maxValue)));
+        private static Exception CreateOverflowException(ulong maxValue) =>
+            new OverflowException(string.Format(OverflowMessage, UnsignedMaxValueToIntType(maxValue)));
+
+        private static string SignedMaxValueToIntType(long maxValue)
+        {
+            switch (maxValue)
+            {
+                case SByte.MaxValue:
+                    return nameof(SByte);
+                case Int16.MaxValue:
+                    return nameof(Int16);
+                case Int32.MaxValue:
+                    return nameof(Int32);
+                case Int64.MaxValue:
+                    return nameof(Int64);
+                default:
+                    return "Unknown";
+            }
+        }
+
+        private static string UnsignedMaxValueToIntType(ulong maxValue)
+        {
+            switch (maxValue)
+            {
+                case Byte.MaxValue:
+                    return nameof(Byte);
+                case UInt16.MaxValue:
+                    return nameof(UInt16);
+                case UInt32.MaxValue:
+                    return nameof(UInt32);
+                case UInt64.MaxValue:
+                    return nameof(UInt64);
+                default:
+                    return "Unknown";
+            }
+        }
 
         public static sbyte ParseSByte(this StringSegment value)
         {
-            try
-            {
-                return JsConfig.UseSystemParseMethods
-                    ? sbyte.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : (sbyte) ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(byte));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? sbyte.Parse(value.Value, CultureInfo.InvariantCulture)
+                : (sbyte)ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
         }
 
         public static byte ParseByte(this StringSegment value)
         {
-            try
-            {
-                 return JsConfig.UseSystemParseMethods
-                    ? byte.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : (byte) ParseUnsignedInteger(value, byte.MaxValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(byte));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? byte.Parse(value.Value, CultureInfo.InvariantCulture)
+                : (byte)ParseUnsignedInteger(value, byte.MaxValue);
         }
 
         public static short ParseInt16(this StringSegment value)
         {
-            try
-            { 
-                return JsConfig.UseSystemParseMethods
-                    ? short.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : (short) ParseSignedInteger(value, short.MaxValue, short.MinValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(Int16));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? short.Parse(value.Value, CultureInfo.InvariantCulture)
+                : (short)ParseSignedInteger(value, short.MaxValue, short.MinValue);
         }
 
         public static ushort ParseUInt16(this StringSegment value)
         {
-            try
-            {
-                return JsConfig.UseSystemParseMethods
-                    ? ushort.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : (ushort) ParseUnsignedInteger(value, ushort.MaxValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(UInt16));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? ushort.Parse(value.Value, CultureInfo.InvariantCulture)
+                : (ushort)ParseUnsignedInteger(value, ushort.MaxValue);
         }
 
 
         public static int ParseInt32(this StringSegment value)
         {
-            try
-            {
-                return JsConfig.UseSystemParseMethods
-                    ? int.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : (int) ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(Int32));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? int.Parse(value.Value, CultureInfo.InvariantCulture)
+                : (int)ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
         }
 
         public static uint ParseUInt32(this StringSegment value)
         {
-            try
-            {
-                return JsConfig.UseSystemParseMethods
-                    ? uint.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : (uint) ParseUnsignedInteger(value, UInt32.MaxValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(UInt32));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? uint.Parse(value.Value, CultureInfo.InvariantCulture)
+                : (uint)ParseUnsignedInteger(value, UInt32.MaxValue);
         }
 
         public static long ParseInt64(this StringSegment value)
         {
-            try
-            {
-                return JsConfig.UseSystemParseMethods
-                    ? long.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(Int64));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? long.Parse(value.Value, CultureInfo.InvariantCulture)
+                : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
         }
 
         public static ulong ParseUInt64(this StringSegment value)
         {
-            try
-            {
-                return JsConfig.UseSystemParseMethods
-                    ? ulong.Parse(value.Value, CultureInfo.InvariantCulture)
-                    : ParseUnsignedInteger(value, UInt64.MaxValue);
-            }
-            catch (OverflowException)
-            {
-                throw GetOverflowException(typeof(UInt64));
-            }
+            return JsConfig.UseSystemParseMethods
+                ? ulong.Parse(value.Value, CultureInfo.InvariantCulture)
+                : ParseUnsignedInteger(value, UInt64.MaxValue);
         }
 
         private static ulong ParseUnsignedInteger(StringSegment value, ulong maxValue)
@@ -262,10 +228,7 @@ namespace ServiceStack.Text.Support
                             result = (ulong)(c - '0');
                             state = ParseState.Number;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.Number:
                         if (c >= '0' && c <= '9')
@@ -275,26 +238,20 @@ namespace ServiceStack.Text.Support
                                 result = 10 * result + (ulong)(c - '0');
                             }
                             if (result > maxValue) //check only minvalue, because in absolute value it's greater than maxvalue
-                                throw new OverflowException();
+                                throw CreateOverflowException(maxValue);
                         }
                         else if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.TrailingWhite:
                         if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
                         }
-                        else
-                        {
-                            throw new FormatException(BadFormat);
-                        }
+                        else throw new FormatException(BadFormat);
                         break;
                 }
             }
@@ -308,7 +265,7 @@ namespace ServiceStack.Text.Support
         private static long ParseSignedInteger(StringSegment value, long maxValue, long minValue)
         {
             if (value.Buffer == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(value));
 
             if (value.Length == 0)
                 throw new FormatException(BadFormat);
@@ -335,30 +292,29 @@ namespace ServiceStack.Text.Support
                         {
                             negative = true;
                             state = ParseState.Sign;
-                        } else if ( c == '0')
+                        }
+                        else if (c == '0')
                         {
                             state = ParseState.TrailingWhite;
-                        } else if (c > '0' && c <= '9')
-                        {
-                            result = - (c - '0');
-                            state = ParseState.Number;
-                        } else
-                        {
-                            throw new FormatException(BadFormat);
                         }
+                        else if (c > '0' && c <= '9')
+                        {
+                            result = -(c - '0');
+                            state = ParseState.Number;
+                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.Sign:
                         if (c == '0')
                         {
                             state = ParseState.TrailingWhite;
-                        } else if (c > '0' && c <= '9')
-                        {
-                            result = - (c - '0');
-                            state = ParseState.Number;
-                        } else
-                        {
-                            throw new FormatException(BadFormat);
                         }
+                        else if (c > '0' && c <= '9')
+                        {
+                            result = -(c - '0');
+                            state = ParseState.Number;
+                        }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.Number:
                         if (c >= '0' && c <= '9')
@@ -368,24 +324,20 @@ namespace ServiceStack.Text.Support
                                 result = 10 * result - (c - '0');
                             }
                             if (result < minValue) //check only minvalue, because in absolute value it's greater than maxvalue
-                                throw new OverflowException();
+                                throw CreateOverflowException(maxValue);
                         }
                         else if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
-                        } else
-                        {
-                            throw new FormatException(BadFormat);
                         }
+                        else throw new FormatException(BadFormat);
                         break;
                     case ParseState.TrailingWhite:
                         if (JsonUtils.IsWhiteSpace(c))
                         {
                             state = ParseState.TrailingWhite;
-                        } else
-                        {
-                            throw new FormatException(BadFormat);
                         }
+                        else throw new FormatException(BadFormat);
                         break;
                 }
             }
@@ -402,7 +354,7 @@ namespace ServiceStack.Text.Support
             }
 
             if (result > maxValue)
-                throw new OverflowException();
+                throw CreateOverflowException(maxValue);
 
             return result;
         }
@@ -443,7 +395,8 @@ namespace ServiceStack.Text.Support
                         {
                             negative = true;
                             state = ParseState.Sign;
-                        } else if (c == '.')
+                        }
+                        else if (c == '.')
                         {
                             noIntegerPart = true;
                             state = ParseState.FractionNumber;
@@ -477,7 +430,8 @@ namespace ServiceStack.Text.Support
                             {
                                 throw new FormatException(BadFormat);
                             }
-                        } else if (c == '0')
+                        }
+                        else if (c == '0')
                         {
                             state = ParseState.DecimalPoint;
                         }
@@ -495,7 +449,8 @@ namespace ServiceStack.Text.Support
                         if (c == '.')
                         {
                             state = ParseState.FractionNumber;
-                        } else if (c >= '0' && c <= '9')
+                        }
+                        else if (c >= '0' && c <= '9')
                         {
                             if (isLargeNumber)
                             {
@@ -503,7 +458,8 @@ namespace ServiceStack.Text.Support
                                 {
                                     result = 10 * result + (c - '0');
                                 }
-                            } else
+                            }
+                            else
                             {
                                 preResult = 10 * preResult + (ulong)(c - '0');
                                 if (preResult > ulong.MaxValue / 10 - 10)
@@ -529,7 +485,8 @@ namespace ServiceStack.Text.Support
                         if (c == '.')
                         {
                             state = ParseState.FractionNumber;
-                        } else
+                        }
+                        else
                         {
                             throw new FormatException(BadFormat);
                         }
@@ -540,12 +497,14 @@ namespace ServiceStack.Text.Support
                             if (noIntegerPart)
                                 throw new FormatException(BadFormat);
                             state = ParseState.TrailingWhite;
-                        } else if (c == 'e' || c == 'E')
+                        }
+                        else if (c == 'e' || c == 'E')
                         {
                             if (noIntegerPart && scale == 0)
                                 throw new FormatException(BadFormat);
                             state = ParseState.Exponent;
-                        } else if (c >= '0' && c <= '9')
+                        }
+                        else if (c >= '0' && c <= '9')
                         {
                             if (isLargeNumber)
                             {
@@ -564,7 +523,8 @@ namespace ServiceStack.Text.Support
                                 }
                             }
                             scale++;
-                        } else
+                        }
+                        else
                         {
                             throw new FormatException(BadFormat);
                         }
@@ -594,13 +554,14 @@ namespace ServiceStack.Text.Support
                             var exp = new StringSegment(value.Buffer, i - 1, end - i + 1).ParseSByte();
                             if (!expNegative)
                             {
-                                exp = (sbyte) -exp;
+                                exp = (sbyte)-exp;
                             }
 
                             if (exp >= 0 || scale > -exp)
                             {
                                 scale += exp;
-                            } else
+                            }
+                            else
                             {
                                 for (int j = 0; j < -exp - scale; j++)
                                 {
@@ -626,7 +587,8 @@ namespace ServiceStack.Text.Support
 
                             //set i to end of string, because ParseInt16 eats number and all trailing whites
                             i = end;
-                        } else
+                        }
+                        else
                         {
                             throw new FormatException(BadFormat);
                         }
@@ -640,14 +602,14 @@ namespace ServiceStack.Text.Support
 
             if (!isLargeNumber)
             {
-                var mid = (int) (preResult >> 32);
-                var lo = (int) (preResult & 0xffffffff);
-                result = new decimal(lo, mid, 0, negative, (byte) scale);
+                var mid = (int)(preResult >> 32);
+                var lo = (int)(preResult & 0xffffffff);
+                result = new decimal(lo, mid, 0, negative, (byte)scale);
             }
             else
             {
                 var bits = decimal.GetBits(result);
-                result = new decimal(bits[0], bits[1], bits[2], negative, (byte) scale);
+                result = new decimal(bits[0], bits[1], bits[2], negative, (byte)scale);
             }
 
             return result;
