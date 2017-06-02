@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ServiceStack.Reflection;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
