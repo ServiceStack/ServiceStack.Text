@@ -1,8 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Reflection.Emit;
+using ServiceStack.Reflection;
 
 namespace ServiceStack.Text.TestsConsole
 {
-    public struct T
+    public struct TValue
+    {
+        public int PropValue { get; set; }
+        public string PropRef { get; set; }
+
+        public int FieldValue;
+        public string FieldRef;
+    }
+
+    public class TRef
     {
         public int PropValue { get; set; }
         public string PropRef { get; set; }
@@ -13,48 +27,60 @@ namespace ServiceStack.Text.TestsConsole
 
     class Program
     {
+        public class IncludeExclude
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
         static void Main(string[] args)
         {
-            var t = new T { PropValue = 1, PropRef = "foo", FieldValue = 2, FieldRef = "bar" };
+            var da = AppDomain.CurrentDomain.DefineDynamicAssembly(
+                new AssemblyName("dyn"), // call it whatever you want
+                AssemblyBuilderAccess.Save);
 
-            //var i1 = GetPropInt(t);
-            //var s1 = GetPropString(t);
+            var dm = da.DefineDynamicModule("dyn_mod", "dyn.dll");
+            var dt = dm.DefineType("dyn_type");
 
-            //var i2 = GetFieldInt(t);
-            //var s2 = GetFieldString(t);
 
-            //$"PropValue: ${i1}, PropRef: ${s1}".Print();
-            //$"FieldValue: ${i2}, FieldRef: ${s2}".Print();
+            var type = typeof(KeyValuePair<string,string>);
+            var pi = type.GetProperty("Key");
 
-            var tuple = ((int i, string s))new ValueTuple<int,string>(1,"foo");
+            var lambdaValueType = PropertyInvoker.GetExpressionLambda<KeyValuePair<string,string>>(pi);
+            lambdaValueType.CompileToMethod(dt.DefineMethod("KVP", MethodAttributes.Public | MethodAttributes.Static));
 
-            var oTuple = (object) tuple;
-            var value = GetValueTupleItem2(oTuple);
+            var lambdaRefType = PropertyInvoker.GetExpressionLambda<TRef>(typeof(TRef).GetProperty("PropRef"));
+            lambdaRefType.CompileToMethod(dt.DefineMethod("TRef_PropRef", MethodAttributes.Public | MethodAttributes.Static));
 
-            value.PrintDump();
+            var lambdaRefType2 = PropertyInvoker.GetExpressionLambda<IncludeExclude>(typeof(IncludeExclude).GetProperty("Id"));
+            lambdaRefType2.CompileToMethod(dt.DefineMethod("IncludeExclude_Id", MethodAttributes.Public | MethodAttributes.Static));
+
+
+            dt.CreateType();
+            da.Save("dyn.dll");
         }
 
         static object GetPropInt(object instance)
         {
-            var t = (T)instance;
+            var t = (TValue)instance;
             return t.PropValue;
         }
 
         static object GetPropString(object instance)
         {
-            var t = (T)instance;
+            var t = (TValue)instance;
             return t.PropRef;
         }
 
         static object GetFieldInt(object instance)
         {
-            var t = (T)instance;
+            var t = (TValue)instance;
             return t.FieldValue;
         }
 
         static object GetFieldString(object instance)
         {
-            return ((T)instance).FieldRef;
+            return ((TValue)instance).FieldRef;
         }
 
         static object GetValueTupleItem1(object instance)
@@ -65,6 +91,16 @@ namespace ServiceStack.Text.TestsConsole
         static object GetValueTupleItem2(object instance)
         {
             return ((ValueTuple<int, string>)instance).Item2;
+        }
+
+        static object GetKVP(KeyValuePair<string, string> entry)
+        {
+            return entry.Key;
+        }
+
+        static object GetKVPT<K,V>(KeyValuePair<K,V> entry)
+        {
+            return entry.Key;
         }
     }
 }
