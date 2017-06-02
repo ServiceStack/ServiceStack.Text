@@ -353,18 +353,6 @@ namespace ServiceStack.Text.Common
             return PclExport.Instance.GetSetMethod(propertyInfo, fieldInfo);
         }
 
-        internal static SetMemberDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
-        {
-            if (!propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Any()) return null;
-
-            return PclExport.Instance.GetPropertySetterFn(propertyInfo);
-        }
-
-        internal static SetMemberDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
-        {
-            return PclExport.Instance.GetFieldSetterFn(fieldInfo);
-        }
-
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
         {
             return new TypeAccessor
