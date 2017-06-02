@@ -171,7 +171,6 @@ namespace ServiceStack
         public static SetMemberDelegate<T> CreateSetter<T>(this FieldInfo fieldInfo) =>
             PclExport.Instance.CreateSetter<T>(fieldInfo);
 
-#if !SL5
         public static GetMemberDelegate GetReflection(FieldInfo fieldInfo) => fieldInfo.GetValue;
         public static SetMemberDelegate SetReflection(FieldInfo fieldInfo) => fieldInfo.SetValue;
 
@@ -416,8 +415,6 @@ namespace ServiceStack
                 ? new DynamicMethod(name, returnType, DynamicSetMethodArgs, memberInfo.DeclaringType, true)
                 : new DynamicMethod(name, returnType, DynamicSetMethodArgs, memberInfo.Module, true);
         }
-#endif
-
 #endif
     }
 }

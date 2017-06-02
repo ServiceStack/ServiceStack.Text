@@ -156,6 +156,10 @@ namespace ServiceStack
 #if !SL5
         public static GetMemberDelegate GetReflection(PropertyInfo propertyInfo) => propertyInfo.GetValue;
         public static SetMemberDelegate SetReflection(PropertyInfo propertyInfo) => propertyInfo.SetValue;
+#else
+        public static GetMemberDelegate GetReflection(PropertyInfo propertyInfo) => o => propertyInfo.GetValue(o, null);
+        public static SetMemberDelegate SetReflection(PropertyInfo propertyInfo) => (o,x) => propertyInfo.SetValue(o, x, null);
+#endif
 
         public static GetMemberDelegate<T> GetExpression<T>(PropertyInfo propertyInfo)
         {
@@ -367,8 +371,6 @@ namespace ServiceStack
 
             return (SetMemberDelegate)setter.CreateDelegate(typeof(SetMemberDelegate));
         }
-#endif
-
 #endif
     }
 }
