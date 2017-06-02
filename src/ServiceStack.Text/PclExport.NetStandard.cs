@@ -300,6 +300,15 @@ namespace ServiceStack
                     : base.GetPropertyGetterFn(propertyInfo);
         }
 
+        public override GetMemberDelegate<T> GetPropertyGetterFn<T>(PropertyInfo propertyInfo)
+        {
+            return SupportsEmit 
+                ? PropertyInvoker.GetEmit<T>(propertyInfo) 
+                : SupportsExpression
+                    ? PropertyInvoker.GetExpression<T>(propertyInfo)
+                    : base.GetPropertyGetterFn<T>(propertyInfo);
+        }
+
         public override SetMemberDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
         {
             return SupportsEmit
@@ -316,6 +325,15 @@ namespace ServiceStack
                 : SupportsExpression
                     ? FieldInvoker.GetExpression(fieldInfo)
                     : base.GetFieldGetterFn(fieldInfo);
+        }
+
+        public override GetMemberDelegate<T> GetFieldGetterFn<T>(FieldInfo fieldInfo)
+        {
+            return SupportsEmit 
+                ? FieldInvoker.GetEmit<T>(fieldInfo) 
+                : SupportsExpression
+                    ? FieldInvoker.GetExpression<T>(fieldInfo)
+                    : base.GetFieldGetterFn<T>(fieldInfo);
         }
 
         public override SetMemberDelegate GetFieldSetterFn(FieldInfo fieldInfo)

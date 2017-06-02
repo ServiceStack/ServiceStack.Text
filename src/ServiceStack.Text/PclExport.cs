@@ -336,6 +336,11 @@ namespace ServiceStack
             return fieldInfo.GetValue;
         }
 
+        public virtual GetMemberDelegate<T> GetFieldGetterFn<T>(FieldInfo fieldInfo)
+        {
+            return x => fieldInfo.GetValue(x);
+        }
+
         public virtual SetMemberDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
         {
             if (propertyInfo.CanWrite)
@@ -381,7 +386,15 @@ namespace ServiceStack
             var getMethodInfo = propertyInfo.GetMethodInfo();
             if (getMethodInfo == null) return null;
 
-            return o => propertyInfo.GetMethodInfo().Invoke(o, new object[] { });
+            return o => propertyInfo.GetMethodInfo().Invoke(o, TypeConstants.EmptyObjectArray);
+        }
+
+        public virtual GetMemberDelegate<T> GetPropertyGetterFn<T>(PropertyInfo propertyInfo)
+        {
+            var getMethodInfo = propertyInfo.GetMethodInfo();
+            if (getMethodInfo == null) return null;
+
+            return o => propertyInfo.GetMethodInfo().Invoke(o, TypeConstants.EmptyObjectArray);
         }
 
         public virtual string ToXsdDateTimeString(DateTime dateTime)

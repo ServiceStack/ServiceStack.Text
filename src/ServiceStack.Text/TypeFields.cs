@@ -156,6 +156,9 @@ namespace ServiceStack
         public static GetMemberDelegate GetFieldGetterFn(this FieldInfo fieldInfo) =>
             PclExport.Instance.GetFieldGetterFn(fieldInfo);
 
+        public static GetMemberDelegate<T> GetFieldGetterFn<T>(this FieldInfo fieldInfo) =>
+            PclExport.Instance.GetFieldGetterFn<T>(fieldInfo);
+
         public static SetMemberDelegate GetFieldSetterFn(this FieldInfo fieldInfo) =>
             PclExport.Instance.GetFieldSetterFn(fieldInfo);
 
@@ -172,33 +175,35 @@ namespace ServiceStack
         }
 
 #if (!NETSTANDARD1_1 || NETSTANDARD1_3)
+        public static GetMemberDelegate<T> GetExpression<T>(FieldInfo fieldInfo)
+        {
+            var instance = Expression.Parameter(typeof(T), "i");
+            var field = typeof(T) != fieldInfo.DeclaringType
+                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
+                : Expression.Field(instance, fieldInfo);
+            var convertField = Expression.TypeAs(field, typeof(object));
+            return Expression.Lambda<GetMemberDelegate<T>>(convertField, instance).Compile();
+        }
+
         public static GetMemberDelegate GetExpression(FieldInfo fieldInfo)
         {
-            try
-            {
-                var fieldDeclaringType = fieldInfo.DeclaringType;
+            var fieldDeclaringType = fieldInfo.DeclaringType;
 
-                var oInstanceParam = Expression.Parameter(typeof(object), "source");
-                var instanceParam = GetCastOrConvertExpression(oInstanceParam, fieldDeclaringType);
+            var oInstanceParam = Expression.Parameter(typeof(object), "source");
+            var instanceParam = GetCastOrConvertExpression(oInstanceParam, fieldDeclaringType);
 
-                var exprCallFieldGetFn = Expression.Field(instanceParam, fieldInfo);
-                //var oExprCallFieldGetFn = this.GetCastOrConvertExpression(exprCallFieldGetFn, typeof(object));
-                var oExprCallFieldGetFn = Expression.Convert(exprCallFieldGetFn, typeof(object));
+            var exprCallFieldGetFn = Expression.Field(instanceParam, fieldInfo);
+            //var oExprCallFieldGetFn = this.GetCastOrConvertExpression(exprCallFieldGetFn, typeof(object));
+            var oExprCallFieldGetFn = Expression.Convert(exprCallFieldGetFn, typeof(object));
 
-                var fieldGetterFn = Expression.Lambda<GetMemberDelegate>
-                    (
-                        oExprCallFieldGetFn,
-                        oInstanceParam
-                    )
-                    .Compile();
+            var fieldGetterFn = Expression.Lambda<GetMemberDelegate>
+                (
+                    oExprCallFieldGetFn,
+                    oInstanceParam
+                )
+                .Compile();
 
-                return fieldGetterFn;
-            }
-            catch (Exception ex)
-            {
-                Tracer.Instance.WriteError(ex);
-                throw;
-            }
+            return fieldGetterFn;
         }
 
         public static SetMemberDelegate SetExpression(FieldInfo fieldInfo)
@@ -252,6 +257,26 @@ namespace ServiceStack
 #endif
 
 #if NET45 || NETSTANDARD1_3
+        public static GetMemberDelegate<T> GetEmit<T>(FieldInfo fieldInfo)
+        {
+            var getter = CreateDynamicGetMethod<T>(fieldInfo);
+
+            var gen = getter.GetILGenerator();
+
+            gen.Emit(OpCodes.Ldarg_0);
+
+            gen.Emit(OpCodes.Ldfld, fieldInfo);
+
+            if (fieldInfo.FieldType.IsValueType())
+            {
+                gen.Emit(OpCodes.Box, fieldInfo.FieldType);
+            }
+
+            gen.Emit(OpCodes.Ret);
+
+            return (GetMemberDelegate<T>)getter.CreateDelegate(typeof(GetMemberDelegate<T>));
+        }
+
         public static GetMemberDelegate GetEmit(FieldInfo fieldInfo)
         {
             var getter = CreateDynamicGetMethod(fieldInfo);
@@ -292,6 +317,17 @@ namespace ServiceStack
             return !memberInfo.DeclaringType.IsInterface()
                 ? new DynamicMethod(name, returnType, DynamicGetMethodArgs, memberInfo.DeclaringType, true)
                 : new DynamicMethod(name, returnType, DynamicGetMethodArgs, memberInfo.Module, true);
+        }
+
+        internal static DynamicMethod CreateDynamicGetMethod<T>(MemberInfo memberInfo)
+        {
+            var memberType = memberInfo is FieldInfo ? "Field" : "Property";
+            var name = $"_Get{memberType}[T]_{memberInfo.Name}_";
+            var returnType = typeof(object);
+
+            return !memberInfo.DeclaringType.IsInterface()
+                ? new DynamicMethod(name, returnType, new[] { typeof(T) }, memberInfo.DeclaringType, true)
+                : new DynamicMethod(name, returnType, new[] { typeof(T) }, memberInfo.Module, true);
         }
 
         public static SetMemberDelegate SetEmit(FieldInfo fieldInfo)
