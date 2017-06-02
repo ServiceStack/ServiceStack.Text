@@ -184,7 +184,7 @@ namespace ServiceStack.Text.Common
                     propertyOrder,
                     propertySuppressDefaultConfig,
                     propertySuppressDefaultAttribute,
-                    propertyInfo.GetPropertyGetterFn(),
+                    propertyInfo.GetPropertyGetterFn<T>(),
                     Serializer.GetWriteFn(propertyType),
                     propertyType.GetDefaultValue(),
                     shouldSerialize,
@@ -241,7 +241,7 @@ namespace ServiceStack.Text.Common
                     propertyOrder,
                     propertySuppressDefaultConfig,
                     propertySuppressDefaultAttribute,
-                    fieldInfo.GetFieldGetterFn(),
+                    fieldInfo.GetFieldGetterFn<T>(),
                     Serializer.GetWriteFn(propertyType),
                     defaultValue,
                     shouldSerialize,
@@ -276,7 +276,7 @@ namespace ServiceStack.Text.Common
             internal readonly string propertyReferenceName;
             internal readonly string propertyNameCLSFriendly;
             internal readonly string propertyNameLowercaseUnderscore;
-            internal readonly GetMemberDelegate GetterFn;
+            internal readonly GetMemberDelegate<T> GetterFn;
             internal readonly WriteObjectDelegate WriteFn;
             internal readonly object DefaultValue;
             internal readonly Func<T, bool> shouldSerialize;
@@ -285,7 +285,7 @@ namespace ServiceStack.Text.Common
 
             public TypePropertyWriter(Type propertyType, string propertyName, string propertyDeclaredTypeName, string propertyNameCLSFriendly,
                 string propertyNameLowercaseUnderscore, int propertyOrder, bool propertySuppressDefaultConfig, bool propertySuppressDefaultAttribute,
-                GetMemberDelegate getterFn, WriteObjectDelegate writeFn, object defaultValue,
+                GetMemberDelegate<T> getterFn, WriteObjectDelegate writeFn, object defaultValue,
                 Func<T, bool> shouldSerialize,
                 Func<T, string, bool?> shouldSerializeDynamic,
                 bool isEnum)
@@ -401,18 +401,19 @@ namespace ServiceStack.Text.Common
 
             if (PropertyWriters != null)
             {
+                var typedInstance = (T)instance;
                 var len = PropertyWriters.Length;
                 for (int index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
 
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)instance))
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize(typedInstance))
                         continue;
 
                     var dontSkipDefault = false;
                     if (propertyWriter.shouldSerializeDynamic != null)
                     {
-                        var shouldSerialize = propertyWriter.shouldSerializeDynamic((T)instance, propertyWriter.PropertyName);
+                        var shouldSerialize = propertyWriter.shouldSerializeDynamic(typedInstance, propertyWriter.PropertyName);
                         if (shouldSerialize.HasValue)
                         {
                             if (shouldSerialize.Value)
@@ -422,7 +423,7 @@ namespace ServiceStack.Text.Common
                         }
                     }
 
-                    var propertyValue = propertyWriter.GetterFn(instance);
+                    var propertyValue = propertyWriter.GetterFn(typedInstance);
 
                     if (!dontSkipDefault)
                     {
@@ -479,13 +480,14 @@ namespace ServiceStack.Text.Common
             var i = 0;
             if (PropertyWriters != null)
             {
+                var typedInstance = (T)instance;
                 var len = PropertyWriters.Length;
                 for (var index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize((T)instance)) continue;
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize(typedInstance)) continue;
 
-                    var propertyValue = instance != null ? propertyWriter.GetterFn(instance) : null;
+                    var propertyValue = instance != null ? propertyWriter.GetterFn(typedInstance) : null;
                     if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
                         continue;
 
@@ -559,9 +561,10 @@ namespace ServiceStack.Text.Common
             {
                 JsState.QueryStringMode = true;
                 var i = 0;
+                var typedInstance = (T)instance;
                 foreach (var propertyWriter in PropertyWriters)
                 {
-                    var propertyValue = propertyWriter.GetterFn(instance);
+                    var propertyValue = propertyWriter.GetterFn(typedInstance);
                     if (propertyValue == null) continue;
 
                     if (i++ > 0)
