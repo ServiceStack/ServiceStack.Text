@@ -137,23 +137,17 @@ namespace ServiceStack.Text.Common
         public static object ParseQuotedPrimitive(string value)
         {
             var fn = JsConfig.ParsePrimitiveFn;
-            if (fn != null)
-            {
-                var result = fn(value);
-                if (result != null)
-                    return result;
-            }
+            var result = fn?.Invoke(value);
+            if (result != null)
+                return result;
 
             if (string.IsNullOrEmpty(value))
                 return null;
 
-            Guid guidValue;
-            if (Guid.TryParse(value, out guidValue)) return guidValue;
+            if (Guid.TryParse(value, out Guid guidValue)) return guidValue;
 
             if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix, StringComparison.Ordinal) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix, StringComparison.Ordinal))
-            {
                 return DateTimeSerializer.ParseWcfJsonDate(value);
-            }
 
             if (JsConfig.DateHandler == DateHandler.ISO8601)
             {
@@ -188,24 +182,19 @@ namespace ServiceStack.Text.Common
         public static object ParsePrimitive(StringSegment value)
         {
             var fn = JsConfig.ParsePrimitiveFn;
-            if (fn != null)
-            {
-                var result = fn(value.Value);
-                if (result != null)
-                    return result;
-            }
+            var result = fn?.Invoke(value.Value);
+            if (result != null)
+                return result;
 
             if (value.IsNullOrEmpty())
                 return null;
 
-            bool boolValue;
-            if (value.TryParseBoolean(out boolValue))
+            if (value.TryParseBoolean(out bool boolValue))
                 return boolValue;
 
             // Parse as decimal
-            decimal decimalValue;
             var acceptDecimal = JsConfig.ParsePrimitiveFloatingPointTypes.Has(ParseAsType.Decimal);
-            var isDecimal = value.TryParseDecimal(out decimalValue);
+            var isDecimal = value.TryParseDecimal(out decimal decimalValue);
 
             // Check if the number is an Primitive Integer type given that we have a decimal
             if (isDecimal && decimalValue == decimal.Truncate(decimalValue))
@@ -229,15 +218,13 @@ namespace ServiceStack.Text.Common
             if (isDecimal && acceptDecimal)
                 return decimalValue;
 
-            float floatValue;
             var acceptFloat = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Single);
-            var isFloat = value.TryParseFloat(out floatValue);
+            var isFloat = value.TryParseFloat(out float floatValue);
             if (acceptFloat && isFloat)
                 return floatValue;
 
-            double doubleValue;
             var acceptDouble = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Double);
-            var isDouble = value.TryParseDouble(out doubleValue);
+            var isDouble = value.TryParseDouble(out double doubleValue);
             if (acceptDouble && isDouble)
                 return doubleValue;
 
@@ -347,14 +334,13 @@ namespace ServiceStack.Text.Common
             FieldInfo fieldInfo = null;
             if (!propertyInfo.CanWrite)
             {
-                //TODO: What string comparison is used in SST?
-                string fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
+                var fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
                 var fieldName = string.Format(fieldNameFormat, propertyInfo.Name);
 
                 var fieldInfos = typeConfig.Type.GetWritableFields();
                 foreach (var f in fieldInfos)
                 {
-                    if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
+                    if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name.EqualsIgnoreCase(fieldName))
                     {
                         fieldInfo = f;
                         break;
