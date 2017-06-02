@@ -58,6 +58,13 @@ namespace ServiceStack
                 }
             }
         }
+
+        public static TypePropertyInfo GetAccessor(string propertyName)
+        {
+            return Instance.PropertyMap.TryGetValue(propertyName, out TypePropertyInfo info)
+                ? info
+                : null;
+        }
     }
 
     public abstract class TypeProperties
@@ -87,6 +94,13 @@ namespace ServiceStack
                 Interlocked.CompareExchange(ref CacheMap, newCache, snapshot), snapshot));
 
             return instance;
+        }
+
+        public TypePropertyInfo GetAccessor(string propertyName)
+        {
+            return PropertyMap.TryGetValue(propertyName, out TypePropertyInfo info)
+                ? info
+                : null;
         }
 
         public Type Type { get; protected set; }

@@ -65,6 +65,13 @@ namespace ServiceStack
                 }
             }
         }
+
+        public static TypeFieldInfo GetAccessor(string propertyName)
+        {
+            return Instance.FieldsMap.TryGetValue(propertyName, out TypeFieldInfo info)
+                ? info
+                : null;
+        }
     }
 
     public abstract class TypeFields
@@ -94,6 +101,13 @@ namespace ServiceStack
                 Interlocked.CompareExchange(ref CacheMap, newCache, snapshot), snapshot));
 
             return instance;
+        }
+
+        public TypeFieldInfo GetAccessor(string propertyName)
+        {
+            return FieldsMap.TryGetValue(propertyName, out TypeFieldInfo info)
+                ? info
+                : null;
         }
 
         public Type Type { get; protected set; }
