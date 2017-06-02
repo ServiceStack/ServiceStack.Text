@@ -289,7 +289,7 @@ namespace ServiceStack
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>), null).FirstOrDefault();
         }
 
-        public override GetMemberDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
+        public override GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
         {
             return
 #if NET45
@@ -297,10 +297,10 @@ namespace ServiceStack
 #endif
                 SupportsExpression
                     ? PropertyInvoker.GetExpression(propertyInfo)
-                    : base.GetPropertyGetterFn(propertyInfo);
+                    : base.CreateGetter(propertyInfo);
         }
 
-        public override GetMemberDelegate<T> GetPropertyGetterFn<T>(PropertyInfo propertyInfo)
+        public override GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
         {
             return
 #if NET45
@@ -308,10 +308,10 @@ namespace ServiceStack
 #endif
                     SupportsExpression
                         ? PropertyInvoker.GetExpression<T>(propertyInfo)
-                        : base.GetPropertyGetterFn<T>(propertyInfo);
+                        : base.CreateGetter<T>(propertyInfo);
         }
 
-        public override SetMemberDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
+        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
         {
             return
 #if NET45
@@ -319,10 +319,17 @@ namespace ServiceStack
 #endif
                 SupportsExpression
                     ? PropertyInvoker.SetExpression(propertyInfo)
-                    : base.GetPropertySetterFn(propertyInfo);
+                    : base.CreateSetter(propertyInfo);
         }
 
-        public override GetMemberDelegate GetFieldGetterFn(FieldInfo fieldInfo)
+        public override SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
+        {
+            return SupportsExpression
+                ? PropertyInvoker.SetExpression<T>(propertyInfo)
+                : base.CreateSetter<T>(propertyInfo);
+        }
+
+        public override GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
         {
             return
 #if NET45
@@ -330,10 +337,10 @@ namespace ServiceStack
 #endif
                 SupportsExpression
                     ? FieldInvoker.GetExpression(fieldInfo)
-                    : base.GetFieldGetterFn(fieldInfo);
+                    : base.CreateGetter(fieldInfo);
         }
 
-        public override GetMemberDelegate<T> GetFieldGetterFn<T>(FieldInfo fieldInfo)
+        public override GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
         {
             return
 #if NET45
@@ -341,10 +348,10 @@ namespace ServiceStack
 #endif
                 SupportsExpression
                     ? FieldInvoker.GetExpression<T>(fieldInfo)
-                    : base.GetFieldGetterFn<T>(fieldInfo);
+                    : base.CreateGetter<T>(fieldInfo);
         }
 
-        public override SetMemberDelegate GetFieldSetterFn(FieldInfo fieldInfo)
+        public override SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
         {
             return
 #if NET45
@@ -352,14 +359,21 @@ namespace ServiceStack
 #endif
                 SupportsExpression
                     ? FieldInvoker.SetExpression(fieldInfo)
-                    : base.GetFieldSetterFn(fieldInfo);
+                    : base.CreateSetter(fieldInfo);
         }
 
-        public override SetMemberDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        public override SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo)
+        {
+            return SupportsExpression
+                ? FieldInvoker.SetExpression<T>(fieldInfo)
+                : base.CreateSetter<T>(fieldInfo);
+        }
+
+        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo, FieldInfo fieldInfo)
         {
             return propertyInfo.CanWrite
-                ? GetPropertySetterFn(propertyInfo)
-                : GetFieldSetterFn(fieldInfo);
+                ? CreateSetter(propertyInfo)
+                : CreateSetter(fieldInfo);
         }
 
         public override string ToXsdDateTimeString(DateTime dateTime)

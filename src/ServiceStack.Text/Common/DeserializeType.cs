@@ -350,7 +350,7 @@ namespace ServiceStack.Text.Common
                 if (fieldInfo == null) return null;
             }
 
-            return PclExport.Instance.GetSetMethod(propertyInfo, fieldInfo);
+            return PclExport.Instance.CreateSetter(propertyInfo, fieldInfo);
         }
 
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
@@ -368,7 +368,7 @@ namespace ServiceStack.Text.Common
             if (typeConfig.Type != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
-            return PclExport.Instance.GetFieldSetterFn(fieldInfo);
+            return PclExport.Instance.CreateSetter(fieldInfo);
         }
     }
 

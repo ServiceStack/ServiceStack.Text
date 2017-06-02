@@ -1330,8 +1330,8 @@ namespace ServiceStack
                 {
                     Name = pi.Name,
                     Type = pi.PropertyType,
-                    GetValueFn = pi.GetPropertyGetterFn(),
-                    SetValueFn = pi.GetPropertySetterFn(),
+                    GetValueFn = pi.CreateGetter(),
+                    SetValueFn = pi.CreateSetter(),
                 });
             }
 
@@ -1343,8 +1343,8 @@ namespace ServiceStack
                     {
                         Name = fi.Name,
                         Type = fi.FieldType,
-                        GetValueFn = fi.GetFieldGetterFn(),
-                        SetValueFn = fi.GetFieldSetterFn(),
+                        GetValueFn = fi.CreateGetter(),
+                        SetValueFn = fi.CreateSetter(),
                     });
                 }
             }

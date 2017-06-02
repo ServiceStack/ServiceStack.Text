@@ -22,10 +22,12 @@ using System.Linq.Expressions;
 namespace ServiceStack.Reflection
 {
     //Also exists in ServiceStack.Common in ServiceStack.Reflection namespace
+    [Obsolete("Use TypeProperties/PropertyInvoker, TypeFields/FieldsInvoker")]
     public static class StaticAccessors
     {
         private static Dictionary<string, Func<object, object>> getterFnCache = new Dictionary<string, Func<object, object>>();
 
+        [Obsolete("Use TypeProperties.Get(type).GetPublicGetter()")]
         public static Func<object, object> GetFastGetter(this Type type, string propName)
         {
             var key = $"{type.FullName}::{propName}";
@@ -53,6 +55,7 @@ namespace ServiceStack.Reflection
 
         private static Dictionary<string, Action<object, object>> setterFnCache = new Dictionary<string, Action<object, object>>();
 
+        [Obsolete("Use TypeProperties.Get(type).GetPublicSetter()")]
         public static Action<object, object> GetFastSetter(this Type type, string propName)
         {
             var key = $"{type.FullName}::{propName}";
@@ -78,11 +81,13 @@ namespace ServiceStack.Reflection
             return fn;
         }
 
+        [Obsolete("Use propertyInfo.CreateGetter()")]
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo)
         {
             return GetValueGetter(propertyInfo, propertyInfo.DeclaringType);
         }
 
+        [Obsolete("Use propertyInfo.CreateGetter()")]
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
         {
 #if NETFX_CORE 
@@ -103,6 +108,7 @@ namespace ServiceStack.Reflection
 #endif
         }
 
+        [Obsolete("Use propertyInfo.CreateGetter<T>()")]
         public static Func<T, object> GetValueGetter<T>(this PropertyInfo propertyInfo)
         {
 #if NETFX_CORE
@@ -123,6 +129,7 @@ namespace ServiceStack.Reflection
 #endif
         }
 
+        [Obsolete("Use fieldInfo.CreateGetter<T>()")]
         public static Func<T, object> GetValueGetter<T>(this FieldInfo fieldInfo)
         {
 #if (SL5 && !WP) || __IOS__ || XBOX
@@ -139,11 +146,13 @@ namespace ServiceStack.Reflection
         }
 
 #if !XBOX
+        [Obsolete("Use propertyInfo.CreateSetter()")]
         public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo)
         {
             return GetValueSetter(propertyInfo, propertyInfo.DeclaringType);
         }
 
+        [Obsolete("Use propertyInfo.CreateSetter()")]
         public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo, Type instanceType)
         {
             var instance = Expression.Parameter(typeof(object), "i");
@@ -162,6 +171,7 @@ namespace ServiceStack.Reflection
             ).Compile();
         }
 
+        [Obsolete("Use propertyInfo.CreateSetter<T>()")]
         public static Action<T, object> GetValueSetter<T>(this PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(typeof(T), "i");
@@ -182,6 +192,7 @@ namespace ServiceStack.Reflection
             ).Compile();
         }
 
+        [Obsolete("Use fieldInfo.CreateSetter()")]
         public static Action<object, object> GetValueSetter(this FieldInfo fieldInfo, Type instanceType)
         {
             var instance = Expression.Parameter(typeof(object), "i");
@@ -201,6 +212,7 @@ namespace ServiceStack.Reflection
             ).Compile();
         }
 
+        [Obsolete("Use fieldInfo.CreateSetter<T>()")]
         public static Action<T, object> GetValueSetter<T>(this FieldInfo fieldInfo)
         {
             var instance = Expression.Parameter(typeof(T), "i");
@@ -215,25 +227,6 @@ namespace ServiceStack.Reflection
                 Expression.Convert(argument, fieldInfo.FieldType));
 
             return Expression.Lambda<Action<T, object>>
-            (
-                setterCall, instance, argument
-            ).Compile();
-        }
-
-        public static SetMemberRefDelegate<T> GetValueSetterGenericRef<T>(this FieldInfo fieldInfo)
-        {
-            var instance = Expression.Parameter(typeof(T).MakeByRefType(), "i");
-            var argument = Expression.Parameter(typeof(object), "a");
-
-            var field = typeof(T) != fieldInfo.DeclaringType
-                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
-                : Expression.Field(instance, fieldInfo);
-
-            var setterCall = Expression.Assign(
-                field,
-                Expression.Convert(argument, fieldInfo.FieldType));
-
-            return Expression.Lambda<SetMemberRefDelegate<T>>
             (
                 setterCall, instance, argument
             ).Compile();

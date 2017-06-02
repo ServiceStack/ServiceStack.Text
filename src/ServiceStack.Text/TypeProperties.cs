@@ -4,9 +4,7 @@ using System.Reflection;
 using System.Threading;
 using ServiceStack.Text;
 
-#if !NETSTANDARD1_1 || NETSTANDARD1_3
 using System.Linq.Expressions;
-#endif
 
 #if NET45 || NETSTANDARD1_3
 using System.Reflection.Emit;
@@ -50,8 +48,8 @@ namespace ServiceStack
                 {
                     Instance.PropertyMap[pi.Name] = new TypePropertyInfo(
                         pi,
-                        PclExport.Instance.GetPropertyGetterFn(pi),
-                        PclExport.Instance.GetPropertySetterFn(pi)
+                        PclExport.Instance.CreateGetter(pi),
+                        PclExport.Instance.CreateSetter(pi)
                     );
                 }
                 catch (Exception ex)
@@ -135,20 +133,30 @@ namespace ServiceStack
 
     public static class PropertyInvoker
     {
+        [Obsolete("Use CreateGetter")]
         public static GetMemberDelegate GetPropertyGetterFn(this PropertyInfo propertyInfo) =>
-            PclExport.Instance.GetPropertyGetterFn(propertyInfo);
+            PclExport.Instance.CreateGetter(propertyInfo);
 
-        public static GetMemberDelegate<T> GetPropertyGetterFn<T>(this PropertyInfo propertyInfo) =>
-            PclExport.Instance.GetPropertyGetterFn<T>(propertyInfo);
-
+        [Obsolete("Use CreateSetter")]
         public static SetMemberDelegate GetPropertySetterFn(this PropertyInfo propertyInfo) =>
-            PclExport.Instance.GetPropertySetterFn(propertyInfo);
+            PclExport.Instance.CreateSetter(propertyInfo);
+
+        public static GetMemberDelegate CreateGetter(this PropertyInfo propertyInfo) =>
+            PclExport.Instance.CreateGetter(propertyInfo);
+
+        public static GetMemberDelegate<T> CreateGetter<T>(this PropertyInfo propertyInfo) =>
+            PclExport.Instance.CreateGetter<T>(propertyInfo);
+
+        public static SetMemberDelegate CreateSetter(this PropertyInfo propertyInfo) =>
+            PclExport.Instance.CreateSetter(propertyInfo);
+
+        public static SetMemberDelegate<T> CreateSetter<T>(this PropertyInfo propertyInfo) =>
+            PclExport.Instance.CreateSetter<T>(propertyInfo);
 
 #if !SL5
         public static GetMemberDelegate GetReflection(PropertyInfo propertyInfo) => propertyInfo.GetValue;
         public static SetMemberDelegate SetReflection(PropertyInfo propertyInfo) => propertyInfo.SetValue;
 
-#if !NETSTANDARD1_1 || NETSTANDARD1_3
         public static GetMemberDelegate<T> GetExpression<T>(PropertyInfo propertyInfo)
         {
             var expr = GetExpressionLambda<T>(propertyInfo);
@@ -190,6 +198,44 @@ namespace ServiceStack
             );
         }
 
+        public static SetMemberDelegate<T> SetExpression<T>(PropertyInfo propertyInfo)
+        {
+            try
+            {
+                var lambda = SetExpressionLambda<T>(propertyInfo);
+                return lambda?.Compile();
+            }
+            catch //fallback for Android
+            {
+                var mi = propertyInfo.SetMethod(true);
+                return (o, convertedValue) =>
+                    mi.Invoke(o, new[] { convertedValue });
+            }
+        }
+
+        public static Expression<SetMemberDelegate<T>> SetExpressionLambda<T>(PropertyInfo propertyInfo)
+        {
+            var mi = propertyInfo.SetMethod(true);
+            if (mi == null) return null;
+
+            var instance = Expression.Parameter(typeof(T), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var instanceType = typeof(T) != propertyInfo.DeclaringType
+                ? (Expression)Expression.TypeAs(instance, propertyInfo.DeclaringType)
+                : instance;
+
+            var setterCall = Expression.Call(
+                instanceType,
+                mi,
+                Expression.Convert(argument, propertyInfo.PropertyType));
+
+            return Expression.Lambda<SetMemberDelegate<T>>
+            (
+                setterCall, instance, argument
+            );
+        }
+
         public static SetMemberDelegate SetExpression(PropertyInfo propertyInfo)
         {
             var propertySetMethod = propertyInfo.SetMethod();
@@ -213,7 +259,6 @@ namespace ServiceStack
                     propertySetMethod.Invoke(o, new[] { convertedValue });
             }
         }
-#endif
 
 #if NET45 || NETSTANDARD1_3
         public static GetMemberDelegate<T> GetEmit<T>(PropertyInfo propertyInfo)

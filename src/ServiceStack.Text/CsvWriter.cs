@@ -107,7 +107,7 @@ namespace ServiceStack.Text
 
         public static List<string> Headers { get; set; }
 
-        internal static List<Func<T, object>> PropertyGetters;
+        internal static List<GetMemberDelegate<T>> PropertyGetters;
 
         private static readonly WriteObjectDelegate OptimizedWriter;
 
@@ -126,14 +126,14 @@ namespace ServiceStack.Text
         {
             Headers = new List<string>();
 
-            PropertyGetters = new List<Func<T, object>>();
+            PropertyGetters = new List<GetMemberDelegate<T>>();
             var isDataContract = typeof(T).IsDto();
             foreach (var propertyInfo in TypeConfig<T>.Properties)
             {
                 if (!propertyInfo.CanRead || propertyInfo.GetMethodInfo() == null) continue;
                 if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
-                PropertyGetters.Add(propertyInfo.GetValueGetter<T>());
+                PropertyGetters.Add(propertyInfo.CreateGetter<T>());
                 var propertyName = propertyInfo.Name;
                 if (isDataContract)
                 {

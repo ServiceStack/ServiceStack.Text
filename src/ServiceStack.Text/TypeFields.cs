@@ -5,9 +5,7 @@ using System.Threading;
 using ServiceStack.Reflection;
 using ServiceStack.Text;
 
-#if !NETSTANDARD1_1 || NETSTANDARD1_3
 using System.Linq.Expressions;
-#endif
 
 #if NET45 || NETSTANDARD1_3
 using System.Reflection.Emit;
@@ -50,11 +48,11 @@ namespace ServiceStack
             {
                 try
                 {
-                    var fnRef = fi.GetValueSetterGenericRef<T>();
+                    var fnRef = fi.SetExpressionRef<T>();
                     Instance.FieldsMap[fi.Name] = new TypeFieldInfo(
                         fi,
-                        PclExport.Instance.GetFieldGetterFn(fi),
-                        PclExport.Instance.GetFieldSetterFn(fi),
+                        PclExport.Instance.CreateGetter(fi),
+                        PclExport.Instance.CreateSetter(fi),
                         delegate (ref object instance, object arg)
                         {
                             var valueInstance = (T)instance;
@@ -153,14 +151,25 @@ namespace ServiceStack
 
     public static class FieldInvoker
     {
+        [Obsolete("Use CreateGetter")]
         public static GetMemberDelegate GetFieldGetterFn(this FieldInfo fieldInfo) =>
-            PclExport.Instance.GetFieldGetterFn(fieldInfo);
+            PclExport.Instance.CreateGetter(fieldInfo);
 
-        public static GetMemberDelegate<T> GetFieldGetterFn<T>(this FieldInfo fieldInfo) =>
-            PclExport.Instance.GetFieldGetterFn<T>(fieldInfo);
-
+        [Obsolete("Use CreateSetter")]
         public static SetMemberDelegate GetFieldSetterFn(this FieldInfo fieldInfo) =>
-            PclExport.Instance.GetFieldSetterFn(fieldInfo);
+            PclExport.Instance.CreateSetter(fieldInfo);
+
+        public static GetMemberDelegate CreateGetter(this FieldInfo fieldInfo) =>
+            PclExport.Instance.CreateGetter(fieldInfo);
+
+        public static GetMemberDelegate<T> CreateGetter<T>(this FieldInfo fieldInfo) =>
+            PclExport.Instance.CreateGetter<T>(fieldInfo);
+
+        public static SetMemberDelegate CreateSetter(this FieldInfo fieldInfo) =>
+            PclExport.Instance.CreateSetter(fieldInfo);
+
+        public static SetMemberDelegate<T> CreateSetter<T>(this FieldInfo fieldInfo) =>
+            PclExport.Instance.CreateSetter<T>(fieldInfo);
 
 #if !SL5
         public static GetMemberDelegate GetReflection(FieldInfo fieldInfo) => fieldInfo.GetValue;
@@ -174,7 +183,6 @@ namespace ServiceStack
             field = newValue;
         }
 
-#if (!NETSTANDARD1_1 || NETSTANDARD1_3)
         public static GetMemberDelegate<T> GetExpression<T>(FieldInfo fieldInfo)
         {
             var instance = Expression.Parameter(typeof(T), "i");
@@ -230,6 +238,25 @@ namespace ServiceStack
             return setterFn;
         }
 
+        public static SetMemberDelegate<T> SetExpression<T>(FieldInfo fieldInfo)
+        {
+            var instance = Expression.Parameter(typeof(T), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var field = typeof(T) != fieldInfo.DeclaringType
+                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
+                : Expression.Field(instance, fieldInfo);
+
+            var setterCall = Expression.Assign(
+                field,
+                Expression.Convert(argument, fieldInfo.FieldType));
+
+            return Expression.Lambda<SetMemberDelegate<T>>
+            (
+                setterCall, instance, argument
+            ).Compile();
+        }
+
         private static Expression GetCastOrConvertExpression(Expression expression, Type targetType)
         {
             Expression result;
@@ -254,7 +281,25 @@ namespace ServiceStack
 
             return result;
         }
-#endif
+
+        public static SetMemberRefDelegate<T> SetExpressionRef<T>(this FieldInfo fieldInfo)
+        {
+            var instance = Expression.Parameter(typeof(T).MakeByRefType(), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var field = typeof(T) != fieldInfo.DeclaringType
+                ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
+                : Expression.Field(instance, fieldInfo);
+
+            var setterCall = Expression.Assign(
+                field,
+                Expression.Convert(argument, fieldInfo.FieldType));
+
+            return Expression.Lambda<SetMemberRefDelegate<T>>
+            (
+                setterCall, instance, argument
+            ).Compile();
+        }
 
 #if NET45 || NETSTANDARD1_3
         public static GetMemberDelegate<T> GetEmit<T>(FieldInfo fieldInfo)

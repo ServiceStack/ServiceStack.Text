@@ -290,67 +290,91 @@ namespace ServiceStack
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
+        public override GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
+        {
+            return
 #if NETSTANDARD1_3
-        public override GetMemberDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
-        {
-            return SupportsEmit
-                ? PropertyInvoker.GetEmit(propertyInfo)
-                : SupportsExpression
-                    ? PropertyInvoker.GetExpression(propertyInfo)
-                    : base.GetPropertyGetterFn(propertyInfo);
-        }
-
-        public override GetMemberDelegate<T> GetPropertyGetterFn<T>(PropertyInfo propertyInfo)
-        {
-            return SupportsEmit 
-                ? PropertyInvoker.GetEmit<T>(propertyInfo) 
-                : SupportsExpression
-                    ? PropertyInvoker.GetExpression<T>(propertyInfo)
-                    : base.GetPropertyGetterFn<T>(propertyInfo);
-        }
-
-        public override SetMemberDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
-        {
-            return SupportsEmit
-                ? PropertyInvoker.SetEmit(propertyInfo)
-                : SupportsExpression
-                    ? PropertyInvoker.SetExpression(propertyInfo)
-                    : base.GetPropertySetterFn(propertyInfo);
-        }
-
-        public override GetMemberDelegate GetFieldGetterFn(FieldInfo fieldInfo)
-        {
-            return SupportsEmit
-                ? FieldInvoker.GetEmit(fieldInfo)
-                : SupportsExpression
-                    ? FieldInvoker.GetExpression(fieldInfo)
-                    : base.GetFieldGetterFn(fieldInfo);
-        }
-
-        public override GetMemberDelegate<T> GetFieldGetterFn<T>(FieldInfo fieldInfo)
-        {
-            return SupportsEmit 
-                ? FieldInvoker.GetEmit<T>(fieldInfo) 
-                : SupportsExpression
-                    ? FieldInvoker.GetExpression<T>(fieldInfo)
-                    : base.GetFieldGetterFn<T>(fieldInfo);
-        }
-
-        public override SetMemberDelegate GetFieldSetterFn(FieldInfo fieldInfo)
-        {
-            return SupportsEmit
-                ? FieldInvoker.SetEmit(fieldInfo)
-                : SupportsExpression
-                    ? FieldInvoker.SetExpression(fieldInfo)
-                    : base.GetFieldSetterFn(fieldInfo);
-        }
+                SupportsEmit ? PropertyInvoker.GetEmit(propertyInfo) :
 #endif
+                SupportsExpression
+                    ? PropertyInvoker.GetExpression(propertyInfo)
+                    : base.CreateGetter(propertyInfo);
+        }
 
-        public override SetMemberDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        public override GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
+        {
+            return
+#if NETSTANDARD1_3
+                SupportsEmit ? PropertyInvoker.GetEmit<T>(propertyInfo) :
+#endif
+                SupportsExpression
+                    ? PropertyInvoker.GetExpression<T>(propertyInfo)
+                    : base.CreateGetter<T>(propertyInfo);
+        }
+
+        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
+        {
+            return
+#if NETSTANDARD1_3
+                SupportsEmit ? PropertyInvoker.SetEmit(propertyInfo) :
+#endif
+                SupportsExpression
+                    ? PropertyInvoker.SetExpression(propertyInfo)
+                    : base.CreateSetter(propertyInfo);
+        }
+
+        public override SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
+        {
+            return SupportsExpression
+                ? PropertyInvoker.SetExpression<T>(propertyInfo)
+                : base.CreateSetter<T>(propertyInfo);
+        }
+
+        public override GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
+        {
+            return
+#if NETSTANDARD1_3
+                SupportsEmit ? FieldInvoker.GetEmit(fieldInfo) :
+#endif
+                SupportsExpression
+                    ? FieldInvoker.GetExpression(fieldInfo)
+                    : base.CreateGetter(fieldInfo);
+        }
+
+        public override GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
+        {
+            return
+#if NETSTANDARD1_3
+                SupportsEmit ? FieldInvoker.GetEmit<T>(fieldInfo) :
+#endif
+                SupportsExpression
+                    ? FieldInvoker.GetExpression<T>(fieldInfo)
+                    : base.CreateGetter<T>(fieldInfo);
+        }
+
+        public override SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
+        {
+            return
+#if NETSTANDARD1_3
+                SupportsEmit ? FieldInvoker.SetEmit(fieldInfo) :
+#endif
+                SupportsExpression
+                    ? FieldInvoker.SetExpression(fieldInfo)
+                    : base.CreateSetter(fieldInfo);
+        }
+
+        public override SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo)
+        {
+            return SupportsExpression
+                ? FieldInvoker.SetExpression<T>(fieldInfo)
+                : base.CreateSetter<T>(fieldInfo);
+        }
+
+        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo, FieldInfo fieldInfo)
         {
             return propertyInfo.CanWrite
-                ? GetPropertySetterFn(propertyInfo)
-                : GetFieldSetterFn(fieldInfo);
+                ? CreateSetter(propertyInfo)
+                : CreateSetter(fieldInfo);
         }
 
         public override string ToXsdDateTimeString(DateTime dateTime)

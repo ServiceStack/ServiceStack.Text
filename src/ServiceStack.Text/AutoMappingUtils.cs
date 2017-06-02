@@ -617,8 +617,8 @@ namespace ServiceStack
             From = @from;
             To = to;
 
-            GetValueFn = From.GetGetValueFn();
-            SetValueFn = To.GetSetValueFn();
+            GetValueFn = From.CreateGetter();
+            SetValueFn = To.CreateSetter();
             ConvertValueFn = TypeConverter.CreateTypeConverter(From.Type, To.Type);
         }
     }
@@ -648,29 +648,22 @@ namespace ServiceStack
         public FieldInfo FieldInfo;
         public MethodInfo MethodInfo;
 
-        public GetMemberDelegate GetGetValueFn()
+        public GetMemberDelegate CreateGetter()
         {
             if (PropertyInfo != null)
-                return PropertyInfo.GetPropertyGetterFn();
+                return PropertyInfo.CreateGetter();
             if (FieldInfo != null)
-                return FieldInfo.GetFieldGetterFn();
-            if (MethodInfo != null)
-                return (GetMemberDelegate)
-                    MethodInfo.CreateDelegate(typeof(GetMemberDelegate));
-
-            return null;
+                return FieldInfo.CreateGetter();
+            return (GetMemberDelegate) MethodInfo?.CreateDelegate(typeof(GetMemberDelegate));
         }
 
-        public SetMemberDelegate GetSetValueFn()
+        public SetMemberDelegate CreateSetter()
         {
             if (PropertyInfo != null)
-                return PropertyInfo.GetPropertySetterFn();
+                return PropertyInfo.CreateSetter();
             if (FieldInfo != null)
-                return FieldInfo.GetFieldSetterFn();
-            if (MethodInfo != null)
-                return (SetMemberDelegate)MethodInfo.MakeDelegate(typeof(SetMemberDelegate));
-
-            return null;
+                return FieldInfo.CreateSetter();
+            return (SetMemberDelegate) MethodInfo?.MakeDelegate(typeof(SetMemberDelegate));
         }
     }
 
@@ -767,6 +760,7 @@ namespace ServiceStack
     public delegate object GetMemberDelegate<T>(T instance);
 
     public delegate void SetMemberDelegate(object instance, object value);
+    public delegate void SetMemberDelegate<T>(T instance, object value);
     public delegate void SetMemberRefDelegate(ref object instance, object propertyValue);
     public delegate void SetMemberRefDelegate<T>(ref T instance, object value);
 
