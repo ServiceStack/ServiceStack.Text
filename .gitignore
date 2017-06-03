@@ -1,3 +1,5 @@
+BenchmarkDotNet.Artifacts/
+
 bin/
 obj/
 packages/
