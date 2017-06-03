@@ -177,5 +177,28 @@ namespace ServiceStack.Text.Tests.UseCases
             var value = typeProps.GetPublicGetter("StringField")(instance);
             Assert.That(value, Is.EqualTo("foo"));
         }
+
+        [Test]
+        public void Can_use_TypedFields_ValueType_Accessor()
+        {
+            var typeFields = TypeFields.Get(typeof((string s, int i)));
+
+            var oTuple = (object)("foo", 1);
+
+            typeFields.GetPublicSetterRef("Item1")(ref oTuple, "bar");
+            typeFields.GetPublicSetterRef("Item2")(ref oTuple, 2);
+
+            var tuple = ((string s, int i))oTuple;
+            Assert.That(tuple.s, Is.EqualTo("bar"));
+            Assert.That(tuple.i, Is.EqualTo(2));
+
+            var item1Accessor = typeFields.GetAccessor("Item1");
+            var item2Accessor = typeFields.GetAccessor("Item2");
+            item1Accessor.PublicSetterRef(ref oTuple, "qux");
+            item2Accessor.PublicSetterRef(ref oTuple, 3);
+
+            Assert.That(item1Accessor.PublicGetter(oTuple), Is.EqualTo("qux"));
+            Assert.That(item2Accessor.PublicGetter(oTuple), Is.EqualTo(3));
+        }
     }
 }
