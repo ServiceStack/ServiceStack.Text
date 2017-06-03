@@ -12,9 +12,9 @@ using System.Reflection.Emit;
 
 namespace ServiceStack
 {
-    public class TypeFieldInfo
+    public class FieldAccessor
     {
-        public TypeFieldInfo(
+        public FieldAccessor(
             FieldInfo fieldInfo,
             GetMemberDelegate publicGetter,
             SetMemberDelegate publicSetter,
@@ -48,7 +48,7 @@ namespace ServiceStack
                 try
                 {
                     var fnRef = fi.SetExpressionRef<T>();
-                    Instance.FieldsMap[fi.Name] = new TypeFieldInfo(
+                    Instance.FieldsMap[fi.Name] = new FieldAccessor(
                         fi,
                         PclExport.Instance.CreateGetter(fi),
                         PclExport.Instance.CreateSetter(fi),
@@ -66,9 +66,9 @@ namespace ServiceStack
             }
         }
 
-        public static TypeFieldInfo GetAccessor(string propertyName)
+        public static FieldAccessor GetAccessor(string propertyName)
         {
-            return Instance.FieldsMap.TryGetValue(propertyName, out TypeFieldInfo info)
+            return Instance.FieldsMap.TryGetValue(propertyName, out FieldAccessor info)
                 ? info
                 : null;
         }
@@ -103,17 +103,17 @@ namespace ServiceStack
             return instance;
         }
 
-        public TypeFieldInfo GetAccessor(string propertyName)
+        public FieldAccessor GetAccessor(string propertyName)
         {
-            return FieldsMap.TryGetValue(propertyName, out TypeFieldInfo info)
+            return FieldsMap.TryGetValue(propertyName, out FieldAccessor info)
                 ? info
                 : null;
         }
 
         public Type Type { get; protected set; }
 
-        public readonly Dictionary<string, TypeFieldInfo> FieldsMap =
-            new Dictionary<string, TypeFieldInfo>(PclExport.Instance.InvariantComparerIgnoreCase);
+        public readonly Dictionary<string, FieldAccessor> FieldsMap =
+            new Dictionary<string, FieldAccessor>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         public FieldInfo[] PublicFieldInfos { get; protected set; }
 
@@ -134,7 +134,7 @@ namespace ServiceStack
             if (name == null)
                 return null;
 
-            return FieldsMap.TryGetValue(name, out TypeFieldInfo info)
+            return FieldsMap.TryGetValue(name, out FieldAccessor info)
                 ? info.PublicGetter
                 : null;
         }
@@ -146,7 +146,7 @@ namespace ServiceStack
             if (name == null)
                 return null;
 
-            return FieldsMap.TryGetValue(name, out TypeFieldInfo info)
+            return FieldsMap.TryGetValue(name, out FieldAccessor info)
                 ? info.PublicSetter
                 : null;
         }
@@ -156,7 +156,7 @@ namespace ServiceStack
             if (name == null)
                 return null;
 
-            return FieldsMap.TryGetValue(name, out TypeFieldInfo info)
+            return FieldsMap.TryGetValue(name, out FieldAccessor info)
                 ? info.PublicSetterRef
                 : null;
         }

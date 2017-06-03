@@ -15,9 +15,9 @@ namespace ServiceStack
     [Obsolete("Use TypeProperties<T>.Instance")]
     public static class TypeReflector<T> { }
 
-    public class TypePropertyInfo
+    public class PropertyAccessor
     {
-        public TypePropertyInfo(
+        public PropertyAccessor(
             PropertyInfo propertyInfo,
             GetMemberDelegate publicGetter,
             SetMemberDelegate publicSetter)
@@ -46,7 +46,7 @@ namespace ServiceStack
             {
                 try
                 {
-                    Instance.PropertyMap[pi.Name] = new TypePropertyInfo(
+                    Instance.PropertyMap[pi.Name] = new PropertyAccessor(
                         pi,
                         PclExport.Instance.CreateGetter(pi),
                         PclExport.Instance.CreateSetter(pi)
@@ -59,9 +59,9 @@ namespace ServiceStack
             }
         }
 
-        public static TypePropertyInfo GetAccessor(string propertyName)
+        public static PropertyAccessor GetAccessor(string propertyName)
         {
-            return Instance.PropertyMap.TryGetValue(propertyName, out TypePropertyInfo info)
+            return Instance.PropertyMap.TryGetValue(propertyName, out PropertyAccessor info)
                 ? info
                 : null;
         }
@@ -96,17 +96,17 @@ namespace ServiceStack
             return instance;
         }
 
-        public TypePropertyInfo GetAccessor(string propertyName)
+        public PropertyAccessor GetAccessor(string propertyName)
         {
-            return PropertyMap.TryGetValue(propertyName, out TypePropertyInfo info)
+            return PropertyMap.TryGetValue(propertyName, out PropertyAccessor info)
                 ? info
                 : null;
         }
 
         public Type Type { get; protected set; }
 
-        public readonly Dictionary<string, TypePropertyInfo> PropertyMap =
-            new Dictionary<string, TypePropertyInfo>(PclExport.Instance.InvariantComparerIgnoreCase);
+        public readonly Dictionary<string, PropertyAccessor> PropertyMap =
+            new Dictionary<string, PropertyAccessor>(PclExport.Instance.InvariantComparerIgnoreCase);
 
         public PropertyInfo[] PublicPropertyInfos { get; protected set; }
 
@@ -127,7 +127,7 @@ namespace ServiceStack
             if (name == null)
                 return null;
 
-            return PropertyMap.TryGetValue(name, out TypePropertyInfo info)
+            return PropertyMap.TryGetValue(name, out PropertyAccessor info)
                 ? info.PublicGetter
                 : null;
         }
@@ -139,7 +139,7 @@ namespace ServiceStack
             if (name == null)
                 return null;
 
-            return PropertyMap.TryGetValue(name, out TypePropertyInfo info)
+            return PropertyMap.TryGetValue(name, out PropertyAccessor info)
                 ? info.PublicSetter
                 : null;
         }
