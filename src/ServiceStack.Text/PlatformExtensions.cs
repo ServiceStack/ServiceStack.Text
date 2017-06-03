@@ -1081,6 +1081,12 @@ namespace ServiceStack
         {
             return type.GetTypeInfo().GetDeclaredProperty(propertyName);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FieldInfo GetField(this Type type, String fieldName)
+        {
+            return type.GetTypeInfo().GetDeclaredField(fieldName);
+        }
 #endif
 
 #if NETFX_CORE
