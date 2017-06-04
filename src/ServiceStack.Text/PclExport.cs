@@ -346,20 +346,6 @@ namespace ServiceStack
             return x => fieldInfo.GetValue(x);
         }
 
-        public virtual SetMemberDelegate CreateSetter(PropertyInfo propertyInfo, FieldInfo fieldInfo)
-        {
-            if (propertyInfo.CanWrite)
-            {
-                var setMethodInfo = propertyInfo.SetMethod();
-                if (setMethodInfo.IsStatic)
-                    return (instance, value) => setMethodInfo.Invoke(null, new[] { value });
-                
-                return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
-            }
-            if (fieldInfo == null) return null;
-            return fieldInfo.SetValue;
-        }
-
         public virtual Type UseType(Type type)
         {
             return type;

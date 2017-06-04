@@ -350,7 +350,9 @@ namespace ServiceStack.Text.Common
                 if (fieldInfo == null) return null;
             }
 
-            return PclExport.Instance.CreateSetter(propertyInfo, fieldInfo);
+            return propertyInfo.CanWrite
+                ? PclExport.Instance.CreateSetter(propertyInfo)
+                : PclExport.Instance.CreateSetter(fieldInfo);
         }
 
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)

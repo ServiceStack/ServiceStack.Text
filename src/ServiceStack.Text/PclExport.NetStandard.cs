@@ -370,13 +370,6 @@ namespace ServiceStack
                 : base.CreateSetter<T>(fieldInfo);
         }
 
-        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo, FieldInfo fieldInfo)
-        {
-            return propertyInfo.CanWrite
-                ? CreateSetter(propertyInfo)
-                : CreateSetter(fieldInfo);
-        }
-
         public override string ToXsdDateTimeString(DateTime dateTime)
         {
             return System.Xml.XmlConvert.ToString(dateTime.ToStableUniversalTime());

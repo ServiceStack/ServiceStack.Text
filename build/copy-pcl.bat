@@ -17,5 +17,4 @@ COPY ..\src\ServiceStack.Text\Pcl.*				..\..\ServiceStack\src\ServiceStack.Pcl.I
 COPY ..\src\ServiceStack.Text\Pcl.*				..\..\ServiceStack\src\ServiceStack.Pcl.Mac20\
 COPY ..\src\ServiceStack.Text\Pcl.*				..\..\ServiceStack\src\ServiceStack.Pcl.Net45\
 COPY ..\src\ServiceStack.Text\Pcl.*				..\..\ServiceStack\src\ServiceStack.Pcl.WinStore\
-COPY ..\src\ServiceStack.Text\Pcl.*				..\..\ServiceStack\src\ServiceStack.Pcl.WinStore81\
 
