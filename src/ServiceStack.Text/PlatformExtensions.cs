@@ -790,7 +790,12 @@ namespace ServiceStack
             {
                 if (method.IsStatic && method.Name == methodName)
                 {
-                    return method;
+                    if (types == null)
+                        return method;
+
+                    var methodParams = method.GetParameters().Select(p => p.ParameterType);
+                    if (methodParams.SequenceEqual(types))
+                        return method;
                 }
             }
 
