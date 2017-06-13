@@ -6,7 +6,7 @@
 //   Demis Bellot (demis.bellot@gmail.com)
 //   Damian Hickey (dhickey@gmail.com)
 //
-// Copyright 2012 Service Stack LLC. All Rights Reserved.
+// Copyright 2012 ServiceStack, Inc. All Rights Reserved.
 //
 // Licensed under the same terms of ServiceStack.
 //

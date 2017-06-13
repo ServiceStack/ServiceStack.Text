@@ -27,7 +27,7 @@ namespace ServiceStack.Text.Tests
             string correctJSON = "\"This is a string\""; // this is what a modern browser will produce with JSON.stringify("This is a string");
 
             Assert.AreEqual(correctJSON, bclJsonString, "BCL serializes string correctly");
-            Assert.AreEqual(correctJSON, jsonString, "Service Stack serializes string correctly");
+            Assert.AreEqual(correctJSON, jsonString, "ServiceStack serializes string correctly");
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace ServiceStack.Text.Tests
             string correctJSON = @"""I have \""embedded quotes\"" inside me"""; // this is what a modern browser will produce with JSON.stringify("This is a string");
 
             Assert.AreEqual(correctJSON, bclJsonString, "BCL serializes string correctly");
-            Assert.AreEqual(correctJSON, jsonString, "Service Stack serializes string correctly");
+            Assert.AreEqual(correctJSON, jsonString, "ServiceStack serializes string correctly");
         }
 
         [Test]
@@ -71,14 +71,14 @@ namespace ServiceStack.Text.Tests
             var ssString = ServiceStack.Text.JsonSerializer.DeserializeFromString<string>(json);
 
             Assert.AreEqual(correctString, bclString, "BCL deserializes correctly");
-            Assert.AreEqual(correctString, ssString, "Service Stack deserializes correctly");
+            Assert.AreEqual(correctString, ssString, "ServiceStack deserializes correctly");
 
             var ssJson = ServiceStack.Text.JsonSerializer.SerializeToString(ssString, typeof(string));
             //var bclJson = new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(bclString);
             var bclJson = BclJsonDataContractSerializer.Instance.Parse(bclString);
 
             Assert.AreEqual(json, bclJson, "BCL round trips correctly");
-            Assert.AreEqual(json, ssJson, "Service Stack round trips correctly");
+            Assert.AreEqual(json, ssJson, "ServiceStack round trips correctly");
         }
 
         [Test]

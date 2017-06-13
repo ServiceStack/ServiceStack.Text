@@ -24,7 +24,7 @@ run and explore all ServiceStack.Text features from the comfort of your browser 
 
 ## Simple API
 
-Like most of the interfaces in Service Stack, the API is simple. Methods that you would commonly use include:
+Like most of the interfaces in ServiceStack, the API is simple. Methods that you would commonly use include:
 
 ### Convenience Serialization Extension Methods
 

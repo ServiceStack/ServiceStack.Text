@@ -4,8 +4,8 @@
     <id>ServiceStack.Text.Signed</id>
     <title>ServiceStack.Text.Signed</title>
     <version>4.5.0</version> 
-    <authors>Service Stack</authors> 
-    <owners>Service Stack</owners>
+    <authors>ServiceStack</authors> 
+    <owners>ServiceStack</owners>
     <summary>.NET's fastest JSON, JSV and CSV Text Serializers</summary>
     <description>
         .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
