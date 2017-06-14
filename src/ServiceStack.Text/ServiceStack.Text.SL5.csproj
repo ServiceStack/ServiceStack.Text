@@ -4,6 +4,7 @@
   <PropertyGroup>
     <TargetFramework>Silverlight</TargetFramework>
     <AssemblyName>ServiceStack.Text</AssemblyName>
+    <RootNamespace>ServiceStack.Text</RootNamespace>
     <PackageId>ServiceStack.Text</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>

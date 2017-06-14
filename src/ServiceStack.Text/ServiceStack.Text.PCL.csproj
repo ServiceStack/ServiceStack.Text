@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>portable45-net45+win8</TargetFrameworks>
     <AssemblyName>ServiceStack.Text</AssemblyName>
+    <RootNamespace>ServiceStack.Text</RootNamespace>
     <PackageId>ServiceStack.Text</PackageId>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
