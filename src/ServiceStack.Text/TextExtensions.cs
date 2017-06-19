@@ -32,7 +32,16 @@ namespace ServiceStack
 
         public static object ToCsvField(this object text)
         {
-            var textSerialized = TypeSerializer.SerializeToString(text).StripQuotes();
+            var textSerialized = string.Empty;
+            if (text is string)
+            {
+                textSerialized = text.ToString();
+            }
+            else
+            {
+                textSerialized = TypeSerializer.SerializeToString(text).StripQuotes();
+            }
+
             return textSerialized == null || !CsvWriter.HasAnyEscapeChars(textSerialized)
                 ? textSerialized
                 : string.Concat

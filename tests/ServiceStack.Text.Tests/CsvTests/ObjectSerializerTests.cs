@@ -87,10 +87,18 @@ namespace ServiceStack.Text.Tests.CsvTests
                 csv);
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
+            JsConfig<bool>.SerializeFn = null;
+            JsConfig<bool>.Reset();
+            JsConfig<bool?>.SerializeFn = null;
+            JsConfig<bool?>.Reset();
+            JsConfig<DateTime>.SerializeFn = null;
+            JsConfig<DateTime>.Reset();
+
             CsvConfig.Reset();
+            JsConfig.Reset();
         }
 
         object[] GenerateSampleData()
