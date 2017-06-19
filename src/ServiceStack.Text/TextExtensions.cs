@@ -32,12 +32,22 @@ namespace ServiceStack
 
         public static object ToCsvField(this object text)
         {
-            return text == null || !CsvWriter.HasAnyEscapeChars(text.ToString())
-                ? text
+            var textSerialized = string.Empty;
+            if (text is string)
+            {
+                textSerialized = text.ToString();
+            }
+            else
+            {
+                textSerialized = TypeSerializer.SerializeToString(text).StripQuotes();
+            }
+
+            return textSerialized == null || !CsvWriter.HasAnyEscapeChars(textSerialized)
+                ? textSerialized
                 : string.Concat
                   (
                       CsvConfig.ItemDelimiterString,
-                      text.ToString().Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
+                      textSerialized.Replace(CsvConfig.ItemDelimiterString, CsvConfig.EscapedItemDelimiterString),
                       CsvConfig.ItemDelimiterString
                   );
         }
