@@ -90,7 +90,7 @@ namespace ServiceStack.Text
                 ? CsvConfig.ItemSeperatorString[0]
                 : JsWriter.ItemSeperator;
 
-            if (valueChar == itemSeperator || valueChar == JsWriter.MapEndChar)
+            if (valueChar == itemSeperator || (CsvConfig.RecognizeJsonInValue && valueChar == JsWriter.MapEndChar))
                 return null;
 
             if (valueChar == JsWriter.QuoteChar) //Is Within Quotes, i.e. "..."
@@ -109,7 +109,7 @@ namespace ServiceStack.Text
                 }
                 return value.Substring(tokenStartPos, i - tokenStartPos);
             }
-            if (valueChar == JsWriter.MapStartChar) //Is Type/Map, i.e. {...}
+            if (CsvConfig.RecognizeJsonInValue && valueChar == JsWriter.MapStartChar) //Is Type/Map, i.e. {...}
             {
                 while (++i < valueLength && endsToEat > 0)
                 {
@@ -129,7 +129,7 @@ namespace ServiceStack.Text
                 }
                 return value.Substring(tokenStartPos, i - tokenStartPos);
             }
-            if (valueChar == JsWriter.ListStartChar) //Is List, i.e. [...]
+            if (CsvConfig.RecognizeJsonInValue && valueChar == JsWriter.ListStartChar) //Is List, i.e. [...]
             {
                 while (++i < valueLength && endsToEat > 0)
                 {
@@ -154,7 +154,7 @@ namespace ServiceStack.Text
             {
                 valueChar = value[i];
 
-                if (valueChar == itemSeperator || valueChar == JsWriter.MapEndChar)
+                if (valueChar == itemSeperator || (CsvConfig.RecognizeJsonInValue && valueChar == JsWriter.MapEndChar))
                 {
                     break;
                 }

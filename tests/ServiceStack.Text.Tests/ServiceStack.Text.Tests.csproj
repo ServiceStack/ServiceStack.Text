@@ -20,6 +20,10 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
 
+  <PropertyGroup> 
+    <DebugType Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netcoreapp1.0'">Full</DebugType> 
+  </PropertyGroup>  
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" />
   </ItemGroup>
@@ -83,6 +87,10 @@
     <Reference Include="..\..\lib\netstandard1.3\ServiceStack.Common.dll" />
     <Reference Include="..\..\lib\netstandard1.6\ServiceStack.dll" />
     <Reference Include="..\..\lib\netstandard1.3\Northwind.Common.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>
