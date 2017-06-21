@@ -88,7 +88,9 @@ namespace ServiceStack.Text
     {
         public static bool HasAnyEscapeChars(string value)
         {
-            return CsvConfig.EscapeStrings.Any(value.Contains);
+            return CsvConfig.EscapeStrings.Any(value.Contains)
+                || value[0] == JsWriter.ListStartChar
+                || value[0] == JsWriter.MapStartChar;
         }
 
         internal static void WriteItemSeperatorIfRanOnce(TextWriter writer, ref bool ranOnce)
