@@ -127,7 +127,14 @@ namespace ServiceStack.Text
                     if (valueChar == JsWriter.MapEndChar)
                         endsToEat--;
                 }
-                return value.Substring(tokenStartPos, i - tokenStartPos);
+                if (endsToEat > 0)
+                { 
+                    //Unmatched start and end char, give up
+                    i = tokenStartPos;
+                    valueChar = value[i];
+                }
+                else
+                    return value.Substring(tokenStartPos, i - tokenStartPos);
             }
             if (valueChar == JsWriter.ListStartChar) //Is List, i.e. [...]
             {
@@ -147,14 +154,26 @@ namespace ServiceStack.Text
                     if (valueChar == JsWriter.ListEndChar)
                         endsToEat--;
                 }
-                return value.Substring(tokenStartPos, i - tokenStartPos);
+                if (endsToEat > 0)
+                {
+                    //Unmatched start and end char, give up
+                    i = tokenStartPos;
+                    valueChar = value[i];
+                }
+                else
+                    return value.Substring(tokenStartPos, i - tokenStartPos);
             }
+
+            //if value starts with MapStartChar, check MapEndChar to terminate
+            char specEndChar = itemSeperator;
+            if (value[tokenStartPos] == JsWriter.MapStartChar)
+                specEndChar = JsWriter.MapEndChar;
 
             while (++i < valueLength) //Is Value
             {
                 valueChar = value[i];
 
-                if (valueChar == itemSeperator || valueChar == JsWriter.MapEndChar)
+                if (valueChar == itemSeperator || valueChar == specEndChar)
                 {
                     break;
                 }
