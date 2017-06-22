@@ -111,6 +111,20 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Does_parse_fileds_with_unmatchedJsMark()
+        {
+            Assert.That(CsvReader.ParseFields("{A,B"), Is.EqualTo(new[] { "{A", "B" }));
+            Assert.That(CsvReader.ParseFields("{A},B"), Is.EqualTo(new[] { "{A}", "B" }));
+            Assert.That(CsvReader.ParseFields("[A,B"), Is.EqualTo(new[] { "[A", "B" }));
+            Assert.That(CsvReader.ParseFields("[A],B"), Is.EqualTo(new[] { "[A]", "B" }));
+            Assert.That(CsvReader.ParseFields("[{A],B"), Is.EqualTo(new[] { "[{A]", "B" }));
+            Assert.That(CsvReader.ParseFields("[A},B"), Is.EqualTo(new[] { "[A}", "B" }));
+            Assert.That(CsvReader.ParseFields("[[A],B"), Is.EqualTo(new[] { "[[A]", "B" }));
+            Assert.That(CsvReader.ParseFields("A],B"), Is.EqualTo(new[] { "A]", "B" }));
+            Assert.That(CsvReader.ParseFields("A},B"), Is.EqualTo(new[] { "A}", "B" }));
+        }
+
+        [Test]
         public void Can_Serialize_Movie()
         {
             Serialize(MoviesData.Movies[0]);
