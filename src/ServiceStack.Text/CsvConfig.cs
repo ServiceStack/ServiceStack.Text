@@ -19,8 +19,6 @@ namespace ServiceStack.Text
             set { sRealNumberCultureInfo = value; }
         }
 
-        public static bool RecognizeJsonInValue { get; set; } = true;
-
         [ThreadStatic]
         private static string tsItemSeperatorString;
         private static string sItemSeperatorString;
@@ -126,7 +124,6 @@ namespace ServiceStack.Text
             tsEscapedItemDelimiterString = sEscapedItemDelimiterString = null;
             tsRowSeparatorString = sRowSeparatorString = null;
             tsEscapeStrings = sEscapeStrings = null;
-            RecognizeJsonInValue = true;
         }
 
     }

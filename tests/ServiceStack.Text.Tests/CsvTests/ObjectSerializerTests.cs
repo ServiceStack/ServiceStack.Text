@@ -1,7 +1,5 @@
 using NUnit.Framework;
-using ServiceStack.Text.Common;
 using System;
-using System.Collections.Generic;
 
 namespace ServiceStack.Text.Tests.CsvTests
 {
@@ -117,42 +115,10 @@ namespace ServiceStack.Text.Tests.CsvTests
          };
         }
 
-
-        [Test]
-        public void UnmatchJsonCharDeserialization()
-        {
-            var src = new List<POCO2>() {
-                new POCO2()
-                {
-                    Prop1 = "1",
-                    Prop2 = JsWriter.ListStartChar + "2",
-                    Prop3 = JsWriter.MapStartChar + "3",
-                    Prop4 = "4",
-                    Prop5 = "5"
-                }
-            };
-            var csv = CsvSerializer.SerializeToCsv<POCO2>(src);
-            var des = csv.FromCsv<List<POCO2>>();
-            Assert.AreNotEqual(src[0].Prop5, des[0].Prop5);
-
-            CsvConfig.RecognizeJsonInValue = false;
-            des = csv.FromCsv<List<POCO2>>();
-            Assert.AreEqual(src[0].Prop5, des[0].Prop5);
-        }
     }
 
     public class POCO
     {
         public DateTime DateTime { get; set; }
     }
-
-    public class POCO2
-    {
-        public string Prop1 { get; set; }
-        public string Prop2 { get; set; }
-        public string Prop3 { get; set; }
-        public string Prop4 { get; set; }
-        public string Prop5 { get; set; }
-    }
-
 }
