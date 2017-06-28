@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.1;net46;</TargetFrameworks>
-    <AssemblyName>ServiceStack.Text.VersionCompareBenchmarks</AssemblyName>
+    <AssemblyName>ServiceStack.Text.VersionCompareBenchmarks.BaseLine</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>ServiceStack.Text.VersionCompareBenchmarks</PackageId>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
@@ -26,20 +26,11 @@
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
   </ItemGroup>
 
-  <Choose>
-    <When Condition=" '$(BASELINE)' == '' ">
-      <ItemGroup>
-        <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" Version="1.0.*" />
-      </ItemGroup>
-    </When>
-    <When Condition=" '$(BASELINE)' != '' ">
-      <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
-        <PackageReference Include="ServiceStack.Text" Version="4.5.8" />
-      </ItemGroup>
-      <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
-        <PackageReference Include="ServiceStack.Text.Core" Version="1.0.38" />
-      </ItemGroup>
-    </When>
-  </Choose>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+    <PackageReference Include="ServiceStack.Text" Version="4.5.8" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+    <PackageReference Include="ServiceStack.Text.Core" Version="1.0.38" />
+  </ItemGroup>
 
 </Project>

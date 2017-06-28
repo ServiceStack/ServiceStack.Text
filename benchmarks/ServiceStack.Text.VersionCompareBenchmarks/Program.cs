@@ -15,8 +15,8 @@ namespace ServiceStack.Text.Benchmarks
               ManualConfig
                 .Create(DefaultConfig.Instance)
                 //.With(Job.RyuJitX64)
-                //.With(Job.Core)
-		.With(Job.Clr)
+                .With(Job.Core)
+        		.With(Job.Clr)
                 .With(new BenchmarkDotNet.Diagnosers.CompositeDiagnoser())
                 .With(ExecutionValidator.FailOnError)
             );

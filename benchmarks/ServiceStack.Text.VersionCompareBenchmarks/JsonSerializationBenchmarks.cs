@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using ServiceStack.Text;
-using ServiceStack.Text.Tests.DynamicModels;
 using ServiceStack.Text.Json;
 using StackExchange.Profiling;
 
@@ -85,7 +84,6 @@ namespace ServiceStack.Text.Benchmarks
     [MemoryDiagnoser]
     public class JsonSerializationBenchmarks
     {
-        static ModelWithAllTypes allTypesModel = ModelWithAllTypes.Create(3);
         static ModelWithCommonTypes commonTypesModel = ModelWithCommonTypes.Create(3);
         static MemoryStream stream = new MemoryStream(32768);
         const string serializedString = "this is the test string";
