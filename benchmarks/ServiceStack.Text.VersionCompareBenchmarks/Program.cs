@@ -11,7 +11,7 @@ namespace ServiceStack.Text.Benchmarks
         public static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            BenchmarkRunner.Run<JsonSerializationBenchmarks>(
+            BenchmarkRunner.Run<JsonDeserializationBenchmarks>(
               ManualConfig
                 .Create(DefaultConfig.Instance)
                 //.With(Job.RyuJitX64)
