@@ -255,6 +255,7 @@ namespace ServiceStack
                     {
                         writer.Write(JsonUtils.Null);
                     }
+                    else if (value is string strValue && strValue == string.Empty) { /*ignore*/ }
                     else
                     {
                         var writeFn = JsvWriter.GetWriteFn(value.GetType());
@@ -268,7 +269,7 @@ namespace ServiceStack
             var typeConfig = typeConfigCache.GetOrAdd(obj.GetType(), t =>
                 {
                     var genericType = typeof(PropertyTypeConfig<>).MakeGenericType(t);
-                    var fi = genericType.Fields().First(x => x.Name == "Config"); ;
+                    var fi = genericType.Fields().First(x => x.Name == "Config");
 
                     var config = (PropertyTypeConfig)fi.GetValue(null);
                     return config;

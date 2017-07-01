@@ -150,5 +150,29 @@ namespace ServiceStack.Text.Tests.UseCases
             Assert.That(qs, Does.Contain(
                 @"&legal_entity[dob][year]=1970&legal_entity[dob][month]=1&legal_entity[dob][day]=1"));
         }
+
+        public class StripeCreateSubscription
+        {
+            public string customer { get; set; }
+
+            public Dictionary<string, string> metadata { get; set; }
+
+            public string plan { get; set; }
+        }
+
+        [Test]
+        public void QueryStringSerializer_emits_empty_string_without_quotes()
+        {
+            var qs = QueryStringSerializer.SerializeToString(new StripeCreateSubscription
+            {
+                metadata = new Dictionary<string, string>
+                {
+                    { "foo", string.Empty },
+                    { "bar", "qux" }
+                }
+            });
+
+            Assert.That(qs, Is.EqualTo("metadata[foo]=&metadata[bar]=qux"));
+        }
     }
 }
