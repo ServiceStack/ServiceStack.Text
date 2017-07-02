@@ -11,6 +11,7 @@ ServiceStack.Text is an **independent, dependency-free** serialization library c
  - [AutoMapping Utils](http://docs.servicestack.net/auto-mapping)
  - [HTTP Utils](http://docs.servicestack.net/http-utils)
  - [Dump Utils](http://docs.servicestack.net/dump-utils)
+ - [Fast Reflection Utils](http://docs.servicestack.net/reflection-utils)
  - Several String Extensions, Collection extensions, Reflection Utils and lots more.
 
 ### [Portable Class Library Support](https://github.com/ServiceStackApps/HelloMobile#portable-class-library-support)
@@ -327,6 +328,110 @@ JsonSerializer also supports serialization of anonymous types in much the same w
 
     {"A":1,"B":2,"C":3,"D":4}
 
+## Global Default JSON Configuration
+
+The JSON/JSV and CSV serialization can be customized globally by configuring the `JsConfig` or type-specific `JsConfig<T>` static classes with your preferred defaults, e.g:
+
+```csharp
+JsConfig.EmitLowercaseUnderscoreNames = true; 
+JsConfig.ExcludeDefaultValues = true;
+```
+
+The following is a list of `bool` options you can use to configure many popular preferences:
+
+<table>
+    <thead>
+        <tr><th>Name</th><th>Alias</th></tr>
+    </thead>
+    <tr><td>EmitCamelCaseNames</td><td>eccn</td></tr>
+    <tr><td>EmitLowercaseUnderscoreNames</td><td>elun</td></tr>
+    <tr><td>IncludeNullValues</td><td>inv</td></tr>
+    <tr><td>IncludeNullValuesInDictionaries</td><td>invid</td></tr>
+    <tr><td>IncludeDefaultEnums</td><td>ide</td></tr>
+    <tr><td>IncludePublicFields</td><td>ipf</td></tr>
+    <tr><td>IncludeTypeInfo</td><td>iti</td></tr>
+    <tr><td>ExcludeTypeInfo</td><td>eti</td></tr>
+    <tr><td>ExcludeDefaultValues</td><td>edv</td></tr>
+    <tr><td>ConvertObjectTypesIntoStringDictionary</td><td>cotisd</td></tr>
+    <tr><td>TreatEnumAsInteger</td><td>teai</td></tr>
+    <tr><td>TryToParsePrimitiveTypeValues</td><td>ttpptv</td></tr>
+    <tr><td>TryToParseNumericType</td><td>ttpnt</td></tr>
+    <tr><td>ThrowOnDeserializationError</td><td>tode</td></tr>
+    <tr><td>EscapeUnicode</td><td>eu</td></tr>
+    <tr><td>EscapeHtmlChars</td><td>ehc</td></tr>
+    <tr><td>PreferInterfaces</td><td>pi</td></tr>
+    <tr><td>SkipDateTimeConversion</td><td>sdtc</td></tr>
+    <tr><td>AlwaysUseUtc</td><td>auu</td></tr>
+    <tr><td>AssumeUtc</td><td>au</td></tr>
+    <tr><td>AppendUtcOffset</td><td>auo</td></tr>
+    <tr><td>EscapeHtmlChars</td><td>ehc</td></tr>
+    <tr><td>EscapeUnicode</td><td>eu</td></tr>
+</table>
+
+### DateHandler (dh)
+
+<table>
+    <tr><td>TimestampOffset</td><td>to</td></tr>
+    <tr><td>DCJSCompatible</td><td>dcjsc</td></tr>
+    <tr><td>ISO8601</td><td>iso8601</td></tr>
+    <tr><td>ISO8601DateOnly</td><td>iso8601do</td></tr>
+    <tr><td>ISO8601DateTime</td><td>iso8601dt</td></tr>
+    <tr><td>RFC1123</td><td>rfc1123</td></tr>
+    <tr><td>UnixTime</td><td>ut</td></tr>
+    <tr><td>UnixTimeMs</td><td>utm</td></tr>
+</table>
+
+### TimeSpanHandler (tsh)
+
+<table>
+    <tr><td>DurationFormat</td><td>df</td></tr>
+    <tr><td>StandardFormat</td><td>sf</td></tr>
+</table>
+
+### PropertyConvention (pc)
+
+<table>
+    <tr><td>Strict</td><td>s</td></tr>
+    <tr><td>Lenient</td><td>l</td></tr>
+</table>
+
+### Custom Config Scopes
+
+If you need to override the Global JSON Configuration defaults for adhoc JSON serialization you can use a Custom Config Scope, e.g:
+
+```csharp
+using (JsConfig.With(emitCamelCaseNames:true, excludeDefaultValues:true))
+{
+    var json = dto.ToJson();
+}
+```
+
+#### Create Custom Scopes using String config
+
+You can also create a custion config scope from a string manually using `JsConfig.CreateScope()` where you can use the full config name or their aliases, e.g:
+
+```csharp
+using (JsConfig.CreateScope("EmitLowercaseUnderscoreNames,EDV,dh:ut")) 
+{
+    var json = dto.ToJson();
+}
+```
+
+This feature is used to provide a number of different [JSON customizations in ServiceStack Services](http://docs.servicestack.net/customize-json-responses).
+
+### Type Configuration
+
+If you can't change the definition of a Type (e.g. because its in the BCL), you can specify a custom serialization /
+deserialization routine to use instead. E.g. here's how you can add support for `System.Drawing.Color` and customize how `Guid` and `TimeSpan` Types are serialized:
+
+```csharp
+JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
+JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
+
+JsConfig<Guid>.SerializeFn = guid => guid.ToString("D");
+JsConfig<TimeSpan>.SerializeFn = time => 
+    (time.Ticks < 0 ? "-" : "") + time.ToString("hh':'mm':'ss'.'fffffff");
+```
 
 ## Custom Serialization
 
@@ -415,16 +520,6 @@ Which serializes the Point into a compact JSON array:
     new Point { X = 1, Y = 2 }.ToJson() // = [1,2]
 ```
 
-### Custom Serialization Routines
-
-If you can't change the definition of a ValueType (e.g. because its in the BCL), you can assign a custom serialization /
-deserialization routine to use instead. E.g. here's how you can add support for `System.Drawing.Color`:
-
-```csharp
-JsConfig<System.Drawing.Color>.SerializeFn = c => c.ToString().Replace("Color ","").Replace("[","").Replace("]","");
-JsConfig<System.Drawing.Color>.DeSerializeFn = System.Drawing.Color.FromName;
-```
-
 ## Custom Deserialization
 
 Because the same wire format shared between Dictionaries, POCOs and anonymous types, in most cases what you serialize with one type can be deserialized with another, i.e. an Anonymous type can be deserialized back into a Dictionary<string,string> which can be deserialized into a strong-typed POCO and vice-versa.
@@ -439,8 +534,79 @@ Although the JSON Serializer is best optimized for serializing and deserializing
 
 [CentroidTests](https://github.com/ServiceStack/ServiceStack.Text/blob/master/tests/ServiceStack.Text.Tests/UseCases/CentroidTests.cs) is another example that uses the JsonObject to parse a complex custom JSON response. 
 
+## Late-bound Object and Interface Runtime Types
 
-#TypeSerializer Details (JSV Format)
+In order to be able to deserialize late-bound objects like `object`, `interface` properties or `abstract` classes ServiceStack needs to emit type information
+in the JSON payload. By default it uses `__type` property name, but can be customized with:
+
+```csharp
+JsConfig.TypeAttr = "$type";
+```
+
+You can also configure what Type Information is emitted with:
+
+```csharp
+JsConfig.TypeWriter = type => type.Name;
+```
+
+Which will just emit the name of the Type (e.g `Dog`) instead of the full Type Name.
+
+By default ServiceStack will scan all loaded Assemblies to find the Type, but you can tell it to use your own Type Resolver implementation by overriding `TypeFinder`, e.g:
+
+```csharp
+JsConfig.TypeFinder = typeInfo =>  =>
+{
+    var regex = new Regex(@"^(?<type>[^:]+):#(?<namespace>.*)$");
+    var match = regex.Match(value);
+    var typeName = string.Format("{0}.{1}", match.Groups["namespace"].Value, match.Groups["type"].Value.Replace(".", "+"));
+    return MyFindType(typeName);
+};
+```
+
+### Runtime Type Whitelist
+
+ServiceStack only allows you to serialize "known safe Types" in late-bound properties which uses a whitelist that's pre-populated with a safe-list of 
+popular Data Types, DTOs and Request DTOs with the default configuration below:
+
+```csharp
+// Allow deserializing types with [DataContract] or [RuntimeSerializable] attributes
+JsConfig.AllowRuntimeTypeWithAttributesNamed = new HashSet<string>
+{
+    nameof(DataContractAttribute),
+    nameof(RuntimeSerializableAttribute), // new in ServiceStack.Text
+};
+ 
+// Allow deserializing types implementing any of the interfaces below
+JsConfig.AllowRuntimeTypeWithInterfacesNamed = new HashSet<string>
+{
+    "IConvertible",
+    "ISerializable",
+    "IRuntimeSerializable", // new in ServiceStack.Text
+    "IMeta",
+    "IReturn`1",
+    "IReturnVoid",
+};
+ 
+// Allow object property in ServiceStack.Messaging MQ classes
+JsConfig.AllowRuntimeTypeInTypesWithNamespaces = new HashSet<string>
+{
+    "ServiceStack.Messaging",
+};
+```
+
+The above rules can be extended to allow your own conventions. If you just need to allow a specific Type you can instead just implement:
+
+```csharp
+JsConfig.AllowRuntimeType = type => type == typeof(MyType);
+```
+
+If you’re in a trusted intranet environment this can also be used to disable the whitelist completely by allowing all Types to be deserialized into object properties with:
+
+```csharp
+JsConfig.AllowRuntimeType = _ => true;
+```
+
+## TypeSerializer Details (JSV Format)
 
 Out of the box .NET provides a fairly quick but verbose Xml DataContractSerializer or a slightly more compact but slower JsonDataContractSerializer. 
 Both of these options are fragile and likely to break with any significant schema changes. 
