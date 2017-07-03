@@ -779,5 +779,49 @@ namespace ServiceStack.Text.Support
                 throw new FormatException(BadFormat);
             }
         }
+
+        private static char[] CRLF = {'\r', '\n'};
+        private static StringSegment EmptySegment = new StringSegment(null);
+
+        public static StringSegment ReadNextLine(this StringSegment text, ref int startIndex)
+        {
+            if (startIndex >= text.Length)
+                return EmptySegment;
+
+            var nextLinePos = text.IndexOfAny(startIndex, CRLF);
+            if (nextLinePos == -1)
+            {
+                var nextLine = text.Subsegment(startIndex, text.Length - startIndex);
+                startIndex = text.Length;
+                return nextLine;
+            }
+            else
+            {
+                var nextLine = text.Subsegment(startIndex, nextLinePos - startIndex);
+
+                startIndex = nextLinePos + 1;
+
+                if (text.GetChar(nextLinePos) == '\r' && text.Length > nextLinePos + 1 && text.GetChar(nextLinePos + 1) == '\n')
+                    startIndex += 1;
+
+                return nextLine;
+            }
+        }
+
+        public static int IndexOfAny(this StringSegment text, int startIndex, params char[] needles)
+        {
+            var firstPos = -1;
+            if (text.HasValue)
+            {
+                foreach (var needle in needles)
+                {
+                    var pos = text.IndexOf(needle, startIndex);
+                    if (pos >= 0 && (firstPos == -1 || pos < firstPos))
+                        firstPos = pos;
+                }
+            }
+
+            return firstPos;
+        }
     }
 }

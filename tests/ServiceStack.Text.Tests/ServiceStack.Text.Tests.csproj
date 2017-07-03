@@ -55,7 +55,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
-    <DefineConstants>$(DefineConstants);NETCORE_SUPPORT;NETCORE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCORE_SUPPORT;NETCORE;NETSTANDARD1_1</DefineConstants>
   </PropertyGroup>
 
   <!-- Enable NunitLite build, becase NUnit is not supported on .NET Core SDK 1.0.2 
