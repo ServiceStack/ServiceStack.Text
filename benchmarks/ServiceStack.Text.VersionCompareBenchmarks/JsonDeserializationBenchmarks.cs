@@ -39,11 +39,11 @@ namespace ServiceStack.Text.Benchmarks
         static string commonTypesModelJson;
         static string stringTypeJson; 
 
-	static JsonDeserializationBenchmarks()
-	{
-	    commonTypesModelJson = JsonSerializer.SerializeToString<ModelWithCommonTypes>(commonTypesModel);
-            stringTypeJson = JsonSerializer.SerializeToString<StringType>(StringType.Create());
-	}
+        static JsonDeserializationBenchmarks()
+        {
+            commonTypesModelJson = JsonSerializer.SerializeToString<ModelWithCommonTypes>(commonTypesModel);
+                stringTypeJson = JsonSerializer.SerializeToString<StringType>(StringType.Create());
+        }
 
         [Benchmark(Description = "Deserialize Json: class with builtin types")]
         public void DeserializeJsonCommonTypes()
