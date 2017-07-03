@@ -8,10 +8,14 @@ echo %proj%\ServiceStack.Text.VersionCompareBenchmarks.csproj %curdate%
 
 mkdir Results
 
+rmdir /s /q bin
+rmdir /s /q obj
 dotnet restore %proj%\ServiceStack.Text.VersionCompareBenchmarks.csproj && dotnet build -c Release %proj%\ServiceStack.Text.VersionCompareBenchmarks.csproj
 %proj%\bin\Release\net46\ServiceStack.Text.VersionCompareBenchmarks.exe
 copy BenchmarkDotNet.Artifacts\results\JsonDeserializationBenchmarks-report-github.md Results\Deserialization-%curdate%.md
 
+rmdir /s /q bin
+rmdir /s /q obj
 dotnet restore %proj%\ServiceStack.Text.VersionCompareBenchmarks.BaseLine.csproj && dotnet build -c Release %proj%\ServiceStack.Text.VersionCompareBenchmarks.BaseLine.csproj
 %proj%\bin\Release\net46\ServiceStack.Text.VersionCompareBenchmarks.BaseLine.exe
 copy BenchmarkDotNet.Artifacts\results\JsonDeserializationBenchmarks-report-github.md Results\Deserialization-baseline-%curdate%.md
