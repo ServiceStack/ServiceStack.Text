@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
+#if NET45
+using ServiceStack.Text.Support;
+#else
+using Microsoft.Extensions.Primitives;
+#endif
+
 namespace ServiceStack
 {
     public static class TypeConstants
@@ -39,6 +45,7 @@ namespace ServiceStack
         public static readonly Type[] EmptyTypeArray = new Type[0];
         public static readonly FieldInfo[] EmptyFieldInfoArray = new FieldInfo[0];
         public static readonly PropertyInfo[] EmptyPropertyInfoArray = new PropertyInfo[0];
+        public static readonly StringSegment[] EmptyStringSegmentArray = new StringSegment[0];
 
         public static readonly byte[][] EmptyByteArrayArray = new byte[0][];
 

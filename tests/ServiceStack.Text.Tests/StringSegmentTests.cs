@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+
 using ServiceStack.Text.Support;
 
 #if NETSTANDARD1_1
@@ -26,5 +27,30 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(pos, Is.EqualTo(buf.Length));
         }
+
+        [Test]
+        public void Can_SplitOnFirst()
+        {
+            var parts = new StringSegment("a:b:c").SplitOnFirst(':');
+            Assert.That(parts[0].ToString(), Is.EqualTo("a"));
+            Assert.That(parts[1].ToString(), Is.EqualTo("b:c"));
+
+            parts = new StringSegment("a::b::c").SplitOnFirst("::");
+            Assert.That(parts[0].ToString(), Is.EqualTo("a"));
+            Assert.That(parts[1].ToString(), Is.EqualTo("b::c"));
+        }
+
+        [Test]
+        public void Can_SplitOnLast()
+        {
+            var parts = new StringSegment("a:b:c").SplitOnLast(':');
+            Assert.That(parts[0].ToString(), Is.EqualTo("a:b"));
+            Assert.That(parts[1].ToString(), Is.EqualTo("c"));
+
+            parts = new StringSegment("a::b::c").SplitOnLast("::");
+            Assert.That(parts[0].ToString(), Is.EqualTo("a::b"));
+            Assert.That(parts[1].ToString(), Is.EqualTo("c"));
+        }
+
     }
 }

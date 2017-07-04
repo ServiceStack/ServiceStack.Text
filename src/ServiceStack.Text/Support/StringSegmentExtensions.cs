@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Globalization;
 using ServiceStack.Text.Json;
+
 #if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
 #endif
@@ -788,7 +789,7 @@ namespace ServiceStack.Text.Support
             if (startIndex >= text.Length)
                 return EmptySegment;
 
-            var nextLinePos = text.IndexOfAny(startIndex, CRLF);
+            var nextLinePos = text.IndexOfAny(CRLF, startIndex);
             if (nextLinePos == -1)
             {
                 var nextLine = text.Subsegment(startIndex, text.Length - startIndex);
@@ -808,20 +809,117 @@ namespace ServiceStack.Text.Support
             }
         }
 
-        public static int IndexOfAny(this StringSegment text, int startIndex, params char[] needles)
+        public static int IndexOf(this StringSegment text, string needle)
         {
-            var firstPos = -1;
-            if (text.HasValue)
-            {
-                foreach (var needle in needles)
-                {
-                    var pos = text.IndexOf(needle, startIndex);
-                    if (pos >= 0 && (firstPos == -1 || pos < firstPos))
-                        firstPos = pos;
-                }
-            }
+            return text.IndexOf(needle, 0, text.Length);
+        }
 
-            return firstPos;
+        public static int IndexOf(this StringSegment text, string needle, int start)
+        {
+            return text.IndexOf(needle, start, text.Length - start);
+        }
+
+        public static int IndexOf(this StringSegment text, string needle, int start, int count)
+        {
+            if (start < 0 || text.Offset + start > text.Buffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(start));
+            if (count < 0 || text.Offset + start + count > text.Buffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(count));
+            int num = text.Buffer.IndexOf(needle, start + text.Offset, count);
+            if (num != -1)
+                return num - text.Offset;
+            return num;
+        }
+
+        public static int LastIndexOf(this StringSegment text, char needle)
+        {
+            return text.LastIndexOf(needle, text.Length - 1, text.Length);
+        }
+
+        public static int LastIndexOf(this StringSegment text, char needle, int start)
+        {
+            return text.LastIndexOf(needle, start, start + 1);
+        }
+
+        public static int LastIndexOf(this StringSegment text, char needle, int start, int count)
+        {
+            if (text.Length == 0)
+                return -1;
+            if (start < 0 || start >= text.Length)
+                throw new ArgumentOutOfRangeException(nameof(start));
+            if (count < 0 || count - 1 > start)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            int num = text.Buffer.LastIndexOf(needle, start + text.Offset, count);
+            if (num != -1)
+                return num - text.Offset;
+            return num;
+        }
+
+        public static int LastIndexOf(this StringSegment text, string needle)
+        {
+            return text.LastIndexOf(needle, text.Length - 1, text.Length);
+        }
+
+        public static int LastIndexOf(this StringSegment text, string needle, int start)
+        {
+            return text.LastIndexOf(needle, start, start + 1);
+        }
+
+        public static int LastIndexOf(this StringSegment text, string needle, int start, int count)
+        {
+            if (text.Length == 0)
+                return -1;
+            if (start < 0 || start >= text.Length)
+                throw new ArgumentOutOfRangeException(nameof(start));
+            if (count < 0 || count - 1 > start)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            int num = text.Buffer.LastIndexOf(needle, start + text.Offset, count);
+            if (num != -1)
+                return num - text.Offset;
+            return num;
+        }
+
+        public static StringSegment Subsegment(this StringSegment text, int startPos)
+        {
+            return text.Subsegment(startPos, text.Length - startPos);
+        }
+
+        public static StringSegment[] SplitOnFirst(this StringSegment strVal, char needle)
+        {
+            if (!strVal.HasValue) return TypeConstants.EmptyStringSegmentArray;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? new[] { strVal }
+                : new[] { strVal.Subsegment(0, pos), strVal.Subsegment(pos + 1) };
+        }
+
+        public static StringSegment[] SplitOnFirst(this StringSegment strVal, string needle)
+        {
+            if (!strVal.HasValue) return TypeConstants.EmptyStringSegmentArray;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? new[] { strVal }
+                : new[] { strVal.Subsegment(0, pos), strVal.Subsegment(pos + needle.Length) };
+        }
+
+        public static StringSegment[] SplitOnLast(this StringSegment strVal, char needle)
+        {
+            if (!strVal.HasValue) return TypeConstants.EmptyStringSegmentArray;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? new[] { strVal }
+                : new[] { strVal.Subsegment(0, pos), strVal.Subsegment(pos + 1) };
+        }
+
+        public static StringSegment[] SplitOnLast(this StringSegment strVal, string needle)
+        {
+            if (!strVal.HasValue) return TypeConstants.EmptyStringSegmentArray;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? new[] { strVal }
+                : new[] { strVal.Subsegment(0, pos), strVal.Subsegment(pos + needle.Length) };
         }
     }
 }
