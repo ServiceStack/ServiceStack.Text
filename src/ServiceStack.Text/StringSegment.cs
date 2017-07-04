@@ -6,7 +6,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace ServiceStack.Text.Support
+namespace ServiceStack.Text
 {
     /// <summary>
     /// An optimized representation of a substring.

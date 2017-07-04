@@ -7,7 +7,7 @@ using ServiceStack.Text.Json;
 using Microsoft.Extensions.Primitives;
 #endif
 
-namespace ServiceStack.Text.Support
+namespace ServiceStack.Text
 {
     public static class StringSegmentExtensions
     {
@@ -920,6 +920,34 @@ namespace ServiceStack.Text.Support
             return pos == -1
                 ? new[] { strVal }
                 : new[] { strVal.Subsegment(0, pos), strVal.Subsegment(pos + needle.Length) };
+        }
+
+        public static bool StartsWith(this StringSegment text, string value) => text.StartsWith(value, StringComparison.OrdinalIgnoreCase);
+
+        public static bool StartsWith(this StringSegment text, string value, StringComparison comparisonType)
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            var textLength = value.Length;
+            if (!text.HasValue || text.Length < textLength)
+                return false;
+
+            return string.Compare(text.Buffer, text.Offset, value, 0, textLength, comparisonType) == 0;
+        }
+
+        public static bool EndsWith(this StringSegment text, string value) => text.EndsWith(value, StringComparison.OrdinalIgnoreCase);
+
+        public static bool EndsWith(this StringSegment text, string value, StringComparison comparisonType)
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            var textLength = value.Length;
+            if (!text.HasValue || text.Length < textLength)
+                return false;
+
+            return string.Compare(text.Buffer, text.Offset + text.Length - textLength, value, 0, textLength, comparisonType) == 0;
         }
     }
 }

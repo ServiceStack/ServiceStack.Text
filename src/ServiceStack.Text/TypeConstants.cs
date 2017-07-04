@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using ServiceStack.Text;
 
-#if NET45
-using ServiceStack.Text.Support;
-#else
+#if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
 #endif
 
@@ -61,6 +60,7 @@ namespace ServiceStack
         public static readonly List<Type> EmptyTypeList = new List<Type>(0);
         public static readonly List<FieldInfo> EmptyFieldInfoList = new List<FieldInfo>(0);
         public static readonly List<PropertyInfo> EmptyPropertyInfoList = new List<PropertyInfo>(0);
+        public static readonly List<StringSegment> EmptyStringSegmentList = new List<StringSegment>(0);
     }
 
     public static class TypeConstants<T>

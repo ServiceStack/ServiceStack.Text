@@ -1,7 +1,5 @@
 ﻿using NUnit.Framework;
 
-using ServiceStack.Text.Support;
-
 #if NETSTANDARD1_1
 using Microsoft.Extensions.Primitives;
 #endif
