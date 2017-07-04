@@ -776,12 +776,12 @@ namespace ServiceStack
 
         public static string ToLowerSafe(this string value)
         {
-            return value != null ? value.ToLower() : null;
+            return value?.ToLower();
         }
 
         public static string ToUpperSafe(this string value)
         {
-            return value != null ? value.ToUpper() : null;
+            return value?.ToUpper();
         }
 
         public static string SafeSubstring(this string value, int startIndex)

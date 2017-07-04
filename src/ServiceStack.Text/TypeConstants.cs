@@ -33,6 +33,7 @@ namespace ServiceStack
         public static readonly Task<object> EmptyTask;
 
         public static readonly object EmptyObject = new object();
+        public static readonly StringSegment EmptyStringSegment = new StringSegment(string.Empty);
 
         public static readonly string[] EmptyStringArray = new string[0];
         public static readonly long[] EmptyLongArray = new long[0];

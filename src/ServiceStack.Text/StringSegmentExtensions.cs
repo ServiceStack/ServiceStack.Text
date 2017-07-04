@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Globalization;
 using ServiceStack.Text.Json;
@@ -15,9 +16,24 @@ namespace ServiceStack.Text
         const string OverflowMessage = "Value was either too large or too small for an {0}.";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringSegment ToStringSegment(this string value) => new StringSegment(value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty(this StringSegment value)
         {
             return value.Buffer == null || value.Length == 0;
+        }
+
+        public static bool IsNullOrWhiteSpace(this StringSegment value)
+        {
+            if (!value.HasValue)
+                return true;
+            for (int index = 0; index < value.Length; ++index)
+            {
+                if (!char.IsWhiteSpace(value.GetChar(index)))
+                    return false;
+            }
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -825,7 +841,7 @@ namespace ServiceStack.Text
                 throw new ArgumentOutOfRangeException(nameof(start));
             if (count < 0 || text.Offset + start + count > text.Buffer.Length)
                 throw new ArgumentOutOfRangeException(nameof(count));
-            int num = text.Buffer.IndexOf(needle, start + text.Offset, count);
+            int num = text.Buffer.IndexOf(needle, start + text.Offset, count, StringComparison.Ordinal);
             if (num != -1)
                 return num - text.Offset;
             return num;
@@ -949,5 +965,43 @@ namespace ServiceStack.Text
 
             return string.Compare(text.Buffer, text.Offset + text.Length - textLength, value, 0, textLength, comparisonType) == 0;
         }
+
+        public static StringSegment SafeSubsegment(this StringSegment value, int startIndex)
+        {
+            return SafeSubsegment(value, startIndex, value.Length);
+        }
+
+        public static StringSegment SafeSubsegment(this StringSegment value, int startIndex, int length)
+        {
+            if (IsNullOrEmpty(value)) return TypeConstants.EmptyStringSegment;
+            if (startIndex < 0) startIndex = 0;
+            if (value.Length >= startIndex + length)
+                return value.Subsegment(startIndex, length);
+
+            return value.Length > startIndex ? value.Subsegment(startIndex) : TypeConstants.EmptyStringSegment;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<string> ToStringList(this IEnumerable<StringSegment> from)
+        {
+            var to = new List<string>();
+            if (from != null)
+            {
+                foreach (var item in from)
+                {
+                    to.Add(item.ToString());
+                }
+            }
+            return to;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EqualsIgnoreCase(this StringSegment value, string other) => value.Equals(other, StringComparison.OrdinalIgnoreCase);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool StartsWithIgnoreCase(this StringSegment value, string other) => value.StartsWith(other, StringComparison.OrdinalIgnoreCase);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EndsWithIgnoreCase(this StringSegment value, string other) => value.EndsWith(other, StringComparison.OrdinalIgnoreCase);
     }
 }
