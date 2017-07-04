@@ -798,19 +798,22 @@ namespace ServiceStack.Text
         }
 
         private static char[] CRLF = {'\r', '\n'};
-        private static StringSegment EmptySegment = new StringSegment(null);
 
-        public static StringSegment ReadNextLine(this StringSegment text, ref int startIndex)
+        public static bool TryReadLine(this StringSegment text, out StringSegment line, ref int startIndex)
         {
             if (startIndex >= text.Length)
-                return EmptySegment;
+            {
+                line = TypeConstants.EmptyStringSegment;
+                return false;
+            }
 
             var nextLinePos = text.IndexOfAny(CRLF, startIndex);
             if (nextLinePos == -1)
             {
                 var nextLine = text.Subsegment(startIndex, text.Length - startIndex);
                 startIndex = text.Length;
-                return nextLine;
+                line = nextLine;
+                return true;
             }
             else
             {
@@ -821,7 +824,8 @@ namespace ServiceStack.Text
                 if (text.GetChar(nextLinePos) == '\r' && text.Length > nextLinePos + 1 && text.GetChar(nextLinePos + 1) == '\n')
                     startIndex += 1;
 
-                return nextLine;
+                line = nextLine;
+                return true;
             }
         }
 

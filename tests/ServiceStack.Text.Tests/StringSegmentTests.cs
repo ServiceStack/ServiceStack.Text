@@ -16,9 +16,8 @@ namespace ServiceStack.Text.Tests
 
             var i = 0;
             var buf = new StringSegment(str);
-            int pos = 0;
-            StringSegment line;
-            while ((line = buf.ReadNextLine(ref pos)).HasValue)
+            var pos = 0;
+            while (buf.TryReadLine(out StringSegment line, ref pos))
             {
                 Assert.That(line.ToString(), Is.EqualTo(expected[i++]));
             }
