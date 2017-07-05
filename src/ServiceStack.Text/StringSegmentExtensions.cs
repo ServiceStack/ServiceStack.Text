@@ -999,5 +999,15 @@ namespace ServiceStack.Text
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EndsWithIgnoreCase(this StringSegment value, string other) => value.EndsWith(other, StringComparison.OrdinalIgnoreCase);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] ToUtf8Bytes(this StringSegment value) => Encoding.UTF8.GetBytes(value.Buffer.ToCharArray(value.Offset, value.Length));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task WriteToStreamAsync(this Stream stream, StringSegment value, CancellationToken token = default(CancellationToken))
+        {
+            var bytes = value.ToUtf8Bytes();
+            return stream.WriteAsync(bytes, 0, bytes.Length, token);
+        }
     }
 }

@@ -49,5 +49,16 @@ namespace ServiceStack.Text.Tests
             Assert.That(parts[1].ToString(), Is.EqualTo("c"));
         }
 
+        [Test]
+        public void Does_convert_to_UTF8_bytes()
+        {
+            var str = "this is a UTF8 test string";
+            var seg = str.ToStringSegment();
+            var ut8Test = seg.Subsegment(seg.IndexOf("UTF8"), "UTF8 test".Length);
+
+            var segBytes = ut8Test.ToUtf8Bytes();
+            Assert.That(segBytes, Is.EquivalentTo("UTF8 test".ToUtf8Bytes()));
+        }
+
     }
 }
