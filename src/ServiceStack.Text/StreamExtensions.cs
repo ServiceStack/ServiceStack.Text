@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using ServiceStack.Text;
 
 namespace ServiceStack
@@ -37,7 +39,7 @@ namespace ServiceStack
         public static IEnumerable<string> ReadLines(this Stream stream)
         {
             if (stream == null)
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
 
             using (var reader = new StreamReader(stream))
             {
@@ -71,9 +73,8 @@ namespace ServiceStack
         public static byte[] ReadFully(this Stream input, int bufferSize)
         {
             if (bufferSize < 1)
-            {
-                throw new ArgumentOutOfRangeException("bufferSize");
-            }
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
+
             return ReadFully(input, new byte[bufferSize]);
         }
 
@@ -86,17 +87,14 @@ namespace ServiceStack
         public static byte[] ReadFully(this Stream input, byte[] buffer)
         {
             if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
+                throw new ArgumentNullException(nameof(buffer));
+
             if (input == null)
-            {
-                throw new ArgumentNullException("input");
-            }
+                throw new ArgumentNullException(nameof(input));
+
             if (buffer.Length == 0)
-            {
                 throw new ArgumentException("Buffer has length of 0");
-            }
+
             // We could do all our own work here, but using MemoryStream is easier
             // and likely to be just as efficient.
             using (var tempStream = MemoryStreamFactory.GetStream())
@@ -129,9 +127,8 @@ namespace ServiceStack
         public static long CopyTo(this Stream input, Stream output, int bufferSize)
         {
             if (bufferSize < 1)
-            {
-                throw new ArgumentOutOfRangeException("bufferSize");
-            }
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
+
             return CopyTo(input, output, new byte[bufferSize]);
         }
 
@@ -143,21 +140,17 @@ namespace ServiceStack
         public static long CopyTo(this Stream input, Stream output, byte[] buffer)
         {
             if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
+                throw new ArgumentNullException(nameof(buffer));
+
             if (input == null)
-            {
-                throw new ArgumentNullException("input");
-            }
+                throw new ArgumentNullException(nameof(input));
+
             if (output == null)
-            {
-                throw new ArgumentNullException("output");
-            }
+                throw new ArgumentNullException(nameof(output));
+
             if (buffer.Length == 0)
-            {
                 throw new ArgumentException("Buffer has length of 0");
-            }
+
             long total = 0;
             int read;
             while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
@@ -202,24 +195,16 @@ namespace ServiceStack
         public static byte[] ReadExactly(this Stream input, byte[] buffer, int startIndex, int bytesToRead)
         {
             if (input == null)
-            {
-                throw new ArgumentNullException("input");
-            }
+                throw new ArgumentNullException(nameof(input));
 
             if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
+                throw new ArgumentNullException(nameof(buffer));
 
             if (startIndex < 0 || startIndex >= buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("startIndex");
-            }
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
 
             if (bytesToRead < 1 || startIndex + bytesToRead > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("bytesToRead");
-            }
+                throw new ArgumentOutOfRangeException(nameof(bytesToRead));
 
             return ReadExactlyFast(input, buffer, startIndex, bytesToRead);
         }
@@ -234,12 +219,9 @@ namespace ServiceStack
             {
                 var read = fromStream.Read(intoBuffer, startAtIndex + index, bytesToRead - index);
                 if (read == 0)
-                {
                     throw new EndOfStreamException
-                        (string.Format("End of stream reached with {0} byte{1} left to read.",
-                                       bytesToRead - index,
-                                       bytesToRead - index == 1 ? "s" : ""));
-                }
+                        ($"End of stream reached with {bytesToRead - index} byte{(bytesToRead - index == 1 ? "s" : "")} left to read.");
+
                 index += read;
             }
             return intoBuffer;

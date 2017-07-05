@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using ServiceStack.Text.Json;
 
 #if NETSTANDARD1_1
@@ -829,15 +833,11 @@ namespace ServiceStack.Text
             }
         }
 
-        public static int IndexOf(this StringSegment text, string needle)
-        {
-            return text.IndexOf(needle, 0, text.Length);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IndexOf(this StringSegment text, string needle) => text.IndexOf(needle, 0, text.Length);
 
-        public static int IndexOf(this StringSegment text, string needle, int start)
-        {
-            return text.IndexOf(needle, start, text.Length - start);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IndexOf(this StringSegment text, string needle, int start) => text.IndexOf(needle, start, text.Length - start);
 
         public static int IndexOf(this StringSegment text, string needle, int start, int count)
         {
@@ -851,15 +851,11 @@ namespace ServiceStack.Text
             return num;
         }
 
-        public static int LastIndexOf(this StringSegment text, char needle)
-        {
-            return text.LastIndexOf(needle, text.Length - 1, text.Length);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this StringSegment text, char needle) => text.LastIndexOf(needle, text.Length - 1, text.Length);
 
-        public static int LastIndexOf(this StringSegment text, char needle, int start)
-        {
-            return text.LastIndexOf(needle, start, start + 1);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this StringSegment text, char needle, int start) => text.LastIndexOf(needle, start, start + 1);
 
         public static int LastIndexOf(this StringSegment text, char needle, int start, int count)
         {
@@ -876,15 +872,11 @@ namespace ServiceStack.Text
             return num;
         }
 
-        public static int LastIndexOf(this StringSegment text, string needle)
-        {
-            return text.LastIndexOf(needle, text.Length - 1, text.Length);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this StringSegment text, string needle) => text.LastIndexOf(needle, text.Length - 1, text.Length);
 
-        public static int LastIndexOf(this StringSegment text, string needle, int start)
-        {
-            return text.LastIndexOf(needle, start, start + 1);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this StringSegment text, string needle, int start) => text.LastIndexOf(needle, start, start + 1);
 
         public static int LastIndexOf(this StringSegment text, string needle, int start, int count)
         {
@@ -901,10 +893,8 @@ namespace ServiceStack.Text
             return num;
         }
 
-        public static StringSegment Subsegment(this StringSegment text, int startPos)
-        {
-            return text.Subsegment(startPos, text.Length - startPos);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringSegment Subsegment(this StringSegment text, int startPos) => text.Subsegment(startPos, text.Length - startPos);
 
         public static StringSegment[] SplitOnFirst(this StringSegment strVal, char needle)
         {
@@ -942,6 +932,7 @@ namespace ServiceStack.Text
                 : new[] { strVal.Subsegment(0, pos), strVal.Subsegment(pos + needle.Length) };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool StartsWith(this StringSegment text, string value) => text.StartsWith(value, StringComparison.OrdinalIgnoreCase);
 
         public static bool StartsWith(this StringSegment text, string value, StringComparison comparisonType)
@@ -956,6 +947,7 @@ namespace ServiceStack.Text
             return string.Compare(text.Buffer, text.Offset, value, 0, textLength, comparisonType) == 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EndsWith(this StringSegment text, string value) => text.EndsWith(value, StringComparison.OrdinalIgnoreCase);
 
         public static bool EndsWith(this StringSegment text, string value, StringComparison comparisonType)
