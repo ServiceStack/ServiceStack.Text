@@ -62,6 +62,8 @@
         public const int ByteBufferSize = 4 * 1024;
         private const int ByteBufferCount = 512;
 
+        public static readonly ObjectPool<byte[]> AsyncByteArray = new ObjectPool<byte[]>(() => new byte[StreamExtensions.AsyncBufferSize], 50);
+
         private static class DefaultBigPool<T> where T : class, new()
         {
             public static readonly ObjectPool<T> Instance = new ObjectPool<T>(() => new T(), 100);

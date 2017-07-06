@@ -50,7 +50,7 @@ using System.Runtime.CompilerServices;
         /// Not using System.Func{T} because this file is linked into the (debugger) Formatter,
         /// which does not have that type (since it compiles against .NET 2.0).
         /// </remarks>
-        internal delegate T Factory();
+        public delegate T Factory();
 
         // Storage for the pool objects. The first item is stored in a dedicated field because we
         // expect to be able to satisfy most requests from it.
@@ -103,11 +103,11 @@ using System.Runtime.CompilerServices;
         }
 #endif
 
-        internal ObjectPool(Factory factory)
+        public ObjectPool(Factory factory)
             : this(factory, Environment.ProcessorCount * 2)
         { }
 
-        internal ObjectPool(Factory factory, int size)
+        public ObjectPool(Factory factory, int size)
         {
 #if !PCL
             Debug.Assert(size >= 1);
@@ -130,7 +130,7 @@ using System.Runtime.CompilerServices;
         /// Note that Free will try to store recycled objects close to the start thus statistically 
         /// reducing how far we will typically search.
         /// </remarks>
-        internal T Allocate()
+        public T Allocate()
         {
             // PERF: Examine the first element. If that fails, AllocateSlow will look at the remaining elements.
             // Note that the initial read is optimistically not synchronized. That is intentional. 
@@ -184,7 +184,7 @@ using System.Runtime.CompilerServices;
         /// Note that Free will try to store recycled objects close to the start thus statistically 
         /// reducing how far we will typically search in Allocate.
         /// </remarks>
-        internal void Free(T obj)
+        public void Free(T obj)
         {
             Validate(obj);
             ForgetTrackedObject(obj);
@@ -227,7 +227,7 @@ using System.Runtime.CompilerServices;
         /// return a larger array to the pool than was originally allocated.
         /// </summary>
         [Conditional("DEBUG")]
-        internal void ForgetTrackedObject(T old, T replacement = null)
+        public void ForgetTrackedObject(T old, T replacement = null)
         {
 #if DETECT_LEAKS
             LeakTracker tracker;
