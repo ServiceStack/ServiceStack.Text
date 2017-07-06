@@ -275,7 +275,10 @@ namespace ServiceStack
         }
 #endif
 
+#if !SL5
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default(CancellationToken)) => stream.WriteAsync(bytes, 0, bytes.Length, token);
+#endif
+
     }
 }
