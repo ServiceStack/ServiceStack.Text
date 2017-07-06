@@ -275,10 +275,17 @@ namespace ServiceStack
         }
 #endif
 
+        public static int AsyncBufferSize = 81920; // CopyToAsync() default value
+
 #if !SL5
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default(CancellationToken)) => stream.WriteAsync(bytes, 0, bytes.Length, token);
-#endif
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task CopyToAsync(this Stream input, Stream output, CancellationToken token = default(CancellationToken)) => input.CopyToAsync(output, AsyncBufferSize, token);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default(CancellationToken)) => stream.WriteAsync(text.ToUtf8Bytes(), token);
+#endif
     }
 }
