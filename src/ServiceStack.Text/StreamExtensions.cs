@@ -287,5 +287,30 @@ namespace ServiceStack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default(CancellationToken)) => stream.WriteAsync(text.ToUtf8Bytes(), token);
 #endif
+
+
+#if (!(SL5 || PCL || NETSTANDARD1_1) || NETSTANDARD1_3)
+        public static string ToMd5Hash(this Stream stream)
+        {
+            var hash = System.Security.Cryptography.MD5.Create().ComputeHash(stream);
+            var sb = StringBuilderCache.Allocate();
+            foreach (byte b in hash)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return StringBuilderCache.ReturnAndFree(sb);
+        }
+
+        public static string ToMd5Hash(this byte[] bytes)
+        {
+            var hash = System.Security.Cryptography.MD5.Create().ComputeHash(bytes);
+            var sb = StringBuilderCache.Allocate();
+            foreach (byte b in hash)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return StringBuilderCache.ReturnAndFree(sb);
+        }
+#endif
     }
 }
