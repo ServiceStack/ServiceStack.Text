@@ -166,9 +166,20 @@ namespace ServiceStack.Text.Common
                 }
                 else
                 {
-                    propertyName = propertyInfo.Name;
-                    propertyNameCLSFriendly = propertyName.ToCamelCase();
-                    propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
+                    var dcsDataMember = propertyInfo.GetDataMember();
+
+                    if (dcsDataMember == null)
+                    {
+                        propertyName = propertyInfo.Name;
+                        propertyNameCLSFriendly = propertyName.ToCamelCase();
+                        propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
+                    }
+                    else
+                    {
+                        propertyName = dcsDataMember.Name;
+                        propertyNameCLSFriendly = dcsDataMember.Name;
+                        propertyNameLowercaseUnderscore = dcsDataMember.Name;
+                    }
                     propertyDeclaredTypeName = propertyInfo.GetDeclaringTypeName();
                 }
 
@@ -224,9 +235,21 @@ namespace ServiceStack.Text.Common
                 }
                 else
                 {
-                    propertyName = fieldInfo.Name;
-                    propertyNameCLSFriendly = propertyName.ToCamelCase();
-                    propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
+                    var dcsDataMember = fieldInfo.GetDataMember();
+
+                    if (dcsDataMember == null)
+                    {
+                        propertyName = fieldInfo.Name;
+                        propertyNameCLSFriendly = propertyName.ToCamelCase();
+                        propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
+                    }
+                    else
+                    {
+                        propertyName = dcsDataMember.Name;
+                        propertyNameCLSFriendly = dcsDataMember.Name;
+                        propertyNameLowercaseUnderscore = dcsDataMember.Name;
+                    }
+
                     propertyDeclaredTypeName = fieldInfo.DeclaringType.Name;
                 }
 
