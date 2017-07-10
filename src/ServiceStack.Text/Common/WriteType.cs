@@ -167,19 +167,11 @@ namespace ServiceStack.Text.Common
                 else
                 {
                     var dcsDataMember = propertyInfo.GetDataMember();
+                    var alias = dcsDataMember?.Name;
 
-                    if (dcsDataMember == null)
-                    {
-                        propertyName = propertyInfo.Name;
-                        propertyNameCLSFriendly = propertyName.ToCamelCase();
-                        propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
-                    }
-                    else
-                    {
-                        propertyName = dcsDataMember.Name;
-                        propertyNameCLSFriendly = dcsDataMember.Name;
-                        propertyNameLowercaseUnderscore = dcsDataMember.Name;
-                    }
+                    propertyName = alias ?? propertyInfo.Name;
+                    propertyNameCLSFriendly = alias ?? propertyName.ToCamelCase();
+                    propertyNameLowercaseUnderscore = alias ?? propertyName.ToLowercaseUnderscore();
                     propertyDeclaredTypeName = propertyInfo.GetDeclaringTypeName();
                 }
 
@@ -236,20 +228,10 @@ namespace ServiceStack.Text.Common
                 else
                 {
                     var dcsDataMember = fieldInfo.GetDataMember();
-
-                    if (dcsDataMember == null)
-                    {
-                        propertyName = fieldInfo.Name;
-                        propertyNameCLSFriendly = propertyName.ToCamelCase();
-                        propertyNameLowercaseUnderscore = propertyName.ToLowercaseUnderscore();
-                    }
-                    else
-                    {
-                        propertyName = dcsDataMember.Name;
-                        propertyNameCLSFriendly = dcsDataMember.Name;
-                        propertyNameLowercaseUnderscore = dcsDataMember.Name;
-                    }
-
+                    var alias = dcsDataMember?.Name;
+                    propertyName = alias ?? fieldInfo.Name;
+                    propertyNameCLSFriendly = alias ?? propertyName.ToCamelCase();
+                    propertyNameLowercaseUnderscore = alias ?? propertyName.ToLowercaseUnderscore();
                     propertyDeclaredTypeName = fieldInfo.DeclaringType.Name;
                 }
 
