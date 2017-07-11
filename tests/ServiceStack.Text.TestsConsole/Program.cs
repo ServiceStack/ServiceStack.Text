@@ -3,104 +3,60 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using NUnit.Framework;
+using ServiceStack.Common.Tests;
 using ServiceStack.Reflection;
 
 namespace ServiceStack.Text.TestsConsole
 {
-    public struct TValue
-    {
-        public int PropValue { get; set; }
-        public string PropRef { get; set; }
-
-        public int FieldValue;
-        public string FieldRef;
-    }
-
-    public class TRef
-    {
-        public int PropValue { get; set; }
-        public string PropRef { get; set; }
-
-        public int FieldValue;
-        public string FieldRef;
-    }
-
     class Program
     {
-        public class IncludeExclude
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
         static void Main(string[] args)
         {
-            var da = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("dyn"), // call it whatever you want
-                AssemblyBuilderAccess.Save);
+            //var da = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("dyn"),  AssemblyBuilderAccess.Save);
 
-            var dm = da.DefineDynamicModule("dyn_mod", "dyn.dll");
-            var dt = dm.DefineType("dyn_type");
+            //var dm = da.DefineDynamicModule("dyn_mod", "dyn.dll");
+            //var dt = dm.DefineType("dyn_type");
 
+            //var type = typeof(KeyValuePair<string,string>);
+            //var pi = type.GetProperty("Key");
 
-            var type = typeof(KeyValuePair<string,string>);
-            var pi = type.GetProperty("Key");
+            //var lambdaValueType = PropertyInvoker.GetExpressionLambda<KeyValuePair<string,string>>(pi);
+            //lambdaValueType.CompileToMethod(dt.DefineMethod("KVP", MethodAttributes.Public | MethodAttributes.Static));
 
-            var lambdaValueType = PropertyInvoker.GetExpressionLambda<KeyValuePair<string,string>>(pi);
-            lambdaValueType.CompileToMethod(dt.DefineMethod("KVP", MethodAttributes.Public | MethodAttributes.Static));
+            //var lambdaRefType = PropertyInvoker.GetExpressionLambda<TRef>(typeof(TRef).GetProperty("PropRef"));
+            //lambdaRefType.CompileToMethod(dt.DefineMethod("TRef_PropRef", MethodAttributes.Public | MethodAttributes.Static));
 
-            var lambdaRefType = PropertyInvoker.GetExpressionLambda<TRef>(typeof(TRef).GetProperty("PropRef"));
-            lambdaRefType.CompileToMethod(dt.DefineMethod("TRef_PropRef", MethodAttributes.Public | MethodAttributes.Static));
+            //var lambdaRefType2 = PropertyInvoker.GetExpressionLambda<IncludeExclude>(typeof(IncludeExclude).GetProperty("Id"));
+            //lambdaRefType2.CompileToMethod(dt.DefineMethod("IncludeExclude_Id", MethodAttributes.Public | MethodAttributes.Static));
 
-            var lambdaRefType2 = PropertyInvoker.GetExpressionLambda<IncludeExclude>(typeof(IncludeExclude).GetProperty("Id"));
-            lambdaRefType2.CompileToMethod(dt.DefineMethod("IncludeExclude_Id", MethodAttributes.Public | MethodAttributes.Static));
+            //dt.CreateType();
+            //da.Save("dyn.dll");
 
+            new StringConcatPerfTests {
+                MultipleIterations = new[] { 1000, 10000, 100000, 1000000, 10000000 }
+            }.Compare_interpolation_vs_string_Concat();
 
-            dt.CreateType();
-            da.Save("dyn.dll");
+            Console.ReadLine();
         }
 
-        static object GetPropInt(object instance)
+        class StringConcatPerfTests : PerfTestBase
         {
-            var t = (TValue)instance;
-            return t.PropValue;
+            public void Compare_interpolation_vs_string_Concat()
+            {
+                CompareMultipleRuns(
+                    "Interpolation",
+                    () => SimpleInterpolation("foo"),
+                    "string.Concat",
+                    () => SimpleConcat("foo"));
+            }
         }
 
-        static object GetPropString(object instance)
-        {
-            var t = (TValue)instance;
-            return t.PropRef;
-        }
 
-        static object GetFieldInt(object instance)
-        {
-            var t = (TValue)instance;
-            return t.FieldValue;
-        }
+        public static object SimpleInterpolation(string text) => $"Hi {text}";
 
-        static object GetFieldString(object instance)
-        {
-            return ((TValue)instance).FieldRef;
-        }
+        public static object SimpleFormat(string text) => string.Format("Hi {0}", text);
 
-        static object GetValueTupleItem1(object instance)
-        {
-            return ((ValueTuple<int, string>)instance).Item1;
-        }
-
-        static object GetValueTupleItem2(object instance)
-        {
-            return ((ValueTuple<int, string>)instance).Item2;
-        }
-
-        static object GetKVP(KeyValuePair<string, string> entry)
-        {
-            return entry.Key;
-        }
-
-        static object GetKVPT<K,V>(KeyValuePair<K,V> entry)
-        {
-            return entry.Key;
-        }
+        public static object SimpleConcat(string text) => "Hi " + text;
     }
 }
