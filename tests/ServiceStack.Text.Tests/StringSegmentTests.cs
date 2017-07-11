@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests
     public class StringSegmentTests
     {
         [Test]
-        public void Can_read_lines_with_ReadNextLine()
+        public void Can_read_lines_with_TryReadLine()
         {
             var str = "A\nB\r\nC\rD\r\n";
             var expected = new[] {"A", "B", "C", "D"};
@@ -23,6 +23,38 @@ namespace ServiceStack.Text.Tests
             }
 
             Assert.That(pos, Is.EqualTo(buf.Length));
+            Assert.That(i, Is.EqualTo(expected.Length));
+        }
+
+        [Test]
+        public void Can_read_parts_with_TryReadPart()
+        {
+            var str = "A.BB.CCC.DD DD";
+            var expected = new[] { "A", "BB", "CCC", "DD DD" };
+
+            var i = 0;
+            var buf = new StringSegment(str);
+            var pos = 0;
+            while (buf.TryReadPart(".", out StringSegment part, ref pos))
+            {
+                Assert.That(part.ToString(), Is.EqualTo(expected[i++]));
+            }
+
+            Assert.That(pos, Is.EqualTo(buf.Length));
+            Assert.That(i, Is.EqualTo(expected.Length));
+
+            str = "A||BB||CCC||DD DD";
+
+            i = 0;
+            buf = new StringSegment(str);
+            pos = 0;
+            while (buf.TryReadPart("||", out StringSegment part, ref pos))
+            {
+                Assert.That(part.ToString(), Is.EqualTo(expected[i++]));
+            }
+
+            Assert.That(pos, Is.EqualTo(buf.Length));
+            Assert.That(i, Is.EqualTo(expected.Length));
         }
 
         [Test]

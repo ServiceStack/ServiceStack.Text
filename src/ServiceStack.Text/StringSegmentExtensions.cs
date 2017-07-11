@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Globalization;
 using System.IO;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,6 +61,30 @@ namespace ServiceStack.Text
 
             return index;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOfAny(this StringSegment value, char[] anyOf) => value.LastIndexOfAny(anyOf, value.Length - 1, value.Length);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOfAny(this StringSegment value, char[] anyOf, int startIndex) => value.LastIndexOfAny(anyOf, startIndex, startIndex + 1);
+
+        public static int LastIndexOfAny(this StringSegment value, char[] anyOf, int start, int count)
+        {
+            if (start < 0 || value.Offset - start > value.Buffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(start));
+
+            if (count < 0 || value.Offset - start - count > value.Buffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            var index = value.Buffer.LastIndexOfAny(anyOf, start - value.Offset, count);
+            if (index != -1)
+                return index - value.Offset;
+
+            return index;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IndexOfAny(this StringSegment value, char[] chars) => value.IndexOfAny(chars, 0, value.Length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOfAny(this StringSegment value, char[] chars, int start) => value.IndexOfAny(chars, start, value.Length - start);
@@ -833,6 +858,31 @@ namespace ServiceStack.Text
             }
         }
 
+        public static bool TryReadPart(this StringSegment text, string needle, out StringSegment part, ref int startIndex)
+        {
+            if (startIndex >= text.Length)
+            {
+                part = TypeConstants.EmptyStringSegment;
+                return false;
+            }
+
+            var nextPartPos = text.IndexOf(needle, startIndex);
+            if (nextPartPos == -1)
+            {
+                var nextPart = text.Subsegment(startIndex, text.Length - startIndex);
+                startIndex = text.Length;
+                part = nextPart;
+                return true;
+            }
+            else
+            {
+                var nextPart = text.Subsegment(startIndex, nextPartPos - startIndex);
+                startIndex = nextPartPos + needle.Length;
+                part = nextPart;
+                return true;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOf(this StringSegment text, string needle) => text.IndexOf(needle, 0, text.Length);
 
@@ -896,6 +946,78 @@ namespace ServiceStack.Text
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static StringSegment Subsegment(this StringSegment text, int startPos) => text.Subsegment(startPos, text.Length - startPos);
 
+        public static StringSegment LeftPart(this StringSegment strVal, char needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(0, pos);
+        }
+
+        public static StringSegment LeftPart(this StringSegment strVal, string needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(0, pos);
+        }
+
+        public static StringSegment RightPart(this StringSegment strVal, char needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(pos + 1);
+        }
+
+        public static StringSegment RightPart(this StringSegment strVal, string needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(pos + needle.Length);
+        }
+
+        public static StringSegment LastLeftPart(this StringSegment strVal, char needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(0, pos);
+        }
+
+        public static StringSegment LastLeftPart(this StringSegment strVal, string needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(0, pos);
+        }
+
+        public static StringSegment LastRightPart(this StringSegment strVal, char needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(pos + 1);
+        }
+
+        public static StringSegment LastRightPart(this StringSegment strVal, string needle)
+        {
+            if (!strVal.HasValue) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Subsegment(pos + needle.Length);
+        }
+
         public static StringSegment[] SplitOnFirst(this StringSegment strVal, char needle)
         {
             if (!strVal.HasValue) return TypeConstants.EmptyStringSegmentArray;
@@ -930,6 +1052,108 @@ namespace ServiceStack.Text
             return pos == -1
                 ? new[] { strVal }
                 : new[] { strVal.Subsegment(0, pos), strVal.Subsegment(pos + needle.Length) };
+        }
+
+        public static StringSegment WithoutExtension(this StringSegment filePath)
+        {
+            if (filePath.IsNullOrEmpty())
+                return TypeConstants.EmptyStringSegment;
+
+            var extPos = filePath.LastIndexOf('.');
+            if (extPos == -1) return filePath;
+
+            var dirPos = filePath.LastIndexOfAny(PclExport.DirSeps);
+            return extPos > dirPos ? filePath.Subsegment(0, extPos) : filePath;
+        }
+
+        public static StringSegment GetExtension(this StringSegment filePath)
+        {
+            if (filePath.IsNullOrEmpty())
+                return TypeConstants.EmptyStringSegment;
+
+            var extPos = filePath.LastIndexOf('.');
+            return extPos == -1 ? TypeConstants.EmptyStringSegment : filePath.Subsegment(extPos);
+        }
+
+        public static StringSegment ParentDirectory(this StringSegment filePath)
+        {
+            if (filePath.IsNullOrEmpty())
+                return TypeConstants.EmptyStringSegment;
+
+            var dirSep = filePath.IndexOf(PclExport.Instance.DirSep) != -1
+                ? PclExport.Instance.DirSep
+                : filePath.IndexOf(PclExport.Instance.AltDirSep) != -1
+                    ? PclExport.Instance.AltDirSep
+                    : (char)0;
+
+            return dirSep == 0 ? TypeConstants.EmptyStringSegment : filePath.TrimEnd(dirSep).SplitOnLast(dirSep)[0];
+        }
+
+        public static StringSegment TrimEnd(this StringSegment value, params char[] trimChars)
+        {
+            if (trimChars == null || trimChars.Length == 0)
+                return value.TrimHelper(1);
+            return value.TrimHelper(trimChars, 1);
+        }
+
+        private static StringSegment TrimHelper(this StringSegment value, int trimType)
+        {
+            int end = value.Length - 1;
+            int start = 0;
+            if (trimType != 1)
+            {
+                start = 0;
+                while (start < value.Length && char.IsWhiteSpace(value.GetChar(start)))
+                    ++start;
+            }
+            if (trimType != 0)
+            {
+                end = value.Length - 1;
+                while (end >= start && char.IsWhiteSpace(value.GetChar(end)))
+                    --end;
+            }
+            return value.CreateTrimmedString(start, end);
+        }
+
+        private static StringSegment TrimHelper(this StringSegment value, char[] trimChars, int trimType)
+        {
+            int end = value.Length - 1;
+            int start = 0;
+            if (trimType != 1)
+            {
+                for (start = 0; start < value.Length; ++start)
+                {
+                    char ch = value.GetChar(start);
+                    int index = 0;
+                    while (index < trimChars.Length && (int)trimChars[index] != (int)ch)
+                        ++index;
+                    if (index == trimChars.Length)
+                        break;
+                }
+            }
+            if (trimType != 0)
+            {
+                for (end = value.Length - 1; end >= start; --end)
+                {
+                    char ch = value.GetChar(end);
+                    int index = 0;
+                    while (index < trimChars.Length && (int)trimChars[index] != (int)ch)
+                        ++index;
+                    if (index == trimChars.Length)
+                        break;
+                }
+            }
+            return value.CreateTrimmedString(start, end);
+        }
+
+        private static StringSegment CreateTrimmedString(this StringSegment value, int start, int end)
+        {
+            int length = end - start + 1;
+            if (length == value.Length)
+                return value;
+            if (length == 0)
+                return TypeConstants.EmptyStringSegment;
+            return value.Subsegment(start, length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1011,5 +1235,21 @@ namespace ServiceStack.Text
             return stream.WriteAsync(bytes, 0, bytes.Length, token);
         }
 #endif
+
+        public static StringSegment SafeSubstring(this StringSegment value, int startIndex)
+        {
+            return SafeSubstring(value, startIndex, value.Length);
+        }
+
+        public static StringSegment SafeSubstring(this StringSegment value, int startIndex, int length)
+        {
+            if (value.IsNullOrEmpty()) return TypeConstants.EmptyStringSegment;
+            if (startIndex < 0) startIndex = 0;
+            if (value.Length >= (startIndex + length))
+                return value.Subsegment(startIndex, length);
+
+            return value.Length > startIndex ? value.Subsegment(startIndex) : TypeConstants.EmptyStringSegment;
+        }
+
     }
 }

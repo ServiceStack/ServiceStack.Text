@@ -114,6 +114,8 @@ namespace ServiceStack
 
         public char AltDirSep = '/';
 
+        public static readonly char[] DirSeps = { '\\', '/' };
+
         public string PlatformName = "Unknown";
 
         public TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;

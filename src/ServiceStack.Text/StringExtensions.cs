@@ -479,7 +479,7 @@ namespace ServiceStack
             var extPos = filePath.LastIndexOf('.');
             if (extPos == -1) return filePath;
 
-            var dirPos = filePath.LastIndexOfAny(DirSeps);
+            var dirPos = filePath.LastIndexOfAny(PclExport.DirSeps);
             return extPos > dirPos ? filePath.Substring(0, extPos) : filePath;
         }
 
@@ -491,8 +491,6 @@ namespace ServiceStack
             var extPos = filePath.LastIndexOf('.');
             return extPos == -1 ? Empty : filePath.Substring(extPos);
         }
-
-        static readonly char[] DirSeps = new[] { '\\', '/' };
 
         public static string ParentDirectory(this string filePath)
         {
