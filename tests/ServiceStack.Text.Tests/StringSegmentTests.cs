@@ -92,5 +92,14 @@ namespace ServiceStack.Text.Tests
             Assert.That(segBytes, Is.EquivalentTo("UTF8 test".ToUtf8Bytes()));
         }
 
+        [Test]
+        public void Does_parse_into_preferred_signed_number_type()
+        {
+            Assert.That(int.MinValue.ToString().ToStringSegment().ParseSignedInteger() is int);
+            Assert.That(int.MaxValue.ToString().ToStringSegment().ParseSignedInteger() is int);
+            Assert.That((int.MinValue - (long)1).ToString().ToStringSegment().ParseSignedInteger() is long);
+            Assert.That((int.MaxValue + (long)1).ToString().ToStringSegment().ParseSignedInteger() is long);
+        }
+
     }
 }

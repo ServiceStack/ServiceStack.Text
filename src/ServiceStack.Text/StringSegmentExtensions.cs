@@ -261,7 +261,7 @@ namespace ServiceStack.Text
                 : ParseUnsignedInteger(value, UInt64.MaxValue);
         }
 
-        private static ulong ParseUnsignedInteger(StringSegment value, ulong maxValue)
+        public static ulong ParseUnsignedInteger(this StringSegment value, ulong maxValue)
         {
             if (value.Length == 0)
                 throw new FormatException(BadFormat);
@@ -322,7 +322,7 @@ namespace ServiceStack.Text
             return result;
         }
 
-        private static long ParseSignedInteger(StringSegment value, long maxValue, long minValue)
+        public static long ParseSignedInteger(this StringSegment value, long maxValue, long minValue)
         {
             if (value.Buffer == null)
                 throw new ArgumentNullException(nameof(value));
@@ -417,6 +417,14 @@ namespace ServiceStack.Text
                 throw CreateOverflowException(maxValue);
 
             return result;
+        }
+
+        public static object ParseSignedInteger(this StringSegment value)
+        {
+            var longValue = value.ParseInt64();
+            if (longValue >= int.MinValue && longValue <= int.MaxValue)
+                return (int)longValue;
+            return longValue;
         }
 
         public static decimal ParseDecimal(this StringSegment value, bool allowThousands = false)
