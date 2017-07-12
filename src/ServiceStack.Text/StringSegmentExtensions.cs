@@ -944,6 +944,9 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringSegment Advance(this StringSegment text, int to) => text.Subsegment(to, text.Length - to);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static StringSegment Subsegment(this StringSegment text, int startPos) => text.Subsegment(startPos, text.Length - startPos);
 
         public static StringSegment LeftPart(this StringSegment strVal, char needle)
