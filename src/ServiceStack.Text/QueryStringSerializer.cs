@@ -153,6 +153,7 @@ namespace ServiceStack
             {
                 JsState.QueryStringMode = true;
 
+                var isObjectDictionary = typeof(T) == typeof(Dictionary<string, object>);
                 var map = (IDictionary)oMap;
                 var ranOnce = false;
                 foreach (var key in map.Keys)
@@ -166,7 +167,7 @@ namespace ServiceStack
                         writeKeyFn = Serializer.GetWriteFn(keyType);
                     }
 
-                    if (writeValueFn == null)
+                    if (writeValueFn == null || isObjectDictionary)
                         writeValueFn = Serializer.GetWriteFn(dictionaryValue.GetType());
 
                     if (ranOnce)
