@@ -343,6 +343,12 @@ namespace ServiceStack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasAttribute<T>(this MethodInfo mi)
+        {
+            return mi.AllAttributes().Any(x => x.GetType() == typeof(T));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttributeNamed(this Type type, string name)
         {
             var normalizedAttr = name.Replace("Attribute", "").ToLower();

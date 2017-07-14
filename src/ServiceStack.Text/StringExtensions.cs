@@ -797,10 +797,18 @@ namespace ServiceStack
             return value.Length > startIndex ? value.Substring(startIndex) : Empty;
         }
 
+        public static string SubstringWithElipsis(this string value, int startIndex, int length)
+        {
+            var str = value.SafeSubstring(startIndex, length);
+            return str.Length == length
+                ? str + "..."
+                : str;
+        }
+
         public static bool IsAnonymousType(this Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             return PclExport.Instance.IsAnonymousType(type);
         }
