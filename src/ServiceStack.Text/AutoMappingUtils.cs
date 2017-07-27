@@ -791,7 +791,7 @@ namespace ServiceStack
             else if (underlyingFromType.IsEnum())
             {
                 if (underlyingToType.IsIntegerType())
-                    return fromValue => Convert.ChangeType(fromValue, underlyingToType);
+                    return fromValue => Convert.ChangeType(fromValue, underlyingToType, null);
             }
             else if (toType.IsNullableType())
             {
