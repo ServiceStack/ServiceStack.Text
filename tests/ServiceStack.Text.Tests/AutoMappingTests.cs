@@ -113,6 +113,7 @@ namespace ServiceStack.Text.Tests
     public class EnumConversion
     {
         public Color Color { get; set; }
+        public Color? NullableColor { get; set; }
     }
 
     public class NullableEnumConversionDto
@@ -125,14 +126,16 @@ namespace ServiceStack.Text.Tests
         public OtherColor Color { get; set; }
     }
 
-    public class EnumConversionStringDto
+    public class EnumConversionString
     {
         public string Color { get; set; }
+        public string NullableColor { get; set; }
     }
 
-    public class EnumConversionIntDto
+    public class EnumConversionInt
     {
         public int Color { get; set; }
+        public int? NullableColor { get; set; }
     }
 
     public class ModelWithEnumerable
@@ -189,11 +192,11 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_translate()
         {
-            var user = new User()
+            var user = new User
             {
                 FirstName = "Demis",
                 LastName = "Bellot",
-                Car = new Car() { Name = "BMW X6", Age = 3 }
+                Car = new Car { Name = "BMW X6", Age = 3 }
             };
 
             var userDto = user.ConvertTo<UserDto>();
@@ -207,18 +210,65 @@ namespace ServiceStack.Text.Tests
         public void Does_enumstringconversion_translate()
         {
             var conversion = new EnumConversion { Color = Color.Blue };
-            var conversionDto = conversion.ConvertTo<EnumConversionStringDto>();
+            var conversionDto = conversion.ConvertTo<EnumConversionString>();
 
             Assert.That(conversionDto.Color, Is.EqualTo("Blue"));
         }
 
         [Test]
-        public void Does_enumintconversion_translate()
+        public void Does_convert_to_EnumConversionInt()
         {
-            var conversion = new EnumConversion { Color = Color.Green };
-            var conversionDto = conversion.ConvertTo<EnumConversionIntDto>();
+            var conversion = new EnumConversion
+            {
+                Color = Color.Green,
+                NullableColor = Color.Green,
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversionInt>();
 
             Assert.That(conversionDto.Color, Is.EqualTo(1));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Does_convert_from_EnumConversionInt()
+        {
+            var conversion = new EnumConversionInt
+            {
+                Color = 1,
+                NullableColor = 1,
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversion>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo(Color.Green));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo(Color.Green));
+        }
+
+        [Test]
+        public void Does_convert_to_EnumConversionString()
+        {
+            var conversion = new EnumConversion
+            {
+                Color = Color.Green,
+                NullableColor = Color.Green,
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversionString>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo("Green"));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo("Green"));
+        }
+
+        [Test]
+        public void Does_convert_from_EnumConversionString()
+        {
+            var conversion = new EnumConversionString
+            {
+                Color = "Green",
+                NullableColor = "Green",
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversion>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo(Color.Green));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo(Color.Green));
         }
 
         [Test]

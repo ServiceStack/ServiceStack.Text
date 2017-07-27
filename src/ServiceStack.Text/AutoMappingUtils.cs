@@ -772,48 +772,29 @@ namespace ServiceStack
                 return null;
 
             if (fromType == typeof(string))
-            {
                 return fromValue => TypeSerializer.DeserializeFromString((string)fromValue, toType);
-            }
+
             if (toType == typeof(string))
-            {
                 return TypeSerializer.SerializeToString;
-            }
-            if (toType.IsEnum() || fromType.IsEnum())
+            
+            var underlyingToType = Nullable.GetUnderlyingType(toType) ?? toType;
+            var underlyingFromType = Nullable.GetUnderlyingType(fromType) ?? fromType;
+
+            if (underlyingToType.IsEnum())
             {
-                if (toType.IsEnum() && fromType.IsEnum())
-                {
-                    return fromValue => Enum.Parse(toType, fromValue.ToString(), ignoreCase: true);
-                }
-                if (toType.IsNullableType())
-                {
-                    var genericArg = toType.GenericTypeArguments()[0];
-                    if (genericArg.IsEnum())
-                    {
-                        return fromValue => Enum.ToObject(genericArg, fromValue);
-                    }
-                }
-                else if (toType.IsIntegerType())
-                {
-                    if (fromType.IsNullableType())
-                    {
-                        var genericArg = fromType.GenericTypeArguments()[0];
-                        if (genericArg.IsEnum())
-                        {
-                            return fromValue => Enum.ToObject(genericArg, fromValue);
-                        }
-                    }
-                    return fromValue => Enum.ToObject(fromType, fromValue);
-                }
+                if (underlyingFromType.IsEnum() || fromType == typeof(string))
+                    return fromValue => Enum.Parse(underlyingToType, fromValue.ToString(), ignoreCase: true);
+
+                if (underlyingFromType.IsIntegerType())
+                    return fromValue => Enum.ToObject(underlyingToType, fromValue);
+            }
+            else if (underlyingFromType.IsEnum())
+            {
+                if (underlyingToType.IsIntegerType())
+                    return fromValue => Convert.ChangeType(fromValue, underlyingToType);
             }
             else if (toType.IsNullableType())
             {
-                var toTypeBaseType = toType.GenericTypeArguments()[0];
-                if (toTypeBaseType.IsEnum())
-                {
-                    if (fromType.IsEnum() || (fromType.IsNullableType() && fromType.GenericTypeArguments()[0].IsEnum()))
-                        return fromValue => Enum.ToObject(toTypeBaseType, fromValue);
-                }
                 return null;
             }
             else if (typeof(IEnumerable).IsAssignableFromType(fromType))
@@ -830,7 +811,7 @@ namespace ServiceStack
             {
                 return fromValue => Convert.ChangeType(fromValue, toType, provider: null);
             }
-            else
+            else 
             {
                 return fromValue =>
                 {
