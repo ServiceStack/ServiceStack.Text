@@ -1293,13 +1293,21 @@ namespace ServiceStack
             if (obj == null)
                 return null;
 
-            var alreadyDict = obj as Dictionary<string, object>;
-            if (alreadyDict != null)
+            if (obj is Dictionary<string, object> alreadyDict)
                 return alreadyDict;
 
-            var interfaceDict = obj as IDictionary<string, object>;
-            if (interfaceDict != null)
+            if (obj is IDictionary<string, object> interfaceDict)
                 return new Dictionary<string, object>(interfaceDict);
+
+            if (obj is Dictionary<string, string> stringDict)
+            {
+                var to = new Dictionary<string, object>();
+                foreach (var entry in stringDict)
+                {
+                    to[entry.Key] = entry.Value;
+                }
+                return to;
+            }
 
             var type = obj.GetType();
 
