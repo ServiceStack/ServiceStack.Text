@@ -1029,6 +1029,16 @@ namespace ServiceStack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MethodInfo[] GetInstanceMethods(this Type type)
+        {
+#if (NETFX_CORE || PCL || NETSTANDARD1_1)
+            return type.GetTypeInfo().DeclaredMethods.Where(x => !x.IsStatic).ToArray();
+#else
+            return type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodInfo[] GetMethodInfos(this Type type)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD1_1)
