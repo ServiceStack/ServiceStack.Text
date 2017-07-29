@@ -199,5 +199,21 @@ namespace ServiceStack.Text.Tests
             var fromJson = json.FromJson<Message>();
             Assert.That(fromJson.Body.GetType(), Is.EqualTo(typeof(AType)));
         }
+
+        [Test]
+        public void Does_allow_Unknown_Type_in_RequestLogEntry()
+        {
+            //Uses JsConfig.AllowRuntimeTypeInTypes
+
+            var logEntry = new RequestLogEntry //Internal Type used for ServiceStack LogEntry
+            {
+                RequestDto = new AType()
+            };
+
+            var json = logEntry.ToJson();
+
+            var fromJson = json.FromJson<RequestLogEntry>();
+            Assert.That(fromJson.RequestDto.GetType(), Is.EqualTo(typeof(AType)));
+        }
     }
 }

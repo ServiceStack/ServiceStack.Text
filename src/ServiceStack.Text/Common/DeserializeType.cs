@@ -304,7 +304,8 @@ namespace ServiceStack.Text.Common
                 propertyInfo.PropertyType.HasInterface(typeof(IEnumerable<object>)))
             {
                 var declaringTypeNamespace = propertyInfo.DeclaringType?.Namespace;
-                if (declaringTypeNamespace == null || !JsConfig.AllowRuntimeTypeInTypesWithNamespaces.Contains(declaringTypeNamespace))
+                if (declaringTypeNamespace == null || (!JsConfig.AllowRuntimeTypeInTypesWithNamespaces.Contains(declaringTypeNamespace)
+                    && !JsConfig.AllowRuntimeTypeInTypes.Contains(propertyInfo.DeclaringType.FullName)))
                 {
                     return value =>
                     {
