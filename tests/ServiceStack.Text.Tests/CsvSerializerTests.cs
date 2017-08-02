@@ -9,6 +9,9 @@ using ServiceStack.Text.Tests.Support;
 namespace ServiceStack.Text.Tests
 {
     [TestFixture]
+#if NETCORE_SUPPORT
+    [Ignore("Fix Northwind.dll")]
+#endif
     public class CsvSerializerTests
     {
         static CsvSerializerTests()

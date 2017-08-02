@@ -9,6 +9,9 @@ using NUnit.Framework;
 namespace ServiceStack.Text.Tests
 {
     [TestFixture]
+#if NETCORE_SUPPORT
+    [Ignore("Fix Northwind.dll")]
+#endif
     public class StringSerializerTests
         : TestBase
     {
