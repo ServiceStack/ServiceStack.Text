@@ -78,32 +78,15 @@
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/net45/ServiceStack.Text.*"></TextFiles>
-      <TextFilesPortable Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/portable45-net45+win8/ServiceStack.Text.*"></TextFilesPortable>
-      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text/bin/SL5/ServiceStack.Text.*"></TextSl5Files>
     </ItemGroup>
 
+    <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
-             Targets="Build"
+             Targets="Restore;Build"
              Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net45')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" />
-
-    <!-- PCL -->
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.PCL.csproj"
-             Targets="Build"
-             Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
-
-    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10')" />
-    <Copy SourceFiles="%(TextFilesPortable.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" />
-
-    <!-- Silverlight -->
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.SL5.csproj"
-             Targets="Build"
-             Properties="Version=$(PackageVersion);Configuration=$(Configuration);Optimize=True;DebugSymbols=True;DefineConstants=SL5;NO_DYNAMIC;Platform=Any CPU;OutputPath=bin/SL5;DocumentationFile=bin/SL5/ServiceStack.Text.xml" />
-
-    <MakeDir Directories="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5" Condition="!Exists('$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5')" />
-    <Copy SourceFiles="%(TextSl5Files.Identity)" DestinationFolder="$(BuildSolutionDir)/NuGet/ServiceStack.Text/lib/sl5" />
 
     <!-- Pack ServiceStack.Text -->
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
