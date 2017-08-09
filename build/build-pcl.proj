@@ -77,7 +77,7 @@
     <Delete Files="@(NugetPackageFilesToDelete)" />
 
     <ItemGroup>
-      <TextSl5Files Include="$(SrcDir)/ServiceStack.Text/bin/SL5/ServiceStack.Text.*"></TextSl5Files>
+	<TextFilesPortable Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/portable45-net45+win8/ServiceStack.Text.*"></TextFilesPortable>
     </ItemGroup>
 
     <!-- PCL -->
