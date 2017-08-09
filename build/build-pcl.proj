@@ -77,16 +77,18 @@
     <Delete Files="@(NugetPackageFilesToDelete)" />
 
     <ItemGroup>
-      <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/net45/ServiceStack.Text.*"></TextFiles>
+	<TextFilesPortable Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/portable45-net45+win8/ServiceStack.Text.*"></TextFilesPortable>
     </ItemGroup>
 
+    <!-- PCL -->
     <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
+    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.PCL.csproj"
              Targets="Restore;Build"
              Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
 
-    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net45')" />
-    <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" />
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10')" />
+    <Copy SourceFiles="%(TextFilesPortable.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/portable-net45+win8+monotouch+monoandroid+xamarin.ios10" />
+
 
     <!-- Pack ServiceStack.Text -->
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"

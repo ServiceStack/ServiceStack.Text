@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v1.6": {},
     ".NETStandard,Version=v1.6/": {
-      "servicestack.client/1.0.0": {
+      "servicestack.client/1.0.44": {
         "dependencies": {
           "MSBuild.Sdk.Extras": "1.0.1",
           "Microsoft.Extensions.Primitives": "1.1.1",
@@ -1223,7 +1223,7 @@
     }
   },
   "libraries": {
-    "servicestack.client/1.0.0": {
+    "servicestack.client/1.0.44": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
