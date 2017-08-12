@@ -49,5 +49,22 @@ namespace ServiceStack.Text.Tests
             Assert.That("a/../../b".ResolvePaths(), Is.EqualTo("../b"));
         }
 
+        [Test]
+        public void Can_resolve_paths_with_urls()
+        {
+            Assert.That("http://example.org/a/b/../".ResolvePaths(), Is.EqualTo("http://example.org/a/"));
+            Assert.That("http://example.org/a/b/..".ResolvePaths(), Is.EqualTo("http://example.org/a"));
+
+            Assert.That("http://example.org/a/../b".ResolvePaths(), Is.EqualTo("http://example.org/b"));
+            Assert.That("http://example.org/a/../b/./c".ResolvePaths(), Is.EqualTo("http://example.org/b/c"));
+            Assert.That("http://example.org/a/b/c/d/../..".ResolvePaths(), Is.EqualTo("http://example.org/a/b"));
+            Assert.That("http://example.org/a/b/../../c/d".ResolvePaths(), Is.EqualTo("http://example.org/c/d"));
+
+            Assert.That("http://example.org/a/..".ResolvePaths(), Is.EqualTo("http://example.org"));
+            Assert.That("http://example.org/a/../..".ResolvePaths(), Is.EqualTo("http://"));
+            Assert.That("http://example.org/a/../../".ResolvePaths(), Is.EqualTo("http://"));
+            Assert.That("http://example.org/a/../../b".ResolvePaths(), Is.EqualTo("http://b"));
+        }
+
     }
 }

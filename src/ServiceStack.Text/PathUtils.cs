@@ -137,7 +137,12 @@ namespace ServiceStack
             if (path == null || path.IndexOfAny("./", "/.") == -1)
                 return path;
 
-            var parts = path.Split('/').ToList();
+            var schemePos = path.IndexOf("://", StringComparison.Ordinal);
+            var prefix = schemePos >= 0
+                ? path.Substring(0, schemePos + 3)
+                : "";
+
+            var parts = path.Substring(prefix.Length).Split('/').ToList();
             var combinedPaths = new List<string>();
             foreach (var part in parts)
             {
@@ -151,12 +156,12 @@ namespace ServiceStack
             }
 
             var resolvedPath = string.Join("/", combinedPaths);
-            if (path[0] == '/')
+            if (path[0] == '/' && prefix.Length == 0)
                 resolvedPath = '/' + resolvedPath;
 
-            return path[path.Length - 1] == '/'
-                ? resolvedPath + '/'
-                : resolvedPath;
+            return path[path.Length - 1] == '/' && resolvedPath.Length > 0
+                ? prefix + resolvedPath + '/'
+                : prefix + resolvedPath;
         }
 
         public static string[] ToStrings(object[] thesePaths)
