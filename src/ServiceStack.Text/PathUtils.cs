@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ServiceStack.Text;
 
@@ -129,6 +130,33 @@ namespace ServiceStack
             sb.Append(path.TrimEnd('/', '\\'));
             AppendPaths(sb, ToStrings(thesePaths));
             return StringBuilderThreadStatic.ReturnAndFree(sb);
+        }
+
+        public static string ResolvePaths(this string path)
+        {
+            if (path == null || path.IndexOfAny("./", "/.") == -1)
+                return path;
+
+            var parts = path.Split('/').ToList();
+            var combinedPaths = new List<string>();
+            foreach (var part in parts)
+            {
+                if (string.IsNullOrEmpty(part) || part == ".")
+                    continue;
+
+                if (part == ".." && combinedPaths.Count > 0)
+                    combinedPaths.RemoveAt(combinedPaths.Count - 1);
+                else
+                    combinedPaths.Add(part);
+            }
+
+            var resolvedPath = string.Join("/", combinedPaths);
+            if (path[0] == '/')
+                resolvedPath = '/' + resolvedPath;
+
+            return path[path.Length - 1] == '/'
+                ? resolvedPath + '/'
+                : resolvedPath;
         }
 
         public static string[] ToStrings(object[] thesePaths)
