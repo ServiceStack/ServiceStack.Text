@@ -57,7 +57,7 @@ namespace ServiceStack.Text
             IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
             IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
             IsUnix = IsOSX || IsLinux;
-#else
+#elif NET45
             var platform = (int)Environment.OSVersion.Platform;
             IsUnix = platform == 4 || platform == 6 || platform == 128;
             IsLinux = IsUnix;
