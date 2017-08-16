@@ -42,6 +42,7 @@ namespace ServiceStack.Text
             var platform = (int)Environment.OSVersion.Platform;
             IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
 #endif
+            IsWin = !IsUnix;
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
@@ -59,6 +60,8 @@ namespace ServiceStack.Text
 
         public static bool IsUnix { get; set; }
 
+        public static bool IsWin { get; set; }
+
         public static bool IsMono { get; set; }
 
         public static bool IsMonoTouch { get; set; }
@@ -74,6 +77,8 @@ namespace ServiceStack.Text
         public static bool SupportsExpressions { get; set; }
 
         public static bool SupportsEmit { get; set; }
+
+        public static bool StrictMode { get; set; }
 
         public static string ServerUserAgent { get; set; }
 
