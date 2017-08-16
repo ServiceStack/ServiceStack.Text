@@ -38,11 +38,12 @@ namespace ServiceStack.Text
 
 #if PCL || NETSTANDARD1_1
             IsUnix = IsMono;
+            IsWin = !IsUnix;
 #else
             var platform = (int)Environment.OSVersion.Platform;
             IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
+            IsWin = Environment.GetEnvironmentVariable("OS")?.IndexOf("Windows", StringComparison.OrdinalIgnoreCase) >= 0;
 #endif
-            IsWin = !IsUnix;
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
