@@ -50,6 +50,7 @@ namespace ServiceStack
         public static readonly byte[][] EmptyByteArrayArray = new byte[0][];
 
         public static readonly Dictionary<string, string> EmptyStringDictionary = new Dictionary<string, string>(0);
+        public static readonly Dictionary<string, object> EmptyObjectDictionary = new Dictionary<string, object>();
 
         public static readonly List<string> EmptyStringList = new List<string>(0);
         public static readonly List<long> EmptyLongList = new List<long>(0);

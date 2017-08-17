@@ -476,12 +476,14 @@ namespace ServiceStack.Text.Json
             return Unescape(json);
         }
 
-        public static string Unescape(string input)
+        public static string Unescape(string input) => Unescape(input, true);
+        public static string Unescape(string input, bool removeQuotes)
         {
-            return Unescape(new StringSegment(input)).Value;
+            return Unescape(new StringSegment(input), removeQuotes).Value;
         }
 
-        public static StringSegment Unescape(StringSegment input)
+        public static StringSegment Unescape(StringSegment input) => Unescape(input, true);
+        public static StringSegment Unescape(StringSegment input, bool removeQuotes)
         {
             var length = input.Length;
             int start = 0;
@@ -489,15 +491,18 @@ namespace ServiceStack.Text.Json
             var output = StringBuilderThreadStatic.Allocate();
             for (; count < length;)
             {
-                if (input.GetChar(count) == JsonUtils.QuoteChar)
+                if (removeQuotes)
                 {
-                    if (start != count)
+                    if (input.GetChar(count) == JsonUtils.QuoteChar)
                     {
-                        output.Append(input.Buffer, input.Offset + start, count - start);
+                        if (start != count)
+                        {
+                            output.Append(input.Buffer, input.Offset + start, count - start);
+                        }
+                        count++;
+                        start = count;
+                        continue;
                     }
-                    count++;
-                    start = count;
-                    continue;
                 }
 
                 if (input.GetChar(count) == JsonUtils.EscapeChar)

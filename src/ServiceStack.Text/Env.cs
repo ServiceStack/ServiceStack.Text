@@ -24,6 +24,19 @@ namespace ServiceStack.Text
 
                 IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
 
+                try
+                {
+                    IsOSX = AssemblyUtils.FindType("Mono.AppKit") != null;
+#if NET45
+                    IsWindows = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("windir"));
+                    if (File.Exists(@"/System/Library/CoreServices/SystemVersion.plist"))
+                        IsOSX = true;
+                    string osType = File.Exists(@"/proc/sys/kernel/ostype") ? File.ReadAllText(@"/proc/sys/kernel/ostype") : null;
+                    IsLinux = osType?.IndexOf("Linux", StringComparison.OrdinalIgnoreCase) >= 0;
+#endif
+                }
+                catch (Exception ignore) {}
+
                 //Throws unhandled exception if not called from the main thread
                 //IsWinRT = AssemblyUtils.FindType("Windows.ApplicationModel") != null;
 
@@ -36,11 +49,20 @@ namespace ServiceStack.Text
                 IsWindowsStore = true;
             }
 
-#if PCL || NETSTANDARD1_1
-            IsUnix = IsMono;
-#else
+#if PCL
+            IsUnix = IsMono || IsOSX || IsLinux;
+            IsWindows = !IsUnix;
+#elif NETSTANDARD1_1
+            IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+            IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+            IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
+            IsUnix = IsOSX || IsLinux;
+#elif NET45
             var platform = (int)Environment.OSVersion.Platform;
-            IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
+            IsUnix = platform == 4 || platform == 6 || platform == 128;
+            IsLinux = IsUnix;
+            if (Environment.GetEnvironmentVariable("OS")?.IndexOf("Windows", StringComparison.OrdinalIgnoreCase) >= 0)
+                IsWindows = true;
 #endif
 
             ServerUserAgent = "ServiceStack/" +
@@ -57,7 +79,13 @@ namespace ServiceStack.Text
 
         public static decimal ServiceStackVersion = 4.00m;
 
+        public static bool IsLinux { get; set; }
+
+        public static bool IsOSX { get; set; }
+
         public static bool IsUnix { get; set; }
+
+        public static bool IsWindows { get; set; }
 
         public static bool IsMono { get; set; }
 
@@ -74,6 +102,8 @@ namespace ServiceStack.Text
         public static bool SupportsExpressions { get; set; }
 
         public static bool SupportsEmit { get; set; }
+
+        public static bool StrictMode { get; set; }
 
         public static string ServerUserAgent { get; set; }
 
