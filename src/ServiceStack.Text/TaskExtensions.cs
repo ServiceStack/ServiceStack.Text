@@ -88,7 +88,7 @@ namespace ServiceStack
 
             if (aex.InnerExceptions != null
                 && aex.InnerExceptions.Count == 1)
-                return aex.InnerExceptions[0];
+                return aex.InnerExceptions[0].UnwrapIfSingleException();
 
             return aex;
         }

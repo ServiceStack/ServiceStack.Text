@@ -1,4 +1,4 @@
-﻿//Copyright (c) Service Stack LLC. All Rights Reserved.
+﻿//Copyright (c) ServiceStack, Inc. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 
@@ -26,6 +27,7 @@ namespace ServiceStack
             public const string Mac = "MAC";
             public const string Silverlight5 = "Silverlight5";
             public const string WindowsPhone = "WindowsPhone";
+            public const string NetStandard = "NETStandard";
         }
 
         public static PclExport Instance
@@ -35,6 +37,8 @@ namespace ServiceStack
           = new Sl5PclExport()
 #elif NETFX_CORE
           = new WinStorePclExport()
+#elif NETSTANDARD1_1
+          = new NetStandardPclExport()
 #elif WP
           = new WpPclExport()
 #elif XBOX
@@ -45,6 +49,8 @@ namespace ServiceStack
           = new MacPclExport()
 #elif ANDROID
           = new AndroidPclExport()
+#elif NET45
+          = new Net45PclExport()
 #else
           = new Net40PclExport()
 #endif
@@ -89,7 +95,16 @@ namespace ServiceStack
         public static void Configure(PclExport instance)
         {
             Instance = instance ?? Instance;
+
+            if (Instance != null && Instance.EmptyTask == null)
+            {
+                var tcs = new TaskCompletionSource<object>();
+                tcs.SetResult(null);
+                Instance.EmptyTask = tcs.Task;
+            }
         }
+
+        public Task EmptyTask;
 
         public bool SupportsExpression;
 
@@ -98,6 +113,8 @@ namespace ServiceStack
         public char DirSep = '\\';
 
         public char AltDirSep = '/';
+
+        public static readonly char[] DirSeps = { '\\', '/' };
 
         public string PlatformName = "Unknown";
 
@@ -169,12 +186,12 @@ namespace ServiceStack
 
         public virtual string[] GetFileNames(string dirPath, string searchPattern = null)
         {
-            return new string[0];
+            return TypeConstants.EmptyStringArray;
         }
 
         public virtual string[] GetDirectoryNames(string dirPath, string searchPattern = null)
         {
-            return new string[0];
+            return TypeConstants.EmptyStringArray;
         }
 
         public virtual void WriteLine(string line)
@@ -249,6 +266,24 @@ namespace ServiceStack
             webReq.Headers[name] = value;
         }
 
+        public virtual void SetUserAgent(HttpWebRequest httpReq, string value)
+        {
+            httpReq.Headers[HttpRequestHeader.UserAgent] = value;
+        }
+
+        public virtual void SetContentLength(HttpWebRequest httpReq, long value)
+        {
+            httpReq.Headers[HttpRequestHeader.ContentLength] = value.ToString();
+        }
+
+        public virtual void SetAllowAutoRedirect(HttpWebRequest httpReq, bool value)
+        {
+        }
+
+        public virtual void SetKeepAlive(HttpWebRequest httpReq, bool value)
+        {
+        }
+
         public virtual Assembly[] GetAllAssemblies()
         {
             return new Assembly[0];
@@ -284,29 +319,33 @@ namespace ServiceStack
             return Encoding.UTF8.GetBytes(str);
         }
 
-        public virtual SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
+        public virtual Encoding GetUTF8Encoding(bool emitBom=false)
         {
-            var setMethodInfo = propertyInfo.SetMethod();
-            return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
+#if !PCL
+            return new UTF8Encoding(emitBom);
+#else
+            return Encoding.UTF8;
+#endif
         }
 
-        public virtual SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
+        public virtual SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
         {
             return fieldInfo.SetValue;
         }
 
-        public virtual SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
+        public virtual SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo)
         {
-            if (propertyInfo.CanWrite)
-            {
-                var setMethodInfo = propertyInfo.SetMethod();
-                if (setMethodInfo.IsStatic)
-                    return (instance, value) => setMethodInfo.Invoke(null, new[] { value });
-                
-                return (instance, value) => setMethodInfo.Invoke(instance, new[] { value });
-            }
-            if (fieldInfo == null) return null;
-            return fieldInfo.SetValue;
+            return (o,x) => fieldInfo.SetValue(o,x);
+        }
+
+        public virtual GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
+        {
+            return fieldInfo.GetValue;
+        }
+
+        public virtual GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
+        {
+            return x => fieldInfo.GetValue(x);
         }
 
         public virtual Type UseType(Type type)
@@ -326,7 +365,7 @@ namespace ServiceStack
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
-        public virtual PropertySetterDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
+        public virtual SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
         {
             var propertySetMethod = propertyInfo.SetMethod();
             if (propertySetMethod == null) return null;
@@ -335,22 +374,29 @@ namespace ServiceStack
                 propertySetMethod.Invoke(o, new[] { convertedValue });
         }
 
-        public virtual PropertyGetterDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
+        public virtual SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
+        {
+            var propertySetMethod = propertyInfo.SetMethod();
+            if (propertySetMethod == null) return null;
+
+            return (o, convertedValue) =>
+                propertySetMethod.Invoke(o, new[] { convertedValue });
+        }
+
+        public virtual GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
         {
             var getMethodInfo = propertyInfo.GetMethodInfo();
             if (getMethodInfo == null) return null;
 
-            return o => propertyInfo.GetMethodInfo().Invoke(o, new object[] { });
+            return o => propertyInfo.GetMethodInfo().Invoke(o, TypeConstants.EmptyObjectArray);
         }
 
-        public virtual PropertySetterDelegate GetFieldSetterFn(FieldInfo fieldInfo)
+        public virtual GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
         {
-            return fieldInfo.SetValue;
-        }
+            var getMethodInfo = propertyInfo.GetMethodInfo();
+            if (getMethodInfo == null) return null;
 
-        public virtual PropertyGetterDelegate GetFieldGetterFn(FieldInfo fieldInfo)
-        {
-            return fieldInfo.GetValue;
+            return o => propertyInfo.GetMethodInfo().Invoke(o, TypeConstants.EmptyObjectArray);
         }
 
         public virtual string ToXsdDateTimeString(DateTime dateTime)
@@ -398,7 +444,19 @@ namespace ServiceStack
             return null;
         }
 
+        public virtual ParseStringSegmentDelegate GetDictionaryParseStringSegmentMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
         public virtual ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
+        public virtual ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
             where TSerializer : ITypeSerializer
         {
             return null;
@@ -416,6 +474,13 @@ namespace ServiceStack
 #endif
             return null;
         }
+
+        public virtual ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+            where TSerializer : ITypeSerializer
+        {
+            return null;
+        }
+
 
         public virtual void InitHttpWebRequest(HttpWebRequest httpReq,
             long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
@@ -437,8 +502,9 @@ namespace ServiceStack
             return licenseKeyText.ToLicenseKey();
         }
 
-        public virtual void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
+        public virtual LicenseKey VerifyLicenseKeyTextFallback(string licenseKeyText)
         {
+            return licenseKeyText.ToLicenseKeyFallback();
         }
 
         public virtual void BeginThreadAffinity()
@@ -471,6 +537,13 @@ namespace ServiceStack
         public virtual string GetStackTrace()
         {
             return null;
+        }
+
+        public virtual Task WriteAndFlushAsync(Stream stream, byte[] bytes)
+        {
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Flush();
+            return EmptyTask;
         }
     }
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Service Stack LLC. All Rights Reserved.
+﻿// Copyright (c) ServiceStack, Inc. All Rights Reserved.
 // License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
@@ -42,6 +42,29 @@ namespace ServiceStack
             return to.PopulateWith(from);
         }
 
+        public static T CreateCopy<T>(this T from)
+        {
+            if (typeof(T).IsValueType())
+                return (T)ChangeValueType(from, typeof(T));
+
+            if (typeof(IEnumerable).IsAssignableFromType(typeof(T)))
+            {
+                var listResult = TranslateListWithElements.TryTranslateCollections(
+                    from.GetType(), typeof(T), from);
+
+                return (T)listResult;
+            }
+
+            var to = typeof(T).CreateInstance<T>();
+            return to.PopulateWith(from);
+        }
+
+        public static To ThenDo<To>(this To to, Action<To> fn)
+        {
+            fn(to);
+            return to;
+        }
+
         public static object ConvertTo(this object from, Type type)
         {
             if (from == null)
@@ -75,6 +98,26 @@ namespace ServiceStack
                 return from.ToJsv();
 
             return Convert.ChangeType(from, type, provider: null);
+        }
+
+        public static object ChangeTo(this string strValue, Type type)
+        {
+            if (type.IsValueType() && !type.IsEnum()
+#if !(PCL || NETSTANDARD1_1)
+                && type.HasInterface(typeof(IConvertible))
+#endif
+                )
+            {
+                try
+                {
+                    return Convert.ChangeType(strValue, type, provider: null);
+                }
+                catch (Exception ex)
+                {
+                    Tracer.Instance.WriteError(ex);
+                }
+            }
+            return TypeSerializer.DeserializeFromString(strValue, type);
         }
 
         private static readonly Dictionary<Type, List<string>> TypePropertyNamesMap = new Dictionary<Type, List<string>>();
@@ -366,7 +409,7 @@ namespace ServiceStack
                 return null;
 
             var getMethod = propertyInfo.GetMethodInfo();
-            return getMethod != null ? getMethod.Invoke(obj, new object[0]) : null;
+            return getMethod != null ? getMethod.Invoke(obj, TypeConstants.EmptyObjectArray) : null;
         }
 
         public static void SetValue(FieldInfo fieldInfo, PropertyInfo propertyInfo, object obj, object value)
@@ -432,6 +475,9 @@ namespace ServiceStack
 #endif
             }
 
+            if (type.IsAbstract())
+                return null;
+
             // If we have hit our recursion limit for this type, then return null
             int recurseLevel; // will get set to 0 if TryGetValue() fails
             recursionInfo.TryGetValue(type, out recurseLevel);
@@ -464,7 +510,7 @@ namespace ServiceStack
 
                 if (hasEmptyConstructor)
                 {
-                    var value = constructorInfo.Invoke(new object[0]);
+                    var value = constructorInfo.Invoke(TypeConstants.EmptyObjectArray);
 
                     var genericCollectionType = PclExport.Instance.GetGenericCollectionType(type);
                     if (genericCollectionType != null)
@@ -561,9 +607,9 @@ namespace ServiceStack
         public string Name;
         public AssignmentMember From;
         public AssignmentMember To;
-        public PropertyGetterDelegate GetValueFn;
-        public PropertySetterDelegate SetValueFn;
-        public PropertyGetterDelegate ConvertValueFn;
+        public GetMemberDelegate GetValueFn;
+        public SetMemberDelegate SetValueFn;
+        public GetMemberDelegate ConvertValueFn;
 
         public AssignmentEntry(string name, AssignmentMember @from, AssignmentMember to)
         {
@@ -571,8 +617,8 @@ namespace ServiceStack
             From = @from;
             To = to;
 
-            GetValueFn = From.GetGetValueFn();
-            SetValueFn = To.GetSetValueFn();
+            GetValueFn = From.CreateGetter();
+            SetValueFn = To.CreateSetter();
             ConvertValueFn = TypeConverter.CreateTypeConverter(From.Type, To.Type);
         }
     }
@@ -602,29 +648,22 @@ namespace ServiceStack
         public FieldInfo FieldInfo;
         public MethodInfo MethodInfo;
 
-        public PropertyGetterDelegate GetGetValueFn()
+        public GetMemberDelegate CreateGetter()
         {
             if (PropertyInfo != null)
-                return PropertyInfo.GetPropertyGetterFn();
+                return PropertyInfo.CreateGetter();
             if (FieldInfo != null)
-                return FieldInfo.GetFieldGetterFn();
-            if (MethodInfo != null)
-                return (PropertyGetterDelegate)
-                    MethodInfo.CreateDelegate(typeof(PropertyGetterDelegate));
-
-            return null;
+                return FieldInfo.CreateGetter();
+            return (GetMemberDelegate) MethodInfo?.CreateDelegate(typeof(GetMemberDelegate));
         }
 
-        public PropertySetterDelegate GetSetValueFn()
+        public SetMemberDelegate CreateSetter()
         {
             if (PropertyInfo != null)
-                return PropertyInfo.GetPropertySetterFn();
+                return PropertyInfo.CreateSetter();
             if (FieldInfo != null)
-                return FieldInfo.GetFieldSetterFn();
-            if (MethodInfo != null)
-                return (PropertySetterDelegate)MethodInfo.MakeDelegate(typeof(PropertySetterDelegate));
-
-            return null;
+                return FieldInfo.CreateSetter();
+            return (SetMemberDelegate) MethodInfo?.MakeDelegate(typeof(SetMemberDelegate));
         }
     }
 
@@ -717,85 +756,45 @@ namespace ServiceStack
         }
     }
 
-    public delegate void PropertySetterDelegate(object instance, object value);
-    public delegate object PropertyGetterDelegate(object instance);
+    public delegate object GetMemberDelegate(object instance);
+    public delegate object GetMemberDelegate<T>(T instance);
 
-    internal static class PropertyInvoker
-    {
-        public static PropertySetterDelegate GetPropertySetterFn(this PropertyInfo propertyInfo)
-        {
-            return PclExport.Instance.GetPropertySetterFn(propertyInfo);
-        }
-
-        public static PropertyGetterDelegate GetPropertyGetterFn(this PropertyInfo propertyInfo)
-        {
-            return PclExport.Instance.GetPropertyGetterFn(propertyInfo);
-        }
-    }
-
-    internal static class FieldInvoker
-    {
-        public static PropertySetterDelegate GetFieldSetterFn(this FieldInfo fieldInfo)
-        {
-            return PclExport.Instance.GetFieldSetterFn(fieldInfo);
-        }
-
-        public static PropertyGetterDelegate GetFieldGetterFn(this FieldInfo fieldInfo)
-        {
-            return PclExport.Instance.GetFieldGetterFn(fieldInfo);
-        }
-    }
+    public delegate void SetMemberDelegate(object instance, object value);
+    public delegate void SetMemberDelegate<T>(T instance, object value);
+    public delegate void SetMemberRefDelegate(ref object instance, object propertyValue);
+    public delegate void SetMemberRefDelegate<T>(ref T instance, object value);
 
     internal static class TypeConverter
     {
-        public static PropertyGetterDelegate CreateTypeConverter(Type fromType, Type toType)
+        public static GetMemberDelegate CreateTypeConverter(Type fromType, Type toType)
         {
             if (fromType == toType)
                 return null;
 
             if (fromType == typeof(string))
-            {
                 return fromValue => TypeSerializer.DeserializeFromString((string)fromValue, toType);
-            }
+
             if (toType == typeof(string))
-            {
                 return TypeSerializer.SerializeToString;
-            }
-            if (toType.IsEnum() || fromType.IsEnum())
+            
+            var underlyingToType = Nullable.GetUnderlyingType(toType) ?? toType;
+            var underlyingFromType = Nullable.GetUnderlyingType(fromType) ?? fromType;
+
+            if (underlyingToType.IsEnum())
             {
-                if (toType.IsEnum() && fromType.IsEnum())
-                {
-                    return fromValue => Enum.Parse(toType, fromValue.ToString(), ignoreCase: true);
-                }
-                if (toType.IsNullableType())
-                {
-                    var genericArg = toType.GenericTypeArguments()[0];
-                    if (genericArg.IsEnum())
-                    {
-                        return fromValue => Enum.ToObject(genericArg, fromValue);
-                    }
-                }
-                else if (toType.IsIntegerType())
-                {
-                    if (fromType.IsNullableType())
-                    {
-                        var genericArg = fromType.GenericTypeArguments()[0];
-                        if (genericArg.IsEnum())
-                        {
-                            return fromValue => Enum.ToObject(genericArg, fromValue);
-                        }
-                    }
-                    return fromValue => Enum.ToObject(fromType, fromValue);
-                }
+                if (underlyingFromType.IsEnum() || fromType == typeof(string))
+                    return fromValue => Enum.Parse(underlyingToType, fromValue.ToString(), ignoreCase: true);
+
+                if (underlyingFromType.IsIntegerType())
+                    return fromValue => Enum.ToObject(underlyingToType, fromValue);
+            }
+            else if (underlyingFromType.IsEnum())
+            {
+                if (underlyingToType.IsIntegerType())
+                    return fromValue => Convert.ChangeType(fromValue, underlyingToType, null);
             }
             else if (toType.IsNullableType())
             {
-                var toTypeBaseType = toType.GenericTypeArguments()[0];
-                if (toTypeBaseType.IsEnum())
-                {
-                    if (fromType.IsEnum() || (fromType.IsNullableType() && fromType.GenericTypeArguments()[0].IsEnum()))
-                        return fromValue => Enum.ToObject(toTypeBaseType, fromValue);
-                }
                 return null;
             }
             else if (typeof(IEnumerable).IsAssignableFromType(fromType))
@@ -812,7 +811,7 @@ namespace ServiceStack
             {
                 return fromValue => Convert.ChangeType(fromValue, toType, provider: null);
             }
-            else
+            else 
             {
                 return fromValue =>
                 {

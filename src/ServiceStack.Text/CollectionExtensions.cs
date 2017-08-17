@@ -7,17 +7,21 @@ namespace ServiceStack
     {
         public static ICollection<T> CreateAndPopulate<T>(Type ofCollectionType, T[] withItems)
         {
-            if (ofCollectionType == null) return new List<T>(withItems);
+            if (withItems == null)
+                return null;
+
+            if (ofCollectionType == null)
+                return new List<T>(withItems);
 
             var genericType = ofCollectionType.FirstGenericType();
             var genericTypeDefinition = genericType != null
                 ? genericType.GetGenericTypeDefinition()
                 : null;
 #if !XBOX
-            if (genericTypeDefinition == typeof(HashSet<T>))
+            if (genericTypeDefinition == typeof(HashSet<>))
                 return new HashSet<T>(withItems);
 #endif
-            if (genericTypeDefinition == typeof(LinkedList<T>))
+            if (genericTypeDefinition == typeof(LinkedList<>))
                 return new LinkedList<T>(withItems);
 
             var collection = (ICollection<T>)ofCollectionType.CreateInstance();

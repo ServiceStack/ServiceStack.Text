@@ -1,19 +1,48 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
+    public class Foo
+    {
+        public string FooBar { get; set; }
+    }
+
+    public class Bar
+    {
+        public string FooBar { get; set; }
+    }
+
+    [TestFixture]
+    public class JsConfigAdhocTests
+    {
+        [Test]
+        public void Can_escape_Html_Chars()
+        {
+            var dto = new Foo { FooBar = "<script>danger();</script>" };
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"FooBar\":\"<script>danger();</script>\"}"));
+
+            JsConfig.EscapeHtmlChars = true;
+
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"FooBar\":\"\\u003cscript\\u003edanger();\\u003c/script\\u003e\"}"));
+
+            JsConfig.Reset();
+        }
+    }
+
     [TestFixture]
     public class JsConfigTests
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             JsConfig.EmitLowercaseUnderscoreNames = true;
             JsConfig<Bar>.EmitLowercaseUnderscoreNames = false;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             JsConfig.Reset();
@@ -36,25 +65,14 @@ namespace ServiceStack.Text.Tests
         }
     }
 
-    public class Foo
-    {
-        public string FooBar { get; set; }
-    }
-
-    public class Bar
-    {
-        public string FooBar { get; set; }
-    }
-
-
     [TestFixture]
     public class SerializEmitLowerCaseUnderscoreNamesTests
     {
         [Test]
         public void TestJsonDataWithJsConfigScope()
         {
-            using (JsConfig.With(emitLowercaseUnderscoreNames:true, 
-                propertyConvention:PropertyConvention.Lenient))
+            using (JsConfig.With(emitLowercaseUnderscoreNames: true,
+                propertyConvention: PropertyConvention.Lenient))
                 AssertObjectJson();
         }
 
@@ -187,4 +205,43 @@ namespace ServiceStack.Text.Tests
         private const string AssertMessageFormat = "Cannot find correct property value ({0})";
     }
 
+    [TestFixture]
+    public class JsConfigCreateTests
+    {
+        [Test]
+        public void Does_create_scope_from_string()
+        {
+            var scope = JsConfig.CreateScope("EmitCamelCaseNames,emitlowercaseunderscorenames,IncludeNullValues:false,ExcludeDefaultValues:0,IncludeDefaultEnums:1");
+            Assert.That(scope.EmitCamelCaseNames.Value);
+            Assert.That(scope.EmitLowercaseUnderscoreNames.Value);
+            Assert.That(!scope.IncludeNullValues.Value);
+            Assert.That(!scope.ExcludeDefaultValues.Value);
+            Assert.That(scope.IncludeDefaultEnums.Value);
+            scope.Dispose();
+
+            scope = JsConfig.CreateScope("DateHandler:ISO8601,timespanhandler:durationformat,PropertyConvention:strict");
+            Assert.That(scope.DateHandler, Is.EqualTo(DateHandler.ISO8601));
+            Assert.That(scope.TimeSpanHandler, Is.EqualTo(TimeSpanHandler.DurationFormat));
+            Assert.That(scope.PropertyConvention, Is.EqualTo(PropertyConvention.Strict));
+            scope.Dispose();
+        }
+
+        [Test]
+        public void Does_create_scope_from_string_using_CamelCaseHumps()
+        {
+            var scope = JsConfig.CreateScope("eccn,elun,inv:false,edv:0,ide:1");
+            Assert.That(scope.EmitCamelCaseNames.Value);
+            Assert.That(scope.EmitLowercaseUnderscoreNames.Value);
+            Assert.That(!scope.IncludeNullValues.Value);
+            Assert.That(!scope.ExcludeDefaultValues.Value);
+            Assert.That(scope.IncludeDefaultEnums.Value);
+            scope.Dispose();
+
+            scope = JsConfig.CreateScope("dh:ISO8601,tsh:df,pc:strict");
+            Assert.That(scope.DateHandler, Is.EqualTo(DateHandler.ISO8601));
+            Assert.That(scope.TimeSpanHandler, Is.EqualTo(TimeSpanHandler.DurationFormat));
+            Assert.That(scope.PropertyConvention, Is.EqualTo(PropertyConvention.Strict));
+            scope.Dispose();
+        }
+    }
 }

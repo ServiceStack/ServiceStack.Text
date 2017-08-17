@@ -5,12 +5,12 @@ using ServiceStack.Common.Tests.Models;
 
 namespace ServiceStack.Text.Tests
 {
-	[TestFixture]
-	public class QueryStringWriterTests
-	{
+    [TestFixture]
+    public class QueryStringWriterTests
+    {
         [Test]
-		public void Can_Write_QueryString()
-		{
+        public void Can_Write_QueryString()
+        {
             Movie newMovie = new Movie
             {
                 Id = "tt0110912",
@@ -24,8 +24,8 @@ namespace ServiceStack.Text.Tests
 
             var queryString = QueryStringSerializer.SerializeToString(newMovie);
 
-			queryString.Print();
-        
+            queryString.Print();
+
             Assert.That(queryString,
                 Is.EqualTo("Id=tt0110912&Title=Pulp+Fiction&Rating=8.9&Director=Quentin+Tarantino&ReleaseDate=1994-10-24&TagLine=Girls+like+me+don%27t+make+invitations+like+this+to+just+anyone%21&Genres=Crime,Drama,Thriller"));
         }
@@ -55,7 +55,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_write_AnonymousType_to_QueryString()
         {
-            var anonType = new {
+            var anonType = new
+            {
                 Id = "tt0110912",
                 Title = "Pulp Fiction",
                 Rating = 8.9m,

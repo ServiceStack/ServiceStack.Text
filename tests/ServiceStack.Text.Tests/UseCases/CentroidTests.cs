@@ -4,82 +4,82 @@ using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.UseCases
 {
-	/// <summary>
-	/// Solution in response to:
-	/// http://stackoverflow.com/questions/5057684/json-c-deserializing-a-changing-content-or-a-piece-of-json-response
-	/// </summary>
-	public class CentroidTests
-	{
-		public class Centroid
-		{
-			public Centroid(decimal latitude, decimal longitude)
-			{
-				Latitude = latitude;
-				Longitude = longitude;
-			}
+    /// <summary>
+    /// Solution in response to:
+    /// http://stackoverflow.com/questions/5057684/json-c-deserializing-a-changing-content-or-a-piece-of-json-response
+    /// </summary>
+    public class CentroidTests
+    {
+        public class Centroid
+        {
+            public Centroid(decimal latitude, decimal longitude)
+            {
+                Latitude = latitude;
+                Longitude = longitude;
+            }
 
-			public string LatLon
-			{
-				get
-				{
-					return String.Format("{0};{1}", Latitude, Longitude);
-				}
-			}
+            public string LatLon
+            {
+                get
+                {
+                    return String.Format("{0};{1}", Latitude, Longitude);
+                }
+            }
 
-			public decimal Latitude { get; set; }
+            public decimal Latitude { get; set; }
 
-			public decimal Longitude { get; set; }
-		}
+            public decimal Longitude { get; set; }
+        }
 
-		public class BoundingBox
-		{
-			public Centroid SouthWest { get; set; }
+        public class BoundingBox
+        {
+            public Centroid SouthWest { get; set; }
 
-			public Centroid NorthEast { get; set; }
-		}
+            public Centroid NorthEast { get; set; }
+        }
 
-		public class Place
-		{
-			public int WoeId { get; set; }
+        public class Place
+        {
+            public int WoeId { get; set; }
 
-			public string PlaceTypeName { get; set; }
+            public string PlaceTypeName { get; set; }
 
-			public string Name { get; set; }
+            public string Name { get; set; }
 
-			public Dictionary<string, string> PlaceTypeNameAttrs { get; set; }
+            public Dictionary<string, string> PlaceTypeNameAttrs { get; set; }
 
-			public string Country { get; set; }
+            public string Country { get; set; }
 
-			public Dictionary<string, string> CountryAttrs { get; set; }
+            public Dictionary<string, string> CountryAttrs { get; set; }
 
-			public string Admin1 { get; set; }
+            public string Admin1 { get; set; }
 
-			public Dictionary<string, string> Admin1Attrs { get; set; }
+            public Dictionary<string, string> Admin1Attrs { get; set; }
 
-			public string Admin2 { get; set; }
+            public string Admin2 { get; set; }
 
-			public string Admin3 { get; set; }
+            public string Admin3 { get; set; }
 
-			public string Locality1 { get; set; }
+            public string Locality1 { get; set; }
 
-			public string Locality2 { get; set; }
+            public string Locality2 { get; set; }
 
-			public string Postal { get; set; }
+            public string Postal { get; set; }
 
-			public Centroid Centroid { get; set; }
+            public Centroid Centroid { get; set; }
 
-			public BoundingBox BoundingBox { get; set; }
+            public BoundingBox BoundingBox { get; set; }
 
-			public int AreaRank { get; set; }
+            public int AreaRank { get; set; }
 
-			public int PopRank { get; set; }
+            public int PopRank { get; set; }
 
-			public string Uri { get; set; }
+            public string Uri { get; set; }
 
-			public string Lang { get; set; }
-		}
+            public string Lang { get; set; }
+        }
 
-		private const string JsonCentroid = @"{
+        private const string JsonCentroid = @"{
    ""place"":{
       ""woeid"":12345,
       ""placeTypeName"":""State"",
@@ -123,49 +123,49 @@ namespace ServiceStack.Text.Tests.UseCases
    }
 }";
 
-		[Test]
-		public void Can_Parse_Centroid_using_JsonObject()
-		{
-			Func<JsonObject, Centroid> toCentroid = map => 
-				new Centroid(map.Get<decimal>("latitude"), map.Get<decimal>("longitude"));
+        [Test]
+        public void Can_Parse_Centroid_using_JsonObject()
+        {
+            Func<JsonObject, Centroid> toCentroid = map =>
+                new Centroid(map.Get<decimal>("latitude"), map.Get<decimal>("longitude"));
 
-			var place = JsonObject.Parse(JsonCentroid)
-				.Object("place")
-				.ConvertTo(x => new Place
-				{
-					WoeId = x.Get<int>("woeid"),
-					PlaceTypeName = x.Get(""),
-					PlaceTypeNameAttrs = x.Object("placeTypeName attrs"),
-					Name = x.Get("Name"),
-					Country = x.Get("Country"),
-					CountryAttrs = x.Object("country attrs"),
-					Admin1 = x.Get("admin1"),
-					Admin1Attrs = x.Object("admin1 attrs"),
-					Admin2 = x.Get("admin2"),
-					Admin3 = x.Get("admin3"),
-					Locality1 = x.Get("locality1"),
-					Locality2 = x.Get("locality2"),
-					Postal = x.Get("postal"),
-					
-					Centroid = x.Object("centroid")
-						.ConvertTo(toCentroid),
-					
-					BoundingBox = x.Object("boundingBox")
-						.ConvertTo(y => new BoundingBox
-						{
-							SouthWest = y.Object("southWest").ConvertTo(toCentroid),
-							NorthEast = y.Object("northEast").ConvertTo(toCentroid)
-						}),
-					
-					AreaRank = x.Get<int>("areaRank"),
-					PopRank = x.Get<int>("popRank"),
-					Uri = x.Get("uri"),
-					Lang = x.Get("lang"),
-				});
+            var place = JsonObject.Parse(JsonCentroid)
+                .Object("place")
+                .ConvertTo(x => new Place
+                {
+                    WoeId = x.Get<int>("woeid"),
+                    PlaceTypeName = x.Get(""),
+                    PlaceTypeNameAttrs = x.Object("placeTypeName attrs"),
+                    Name = x.Get("Name"),
+                    Country = x.Get("Country"),
+                    CountryAttrs = x.Object("country attrs"),
+                    Admin1 = x.Get("admin1"),
+                    Admin1Attrs = x.Object("admin1 attrs"),
+                    Admin2 = x.Get("admin2"),
+                    Admin3 = x.Get("admin3"),
+                    Locality1 = x.Get("locality1"),
+                    Locality2 = x.Get("locality2"),
+                    Postal = x.Get("postal"),
 
-			Console.WriteLine(place.Dump());
+                    Centroid = x.Object("centroid")
+                        .ConvertTo(toCentroid),
 
-			/*Outputs:
+                    BoundingBox = x.Object("boundingBox")
+                        .ConvertTo(y => new BoundingBox
+                        {
+                            SouthWest = y.Object("southWest").ConvertTo(toCentroid),
+                            NorthEast = y.Object("northEast").ConvertTo(toCentroid)
+                        }),
+
+                    AreaRank = x.Get<int>("areaRank"),
+                    PopRank = x.Get<int>("popRank"),
+                    Uri = x.Get("uri"),
+                    Lang = x.Get("lang"),
+                });
+
+            Console.WriteLine(place.Dump());
+
+            /*Outputs:
 			{
 				WoeId: 12345,
 				PlaceTypeNameAttrs: 
@@ -215,8 +215,8 @@ namespace ServiceStack.Text.Tests.UseCases
 				Lang: en-US
 			}
 			**/
-		}
+        }
 
 
-	}
+    }
 }

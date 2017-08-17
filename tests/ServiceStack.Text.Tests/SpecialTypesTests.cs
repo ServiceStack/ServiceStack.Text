@@ -10,12 +10,14 @@ namespace ServiceStack.Text.Tests
     public class SpecialTypesTests
         : TestBase
     {
+#if !NETCORE
         [Test]
         public void Can_Serialize_Version()
         {
             Serialize(new Version());
             Serialize(Environment.Version);
         }
+#endif
 
         public class JsonEntityWithPrivateGetter
         {
@@ -44,6 +46,19 @@ namespace ServiceStack.Text.Tests
             var test = new { Name = "Test", Data = new byte[] { 1, 2, 3, 4, 5 } };
             var json = JsonSerializer.SerializeToString(test);
             Assert.That(json, Is.EquivalentTo("{\"Name\":\"Test\",\"Data\":\"AQIDBAU=\"}"));
+        }
+
+        class PocoWithBytes
+        {
+            public string Name { get; set; }
+            public byte[] Data { get; set; }
+        }
+
+        [Test]
+        public void Can_Serialize_Type_with_ByteArray_as_Int_Array()
+        {
+            var test = "{\"Name\":\"Test\",\"Data\":[1,2,3,4,5]}".FromJson<PocoWithBytes>();
+            Assert.That(test.Data, Is.EquivalentTo(new byte[] { 1, 2, 3, 4, 5 }));
         }
 
         [Test]
@@ -91,8 +106,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(methodWithArgs.Dump(), Is.EqualTo("String MethodWithArgs(Int32 arg1, String arg2)"));
 
             Action x = () => { };
-            Assert.That(x.Dump(), Is.EqualTo("Void <Does_dump_delegate_info>b__4()")      //VS 2012
-                                 .Or.EqualTo("Void <Does_dump_delegate_info>b__10_0()")); //VS 2015
+            Assert.That(x.Dump(), Does.StartWith("Void <Does_dump_delegate_info>"));
         }
 
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ServiceStack.Reflection;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
@@ -33,7 +32,7 @@ namespace ServiceStack.Text
             writer.Write(CsvConfig.RowSeparatorString);
         }
 
-        public static void Write(TextWriter writer, IEnumerable<IDictionary<string, object>> records)
+        public static void Write(TextWriter writer, IEnumerable<IDictionary<string, object>> records) 
         {
             if (records == null) return; //AOT
 
@@ -42,10 +41,13 @@ namespace ServiceStack.Text
             {
                 if (requireHeaders)
                 {
-                    WriteRow(writer, record.Keys);
+                    if (record != null)
+                        WriteRow(writer, record.Keys);
+
                     requireHeaders = false;
                 }
-                WriteObjectRow(writer, record.Values);
+                if (record != null) 
+                    WriteObjectRow(writer, record.Values);
             }
         }
 
@@ -86,7 +88,9 @@ namespace ServiceStack.Text
     {
         public static bool HasAnyEscapeChars(string value)
         {
-            return CsvConfig.EscapeStrings.Any(value.Contains);
+            return CsvConfig.EscapeStrings.Any(value.Contains)
+                || value[0] == JsWriter.ListStartChar
+                || value[0] == JsWriter.MapStartChar;
         }
 
         internal static void WriteItemSeperatorIfRanOnce(TextWriter writer, ref bool ranOnce)
@@ -104,7 +108,7 @@ namespace ServiceStack.Text
 
         public static List<string> Headers { get; set; }
 
-        internal static List<Func<T, object>> PropertyGetters;
+        internal static List<GetMemberDelegate<T>> PropertyGetters;
 
         private static readonly WriteObjectDelegate OptimizedWriter;
 
@@ -123,14 +127,14 @@ namespace ServiceStack.Text
         {
             Headers = new List<string>();
 
-            PropertyGetters = new List<Func<T, object>>();
+            PropertyGetters = new List<GetMemberDelegate<T>>();
             var isDataContract = typeof(T).IsDto();
             foreach (var propertyInfo in TypeConfig<T>.Properties)
             {
                 if (!propertyInfo.CanRead || propertyInfo.GetMethodInfo() == null) continue;
                 if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
-                PropertyGetters.Add(propertyInfo.GetValueGetter<T>());
+                PropertyGetters.Add(propertyInfo.CreateGetter<T>());
                 var propertyName = propertyInfo.Name;
                 if (isDataContract)
                 {
@@ -195,9 +199,8 @@ namespace ServiceStack.Text
                 {
                     var value = propertyGetter(record) ?? "";
 
-                    var strValue = value.GetType() == typeof(string)
-                        ? (string)value
-                        : TypeSerializer.SerializeToString(value);
+                    var valueStr = value as string;
+                    var strValue = valueStr ?? TypeSerializer.SerializeToString(value);
 
                     row.Add(strValue);
                 }
@@ -233,7 +236,7 @@ namespace ServiceStack.Text
                 return;
             }
 
-            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>)))
+            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>))) //also does `object`
             {
                 var dynamicList = records.Select(x => x.ToObjectDictionary()).ToList();
                 CsvDictionaryWriter.Write(writer, dynamicList);

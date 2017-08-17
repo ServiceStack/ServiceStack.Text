@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
+using ServiceStack.Text.Support;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -11,19 +15,19 @@ namespace ServiceStack.Text.Common
 
         internal static object StringToType(
             TypeConfig typeConfig,
-            string strType,
+            StringSegment strType,
             EmptyCtorDelegate ctorFn,
-            Dictionary<string, TypeAccessor> typeAccessorMap)
+            Dictionary<HashedStringSegment, TypeAccessor> typeAccessorMap)
         {
             var index = 0;
             var type = typeConfig.Type;
 
-            if (strType == null)
+            if (!strType.HasValue)
                 return null;
 
             //if (!Serializer.EatMapStartChar(strType, ref index))
-            if (strType[index++] != JsWriter.MapStartChar)
-                throw DeserializeTypeRef.CreateSerializationError(type, strType);
+            if (strType.GetChar(index++) != JsWriter.MapStartChar)
+                throw DeserializeTypeRef.CreateSerializationError(type, strType.Value);
 
             if (JsonTypeSerializer.IsEmptyMap(strType)) return ctorFn();
 
@@ -44,7 +48,7 @@ namespace ServiceStack.Text.Common
                 var propertyValueStr = Serializer.EatValue(strType, ref index);
                 var possibleTypeInfo = propertyValueStr != null && propertyValueStr.Length > 1;
 
-                if (possibleTypeInfo && propertyName == JsWriter.TypeAttr)
+                if (possibleTypeInfo && propertyName == new StringSegment(JsWriter.TypeAttr))
                 {
                     var explicitTypeName = Serializer.ParseString(propertyValueStr);
                     var explicitType = JsConfig.TypeFinder(explicitTypeName);
@@ -59,6 +63,7 @@ namespace ServiceStack.Text.Common
                     }
                     else
                     {
+                        JsWriter.AssertAllowedRuntimeType(explicitType);
                         instance = explicitType.CreateInstance();
                     }
 
@@ -94,17 +99,17 @@ namespace ServiceStack.Text.Common
 
                 var typeAccessor = propertyResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
 
-                var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
+                var propType = possibleTypeInfo && propertyValueStr.GetChar(0) == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
                 if (propType != null)
                 {
                     try
                     {
                         if (typeAccessor != null)
                         {
-                            var parseFn = Serializer.GetParseFn(propType);
+                            var parseFn = Serializer.GetParseStringSegmentFn(propType);
                             var propertyValue = parseFn(propertyValueStr);
                             if (typeConfig.OnDeserializing != null)
-                                propertyValue = typeConfig.OnDeserializing(instance, propertyName, propertyValue);
+                                propertyValue = typeConfig.OnDeserializing(instance, propertyName.Value, propertyValue);
                             typeAccessor.SetProperty(instance, propertyValue);
                         }
 
@@ -115,32 +120,33 @@ namespace ServiceStack.Text.Common
                     }
                     catch (Exception e)
                     {
-                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType, propertyName, propertyValueStr, e);
-                        if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName, propertyValueStr, propType, e);
+                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType, propertyName.Value, propertyValueStr.Value, e);
+                        if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName.Value, propertyValueStr.Value, propType, e);
                         else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr);
                     }
                 }
 
-                if (typeAccessor != null && typeAccessor.GetProperty != null && typeAccessor.SetProperty != null)
+                if (typeAccessor?.GetProperty != null && typeAccessor.SetProperty != null)
                 {
                     try
                     {
                         var propertyValue = typeAccessor.GetProperty(propertyValueStr);
                         if (typeConfig.OnDeserializing != null)
-                            propertyValue = typeConfig.OnDeserializing(instance, propertyName, propertyValue);
+                            propertyValue = typeConfig.OnDeserializing(instance, propertyName.Value, propertyValue);
                         typeAccessor.SetProperty(instance, propertyValue);
                     }
+                    catch (NotSupportedException) { throw; }
                     catch (Exception e)
                     {
-                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType ?? typeAccessor.PropertyType, propertyName, propertyValueStr, e);
-                        if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName, propertyValueStr, propType, e);
+                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType ?? typeAccessor.PropertyType, propertyName.Value, propertyValueStr.Value, e);
+                        if (JsConfig.ThrowOnDeserializationError) throw DeserializeTypeRef.GetSerializationException(propertyName.Value, propertyValueStr.Value, propType, e);
                         else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr);
                     }
                 }
-                else if (typeConfig.OnDeserializing != null)
+                else
                 {
                     // the property is not known by the DTO
-                    typeConfig.OnDeserializing(instance, propertyName, propertyValueStr);
+                    typeConfig.OnDeserializing?.Invoke(instance, propertyName.Value, propertyValueStr);
                 }
 
                 //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);

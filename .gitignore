@@ -1,5 +1,8 @@
+BenchmarkDotNet.Artifacts/
+
 bin/
 obj/
+packages/
 .idea/
 latest/
 /env-vars.bat
@@ -43,7 +46,10 @@ App_Data/
 *.suo
 *.user
 .vs/
-
+.vscode/
+*.lock.json
+*.nuget.props
+*.nuget.targets
 NuGet/
 NuGet.Pcl/
 NuGet.Signed/

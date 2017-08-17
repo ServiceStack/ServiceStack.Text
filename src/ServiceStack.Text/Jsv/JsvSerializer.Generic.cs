@@ -1,4 +1,4 @@
-//Copyright (c) Service Stack LLC. All Rights Reserved.
+//Copyright (c) ServiceStack, Inc. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
@@ -11,12 +11,12 @@ using ServiceStack.Text.Common;
 namespace ServiceStack.Text.Jsv
 {
     internal class JsvSerializer<T>
-	{
-		Dictionary<Type, ParseStringDelegate> DeserializerCache = new Dictionary<Type, ParseStringDelegate>();
+    {
+        Dictionary<Type, ParseStringDelegate> DeserializerCache = new Dictionary<Type, ParseStringDelegate>();
 
-		public T DeserializeFromString(string value, Type type)
-		{
-			ParseStringDelegate parseFn;
+        public T DeserializeFromString(string value, Type type)
+        {
+            ParseStringDelegate parseFn;
             if (DeserializerCache.TryGetValue(type, out parseFn)) return (T)parseFn(value);
 
             var genericType = typeof(T).MakeGenericType(type);
@@ -32,33 +32,30 @@ namespace ServiceStack.Text.Jsv
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref DeserializerCache, newCache, snapshot), snapshot));
-            
+
             return (T)parseFn(value);
-		}
+        }
 
-		public T DeserializeFromString(string value)
-		{
-			if (typeof(T) == typeof(string)) return (T)(object)value;
+        public T DeserializeFromString(string value)
+        {
+            if (typeof(T) == typeof(string)) return (T)(object)value;
 
-			return (T)JsvReader<T>.Parse(value);
-		}
+            return (T)JsvReader<T>.Parse(value);
+        }
 
-		public void SerializeToWriter(T value, TextWriter writer)
-		{
-			JsvWriter<T>.WriteObject(writer, value);
-		}
+        public void SerializeToWriter(T value, TextWriter writer)
+        {
+            JsvWriter<T>.WriteObject(writer, value);
+        }
 
-		public string SerializeToString(T value)
-		{
-			if (value == null) return null;
-			if (value is string) return value as string;
+        public string SerializeToString(T value)
+        {
+            if (value == null) return null;
+            if (value is string) return value as string;
 
-			var sb = new StringBuilder();
-			using (var writer = new StringWriter(sb))
-			{
-				JsvWriter<T>.WriteObject(writer, value);
-			}
-			return sb.ToString();
-		}
-	}
+            var writer = StringWriterThreadStatic.Allocate();
+            JsvWriter<T>.WriteObject(writer, value);
+            return StringWriterThreadStatic.ReturnAndFree(writer);
+        }
+    }
 }

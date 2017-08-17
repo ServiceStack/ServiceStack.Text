@@ -5,7 +5,7 @@
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2012 Service Stack LLC. All Rights Reserved.
+// Copyright 2012 ServiceStack, Inc. All Rights Reserved.
 //
 // Licensed under the same terms of ServiceStack.
 //
@@ -15,7 +15,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using ServiceStack.Text.Json;
+using ServiceStack.Text.Support;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -24,7 +27,9 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig)
+        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig) => v => GetParseStringSegmentMethod(typeConfig)(new StringSegment(v));
+
+        internal static ParseStringSegmentDelegate GetParseStringSegmentMethod(TypeConfig typeConfig)
         {
             var type = typeConfig.Type;
 
@@ -36,50 +41,57 @@ namespace ServiceStack.Text.Common
                 return value => ctorFn();
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-                ? (ParseStringDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
+                ? (ParseStringSegmentDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
                 : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, map);
         }
 
-        public static object ObjectStringToType(string strType)
+        public static object ObjectStringToType(string strType) => ObjectStringToType(new StringSegment(strType));
+
+        public static object ObjectStringToType(StringSegment strType)
         {
             var type = ExtractType(strType);
             if (type != null)
             {
-                var parseFn = Serializer.GetParseFn(type);
+                var parseFn = Serializer.GetParseStringSegmentFn(type);
                 var propertyValue = parseFn(strType);
                 return propertyValue;
             }
 
-            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !string.IsNullOrEmpty(strType))
+            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !strType.IsNullOrEmpty())
             {
-                if (strType[0] == JsWriter.MapStartChar)
+                if (strType.GetChar(0) == JsWriter.MapStartChar)
                 {
-                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, Serializer.UnescapeString, Serializer.UnescapeString);
+                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, v => Serializer.UnescapeString(v).Value, v => Serializer.UnescapeString(v).Value);
                     if (dynamicMatch != null && dynamicMatch.Count > 0)
                     {
                         return dynamicMatch;
                     }
                 }
 
-                if (strType[0] == JsWriter.ListStartChar)
+                if (strType.GetChar(0) == JsWriter.ListStartChar)
                 {
-                    return DeserializeList<List<object>, TSerializer>.Parse(strType);
+                    return DeserializeList<List<object>, TSerializer>.ParseStringSegment(strType);
                 }
             }
 
-            return Serializer.UnescapeString(strType);
+            return (JsConfig.TryToParsePrimitiveTypeValues
+                ? ParsePrimitive(strType.Value)
+                : null) ?? Serializer.UnescapeString(strType).Value;
         }
 
-        public static Type ExtractType(string strType)
-        {
-            if (strType == null || strType.Length <= 1) return null;
+        public static Type ExtractType(string strType) => ExtractType(new StringSegment(strType));
 
-            var hasWhitespace = JsonUtils.WhiteSpaceChars.Contains(strType[1]);
+        //TODO: optimize ExtractType
+        public static Type ExtractType(StringSegment strType)
+        {
+            if (!strType.HasValue || strType.Length <= 1) return null;
+
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType.GetChar(1));
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
                 if (pos >= 0)
-                    strType = "{" + strType.Substring(pos);
+                    strType = new StringSegment("{" + strType.Substring(pos, strType.Length - pos));
             }
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
@@ -87,9 +99,11 @@ namespace ServiceStack.Text.Common
                 && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex));
+                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex)).Value;
 
                 var type = JsConfig.TypeFinder(typeName);
+
+                JsWriter.AssertAllowedRuntimeType(type);
 
                 if (type == null)
                 {
@@ -102,15 +116,17 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-        public static object ParseAbstractType<T>(string value)
+        public static object ParseAbstractType<T>(string value) => ParseAbstractType<T>(new StringSegment(value));
+
+        public static object ParseAbstractType<T>(StringSegment value)
         {
             if (typeof(T).IsAbstract())
             {
-                if (string.IsNullOrEmpty(value)) return null;
+                if (value.IsNullOrEmpty()) return null;
                 var concreteType = ExtractType(value);
                 if (concreteType != null)
                 {
-                    return Serializer.GetParseFn(concreteType)(value);
+                    return Serializer.GetParseStringSegmentFn(concreteType)(value);
                 }
                 Tracer.Instance.WriteWarning(
                     "Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
@@ -121,23 +137,17 @@ namespace ServiceStack.Text.Common
         public static object ParseQuotedPrimitive(string value)
         {
             var fn = JsConfig.ParsePrimitiveFn;
-            if (fn != null)
-            {
-                var result = fn(value);
-                if (result != null)
-                    return result;
-            }
+            var result = fn?.Invoke(value);
+            if (result != null)
+                return result;
 
-            if (string.IsNullOrEmpty(value)) 
+            if (string.IsNullOrEmpty(value))
                 return null;
 
-            Guid guidValue;
-            if (Guid.TryParse(value, out guidValue)) return guidValue;
+            if (Guid.TryParse(value, out Guid guidValue)) return guidValue;
 
             if (value.StartsWith(DateTimeSerializer.EscapedWcfJsonPrefix, StringComparison.Ordinal) || value.StartsWith(DateTimeSerializer.WcfJsonPrefix, StringComparison.Ordinal))
-            {
                 return DateTimeSerializer.ParseWcfJsonDate(value);
-            }
 
             if (JsConfig.DateHandler == DateHandler.ISO8601)
             {
@@ -167,41 +177,38 @@ namespace ServiceStack.Text.Common
             return Serializer.UnescapeString(value);
         }
 
-        public static object ParsePrimitive(string value)
+        public static object ParsePrimitive(string value) => ParsePrimitive(new StringSegment(value));
+
+        public static object ParsePrimitive(StringSegment value)
         {
             var fn = JsConfig.ParsePrimitiveFn;
-            if (fn != null)
-            {
-                var result = fn(value);
-                if (result != null)
-                    return result;
-            }
+            var result = fn?.Invoke(value.Value);
+            if (result != null)
+                return result;
 
-            if (string.IsNullOrEmpty(value)) 
+            if (value.IsNullOrEmpty())
                 return null;
 
-            bool boolValue;
-            if (bool.TryParse(value, out boolValue)) 
+            if (value.TryParseBoolean(out bool boolValue))
                 return boolValue;
 
             // Parse as decimal
-            decimal decimalValue;
-            var acceptDecimal = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Decimal);
-            var isDecimal = decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalValue);
+            var acceptDecimal = JsConfig.ParsePrimitiveFloatingPointTypes.Has(ParseAsType.Decimal);
+            var isDecimal = value.TryParseDecimal(out decimal decimalValue);
 
             // Check if the number is an Primitive Integer type given that we have a decimal
             if (isDecimal && decimalValue == decimal.Truncate(decimalValue))
             {
                 // Value is a whole number
                 var parseAs = JsConfig.ParsePrimitiveIntegerTypes;
-                if (parseAs.HasFlag(ParseAsType.Byte) && decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
-                if (parseAs.HasFlag(ParseAsType.SByte) && decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
-                if (parseAs.HasFlag(ParseAsType.Int16) && decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
-                if (parseAs.HasFlag(ParseAsType.UInt16) && decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
-                if (parseAs.HasFlag(ParseAsType.Int32) && decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
-                if (parseAs.HasFlag(ParseAsType.UInt32) && decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
-                if (parseAs.HasFlag(ParseAsType.Int64) && decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
-                if (parseAs.HasFlag(ParseAsType.UInt64) && decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
+                if (parseAs.Has(ParseAsType.Byte) && decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue) return (byte)decimalValue;
+                if (parseAs.Has(ParseAsType.SByte) && decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue) return (sbyte)decimalValue;
+                if (parseAs.Has(ParseAsType.Int16) && decimalValue <= Int16.MaxValue && decimalValue >= Int16.MinValue) return (Int16)decimalValue;
+                if (parseAs.Has(ParseAsType.UInt16) && decimalValue <= UInt16.MaxValue && decimalValue >= UInt16.MinValue) return (UInt16)decimalValue;
+                if (parseAs.Has(ParseAsType.Int32) && decimalValue <= Int32.MaxValue && decimalValue >= Int32.MinValue) return (Int32)decimalValue;
+                if (parseAs.Has(ParseAsType.UInt32) && decimalValue <= UInt32.MaxValue && decimalValue >= UInt32.MinValue) return (UInt32)decimalValue;
+                if (parseAs.Has(ParseAsType.Int64) && decimalValue <= Int64.MaxValue && decimalValue >= Int64.MinValue) return (Int64)decimalValue;
+                if (parseAs.Has(ParseAsType.UInt64) && decimalValue <= UInt64.MaxValue && decimalValue >= UInt64.MinValue) return (UInt64)decimalValue;
                 return decimalValue;
             }
 
@@ -211,15 +218,13 @@ namespace ServiceStack.Text.Common
             if (isDecimal && acceptDecimal)
                 return decimalValue;
 
-            float floatValue;
             var acceptFloat = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Single);
-            var isFloat = float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out floatValue);
+            var isFloat = value.TryParseFloat(out float floatValue);
             if (acceptFloat && isFloat)
                 return floatValue;
 
-            double doubleValue;
             var acceptDouble = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Double);
-            var isDouble = double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out doubleValue);
+            var isDouble = value.TryParseDouble(out double doubleValue);
             if (acceptDouble && isDouble)
                 return doubleValue;
 
@@ -235,7 +240,7 @@ namespace ServiceStack.Text.Common
 
         internal static object ParsePrimitive(string value, char firstChar)
         {
-            if (typeof(TSerializer) == typeof(JsonTypeSerializer))
+            if (typeof(TSerializer) == typeof(Json.JsonTypeSerializer))
             {
                 return firstChar == JsWriter.QuoteChar
                     ? ParseQuotedPrimitive(value)
@@ -247,20 +252,23 @@ namespace ServiceStack.Text.Common
 
     internal class TypeAccessor
     {
-        internal ParseStringDelegate GetProperty;
-        internal SetPropertyDelegate SetProperty;
+        internal ParseStringSegmentDelegate GetProperty;
+        internal SetMemberDelegate SetProperty;
         internal Type PropertyType;
 
         public static Type ExtractType(ITypeSerializer Serializer, string strType)
-        {
-            if (strType == null || strType.Length <= 1) return null;
+            => ExtractType(Serializer, new StringSegment(strType));
 
-            var hasWhitespace = JsonUtils.WhiteSpaceChars.Contains(strType[1]);
+        public static Type ExtractType(ITypeSerializer Serializer, StringSegment strType)
+        {
+            if (!strType.HasValue || strType.Length <= 1) return null;
+
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType.GetChar(1));
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
                 if (pos >= 0)
-                    strType = "{" + strType.Substring(pos);
+                    strType = new StringSegment("{" + strType.Substring(pos));
             }
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
@@ -268,7 +276,7 @@ namespace ServiceStack.Text.Common
                 && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.EatValue(strType, ref propIndex);
+                var typeName = Serializer.EatValue(strType, ref propIndex).Value;
                 var type = JsConfig.TypeFinder(typeName);
 
                 if (type == null)
@@ -284,29 +292,56 @@ namespace ServiceStack.Text.Common
             return new TypeAccessor
             {
                 PropertyType = propertyInfo.PropertyType,
-                GetProperty = serializer.GetParseFn(propertyInfo.PropertyType),
+                GetProperty = GetPropertyMethod(serializer, propertyInfo),
                 SetProperty = GetSetPropertyMethod(typeConfig, propertyInfo),
             };
         }
 
-        private static SetPropertyDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+        internal static ParseStringSegmentDelegate GetPropertyMethod(ITypeSerializer serializer, PropertyInfo propertyInfo)
         {
-            if (propertyInfo.ReflectedType() != propertyInfo.DeclaringType)
+            var getPropertyFn = serializer.GetParseStringSegmentFn(propertyInfo.PropertyType);
+            if (propertyInfo.PropertyType == typeof(object) || 
+                propertyInfo.PropertyType.HasInterface(typeof(IEnumerable<object>)))
+            {
+                var declaringTypeNamespace = propertyInfo.DeclaringType?.Namespace;
+                if (declaringTypeNamespace == null || (!JsConfig.AllowRuntimeTypeInTypesWithNamespaces.Contains(declaringTypeNamespace)
+                    && !JsConfig.AllowRuntimeTypeInTypes.Contains(propertyInfo.DeclaringType.FullName)))
+                {
+                    return value =>
+                    {
+                        var hold = JsState.IsRuntimeType;
+                        try
+                        {
+                            JsState.IsRuntimeType = true;
+                            return getPropertyFn(value);
+                        }
+                        finally
+                        {
+                            JsState.IsRuntimeType = hold;
+                        }
+                    };
+                }
+            }
+            return getPropertyFn;
+        }
+
+        private static SetMemberDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
+        {
+            if (typeConfig.Type != propertyInfo.DeclaringType)
                 propertyInfo = propertyInfo.DeclaringType.GetPropertyInfo(propertyInfo.Name);
 
-            if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetterses) return null;
+            if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetters) return null;
 
             FieldInfo fieldInfo = null;
             if (!propertyInfo.CanWrite)
             {
-                //TODO: What string comparison is used in SST?
-                string fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
+                var fieldNameFormat = Env.IsMono ? "<{0}>" : "<{0}>i__Field";
                 var fieldName = string.Format(fieldNameFormat, propertyInfo.Name);
 
                 var fieldInfos = typeConfig.Type.GetWritableFields();
                 foreach (var f in fieldInfos)
                 {
-                    if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name == fieldName)
+                    if (f.IsInitOnly && f.FieldType == propertyInfo.PropertyType && f.Name.EqualsIgnoreCase(fieldName))
                     {
                         fieldInfo = f;
                         break;
@@ -316,19 +351,9 @@ namespace ServiceStack.Text.Common
                 if (fieldInfo == null) return null;
             }
 
-            return PclExport.Instance.GetSetMethod(propertyInfo, fieldInfo);
-        }
-
-        internal static SetPropertyDelegate GetSetPropertyMethod(Type type, PropertyInfo propertyInfo)
-        {
-            if (!propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Any()) return null;
-
-            return PclExport.Instance.GetSetPropertyMethod(propertyInfo);
-        }
-
-        internal static SetPropertyDelegate GetSetFieldMethod(Type type, FieldInfo fieldInfo)
-        {
-            return PclExport.Instance.GetSetFieldMethod(fieldInfo);
+            return propertyInfo.CanWrite
+                ? PclExport.Instance.CreateSetter(propertyInfo)
+                : PclExport.Instance.CreateSetter(fieldInfo);
         }
 
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
@@ -336,17 +361,25 @@ namespace ServiceStack.Text.Common
             return new TypeAccessor
             {
                 PropertyType = fieldInfo.FieldType,
-                GetProperty = serializer.GetParseFn(fieldInfo.FieldType),
+                GetProperty = serializer.GetParseStringSegmentFn(fieldInfo.FieldType),
                 SetProperty = GetSetFieldMethod(typeConfig, fieldInfo),
             };
         }
 
-        private static SetPropertyDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
+        private static SetMemberDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
         {
-            if (fieldInfo.ReflectedType() != fieldInfo.DeclaringType)
+            if (typeConfig.Type != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
 
-            return PclExport.Instance.GetSetFieldMethod(fieldInfo);
+            return PclExport.Instance.CreateSetter(fieldInfo);
+        }
+    }
+
+    internal static class DeserializeTypeExensions
+    {
+        public static bool Has(this ParseAsType flags, ParseAsType flag)
+        {
+            return (flag & flags) != 0;
         }
     }
 }

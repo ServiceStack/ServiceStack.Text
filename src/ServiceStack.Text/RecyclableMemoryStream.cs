@@ -158,7 +158,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// Initializes the memory manager with the default block/buffer specifications.
         /// </summary>
         public RecyclableMemoryStreamManager()
-            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize) { }
+            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize)
+        { }
 
         /// <summary>
         /// Initializes the memory manager with the given block requiredSize.
@@ -933,7 +934,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
                 Events.Write.MemoryStreamFinalized(this.id, this.tag, this.allocationStack);
 
-#if !PCL
+#if !(PCL || NETSTANDARD1_1)
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
@@ -970,7 +971,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <summary>
         /// Equivalent to Dispose
         /// </summary>
-#if !PCL
+#if !(PCL || NETSTANDARD1_1)
         public override void Close()
 #else
         public void Close()
@@ -1099,7 +1100,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <remarks>IMPORTANT: Doing a Write() after calling GetBuffer() invalidates the buffer. The old buffer is held onto
         /// until Dispose is called, but the next time GetBuffer() is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-#if !PCL
+#if !(PCL || NETSTANDARD1_1)
         public override byte[] GetBuffer()
 #else
         public byte[] GetBuffer()

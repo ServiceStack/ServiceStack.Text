@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
@@ -33,7 +34,7 @@ namespace ServiceStack.Text.Common
             return serializationException;
         }
 
-        internal static Dictionary<string, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
+        internal static Dictionary<HashedStringSegment, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
             var isDataContract = type.IsDto();
@@ -42,7 +43,7 @@ namespace ServiceStack.Text.Common
             var fieldInfos = type.GetSerializableFields();
             if (propertyInfos.Length == 0 && fieldInfos.Length == 0) return null;
 
-            var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
+            var map = new Dictionary<HashedStringSegment, TypeAccessor>();
 
             if (propertyInfos.Length != 0)
             {
@@ -52,12 +53,12 @@ namespace ServiceStack.Text.Common
                     if (isDataContract)
                     {
                         var dcsDataMember = propertyInfo.GetDataMember();
-                        if (dcsDataMember != null && dcsDataMember.Name != null)
+                        if (dcsDataMember?.Name != null)
                         {
                             propertyName = dcsDataMember.Name;
                         }
                     }
-                    map[propertyName] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
+                    map[new HashedStringSegment(propertyName)] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
                 }
             }
 
@@ -65,16 +66,16 @@ namespace ServiceStack.Text.Common
             {
                 foreach (var fieldInfo in fieldInfos)
                 {
-                    var field = fieldInfo.Name;
+                    var fieldName = fieldInfo.Name;
                     if (isDataContract)
                     {
                         var dcsDataMember = fieldInfo.GetDataMember();
-                        if (dcsDataMember != null && dcsDataMember.Name != null)
+                        if (dcsDataMember?.Name != null)
                         {
-                            field = dcsDataMember.Name;
+                            fieldName = dcsDataMember.Name;
                         }
                     }
-                    map[field] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
+                    map[new HashedStringSegment(fieldName)] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
                 }
             }
             return map;

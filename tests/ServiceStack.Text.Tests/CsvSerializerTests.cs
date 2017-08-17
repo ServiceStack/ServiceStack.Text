@@ -1,186 +1,410 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
 
 namespace ServiceStack.Text.Tests
 {
-	[TestFixture]
-	public class CsvSerializerTests
-	{
-		static CsvSerializerTests()
-		{
-			NorthwindData.LoadData(false);
-		}
+    [TestFixture]
+#if NETCORE_SUPPORT
+    [Ignore("Fix Northwind.dll")]
+#endif
+    public class CsvSerializerTests
+    {
+        static CsvSerializerTests()
+        {
+            NorthwindData.LoadData(false);
+        }
 
-		public void Serialize<T>(T data)
-		{
-			//TODO: implement serializer and test properly
-			var csv = CsvSerializer.SerializeToString(data);
-			csv.Print();
-		}
+        [OneTimeSetUp]
+        public void TestFixtureSetUp()
+        {
+            JsConfig.SkipDateTimeConversion = true;
+        }
 
-		[Test]
-		public void Can_Serialize_Movie()
-		{
-			Serialize(MoviesData.Movies[0]);
-		}
+        [OneTimeTearDown]
+        public void TestFixtureTearDown()
+        {
+            JsConfig.Reset();
+        }
 
-		[Test]
-		public void Can_Serialize_Movies()
-		{
-			Serialize(MoviesData.Movies);
-		}
+        public void Serialize<T>(T data)
+        {
+            //TODO: implement serializer and test properly
+            var csv = CsvSerializer.SerializeToString(data);
+            csv.Print();
+        }
+
+        public object SerializeAndDeserialize<T>(T data)
+        {
+            var csv = CsvSerializer.SerializeToString(data);
+            csv.Print();
+
+            var dto = CsvSerializer.DeserializeFromString<T>(csv);
+            AssertEqual(dto, data);
+
+            using (var reader = new StringReader(csv))
+            {
+                dto = CsvSerializer.DeserializeFromReader<T>(reader);
+                AssertEqual(dto, data);
+            }
+
+            using (var ms = new MemoryStream(csv.ToUtf8Bytes()))
+            {
+                dto = CsvSerializer.DeserializeFromStream<T>(ms);
+                AssertEqual(dto, data);
+            }
+
+            using (var ms = new MemoryStream(csv.ToUtf8Bytes()))
+            {
+                dto = (T)CsvSerializer.DeserializeFromStream(typeof(T), ms);
+                AssertEqual(dto, data);
+            }
+
+            return dto;
+        }
+
+        private static void AssertEqual<T>(T dto, T data)
+        {
+            var dataArray = data is IEnumerable ? (data as IEnumerable).Map(x => x).ToArray() : null;
+            var dtoArray = dto is IEnumerable ? (dto as IEnumerable).Map(x => x).ToArray() : null;
+
+            if (dataArray != null && dtoArray != null)
+                Assert.That(dtoArray, Is.EquivalentTo(dataArray));
+            else
+                Assert.That(dto, Is.EqualTo(data));
+        }
+
+        [Test]
+        public void Does_parse_new_lines()
+        {
+            Assert.That(CsvReader.ParseLines("A,B\nC,D"), Is.EquivalentTo(new[] { "A,B", "C,D" }));
+            Assert.That(CsvReader.ParseLines("A,B\nC,D\n"), Is.EquivalentTo(new[] { "A,B", "C,D" }));
+            Assert.That(CsvReader.ParseLines("A,B\nC,D\n\n"), Is.EquivalentTo(new[] { "A,B", "C,D" }));
+
+            Assert.That(CsvReader.ParseLines("A,B\r\nC,D"), Is.EquivalentTo(new[] { "A,B", "C,D" }));
+            Assert.That(CsvReader.ParseLines("A,B\r\nC,D\r\n"), Is.EquivalentTo(new[] { "A,B", "C,D" }));
+            Assert.That(CsvReader.ParseLines("A,B\r\nC,D\r\n\r\n"), Is.EquivalentTo(new[] { "A,B", "C,D" }));
+
+            Assert.That(CsvReader.ParseLines("\"A,B\"\n\"C,D\""), Is.EquivalentTo(new[] { "\"A,B\"", "\"C,D\"" }));
+            Assert.That(CsvReader.ParseLines("\"A,B\",B\nC,\"C,D\""), Is.EquivalentTo(new[] { "\"A,B\",B", "C,\"C,D\"" }));
+
+            Assert.That(CsvReader.ParseLines("\"A\nB\",B\nC,\"C\r\nD\""), Is.EquivalentTo(new[] { "\"A\nB\",B", "C,\"C\r\nD\"" }));
+        }
+
+        [Test]
+        public void Does_parse_fields()
+        {
+            Assert.That(CsvReader.ParseFields("A,B"), Is.EquivalentTo(new[] { "A", "B" }));
+            Assert.That(CsvReader.ParseFields("\"A\",B"), Is.EquivalentTo(new[] { "A", "B" }));
+            Assert.That(CsvReader.ParseFields("\"A\",\"B,C\""), Is.EquivalentTo(new[] { "A", "B,C" }));
+            Assert.That(CsvReader.ParseFields("\"A\nB\",\"B,\r\nC\""), Is.EquivalentTo(new[] { "A\nB", "B,\r\nC" }));
+            Assert.That(CsvReader.ParseFields("\"A\"\",B\""), Is.EquivalentTo(new[] { "A\",B" }));
+
+            Assert.That(CsvReader.ParseFields(",A,B"), Is.EquivalentTo(new[] { null, "A", "B" }));
+            Assert.That(CsvReader.ParseFields("A,,B"), Is.EquivalentTo(new[] { "A", null, "B" }));
+            Assert.That(CsvReader.ParseFields("A,B,"), Is.EquivalentTo(new[] { "A", "B", null }));
+
+            Assert.That(CsvReader.ParseFields("\"\",A,B"), Is.EquivalentTo(new[] { "", "A", "B" }));
+            Assert.That(CsvReader.ParseFields("A,\"\",B"), Is.EquivalentTo(new[] { "A", "", "B" }));
+            Assert.That(CsvReader.ParseFields("A,B,\"\""), Is.EquivalentTo(new[] { "A", "B", "" }));
+        }
+
+        [Test]
+        public void Does_parse_fileds_with_unmatchedJsMark()
+        {
+            Assert.That(CsvReader.ParseFields("{A,B"), Is.EqualTo(new[] { "{A", "B" }));
+            Assert.That(CsvReader.ParseFields("{A},B"), Is.EqualTo(new[] { "{A}", "B" }));
+            Assert.That(CsvReader.ParseFields("[A,B"), Is.EqualTo(new[] { "[A", "B" }));
+            Assert.That(CsvReader.ParseFields("[A],B"), Is.EqualTo(new[] { "[A]", "B" }));
+            Assert.That(CsvReader.ParseFields("[{A],B"), Is.EqualTo(new[] { "[{A]", "B" }));
+            Assert.That(CsvReader.ParseFields("[A},B"), Is.EqualTo(new[] { "[A}", "B" }));
+            Assert.That(CsvReader.ParseFields("[[A],B"), Is.EqualTo(new[] { "[[A]", "B" }));
+            Assert.That(CsvReader.ParseFields("A],B"), Is.EqualTo(new[] { "A]", "B" }));
+            Assert.That(CsvReader.ParseFields("A},B"), Is.EqualTo(new[] { "A}", "B" }));
+        }
+
+        [Test]
+        public void Can_Serialize_Movie()
+        {
+            Serialize(MoviesData.Movies[0]);
+        }
+
+        [Test]
+        public void Can_Serialize_Movies()
+        {
+            SerializeAndDeserialize(MoviesData.Movies);
+        }
+
+        [Test]
+        public void Can_Serialize_inherited_Movies()
+        {
+            SerializeAndDeserialize(new Movies(MoviesData.Movies));
+        }
+
+        [Test]
+        public void Does_Serialize_back_into_Array()
+        {
+            var dto = SerializeAndDeserialize(MoviesData.Movies.ToArray());
+            Assert.That(dto.GetType().IsArray);
+        }
+
+        public class SubMovie
+        {
+            public DateTime ReleaseDate { get; set; }
+            public string Title { get; set; }
+            public decimal Rating { get; set; }
+            public string ImdbId { get; set; }
+        }
+
+        [Test]
+        public void Does_serialize_partial_DTO_in_order_of_Headers()
+        {
+            var subMovies = MoviesData.Movies.Map(x => x.ConvertTo<SubMovie>());
+            var csv = CsvSerializer.SerializeToString(subMovies);
+
+            csv.Print();
+            Assert.That(csv, Does.StartWith("ReleaseDate,Title,Rating,ImdbId\r\n"));
+
+            var movies = csv.FromCsv<List<Movie>>();
+
+            Assert.That(movies.Count, Is.EqualTo(subMovies.Count));
+            for (int i = 0; i < subMovies.Count; i++)
+            {
+                var actual = movies[i];
+                var expected = MoviesData.Movies[i];
+
+                Assert.That(actual.Id, Is.EqualTo(0));
+                Assert.That(actual.ReleaseDate, Is.EqualTo(expected.ReleaseDate));
+                Assert.That(actual.Title, Is.EqualTo(expected.Title));
+                Assert.That(actual.Rating, Is.EqualTo(expected.Rating));
+                Assert.That(actual.ImdbId, Is.EqualTo(expected.ImdbId));
+            }
+        }
 
         [Test]
         public void Can_Serialize_MovieResponse_Dto()
         {
-            Serialize(new MovieResponse { Movie = MoviesData.Movies[0] });
+            SerializeAndDeserialize(new MovieResponse { Movie = MoviesData.Movies[0] });
         }
 
         [Test]
         public void Can_Serialize_MoviesResponse_Dto()
         {
-            Serialize(new MoviesResponse { Movies = MoviesData.Movies });
+            SerializeAndDeserialize(new MoviesResponse { Movies = MoviesData.Movies });
         }
 
         [Test]
         public void Can_Serialize_MoviesResponse2_Dto()
         {
-            Serialize(new MoviesResponse2 { Movies = MoviesData.Movies });
+            SerializeAndDeserialize(new MoviesResponse2 { Movies = MoviesData.Movies });
         }
 
-		[Test]
-		public void serialize_Category()
-		{
-			Serialize(NorthwindData.Categories[0]);
-		}
+        [Test]
+        public void Can_Deserialize_into_String_Dictionary()
+        {
+            var csv = MoviesData.Movies.ToCsv();
 
-		[Test]
-		public void serialize_Categories()
-		{
-			Serialize(NorthwindData.Categories);
-		}
+            var dynamicMap = csv.FromCsv<List<Dictionary<string, string>>>();
+            Assert.That(dynamicMap.Count, Is.EqualTo(MoviesData.Movies.Count));
 
-		[Test]
-		public void serialize_Customer()
-		{
-			Serialize(NorthwindData.Customers[0]);
-		}
+            dynamicMap.PrintDump();
 
-		[Test]
-		public void serialize_Customers()
-		{
-			Serialize(NorthwindData.Customers);
-		}
+            var movie = MoviesData.Movies[0];
+            var map = dynamicMap[0];
 
-		[Test]
-		public void serialize_Employee()
-		{
-			Serialize(NorthwindData.Employees[0]);
-		}
+            Assert.That(map["Id"], Is.EqualTo(movie.Id.ToString()));
+            Assert.That(map["ImdbId"], Is.EqualTo(movie.ImdbId));
+            Assert.That(map["Title"], Is.EqualTo(movie.Title));
+            Assert.That(map["Rating"], Is.EqualTo(movie.Rating.ToString()));
+            Assert.That(map["Director"], Is.EqualTo(movie.Director));
+            Assert.That(map["ReleaseDate"], Is.EqualTo(movie.ReleaseDate.ToJsv()));
+            Assert.That(map["TagLine"], Is.EqualTo(movie.TagLine));
+            Assert.That(map["Genres"], Is.EqualTo(movie.Genres.ToJsv()));
+        }
 
-		[Test]
-		public void serialize_Employees()
-		{
-			Serialize(NorthwindData.Employees);
-		}
+        [Test]
+        public void Can_deserialize_into_String_List()
+        {
+            var csv = MoviesData.Movies.ToCsv();
 
-		[Test]
-		public void serialize_EmployeeTerritory()
-		{
-			Serialize(NorthwindData.EmployeeTerritories[0]);
-		}
+            var dynamicList = csv.FromCsv<List<List<string>>>();
+            Assert.That(dynamicList.Count - 1, Is.EqualTo(MoviesData.Movies.Count));
 
-		[Test]
-		public void serialize_EmployeeTerritories()
-		{
-			Serialize(NorthwindData.EmployeeTerritories);
-		}
+            dynamicList.PrintDump();
 
-		[Test]
-		public void serialize_OrderDetail()
-		{
-			Serialize(NorthwindData.OrderDetails[0]);
-		}
+            var movie = MoviesData.Movies[0];
+            var headers = dynamicList[0];
+            var first = dynamicList[1];
 
-		[Test]
-		public void serialize_OrderDetails()
-		{
-			Serialize(NorthwindData.OrderDetails);
-		}
+            Assert.That(headers[0], Is.EqualTo("Id"));
+            Assert.That(headers[1], Is.EqualTo("ImdbId"));
+            Assert.That(headers[2], Is.EqualTo("Title"));
+            Assert.That(headers[3], Is.EqualTo("Rating"));
+            Assert.That(headers[4], Is.EqualTo("Director"));
+            Assert.That(headers[5], Is.EqualTo("ReleaseDate"));
+            Assert.That(headers[6], Is.EqualTo("TagLine"));
+            Assert.That(headers[7], Is.EqualTo("Genres"));
 
-		[Test]
-		public void serialize_Order()
-		{
-			Serialize(NorthwindData.Orders[0]);
-		}
+            Assert.That(first[0], Is.EqualTo(movie.Id.ToString()));
+            Assert.That(first[1], Is.EqualTo(movie.ImdbId));
+            Assert.That(first[2], Is.EqualTo(movie.Title));
+            Assert.That(first[3], Is.EqualTo(movie.Rating.ToString()));
+            Assert.That(first[4], Is.EqualTo(movie.Director));
+            Assert.That(first[5], Is.EqualTo(movie.ReleaseDate.ToJsv()));
+            Assert.That(first[6], Is.EqualTo(movie.TagLine));
+            Assert.That(first[7], Is.EqualTo(movie.Genres.ToJsv()));
+        }
 
-		[Test]
-		public void serialize_Orders()
-		{
-			Serialize(NorthwindData.Orders);
-		}
+        [Test]
+        public void Can_Serialize_using_custom_CSV_ItemString()
+        {
+            CsvConfig.ItemSeperatorString = ";";
+            var csv = NorthwindData.OrderDetails[0].ToCsv();
 
-		[Test]
-		public void serialize_Product()
-		{
-			Serialize(NorthwindData.Products[0]);
-		}
+            Assert.That(csv, Is.EqualTo(
+                "Id;OrderId;ProductId;UnitPrice;Quantity;Discount\r\n10248/11;10248;11;14;12;0\r\n"));
 
-		[Test]
-		public void serialize_Products()
-		{
-			Serialize(NorthwindData.Products);
-		}
+            var row = csv.FromCsv<OrderDetail>();
 
-		[Test]
-		public void serialize_Region()
-		{
-			Serialize(NorthwindData.Regions[0]);
-		}
+            Assert.That(row, Is.EqualTo(NorthwindData.OrderDetails[0]));
 
-		[Test]
-		public void serialize_Regions()
-		{
-			Serialize(NorthwindData.Regions);
-		}
+            CsvConfig.Reset();
+        }
 
-		[Test]
-		public void serialize_Shipper()
-		{
-			Serialize(NorthwindData.Shippers[0]);
-		}
+        [Test]
+        public void serialize_Category()
+        {
+            SerializeAndDeserialize(NorthwindData.Categories[0]);
+        }
 
-		[Test]
-		public void serialize_Shippers()
-		{
-			Serialize(NorthwindData.Shippers);
-		}
+        [Test]
+        public void serialize_Categories()
+        {
+            SerializeAndDeserialize(NorthwindData.Categories);
+        }
 
-		[Test]
-		public void serialize_Supplier()
-		{
-			Serialize(NorthwindData.Suppliers[0]);
-		}
+        [Test]
+        public void serialize_Customer()
+        {
+            SerializeAndDeserialize(NorthwindData.Customers[0]);
+        }
 
-		[Test]
-		public void serialize_Suppliers()
-		{
-			Serialize(NorthwindData.Suppliers);
-		}
+        [Test]
+        public void serialize_Customers()
+        {
+            SerializeAndDeserialize(NorthwindData.Customers);
+        }
 
-		[Test]
-		public void serialize_Territory()
-		{
-			Serialize(NorthwindData.Territories[0]);
-		}
+        [Test]
+        public void serialize_Employee()
+        {
+            SerializeAndDeserialize(NorthwindData.Employees[0]);
+        }
 
-		[Test]
-		public void serialize_Territories()
-		{
-			Serialize(NorthwindData.Territories);
-		}
+        [Test]
+        public void serialize_Employees()
+        {
+            SerializeAndDeserialize(NorthwindData.Employees);
+        }
 
-	}
+        [Test]
+        public void serialize_EmployeeTerritory()
+        {
+            SerializeAndDeserialize(NorthwindData.EmployeeTerritories[0]);
+        }
+
+        [Test]
+        public void serialize_EmployeeTerritories()
+        {
+            SerializeAndDeserialize(NorthwindData.EmployeeTerritories);
+        }
+
+        [Test]
+        public void serialize_OrderDetail()
+        {
+            SerializeAndDeserialize(NorthwindData.OrderDetails[0]);
+        }
+
+        [Test]
+        public void serialize_OrderDetails()
+        {
+            SerializeAndDeserialize(NorthwindData.OrderDetails);
+        }
+
+        [Test]
+        public void serialize_Order()
+        {
+            SerializeAndDeserialize(NorthwindData.Orders[0]);
+        }
+
+        [Test]
+        public void serialize_Orders()
+        {
+            Serialize(NorthwindData.Orders);
+        }
+
+        [Test]
+        public void serialize_Product()
+        {
+            SerializeAndDeserialize(NorthwindData.Products[0]);
+        }
+
+        [Test]
+        public void serialize_Products()
+        {
+            SerializeAndDeserialize(NorthwindData.Products);
+        }
+
+        [Test]
+        public void serialize_Region()
+        {
+            SerializeAndDeserialize(NorthwindData.Regions[0]);
+        }
+
+        [Test]
+        public void serialize_Regions()
+        {
+            SerializeAndDeserialize(NorthwindData.Regions);
+        }
+
+        [Test]
+        public void serialize_Shipper()
+        {
+            SerializeAndDeserialize(NorthwindData.Shippers[0]);
+        }
+
+        [Test]
+        public void serialize_Shippers()
+        {
+            SerializeAndDeserialize(NorthwindData.Shippers);
+        }
+
+        [Test]
+        public void serialize_Supplier()
+        {
+            SerializeAndDeserialize(NorthwindData.Suppliers[0]);
+        }
+
+        [Test]
+        public void serialize_Suppliers()
+        {
+            SerializeAndDeserialize(NorthwindData.Suppliers);
+        }
+
+        [Test]
+        public void serialize_Territory()
+        {
+            SerializeAndDeserialize(NorthwindData.Territories[0]);
+        }
+
+        [Test]
+        public void serialize_Territories()
+        {
+            SerializeAndDeserialize(NorthwindData.Territories);
+        }
+    }
 }

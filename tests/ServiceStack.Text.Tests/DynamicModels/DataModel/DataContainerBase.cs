@@ -5,10 +5,12 @@ using System.Text;
 
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
-	[Serializable]
-	public abstract class DataContainerBase
-	{
-		public Guid Identifier { get; set; }
+#if !NETCORE
+    [Serializable]
+#endif
+    public abstract class DataContainerBase
+    {
+        public Guid Identifier { get; set; }
 
-	}
+    }
 }

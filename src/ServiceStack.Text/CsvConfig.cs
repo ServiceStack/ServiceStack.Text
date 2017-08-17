@@ -107,7 +107,7 @@ namespace ServiceStack.Text
         {
             get
             {
-                return tsRowSeparatorString ?? sRowSeparatorString ?? Environment.NewLine;
+                return tsRowSeparatorString ?? sRowSeparatorString ?? "\r\n";
             }
             set
             {
@@ -144,6 +144,7 @@ namespace ServiceStack.Text
                 customHeadersMap = value;
                 if (value == null) return;
                 CsvWriter<T>.ConfigureCustomHeaders(customHeadersMap);
+                CsvReader<T>.ConfigureCustomHeaders(customHeadersMap);
             }
         }
 
@@ -164,7 +165,7 @@ namespace ServiceStack.Text
                     var getMethod = pi.GetMethodInfo();
                     if (getMethod == null) continue;
 
-                    var oValue = getMethod.Invoke(value, new object[0]);
+                    var oValue = getMethod.Invoke(value, TypeConstants.EmptyObjectArray);
                     if (oValue == null) continue;
                     customHeadersMap[pi.Name] = oValue.ToString();
                 }

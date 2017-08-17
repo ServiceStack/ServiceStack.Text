@@ -12,7 +12,9 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class StructTests
     {
+#if !NETCORE
         [Serializable]
+#endif
         public class Foo
         {
             public string Name { get; set; }
@@ -24,7 +26,9 @@ namespace ServiceStack.Text.Tests
 
         public interface IText { }
 
+#if !NETCORE
         [Serializable]
+#endif
         public struct Text
         {
             private readonly string _value;
@@ -55,7 +59,7 @@ namespace ServiceStack.Text.Tests
             }
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
 #if IOS
@@ -67,12 +71,6 @@ namespace ServiceStack.Text.Tests
             JsConfig.RegisterTypeForAot<KeyValuePair<string, string>> ();
             JsConfig.RegisterTypeForAot<Pair> ();
 #endif
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            JsConfig.Reset();
         }
 
         [Test]
@@ -94,7 +92,6 @@ namespace ServiceStack.Text.Tests
 
             JsConfig<Text>.SerializeFn = text => text.ToString();
             JsConfig<Text>.DeSerializeFn = v => new Text(v);
-            JsConfig<Foo>.Refresh();
 
             var json = JsonSerializer.SerializeToString(dto, dto.GetType());
             Assert.That(json, Is.EqualTo("{\"Name\":\"My \\\"quoted\\\" name\",\"Content1\":\"My \\\"quoted\\\" content\"}"));
@@ -216,7 +213,9 @@ namespace ServiceStack.Text.Tests
             JsConfig.Reset();
         }
 
+#if !NETCORE 
         [Serializable]
+#endif
         protected struct DangerousText1
         {
             public static object Parse(string text)
@@ -225,7 +224,9 @@ namespace ServiceStack.Text.Tests
             }
         }
 
+#if !NETCORE
         [Serializable]
+#endif
         protected struct DangerousText2
         {
             public static int Parse(string text)
@@ -258,6 +259,7 @@ namespace ServiceStack.Text.Tests
             Assert.IsNull(ret);
         }
 
+#if !NETCORE
         [Explicit("Ensure this test has proven to work, before adding it to the test suite")]
         [Test]
         [TestCase("en")]
@@ -275,6 +277,7 @@ namespace ServiceStack.Text.Tests
             var r2 = s.DeserializeFromString(interim);
             Assert.AreEqual(r, r2);
         }
+#endif
     }
 
     public struct UserStruct

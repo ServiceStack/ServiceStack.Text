@@ -7,11 +7,11 @@ using ServiceStack.Text.Tests.DynamicModels;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
-	[TestFixture]
-	public class DictionaryTests
-	{
-		public class EdgeCaseProperties : Dictionary<string, string>
-		{
+    [TestFixture]
+    public class DictionaryTests
+    {
+        public class EdgeCaseProperties : Dictionary<string, string>
+        {
             private const string Id = "id";
 
             [DataMember]
@@ -27,59 +27,59 @@ namespace ServiceStack.Text.Tests.JsonTests
                 set { this[Id] = value.ToString(CultureInfo.InvariantCulture); }
             }
 
-			public static EdgeCaseProperties Create(int i)
-			{
-			    var value = new EdgeCaseProperties { id = i };
-			    value[i.ToString()] = i.ToString();
-			    return value;
-			}
-		}
+            public static EdgeCaseProperties Create(int i)
+            {
+                var value = new EdgeCaseProperties { id = i };
+                value[i.ToString()] = i.ToString();
+                return value;
+            }
+        }
 
-		[Test]
-		public void Can_Serialize()
-		{
-			var model = EdgeCaseProperties.Create(1);
-			var s = JsonSerializer.SerializeToString(model);
+        [Test]
+        public void Can_Serialize()
+        {
+            var model = EdgeCaseProperties.Create(1);
+            var s = JsonSerializer.SerializeToString(model);
 
-			Console.WriteLine(s);
-		}
+            Console.WriteLine(s);
+        }
 
-		[Test]
-		public void Can_Serialize_list()
-		{
-			var model = new List<EdgeCaseProperties>
-           	{
-				EdgeCaseProperties.Create(1),
-				EdgeCaseProperties.Create(2)
-           	};
-			var s = JsonSerializer.SerializeToString(model);
+        [Test]
+        public void Can_Serialize_list()
+        {
+            var model = new List<EdgeCaseProperties>
+               {
+                EdgeCaseProperties.Create(1),
+                EdgeCaseProperties.Create(2)
+               };
+            var s = JsonSerializer.SerializeToString(model);
 
-			Console.WriteLine(s);
-		}
+            Console.WriteLine(s);
+        }
 
-		[Test]
-		public void Can_Serialize_map()
-		{
-			var model = new Dictionary<string, EdgeCaseProperties>
-           	{
-				{"A", EdgeCaseProperties.Create(1)},
-				{"B", EdgeCaseProperties.Create(2)},
-           	};
-			var s = JsonSerializer.SerializeToString(model);
+        [Test]
+        public void Can_Serialize_map()
+        {
+            var model = new Dictionary<string, EdgeCaseProperties>
+               {
+                {"A", EdgeCaseProperties.Create(1)},
+                {"B", EdgeCaseProperties.Create(2)},
+               };
+            var s = JsonSerializer.SerializeToString(model);
 
-			Console.WriteLine(s);
-		}
+            Console.WriteLine(s);
+        }
 
         [Test]
         public void Can_Deserialize()
         {
-			const string json = "{\"id\":\"1\",\"1\":\"1\"}";
+            const string json = "{\"id\":\"1\",\"1\":\"1\"}";
 
             var model = EdgeCaseProperties.Create(1);
 
-			var fromJson = JsonSerializer.DeserializeFromString<EdgeCaseProperties>(json);
+            var fromJson = JsonSerializer.DeserializeFromString<EdgeCaseProperties>(json);
 
-			Assert.That(fromJson, Is.EqualTo(model));
+            Assert.That(fromJson, Is.EqualTo(model));
         }
 
         [DataContract]
@@ -96,20 +96,20 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void CanSerializeAndDeserializeTree()
         {
             var original = new Tree
-                           {
-                               Value = "root",
-                               Nodes = new List<Tree>
+            {
+                Value = "root",
+                Nodes = new List<Tree>
                                        {
                                            new Tree {Value = "foo"},
                                            new Tree {Value = "bar"},
                                            new Tree {Value = "baz"}
                                        }
-                           };
+            };
             var json = original.ToJson();
             Console.WriteLine(json);
             var result = JsonSerializer.DeserializeFromString<Tree>(json);
             var resultJson = result.ToJson();
             Assert.AreEqual(json, resultJson);
         }
-	}
+    }
 }

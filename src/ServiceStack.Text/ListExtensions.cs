@@ -1,10 +1,11 @@
-//Copyright (c) Service Stack LLC. All Rights Reserved.
+//Copyright (c) ServiceStack, Inc. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ServiceStack.Text;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack
@@ -18,14 +19,14 @@ namespace ServiceStack
 
         public static string Join<T>(this IEnumerable<T> values, string seperator)
         {
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
             foreach (var value in values)
             {
                 if (sb.Length > 0)
                     sb.Append(seperator);
                 sb.Append(value);
             }
-            return sb.ToString();
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static bool IsNullOrEmpty<T>(this List<T> list)
@@ -77,6 +78,6 @@ namespace ServiceStack
         {
             types.Add(typeof(T));
             return types;
-        } 
+        }
     }
 }

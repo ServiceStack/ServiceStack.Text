@@ -210,7 +210,7 @@ namespace ServiceStack.Text.Tests
             };
 
             Assert.That(CsvSerializer.SerializeToString(classTwo),
-                        Is.EqualTo(String.Format("NewName{0}Value{0}", Environment.NewLine)));
+                        Is.EqualTo(String.Format("NewName\r\nValue\r\n")));
         }
 
         [Test]
@@ -258,6 +258,7 @@ namespace ServiceStack.Text.Tests
             Assert.IsTrue (t.Bytes.AreEqual (new byte[] { 0x61, 0x62 }));
         }
 
+#if !NETCORE_SUPPORT
         [Test]
         public void Can_get_weak_DataMember()
         {
@@ -269,6 +270,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(dataMemberAttr.Name, Is.EqualTo("listClassTwo"));
             Assert.That(dataMemberAttr.Order, Is.EqualTo(1));
         }
+#endif
 
         [DataContract(Name = "my-class", Namespace = "http://schemas.ns.com")]
         public class MyClass
@@ -277,6 +279,7 @@ namespace ServiceStack.Text.Tests
             public string Title { get; set; }
         }
 
+#if !NETCORE_SUPPORT
         [Test]
         public void Can_get_weak_DataContract()
         {
@@ -287,6 +290,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(attr.Name, Is.EqualTo("my-class"));
             Assert.That(attr.Namespace, Is.EqualTo("http://schemas.ns.com"));
         }
+#endif
 
         [Test]
         public void Does_use_DataMember_Name()
@@ -294,6 +298,37 @@ namespace ServiceStack.Text.Tests
             var mc = new MyClass { Title = "Some random title" };
 
             Assert.That(mc.ToJson(), Is.EqualTo("{\"some-title\":\"Some random title\"}"));
+        }
+
+        [DataContract]
+        public class AliasWithDataContract
+        {
+            public int Id { get; set; }
+
+            [DataMember(Name = "alias")]
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Does_use_alias_and_is_optin_with_DataContract_Attribute()
+        {
+            var dto = new AliasWithDataContract { Id = 1, Name = "foo" };
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"alias\":\"foo\"}"));
+        }
+
+        public class AliasWithoutDataContract
+        {
+            public int Id { get; set; }
+
+            [DataMember(Name = "alias")]
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Does_use_alias_and_is_not_optin_without_DataContract_Attribute()
+        {
+            var dto = new AliasWithoutDataContract { Id = 1, Name = "foo" };
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":1,\"alias\":\"foo\"}"));
         }
 
     }

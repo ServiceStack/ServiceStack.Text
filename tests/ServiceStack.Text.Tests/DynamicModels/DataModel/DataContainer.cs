@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace ServiceStack.Text.Tests.DynamicModels.DataModel
 {
-	[Serializable]
-	public sealed class DataContainer : DataContainerBase
-	{
-		public IEnumerable<Type> TypeList { get; set; }
-		public Exception Exception { get; set; }
-		public object Object { get; set; }
-		public Type Type { get; set; }
-		//public IEnumerable<object> ObjectList { get; set; }
-	}
+#if !NETCORE
+    [Serializable]
+#endif
+    public sealed class DataContainer : DataContainerBase
+    {
+        public IEnumerable<Type> TypeList { get; set; }
+        public Exception Exception { get; set; }
+        public object Object { get; set; }
+        public Type Type { get; set; }
+        //public IEnumerable<object> ObjectList { get; set; }
+    }
 }

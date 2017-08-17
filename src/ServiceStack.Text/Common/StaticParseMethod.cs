@@ -5,7 +5,7 @@
 // Authors:
 //   Demis Bellot (demis.bellot@gmail.com)
 //
-// Copyright 2012 Service Stack LLC. All Rights Reserved.
+// Copyright 2012 ServiceStack, Inc. All Rights Reserved.
 //
 // Licensed under the same terms of ServiceStack.
 //
@@ -14,6 +14,11 @@ using System;
 using System.Reflection;
 using System.Linq;
 using ServiceStack.Text.Jsv;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#else
+using ServiceStack.Text.Support;
+#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -25,7 +30,7 @@ namespace ServiceStack.Text.Common
         {
             // Get the static Parse(string) method on the type supplied
             var parseMethodInfo = typeof(T).GetStaticMethod(parseMethod, new[] { typeof(string) });
-            if (parseMethodInfo == null) 
+            if (parseMethodInfo == null)
                 return null;
 
             ParseDelegate parseDelegate = null;
@@ -52,22 +57,55 @@ namespace ServiceStack.Text.Common
 
             return null;
         }
+
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn<T>(string parseMethod)
+        {
+            // Get the static Parse(string) method on the type supplied
+            var parseMethodInfo = typeof(T).GetStaticMethod(parseMethod, new[] { typeof(string) });
+            if (parseMethodInfo == null)
+                return null;
+
+            ParseStringSegmentDelegate parseDelegate = null;
+            try
+            {
+                if (parseMethodInfo.ReturnType != typeof(T))
+                {
+                    parseDelegate = (ParseStringSegmentDelegate)parseMethodInfo.MakeDelegate(typeof(ParseStringSegmentDelegate), false);
+                }
+                if (parseDelegate == null)
+                {
+                    //Try wrapping strongly-typed return with wrapper fn.
+                    var typedParseDelegate = (Func<StringSegment, T>)parseMethodInfo.MakeDelegate(typeof(Func<StringSegment, T>));
+                    parseDelegate = x => typedParseDelegate(x);
+                }
+            }
+            catch (ArgumentException)
+            {
+                Tracer.Instance.WriteDebug("Nonstandard Parse method on type {0}", typeof(T));
+            }
+
+            if (parseDelegate != null)
+                return value => parseDelegate(new StringSegment(value.Value.FromCsvField()));
+
+            return null;
+        }
     }
 
     public static class StaticParseMethod<T>
     {
         const string ParseMethod = "Parse";
+        const string ParseStringSegmentMethod = "ParseStringSegment";
 
         private static readonly ParseStringDelegate CacheFn;
+        private static readonly ParseStringSegmentDelegate CacheStringSegmentFn;
 
-        public static ParseStringDelegate Parse
-        {
-            get { return CacheFn; }
-        }
+        public static ParseStringDelegate Parse => CacheFn;
+        public static ParseStringSegmentDelegate ParseStringSegment => CacheStringSegmentFn;
 
         static StaticParseMethod()
         {
             CacheFn = ParseMethodUtilities.GetParseFn<T>(ParseMethod);
+            CacheStringSegmentFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseMethod);
         }
 
     }
@@ -79,16 +117,20 @@ namespace ServiceStack.Text.Common
             ? "ParseJsv"
             : "ParseJson";
 
-        private static readonly ParseStringDelegate CacheFn;
+        static readonly string ParseStringSegmentMethod = typeof(TSerializer) == typeof(JsvTypeSerializer)
+            ? "ParseStringSegmentJsv"
+            : "ParseStringSegmentJson";
 
-        public static ParseStringDelegate Parse
-        {
-            get { return CacheFn; }
-        }
+        private static readonly ParseStringDelegate CacheFn;
+        private static readonly ParseStringSegmentDelegate CacheStringSegmentFn;
+
+        public static ParseStringDelegate Parse => CacheFn;
+        public static ParseStringSegmentDelegate ParseStringSegment => CacheStringSegmentFn;
 
         static StaticParseRefTypeMethod()
         {
             CacheFn = ParseMethodUtilities.GetParseFn<T>(ParseMethod);
+            CacheStringSegmentFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseStringSegmentMethod);
         }
     }
 

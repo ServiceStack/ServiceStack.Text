@@ -11,7 +11,11 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_not_use_custom_decimal()
         {
+#if NETCORE
+            CsvConfig.RealNumberCultureInfo = new CultureInfo("nl-NL");
+#else
             CsvConfig.RealNumberCultureInfo = CultureInfo.CreateSpecificCulture("nl-NL");
+#endif
 
             var num = new NumberTypes
             {
@@ -25,9 +29,9 @@ namespace ServiceStack.Text.Tests
             num.ToJsv().Print();
             num.ToCsv().Print();
 
-            Assert.That(num.ToJson(), Is.StringContaining("4444.4444"));
-            Assert.That(num.ToJsv(), Is.StringContaining("4444.4444"));
-            Assert.That(num.ToCsv(), Is.StringContaining("4444,4444"));
+            Assert.That(num.ToJson(), Does.Contain("4444.4444"));
+            Assert.That(num.ToJsv(), Does.Contain("4444.4444"));
+            Assert.That(num.ToCsv(), Does.Contain("4444,4444"));
 
             CsvConfig.RealNumberCultureInfo = null;
         }

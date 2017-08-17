@@ -1,17 +1,22 @@
-﻿// Copyright (c) Service Stack LLC. All Rights Reserved.
+﻿// Copyright (c) ServiceStack, Inc. All Rights Reserved.
 // License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using ServiceStack.Text;
+using ServiceStack.Text.Common;
 
 namespace ServiceStack
 {
     public class LicenseException : Exception
     {
         public LicenseException(string message) : base(message) { }
+        public LicenseException(string message, Exception innerException) : base(message, innerException) {}
     }
 
     public enum LicenseType
@@ -30,6 +35,9 @@ namespace ServiceStack
         AwsBusiness,
         Trial,
         Site,
+        TextSite,
+        RedisSite,
+        OrmLiteSite,
     }
 
     [Flags]
@@ -126,7 +134,6 @@ namespace ServiceStack
         public static class ErrorMessages
         {
             private const string UpgradeInstructions = " Please see https://servicestack.net to upgrade to a commercial license or visit https://github.com/ServiceStackV3/ServiceStackV3 to revert back to the free ServiceStack v3.";
-            internal const string ExceededTextTypes = "The free-quota limit on '{0} ServiceStack.Text Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisTypes = "The free-quota limit on '{0} Redis Types' has been reached." + UpgradeInstructions;
             internal const string ExceededRedisRequests = "The free-quota limit on '{0} Redis requests per hour' has been reached." + UpgradeInstructions;
             internal const string ExceededOrmLiteTables = "The free-quota limit on '{0} OrmLite Tables' has been reached." + UpgradeInstructions;
@@ -141,7 +148,6 @@ namespace ServiceStack
         {
             public const int ServiceStackOperations = 10;
             public const int TypeFields = 20;
-            public const int TextTypes = 20;
             public const int RedisTypes = 20;
             public const int RedisRequestPerHour = 6000;
             public const int OrmLiteTables = 10;
@@ -156,31 +162,32 @@ namespace ServiceStack
                     "See https://servicestack.net to upgrade to a valid license.").Trace();
         }
 
+        private static readonly int[] revokedSubs = { 4018, 4019, 4041, 4331, 4581 };
+
         private static LicenseKey __activatedLicense;
         public static void RegisterLicense(string licenseKeyText)
         {
-            string cutomerId = null;
+            JsConfig.InitStatics();
+
+            if (__activatedLicense != null) //Skip multple license registrations. Use RemoveLicense() to reset.
+                return;
+
+            string subId = null;
+#if !(PCL || NETSTANDARD1_1)
+            var hold = Thread.CurrentThread.CurrentCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+#endif
             try
             {
                 var parts = licenseKeyText.SplitOnFirst('-');
-                cutomerId = parts[0];
+                subId = parts[0];
 
-                LicenseKey key;
-                using (new AccessToken(LicenseFeature.Text))
-                {
-                    key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
-                }
+                int subIdInt;
+                if (int.TryParse(subId, out subIdInt) && revokedSubs.Contains(subIdInt))
+                    throw new LicenseException("This subscription has been revoked. " + ContactDetails);
 
-                var releaseDate = Env.GetReleaseDate();
-                if (releaseDate > key.Expiry)
-                    throw new LicenseException("This license has expired on {0} and is not valid for use with this release."
-                        .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
-
-                if (key.Type == LicenseType.Trial && DateTime.UtcNow > key.Expiry)
-                    throw new LicenseException("This trial license has expired on {0}."
-                        .Fmt(key.Expiry.ToString("d")) + ContactDetails).Trace();
-
-                __activatedLicense = key;
+                var key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
+                ValidateLicenseKey(key);
             }
             catch (Exception ex)
             {
@@ -188,11 +195,43 @@ namespace ServiceStack
                     throw;
 
                 var msg = "This license is invalid." + ContactDetails;
-                if (!string.IsNullOrEmpty(cutomerId))
-                    msg += " The id for this license is '{0}'".Fmt(cutomerId);
+                if (!string.IsNullOrEmpty(subId))
+                    msg += $" The id for this license is '{subId}'";
 
-                throw new LicenseException(msg).Trace();
+                lock (typeof(LicenseUtils))
+                {
+                    try
+                    {
+                        var key = PclExport.Instance.VerifyLicenseKeyTextFallback(licenseKeyText);
+                        ValidateLicenseKey(key);
+                    }
+                    catch (Exception exFallback)
+                    {
+                        throw new LicenseException(msg, exFallback).Trace();
+                    }
+                }
+
+                throw new LicenseException(msg, ex).Trace();
             }
+            finally
+            {
+#if !(PCL || NETSTANDARD1_1)
+                Thread.CurrentThread.CurrentCulture = hold;
+#endif
+            }
+        }
+
+        private static void ValidateLicenseKey(LicenseKey key)
+        {
+            var releaseDate = Env.GetReleaseDate();
+            if (releaseDate > key.Expiry)
+                throw new LicenseException($"This license has expired on {key.Expiry:d} and is not valid for use with this release."
+                                           + ContactDetails).Trace();
+
+            if (key.Type == LicenseType.Trial && DateTime.UtcNow > key.Expiry)
+                throw new LicenseException($"This trial license has expired on {key.Expiry:d}." + ContactDetails).Trace();
+
+            __activatedLicense = key;
         }
 
         public static void RemoveLicense()
@@ -228,24 +267,9 @@ namespace ServiceStack
             if ((LicenseFeature.All & licensedFeatures) == LicenseFeature.All) //Standard Usage
                 return;
 
-            if (AccessTokenScope != null)
-            {
-                if ((feature & AccessTokenScope.tempFeatures) == feature)
-                    return;
-            }
-
             //Free Quotas
             switch (feature)
             {
-                case LicenseFeature.Text:
-                    switch (quotaType)
-                    {
-                        case QuotaType.Types:
-                            ApprovedUsage(licensedFeatures, feature, FreeQuotas.TextTypes, count, ErrorMessages.ExceededTextTypes);
-                            return;
-                    }
-                    break;
-
                 case LicenseFeature.Redis:
                     switch (quotaType)
                     {
@@ -323,10 +347,12 @@ namespace ServiceStack
 
                 case LicenseType.TextIndie:
                 case LicenseType.TextBusiness:
+                case LicenseType.TextSite:
                     return LicenseFeature.Text;
 
                 case LicenseType.OrmLiteIndie:
                 case LicenseType.OrmLiteBusiness:
+                case LicenseType.OrmLiteSite:
                     return LicenseFeature.OrmLiteSku;
 
                 case LicenseType.AwsIndie:
@@ -335,6 +361,7 @@ namespace ServiceStack
 
                 case LicenseType.RedisIndie:
                 case LicenseType.RedisBusiness:
+                case LicenseType.RedisSite:
                     return LicenseFeature.RedisSku;
             }
             throw new ArgumentException("Unknown License Type: " + key.Type).Trace();
@@ -355,10 +382,11 @@ namespace ServiceStack
             {
                 JsConfig<DateTime>.DeSerializeFn = null;
                 JsConfig<DateTime>.RawDeserializeFn = null;
+
                 var key = jsv.FromJsv<LicenseKey>();
 
                 if (key.Ref != refId)
-                    throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64)).Trace();
+                    throw new LicenseException("The license '{0}' is not assigned to CustomerId '{1}'.".Fmt(base64, refId)).Trace();
 
                 return key;
             }
@@ -369,9 +397,33 @@ namespace ServiceStack
             }
         }
 
+        public static LicenseKey ToLicenseKeyFallback(this string licenseKeyText)
+        {
+            licenseKeyText = Regex.Replace(licenseKeyText, @"\s+", "");
+            var parts = licenseKeyText.SplitOnFirst('-');
+            var refId = parts[0];
+            var base64 = parts[1];
+            var jsv = Convert.FromBase64String(base64).FromUtf8Bytes();
+
+            var map = jsv.FromJsv<Dictionary<string, string>>();
+            var key = new LicenseKey
+            {
+                Ref = map.Get("Ref"),
+                Name = map.Get("Name"),
+                Type = (LicenseType)Enum.Parse(typeof(LicenseType), map.Get("Type"), ignoreCase: true),
+                Hash = map.Get("Hash"),
+                Expiry = DateTimeSerializer.ParseManual(map.Get("Expiry"), DateTimeKind.Utc).GetValueOrDefault(),
+            };
+
+            if (key.Ref != refId)
+                throw new LicenseException($"The license '{base64}' is not assigned to CustomerId '{refId}'.").Trace();
+
+            return key;
+        }
+
         public static string GetHashKeyToSign(this LicenseKey key)
         {
-            return "{0}:{1}:{2}:{3}".Fmt(key.Ref, key.Name, key.Expiry.ToString("yyyy-MM-dd"), key.Type);
+            return $"{key.Ref}:{key.Name}:{key.Expiry:yyyy-MM-dd}:{key.Type}";
         }
 
         public static Exception GetInnerMostException(this Exception ex)
@@ -382,71 +434,6 @@ namespace ServiceStack
                 ex = ex.InnerException;
             }
             return ex;
-        }
-
-        [ThreadStatic]
-        private static AccessToken AccessTokenScope;
-        private class AccessToken : IDisposable
-        {
-            private readonly AccessToken prevToken;
-            internal readonly LicenseFeature tempFeatures;
-            internal AccessToken(LicenseFeature requested)
-            {
-                prevToken = AccessTokenScope;
-                AccessTokenScope = this;
-                tempFeatures = requested;
-            }
-
-            public void Dispose()
-            {
-                AccessTokenScope = prevToken;
-            }
-        }
-
-        static class _approved
-        {
-            internal static readonly HashSet<string> __tokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "ServiceStack.ServiceClientBase+AccessToken",
-                "ServiceStack.JsonHttpClient+AccessToken",
-                "ServiceStack.RabbitMq.RabbitMqProducer+AccessToken",
-                "ServiceStack.Messaging.RedisMessageQueueClient+AccessToken",
-                "ServiceStack.Messaging.RedisMessageProducer+AccessToken",
-                "ServiceStack.Aws.Support.AwsClientUtils+AccessToken",
-            };
-
-            internal static readonly HashSet<string> __dlls = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "ServiceStack.HttpClient.dll",
-                "ServiceStack.Client.dll",
-                "ServiceStack.RabbitMq.dll",
-                "ServiceStack.Aws.dll",
-                "<Unknown>"
-            };
-        }
-
-        public static IDisposable RequestAccess(object accessToken, LicenseFeature srcFeature, LicenseFeature requestedAccess)
-        {
-            var accessType = accessToken.GetType();
-
-            if (srcFeature != LicenseFeature.Client || requestedAccess != LicenseFeature.Text || accessToken == null)
-                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest).Trace();
-
-            if (accessType.Name == "AccessToken" && accessType.GetAssembly().ManifestModule.Name.StartsWith("<")) //Smart Assembly
-                return new AccessToken(requestedAccess);
-
-            if (!_approved.__tokens.Contains(accessType.FullName))
-            {
-                var errorDetails = " __token: '{0}', Assembly: '{1}'".Fmt(
-                    accessType.Name,
-                    accessType.GetAssembly().ManifestModule.Name);
-
-                throw new LicenseException(ErrorMessages.UnauthorizedAccessRequest + errorDetails).Trace();
-            }
-
-            PclExport.Instance.VerifyInAssembly(accessType, _approved.__dlls);
-
-            return new AccessToken(requestedAccess);
         }
     }
 }

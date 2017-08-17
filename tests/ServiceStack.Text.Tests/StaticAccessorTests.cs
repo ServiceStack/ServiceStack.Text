@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using ServiceStack.Reflection;
 
 namespace ServiceStack.Text.Tests
 {
@@ -30,10 +29,10 @@ namespace ServiceStack.Text.Tests
             var baseProperty = typeof(AccessorBase).GetProperty("Base");
             var declaredProperty = typeof(Accessor).GetProperty("Declared");
 
-            var baseSetter = baseProperty.GetValueSetter<AccessorBase>();
+            var baseSetter = baseProperty.CreateGetter<AccessorBase>();
             Assert.That(baseSetter, Is.Not.Null);
 
-            var declaredSetter = declaredProperty.GetValueSetter<Accessor>();
+            var declaredSetter = declaredProperty.CreateSetter<Accessor>();
             Assert.That(declaredSetter, Is.Not.Null);
         }
 
@@ -41,15 +40,15 @@ namespace ServiceStack.Text.Tests
         public void Can_get_property_accessor_from_sub_and_super_types()
         {
             var sub = new SubAccessor();
-            var subGet = StaticAccessors.GetValueGetter<SubAccessor>(typeof(SubAccessor).GetProperty("Sub"));
-            var subSet = StaticAccessors.GetValueSetter<SubAccessor>(typeof(SubAccessor).GetProperty("Sub"));
+            var subGet = typeof(SubAccessor).GetProperty("Sub").CreateGetter<SubAccessor>();
+            var subSet = typeof(SubAccessor).GetProperty("Sub").CreateSetter<SubAccessor>();
 
             subSet(sub, "sub");
             Assert.That(subGet(sub), Is.EqualTo("sub"));
 
             var sup = new AccessorBase();
-            var supGet = StaticAccessors.GetValueGetter<AccessorBase>(typeof(AccessorBase).GetProperty("Base"));
-            var supSet = StaticAccessors.GetValueSetter<AccessorBase>(typeof(AccessorBase).GetProperty("Base"));
+            var supGet = typeof(AccessorBase).GetProperty("Base").CreateGetter<AccessorBase>();
+            var supSet = typeof(AccessorBase).GetProperty("Base").CreateSetter<AccessorBase>();
 
             supSet(sup, "base");
             Assert.That(supGet(sup), Is.EqualTo("base"));
@@ -61,15 +60,15 @@ namespace ServiceStack.Text.Tests
         public void Can_get_field_accessor_from_sub_and_super_types()
         {
             var sub = new SubAccessor();
-            var subGet = StaticAccessors.GetValueGetter<SubAccessor>(typeof(SubAccessor).GetField("SubField"));
-            var subSet = StaticAccessors.GetValueSetter<SubAccessor>(typeof(SubAccessor).GetField("SubField"));
+            var subGet = typeof(SubAccessor).GetFieldInfo("SubField").CreateGetter<SubAccessor>();
+            var subSet = typeof(SubAccessor).GetFieldInfo("SubField").CreateSetter<SubAccessor>();
 
             subSet(sub, "sub");
             Assert.That(subGet(sub), Is.EqualTo("sub"));
 
             var sup = new AccessorBase();
-            var supGet = StaticAccessors.GetValueGetter<AccessorBase>(typeof(AccessorBase).GetField("BaseField"));
-            var supSet = StaticAccessors.GetValueSetter<AccessorBase>(typeof(AccessorBase).GetField("BaseField"));
+            var supGet = typeof(AccessorBase).GetFieldInfo("BaseField").CreateGetter<AccessorBase>();
+            var supSet = typeof(AccessorBase).GetFieldInfo("BaseField").CreateSetter<AccessorBase>();
 
             supSet(sup, "base");
             Assert.That(supGet(sup), Is.EqualTo("base"));

@@ -52,6 +52,7 @@ namespace ServiceStack.Text
 		public bool? TryToParseNumericType { get; set; }
 		public ParseAsType? ParsePrimitiveFloatingPointTypes { get; set; }
 		public ParseAsType? ParsePrimitiveIntegerTypes { get; set; }
+        public bool? UseSystemParseMethods { get; set; }
         public bool? ExcludeDefaultValues { get; set; }
         public bool? IncludeNullValues { get; set; }
         public bool? IncludeNullValuesInDictionaries { get; set; }
@@ -71,13 +72,14 @@ namespace ServiceStack.Text
         public bool? EmitCamelCaseNames { get; set; }
         public bool? EmitLowercaseUnderscoreNames { get; set; }
         public bool? ThrowOnDeserializationError { get; set; }
+        public bool? SkipDateTimeConversion { get; set; }
         public bool? AlwaysUseUtc { get; set; }
         public bool? AssumeUtc { get; set; }
         public bool? AppendUtcOffset { get; set; }
         public bool? EscapeUnicode { get; set; }
+        public bool? EscapeHtmlChars { get; set; }
         public bool? PreferInterfaces { get; set; }
         public bool? IncludePublicFields { get; set; }
-        public bool? ReuseStringBuffer { get; set; }
         public int? MaxDepth { get; set; }
         public DeserializationErrorDelegate OnDeserializationError { get; set; }
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }

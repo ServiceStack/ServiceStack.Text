@@ -1,12 +1,11 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED-EAFF-4839-935A-5BB4A4158245}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\appsettings.license.txt = ..\build\appsettings.license.txt
-		..\build\build-pcl.proj = ..\build\build-pcl.proj
+		..\build\build-core.sh = ..\build\build-core.sh
 		..\build\build-sn.proj = ..\build\build-sn.proj
 		..\build\build.bat = ..\build\build.bat
 		..\build\build.proj = ..\build\build.proj
@@ -14,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED
 		..\build\copy-pcl.bat = ..\build\copy-pcl.bat
 		..\build\copy.bat = ..\build\copy.bat
 		..\README.md = ..\README.md
+		..\NuGet.Core\ServiceStack.Text.Core\servicestack.text.core.nuspec = ..\NuGet.Core\ServiceStack.Text.Core\servicestack.text.core.nuspec
 		..\NuGet\ServiceStack.Text\servicestack.text.nuspec = ..\NuGet\ServiceStack.Text\servicestack.text.nuspec
 		..\NuGet.Signed\ServiceStack.Text.Signed\servicestack.text.signed.nuspec = ..\NuGet.Signed\ServiceStack.Text.Signed\servicestack.text.signed.nuspec
 	EndProjectSection
@@ -22,14 +22,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text", "Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Tests", "..\tests\ServiceStack.Text.Tests\ServiceStack.Text.Tests.csproj", "{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{EEDB2902-813A-4277-837B-74F1E67E9759}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.TestsConsole", "..\tests\ServiceStack.Text.TestsConsole\ServiceStack.Text.TestsConsole.csproj", "{DD3BEB33-2509-423A-8545-CE1A83684530}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Tests.xUnit", "..\tests\ServiceStack.Text.Tests.xUnit\ServiceStack.Text.Tests.xUnit.csproj", "{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,22 +64,26 @@ Global
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|x64.ActiveCfg = Release|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|x86.ActiveCfg = Release|Any CPU
 		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Release|Xbox 360.ActiveCfg = Release|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Any CPU.ActiveCfg = Signed|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Any CPU.Build.0 = Signed|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|ARM.ActiveCfg = Signed|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Mixed Platforms.ActiveCfg = Signed|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Mixed Platforms.Build.0 = Signed|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|x64.ActiveCfg = Signed|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|x86.ActiveCfg = Signed|Any CPU
-		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Xbox 360.ActiveCfg = Signed|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Any CPU.Build.0 = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|ARM.ActiveCfg = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|ARM.Build.0 = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Mixed Platforms.Build.0 = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|x64.ActiveCfg = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|x64.Build.0 = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|x86.ActiveCfg = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|x86.Build.0 = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Xbox 360.ActiveCfg = Release|Any CPU
+		{579B3FDB-CDAD-44E1-8417-885C38E49A0E}.Signed|Xbox 360.Build.0 = Release|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|x86.ActiveCfg = Debug|x86
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|x86.Build.0 = Debug|x86
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|x86.Build.0 = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -92,18 +91,21 @@ Global
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x64.ActiveCfg = Release|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.ActiveCfg = Release|x86
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.Build.0 = Release|x86
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|x86.Build.0 = Release|Any CPU
 		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Release|Xbox 360.ActiveCfg = Release|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Any CPU.ActiveCfg = Signed|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Any CPU.Build.0 = Signed|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|ARM.ActiveCfg = Signed|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Mixed Platforms.ActiveCfg = Signed|x86
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Mixed Platforms.Build.0 = Signed|x86
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|x64.ActiveCfg = Signed|Any CPU
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|x86.ActiveCfg = Signed|x86
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|x86.Build.0 = Signed|x86
-		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Xbox 360.ActiveCfg = Signed|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Any CPU.Build.0 = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|ARM.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|ARM.Build.0 = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Mixed Platforms.Build.0 = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|x64.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|x64.Build.0 = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|x86.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|x86.Build.0 = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Xbox 360.ActiveCfg = Release|Any CPU
+		{9770BD40-AA3B-4785-B5E0-F4C470F9F14E}.Signed|Xbox 360.Build.0 = Release|Any CPU
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -140,6 +142,42 @@ Global
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Signed|x86.Build.0 = Release|Any CPU
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Signed|Xbox 360.ActiveCfg = Release|Any CPU
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Signed|Xbox 360.Build.0 = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|ARM.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|x64.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|x86.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Debug|Xbox 360.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|ARM.ActiveCfg = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|ARM.Build.0 = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|x64.ActiveCfg = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|x64.Build.0 = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|x86.ActiveCfg = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|x86.Build.0 = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|Xbox 360.ActiveCfg = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Release|Xbox 360.Build.0 = Release|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|Any CPU.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|ARM.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|ARM.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|x64.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|x64.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|x86.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|x86.Build.0 = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|Xbox 360.ActiveCfg = Debug|Any CPU
+		{1AF464DD-1F82-49D0-9FA6-516D1F2A0B4D}.Signed|Xbox 360.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,7 +189,6 @@ Global
 		$1.DirectoryNamespaceAssociation = None
 		$1.ResourceNamePolicy = FileFormatDefault
 		$0.StandardHeader = $2
-		$2.Text = 
 		$2.IncludeInNewFiles = True
 	EndGlobalSection
 EndGlobal

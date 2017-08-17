@@ -1,7 +1,14 @@
-//Copyright (c) Service Stack LLC. All Rights Reserved.
+//Copyright (c) ServiceStack, Inc. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
+using System;
 using System.IO;
+using System.Runtime.CompilerServices;
+#if NETSTANDARD1_1
+using Microsoft.Extensions.Primitives;
+#endif
+using ServiceStack.Text.Support;
+
 
 namespace ServiceStack.Text.Json
 {
@@ -16,12 +23,13 @@ namespace ServiceStack.Text.Json
         public const string Null = "null";
         public const string True = "true";
         public const string False = "false";
-        
-        private const char TabChar = '\t';
-        private const char CarriageReturnChar = '\r';
-        private const char LineFeedChar = '\n';
-        private const char FormFeedChar = '\f';
-        private const char BackspaceChar = '\b';
+
+        public const char SpaceChar = ' ';
+        public const char TabChar = '\t';
+        public const char CarriageReturnChar = '\r';
+        public const char LineFeedChar = '\n';
+        public const char FormFeedChar = '\f';
+        public const char BackspaceChar = '\b';
 
         /// <summary>
         /// Micro-optimization keep pre-built char arrays saving a .ToCharArray() + function call (see .net implementation of .Write(string))
@@ -36,6 +44,12 @@ namespace ServiceStack.Text.Json
 
         public static readonly char[] WhiteSpaceChars = { ' ', TabChar, CarriageReturnChar, LineFeedChar };
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsWhiteSpace(char c)
+        {
+            return c == ' ' || (c >= '\x0009' && c <= '\x000d') || c == '\x00a0' || c == '\x0085';
+        }
+
         public static void WriteString(TextWriter writer, string value)
         {
             if (value == null)
@@ -43,7 +57,11 @@ namespace ServiceStack.Text.Json
                 writer.Write(Null);
                 return;
             }
-            if (!HasAnyEscapeChars(value))
+
+            var escapeHtmlChars = JsConfig.EscapeHtmlChars;
+            var escapeUnicode = JsConfig.EscapeUnicode;
+
+            if (!HasAnyEscapeChars(value, escapeHtmlChars))
             {
                 writer.Write(QuoteChar);
                 writer.Write(value);
@@ -90,6 +108,28 @@ namespace ServiceStack.Text.Json
                         continue;
                 }
 
+                if (escapeHtmlChars)
+                {
+                    switch (c)
+                    {
+                        case '<':
+                            writer.Write("\\u003c");
+                            continue;
+                        case '>':
+                            writer.Write("\\u003e");
+                            continue;
+                        case '&':
+                            writer.Write("\\u0026");
+                            continue;
+                        case '=':
+                            writer.Write("\\u003d");
+                            continue;
+                        case '\'':
+                            writer.Write("\\u0027");
+                            continue;
+                    }
+                }
+
                 if (c.IsPrintable())
                 {
                     writer.Write(c);
@@ -97,7 +137,7 @@ namespace ServiceStack.Text.Json
                 }
 
                 // http://json.org/ spec requires any control char to be escaped
-                if (JsConfig.EscapeUnicode || char.IsControl(c))
+                if (escapeUnicode || char.IsControl(c))
                 {
                     // Default, turn into a \uXXXX sequence
                     IntToHex(c, hexSeqBuffer);
@@ -105,12 +145,15 @@ namespace ServiceStack.Text.Json
                     writer.Write(hexSeqBuffer);
                 }
                 else
+                {
                     writer.Write(c);
+                }
             }
 
             writer.Write(QuoteChar);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsPrintable(this char c)
         {
             return c >= 32 && c <= 126;
@@ -120,6 +163,7 @@ namespace ServiceStack.Text.Json
         /// Searches the string for one or more non-printable characters.
         /// </summary>
         /// <param name="value">The string to search.</param>
+        /// <param name="escapeHtmlChars"></param>
         /// <returns>True if there are any characters that require escaping. False if the value can be written verbatim.</returns>
         /// <remarks>
         /// Micro optimizations: since quote and backslash are the only printable characters requiring escaping, removed previous optimization
@@ -127,21 +171,27 @@ namespace ServiceStack.Text.Json
         /// Also slightly reduced code size by re-arranging conditions.
         /// TODO: Possible Linq-only solution requires profiling: return value.Any(c => !c.IsPrintable() || c == QuoteChar || c == EscapeChar);
         /// </remarks>
-        private static bool HasAnyEscapeChars(string value)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool HasAnyEscapeChars(string value, bool escapeHtmlChars)
         {
             var len = value.Length;
             for (var i = 0; i < len; i++)
             {
                 var c = value[i];
-                
+
                 // c is not printable
                 // OR c is a printable that requires escaping (quote and backslash).
-                if (!c.IsPrintable() || c == QuoteChar || c == EscapeChar) return true;
+                if (!c.IsPrintable() || c == QuoteChar || c == EscapeChar)
+                    return true;
+
+                if (escapeHtmlChars && (c == '<' || c == '>' || c == '&' || c == '=' || c == '\\'))
+                    return true;
             }
             return false;
         }
 
         // Micro optimized
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void IntToHex(int intValue, char[] hex)
         {
             // TODO: test if unrolling loop is faster
@@ -151,12 +201,13 @@ namespace ServiceStack.Text.Json
 
                 // 0x30 + num == '0' + num
                 // 0x37 + num == 'A' + (num - 10)
-                hex[i] = (char) ((num < 10 ? 0x30 : 0x37) + num);
+                hex[i] = (char)((num < 10 ? 0x30 : 0x37) + num);
 
                 intValue >>= 4;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsJsObject(string value)
         {
             return !string.IsNullOrEmpty(value)
@@ -164,11 +215,30 @@ namespace ServiceStack.Text.Json
                 && value[value.Length - 1] == '}';
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsJsObject(StringSegment value)
+        {
+            return !value.IsNullOrEmpty()
+                   && value.GetChar(0) == '{'
+                   && value.GetChar(value.Length - 1) == '}';
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsJsArray(string value)
         {
             return !string.IsNullOrEmpty(value)
                 && value[0] == '['
                 && value[value.Length - 1] == ']';
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsJsArray(StringSegment value)
+        {
+            return !value.IsNullOrEmpty()
+                   && value.GetChar(0) == '['
+                   && value.GetChar(value.Length - 1) == ']';
+        }
+
     }
 }

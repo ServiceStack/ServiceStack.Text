@@ -152,6 +152,41 @@ namespace ServiceStack.Text.Common
                     break;
             }
         }
+
+        public static void AssertAllowedRuntimeType(Type type)
+        {
+            if (!JsState.IsRuntimeType)
+                return;
+
+            if (JsConfig.AllowRuntimeType?.Invoke(type) == true)
+                return;
+
+            var allowAttributesNamed = JsConfig.AllowRuntimeTypeWithAttributesNamed;
+            if (allowAttributesNamed?.Count > 0)
+            {
+                var OAttrs = type.AllAttributes();
+                foreach (var oAttr in OAttrs)
+                {
+                    var attr = oAttr as Attribute;
+                    if (attr == null) continue;
+                    if (allowAttributesNamed.Contains(attr.GetType().Name))
+                        return;
+                }
+            }
+
+            var allowInterfacesNamed = JsConfig.AllowRuntimeTypeWithInterfacesNamed;
+            if (allowInterfacesNamed?.Count > 0)
+            {
+                var interfaces = type.GetTypeInterfaces();
+                foreach (var interfaceType in interfaces)
+                {
+                    if (allowInterfacesNamed.Contains(interfaceType.Name))
+                        return;
+                }
+            }
+
+            throw new NotSupportedException($"{type.Name} is not an allowed Runtime Type. Whitelist Type with [RuntimeSerializable] or IRuntimeSerializable.");
+        }
     }
 
     public class JsWriter<TSerializer>
@@ -162,11 +197,11 @@ namespace ServiceStack.Text.Common
         public JsWriter()
         {
             this.SpecialTypes = new Dictionary<Type, WriteObjectDelegate>
-        	{
-        		{ typeof(Uri), Serializer.WriteObjectString },
-        		{ typeof(Type), WriteType },
-        		{ typeof(Exception), Serializer.WriteException },
-        	};
+            {
+                { typeof(Uri), Serializer.WriteObjectString },
+                { typeof(Type), WriteType },
+                { typeof(Exception), Serializer.WriteException },
+            };
         }
 
         public WriteObjectDelegate GetValueTypeToStringMethod(Type type)
@@ -193,6 +228,8 @@ namespace ServiceStack.Text.Common
 
                 if (typeCode == TypeCode.Byte)
                     return Serializer.WriteByte;
+                if (typeCode == TypeCode.SByte)
+                    return Serializer.WriteSByte;
 
                 if (typeCode == TypeCode.Int16)
                     return Serializer.WriteInt16;
@@ -300,7 +337,7 @@ namespace ServiceStack.Text.Common
 
         private WriteObjectDelegate GetCoreWriteFn<T>()
         {
-            if ((typeof(T).IsValueType() && !JsConfig.TreatAsRefType(typeof(T))) || JsConfig<T>.HasSerializeFn)
+            if (typeof(T).IsValueType() && !JsConfig.TreatAsRefType(typeof(T)) || JsConfig<T>.HasSerializeFn)
             {
                 return JsConfig<T>.HasSerializeFn
                     ? JsConfig<T>.WriteFn<TSerializer>
@@ -313,7 +350,7 @@ namespace ServiceStack.Text.Common
                 return specialWriteFn;
             }
 
-            if (typeof(T).IsArray)
+            if (typeof(T).IsArray())
             {
                 if (typeof(T) == typeof(byte[]))
                     return (w, x) => WriteLists.WriteBytes(Serializer, w, x);
@@ -375,7 +412,7 @@ namespace ServiceStack.Text.Common
                 return WriteListsOfElements<TSerializer>.WriteIEnumerable;
             }
 
-            if (typeof(T).HasInterface(typeof (IValueWriter)))
+            if (typeof(T).HasInterface(typeof(IValueWriter)))
                 return WriteValue;
 
             if (typeof(T).IsClass() || typeof(T).IsInterface() || JsConfig.TreatAsRefType(typeof(T)))

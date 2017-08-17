@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETCORE_SUPPORT
+using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using ServiceStack.Html;
@@ -44,3 +45,4 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
     }
 }
+#endif

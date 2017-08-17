@@ -26,13 +26,13 @@ namespace ServiceStack.Text.Tests.DynamicModels
         public static ModelWithComplexTypes Create(int i)
         {
             return new ModelWithComplexTypes
-                       {
-                           DictionaryValue = new Dictionary<string, string> {{"a", i.ToString()}},
-                           ListValue = new List<string> {i.ToString()},
-                           ArrayValue = new string[]{},
-                           EnumValue = MyEnum.Value,
-                           ByteArrayValue = new byte[]{(byte)i},
-                       };
+            {
+                DictionaryValue = new Dictionary<string, string> {{"a", i.ToString()}},
+                ListValue = new List<string> {i.ToString()},
+                ArrayValue = new string[]{},
+                EnumValue = MyEnum.Value,
+                ByteArrayValue = new byte[]{(byte)i},
+            };
         }
     }
 }

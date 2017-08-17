@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+#if !NETCORE
 using System.Web.Script.Serialization;
+#endif
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels;
+using ServiceStack.Web;
 
 namespace ServiceStack.Text.Tests
 {
@@ -109,6 +113,7 @@ namespace ServiceStack.Text.Tests
     public class EnumConversion
     {
         public Color Color { get; set; }
+        public Color? NullableColor { get; set; }
     }
 
     public class NullableEnumConversionDto
@@ -121,14 +126,16 @@ namespace ServiceStack.Text.Tests
         public OtherColor Color { get; set; }
     }
 
-    public class EnumConversionStringDto
+    public class EnumConversionString
     {
         public string Color { get; set; }
+        public string NullableColor { get; set; }
     }
 
-    public class EnumConversionIntDto
+    public class EnumConversionInt
     {
         public int Color { get; set; }
+        public int? NullableColor { get; set; }
     }
 
     public class ModelWithEnumerable
@@ -185,11 +192,11 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_translate()
         {
-            var user = new User()
+            var user = new User
             {
                 FirstName = "Demis",
                 LastName = "Bellot",
-                Car = new Car() { Name = "BMW X6", Age = 3 }
+                Car = new Car { Name = "BMW X6", Age = 3 }
             };
 
             var userDto = user.ConvertTo<UserDto>();
@@ -203,18 +210,65 @@ namespace ServiceStack.Text.Tests
         public void Does_enumstringconversion_translate()
         {
             var conversion = new EnumConversion { Color = Color.Blue };
-            var conversionDto = conversion.ConvertTo<EnumConversionStringDto>();
+            var conversionDto = conversion.ConvertTo<EnumConversionString>();
 
             Assert.That(conversionDto.Color, Is.EqualTo("Blue"));
         }
 
         [Test]
-        public void Does_enumintconversion_translate()
+        public void Does_convert_to_EnumConversionInt()
         {
-            var conversion = new EnumConversion { Color = Color.Green };
-            var conversionDto = conversion.ConvertTo<EnumConversionIntDto>();
+            var conversion = new EnumConversion
+            {
+                Color = Color.Green,
+                NullableColor = Color.Green,
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversionInt>();
 
             Assert.That(conversionDto.Color, Is.EqualTo(1));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Does_convert_from_EnumConversionInt()
+        {
+            var conversion = new EnumConversionInt
+            {
+                Color = 1,
+                NullableColor = 1,
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversion>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo(Color.Green));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo(Color.Green));
+        }
+
+        [Test]
+        public void Does_convert_to_EnumConversionString()
+        {
+            var conversion = new EnumConversion
+            {
+                Color = Color.Green,
+                NullableColor = Color.Green,
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversionString>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo("Green"));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo("Green"));
+        }
+
+        [Test]
+        public void Does_convert_from_EnumConversionString()
+        {
+            var conversion = new EnumConversionString
+            {
+                Color = "Green",
+                NullableColor = "Green",
+            };
+            var conversionDto = conversion.ConvertTo<EnumConversion>();
+
+            Assert.That(conversionDto.Color, Is.EqualTo(Color.Green));
+            Assert.That(conversionDto.NullableColor, Is.EqualTo(Color.Green));
         }
 
         [Test]
@@ -546,6 +600,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(dto.Ignored, Is.EqualTo(10));
         }
 
+#if !NETCORE
         public class IgnoredModel
         {
             public int Id { get; set; }
@@ -574,6 +629,7 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":0,\"JsonIgnoreId\":1}"));
         }
+#endif
 
         [Test]
         public void Does_convert_to_ValueType()
@@ -624,7 +680,26 @@ namespace ServiceStack.Text.Tests
             Assert.That(to[0].Age, Is.EqualTo(0));
             Assert.That(to[0].Name, Is.EqualTo("Name0"));
         }
+
+        [Test]
+        public void Can_create_Dictionary_default_value()
+        {
+            var obj = (Dictionary<string, ClassWithEnum>)AutoMappingUtils.CreateDefaultValue(typeof(Dictionary<string, ClassWithEnum>), new Dictionary<Type, int>());
+            Assert.That(obj, Is.Not.Null);
+        }
     }
+
+    public enum ClassWithEnumType
+    {
+        One = 1,
+        Two = 2,
+        Three = 3
+    }
+
+    public class ClassWithEnum
+    {
+        public ClassWithEnumType Type { get; set; }
+    }    
 
     public class Test
     {
@@ -668,6 +743,20 @@ namespace ServiceStack.Text.Tests
             var test = new Test();
             fn(test, "Foo");
             Assert.That(test.Name, Is.EqualTo("Foo"));
+        }
+
+        public class RawRequest : IRequiresRequestStream
+        {
+            public Stream RequestStream { get; set; }
+        }
+
+        [Test]
+        public void Can_create_DTO_with_Stream()
+        {
+            var o = typeof(RawRequest).CreateInstance();
+            var requestObj = AutoMappingUtils.PopulateWith(o);
+
+            Assert.That(requestObj, Is.Not.Null);
         }
     }
 }

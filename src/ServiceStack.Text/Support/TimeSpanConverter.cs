@@ -8,7 +8,7 @@ namespace ServiceStack.Text.Support
     {
         public static string ToXsdDuration(TimeSpan timeSpan)
         {
-            var sb = new StringBuilder();
+            var sb = StringBuilderThreadStatic.Allocate();
 
             sb.Append(timeSpan.Ticks < 0 ? "-P" : "P");
 
@@ -46,8 +46,7 @@ namespace ServiceStack.Text.Support
                 }
             }
 
-            var xsdDuration = sb.ToString();
-            return xsdDuration;
+            return StringBuilderThreadStatic.ReturnAndFree(sb);
         }
 
         public static TimeSpan FromXsdDuration(string xsdDuration)
@@ -55,7 +54,7 @@ namespace ServiceStack.Text.Support
             int days = 0;
             int hours = 0;
             int minutes = 0;
-            double seconds = 0;
+            decimal seconds = 0;
             int sign = 1;
 
             if (xsdDuration.StartsWith("-", StringComparison.Ordinal))
@@ -96,13 +95,13 @@ namespace ServiceStack.Text.Support
                 string[] s = m[m.Length - 1].SplitOnFirst('S');
                 if (s.Length == 2)
                 {
-                    double millis;
-                    if (double.TryParse(s[0], out millis))
+                    decimal millis;
+                    if (decimal.TryParse(s[0], out millis))
                         seconds = millis;
                 }
             }
 
-            double totalSecs = 0
+            decimal totalSecs = 0
                     + (days * 24 * 60 * 60)
                     + (hours * 60 * 60)
                     + (minutes * 60)

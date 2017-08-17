@@ -17,11 +17,41 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_LeftPart_and_LeftPart_char_needle()
+        {
+            var str = "user:pass@w:rd";
+            Assert.That(str.LeftPart(':'), Is.EqualTo("user"));
+            Assert.That(str.SplitOnFirst(':')[0], Is.EqualTo("user"));
+            Assert.That(str.RightPart(':'), Is.EqualTo("pass@w:rd"));
+            Assert.That(str.SplitOnFirst(':').Last(), Is.EqualTo("pass@w:rd"));
+
+            Assert.That(str.LeftPart('|'), Is.EqualTo("user:pass@w:rd"));
+            Assert.That(str.SplitOnFirst('|')[0], Is.EqualTo("user:pass@w:rd"));
+            Assert.That(str.RightPart('|'), Is.EqualTo("user:pass@w:rd"));
+            Assert.That(str.SplitOnFirst('|').Last(), Is.EqualTo("user:pass@w:rd"));
+        }
+
+        [Test]
         public void Can_SplitOnFirst_string_needle()
         {
             var parts = "user:pass@w:rd".SplitOnFirst(":");
             Assert.That(parts[0], Is.EqualTo("user"));
             Assert.That(parts[1], Is.EqualTo("pass@w:rd"));
+        }
+
+        [Test]
+        public void Can_LeftPart_and_RightPart_string_needle()
+        {
+            var str = "user::pass@w:rd";
+            Assert.That(str.LeftPart("::"), Is.EqualTo("user"));
+            Assert.That(str.SplitOnFirst("::")[0], Is.EqualTo("user"));
+            Assert.That(str.RightPart("::"), Is.EqualTo("pass@w:rd"));
+            Assert.That(str.SplitOnFirst("::").Last(), Is.EqualTo("pass@w:rd"));
+
+            Assert.That(str.LeftPart("||"), Is.EqualTo("user::pass@w:rd"));
+            Assert.That(str.SplitOnFirst("||")[0], Is.EqualTo("user::pass@w:rd"));
+            Assert.That(str.RightPart("||"), Is.EqualTo("user::pass@w:rd"));
+            Assert.That(str.SplitOnFirst("||").Last(), Is.EqualTo("user::pass@w:rd"));
         }
 
         [Test]
@@ -33,6 +63,21 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_LastLeftPart_and_LastRightPart_char_needle()
+        {
+            var str = "user:name:pass@word";
+            Assert.That(str.LastLeftPart(':'), Is.EqualTo("user:name"));
+            Assert.That(str.SplitOnLast(':')[0], Is.EqualTo("user:name"));
+            Assert.That(str.LastRightPart(':'), Is.EqualTo("pass@word"));
+            Assert.That(str.SplitOnLast(':').Last(), Is.EqualTo("pass@word"));
+
+            Assert.That(str.LastLeftPart('|'), Is.EqualTo("user:name:pass@word"));
+            Assert.That(str.SplitOnLast('|')[0], Is.EqualTo("user:name:pass@word"));
+            Assert.That(str.LastRightPart('|'), Is.EqualTo("user:name:pass@word"));
+            Assert.That(str.SplitOnLast('|').Last(), Is.EqualTo("user:name:pass@word"));
+        }
+
+        [Test]
         public void Can_SplitOnLast_string_needle()
         {
             var parts = "user:name:pass@word".SplitOnLast(":");
@@ -40,8 +85,23 @@ namespace ServiceStack.Text.Tests
             Assert.That(parts[1], Is.EqualTo("pass@word"));
         }
 
+        [Test]
+        public void Can_LastLeftPart_and_LastRightPart_string_needle()
+        {
+            var str = "user::name::pass@word";
+            Assert.That(str.LastLeftPart("::"), Is.EqualTo("user::name"));
+            Assert.That(str.SplitOnLast("::")[0], Is.EqualTo("user::name"));
+            Assert.That(str.LastRightPart("::"), Is.EqualTo("pass@word"));
+            Assert.That(str.SplitOnLast("::").Last(), Is.EqualTo("pass@word"));
+
+            Assert.That(str.LastLeftPart("||"), Is.EqualTo("user::name::pass@word"));
+            Assert.That(str.SplitOnLast("||")[0], Is.EqualTo("user::name::pass@word"));
+            Assert.That(str.LastRightPart("||"), Is.EqualTo("user::name::pass@word"));
+            Assert.That(str.SplitOnLast("||").Last(), Is.EqualTo("user::name::pass@word"));
+        }
+
         private static readonly char DirSep = Path.DirectorySeparatorChar;
-        private static readonly char AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
+        private static readonly char AltDirSep = '/';
 
         [Test]
         public void Does_get_ParentDirectory()

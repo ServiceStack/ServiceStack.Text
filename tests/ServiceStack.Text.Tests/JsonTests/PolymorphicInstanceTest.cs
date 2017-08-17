@@ -8,41 +8,41 @@ using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
-	[TestFixture]
-	public class PolymorphicInstanceTest 
-	{
+    [TestFixture]
+    public class PolymorphicInstanceTest
+    {
 
-		[SetUp]
-		public void SetUp()
-		{
-			JsConfig.Reset();
-			JsConfig<ICat>.ExcludeTypeInfo = false;
-		}
+        [SetUp]
+        public void SetUp()
+        {
+            JsConfig.Reset();
+            JsConfig<ICat>.ExcludeTypeInfo = false;
+        }
 
-		[Test]
-		public void Can_deserialise_polymorphic_dog_exact()
-		{
-			var dog =
-				JsonSerializer.DeserializeFromString<Dog>(
-					@"{""__type"":"""
-					+ typeof(Dog).ToTypeString()
-					+ @""",""Name"":""Fido""}");
+        [Test]
+        public void Can_deserialise_polymorphic_dog_exact()
+        {
+            var dog =
+                JsonSerializer.DeserializeFromString<Dog>(
+                    @"{""__type"":"""
+                    + typeof(Dog).ToTypeString()
+                    + @""",""Name"":""Fido""}");
 
-			Assert.That(dog.Name, Is.EqualTo(@"Fido"));
+            Assert.That(dog.Name, Is.EqualTo(@"Fido"));
 
-		}
+        }
 
-		[Test]
-		public void Can_deserialise_polymorphic_list_exact_with_no_side_effect_for_bad_type_position()
-		{
-			var dog =
-				JsonSerializer.DeserializeFromString<Dog>(
-					@"{""Name"":""Fido"",""__type"":"""
-					+ typeof(Dog).ToTypeString() + @"""}");
+        [Test]
+        public void Can_deserialise_polymorphic_list_exact_with_no_side_effect_for_bad_type_position()
+        {
+            var dog =
+                JsonSerializer.DeserializeFromString<Dog>(
+                    @"{""Name"":""Fido"",""__type"":"""
+                    + typeof(Dog).ToTypeString() + @"""}");
 
-			Assert.That(dog.Name, Is.EqualTo(@"Fido"));
+            Assert.That(dog.Name, Is.EqualTo(@"Fido"));
 
-		}
+        }
 
         [Test]
         public void Should_not_instantiate_incorrect_type()
@@ -65,5 +65,5 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
         }
 
-	}
+    }
 }

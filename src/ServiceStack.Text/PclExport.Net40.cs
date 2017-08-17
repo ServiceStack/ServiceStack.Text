@@ -1,4 +1,4 @@
-﻿#if !(XBOX || SL5 || NETFX_CORE || WP || PCL)
+﻿#if !(XBOX || SL5 || NETFX_CORE || WP || PCL || NETSTANDARD1_1)
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -16,9 +16,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
+using ServiceStack.Text.Support;
 
 #if !__IOS__
 using System.Reflection.Emit;
@@ -103,7 +105,7 @@ namespace ServiceStack
         public override string[] GetFileNames(string dirPath, string searchPattern = null)
         {
             if (!Directory.Exists(dirPath))
-                return new string[0];
+                return TypeConstants.EmptyStringArray;
 
             return searchPattern != null
                 ? Directory.GetFiles(dirPath, searchPattern)
@@ -113,7 +115,7 @@ namespace ServiceStack
         public override string[] GetDirectoryNames(string dirPath, string searchPattern = null)
         {
             if (!Directory.Exists(dirPath))
-                return new string[0];
+                return TypeConstants.EmptyStringArray;
 
             return searchPattern != null
                 ? Directory.GetDirectories(dirPath, searchPattern)
@@ -129,16 +131,34 @@ namespace ServiceStack
 #elif __IOS__
 #elif __MAC__
 #else
-            //Automatically register license key stored in <appSettings/>
-            var licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
-            if (!string.IsNullOrEmpty(licenceKeyText))
+            string licenceKeyText;
+            try
             {
-                LicenseUtils.RegisterLicense(licenceKeyText);
-                return;
+                //Automatically register license key stored in <appSettings/>
+                licenceKeyText = System.Configuration.ConfigurationManager.AppSettings[AppSettingsKey];
+                if (!string.IsNullOrEmpty(licenceKeyText))
+                {
+                    LicenseUtils.RegisterLicense(licenceKeyText);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                licenceKeyText = Environment.GetEnvironmentVariable(EnvironmentKey)?.Trim();
+                if (string.IsNullOrEmpty(licenceKeyText))
+                    throw;
+                try
+                {
+                    LicenseUtils.RegisterLicense(licenceKeyText);
+                }
+                catch
+                {
+                    throw ex;
+                }
             }
 
             //or SERVICESTACK_LICENSE Environment variable
-            licenceKeyText = Environment.GetEnvironmentVariable(EnvironmentKey);
+            licenceKeyText = Environment.GetEnvironmentVariable(EnvironmentKey)?.Trim();
             if (!string.IsNullOrEmpty(licenceKeyText))
             {
                 LicenseUtils.RegisterLicense(licenceKeyText);
@@ -223,12 +243,12 @@ namespace ServiceStack
         {
             var binPath = AssemblyUtils.GetAssemblyBinPath(Assembly.GetExecutingAssembly());
             Assembly assembly = null;
-            var assemblyDllPath = binPath + string.Format("{0}.{1}", assemblyName, "dll");
+            var assemblyDllPath = binPath + $"{assemblyName}.dll";
             if (File.Exists(assemblyDllPath))
             {
                 assembly = AssemblyUtils.LoadAssembly(assemblyDllPath);
             }
-            var assemblyExePath = binPath + string.Format("{0}.{1}", assemblyName, "exe");
+            var assemblyExePath = binPath + $"{assemblyName}.exe";
             if (File.Exists(assemblyExePath))
             {
                 assembly = AssemblyUtils.LoadAssembly(assemblyExePath);
@@ -269,157 +289,84 @@ namespace ServiceStack
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>), null).FirstOrDefault();
         }
 
-        public override PropertySetterDelegate GetPropertySetterFn(PropertyInfo propertyInfo)
+        public override GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
         {
-            var propertySetMethod = propertyInfo.SetMethod();
-            if (propertySetMethod == null) return null;
-
-            if (!SupportsExpression)
-            {
-                return (o, convertedValue) =>
-                    propertySetMethod.Invoke(o, new[] { convertedValue });
-            }
-
-            try
-            {
-                var instance = Expression.Parameter(typeof(object), "i");
-                var argument = Expression.Parameter(typeof(object), "a");
-
-                var instanceParam = Expression.Convert(instance, propertyInfo.ReflectedType());
-                var valueParam = Expression.Convert(argument, propertyInfo.PropertyType);
-
-                var setterCall = Expression.Call(instanceParam, propertySetMethod, valueParam);
-
-                return Expression.Lambda<PropertySetterDelegate>(setterCall, instance, argument).Compile();
-            }
-            catch //fallback for Android
-            {
-                return (o, convertedValue) =>
-                    propertySetMethod.Invoke(o, new[] { convertedValue });
-            }
+            return
+#if NET45
+                SupportsEmit ? PropertyInvoker.GetEmit(propertyInfo) :
+#endif
+                SupportsExpression
+                    ? PropertyInvoker.GetExpression(propertyInfo)
+                    : base.CreateGetter(propertyInfo);
         }
 
-        public override PropertyGetterDelegate GetPropertyGetterFn(PropertyInfo propertyInfo)
+        public override GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
         {
-            if (!SupportsExpression)
-                return base.GetPropertyGetterFn(propertyInfo);
-
-            var getMethodInfo = propertyInfo.GetMethodInfo();
-            if (getMethodInfo == null) return null;
-            try
-            {
-                var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
-                var instanceParam = Expression.Convert(oInstanceParam, propertyInfo.ReflectedType); //propertyInfo.DeclaringType doesn't work on Proxy types
-
-                var exprCallPropertyGetFn = Expression.Call(instanceParam, getMethodInfo);
-                var oExprCallPropertyGetFn = Expression.Convert(exprCallPropertyGetFn, typeof(object));
-
-                var propertyGetFn = Expression.Lambda<PropertyGetterDelegate>
-                    (
-                        oExprCallPropertyGetFn,
-                        oInstanceParam
-                    ).Compile();
-
-                return propertyGetFn;
-
-            }
-            catch (Exception ex)
-            {
-                Tracer.Instance.WriteError(ex);
-                throw;
-            }
+            return
+#if NET45
+                SupportsEmit ? PropertyInvoker.GetEmit<T>(propertyInfo) :
+#endif
+                    SupportsExpression
+                        ? PropertyInvoker.GetExpression<T>(propertyInfo)
+                        : base.CreateGetter<T>(propertyInfo);
         }
 
-        private static readonly MethodInfo setFieldMethod =
-            typeof(Net40PclExport).GetStaticMethod("SetField");
-
-        internal static void SetField<TValue>(ref TValue field, TValue newValue)
+        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
         {
-            field = newValue;
+            return
+#if NET45
+                SupportsEmit ? PropertyInvoker.SetEmit(propertyInfo) :
+#endif
+                SupportsExpression
+                    ? PropertyInvoker.SetExpression(propertyInfo)
+                    : base.CreateSetter(propertyInfo);
         }
 
-        public override PropertySetterDelegate GetFieldSetterFn(FieldInfo fieldInfo)
+        public override SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
         {
-            if (!SupportsExpression)
-                return base.GetFieldSetterFn(fieldInfo);
-
-            var fieldDeclaringType = fieldInfo.DeclaringType;
-
-            var sourceParameter = Expression.Parameter(typeof(object), "source");
-            var valueParameter = Expression.Parameter(typeof(object), "value");
-
-            var sourceExpression = this.GetCastOrConvertExpression(sourceParameter, fieldDeclaringType);
-
-            var fieldExpression = Expression.Field(sourceExpression, fieldInfo);
-
-            var valueExpression = this.GetCastOrConvertExpression(valueParameter, fieldExpression.Type);
-
-            var genericSetFieldMethodInfo = setFieldMethod.MakeGenericMethod(fieldExpression.Type);
-
-            var setFieldMethodCallExpression = Expression.Call(
-                null, genericSetFieldMethodInfo, fieldExpression, valueExpression);
-
-            var setterFn = Expression.Lambda<PropertySetterDelegate>(
-                setFieldMethodCallExpression, sourceParameter, valueParameter).Compile();
-
-            return setterFn;
+            return SupportsExpression
+                ? PropertyInvoker.SetExpression<T>(propertyInfo)
+                : base.CreateSetter<T>(propertyInfo);
         }
 
-        public override PropertyGetterDelegate GetFieldGetterFn(FieldInfo fieldInfo)
+        public override GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
         {
-            if (!SupportsExpression)
-                return base.GetFieldGetterFn(fieldInfo);
-
-            try
-            {
-                var fieldDeclaringType = fieldInfo.DeclaringType;
-
-                var oInstanceParam = Expression.Parameter(typeof(object), "source");
-                var instanceParam = this.GetCastOrConvertExpression(oInstanceParam, fieldDeclaringType);
-
-                var exprCallFieldGetFn = Expression.Field(instanceParam, fieldInfo);
-                //var oExprCallFieldGetFn = this.GetCastOrConvertExpression(exprCallFieldGetFn, typeof(object));
-                var oExprCallFieldGetFn = Expression.Convert(exprCallFieldGetFn, typeof(object));
-
-                var fieldGetterFn = Expression.Lambda<PropertyGetterDelegate>
-                    (
-                        oExprCallFieldGetFn,
-                        oInstanceParam
-                    )
-                    .Compile();
-
-                return fieldGetterFn;
-            }
-            catch (Exception ex)
-            {
-                Tracer.Instance.WriteError(ex);
-                throw;
-            }
+            return
+#if NET45
+                SupportsEmit ? FieldInvoker.GetEmit(fieldInfo) :
+#endif
+                SupportsExpression
+                    ? FieldInvoker.GetExpression(fieldInfo)
+                    : base.CreateGetter(fieldInfo);
         }
 
-        private Expression GetCastOrConvertExpression(Expression expression, Type targetType)
+        public override GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
         {
-            Expression result;
-            var expressionType = expression.Type;
+            return
+#if NET45
+                SupportsEmit ? FieldInvoker.GetEmit<T>(fieldInfo) :
+#endif
+                SupportsExpression
+                    ? FieldInvoker.GetExpression<T>(fieldInfo)
+                    : base.CreateGetter<T>(fieldInfo);
+        }
 
-            if (targetType.IsAssignableFrom(expressionType))
-            {
-                result = expression;
-            }
-            else
-            {
-                // Check if we can use the as operator for casting or if we must use the convert method
-                if (targetType.IsValueType && !targetType.IsNullableType())
-                {
-                    result = Expression.Convert(expression, targetType);
-                }
-                else
-                {
-                    result = Expression.TypeAs(expression, targetType);
-                }
-            }
+        public override SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
+        {
+            return
+#if NET45
+                SupportsEmit ? FieldInvoker.SetEmit(fieldInfo) :
+#endif
+                SupportsExpression
+                    ? FieldInvoker.SetExpression(fieldInfo)
+                    : base.CreateSetter(fieldInfo);
+        }
 
-            return result;
+        public override SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo)
+        {
+            return SupportsExpression
+                ? FieldInvoker.SetExpression<T>(fieldInfo)
+                : base.CreateSetter<T>(fieldInfo);
         }
 
         public override string ToXsdDateTimeString(DateTime dateTime)
@@ -472,6 +419,15 @@ namespace ServiceStack
             return null;
         }
 
+        public override ParseStringSegmentDelegate GetDictionaryParseStringSegmentMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(Hashtable))
+            {
+                return SerializerUtils<TSerializer>.ParseHashtable;
+            }
+            return null;
+        }
+
         public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))
@@ -481,6 +437,16 @@ namespace ServiceStack
             return null;
         }
 
+        public override ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
+        {
+            if (type == typeof(StringCollection))
+            {
+                return SerializerUtils<TSerializer>.ParseStringCollection<TSerializer>;
+            }
+            return null;
+        }
+
+
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
 #if !(__IOS__ || LITE)
@@ -488,6 +454,18 @@ namespace ServiceStack
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.Parse;
+            }
+#endif
+            return null;
+        }
+
+        public override ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+        {
+#if !(__IOS__ || LITE)
+            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
+            {
+                return DeserializeDynamic<TSerializer>.ParseStringSegment;
             }
 #endif
             return null;
@@ -520,30 +498,6 @@ namespace ServiceStack
             return key;
         }
 
-        public override void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
-        {
-            //might get merged/mangled on alt platforms
-            if (assemblyNames.Contains(accessType.Assembly.ManifestModule.Name))
-                return;
-
-            try
-            {
-                if (assemblyNames.Contains(accessType.Assembly.Location.SplitOnLast(Path.DirectorySeparatorChar).Last()))
-                    return;
-            }
-            catch (Exception)
-            {
-                return; //dynamic assembly
-            }
-
-            var errorDetails = " Type: '{0}', Assembly: '{1}', '{2}'".Fmt(
-                accessType.Name,
-                accessType.Assembly.ManifestModule.Name,
-                accessType.Assembly.Location);
-
-            throw new LicenseException(LicenseUtils.ErrorMessages.UnauthorizedAccessRequest + errorDetails);
-        }
-
         public override void BeginThreadAffinity()
         {
             Thread.BeginThreadAffinity();
@@ -569,29 +523,32 @@ namespace ServiceStack
             if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
         }
 
+        public override void SetUserAgent(HttpWebRequest httpReq, string value)
+        {
+            httpReq.UserAgent = value;
+        }
+
+        public override void SetContentLength(HttpWebRequest httpReq, long value)
+        {
+            httpReq.ContentLength = value;
+        }
+
+        public override void SetAllowAutoRedirect(HttpWebRequest httpReq, bool value)
+        {
+            httpReq.AllowAutoRedirect = value;
+        }
+
+        public override void SetKeepAlive(HttpWebRequest httpReq, bool value)
+        {
+            httpReq.KeepAlive = value;
+        }
+
         public override string GetStackTrace()
         {
             return Environment.StackTrace;
         }
 
 #if !__IOS__
-        public override SetPropertyDelegate GetSetPropertyMethod(PropertyInfo propertyInfo)
-        {
-            return CreateIlPropertySetter(propertyInfo);
-        }
-
-        public override SetPropertyDelegate GetSetFieldMethod(FieldInfo fieldInfo)
-        {
-            return CreateIlFieldSetter(fieldInfo);
-        }
-
-        public override SetPropertyDelegate GetSetMethod(PropertyInfo propertyInfo, FieldInfo fieldInfo)
-        {
-            return propertyInfo.CanWrite
-                ? CreateIlPropertySetter(propertyInfo)
-                : CreateIlFieldSetter(fieldInfo);
-        }
-
         public override Type UseType(Type type)
         {
             if (type.IsInterface || type.IsAbstract)
@@ -615,61 +572,6 @@ namespace ServiceStack
         {
             return pi.GetWeakDataMember();
         }
-
-        public static SetPropertyDelegate CreateIlPropertySetter(PropertyInfo propertyInfo)
-        {
-            var propSetMethod = propertyInfo.GetSetMethod(true);
-            if (propSetMethod == null)
-                return null;
-
-            var setter = CreateDynamicSetMethod(propertyInfo);
-
-            var generator = setter.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
-            generator.Emit(OpCodes.Ldarg_1);
-
-            generator.Emit(propertyInfo.PropertyType.IsClass
-                               ? OpCodes.Castclass
-                               : OpCodes.Unbox_Any,
-                           propertyInfo.PropertyType);
-
-            generator.EmitCall(OpCodes.Callvirt, propSetMethod, (Type[])null);
-            generator.Emit(OpCodes.Ret);
-
-            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-        }
-
-        public static SetPropertyDelegate CreateIlFieldSetter(FieldInfo fieldInfo)
-        {
-            var setter = CreateDynamicSetMethod(fieldInfo);
-
-            var generator = setter.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Castclass, fieldInfo.DeclaringType);
-            generator.Emit(OpCodes.Ldarg_1);
-
-            generator.Emit(fieldInfo.FieldType.IsClass
-                               ? OpCodes.Castclass
-                               : OpCodes.Unbox_Any,
-                           fieldInfo.FieldType);
-
-            generator.Emit(OpCodes.Stfld, fieldInfo);
-            generator.Emit(OpCodes.Ret);
-
-            return (SetPropertyDelegate)setter.CreateDelegate(typeof(SetPropertyDelegate));
-        }
-
-        private static DynamicMethod CreateDynamicSetMethod(MemberInfo memberInfo)
-        {
-            var args = new[] { typeof(object), typeof(object) };
-            var name = string.Format("_{0}{1}_", "Set", memberInfo.Name);
-            var returnType = typeof(void);
-
-            return !memberInfo.DeclaringType.IsInterface
-                       ? new DynamicMethod(name, returnType, args, memberInfo.DeclaringType, true)
-                       : new DynamicMethod(name, returnType, args, memberInfo.Module, true);
-        }
 #endif
     }
 
@@ -691,6 +593,29 @@ namespace ServiceStack
 	}
 #endif
 
+#if NET45 || NETFX_CORE
+    public class Net45PclExport : Net40PclExport
+    {
+        public static new Net45PclExport Provider = new Net45PclExport();
+
+        public Net45PclExport()
+        {
+            PlatformName = "NET45 " + Environment.OSVersion.Platform.ToString();
+        }
+
+        public new static void Configure()
+        {
+            Configure(Provider);
+        }
+
+        public override Task WriteAndFlushAsync(Stream stream, byte[] bytes)
+        {
+            return stream.WriteAsync(bytes, 0, bytes.Length)
+                .ContinueWith(t => stream.FlushAsync());
+        }
+    }
+#endif
+
 #if __IOS__ || __MAC__
     [Preserve(AllMembers = true)]
     internal class Poco
@@ -706,10 +631,6 @@ namespace ServiceStack
         {
             PlatformName = "IOS";
             SupportsEmit = SupportsExpression = false;
-        }
-
-        public override void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
-        {
         }
 
         public new static void Configure()
@@ -777,9 +698,12 @@ namespace ServiceStack
             RegisterTypeForAot<Guid>();
             RegisterTypeForAot<TimeSpan>();
             RegisterTypeForAot<DateTime>();
-            RegisterTypeForAot<DateTime?>();
-            RegisterTypeForAot<TimeSpan?>();
+            RegisterTypeForAot<DateTimeOffset>();
+
             RegisterTypeForAot<Guid?>();
+            RegisterTypeForAot<TimeSpan?>();
+            RegisterTypeForAot<DateTime?>();
+            RegisterTypeForAot<DateTimeOffset?>();
         }
 
         [Preserve]
@@ -949,157 +873,9 @@ namespace ServiceStack
             PlatformName = "Android";
         }
 
-        public override void VerifyInAssembly(Type accessType, ICollection<string> assemblyNames)
-        {
-        }
-
         public new static void Configure()
         {
             Configure(Provider);
-        }
-    }
-#endif
-
-#if !__IOS__
-    public static class DynamicProxy
-    {
-        public static T GetInstanceFor<T>()
-        {
-            return (T)GetInstanceFor(typeof(T));
-        }
-
-        static readonly ModuleBuilder ModuleBuilder;
-        static readonly AssemblyBuilder DynamicAssembly;
-
-        public static object GetInstanceFor(Type targetType)
-        {
-            lock (DynamicAssembly)
-            {
-                var constructedType = DynamicAssembly.GetType(ProxyName(targetType)) ?? GetConstructedType(targetType);
-                var instance = Activator.CreateInstance(constructedType);
-                return instance;
-            }
-        }
-
-        static string ProxyName(Type targetType)
-        {
-            return targetType.Name + "Proxy";
-        }
-
-        static DynamicProxy()
-        {
-            var assemblyName = new AssemblyName("DynImpl");
-            DynamicAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
-            ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynImplModule");
-        }
-
-        static Type GetConstructedType(Type targetType)
-        {
-            var typeBuilder = ModuleBuilder.DefineType(targetType.Name + "Proxy", TypeAttributes.Public);
-
-            var ctorBuilder = typeBuilder.DefineConstructor(
-                MethodAttributes.Public,
-                CallingConventions.Standard,
-                new Type[] { });
-            var ilGenerator = ctorBuilder.GetILGenerator();
-            ilGenerator.Emit(OpCodes.Ret);
-
-            IncludeType(targetType, typeBuilder);
-
-            foreach (var face in targetType.GetInterfaces())
-                IncludeType(face, typeBuilder);
-
-            return typeBuilder.CreateType();
-        }
-
-        static void IncludeType(Type typeOfT, TypeBuilder typeBuilder)
-        {
-            var methodInfos = typeOfT.GetMethods();
-            foreach (var methodInfo in methodInfos)
-            {
-                if (methodInfo.Name.StartsWith("set_", StringComparison.Ordinal)) continue; // we always add a set for a get.
-
-                if (methodInfo.Name.StartsWith("get_", StringComparison.Ordinal))
-                {
-                    BindProperty(typeBuilder, methodInfo);
-                }
-                else
-                {
-                    BindMethod(typeBuilder, methodInfo);
-                }
-            }
-
-            typeBuilder.AddInterfaceImplementation(typeOfT);
-        }
-
-        static void BindMethod(TypeBuilder typeBuilder, MethodInfo methodInfo)
-        {
-            var methodBuilder = typeBuilder.DefineMethod(
-                methodInfo.Name,
-                MethodAttributes.Public | MethodAttributes.Virtual,
-                methodInfo.ReturnType,
-                methodInfo.GetParameters().Select(p => p.GetType()).ToArray()
-                );
-            var methodILGen = methodBuilder.GetILGenerator();
-            if (methodInfo.ReturnType == typeof(void))
-            {
-                methodILGen.Emit(OpCodes.Ret);
-            }
-            else
-            {
-                if (methodInfo.ReturnType.IsValueType || methodInfo.ReturnType.IsEnum)
-                {
-                    MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance",
-                                                                       new[] { typeof(Type) });
-                    LocalBuilder lb = methodILGen.DeclareLocal(methodInfo.ReturnType);
-                    methodILGen.Emit(OpCodes.Ldtoken, lb.LocalType);
-                    methodILGen.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
-                    methodILGen.Emit(OpCodes.Callvirt, getMethod);
-                    methodILGen.Emit(OpCodes.Unbox_Any, lb.LocalType);
-                }
-                else
-                {
-                    methodILGen.Emit(OpCodes.Ldnull);
-                }
-                methodILGen.Emit(OpCodes.Ret);
-            }
-            typeBuilder.DefineMethodOverride(methodBuilder, methodInfo);
-        }
-
-        public static void BindProperty(TypeBuilder typeBuilder, MethodInfo methodInfo)
-        {
-            // Backing Field
-            string propertyName = methodInfo.Name.Replace("get_", "");
-            Type propertyType = methodInfo.ReturnType;
-            FieldBuilder backingField = typeBuilder.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
-
-            //Getter
-            MethodBuilder backingGet = typeBuilder.DefineMethod("get_" + propertyName, MethodAttributes.Public |
-                MethodAttributes.SpecialName | MethodAttributes.Virtual |
-                MethodAttributes.HideBySig, propertyType, Type.EmptyTypes);
-            ILGenerator getIl = backingGet.GetILGenerator();
-
-            getIl.Emit(OpCodes.Ldarg_0);
-            getIl.Emit(OpCodes.Ldfld, backingField);
-            getIl.Emit(OpCodes.Ret);
-
-
-            //Setter
-            MethodBuilder backingSet = typeBuilder.DefineMethod("set_" + propertyName, MethodAttributes.Public |
-                MethodAttributes.SpecialName | MethodAttributes.Virtual |
-                MethodAttributes.HideBySig, null, new[] { propertyType });
-
-            ILGenerator setIl = backingSet.GetILGenerator();
-
-            setIl.Emit(OpCodes.Ldarg_0);
-            setIl.Emit(OpCodes.Ldarg_1);
-            setIl.Emit(OpCodes.Stfld, backingField);
-            setIl.Emit(OpCodes.Ret);
-
-            // Property
-            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyName, PropertyAttributes.None, propertyType, null);
-            propertyBuilder.SetGetMethod(backingGet);
-            propertyBuilder.SetSetMethod(backingSet);
         }
     }
 #endif
@@ -1109,7 +885,7 @@ namespace ServiceStack
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        private static int VerifyAndGetStartIndex(string value, Type createMapType)
+        private static int VerifyAndGetStartIndex(StringSegment value, Type createMapType)
         {
             var index = 0;
             if (!Serializer.EatMapStartChar(value, ref index))
@@ -1121,9 +897,11 @@ namespace ServiceStack
             return index;
         }
 
-        public static Hashtable ParseHashtable(string value)
+        public static Hashtable ParseHashtable(string value) => ParseHashtable(new StringSegment(value));
+
+        public static Hashtable ParseHashtable(StringSegment value)
         {
-            if (value == null)
+            if (!value.HasValue)
                 return null;
 
             var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
@@ -1138,10 +916,10 @@ namespace ServiceStack
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
-                if (keyValue == null) continue;
+                if (!keyValue.HasValue) continue;
 
-                var mapKey = keyValue;
-                var mapValue = elementValue;
+                var mapKey = keyValue.Value;
+                var mapValue = elementValue.Value;
 
                 result[mapKey] = mapValue;
 
@@ -1151,10 +929,13 @@ namespace ServiceStack
             return result;
         }
 
-        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer
+        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer => ParseStringCollection<TS>(new StringSegment(value));
+
+
+        public static StringCollection ParseStringCollection<TS>(StringSegment value) where TS : ITypeSerializer
         {
             if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
-            return value == String.Empty
+            return value.Length == 0
                    ? new StringCollection()
                    : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
         }
@@ -1172,26 +953,6 @@ namespace ServiceStack
 
     public static class PclExportExt
     {
-        public static string ToFormUrlEncoded(this NameValueCollection queryParams)
-        {
-            var sb = new System.Text.StringBuilder();
-            foreach (string key in queryParams)
-            {
-                var values = queryParams.GetValues(key);
-                if (values == null) continue;
-
-                foreach (var value in values)
-                {
-                    if (sb.Length > 0)
-                        sb.Append('&');
-
-                    sb.AppendFormat("{0}={1}", key.UrlEncode(), value.UrlEncode());
-                }
-            }
-
-            return sb.ToString();
-        }
-
         //HttpUtils
         public static WebResponse PostFileToUrl(this string url,
             FileInfo uploadFileInfo, string uploadFileMimeType,
@@ -1303,9 +1064,66 @@ namespace ServiceStack
             return VerifySignedHash(originalData, signedData, publicKeyParams);
         }
 
+        public static bool VerifyLicenseKeyTextFallback(this string licenseKeyText, out LicenseKey key)
+        {
+            RSAParameters publicKeyParams;
+            try
+            {
+                var publicRsaProvider = new RSACryptoServiceProvider();
+                publicRsaProvider.FromXmlString(LicenseUtils.LicensePublicKey);
+                publicKeyParams = publicRsaProvider.ExportParameters(false);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not import LicensePublicKey", ex);
+            }
+
+            try
+            {
+                key = licenseKeyText.ToLicenseKeyFallback();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not deserialize LicenseKeyText Manually", ex);
+            }
+
+            byte[] originalData;
+            byte[] signedData;
+
+            try
+            {
+                originalData = key.GetHashKeyToSign().ToUtf8Bytes();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not convert HashKey to UTF-8", ex);
+            }
+
+            try
+            {
+                signedData = Convert.FromBase64String(key.Hash);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not convert key.Hash from Base64", ex);
+            }
+
+            try
+            {
+                return VerifySignedHash(originalData, signedData, publicKeyParams);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not Verify License Key ({originalData.Length}, {signedData.Length})", ex);
+            }
+        }
+
         public static bool VerifySha1Data(this RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
         {
-            return RSAalg.VerifyData(unsignedData, new SHA1CryptoServiceProvider(), encryptedData);
+            using (var sha = new SHA1CryptoServiceProvider())
+            {
+                return RSAalg.VerifyData(unsignedData, sha, encryptedData);
+            }
             //SL5 || WP
             //return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1()); 
         }
@@ -1496,7 +1314,8 @@ namespace ServiceStack.Text.FastMember
         /// <summary>
         /// Does this type support new instances via a parameterless constructor?
         /// </summary>
-        public virtual bool CreateNewSupported { get { return false; } }
+        public virtual bool CreateNewSupported => false;
+
         /// <summary>
         /// Create a new instance of this type
         /// </summary>
@@ -1508,8 +1327,8 @@ namespace ServiceStack.Text.FastMember
         /// <remarks>The accessor is cached internally; a pre-existing accessor may be returned</remarks>
         public static TypeAccessor Create(Type type)
         {
-            if (type == null) throw new ArgumentNullException("type");
-            TypeAccessor obj = (TypeAccessor)typeLookyp[type];
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            var obj = (TypeAccessor)typeLookyp[type];
             if (obj != null) return obj;
 
             lock (typeLookyp)
@@ -1660,15 +1479,16 @@ namespace ServiceStack.Text.FastMember
                 this.setter = setter;
                 this.ctor = ctor;
             }
-            public override bool CreateNewSupported { get { return ctor != null; } }
+            public override bool CreateNewSupported => ctor != null;
+
             public override object CreateNew()
             {
                 return ctor != null ? ctor() : base.CreateNew();
             }
             public override object this[object target, string name]
             {
-                get { return getter(target, name); }
-                set { setter(target, name, value); }
+                get => getter(target, name);
+                set => setter(target, name, value);
             }
         }
 
@@ -1685,8 +1505,8 @@ namespace ServiceStack.Text.FastMember
             //    return DynamicAccessor.Singleton;
             //}
 
-            PropertyInfo[] props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             ConstructorInfo ctor = null;
             if (type.IsClass && !type.IsAbstract)
             {

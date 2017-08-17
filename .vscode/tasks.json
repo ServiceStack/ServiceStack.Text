@@ -1,0 +1,22 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "command": "dotnet",
+    "isShellCommand": true,
+    "args": [],
+    "options": {
+        "env": {
+            "FrameworkPathOverride": "/usr/lib/mono/4.5/"
+        }
+    },    
+    "tasks": [
+        {
+            "taskName": "build",
+            "args": [ "src/ServiceStack.Text.sln", "-v", "m" ],
+            "isBuildCommand": true,
+            "showOutput": "silent",
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
