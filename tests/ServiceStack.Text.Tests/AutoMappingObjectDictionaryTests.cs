@@ -37,7 +37,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(((Car)map["Car"]).Age, Is.EqualTo(dto.Car.Age));
             Assert.That(((Car)map["Car"]).Name, Is.EqualTo(dto.Car.Name));
 
-            var fromDict = (User)map.FromObjectDictionary(typeof(User));
+            var fromDict = map.FromObjectDictionary<User>();
             Assert.That(fromDict.FirstName, Is.EqualTo(dto.FirstName));
             Assert.That(fromDict.LastName, Is.EqualTo(dto.LastName));
             Assert.That(fromDict.Car.Age, Is.EqualTo(dto.Car.Age));
