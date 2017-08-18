@@ -60,5 +60,22 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromDict.Car.Age, Is.EqualTo(10));
             Assert.That(fromDict.Car.Name, Is.EqualTo("SubCar"));
         }
+
+        [Test]
+        public void Can_Convert_from_ObjectDictionary_with_Different_Types_with_camelCase_names()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "firstName", 1 },
+                { "lastName", true },
+                { "car",  new SubCar { Age = 10, Name = "SubCar", Custom = "Custom"} },
+            };
+
+            var fromDict = (User)map.FromObjectDictionary(typeof(User));
+            Assert.That(fromDict.FirstName, Is.EqualTo("1"));
+            Assert.That(fromDict.LastName, Is.EqualTo(bool.TrueString));
+            Assert.That(fromDict.Car.Age, Is.EqualTo(10));
+            Assert.That(fromDict.Car.Name, Is.EqualTo("SubCar"));
+        }
     }
 }

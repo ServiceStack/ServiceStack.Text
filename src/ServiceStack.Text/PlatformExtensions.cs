@@ -1339,7 +1339,9 @@ namespace ServiceStack
             foreach (var entry in values)
             {
                 ObjectDictionaryFieldDefinition fieldDef;
-                if (!def.FieldsMap.TryGetValue(entry.Key, out fieldDef) || entry.Value == null)
+                if (!def.FieldsMap.TryGetValue(entry.Key, out fieldDef) &&
+                    !def.FieldsMap.TryGetValue(entry.Key.ToPascalCase(), out fieldDef)
+                    || entry.Value == null)
                     continue;
 
                 fieldDef.SetValue(to, entry.Value);
