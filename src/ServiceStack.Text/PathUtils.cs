@@ -28,11 +28,9 @@ namespace ServiceStack
         public static string MapProjectPath(this string relativePath)
         {
             var sep = PclExport.Instance.DirSep;
-#if !NETSTANDARD1_1
-            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..");
-#else
-            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
-#endif
+            return Env.HasMultiplePlatformTargets
+                ? PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..")
+                : PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..");
         }
         /// <summary>
         /// Maps the path of a file in the context of a VS 2017+ multi-platform project in a Console App

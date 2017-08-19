@@ -57,6 +57,7 @@ namespace ServiceStack.Text
             IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
             IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
             IsUnix = IsOSX || IsLinux;
+            HasMultiplePlatformTargets = true;
 #elif NET45
             var platform = (int)Environment.OSVersion.Platform;
             IsUnix = platform == 4 || platform == 6 || platform == 128;
@@ -106,6 +107,8 @@ namespace ServiceStack.Text
         public static bool StrictMode { get; set; }
 
         public static string ServerUserAgent { get; set; }
+
+        public static bool HasMultiplePlatformTargets { get; set; }
 
         private static readonly DateTime __releaseDate;
         public static DateTime GetReleaseDate()
