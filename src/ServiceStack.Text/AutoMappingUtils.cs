@@ -24,16 +24,44 @@ namespace ServiceStack
             if (from == null)
                 return default(T);
 
-            if (from.GetType() == typeof(T))
+            var fromType = from.GetType();
+            if (fromType == typeof(T))
                 return (T)from;
 
-            if (from.GetType().IsValueType() || typeof(T).IsValueType())
+            if (fromType.IsValueType() || typeof(T).IsValueType())
+            {
+                if (!fromType.IsEnum() && !typeof(T).IsEnum())
+                {
+                    if (typeof(T) == typeof(char) && from is string s)
+                        return (T)(s.Length > 0 ? (object) s[0] : null);
+                    if (typeof(T) == typeof(string) && from is char c)
+                        return (T)(object)c.ToString();
+
+                    var destNumberType = DynamicNumber.GetNumber(typeof(T));
+                    var value = destNumberType?.ConvertFrom(from);
+                    if (value != null)
+                    {
+                        if (typeof(T) == typeof(char))
+                            return (T)(object)value.ToString()[0];
+
+                        return (T)value;
+                    }
+
+                    if (typeof(T) == typeof(string))
+                    {
+                        var srcNumberType = DynamicNumber.GetNumber(from.GetType());
+                        if (srcNumberType != null)
+                            return (T)(object)srcNumberType.ToString(from);
+                    }
+                }
+
                 return (T)ChangeValueType(from, typeof(T));
+            }
 
             if (typeof(IEnumerable).IsAssignableFromType(typeof(T)))
             {
                 var listResult = TranslateListWithElements.TryTranslateCollections(
-                    from.GetType(), typeof(T), from);
+                    fromType, typeof(T), from);
 
                 return (T)listResult;
             }
