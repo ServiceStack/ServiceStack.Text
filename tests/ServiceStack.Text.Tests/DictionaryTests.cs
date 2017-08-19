@@ -373,9 +373,7 @@ namespace ServiceStack.Text.Tests
                     new NumericType(UInt64.MaxValue, typeof (UInt64)),
                 };
 
-            JsConfig.TryToParsePrimitiveTypeValues = true;
-            JsConfig.TryToParseNumericType = true;
-
+            JsConfig.TryToParsePrimitiveTypeValues = JsConfig.TryToParseNumericType = JsConfig.TryParseIntoBestFit = true;
 
             foreach (var unsignedType in unsignedTypes)
             {
@@ -391,8 +389,9 @@ namespace ServiceStack.Text.Tests
                 Assert.That(deserializedDict["min"], Is.TypeOf<byte>());
                 Assert.That(deserializedDict["max"], Is.TypeOf(unsignedType.Type));
                 Assert.That(deserializedDict["max"], Is.EqualTo(unsignedType.Max));
-
             }
+
+            JsConfig.Reset();
         }
 
         [Test]
