@@ -204,8 +204,21 @@ namespace ServiceStack.Text
         /// Useful extension method to get the Dictionary[string,string] representation of any POCO type.
         /// </summary>
         /// <returns></returns>
-        public static Dictionary<string, string> ToStringDictionary<T>(this T obj)
+        public static Dictionary<string, string> ToStringDictionary(this object obj)
         {
+            if (obj == null)
+                return new Dictionary<string, string>();
+            
+            if (obj is Dictionary<string, object> objDictionary)
+            {
+                var to = new Dictionary<string,string>();
+                foreach (var entry in objDictionary)
+                {
+                    to[entry.Key] = entry.Value?.ToString();
+                }
+                return to;
+            }
+
             var jsv = SerializeToString(obj);
             var map = DeserializeFromString<Dictionary<string, string>>(jsv);
             return map;
