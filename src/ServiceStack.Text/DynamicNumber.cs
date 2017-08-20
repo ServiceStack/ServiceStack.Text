@@ -448,7 +448,11 @@ namespace ServiceStack
         {
             var number = GetNumber(lhs, rhs);
             if (number == null)
-                throw new ArgumentException($"Invalid numbers passed to {name}: {lhs?.GetType().Name ?? "null"}, {rhs?.GetType().Name ?? "null"}");
+            {
+                throw new ArgumentException($"Invalid numbers passed to {name}: " +
+                                            $"{lhs?.GetType().Name ?? "null"} '{lhs?.ToString().SubstringWithElipsis(0, 100)}', " +
+                                            $"{rhs?.GetType().Name ?? "null"} '{rhs?.ToString().SubstringWithElipsis(0, 100)}'");
+            }
 
             return number;
         }
