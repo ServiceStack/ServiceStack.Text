@@ -165,5 +165,12 @@ namespace ServiceStack.Text.Tests
             Assert.That("a".ConvertTo<char>(), Is.EqualTo('a'));
         }
 
+        [Test]
+        public void Can_apply_operations_to_strings_containing_numbers()
+        {
+            var result = DynamicNumber.Add("1", "1");
+            Assert.That(result, Is.EqualTo(2));
+        }
+
     }
 }

@@ -430,6 +430,12 @@ namespace ServiceStack
             if (lhs == null || rhs == null)
                 return null;
 
+            if (lhs is string lhsString && !TryParse(lhsString, out lhs))
+                return null;
+
+            if (rhs is string rhsString && !TryParse(rhsString, out rhs))
+                return null;
+
             if (!TryGetRanking(lhs.GetType(), out int lhsRanking) || !TryGetRanking(rhs.GetType(), out int rhsRanking))
                 return null;
 
@@ -438,26 +444,35 @@ namespace ServiceStack
             return maxNumber;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Add(object lhs, object rhs) => GetNumber(lhs, rhs).add(lhs, rhs);
+        public static IDynamicNumber AssertNumbers(string name, object lhs, object rhs)
+        {
+            var number = GetNumber(lhs, rhs);
+            if (number == null)
+                throw new ArgumentException($"Invalid numbers passed to {name}: {lhs?.GetType().Name ?? "null"}, {rhs?.GetType().Name ?? "null"}");
+
+            return number;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Sub(object lhs, object rhs) => GetNumber(lhs, rhs).sub(lhs, rhs);
+        public static object Add(object lhs, object rhs) => AssertNumbers(nameof(Add), lhs, rhs).add(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Subtract(object lhs, object rhs) => GetNumber(lhs, rhs).sub(lhs, rhs);
+        public static object Sub(object lhs, object rhs) => AssertNumbers(nameof(Subtract), lhs, rhs).sub(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Mul(object lhs, object rhs) => GetNumber(lhs, rhs).mul(lhs, rhs);
+        public static object Subtract(object lhs, object rhs) => AssertNumbers(nameof(Subtract), lhs, rhs).sub(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Multiply(object lhs, object rhs) => GetNumber(lhs, rhs).mul(lhs, rhs);
+        public static object Mul(object lhs, object rhs) => AssertNumbers(nameof(Multiply), lhs, rhs).mul(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Div(object lhs, object rhs) => GetNumber(lhs, rhs).div(lhs, rhs);
+        public static object Multiply(object lhs, object rhs) => AssertNumbers(nameof(Multiply), lhs, rhs).mul(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Divide(object lhs, object rhs) => GetNumber(lhs, rhs).div(lhs, rhs);
+        public static object Div(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).div(lhs, rhs);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object Divide(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).div(lhs, rhs);
 
         public static bool TryParse(string strValue, out object result)
         {
