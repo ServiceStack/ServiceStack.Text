@@ -972,9 +972,11 @@ namespace ServiceStack
         public static bool InstanceOfType(this Type type, object instance)
         {
 #if (NETFX_CORE || PCL || NETSTANDARD1_1)
-            return instance.GetType().IsInstanceOf(type);
+            var result = instance != null && type.GetTypeInfo().IsAssignableFrom(instance.GetType().GetTypeInfo()); //https://stackoverflow.com/a/24712250/85785
+            return result;
 #else
-            return type.IsInstanceOfType(instance);
+            var result = type.IsInstanceOfType(instance);
+            return result;
 #endif
         }
 

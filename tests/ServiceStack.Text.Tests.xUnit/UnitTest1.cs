@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using ServiceStack.Web;
 using Xunit;
 
@@ -18,6 +19,12 @@ namespace ServiceStack.Text.Tests.xUnit
         {
             var o = typeof(RawRequest).CreateInstance();
             var requestObj = AutoMappingUtils.PopulateWith(o);
+        }
+
+        [Fact]
+        public void Nullable_int_and_object_int_are_of_same_Type()
+        {
+            Assert.True(typeof(int?).IsInstanceOfType(1));
         }
     }
 }
