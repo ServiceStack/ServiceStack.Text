@@ -208,13 +208,26 @@ namespace ServiceStack.Text
         {
             if (obj == null)
                 return new Dictionary<string, string>();
-            
-            if (obj is Dictionary<string, object> objDictionary)
+
+            if (obj is Dictionary<string, string> strDictionary)
+                return strDictionary;
+
+            if (obj is IEnumerable<KeyValuePair<string, string>> kvpStrings)
             {
-                var to = new Dictionary<string,string>();
-                foreach (var entry in objDictionary)
+                var to = new Dictionary<string, string>();
+                foreach (var kvp in kvpStrings)
                 {
-                    to[entry.Key] = entry.Value?.ToString();
+                    to[kvp.Key] = kvp.Value;
+                }
+                return to;
+            }
+
+            if (obj is IEnumerable<KeyValuePair<string, object>> kvps)
+            {
+                var to = new Dictionary<string, string>();
+                foreach (var kvp in kvps)
+                {
+                    to[kvp.Key] = kvp.Value?.ToString();
                 }
                 return to;
             }
