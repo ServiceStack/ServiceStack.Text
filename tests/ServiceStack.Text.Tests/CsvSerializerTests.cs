@@ -276,6 +276,86 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_serialize_ObjectDictionary_list()
+        {
+            var rows = new List<Dictionary<string, object>>
+            {
+                new Dictionary<string, object>
+                {
+                    { "Id", 1 },
+                    { "CustomerId", "ALFKI" },
+                },
+                new Dictionary<string, object>
+                {
+                    { "Id", 2 },
+                    { "CustomerId", "ANATR" },
+                },
+            };
+
+            Assert.That(rows.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI\n2,ANATR").Or.EqualTo("CustomerId,Id\nALFKI,1\nANATR,2"));
+        }
+
+        [Test]
+        public void Can_serialize_StringDictionary_list()
+        {
+            var rows = new List<Dictionary<string, string>>
+            {
+                new Dictionary<string, string>
+                {
+                    { "Id", "1" },
+                    { "CustomerId", "ALFKI" },
+                },
+                new Dictionary<string, string>
+                {
+                    { "Id", "2" },
+                    { "CustomerId", "ANATR" },
+                },
+            };
+
+            Assert.That(rows.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI\n2,ANATR").Or.EqualTo("CustomerId,Id\nALFKI,1\nANATR,2"));
+        }
+
+        [Test]
+        public void Can_serialize_single_ObjectDictionary_or_ObjectKvps()
+        {
+            var row = new Dictionary<string, object>
+            {
+                { "Id", 1 },
+                { "CustomerId", "ALFKI" },
+            };
+
+            Assert.That(row.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
+
+            var kvps = new[]
+            {
+                new KeyValuePair<string, object>("Id", 1),
+                new KeyValuePair<string, object>("CustomerId", "ALFKI"),
+            };
+
+            Assert.That(kvps.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
+        }
+
+        [Test]
+        public void Can_serialize_single_StringDictionary_or_StringKvps()
+        {
+            var row = new Dictionary<string, string>
+            {
+                { "Id", "1" },
+                { "CustomerId", "ALFKI" },
+            };
+
+            Assert.That(row.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
+
+            var kvps = new[]
+            {
+                new KeyValuePair<string, string>("Id", "1"),
+                new KeyValuePair<string, string>("CustomerId", "ALFKI"),
+            };
+
+            Assert.That(kvps.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
+        }
+
+        [Test]
         public void serialize_Category()
         {
             SerializeAndDeserialize(NorthwindData.Categories[0]);

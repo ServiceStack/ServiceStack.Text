@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -256,6 +257,13 @@ namespace ServiceStack.Text
             bestCandidateEnumerableType = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
             if (bestCandidateEnumerableType != null)
             {
+                var dictionarOrKvps = typeof(T).HasInterface(typeof(IEnumerable<KeyValuePair<string, object>>))
+                                   || typeof(T).HasInterface(typeof(IEnumerable<KeyValuePair<string, string>>));
+                if (dictionarOrKvps)
+                {
+                    return WriteSelf;
+                }
+
                 var elementType = bestCandidateEnumerableType.GenericTypeArguments()[0];
                 writeElementFn = CreateWriteFn(elementType);
 

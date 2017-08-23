@@ -32,6 +32,36 @@ namespace ServiceStack.Text
             writer.Write(CsvConfig.RowSeparatorString);
         }
 
+        public static void Write(TextWriter writer, IEnumerable<KeyValuePair<string, object>> records)
+        {
+            if (records == null) return; //AOT
+
+            var requireHeaders = !CsvConfig<IEnumerable<KeyValuePair<string, object>>>.OmitHeaders;
+            if (requireHeaders)
+            {
+                var keys = records.Select(x => x.Key);
+                WriteRow(writer, keys);
+            }
+
+            var values = records.Select(x => x.Value);
+            WriteObjectRow(writer, values);
+        }
+
+        public static void Write(TextWriter writer, IEnumerable<KeyValuePair<string, string>> records)
+        {
+            if (records == null) return; //AOT
+
+            var requireHeaders = !CsvConfig<IEnumerable<KeyValuePair<string, string>>>.OmitHeaders;
+            if (requireHeaders)
+            {
+                var keys = records.Select(x => x.Key);
+                WriteRow(writer, keys);
+            }
+
+            var values = records.Select(x => x.Value);
+            WriteObjectRow(writer, values);
+        }
+
         public static void Write(TextWriter writer, IEnumerable<IDictionary<string, object>> records) 
         {
             if (records == null) return; //AOT
@@ -230,12 +260,6 @@ namespace ServiceStack.Text
                 return;
             }
 
-            if (typeof(T) == typeof(Dictionary<string, object>) || typeof(T) == typeof(IDictionary<string, object>))
-            {
-                CsvDictionaryWriter.Write(writer, (IEnumerable<IDictionary<string, object>>)records);
-                return;
-            }
-
             if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>))) //also does `object`
             {
                 var dynamicList = records.Select(x => x.ToObjectDictionary()).ToList();
@@ -292,7 +316,18 @@ namespace ServiceStack.Text
         {
             if (writer == null) return; //AOT
 
-            Write(writer, new[] { row });
+            if (row is IEnumerable<KeyValuePair<string, object>> kvps)
+            {
+                CsvDictionaryWriter.Write(writer, kvps);
+            }
+            else if (row is IEnumerable<KeyValuePair<string, string>> kvpStrings)
+            {
+                CsvDictionaryWriter.Write(writer, kvpStrings);
+            }
+            else
+            {
+                Write(writer, new[] { row });
+            }
         }
 
         public static void WriteRow(TextWriter writer, IEnumerable<string> row)

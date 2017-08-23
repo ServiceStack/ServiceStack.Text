@@ -15,7 +15,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(json, Is.EqualTo("[{\"Name\":\"Foo\"},{\"Name\":\"Bar\"}]"));
 
             string csv = CsvSerializer.SerializeToString(rows);
-            Assert.That(csv.NormalizeNewLines(), Is.EqualTo("Name\nFoo\nBar\n"));
+            Assert.That(csv.NormalizeNewLines(), Is.EqualTo("Name\nFoo\nBar"));
         }
 
         [Test]
