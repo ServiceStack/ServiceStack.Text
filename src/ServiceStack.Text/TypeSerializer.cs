@@ -227,7 +227,7 @@ namespace ServiceStack.Text
                 var to = new Dictionary<string, string>();
                 foreach (var kvp in kvps)
                 {
-                    to[kvp.Key] = kvp.Value?.ToString();
+                    to[kvp.Key] = kvp.Value.ToJsv();
                 }
                 return to;
             }
