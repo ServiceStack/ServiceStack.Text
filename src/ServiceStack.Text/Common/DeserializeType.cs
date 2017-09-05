@@ -339,7 +339,8 @@ namespace ServiceStack.Text.Common
             return (flag & flags) != 0;
         }
 
-        public static object ParseNumber(this StringSegment value)
+        public static object ParseNumber(this StringSegment value) => ParseNumber(value, JsConfig.TryParseIntoBestFit);
+        public static object ParseNumber(this StringSegment value, bool bestFit)
         {
             if (value.Length == 1)
             {
@@ -347,7 +348,7 @@ namespace ServiceStack.Text.Common
                 if (singleDigit >= 48 || singleDigit <= 57) // 0 - 9
                 {
                     var result = singleDigit - 48;
-                    if (JsConfig.TryParseIntoBestFit)
+                    if (bestFit)
                         return (byte) result;
                     return result;
                 }

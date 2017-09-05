@@ -29,7 +29,7 @@ namespace ServiceStack
         public Type Type => typeof(sbyte);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public sbyte Convert(object value) => System.Convert.ToSByte(value);
+        public sbyte Convert(object value) => System.Convert.ToSByte(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToSByte(value);
@@ -59,7 +59,7 @@ namespace ServiceStack
         public Type Type => typeof(byte);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public byte Convert(object value) => System.Convert.ToByte(value);
+        public byte Convert(object value) => System.Convert.ToByte(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToByte(value);
@@ -89,7 +89,7 @@ namespace ServiceStack
         public Type Type => typeof(short);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short Convert(object value) => System.Convert.ToInt16(value);
+        public short Convert(object value) => System.Convert.ToInt16(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToInt16(value);
@@ -119,7 +119,7 @@ namespace ServiceStack
         public Type Type => typeof(ushort);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ushort Convert(object value) => System.Convert.ToUInt16(value);
+        public ushort Convert(object value) => System.Convert.ToUInt16(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToUInt16(value);
@@ -149,7 +149,7 @@ namespace ServiceStack
         public Type Type => typeof(int);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Convert(object value) => System.Convert.ToInt32(value);
+        public int Convert(object value) => System.Convert.ToInt32(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value) 
             ?? System.Convert.ToInt32(value);
@@ -179,7 +179,7 @@ namespace ServiceStack
         public Type Type => typeof(uint);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public uint Convert(object value) => System.Convert.ToUInt32(value);
+        public uint Convert(object value) => System.Convert.ToUInt32(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToUInt32(value);
@@ -209,7 +209,7 @@ namespace ServiceStack
         public Type Type => typeof(long);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public long Convert(object value) => System.Convert.ToInt64(value);
+        public long Convert(object value) => System.Convert.ToInt64(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToInt64(value);
@@ -239,7 +239,7 @@ namespace ServiceStack
         public Type Type => typeof(ulong);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ulong Convert(object value) => System.Convert.ToUInt64(value);
+        public ulong Convert(object value) => System.Convert.ToUInt64(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToUInt64(value);
@@ -269,7 +269,7 @@ namespace ServiceStack
         public Type Type => typeof(float);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Convert(object value) => System.Convert.ToSingle(value);
+        public float Convert(object value) => System.Convert.ToSingle(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToSingle(value);
@@ -299,7 +299,7 @@ namespace ServiceStack
         public Type Type => typeof(double);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public double Convert(object value) => System.Convert.ToDouble(value);
+        public double Convert(object value) => System.Convert.ToDouble(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToDouble(value);
@@ -329,7 +329,7 @@ namespace ServiceStack
         public Type Type => typeof(decimal);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public decimal Convert(object value) => System.Convert.ToDecimal(value);
+        public decimal Convert(object value) => System.Convert.ToDecimal(this.ParseString(value) ?? value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object ConvertFrom(object value) => this.ParseString(value)
             ?? System.Convert.ToDecimal(value);
@@ -540,7 +540,7 @@ namespace ServiceStack
                 return false;
 
             var segValue = new StringSegment(strValue);
-            result = segValue.ParseNumber();
+            result = segValue.ParseNumber(bestFit:true);
             return result != null;
         }
     }

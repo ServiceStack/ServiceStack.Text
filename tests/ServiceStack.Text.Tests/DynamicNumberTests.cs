@@ -172,5 +172,32 @@ namespace ServiceStack.Text.Tests
             Assert.That(result, Is.EqualTo(2));
         }
 
+        [Test]
+        public void Dynamic_number_examples()
+        {
+            object objInt = 1;
+            object objDouble = 1.1;
+
+            Assert.That(DynamicNumber.Add(objInt, objDouble) is double d1 && d1 == 2.1);
+            Assert.That(DynamicNumber.Multiply('2', "1.1") is double d2 && d2 == 2.2);
+            Assert.That(DynamicNumber.TryParseIntoBestFit("1", out object result) && result is byte b && b == 1);
+        }
+
+        [Test]
+        public void TryParseIntoBestFit_tests()
+        {
+            JsConfig.TryParseIntoBestFit = true;
+
+            Assert.That(DynamicNumber.TryParse("1", out object result) && result is byte b && b == 1);
+
+            JsConfig.TryParseIntoBestFit = false;
+            var pos = 0;
+            var buf = new StringSegment("");
+            while (buf.TryReadLine(out StringSegment line, ref pos))
+            {
+                // line
+            }
+        }
+
     }
 }
