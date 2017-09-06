@@ -191,12 +191,6 @@ namespace ServiceStack.Text.Tests
             Assert.That(DynamicNumber.TryParse("1", out object result) && result is byte b && b == 1);
 
             JsConfig.TryParseIntoBestFit = false;
-            var pos = 0;
-            var buf = new StringSegment("");
-            while (buf.TryReadLine(out StringSegment line, ref pos))
-            {
-                // line
-            }
         }
 
     }
