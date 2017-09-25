@@ -53,9 +53,13 @@ namespace ServiceStack.Text
             IsUnix = IsMono || IsOSX || IsLinux;
             IsWindows = !IsUnix;
 #elif NETSTANDARD1_1
-            IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
-            IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-            IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
+            try
+            {
+                IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+                IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+                IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
+            }
+            catch (Exception ignore) {} //throws PlatformNotSupportedException in AWS lambda
             IsUnix = IsOSX || IsLinux;
             HasMultiplePlatformTargets = true;
 #elif NET45
