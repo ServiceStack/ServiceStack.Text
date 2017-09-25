@@ -46,6 +46,12 @@
         <dependency id="System.Collections" version="[4.3.0, )" />
         <dependency id="System.Collections.Specialized" version="[4.3.0, )" />
       </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.Extensions.Primitives" version="[2.0.0, )" />
+        <dependency id="System.Reflection.Emit" version="[4.3.0, )" />
+        <dependency id="System.Reflection.Emit.LightWeight" version="[4.3.0, )" />
+        <dependency id="Microsoft.CSharp" version="[4.4.0, )" />
+      </group>
     </dependencies>
   </metadata>
   <files>
