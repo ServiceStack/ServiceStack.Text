@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 using ServiceStack.Text.Support;

@@ -1,4 +1,4 @@
-﻿#if !(XBOX || SL5 || NETFX_CORE || WP || PCL || NETSTANDARD1_1)
+﻿#if !(XBOX || SL5 || NETFX_CORE || WP || PCL || NETSTANDARD2_0)
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -22,7 +22,7 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Support;
 
-#if !__IOS__
+#if !__IOS__ && !NETSTANDARD2_0
 using System.Reflection.Emit;
 using FastMember = ServiceStack.Text.FastMember;
 #endif
@@ -130,6 +130,7 @@ namespace ServiceStack
 #if ANDROID
 #elif __IOS__
 #elif __MAC__
+#elif NETSTANDARD2_0
 #else
             string licenceKeyText;
             try
@@ -1132,9 +1133,6 @@ namespace ServiceStack
         //ReflectionExtensions
         const string DataContract = "DataContractAttribute";
 
-        static readonly ConcurrentDictionary<Type, FastMember.TypeAccessor> typeAccessorMap
-            = new ConcurrentDictionary<Type, FastMember.TypeAccessor>();
-
         public static DataContractAttribute GetWeakDataContract(this Type type)
         {
             var attr = type.AllAttributes().FirstOrDefault(x => x.GetType().Name == DataContract);
@@ -1142,14 +1140,12 @@ namespace ServiceStack
             {
                 var attrType = attr.GetType();
 
-                FastMember.TypeAccessor accessor;
-                if (!typeAccessorMap.TryGetValue(attrType, out accessor))
-                    typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
+                var accessor = TypeProperties.Get(attr.GetType());
 
                 return new DataContractAttribute
                 {
-                    Name = (string)accessor[attr, "Name"],
-                    Namespace = (string)accessor[attr, "Namespace"],
+                    Name = (string)accessor.GetPublicGetter("Name")(attr),
+                    Namespace = (string)accessor.GetPublicGetter("Namespace")(attr),
                 };
             }
             return null;
@@ -1162,18 +1158,16 @@ namespace ServiceStack
             {
                 var attrType = attr.GetType();
 
-                FastMember.TypeAccessor accessor;
-                if (!typeAccessorMap.TryGetValue(attrType, out accessor))
-                    typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
+                var accessor = TypeProperties.Get(attr.GetType());
 
                 var newAttr = new DataMemberAttribute
                 {
-                    Name = (string)accessor[attr, "Name"],
-                    EmitDefaultValue = (bool)accessor[attr, "EmitDefaultValue"],
-                    IsRequired = (bool)accessor[attr, "IsRequired"],
+                    Name = (string)accessor.GetPublicGetter("Name")(attr),
+                    EmitDefaultValue = (bool)accessor.GetPublicGetter("EmitDefaultValue")(attr),
+                    IsRequired = (bool)accessor.GetPublicGetter("IsRequired")(attr),
                 };
 
-                var order = (int)accessor[attr, "Order"];
+                var order = (int)accessor.GetPublicGetter("Order")(attr);
                 if (order >= 0)
                     newAttr.Order = order; //Throws Exception if set to -1
 
@@ -1189,18 +1183,16 @@ namespace ServiceStack
             {
                 var attrType = attr.GetType();
 
-                FastMember.TypeAccessor accessor;
-                if (!typeAccessorMap.TryGetValue(attrType, out accessor))
-                    typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
+                var accessor = TypeProperties.Get(attr.GetType());
 
                 var newAttr = new DataMemberAttribute
                 {
-                    Name = (string)accessor[attr, "Name"],
-                    EmitDefaultValue = (bool)accessor[attr, "EmitDefaultValue"],
-                    IsRequired = (bool)accessor[attr, "IsRequired"],
+                    Name = (string)accessor.GetPublicGetter("Name")(attr),
+                    EmitDefaultValue = (bool)accessor.GetPublicGetter("EmitDefaultValue")(attr),
+                    IsRequired = (bool)accessor.GetPublicGetter("IsRequired")(attr),
                 };
 
-                var order = (int)accessor[attr, "Order"];
+                var order = (int)accessor.GetPublicGetter("Order")(attr);
                 if (order >= 0)
                     newAttr.Order = order; //Throws Exception if set to -1
 
@@ -1212,7 +1204,7 @@ namespace ServiceStack
     }
 }
 
-#if !__IOS__
+#if !__IOS__ && !NETSTANDARD2_0
 
 //Not using it here, but @marcgravell's stuff is too good not to include
 // http://code.google.com/p/fast-member/ Apache License 2.0

@@ -11,7 +11,7 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Linq;
 using System.Text;
-#if NETSTANDARD1_1 
+#if NETSTANDARD2_0 
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;
@@ -225,7 +225,7 @@ namespace ServiceStack
         static DynamicProxy()
         {
             var assemblyName = new AssemblyName("DynImpl");
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
             DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #else
             DynamicAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
@@ -249,7 +249,7 @@ namespace ServiceStack
             foreach (var face in targetType.GetTypeInterfaces())
                 IncludeType(face, typeBuilder);
 
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
             return typeBuilder.CreateTypeInfo().AsType();
 #else
             return typeBuilder.CreateType();

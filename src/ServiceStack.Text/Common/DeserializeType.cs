@@ -16,7 +16,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using ServiceStack.Text.Support;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 

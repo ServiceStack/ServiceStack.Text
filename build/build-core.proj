@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Default"
     xmlns='http://schemas.microsoft.com/developer/msbuild/2003' ToolsVersion="4.0">
   <Import Project="$(MSBuildProjectDirectory)/build.tasks" />
@@ -77,19 +77,15 @@
     <Delete Files="@(NugetPackageFilesToDelete)" />
 
     <ItemGroup>
-      <TextFilesNetStardard11 Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard1.1/ServiceStack.Text.*"></TextFilesNetStardard11>
-      <TextFilesNetStardard13 Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard1.3/ServiceStack.Text.*"></TextFilesNetStardard13>
+      <TextFilesNetStardard20 Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard2.0/ServiceStack.Text.*"></TextFilesNetStardard20>
     </ItemGroup>
 
     <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
              Targets="Build"
              Properties="Version=$(PackageVersion);Configuration=$(Configuration)" />
 
-    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard1.1" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard1.1')" />
-    <Copy SourceFiles="%(TextFilesNetStardard11.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard1.1" />
-
-    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard1.3" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard1.3')" />
-    <Copy SourceFiles="%(TextFilesNetStardard13.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard1.3" />
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard2.0" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard2.0')" />
+    <Copy SourceFiles="%(TextFilesNetStardard20.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard2.0" />
 
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text.Core/servicestack.text.core.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion)"
           LogStandardErrorAsError="true" />

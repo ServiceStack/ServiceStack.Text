@@ -6,10 +6,9 @@
     <version>1.0.0</version> 
     <authors>ServiceStack</authors> 
     <owners>ServiceStack</owners>
-    <summary>.NET's fastest JSON, JSV and CSV Text Serializers</summary>
+    <summary>ServiceStack.Text.Core</summary>
     <description>
-        .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
-        Contains ServiceStack's high-performance text-processing powers, for more info see: https://servicestack.net/text
+        This package is deprecated. Use ServiceStack.Text instead. 
     </description> 
     <projectUrl>https://github.com/ServiceStack/ServiceStack.Text</projectUrl>
     <licenseUrl>https://servicestack.net/terms</licenseUrl>
@@ -19,32 +18,12 @@
     <language>en-US</language> 
     <copyright>ServiceStack 2017 and contributors</copyright>
     <dependencies>
-      <group targetFramework=".NETStandard1.1">
-        <dependency id="Microsoft.Extensions.Primitives" version="[1.1.1, )" />
-        <dependency id="System.Runtime.Serialization.Primitives" version="[4.3.0, )" />
-        <dependency id="System.Runtime.Serialization.Xml" version="[4.3.0, )" />
-        <dependency id="System.Net.Requests" version="[4.3.0, )" />
-        <dependency id="System.Dynamic.Runtime" version="[4.3.0, )" />
-        <dependency id="Microsoft.CSharp" version="[4.3.0, )" />
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.Extensions.Primitives" version="[2.0.0, )" />
+        <dependency id="System.Runtime" version="[4.3.0, )" />
         <dependency id="System.Reflection.Emit" version="[4.3.0, )" />
         <dependency id="System.Reflection.Emit.LightWeight" version="[4.3.0, )" />
-        <dependency id="System.Reflection.Extensions" version="[4.3.0, )" />
-        <dependency id="System.Linq.Expressions" version="[4.3.0, )" />
-        <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="[4.3.0, )" />
-      </group>
-      <group targetFramework=".NETStandard1.3">
-        <dependency id="Microsoft.Extensions.Primitives" version="[1.1.1, )" />
-        <dependency id="System.Runtime.Serialization.Primitives" version="[4.3.0, )" />
-        <dependency id="System.Runtime.Serialization.Xml" version="[4.3.0, )" />
-        <dependency id="System.Net.Requests" version="[4.3.0, )" />
-        <dependency id="System.Dynamic.Runtime" version="[4.3.0, )" />
-        <dependency id="Microsoft.CSharp" version="[4.3.0, )" />
-        <dependency id="System.Reflection.Emit" version="[4.3.0, )" />
-        <dependency id="System.Reflection.Emit.LightWeight" version="[4.3.0, )" />
-        <dependency id="System.Reflection.Extensions" version="[4.3.0, )" />
-        <dependency id="System.Linq.Expressions" version="[4.3.0, )" />
-        <dependency id="System.Collections" version="[4.3.0, )" />
-        <dependency id="System.Collections.Specialized" version="[4.3.0, )" />
+        <dependency id="Microsoft.CSharp" version="[4.4.0, )" />
       </group>
     </dependencies>
   </metadata>

@@ -141,7 +141,7 @@ namespace ServiceStack.Text.Tests
                 };
                 var httpReq = new MockHttpRequest("query", "GET", "application/json", "query", queryString,
                                                   new MemoryStream(), new NameValueCollection());
-                var request = (T)restHandler.CreateRequest(httpReq, "query");
+                var request = (T)restHandler.CreateRequestAsync(httpReq, "query").Result;
                 return request;
             }
         }

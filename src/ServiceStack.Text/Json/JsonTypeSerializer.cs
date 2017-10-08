@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Pools;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 using ServiceStack.Text.Support;

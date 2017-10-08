@@ -1,6 +1,6 @@
 ﻿using System;
 
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ServiceStack.Text.Json;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 using ServiceStack.Text.Support;

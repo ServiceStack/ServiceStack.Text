@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ServiceStack.Text;
 
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 

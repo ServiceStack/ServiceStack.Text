@@ -6,7 +6,7 @@ using ServiceStack.Text;
 
 using System.Linq.Expressions;
 
-#if NET45 || NETSTANDARD1_3
+#if NET45 || NETSTANDARD2_0
 using System.Reflection.Emit;
 #endif
 
@@ -278,7 +278,7 @@ namespace ServiceStack
             }
         }
 
-#if NET45 || NETSTANDARD1_3
+#if NET45 || NETSTANDARD2_0
         public static GetMemberDelegate<T> GetEmit<T>(PropertyInfo propertyInfo)
         {
             var getter = FieldInvoker.CreateDynamicGetMethod<T>(propertyInfo);

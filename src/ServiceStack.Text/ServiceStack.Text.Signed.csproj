@@ -6,7 +6,6 @@
     <RootNamespace>ServiceStack.Text</RootNamespace>
     <PackageId>ServiceStack.Text.Signed</PackageId>
     <Configuration>Signed</Configuration>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>

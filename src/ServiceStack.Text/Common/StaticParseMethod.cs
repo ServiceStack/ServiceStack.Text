@@ -14,7 +14,7 @@ using System;
 using System.Reflection;
 using System.Linq;
 using ServiceStack.Text.Jsv;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;

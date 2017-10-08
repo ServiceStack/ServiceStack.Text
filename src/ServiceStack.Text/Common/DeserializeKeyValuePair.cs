@@ -19,7 +19,7 @@ using System.Text;
 using System.Threading;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Pools;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 using ServiceStack.Text.Support;
