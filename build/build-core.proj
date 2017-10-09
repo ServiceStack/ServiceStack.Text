@@ -42,8 +42,8 @@
   </Target>
 
   <Target Name="BuildSolutions">
-    <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
-      Properties="Configuration=$(Configuration)" />
+    <!-- <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
+      Properties="Configuration=$(Configuration)" /> -->
   </Target>
 
   <Target Name="UpdateVersion">
