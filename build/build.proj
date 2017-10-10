@@ -4,8 +4,8 @@
   <Import Project="$(MSBuildProjectDirectory)/build.tasks" />
 
   <PropertyGroup>
-    <MajorVersion Condition="$(MajorVersion) == ''">4</MajorVersion>
-    <MinorVersion Condition="$(MinorVersion) == ''">5</MinorVersion>
+    <MajorVersion Condition="$(MajorVersion) == ''">5</MajorVersion>
+    <MinorVersion Condition="$(MinorVersion) == ''">0</MinorVersion>
     <PatchVersion Condition="$(PatchVersion) == ''">$(BUILD_NUMBER)</PatchVersion>
   </PropertyGroup>
 
@@ -51,8 +51,8 @@
     <!-- Update Version -->
     <ItemGroup>
       <RegexTransform Include="$(SrcDir)/**/AssemblyInfo.cs">
-        <Find>\d+\.\d+\.\d+\.\d+</Find>
-        <ReplaceWith>$(Version)</ReplaceWith>
+        <Find>AssemblyFileVersion\(\"\d+\.\d+\.\d+\.\d+\"\)</Find>
+        <ReplaceWith>AssemblyFileVersion("$(Version)")</ReplaceWith>
       </RegexTransform>
 
       <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
@@ -67,7 +67,7 @@
 
       <!--Update Min Dependency Version -->
       <RegexTransform Include="$(NuGetPackageDir)/**/*.nuspec">
-        <Find>version="4\.5[^"]*"</Find>
+        <Find>version="5\.0(\.\d+)?"</Find>
         <ReplaceWith>version="$(PackageVersion)"</ReplaceWith>
       </RegexTransform>
     </ItemGroup>
@@ -80,6 +80,7 @@
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/net45/ServiceStack.Text.*"></TextFiles>
+      <TextCoreFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard2.0/ServiceStack.Text.*"></TextCoreFiles>
     </ItemGroup>
 
     <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
@@ -89,6 +90,9 @@
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/net45')" />
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" />
+
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard2.0" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard2.0')" />
+    <Copy SourceFiles="%(TextCoreFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard2.0" />
 
     <!-- Pack ServiceStack.Text -->
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
