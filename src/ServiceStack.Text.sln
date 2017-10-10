@@ -4,9 +4,7 @@ VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED-EAFF-4839-935A-5BB4A4158245}"
 	ProjectSection(SolutionItems) = preProject
-		..\build\appsettings.license.txt = ..\build\appsettings.license.txt
 		..\build\build-core.sh = ..\build\build-core.sh
-		..\build\build-sn.proj = ..\build\build-sn.proj
 		..\build\build.bat = ..\build\build.bat
 		..\build\build.proj = ..\build\build.proj
 		..\build\build.tasks = ..\build\build.tasks
@@ -15,7 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED
 		..\README.md = ..\README.md
 		..\NuGet.Core\ServiceStack.Text.Core\servicestack.text.core.nuspec = ..\NuGet.Core\ServiceStack.Text.Core\servicestack.text.core.nuspec
 		..\NuGet\ServiceStack.Text\servicestack.text.nuspec = ..\NuGet\ServiceStack.Text\servicestack.text.nuspec
-		..\NuGet.Signed\ServiceStack.Text.Signed\servicestack.text.signed.nuspec = ..\NuGet.Signed\ServiceStack.Text.Signed\servicestack.text.signed.nuspec
 		..\build\build-core.proj = ..\build\build-core.proj
 	EndProjectSection
 EndProject
