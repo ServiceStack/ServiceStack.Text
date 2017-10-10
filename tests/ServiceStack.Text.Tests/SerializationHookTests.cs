@@ -116,17 +116,10 @@ namespace ServiceStack.Text.Tests
         internal static void AddSerializeHooksForType<T>()
         {
             Type type = typeof(T);
-#if !NETCORE
             System.Reflection.MethodInfo[] typeMethods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var onSerializingMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnSerializingAttribute), true).Length > 0);
             var OnDeserializedMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnDeserializedAttribute), true).Length > 0);
             var OnSerializedMethods = typeMethods.Where(m => m.GetCustomAttributes(typeof(OnSerializedAttribute), true).Length > 0);
-#else
-            System.Reflection.MethodInfo[] typeMethods = type.GetMethodInfos();
-            var onSerializingMethods = typeMethods.Where(m => m.AllAttributes(typeof(OnSerializingAttribute)).Length > 0);
-            var OnDeserializedMethods = typeMethods.Where(m => m.AllAttributes(typeof(OnDeserializedAttribute)).Length > 0);
-            var OnSerializedMethods = typeMethods.Where(m => m.AllAttributes(typeof(OnSerializedAttribute)).Length > 0);
-#endif
             Object[] Parameters = { null };
 
             if (onSerializingMethods.Any())

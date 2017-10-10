@@ -69,7 +69,8 @@ namespace ServiceStack.Text.Tests.Utils
 
             Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(shortDate), Is.EqualTo(shortDateString));
             Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(shortDateTime), Is.EqualTo(shortDateTimeString));
-            Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(longDateTime), Is.EqualTo(longDateTimeString));
+            Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(longDateTime), Is.EqualTo(longDateTimeString).
+                                                                                      Or.EqualTo("1979-05-09T00:00:00.0010000Z")); //.NET Core
         }
 
         [Test]

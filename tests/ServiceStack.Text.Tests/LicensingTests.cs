@@ -117,7 +117,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(LicenseUtils.ActivatedLicenseFeatures(), Is.EqualTo(LicenseFeature.All));
         }
 
-        [Test, Explicit("Licenses are expired")]
+        [Test, Ignore("Licenses are expired")]
         public void Can_register_valid_trial_license()
         {
             Licensing.RegisterLicense(TestTrial2016Text);

@@ -368,11 +368,6 @@ namespace ServiceStack
                 : base.CreateSetter<T>(fieldInfo);
         }
 
-        public override string ToXsdDateTimeString(DateTime dateTime)
-        {
-            return System.Xml.XmlConvert.ToString(dateTime.ToStableUniversalTime());
-        }
-
         public override DateTime ParseXsdDateTimeAsUtc(string dateTimeStr)
         {
             return DateTime.ParseExact(dateTimeStr, allDateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowLeadingWhite|DateTimeStyles.AllowTrailingWhite|DateTimeStyles.AdjustToUniversal)
