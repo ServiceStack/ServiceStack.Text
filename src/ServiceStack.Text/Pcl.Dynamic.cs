@@ -293,12 +293,7 @@ namespace ServiceStack
             {
                 if (methodInfo.ReturnType.IsValueType() || methodInfo.ReturnType.IsEnum())
                 {
-#if NETSTANDARD1_1
-                    MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance");
-#else
-                    MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance",
-                                                                       new[] { typeof(Type) });
-#endif
+                    MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance", new[] { typeof(Type) });
                     LocalBuilder lb = methodILGen.DeclareLocal(methodInfo.ReturnType);
                     methodILGen.Emit(OpCodes.Ldtoken, lb.LocalType);
                     methodILGen.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));

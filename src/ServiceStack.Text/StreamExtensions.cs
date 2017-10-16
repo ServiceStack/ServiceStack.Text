@@ -101,12 +101,10 @@ namespace ServiceStack
             {
                 CopyTo(input, tempStream, buffer);
                 // No need to copy the buffer if it's the right size
-#if !(NETFX_CORE || PCL || NETSTANDARD1_1)
                 if (tempStream.Length == tempStream.GetBuffer().Length)
                 {
                     return tempStream.GetBuffer();
                 }
-#endif
                 // Okay, make a copy that's the right size
                 return tempStream.ToArray();
             }
@@ -267,17 +265,8 @@ namespace ServiceStack
             return to;
         }
 
-#if PCL || NETSTANDARD1_1
-        public static void Close(this Stream stream)
-        {
-            PclExport.Instance?.CloseStream(stream);
-            stream.Dispose();
-        }
-#endif
-
         public static int AsyncBufferSize = 81920; // CopyToAsync() default value
 
-#if !SL5
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default(CancellationToken)) => stream.WriteAsync(bytes, 0, bytes.Length, token);
 
@@ -286,10 +275,7 @@ namespace ServiceStack
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default(CancellationToken)) => stream.WriteAsync(text.ToUtf8Bytes(), token);
-#endif
 
-
-#if (!(SL5 || PCL || NETSTANDARD1_1) || NETSTANDARD1_3)
         public static string ToMd5Hash(this Stream stream)
         {
             var hash = System.Security.Cryptography.MD5.Create().ComputeHash(stream);
@@ -311,6 +297,6 @@ namespace ServiceStack
             }
             return StringBuilderCache.ReturnAndFree(sb);
         }
-#endif
+        
     }
 }

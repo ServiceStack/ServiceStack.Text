@@ -173,17 +173,14 @@ namespace ServiceStack
                 return;
 
             string subId = null;
-#if !(PCL || NETSTANDARD1_1)
             var hold = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-#endif
             try
             {
                 var parts = licenseKeyText.SplitOnFirst('-');
                 subId = parts[0];
 
-                int subIdInt;
-                if (int.TryParse(subId, out subIdInt) && revokedSubs.Contains(subIdInt))
+                if (int.TryParse(subId, out var subIdInt) && revokedSubs.Contains(subIdInt))
                     throw new LicenseException("This subscription has been revoked. " + ContactDetails);
 
                 var key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
@@ -215,9 +212,7 @@ namespace ServiceStack
             }
             finally
             {
-#if !(PCL || NETSTANDARD1_1)
                 Thread.CurrentThread.CurrentCulture = hold;
-#endif
             }
         }
 

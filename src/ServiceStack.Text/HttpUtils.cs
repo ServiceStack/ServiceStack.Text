@@ -805,12 +805,10 @@ namespace ServiceStack
             if (ex == null)
                 return null;
 
-            var webEx = ex as WebException;
-            if (webEx != null)
+            if (ex is WebException webEx)
                 return GetStatus(webEx);
 
-            var hasStatus = ex as IHasStatusCode;
-            if (hasStatus != null)
+            if (ex is IHasStatusCode hasStatus)
                 return (HttpStatusCode)hasStatus.StatusCode;
 
             return null;
@@ -829,12 +827,8 @@ namespace ServiceStack
 
         public static string GetResponseBody(this Exception ex)
         {
-            var webEx = ex as WebException;
-            if (webEx == null || webEx.Response == null
-#if !(SL5 || PCL || NETSTANDARD1_1)
-                || webEx.Status != WebExceptionStatus.ProtocolError
-#endif
-            ) return null;
+            if (!(ex is WebException webEx) || webEx.Response == null || webEx.Status != WebExceptionStatus.ProtocolError) 
+                return null;
 
             var errorResponse = (HttpWebResponse)webEx.Response;
             using (var reader = new StreamReader(errorResponse.GetResponseStream(), UseEncoding))
