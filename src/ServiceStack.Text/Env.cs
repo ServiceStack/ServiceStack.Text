@@ -15,11 +15,11 @@ namespace ServiceStack.Text
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
             var platformName = PclExport.Instance.PlatformName;
-            if (platformName != PclExport.Platforms.WindowsStore)
+            if (platformName != PclExport.Platforms.Uwp)
             {
                 IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
-                IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null
+                IsIOS = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null
                     || AssemblyUtils.FindType("Foundation.NSObject") != null;
 
                 IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
@@ -36,23 +36,14 @@ namespace ServiceStack.Text
 #endif
                 }
                 catch (Exception ignore) {}
-
-                //Throws unhandled exception if not called from the main thread
-                //IsWinRT = AssemblyUtils.FindType("Windows.ApplicationModel") != null;
-
-                IsWindowsPhone = AssemblyUtils.FindType("Microsoft.Phone.Info.DeviceStatus") != null;
-
-                IsSilverlight = AssemblyUtils.FindType("System.Windows.Interop.SilverlightHost") != null;
             }
             else
             {
-                IsWindowsStore = true;
+                IsUWP = true;
             }
 
-#if PCL
-            IsUnix = IsMono || IsOSX || IsLinux;
-            IsWindows = !IsUnix;
-#elif NETSTANDARD1_1
+#if NETSTANDARD1_1
+            IsNetStandard = true;
             try
             {
                 IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
@@ -63,6 +54,7 @@ namespace ServiceStack.Text
             IsUnix = IsOSX || IsLinux;
             HasMultiplePlatformTargets = true;
 #elif NET45
+            IsNetFramework = true;
             var platform = (int)Environment.OSVersion.Platform;
             IsUnix = platform == 4 || platform == 6 || platform == 128;
             IsLinux = IsUnix;
@@ -94,15 +86,15 @@ namespace ServiceStack.Text
 
         public static bool IsMono { get; set; }
 
-        public static bool IsMonoTouch { get; set; }
+        public static bool IsIOS { get; set; }
 
         public static bool IsAndroid { get; set; }
 
-        public static bool IsWindowsStore { get; set; }
+        public static bool IsUWP { get; set; }
 
-        public static bool IsSilverlight { get; set; }
+        public static bool IsNetStandard { get; set; }
 
-        public static bool IsWindowsPhone { get; set; }
+        public static bool IsNetFramework { get; set; }
 
         public static bool SupportsExpressions { get; set; }
 

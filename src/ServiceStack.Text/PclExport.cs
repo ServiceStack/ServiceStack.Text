@@ -21,12 +21,10 @@ namespace ServiceStack
     {
         public static class Platforms
         {
-            public const string WindowsStore = "WindowsStore";
+            public const string Uwp = "UWP";
             public const string Android = "Android";
 			public const string IOS = "IOS";
             public const string Mac = "MAC";
-            public const string Silverlight5 = "Silverlight5";
-            public const string WindowsPhone = "WindowsPhone";
             public const string NetStandard = "NETStandard";
         }
 
