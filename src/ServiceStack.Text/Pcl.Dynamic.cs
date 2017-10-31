@@ -99,7 +99,6 @@ namespace ServiceStack
     }
 
 //TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
-#if !(SL5 && CORECLR)
 
     public class DynamicJson : DynamicObject
     {
@@ -193,7 +192,6 @@ namespace ServiceStack
             return StringBuilderCache.ReturnAndFree(sb).ToLowerInvariant();
         }
     }
-#endif
 
 #if !(SL5 ||  __IOS__ || NETFX_CORE)
     public static class DynamicProxy

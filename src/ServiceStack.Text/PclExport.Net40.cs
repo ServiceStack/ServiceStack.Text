@@ -1,4 +1,4 @@
-﻿#if !(XBOX || SL5 || NETFX_CORE || WP || PCL || NETSTANDARD2_0)
+﻿#if !NETSTANDARD2_0
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -1125,8 +1125,6 @@ namespace ServiceStack
             {
                 return RSAalg.VerifyData(unsignedData, sha, encryptedData);
             }
-            //SL5 || WP
-            //return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1()); 
         }
 
 #if !__IOS__

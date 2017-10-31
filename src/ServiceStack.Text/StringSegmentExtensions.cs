@@ -1243,7 +1243,6 @@ namespace ServiceStack.Text
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EndsWithIgnoreCase(this StringSegment value, string other) => value.EndsWith(other, StringComparison.OrdinalIgnoreCase);
 
-#if !SL5
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] ToUtf8Bytes(this StringSegment value) => Encoding.UTF8.GetBytes(value.Buffer.ToCharArray(value.Offset, value.Length));
 
@@ -1253,7 +1252,6 @@ namespace ServiceStack.Text
             var bytes = value.ToUtf8Bytes();
             return stream.WriteAsync(bytes, 0, bytes.Length, token);
         }
-#endif
 
         public static StringSegment SafeSubstring(this StringSegment value, int startIndex)
         {

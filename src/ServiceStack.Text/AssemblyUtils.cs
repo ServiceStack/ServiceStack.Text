@@ -19,7 +19,6 @@ namespace ServiceStack.Text
 
         private static Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
 
-#if !XBOX
         /// <summary>
         /// Find the type from the name supplied
         /// </summary>
@@ -30,9 +29,7 @@ namespace ServiceStack.Text
             Type type = null;
             if (TypeCache.TryGetValue(typeName, out type)) return type;
 
-#if !SL5
             type = Type.GetType(typeName);
-#endif
             if (type == null)
             {
                 var typeDef = new AssemblyTypeDefinition(typeName);
@@ -52,7 +49,6 @@ namespace ServiceStack.Text
 
             return type;
         }
-#endif
 
         /// <summary>
         /// The top-most interface of the given type, if any.

@@ -29,51 +29,14 @@ namespace ServiceStack
         }
 
         public static PclExport Instance
-#if PCL
-          /*attempts to be inferred otherwise needs to be set explicitly by host project*/
-#elif SL5
-          = new Sl5PclExport()
-#elif NETFX_CORE
-          = new WinStorePclExport()
-#elif NETSTANDARD2_0
-          = new NetStandardPclExport()
-#elif WP
-          = new WpPclExport()
-#elif XBOX
-          = new XboxPclExport()
-#elif __IOS__
-          = new IosPclExport()
-#elif __MAC__
-          = new MacPclExport()
-#elif ANDROID
-          = new AndroidPclExport()
-#elif NET45
+#if NET45
           = new Net45PclExport()
 #else
-          = new Net40PclExport()
+          = new NetStandardPclExport()
 #endif
         ;
 
-        static PclExport()
-        {
-            if (Instance != null) 
-                return;
-
-            try
-            {
-                if (ConfigureProvider("ServiceStack.IosPclExportClient, ServiceStack.Pcl.iOS"))
-                    return;
-                if (ConfigureProvider("ServiceStack.AndroidPclExportClient, ServiceStack.Pcl.Android"))
-                    return;
-                if (ConfigureProvider("ServiceStack.MacPclExportClient, ServiceStack.Pcl.Mac20"))
-                    return;
-                if (ConfigureProvider("ServiceStack.WinStorePclExportClient, ServiceStack.Pcl.WinStore"))
-                    return;
-                if (ConfigureProvider("ServiceStack.Net40PclExportClient, ServiceStack.Pcl.Net45"))
-                    return;
-            }
-            catch (Exception /*ignore*/) {}
-        }
+        static PclExport() {}
 
         public static bool ConfigureProvider(string typeName)
         {
@@ -252,11 +215,7 @@ namespace ServiceStack
 
         public virtual Assembly LoadAssembly(string assemblyPath)
         {
-#if PCL
-            return Assembly.Load(new AssemblyName(assemblyPath));
-#else
             return null;
-#endif
         }
 
         public virtual void AddHeader(WebRequest webReq, string name, string value)
@@ -319,11 +278,7 @@ namespace ServiceStack
 
         public virtual Encoding GetUTF8Encoding(bool emitBom=false)
         {
-#if !PCL
             return new UTF8Encoding(emitBom);
-#else
-            return Encoding.UTF8;
-#endif
         }
 
         public virtual SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
@@ -399,29 +354,17 @@ namespace ServiceStack
 
         public virtual string ToXsdDateTimeString(DateTime dateTime)
         {
-#if !PCL
             return System.Xml.XmlConvert.ToString(dateTime.ToStableUniversalTime(), DateTimeSerializer.XsdDateTimeFormat);
-#else
-            return dateTime.ToStableUniversalTime().ToString(DateTimeSerializer.XsdDateTimeFormat);
-#endif
         }
 
         public virtual string ToLocalXsdDateTimeString(DateTime dateTime)
         {
-#if !PCL
             return System.Xml.XmlConvert.ToString(dateTime, DateTimeSerializer.XsdDateTimeFormat);
-#else
-            return dateTime.ToString(DateTimeSerializer.XsdDateTimeFormat);
-#endif
         }
 
         public virtual DateTime ParseXsdDateTime(string dateTimeStr)
         {
-#if !PCL
             return System.Xml.XmlConvert.ToDateTimeOffset(dateTimeStr).DateTime;
-#else
-            return DateTime.ParseExact(dateTimeStr, DateTimeSerializer.XsdDateTimeFormat, CultureInfo.InvariantCulture);
-#endif
         }
 
         public virtual DateTime ParseXsdDateTimeAsUtc(string dateTimeStr)
@@ -463,13 +406,6 @@ namespace ServiceStack
         public virtual ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
             where TSerializer : ITypeSerializer
         {
-#if !PCL
-            //if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
-            //    type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
-            //{
-            //    return DeserializeDynamic<TSerializer>.Parse;
-            //}
-#endif
             return null;
         }
 

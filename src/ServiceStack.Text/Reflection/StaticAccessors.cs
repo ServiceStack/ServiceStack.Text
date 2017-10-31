@@ -90,62 +90,35 @@ namespace ServiceStack.Reflection
         [Obsolete("Use propertyInfo.CreateGetter()")]
         public static Func<object, object> GetValueGetter(this PropertyInfo propertyInfo, Type type)
         {
-#if NETFX_CORE 
-            var getMethodInfo = propertyInfo.GetMethod;
-            if (getMethodInfo == null) return null;
-            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
-#elif (SL5 && !WP) || __IOS__ || XBOX
-            var getMethodInfo = propertyInfo.GetGetMethod();
-            if (getMethodInfo == null) return null;
-            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
-#else
-
             var instance = Expression.Parameter(typeof(object), "i");
             var convertInstance = Expression.TypeAs(instance, type);
             var property = Expression.Property(convertInstance, propertyInfo);
             var convertProperty = Expression.TypeAs(property, typeof(object));
             return Expression.Lambda<Func<object, object>>(convertProperty, instance).Compile();
-#endif
         }
 
         [Obsolete("Use propertyInfo.CreateGetter<T>()")]
         public static Func<T, object> GetValueGetter<T>(this PropertyInfo propertyInfo)
         {
-#if NETFX_CORE
-            var getMethodInfo = propertyInfo.GetMethod;
-            if (getMethodInfo == null) return null;
-            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
-#elif (SL5 && !WP) || __IOS__ || XBOX
-            var getMethodInfo = propertyInfo.GetGetMethod();
-            if (getMethodInfo == null) return null;
-            return x => getMethodInfo.Invoke(x, TypeConstants.EmptyObjectArray);
-#else
             var instance = Expression.Parameter(typeof(T), "i");
             var property = typeof(T) != propertyInfo.DeclaringType
                 ? Expression.Property(Expression.TypeAs(instance, propertyInfo.DeclaringType), propertyInfo)
                 : Expression.Property(instance, propertyInfo);
             var convertProperty = Expression.TypeAs(property, typeof(object));
             return Expression.Lambda<Func<T, object>>(convertProperty, instance).Compile();
-#endif
         }
 
         [Obsolete("Use fieldInfo.CreateGetter<T>()")]
         public static Func<T, object> GetValueGetter<T>(this FieldInfo fieldInfo)
         {
-#if (SL5 && !WP) || __IOS__ || XBOX
-            return x => fieldInfo.GetValue(x);
-#else
-
             var instance = Expression.Parameter(typeof(T), "i");
             var field = typeof(T) != fieldInfo.DeclaringType
                 ? Expression.Field(Expression.TypeAs(instance, fieldInfo.DeclaringType), fieldInfo)
                 : Expression.Field(instance, fieldInfo);
             var convertField = Expression.TypeAs(field, typeof(object));
             return Expression.Lambda<Func<T, object>>(convertField, instance).Compile();
-#endif
         }
 
-#if !XBOX
         [Obsolete("Use propertyInfo.CreateSetter()")]
         public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo)
         {
@@ -231,7 +204,6 @@ namespace ServiceStack.Reflection
                 setterCall, instance, argument
             ).Compile();
         }
-#endif
 
     }
 }

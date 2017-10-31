@@ -491,11 +491,7 @@ namespace ServiceStack
 
             if (type.IsEnum())
             {
-#if SL5 || WP
-                return Enum.ToObject(type, 0);
-#else
                 return Enum.GetValues(type).GetValue(0);
-#endif
             }
 
             if (type.IsAbstract())

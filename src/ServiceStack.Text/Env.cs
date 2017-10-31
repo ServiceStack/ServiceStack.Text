@@ -42,7 +42,7 @@ namespace ServiceStack.Text
                 IsUWP = true;
             }
 
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
             IsNetStandard = true;
             try
             {
@@ -61,6 +61,8 @@ namespace ServiceStack.Text
             if (Environment.GetEnvironmentVariable("OS")?.IndexOf("Windows", StringComparison.OrdinalIgnoreCase) >= 0)
                 IsWindows = true;
 #endif
+            SupportsExpressions = true;
+            SupportsEmit = !IsIOS;
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
@@ -117,7 +119,6 @@ namespace ServiceStack.Text
         {
             get
             {
-#if !SL5
                 if (!IsMono && referenceAssembyPath == null)
                 {
                     var programFilesPath = PclExport.Instance.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
@@ -151,7 +152,6 @@ namespace ServiceStack.Text
                         }
                     }
                 }
-#endif
                 return referenceAssembyPath;
             }
             set { referenceAssembyPath = value; }

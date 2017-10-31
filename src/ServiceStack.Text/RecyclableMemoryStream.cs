@@ -29,15 +29,12 @@ using System.Threading;
 
 namespace ServiceStack.Text //Internalize to avoid conflicts
 {
-#if !SL5
     using Events = RecyclableMemoryStreamManager.Events;
-#endif
 
     public static class MemoryStreamFactory
     {
         public static bool UseRecyclableMemoryStream { get; set; }
 
-#if !SL5
         public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
 
         public static MemoryStream GetStream()
@@ -67,30 +64,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, bytes, index, count)
                 : new MemoryStream(bytes, index, count);
         }
-#else
-        public static MemoryStream GetStream()
-        {
-            return new MemoryStream();
-        }
-
-        public static MemoryStream GetStream(int capacity)
-        {
-            return new MemoryStream(capacity);
-        }
-
-        public static MemoryStream GetStream(byte[] bytes)
-        {
-            return new MemoryStream(bytes);
-        }
-
-        public static MemoryStream GetStream(byte[] bytes, int index, int count)
-        {
-            return new MemoryStream(bytes, index, count);
-        }
-#endif
     }
 
-#if !SL5
     /// <summary>
     /// Manages pools of RecyclableMemoryStream objects.
     /// </summary>
@@ -1645,5 +1620,4 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             }
         }
     }
-#endif
 }

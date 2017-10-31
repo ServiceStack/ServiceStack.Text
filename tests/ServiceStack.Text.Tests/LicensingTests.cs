@@ -134,11 +134,9 @@ namespace ServiceStack.Text.Tests
         [Test, Explicit]
         public void Can_register_valid_license_from_EnvironmentVariable()
         {
-#if !SL5
             var licenseKeyText = Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE");
             Licensing.RegisterLicense(licenseKeyText);
             Assert.That(LicenseUtils.ActivatedLicenseFeatures(), Is.EqualTo(LicenseFeature.All));
-#endif
         }
 
         [Test]
