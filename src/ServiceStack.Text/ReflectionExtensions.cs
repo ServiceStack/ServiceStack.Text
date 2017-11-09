@@ -427,13 +427,19 @@ namespace ServiceStack
             var emptyCtor = type.GetConstructor(Type.EmptyTypes);
             if (emptyCtor != null)
             {
-                var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes, typeof(ReflectionExtensions).Module, true);
-                var ilgen = dm.GetILGenerator();
-                ilgen.Emit(System.Reflection.Emit.OpCodes.Nop);
-                ilgen.Emit(System.Reflection.Emit.OpCodes.Newobj, emptyCtor);
-                ilgen.Emit(System.Reflection.Emit.OpCodes.Ret);
+                if (PclExport.Instance.SupportsEmit)
+                {
+                    var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes,
+                        typeof(ReflectionExtensions).Module, true);
+                    var ilgen = dm.GetILGenerator();
+                    ilgen.Emit(System.Reflection.Emit.OpCodes.Nop);
+                    ilgen.Emit(System.Reflection.Emit.OpCodes.Newobj, emptyCtor);
+                    ilgen.Emit(System.Reflection.Emit.OpCodes.Ret);
 
-                return (EmptyCtorDelegate)dm.CreateDelegate(typeof(EmptyCtorDelegate));
+                    return (EmptyCtorDelegate) dm.CreateDelegate(typeof(EmptyCtorDelegate));
+                }
+
+                return () => Activator.CreateInstance(type);
             }
 
             //Anonymous types don't have empty constructors
