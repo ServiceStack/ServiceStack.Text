@@ -271,25 +271,8 @@ namespace ServiceStack.Text
                 MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
                 ExcludePropertyReferences = excludePropertyReferences ?? sExcludePropertyReferences,
-                UseSystemParseMethods = useSystemParseMethods ?? sUseSystemParseMethods
             };
         }
-
-        private static bool? sUseSystemParseMethods;
-        public static bool UseSystemParseMethods
-        {
-            get
-            {
-                return (JsConfigScope.Current != null ? JsConfigScope.Current.UseSystemParseMethods : null)
-                       ?? sUseSystemParseMethods
-                       ?? false;
-            }
-            set
-            {
-                if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
-            }
-        }
-
 
         private static bool? sConvertObjectTypesIntoStringDictionary;
         public static bool ConvertObjectTypesIntoStringDictionary

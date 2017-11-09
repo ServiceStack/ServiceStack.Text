@@ -53,7 +53,6 @@ namespace ServiceStack.Text
         public bool? TryParseIntoBestFit { get; set; }
         public ParseAsType? ParsePrimitiveFloatingPointTypes { get; set; }
         public ParseAsType? ParsePrimitiveIntegerTypes { get; set; }
-        public bool? UseSystemParseMethods { get; set; }
         public bool? ExcludeDefaultValues { get; set; }
         public bool? IncludeNullValues { get; set; }
         public bool? IncludeNullValuesInDictionaries { get; set; }

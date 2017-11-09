@@ -24,10 +24,7 @@ namespace ServiceStack.Text
         public static StringSegment ToStringSegment(this string value) => new StringSegment(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullOrEmpty(this StringSegment value)
-        {
-            return value.Buffer == null || value.Length == 0;
-        }
+        public static bool IsNullOrEmpty(this StringSegment value) => value.Buffer == null || value.Length == 0;
 
         public static bool IsNullOrWhiteSpace(this StringSegment value)
         {
@@ -42,10 +39,7 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Char GetChar(this StringSegment value, int index)
-        {
-            return value.Buffer[value.Offset + index];
-        }
+        public static Char GetChar(this StringSegment value, int index) => value.Buffer[value.Offset + index];
 
         public static int IndexOfAny(this StringSegment value, char[] chars, int start, int count)
         {
@@ -198,68 +192,28 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ParseSByte(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? sbyte.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (sbyte)ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
-        }
+        public static sbyte ParseSByte(this StringSegment value) => (sbyte)ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ParseByte(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? byte.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (byte)ParseUnsignedInteger(value, byte.MaxValue);
-        }
+        public static byte ParseByte(this StringSegment value) => (byte)ParseUnsignedInteger(value, byte.MaxValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static short ParseInt16(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? short.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (short)ParseSignedInteger(value, short.MaxValue, short.MinValue);
-        }
+        public static short ParseInt16(this StringSegment value) => (short)ParseSignedInteger(value, short.MaxValue, short.MinValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort ParseUInt16(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? ushort.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (ushort)ParseUnsignedInteger(value, ushort.MaxValue);
-        }
+        public static ushort ParseUInt16(this StringSegment value) => (ushort)ParseUnsignedInteger(value, ushort.MaxValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ParseInt32(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? int.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (int)ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
-        }
+        public static int ParseInt32(this StringSegment value) => (int)ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint ParseUInt32(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? uint.Parse(value.Value, CultureInfo.InvariantCulture)
-                : (uint)ParseUnsignedInteger(value, UInt32.MaxValue);
-        }
+        public static uint ParseUInt32(this StringSegment value) => (uint)ParseUnsignedInteger(value, UInt32.MaxValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long ParseInt64(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? long.Parse(value.Value, CultureInfo.InvariantCulture)
-                : ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
-        }
+        public static long ParseInt64(this StringSegment value) => ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong ParseUInt64(this StringSegment value)
-        {
-            return JsConfig.UseSystemParseMethods
-                ? ulong.Parse(value.Value, CultureInfo.InvariantCulture)
-                : ParseUnsignedInteger(value, UInt64.MaxValue);
-        }
+        public static ulong ParseUInt64(this StringSegment value) => ParseUnsignedInteger(value, UInt64.MaxValue);
 
         public static ulong ParseUnsignedInteger(this StringSegment value, ulong maxValue)
         {
@@ -429,13 +383,6 @@ namespace ServiceStack.Text
 
         public static decimal ParseDecimal(this StringSegment value, bool allowThousands = false)
         {
-            if (JsConfig.UseSystemParseMethods)
-            {
-                return decimal.Parse(value.Value,
-                    allowThousands ? NumberStyles.Float : (NumberStyles.Float | NumberStyles.AllowThousands),
-                    CultureInfo.InvariantCulture);
-            }
-
             if (value.Length == 0)
                 throw new FormatException(BadFormat);
 
@@ -690,9 +637,6 @@ namespace ServiceStack.Text
 
         public static Guid ParseGuid(this StringSegment value)
         {
-            if (JsConfig.UseSystemParseMethods)
-                return Guid.Parse(value.Value);
-
             if (value.Buffer == null)
                 throw new ArgumentNullException();
 
@@ -711,10 +655,7 @@ namespace ServiceStack.Text
             if (i == end)
                 throw new FormatException(BadFormat);
 
-            Guid result;
-
-            int guidLen;
-            result = ParseGeneralStyleGuid(new StringSegment(value.Buffer, i, end - i), out guidLen);
+            var result = ParseGeneralStyleGuid(new StringSegment(value.Buffer, i, end - i), out var guidLen);
             i += guidLen;
 
             while (i < end && JsonUtils.IsWhiteSpace(value.Buffer[i])) i++;
@@ -834,7 +775,7 @@ namespace ServiceStack.Text
             }
         }
 
-        private static char[] CRLF = {'\r', '\n'};
+        private static readonly char[] CRLF = {'\r', '\n'};
 
         public static bool TryReadLine(this StringSegment text, out StringSegment line, ref int startIndex)
         {
@@ -945,7 +886,7 @@ namespace ServiceStack.Text
             if (count < 0 || count - 1 > start)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            int num = text.Buffer.LastIndexOf(needle, start + text.Offset, count);
+            int num = text.Buffer.LastIndexOf(needle, start + text.Offset, count, StringComparison.Ordinal);
             if (num != -1)
                 return num - text.Offset;
             return num;
@@ -1197,10 +1138,8 @@ namespace ServiceStack.Text
             return string.Compare(text.Buffer, text.Offset + text.Length - textLength, value, 0, textLength, comparisonType) == 0;
         }
 
-        public static StringSegment SafeSubsegment(this StringSegment value, int startIndex)
-        {
-            return SafeSubsegment(value, startIndex, value.Length);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringSegment SafeSubsegment(this StringSegment value, int startIndex) => SafeSubsegment(value, startIndex, value.Length);
 
         public static StringSegment SafeSubsegment(this StringSegment value, int startIndex, int length)
         {
@@ -1253,10 +1192,8 @@ namespace ServiceStack.Text
             return stream.WriteAsync(bytes, 0, bytes.Length, token);
         }
 
-        public static StringSegment SafeSubstring(this StringSegment value, int startIndex)
-        {
-            return SafeSubstring(value, startIndex, value.Length);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringSegment SafeSubstring(this StringSegment value, int startIndex) => SafeSubstring(value, startIndex, value.Length);
 
         public static StringSegment SafeSubstring(this StringSegment value, int startIndex, int length)
         {
