@@ -42,16 +42,13 @@ namespace ServiceStack.Text.Controller
 
 			var pathInfo = PathInfo.Parse(actionParts[1]);
 
-			object context;
-			if (!this.contextMap.TryGetValue(controllerName, out context))
-			{
-				throw new Exception("UnknownContext: " + controllerName);
-			}
+		    if (!this.contextMap.TryGetValue(controllerName, out var context))
+		        throw new Exception("UnknownContext: " + controllerName);
 
-			var methodName = pathInfo.ActionName;
+            var methodName = pathInfo.ActionName;
 
-            var method = context.GetType().GetMethodInfos().First(
-                c => c.Name == methodName && c.GetParameters().Count() == pathInfo.Arguments.Count);
+            var method = context.GetType().GetMethods().First(
+                c => c.Name == methodName && c.GetParameters().Length == pathInfo.Arguments.Count);
 
 			var methodParamTypes = method.GetParameters().Select(x => x.ParameterType);
 

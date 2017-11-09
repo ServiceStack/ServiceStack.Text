@@ -733,10 +733,10 @@ namespace ServiceStack.Text.Tests
             var instance = Expression.Parameter(typeof(object), "i");
             var argument = Expression.Parameter(typeof(object), "a");
 
-            var instanceParam = Expression.Convert(instance, nameProperty.ReflectedType());
+            var instanceParam = Expression.Convert(instance, nameProperty.ReflectedType);
             var valueParam = Expression.Convert(argument, nameProperty.PropertyType);
 
-            var setterCall = Expression.Call(instanceParam, nameProperty.SetMethod(), valueParam);
+            var setterCall = Expression.Call(instanceParam, nameProperty.GetSetMethod(nonPublic:true), valueParam);
 
             var fn = Expression.Lambda<Action<object, object>>(setterCall, instance, argument).Compile();
 

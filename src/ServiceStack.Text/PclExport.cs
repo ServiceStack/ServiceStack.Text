@@ -113,7 +113,7 @@ namespace ServiceStack
         // HACK: The only way to detect anonymous types right now.
         public virtual bool IsAnonymousType(Type type)
         {
-            return type.IsGeneric() && type.Name.Contains("AnonymousType")
+            return type.IsGenericType && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal));
         }
 
@@ -313,14 +313,14 @@ namespace ServiceStack
 
         public virtual Type GetGenericCollectionType(Type type)
         {
-            return type.GetTypeInterfaces()
-                .FirstOrDefault(t => t.IsGenericType()
+            return type.GetInterfaces()
+                .FirstOrDefault(t => t.IsGenericType
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
         public virtual SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
         {
-            var propertySetMethod = propertyInfo.SetMethod();
+            var propertySetMethod = propertyInfo.GetSetMethod(nonPublic:true);
             if (propertySetMethod == null) return null;
 
             return (o, convertedValue) =>
@@ -329,7 +329,7 @@ namespace ServiceStack
 
         public virtual SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
         {
-            var propertySetMethod = propertyInfo.SetMethod();
+            var propertySetMethod = propertyInfo.GetSetMethod(nonPublic:true);
             if (propertySetMethod == null) return null;
 
             return (o, convertedValue) =>
@@ -338,18 +338,18 @@ namespace ServiceStack
 
         public virtual GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
         {
-            var getMethodInfo = propertyInfo.GetMethodInfo();
+            var getMethodInfo = propertyInfo.GetGetMethod(nonPublic:true);
             if (getMethodInfo == null) return null;
 
-            return o => propertyInfo.GetMethodInfo().Invoke(o, TypeConstants.EmptyObjectArray);
+            return o => propertyInfo.GetGetMethod(nonPublic:true).Invoke(o, TypeConstants.EmptyObjectArray);
         }
 
         public virtual GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
         {
-            var getMethodInfo = propertyInfo.GetMethodInfo();
+            var getMethodInfo = propertyInfo.GetGetMethod(nonPublic:true);
             if (getMethodInfo == null) return null;
 
-            return o => propertyInfo.GetMethodInfo().Invoke(o, TypeConstants.EmptyObjectArray);
+            return o => propertyInfo.GetGetMethod(nonPublic:true).Invoke(o, TypeConstants.EmptyObjectArray);
         }
 
         public virtual string ToXsdDateTimeString(DateTime dateTime)

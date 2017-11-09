@@ -120,7 +120,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             JsConfig.Reset();
             JsConfig<ICat>.ExcludeTypeInfo = false;
-            assemblyName = GetType().GetAssembly().GetName().Name;
+            assemblyName = GetType().Assembly.GetName().Name;
         }
 
         [Test]

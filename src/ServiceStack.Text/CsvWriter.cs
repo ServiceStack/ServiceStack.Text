@@ -161,7 +161,7 @@ namespace ServiceStack.Text
             var isDataContract = typeof(T).IsDto();
             foreach (var propertyInfo in TypeConfig<T>.Properties)
             {
-                if (!propertyInfo.CanRead || propertyInfo.GetMethodInfo() == null) continue;
+                if (!propertyInfo.CanRead || propertyInfo.GetGetMethod(nonPublic:true) == null) continue;
                 if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
                 PropertyGetters.Add(propertyInfo.CreateGetter<T>());
@@ -216,7 +216,7 @@ namespace ServiceStack.Text
 
             if (records == null) return rows;
 
-            if (typeof(T).IsValueType() || typeof(T) == typeof(string))
+            if (typeof(T).IsValueType || typeof(T) == typeof(string))
             {
                 rows.Add(GetSingleRow(records, typeof(T)));
                 return rows;
@@ -260,7 +260,7 @@ namespace ServiceStack.Text
                 return;
             }
 
-            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, object>))) //also does `object`
+            if (typeof(T).IsAssignableFrom(typeof(Dictionary<string, object>))) //also does `object`
             {
                 var dynamicList = records.Select(x => x.ToObjectDictionary()).ToList();
                 CsvDictionaryWriter.Write(writer, dynamicList);
@@ -287,7 +287,7 @@ namespace ServiceStack.Text
 
             if (records == null) return;
 
-            if (typeof(T).IsValueType() || typeof(T) == typeof(string))
+            if (typeof(T).IsValueType || typeof(T) == typeof(string))
             {
                 var singleRow = GetSingleRow(records, typeof(T));
                 WriteRow(writer, singleRow);

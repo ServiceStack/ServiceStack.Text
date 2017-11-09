@@ -43,7 +43,7 @@ namespace ServiceStack.Text.Common
             if (type.HasInterface(typeof(ICollection<int>)))
                 return value => ParseIntCollection(value, type);
 
-            var elementType = collectionInterface.GenericTypeArguments()[0];
+            var elementType = collectionInterface.GetGenericArguments()[0];
             var supportedTypeParseMethod = Serializer.GetParseStringSegmentFn(elementType);
             if (supportedTypeParseMethod != null)
             {

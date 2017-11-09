@@ -184,16 +184,16 @@ namespace ServiceStack.Text
 
         internal static T ConvertFrom<T>(object results)
         {
-            if (typeof(T).IsAssignableFromType(results.GetType()))
-                return (T)results;
+            if (results is T variable)
+                return variable;
 
-            foreach (var ci in typeof(T).GetAllConstructors())
+            foreach (var ci in typeof(T).GetConstructors())
             {
                 var ciParams = ci.GetParameters();
                 if (ciParams.Length == 1)
                 {
                     var pi = ciParams.First();
-                    if (pi.ParameterType.IsAssignableFromType(typeof(T)))
+                    if (pi.ParameterType.IsAssignableFrom(typeof(T)))
                     {
                         var to = ci.Invoke(new[] { results });
                         return (T)to;
@@ -206,16 +206,16 @@ namespace ServiceStack.Text
 
         internal static object ConvertFrom(Type type, object results)
         {
-            if (type.IsAssignableFromType(results.GetType()))
+            if (type.IsInstanceOfType(results))
                 return results;
 
-            foreach (var ci in type.GetAllConstructors())
+            foreach (var ci in type.GetConstructors())
             {
                 var ciParams = ci.GetParameters();
                 if (ciParams.Length == 1)
                 {
                     var pi = ciParams.First();
-                    if (pi.ParameterType.IsAssignableFromType(type))
+                    if (pi.ParameterType.IsAssignableFrom(type))
                     {
                         var to = ci.Invoke(new[] { results });
                         return to;
@@ -248,7 +248,7 @@ namespace ServiceStack.Text
             Type bestCandidateEnumerableType = null;
             PropertyInfo bestCandidate = null;
 
-            if (typeof(T).IsValueType())
+            if (typeof(T).IsValueType)
             {
                 return JsvWriter<T>.WriteObject;
             }
@@ -264,7 +264,7 @@ namespace ServiceStack.Text
                     return WriteSelf;
                 }
 
-                var elementType = bestCandidateEnumerableType.GenericTypeArguments()[0];
+                var elementType = bestCandidateEnumerableType.GetGenericArguments()[0];
                 writeElementFn = CreateWriteFn(elementType);
 
                 return WriteEnumerableType;
@@ -279,7 +279,7 @@ namespace ServiceStack.Text
                     if (propertyInfo.Name == IgnoreResponseStatus) continue;
 
                     if (propertyInfo.PropertyType == typeof(string)
-                        || propertyInfo.PropertyType.IsValueType()
+                        || propertyInfo.PropertyType.IsValueType
                         || propertyInfo.PropertyType == typeof(byte[]))
                         continue;
 
@@ -311,7 +311,7 @@ namespace ServiceStack.Text
             if (bestCandidateEnumerableType != null)
             {
                 valueGetter = bestCandidate.CreateGetter();
-                var elementType = bestCandidateEnumerableType.GenericTypeArguments()[0];
+                var elementType = bestCandidateEnumerableType.GetGenericArguments()[0];
                 writeElementFn = CreateWriteFn(elementType);
 
                 return WriteEnumerableProperty;
@@ -410,7 +410,7 @@ namespace ServiceStack.Text
             Type bestCandidateEnumerableType = null;
             PropertyInfo bestCandidate = null;
 
-            if (typeof(T).IsValueType())
+            if (typeof(T).IsValueType)
             {
                 return JsvReader<T>.Parse;
             }
@@ -419,7 +419,7 @@ namespace ServiceStack.Text
             bestCandidateEnumerableType = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
             if (bestCandidateEnumerableType != null)
             {
-                var elementType = bestCandidateEnumerableType.GenericTypeArguments()[0];
+                var elementType = bestCandidateEnumerableType.GetGenericArguments()[0];
                 readElementFn = CreateReadFn(elementType);
 
                 return ReadEnumerableType;
@@ -434,7 +434,7 @@ namespace ServiceStack.Text
                     if (propertyInfo.Name == IgnoreResponseStatus) continue;
 
                     if (propertyInfo.PropertyType == typeof(string)
-                        || propertyInfo.PropertyType.IsValueType()
+                        || propertyInfo.PropertyType.IsValueType
                         || propertyInfo.PropertyType == typeof(byte[]))
                         continue;
 
@@ -466,7 +466,7 @@ namespace ServiceStack.Text
             if (bestCandidateEnumerableType != null)
             {
                 valueSetter = bestCandidate.CreateSetter();
-                var elementType = bestCandidateEnumerableType.GenericTypeArguments()[0];
+                var elementType = bestCandidateEnumerableType.GetGenericArguments()[0];
                 readElementFn = CreateReadFn(elementType);
 
                 return ReadEnumerableProperty;

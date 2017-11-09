@@ -120,7 +120,7 @@ namespace ServiceStack.Text.Common
 
         public static object ParseAbstractType<T>(StringSegment value)
         {
-            if (typeof(T).IsAbstract())
+            if (typeof(T).IsAbstract)
             {
                 if (value.IsNullOrEmpty()) return null;
                 var concreteType = ExtractType(value);
@@ -285,7 +285,7 @@ namespace ServiceStack.Text.Common
         private static SetMemberDelegate GetSetPropertyMethod(TypeConfig typeConfig, PropertyInfo propertyInfo)
         {
             if (typeConfig.Type != propertyInfo.DeclaringType)
-                propertyInfo = propertyInfo.DeclaringType.GetPropertyInfo(propertyInfo.Name);
+                propertyInfo = propertyInfo.DeclaringType.GetProperty(propertyInfo.Name);
 
             if (!propertyInfo.CanWrite && !typeConfig.EnableAnonymousFieldSetters) return null;
 
@@ -326,7 +326,7 @@ namespace ServiceStack.Text.Common
         private static SetMemberDelegate GetSetFieldMethod(TypeConfig typeConfig, FieldInfo fieldInfo)
         {
             if (typeConfig.Type != fieldInfo.DeclaringType)
-                fieldInfo = fieldInfo.DeclaringType.GetFieldInfo(fieldInfo.Name);
+                fieldInfo = fieldInfo.DeclaringType.GetField(fieldInfo.Name);
 
             return PclExport.Instance.CreateSetter(fieldInfo);
         }

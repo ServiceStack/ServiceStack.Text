@@ -71,8 +71,7 @@ namespace ServiceStack.Text.Tests.DynamicModels
 
         public override bool Equals(object obj)
         {
-            var to = obj as ModelWithAllTypes;
-            if (to == null)
+            if (!(obj is ModelWithAllTypes to))
                 return false;
 
             if (ByteValue != to.ByteValue)
@@ -115,6 +114,11 @@ namespace ServiceStack.Text.Tests.DynamicModels
                 return false;
 
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

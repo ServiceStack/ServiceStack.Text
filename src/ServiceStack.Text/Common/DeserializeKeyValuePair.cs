@@ -41,7 +41,7 @@ namespace ServiceStack.Text.Common
         {
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(KeyValuePair<,>));
 
-            var keyValuePairArgs = mapInterface.GenericTypeArguments();
+            var keyValuePairArgs = mapInterface.GetGenericArguments();
             var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(keyValuePairArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 

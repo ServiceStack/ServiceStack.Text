@@ -56,22 +56,22 @@ namespace ServiceStack
         static readonly Action<HttpWebRequest, string> SetUserAgentDelegate =
             (Action<HttpWebRequest, string>)typeof(HttpWebRequest)
                 .GetProperty("UserAgent")
-                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, string>));
+                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, string>));
 
         static readonly Action<HttpWebRequest, bool> SetAllowAutoRedirectDelegate =
             (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
                 .GetProperty("AllowAutoRedirect")
-                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
+                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
 
         static readonly Action<HttpWebRequest, bool> SetKeepAliveDelegate =
             (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
                 .GetProperty("KeepAlive")
-                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
+                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
 
         static readonly Action<HttpWebRequest, long> SetContentLengthDelegate =
             (Action<HttpWebRequest, long>)typeof(HttpWebRequest)
                 .GetProperty("ContentLength")
-                ?.SetMethod()?.CreateDelegate(typeof(Action<HttpWebRequest, long>));
+                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, long>));
 
         private bool allowToChangeRestrictedHeaders;
 
@@ -248,7 +248,7 @@ namespace ServiceStack
 
         public override string GetAssemblyCodeBase(Assembly assembly)
         {
-            var dll = typeof(PclExport).GetAssembly();
+            var dll = typeof(PclExport).Assembly;
             var pi = dll.GetType().GetProperty("CodeBase");
             var codeBase = pi?.GetProperty(dll).ToString();
             return codeBase;
@@ -278,13 +278,13 @@ namespace ServiceStack
 
         public override bool InSameAssembly(Type t1, Type t2)
         {
-            return t1.GetAssembly() == t2.GetAssembly();
+            return t1.Assembly == t2.Assembly;
         }
 
         public override Type GetGenericCollectionType(Type type)
         {
             return type.GetTypeInfo().ImplementedInterfaces.FirstOrDefault(t =>
-                t.IsGenericType()
+                t.IsGenericType
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
@@ -419,7 +419,7 @@ namespace ServiceStack
 #endif
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
-            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+            if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.Parse;
@@ -430,7 +430,7 @@ namespace ServiceStack
 
         public override ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
         {
-            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+            if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.ParseStringSegment;
@@ -510,7 +510,7 @@ namespace ServiceStack
 
         public override Type UseType(Type type)
         {
-            if (type.IsInterface() || type.IsAbstract())
+            if (type.IsInterface || type.IsAbstract)
             {
                 return DynamicProxy.GetInstanceFor(type).GetType();
             }

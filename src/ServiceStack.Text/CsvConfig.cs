@@ -153,16 +153,16 @@ namespace ServiceStack.Text
             set
             {
                 if (value == null) return;
-                if (value.GetType().IsValueType())
+                if (value.GetType().IsValueType)
                     throw new ArgumentException("CustomHeaders is a ValueType");
 
-                var propertyInfos = value.GetType().GetPropertyInfos();
+                var propertyInfos = value.GetType().GetProperties();
                 if (propertyInfos.Length == 0) return;
 
                 customHeadersMap = new Dictionary<string, string>();
                 foreach (var pi in propertyInfos)
                 {
-                    var getMethod = pi.GetMethodInfo();
+                    var getMethod = pi.GetGetMethod(nonPublic:true);
                     if (getMethod == null) continue;
 
                     var oValue = getMethod.Invoke(value, TypeConstants.EmptyObjectArray);

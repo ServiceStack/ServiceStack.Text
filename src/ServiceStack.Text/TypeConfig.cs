@@ -92,7 +92,7 @@ namespace ServiceStack.Text
             else
                 config.OnDeserializing = (instance, memberName, value) => JsConfig<T>.OnDeserializingFn((T)instance, memberName, value);
 
-            IsUserType = !typeof(T).IsValueType() && typeof(T).Namespace != "System";
+            IsUserType = !typeof(T).IsValueType && typeof(T).Namespace != "System";
 
             return config;
         }

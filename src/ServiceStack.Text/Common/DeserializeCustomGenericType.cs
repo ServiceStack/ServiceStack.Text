@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Common
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
             }
 
-            var ctor = tupleType.DeclaredConstructors()
+            var ctor = tupleType.GetConstructors()
                 .First(x => x.GetParameters().Length == genericArgs.Length);
             return ctor.Invoke(argValues);
         }

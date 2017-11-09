@@ -52,10 +52,10 @@ namespace ServiceStack.Text.Common
                 WriteTypeInfo = TypeInfoWriter;
             }
 
-            if (typeof(T).IsAbstract())
+            if (typeof(T).IsAbstract)
             {
                 WriteTypeInfo = TypeInfoWriter;
-                if (!JsConfig.PreferInterfaces || !typeof(T).IsInterface())
+                if (!JsConfig.PreferInterfaces || !typeof(T).IsInterface)
                 {
                     CacheFn = WriteAbstractProperties;
                 }
@@ -117,7 +117,7 @@ namespace ServiceStack.Text.Common
 
         private static bool Init()
         {
-            if (!typeof(T).IsClass() && !typeof(T).IsInterface() && !JsConfig.TreatAsRefType(typeof(T))) return false;
+            if (!typeof(T).IsClass && !typeof(T).IsInterface && !JsConfig.TreatAsRefType(typeof(T))) return false;
 
             var propertyInfos = TypeConfig<T>.Properties;
             var fieldInfos = TypeConfig<T>.Fields;
@@ -145,8 +145,8 @@ namespace ServiceStack.Text.Common
                 var propertyType = propertyInfo.PropertyType;
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null
-                    && propertyType.IsValueType()
-                    && !propertyType.IsEnum()
+                    && propertyType.IsValueType
+                    && !propertyType.IsEnum
                     && JsConfig.HasSerializeFn.Contains(propertyType)
                     && !JsConfig.HasIncludeDefaultValue.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
@@ -191,7 +191,7 @@ namespace ServiceStack.Text.Common
                     propertyType.GetDefaultValue(),
                     shouldSerialize,
                     shouldSerializeDynamic,
-                    propertyType.IsEnum()
+                    propertyType.IsEnum
                 );
             }
 
@@ -204,7 +204,7 @@ namespace ServiceStack.Text.Common
                 var propertyType = fieldInfo.FieldType;
                 var defaultValue = propertyType.GetDefaultValue();
                 bool propertySuppressDefaultConfig = defaultValue != null
-                    && propertyType.IsValueType() && !propertyType.IsEnum()
+                    && propertyType.IsValueType && !propertyType.IsEnum
                     && JsConfig.HasSerializeFn.Contains(propertyType)
                     && !JsConfig.HasIncludeDefaultValue.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
@@ -250,7 +250,7 @@ namespace ServiceStack.Text.Common
                     defaultValue,
                     shouldSerialize,
                     shouldSerializeDynamic,
-                    propertyType.IsEnum()
+                    propertyType.IsEnum
                 );
             }
 
@@ -357,7 +357,7 @@ namespace ServiceStack.Text.Common
                 return;
             }
             var valueType = value.GetType();
-            if (valueType.IsAbstract())
+            if (valueType.IsAbstract)
             {
                 WriteProperties(writer, value);
                 return;
@@ -384,7 +384,7 @@ namespace ServiceStack.Text.Common
             }
 
             var valueType = instance.GetType();
-            if (PropertyWriters != null && valueType != typeof(T) && !typeof(T).IsAbstract())
+            if (PropertyWriters != null && valueType != typeof(T) && !typeof(T).IsAbstract)
             {
                 WriteLateboundProperties(writer, instance, valueType);
                 return;
@@ -577,12 +577,12 @@ namespace ServiceStack.Text.Common
                     var propertyType = propertyValue.GetType();
                     var strValue = propertyValue as string;
                     var isEnumerable = strValue == null
-                        && !propertyType.IsValueType()
+                        && !propertyType.IsValueType
                         && propertyType.HasInterface(typeof(IEnumerable));
 
                     if (QueryStringSerializer.ComplexTypeStrategy != null)
                     {
-                        var nonEnumerableUserType = !isEnumerable && (propertyType.IsUserType() || propertyType.IsInterface());
+                        var nonEnumerableUserType = !isEnumerable && (propertyType.IsUserType() || propertyType.IsInterface);
                         if (nonEnumerableUserType || propertyType.IsOrHasGenericInterfaceTypeOf(typeof(IDictionary<,>)))
                         {
                             if (QueryStringSerializer.ComplexTypeStrategy(writer, propertyWriter.PropertyName, propertyValue))

@@ -20,10 +20,9 @@ using System.Linq;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Pools;
 using ServiceStack.Text.Support;
+
 #if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
 #endif
 
 namespace ServiceStack.Text.Common
@@ -51,7 +50,7 @@ namespace ServiceStack.Text.Common
                 {
                     return GetParseStringSegmentMethod(typeof(Dictionary<object, object>));
                 }
-                if (typeof(IDictionary).IsAssignableFromType(type))
+                if (typeof(IDictionary).IsAssignableFrom(type))
                 {
                     return s => ParseIDictionary(s, type);
                 }
@@ -69,7 +68,7 @@ namespace ServiceStack.Text.Common
                 return ParseJsonObject;
             }
 
-            var dictionaryArgs = mapInterface.GenericTypeArguments();
+            var dictionaryArgs = mapInterface.GetGenericArguments();
             var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(dictionaryArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 

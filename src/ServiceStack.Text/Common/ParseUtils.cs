@@ -44,7 +44,7 @@ namespace ServiceStack.Text.Common
                 return x => new Uri(x.FromCsvField());
 
             //Warning: typeof(object).IsInstanceOfType(typeof(Type)) == True??
-            if (type.InstanceOfType(typeof(Type)))
+            if (type.IsInstanceOfType(typeof(Type)))
                 return ParseType;
 
             if (type == typeof(Exception))

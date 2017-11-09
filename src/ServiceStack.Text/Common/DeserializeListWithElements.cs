@@ -178,7 +178,7 @@ namespace ServiceStack.Text.Common
             if (!(value = DeserializeListWithElements<TSerializer>.StripList(value)).HasValue) return null;
 
             var isReadOnly = createListType != null
-                && (createListType.IsGeneric() && createListType.GenericTypeDefinition() == typeof(ReadOnlyCollection<>));
+                && (createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
             var to = (createListType == null || isReadOnly)
                 ? new List<T>()
@@ -282,7 +282,7 @@ namespace ServiceStack.Text.Common
             if (typeof(T) == typeof(List<int>))
                 return DeserializeListWithElements<TSerializer>.ParseIntList;
 
-            var elementType = listInterface.GenericTypeArguments()[0];
+            var elementType = listInterface.GetGenericArguments()[0];
 
             var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSegmentFn(elementType);
             if (supportedTypeParseMethod != null)
@@ -328,7 +328,7 @@ namespace ServiceStack.Text.Common
             if (typeof(T) == typeof(IEnumerable<int>))
                 return DeserializeListWithElements<TSerializer>.ParseIntList;
 
-            var elementType = enumerableInterface.GenericTypeArguments()[0];
+            var elementType = enumerableInterface.GetGenericArguments()[0];
 
             var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSegmentFn(elementType);
             if (supportedTypeParseMethod != null)

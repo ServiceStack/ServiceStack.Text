@@ -193,16 +193,8 @@ namespace ServiceStack.Text
         internal static List<ParseStringDelegate> PropertyConverters;
         internal static Dictionary<string, ParseStringDelegate> PropertyConvertersMap;
 
-        private static readonly ParseStringDelegate OptimizedReader;
-
         static CsvReader()
         {
-            //if (typeof(T) == typeof(string))
-            //{
-            //    OptimizedReader = ReadRow;
-            //    return;
-            //}
-
             Reset();
         }
 
@@ -219,7 +211,7 @@ namespace ServiceStack.Text
             var isDataContract = typeof(T).IsDto();
             foreach (var propertyInfo in TypeConfig<T>.Properties)
             {
-                if (!propertyInfo.CanWrite || propertyInfo.SetMethod() == null) continue;
+                if (!propertyInfo.CanWrite || propertyInfo.GetSetMethod(nonPublic:true) == null) continue;
                 if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
                 var propertyName = propertyInfo.Name;
@@ -282,7 +274,7 @@ namespace ServiceStack.Text
 
             if (records == null) return rows;
 
-            if (typeof(T).IsValueType() || typeof(T) == typeof(string))
+            if (typeof(T).IsValueType || typeof(T) == typeof(string))
             {
                 return GetSingleRow(records, typeof(T));
             }
@@ -346,30 +338,21 @@ namespace ServiceStack.Text
             var to = new List<T>();
             if (rows == null || rows.Count == 0) return to; //AOT
 
-            if (typeof(T).IsAssignableFromType(typeof(Dictionary<string, string>)))
+            if (typeof(T).IsAssignableFrom(typeof(Dictionary<string, string>)))
             {
                 return ReadStringDictionary(rows).ConvertAll(x => (T)(object)x);
             }
 
-            if (typeof(T).IsAssignableFromType(typeof(List<string>)))
+            if (typeof(T).IsAssignableFrom(typeof(List<string>)))
             {
                 return new List<T>(rows.Select(x => (T)(object)CsvReader.ParseFields(x)));
-            }
-
-            if (OptimizedReader != null)
-            {
-                foreach (var row in rows)
-                {
-                    to.Add((T)OptimizedReader(row));
-                }
-                return to;
             }
 
             List<string> headers = null;
             if (!CsvConfig<T>.OmitHeaders || Headers.Count == 0)
                 headers = CsvReader.ParseFields(rows[0]);
 
-            if (typeof(T).IsValueType() || typeof(T) == typeof(string))
+            if (typeof(T).IsValueType || typeof(T) == typeof(string))
             {
                 return GetSingleRow(rows, typeof(T));
             }

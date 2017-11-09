@@ -186,7 +186,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             using (JsConfig.With(modelFactory: type =>
             {
-                if (typeof(IHasVersion).AssignableFrom(type))
+                if (typeof(IHasVersion).IsAssignableFrom(type))
                 {
                     return () =>
                     {

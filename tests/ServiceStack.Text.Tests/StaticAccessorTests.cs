@@ -60,15 +60,15 @@ namespace ServiceStack.Text.Tests
         public void Can_get_field_accessor_from_sub_and_super_types()
         {
             var sub = new SubAccessor();
-            var subGet = typeof(SubAccessor).GetFieldInfo("SubField").CreateGetter<SubAccessor>();
-            var subSet = typeof(SubAccessor).GetFieldInfo("SubField").CreateSetter<SubAccessor>();
+            var subGet = typeof(SubAccessor).GetField("SubField").CreateGetter<SubAccessor>();
+            var subSet = typeof(SubAccessor).GetField("SubField").CreateSetter<SubAccessor>();
 
             subSet(sub, "sub");
             Assert.That(subGet(sub), Is.EqualTo("sub"));
 
             var sup = new AccessorBase();
-            var supGet = typeof(AccessorBase).GetFieldInfo("BaseField").CreateGetter<AccessorBase>();
-            var supSet = typeof(AccessorBase).GetFieldInfo("BaseField").CreateSetter<AccessorBase>();
+            var supGet = typeof(AccessorBase).GetField("BaseField").CreateGetter<AccessorBase>();
+            var supSet = typeof(AccessorBase).GetField("BaseField").CreateSetter<AccessorBase>();
 
             supSet(sup, "base");
             Assert.That(supGet(sup), Is.EqualTo("base"));

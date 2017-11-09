@@ -255,11 +255,7 @@ namespace ServiceStack.Text.Tests
         public string Path { get; set; }
         public string Verbs { get; set; }
 
-        public
-#if !NETCORE
-        override
-#endif
-        object TypeId
+        public override object TypeId
         {
             get
             {

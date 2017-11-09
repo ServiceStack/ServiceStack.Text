@@ -59,7 +59,7 @@ namespace ServiceStack
             }
         }
 
-        public static PropertyAccessor GetAccessor(string propertyName)
+        public new static PropertyAccessor GetAccessor(string propertyName)
         {
             return Instance.PropertyMap.TryGetValue(propertyName, out PropertyAccessor info)
                 ? info
@@ -195,11 +195,11 @@ namespace ServiceStack
 
         public static Expression<GetMemberDelegate> GetExpressionLambda(PropertyInfo propertyInfo)
         {
-            var getMethodInfo = propertyInfo.GetMethodInfo();
+            var getMethodInfo = propertyInfo.GetGetMethod(nonPublic:true);
             if (getMethodInfo == null) return null;
 
             var oInstanceParam = Expression.Parameter(typeof(object), "oInstanceParam");
-            var instanceParam = Expression.Convert(oInstanceParam, propertyInfo.ReflectedType()); //propertyInfo.DeclaringType doesn't work on Proxy types
+            var instanceParam = Expression.Convert(oInstanceParam, propertyInfo.ReflectedType); //propertyInfo.DeclaringType doesn't work on Proxy types
 
             var exprCallPropertyGetFn = Expression.Call(instanceParam, getMethodInfo);
             var oExprCallPropertyGetFn = Expression.Convert(exprCallPropertyGetFn, typeof(object));
@@ -220,7 +220,7 @@ namespace ServiceStack
             }
             catch //fallback for Android
             {
-                var mi = propertyInfo.SetMethod(true);
+                var mi = propertyInfo.GetSetMethod(nonPublic: true);
                 return (o, convertedValue) =>
                     mi.Invoke(o, new[] { convertedValue });
             }
@@ -228,7 +228,7 @@ namespace ServiceStack
 
         public static Expression<SetMemberDelegate<T>> SetExpressionLambda<T>(PropertyInfo propertyInfo)
         {
-            var mi = propertyInfo.SetMethod(true);
+            var mi = propertyInfo.GetSetMethod(nonPublic: true);
             if (mi == null) return null;
 
             var instance = Expression.Parameter(typeof(T), "i");
@@ -251,7 +251,7 @@ namespace ServiceStack
 
         public static SetMemberDelegate SetExpression(PropertyInfo propertyInfo)
         {
-            var propertySetMethod = propertyInfo.SetMethod();
+            var propertySetMethod = propertyInfo.GetSetMethod(nonPublic:true);
             if (propertySetMethod == null) return null;
 
             try
@@ -259,7 +259,7 @@ namespace ServiceStack
                 var instance = Expression.Parameter(typeof(object), "i");
                 var argument = Expression.Parameter(typeof(object), "a");
 
-                var instanceParam = Expression.Convert(instance, propertyInfo.ReflectedType());
+                var instanceParam = Expression.Convert(instance, propertyInfo.ReflectedType);
                 var valueParam = Expression.Convert(argument, propertyInfo.PropertyType);
 
                 var setterCall = Expression.Call(instanceParam, propertySetMethod, valueParam);
@@ -281,7 +281,7 @@ namespace ServiceStack
             var gen = getter.GetILGenerator();
             var mi = propertyInfo.GetGetMethod(true);
 
-            if (typeof(T).IsValueType())
+            if (typeof(T).IsValueType)
             {
                 gen.Emit(OpCodes.Ldarga_S, 0);
 
@@ -302,7 +302,7 @@ namespace ServiceStack
 
             gen.Emit(mi.IsFinal ? OpCodes.Call : OpCodes.Callvirt, mi);
 
-            if (propertyInfo.PropertyType.IsValueType())
+            if (propertyInfo.PropertyType.IsValueType)
             {
                 gen.Emit(OpCodes.Box, propertyInfo.PropertyType);
             }
@@ -321,7 +321,7 @@ namespace ServiceStack
             var gen = getter.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
 
-            if (propertyInfo.DeclaringType.IsValueType())
+            if (propertyInfo.DeclaringType.IsValueType)
             {
                 gen.Emit(OpCodes.Unbox, propertyInfo.DeclaringType);
             }
@@ -333,7 +333,7 @@ namespace ServiceStack
             var mi = propertyInfo.GetGetMethod(true);
             gen.Emit(mi.IsFinal ? OpCodes.Call : OpCodes.Callvirt, mi);
 
-            if (propertyInfo.PropertyType.IsValueType())
+            if (propertyInfo.PropertyType.IsValueType)
             {
                 gen.Emit(OpCodes.Box, propertyInfo.PropertyType);
             }
@@ -354,7 +354,7 @@ namespace ServiceStack
             var gen = setter.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
 
-            if (propertyInfo.DeclaringType.IsValueType())
+            if (propertyInfo.DeclaringType.IsValueType)
             {
                 gen.Emit(OpCodes.Unbox, propertyInfo.DeclaringType);
             }
@@ -365,7 +365,7 @@ namespace ServiceStack
 
             gen.Emit(OpCodes.Ldarg_1);
 
-            if (propertyInfo.PropertyType.IsValueType())
+            if (propertyInfo.PropertyType.IsValueType)
             {
                 gen.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
             }

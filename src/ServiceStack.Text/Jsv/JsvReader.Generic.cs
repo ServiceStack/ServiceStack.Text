@@ -80,7 +80,7 @@ namespace ServiceStack.Text.Jsv
 
             if (ReadFn == null)
             {
-                if (typeof(T).IsInterface())
+                if (typeof(T).IsInterface)
                 {
                     throw new NotSupportedException("Can not deserialize interface type: "
                         + typeof(T).Name);

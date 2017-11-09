@@ -66,7 +66,7 @@ namespace ServiceStack
             }
         }
 
-        public static FieldAccessor GetAccessor(string propertyName)
+        public new static FieldAccessor GetAccessor(string propertyName)
         {
             return Instance.FieldsMap.TryGetValue(propertyName, out FieldAccessor info)
                 ? info
@@ -274,14 +274,14 @@ namespace ServiceStack
             Expression result;
             var expressionType = expression.Type;
 
-            if (targetType.IsAssignableFromType(expressionType))
+            if (targetType.IsAssignableFrom(expressionType))
             {
                 result = expression;
             }
             else
             {
                 // Check if we can use the as operator for casting or if we must use the convert method
-                if (targetType.IsValueType() && !targetType.IsNullableType())
+                if (targetType.IsValueType && !targetType.IsNullableType())
                 {
                     result = Expression.Convert(expression, targetType);
                 }
@@ -324,7 +324,7 @@ namespace ServiceStack
 
             gen.Emit(OpCodes.Ldfld, fieldInfo);
 
-            if (fieldInfo.FieldType.IsValueType())
+            if (fieldInfo.FieldType.IsValueType)
             {
                 gen.Emit(OpCodes.Box, fieldInfo.FieldType);
             }
@@ -342,7 +342,7 @@ namespace ServiceStack
 
             gen.Emit(OpCodes.Ldarg_0);
 
-            if (fieldInfo.DeclaringType.IsValueType())
+            if (fieldInfo.DeclaringType.IsValueType)
             {
                 gen.Emit(OpCodes.Unbox, fieldInfo.DeclaringType);
             }
@@ -353,7 +353,7 @@ namespace ServiceStack
 
             gen.Emit(OpCodes.Ldfld, fieldInfo);
 
-            if (fieldInfo.FieldType.IsValueType())
+            if (fieldInfo.FieldType.IsValueType)
             {
                 gen.Emit(OpCodes.Box, fieldInfo.FieldType);
             }
@@ -371,7 +371,7 @@ namespace ServiceStack
             var name = $"_Get{memberType}_{memberInfo.Name}_";
             var returnType = typeof(object);
 
-            return !memberInfo.DeclaringType.IsInterface()
+            return !memberInfo.DeclaringType.IsInterface
                 ? new DynamicMethod(name, returnType, DynamicGetMethodArgs, memberInfo.DeclaringType, true)
                 : new DynamicMethod(name, returnType, DynamicGetMethodArgs, memberInfo.Module, true);
         }
@@ -382,7 +382,7 @@ namespace ServiceStack
             var name = $"_Get{memberType}[T]_{memberInfo.Name}_";
             var returnType = typeof(object);
 
-            return !memberInfo.DeclaringType.IsInterface()
+            return !memberInfo.DeclaringType.IsInterface
                 ? new DynamicMethod(name, returnType, new[] { typeof(T) }, memberInfo.DeclaringType, true)
                 : new DynamicMethod(name, returnType, new[] { typeof(T) }, memberInfo.Module, true);
         }
@@ -394,7 +394,7 @@ namespace ServiceStack
             var gen = setter.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
 
-            if (fieldInfo.DeclaringType.IsValueType())
+            if (fieldInfo.DeclaringType.IsValueType)
             {
                 gen.Emit(OpCodes.Unbox, fieldInfo.DeclaringType);
             }
@@ -405,7 +405,7 @@ namespace ServiceStack
 
             gen.Emit(OpCodes.Ldarg_1);
 
-            gen.Emit(fieldInfo.FieldType.IsClass()
+            gen.Emit(fieldInfo.FieldType.IsClass
                     ? OpCodes.Castclass
                     : OpCodes.Unbox_Any,
                 fieldInfo.FieldType);
@@ -424,7 +424,7 @@ namespace ServiceStack
             var name = $"_Set{memberType}_{memberInfo.Name}_";
             var returnType = typeof(void);
 
-            return !memberInfo.DeclaringType.IsInterface()
+            return !memberInfo.DeclaringType.IsInterface
                 ? new DynamicMethod(name, returnType, DynamicSetMethodArgs, memberInfo.DeclaringType, true)
                 : new DynamicMethod(name, returnType, DynamicSetMethodArgs, memberInfo.Module, true);
         }

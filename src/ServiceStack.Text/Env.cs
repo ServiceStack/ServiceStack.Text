@@ -35,7 +35,7 @@ namespace ServiceStack.Text
                     IsLinux = osType?.IndexOf("Linux", StringComparison.OrdinalIgnoreCase) >= 0;
 #endif
                 }
-                catch (Exception ignore) {}
+                catch (Exception) {}
             }
             else
             {
@@ -50,7 +50,7 @@ namespace ServiceStack.Text
                 IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
                 IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
             }
-            catch (Exception ignore) {} //throws PlatformNotSupportedException in AWS lambda
+            catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
             IsUnix = IsOSX || IsLinux;
             HasMultiplePlatformTargets = true;
 #elif NET45

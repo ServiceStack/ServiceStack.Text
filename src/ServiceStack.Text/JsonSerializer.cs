@@ -61,7 +61,7 @@ namespace ServiceStack.Text
             {
                 return SerializeToString(value, value.GetType());
             }
-            if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
                 JsState.IsWritingDynamic = true;
                 var result = SerializeToString(value, value.GetType());
@@ -108,7 +108,7 @@ namespace ServiceStack.Text
             {
                 SerializeToWriter(value, value.GetType(), writer);
             }
-            else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            else if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
                 JsState.IsWritingDynamic = false;
                 SerializeToWriter(value, value.GetType(), writer);
@@ -139,7 +139,7 @@ namespace ServiceStack.Text
             {
                 SerializeToStream(value, value.GetType(), stream);
             }
-            else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            else if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
                 JsState.IsWritingDynamic = false;
                 SerializeToStream(value, value.GetType(), stream);

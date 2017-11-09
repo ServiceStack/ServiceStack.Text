@@ -499,12 +499,12 @@ namespace ServiceStack.Text.Common
             if (type == typeof(IList<long>))
                 return WriteListsOfElements<long, TSerializer>.WriteIListValueType;
 
-            var elementType = listInterface.GenericTypeArguments()[0];
+            var elementType = listInterface.GetGenericArguments()[0];
 
-            var isGenericList = typeof(T).IsGeneric()
-                && typeof(T).GenericTypeDefinition() == typeof(List<>);
+            var isGenericList = typeof(T).IsGenericType
+                && typeof(T).GetGenericTypeDefinition() == typeof(List<>);
 
-            if (elementType.IsValueType()
+            if (elementType.IsValueType
                 && JsWriter.ShouldUseDefaultToStringMethod(elementType))
             {
                 if (isGenericList)

@@ -244,7 +244,7 @@ namespace ServiceStack
 
             IncludeType(targetType, typeBuilder);
 
-            foreach (var face in targetType.GetTypeInterfaces())
+            foreach (var face in targetType.GetInterfaces())
                 IncludeType(face, typeBuilder);
 
 #if NETSTANDARD2_0
@@ -256,7 +256,7 @@ namespace ServiceStack
 
         static void IncludeType(Type typeOfT, TypeBuilder typeBuilder)
         {
-            var methodInfos = typeOfT.GetMethodInfos();
+            var methodInfos = typeOfT.GetMethods();
             foreach (var methodInfo in methodInfos)
             {
                 if (methodInfo.Name.StartsWith("set_", StringComparison.Ordinal)) continue; // we always add a set for a get.
@@ -289,7 +289,7 @@ namespace ServiceStack
             }
             else
             {
-                if (methodInfo.ReturnType.IsValueType() || methodInfo.ReturnType.IsEnum())
+                if (methodInfo.ReturnType.IsValueType || methodInfo.ReturnType.IsEnum)
                 {
                     MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance", new[] { typeof(Type) });
                     LocalBuilder lb = methodILGen.DeclareLocal(methodInfo.ReturnType);

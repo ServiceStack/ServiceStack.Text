@@ -961,13 +961,13 @@ namespace ServiceStack
 
         public static bool IsUserType(this Type type)
         {
-            return type.IsClass()
+            return type.IsClass
                 && !type.IsSystemType();
         }
 
         public static bool IsUserEnum(this Type type)
         {
-            return type.IsEnum()
+            return type.IsEnum
                 && !type.IsSystemType();
         }
 
