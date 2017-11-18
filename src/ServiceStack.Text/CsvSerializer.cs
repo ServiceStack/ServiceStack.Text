@@ -21,8 +21,7 @@ namespace ServiceStack.Text
         {
             try
             {
-                WriteObjectDelegate writeFn;
-                if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
+                if (WriteFnCache.TryGetValue(type, out var writeFn)) return writeFn;
 
                 var genericType = typeof(CsvSerializer<>).MakeGenericType(type);
                 var mi = genericType.GetStaticMethod("WriteFn");
@@ -55,8 +54,7 @@ namespace ServiceStack.Text
         {
             try
             {
-                ParseStringDelegate writeFn;
-                if (ReadFnCache.TryGetValue(type, out writeFn)) return writeFn;
+                if (ReadFnCache.TryGetValue(type, out var writeFn)) return writeFn;
 
                 var genericType = typeof(CsvSerializer<>).MakeGenericType(type);
                 var mi = genericType.GetStaticMethod("ReadFn");

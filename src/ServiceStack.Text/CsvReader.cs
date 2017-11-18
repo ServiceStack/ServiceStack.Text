@@ -241,15 +241,22 @@ namespace ServiceStack.Text
             for (var i = Headers.Count - 1; i >= 0; i--)
             {
                 var oldHeader = Headers[i];
-                string newHeaderValue;
-                if (!customHeadersMap.TryGetValue(oldHeader, out newHeaderValue))
+                if (!customHeadersMap.TryGetValue(oldHeader, out var newHeader))
                 {
                     Headers.RemoveAt(i);
                     PropertySetters.RemoveAt(i);
                 }
                 else
                 {
-                    Headers[i] = newHeaderValue.EncodeJsv();
+                    Headers[i] = newHeader;
+
+                    PropertySettersMap.TryGetValue(oldHeader, out var setter);
+                    PropertySettersMap.Remove(oldHeader);
+                    PropertySettersMap[newHeader] = setter;
+                    
+                    PropertyConvertersMap.TryGetValue(oldHeader, out var converter);
+                    PropertyConvertersMap.Remove(oldHeader);
+                    PropertyConvertersMap[newHeader] = converter;
                 }
             }
         }
