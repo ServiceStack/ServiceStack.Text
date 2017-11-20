@@ -4,7 +4,6 @@ using System.Runtime.Serialization;
 using System.Web.Routing;
 using NUnit.Framework;
 using ServiceStack.Html;
-using RouteValueDictionary = ServiceStack.Html.RouteValueDictionary;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
