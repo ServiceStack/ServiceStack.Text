@@ -42,7 +42,7 @@ namespace ServiceStack
                 textSerialized = TypeSerializer.SerializeToString(text).StripQuotes();
             }
 
-            return textSerialized == null || !CsvWriter.HasAnyEscapeChars(textSerialized)
+            return textSerialized.IsNullOrEmpty() || !CsvWriter.HasAnyEscapeChars(textSerialized)
                 ? textSerialized
                 : string.Concat
                   (
