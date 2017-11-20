@@ -336,6 +336,26 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_serialize_single_ObjectDictionary_or_ObjectKvps_WithEmptyString()
+        {
+            var row = new Dictionary<string, object>
+            {
+                { "Id", 1 },
+                { "CustomerId", "" },
+            };
+
+            Assert.That(row.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,").Or.EqualTo("CustomerId,Id\n,1"));
+
+            var kvps = new[]
+            {
+                new KeyValuePair<string, object>("Id", 1),
+                new KeyValuePair<string, object>("CustomerId", ""),
+            };
+
+            Assert.That(kvps.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,").Or.EqualTo("CustomerId,Id\n,1"));
+        }
+        
+        [Test]
         public void Can_serialize_single_StringDictionary_or_StringKvps()
         {
             var row = new Dictionary<string, string>
