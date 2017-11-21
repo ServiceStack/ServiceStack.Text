@@ -120,6 +120,16 @@ namespace ServiceStack.Text.Tests
             helloVoidBoolIntDelegate(testInstance, true, 5);
             Assert.That(testInstance.Result, Is.EqualTo("Hello True 5"));
         }
+
+        [Test]
+        public void Does_GetCollectionType()
+        {
+            Assert.That(new[] { new TestModel() }.GetType().GetCollectionType(), Is.EqualTo(typeof(TestModel)));
+            Assert.That(new[] { new TestModel() }.ToList().GetType().GetCollectionType(), Is.EqualTo(typeof(TestModel)));
+            Assert.That(new[] { new TestModel() }.Select(x => x).GetType().GetCollectionType(), Is.EqualTo(typeof(TestModel)));
+            Assert.That(new[] { "" }.Select(x => new TestModel()).GetType().GetCollectionType(), Is.EqualTo(typeof(TestModel)));
+        }
+
     }
 
     public class GenericType<T> { }

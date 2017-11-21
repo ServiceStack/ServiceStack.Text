@@ -535,7 +535,8 @@ namespace ServiceStack
 
         public static Type GetCollectionType(this Type type)
         {
-            return type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
+            return type.GetElementType() 
+                ?? type.GetGenericArguments().LastOrDefault(); //new[] { str }.Select(x => new Type()) => WhereSelectArrayIterator<string,Type>
         }
 
         static Dictionary<string, Type> GenericTypeCache = new Dictionary<string, Type>();
