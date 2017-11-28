@@ -1109,6 +1109,8 @@ namespace ServiceStack
         public const string Xml = "application/xml";
         public const string XmlText = "text/xml";
         public const string Json = "application/json";
+        public const string JsonProblem = "application/problem+json";
+        public const string JsonVndApi = "application/vnd.api+json";
         public const string JsonText = "text/json";
         public const string Jsv = "application/jsv";
         public const string JsvText = "text/jsv";
