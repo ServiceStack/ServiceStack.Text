@@ -6,7 +6,7 @@
     <version>5.0.0</version> 
     <authors>ServiceStack</authors> 
     <owners>ServiceStack</owners>
-    <summary>.NET's Standard 2.0 build of ServiceStack.Text</summary>
+    <summary>.NET's Standard 2.0 version of ServiceStack.Text</summary>
     <description>
         .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
         Contains ServiceStack's high-performance text-processing powers, for more info see: https://servicestack.net/text
