@@ -193,5 +193,13 @@ namespace ServiceStack.Text.Tests
             JsConfig.TryParseIntoBestFit = false;
         }
 
+        [Test]
+        public void Can_get_Nullable_number()
+        {
+            int? null1 = 1;
+            var number = DynamicNumber.GetNumber(null1.GetType());
+            Assert.That(number.ToString(null1), Is.EqualTo("1"));
+        }
+
     }
 }
