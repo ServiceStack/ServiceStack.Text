@@ -2,6 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 using ServiceStack.Text.Common;
+using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text.Tests.JsonTests
 {
@@ -307,6 +308,27 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.AreEqual(DateTimeKind.Utc, deserializedDate.Kind);
             Assert.AreEqual(initialDate, deserializedDate);
+        }
+
+        [Test]
+        public void ISO8601_assumeUtc_serialize_datetime_is_the_same()
+        {
+            JsConfig.AssumeUtc = true;
+            JsConfig.DateHandler = DateHandler.ISO8601;
+            var initialDate = new DateTime(2012, 7, 25, 16, 17, 00, DateTimeKind.Unspecified);
+            var writers = new
+            {
+                jsv = new System.IO.StringWriter(new System.Text.StringBuilder()),
+                json = new System.IO.StringWriter(new System.Text.StringBuilder())
+            };
+            new JsvTypeSerializer().WriteDateTime(writers.jsv, initialDate);
+            new Json.JsonTypeSerializer().WriteDateTime(writers.json, initialDate);
+            var results = new
+            {
+                jsv = DateTime.SpecifyKind(DateTime.Parse(writers.jsv.ToString()), DateTimeKind.Utc),
+                json = DateTime.SpecifyKind(DateTime.Parse(writers.json.ToString().Replace("\"", "")), DateTimeKind.Utc)
+            };
+            Assert.AreEqual(results.jsv, results.json);
         }
 
         [Test]
