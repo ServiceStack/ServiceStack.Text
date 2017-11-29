@@ -442,6 +442,7 @@ namespace ServiceStack.Text.Common
 
         public static string ToShortestXsdDateTimeString(DateTime dateTime)
         {
+            dateTime = dateTime.UseConfigSpecifiedSetting();
             var timeOfDay = dateTime.TimeOfDay;
 
             var isStartOfDay = timeOfDay.Ticks == 0;
@@ -582,13 +583,18 @@ namespace ServiceStack.Text.Common
 
         internal static TimeZoneInfo LocalTimeZone = GetLocalTimeZoneInfo();
 
-        public static void WriteWcfJsonDate(TextWriter writer, DateTime dateTime)
+        private static DateTime UseConfigSpecifiedSetting(this DateTime dateTime)
         {
             if (JsConfig.AssumeUtc && dateTime.Kind == DateTimeKind.Unspecified)
             {
-                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
             }
+            return dateTime;
+        }
 
+        public static void WriteWcfJsonDate(TextWriter writer, DateTime dateTime)
+        {
+            dateTime = dateTime.UseConfigSpecifiedSetting();
             switch (JsConfig.DateHandler)
             {
                 case DateHandler.ISO8601:
