@@ -748,7 +748,7 @@ namespace ServiceStack
 
         public static string ToTitleCase(this string value)
         {
-            return PclExport.Instance.ToTitleCase(value);
+            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value).Replace("_", String.Empty);
         }
 
         public static string ToLowercaseUnderscore(this string value)

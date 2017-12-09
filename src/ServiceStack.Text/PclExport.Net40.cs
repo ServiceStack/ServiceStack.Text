@@ -69,11 +69,6 @@ namespace ServiceStack
             return File.ReadAllText(filePath);
         }
 
-        public override string ToTitleCase(string value)
-        {
-            return TextInfo.ToTitleCase(value).Replace("_", String.Empty);
-        }
-
         public override string ToInvariantUpper(char value)
         {
             return value.ToString(CultureInfo.InvariantCulture).ToUpper();

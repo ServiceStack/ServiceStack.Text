@@ -79,8 +79,6 @@ namespace ServiceStack
 
         public string PlatformName = "Unknown";
 
-        public TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
-
         public RegexOptions RegexOptions = RegexOptions.None;
 
         public StringComparison InvariantComparison = StringComparison.Ordinal;
@@ -92,23 +90,6 @@ namespace ServiceStack
         public StringComparer InvariantComparerIgnoreCase = StringComparer.OrdinalIgnoreCase;
 
         public abstract string ReadAllText(string filePath);
-
-        public virtual string ToTitleCase(string value)
-        {
-            string[] words = value.Split('_');
-
-            for (int i = 0; i <= words.Length - 1; i++)
-            {
-                if ((!object.ReferenceEquals(words[i], string.Empty)))
-                {
-                    string firstLetter = words[i].Substring(0, 1);
-                    string rest = words[i].Substring(1);
-                    string result = firstLetter.ToUpper() + rest.ToLower();
-                    words[i] = result;
-                }
-            }
-            return string.Join("", words);
-        }
 
         // HACK: The only way to detect anonymous types right now.
         public virtual bool IsAnonymousType(Type type)
