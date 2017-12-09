@@ -208,11 +208,8 @@ namespace ServiceStack.Text.Common
                     && JsConfig.HasSerializeFn.Contains(propertyType)
                     && !JsConfig.HasIncludeDefaultValue.Contains(propertyType);
                 bool propertySuppressDefaultAttribute = false;
-#if (NETFX_CORE)
-                var shouldSerialize = (Func<T, bool>)null;
-#else
+
                 var shouldSerialize = GetShouldSerializeMethod(fieldInfo);
-#endif
                 if (isDataContract)
                 {
                     var dcsDataMember = fieldInfo.GetDataMember();

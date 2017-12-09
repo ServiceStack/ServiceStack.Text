@@ -17,7 +17,7 @@ using Microsoft.Extensions.Primitives;
 using ServiceStack.Text.Support;
 #endif
 
-#if !(SL5 ||  __IOS__ || NETFX_CORE)
+#if !(__IOS__)
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
@@ -193,7 +193,7 @@ namespace ServiceStack
         }
     }
 
-#if !(SL5 ||  __IOS__ || NETFX_CORE)
+#if !(__IOS__)
     public static class DynamicProxy
     {
         public static T GetInstanceFor<T>()

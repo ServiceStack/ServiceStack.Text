@@ -172,26 +172,7 @@ namespace ServiceStack
                 return Path.GetFullPath(relativePath.Replace("~", hostDirectoryPath));
             }
             return relativePath;
-        }
-        
-#elif NETSTANDARD1_1
-        public string BinPath = null;
-
-        public override string MapAbsolutePath(string relativePath, string appendPartialPathModifier)
-        {
-            if (BinPath == null)
-            {
-                var codeBase = GetAssemblyCodeBase(typeof(PclExport).GetTypeInfo().Assembly);
-                if (codeBase == null)
-                    throw new Exception("NetStandardPclExport.BinPath must be initialized");
-
-                BinPath = Path.GetDirectoryName(codeBase.Replace("file:///", ""));
-            }
-
-            return relativePath.StartsWith("~")
-                ? relativePath.Replace("~", BinPath)
-                : relativePath;
-        }
+        }        
 #endif
         public static PclExport Configure()
         {

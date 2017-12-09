@@ -594,7 +594,7 @@ namespace ServiceStack
 	}
 #endif
 
-#if NET45 || NETFX_CORE
+#if NET45 || NETSTANDARD2_0
     public class Net45PclExport : Net40PclExport
     {
         public static new Net45PclExport Provider = new Net45PclExport();
