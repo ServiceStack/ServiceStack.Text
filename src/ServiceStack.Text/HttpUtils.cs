@@ -106,7 +106,7 @@ namespace ServiceStack
             return url + prefix + key + "=" + val.UrlEncode();
         }
 
-        public static bool HasRequestBody(this string httpMethod)
+        public static bool HasRequestBody(string httpMethod)
         {
             switch (httpMethod)
             {
@@ -534,7 +534,7 @@ namespace ServiceStack
                     writer.Write(requestBody);
                 }
             }
-            else if (method != null && method.HasRequestBody())
+            else if (method != null && HasRequestBody(method))
             {
                 webReq.ContentLength = 0;
             }
