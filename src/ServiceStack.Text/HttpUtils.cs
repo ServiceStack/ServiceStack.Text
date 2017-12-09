@@ -106,6 +106,20 @@ namespace ServiceStack
             return url + prefix + key + "=" + val.UrlEncode();
         }
 
+        public static bool HasRequestBody(this string httpMethod)
+        {
+            switch (httpMethod)
+            {
+                case HttpMethods.Get:
+                case HttpMethods.Delete:
+                case HttpMethods.Head:
+                case HttpMethods.Options:
+                    return false;
+            }
+
+            return true;
+        }
+
         public static string GetJsonFromUrl(this string url,
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -519,6 +533,10 @@ namespace ServiceStack
                 {
                     writer.Write(requestBody);
                 }
+            }
+            else if (method != null && method.HasRequestBody())
+            {
+                webReq.ContentLength = 0;
             }
 
             using (var webRes = PclExport.Instance.GetResponse(webReq))

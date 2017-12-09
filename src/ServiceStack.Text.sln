@@ -1,6 +1,7 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED-EAFF-4839-935A-5BB4A4158245}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED
 		..\build\build.tasks = ..\build\build.tasks
 		..\build\copy.bat = ..\build\copy.bat
 		..\README.md = ..\README.md
+		..\NuGet\ServiceStack.Text.Core\servicestack.text.core.nuspec = ..\NuGet\ServiceStack.Text.Core\servicestack.text.core.nuspec
 		..\NuGet\ServiceStack.Text\servicestack.text.nuspec = ..\NuGet\ServiceStack.Text\servicestack.text.nuspec
 	EndProjectSection
 EndProject
