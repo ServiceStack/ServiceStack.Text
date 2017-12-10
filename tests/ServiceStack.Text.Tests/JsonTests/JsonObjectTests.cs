@@ -26,6 +26,22 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(JsonObject.Parse("{ \n\t  \n\r}"), Is.Empty);
         }
 
+
+        public class JsonObjectResponse
+        {
+            public JsonObject result { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_null_JsonObject_response()
+        {
+            JsConfig.ThrowOnDeserializationError = true;
+            var json = "{\"result\":null}";
+            var dto = json.FromJson<JsonObjectResponse>();
+            Assert.That(dto.result, Is.Null);
+            JsConfig.ThrowOnDeserializationError = false;
+        }
+
         [Test]
         public void Can_Serialize_numbers()
         {
