@@ -76,6 +76,8 @@
   </Target>
 
   <Target Name="NuGetPack">
+    <CallTarget Targets="UpdateVersion" />
+
     <Delete Files="@(NugetPackageFilesToDelete)" />
 
     <ItemGroup>
