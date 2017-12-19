@@ -19,6 +19,9 @@ namespace ServiceStack.Text
             XWSettings.Encoding = PclExport.Instance.GetUTF8Encoding(false);
             XWSettings.OmitXmlDeclaration = omitXmlDeclaration;
             XRSettings.MaxCharactersInDocument = maxCharsInDocument;
+            
+            //Prevent XML bombs by default: https://msdn.microsoft.com/en-us/magazine/ee335713.aspx
+            XRSettings.DtdProcessing = DtdProcessing.Prohibit;
         }
 
         private static object Deserialize(string xml, Type type)
@@ -86,7 +89,7 @@ namespace ServiceStack.Text
             }
             catch (Exception ex)
             {
-                throw new SerializationException(string.Format("Error serializing object of type {0}", from.GetType().FullName), ex);
+                throw new SerializationException($"Error serializing object of type {@from.GetType().FullName}", ex);
             }
         }
 
@@ -102,7 +105,7 @@ namespace ServiceStack.Text
             }
             catch (Exception ex)
             {
-                throw new SerializationException(string.Format("Error serializing object of type {0}", value.GetType().FullName), ex);
+                throw new SerializationException($"Error serializing object of type {value.GetType().FullName}", ex);
             }
         }
 
