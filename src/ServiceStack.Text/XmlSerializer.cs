@@ -9,19 +9,19 @@ namespace ServiceStack.Text
 {
     public class XmlSerializer
     {
-        private static readonly XmlWriterSettings XWSettings = new XmlWriterSettings();
-        private static readonly XmlReaderSettings XRSettings = new XmlReaderSettings();
+        public static readonly XmlWriterSettings XmlWriterSettings = new XmlWriterSettings();
+        public static readonly XmlReaderSettings XmlReaderSettings = new XmlReaderSettings();
 
         public static XmlSerializer Instance = new XmlSerializer();
 
         public XmlSerializer(bool omitXmlDeclaration = false, int maxCharsInDocument = 1024 * 1024)
         {
-            XWSettings.Encoding = PclExport.Instance.GetUTF8Encoding(false);
-            XWSettings.OmitXmlDeclaration = omitXmlDeclaration;
-            XRSettings.MaxCharactersInDocument = maxCharsInDocument;
+            XmlWriterSettings.Encoding = PclExport.Instance.GetUTF8Encoding(false);
+            XmlWriterSettings.OmitXmlDeclaration = omitXmlDeclaration;
+            XmlReaderSettings.MaxCharactersInDocument = maxCharsInDocument;
             
             //Prevent XML bombs by default: https://msdn.microsoft.com/en-us/magazine/ee335713.aspx
-            XRSettings.DtdProcessing = DtdProcessing.Prohibit;
+            XmlReaderSettings.DtdProcessing = DtdProcessing.Prohibit;
         }
 
         private static object Deserialize(string xml, Type type)
@@ -29,7 +29,7 @@ namespace ServiceStack.Text
             try
             {
                 var stringReader = new StringReader(xml);
-                using (var reader = XmlReader.Create(stringReader, XRSettings))
+                using (var reader = XmlReader.Create(stringReader, XmlReaderSettings))
                 {
                     var serializer = new DataContractSerializer(type);
                     return serializer.ReadObject(reader);
@@ -76,7 +76,7 @@ namespace ServiceStack.Text
             {
                 using (var ms = MemoryStreamFactory.GetStream())
                 {
-                    using (var xw = XmlWriter.Create(ms, XWSettings))
+                    using (var xw = XmlWriter.Create(ms, XmlWriterSettings))
                     {
                         var serializer = new DataContractSerializer(from.GetType());
                         serializer.WriteObject(xw, from);
@@ -97,7 +97,7 @@ namespace ServiceStack.Text
         {
             try
             {
-                using (var xw = XmlWriter.Create(writer, XWSettings))
+                using (var xw = XmlWriter.Create(writer, XmlWriterSettings))
                 {
                     var serializer = new DataContractSerializer(value.GetType());
                     serializer.WriteObject(xw, value);
@@ -112,7 +112,7 @@ namespace ServiceStack.Text
         public static void SerializeToStream(object obj, Stream stream)
         {
             if (obj == null) return;
-            using (var xw = XmlWriter.Create(stream, XWSettings))
+            using (var xw = XmlWriter.Create(stream, XmlWriterSettings))
             {
                 var serializer = new DataContractSerializer(obj.GetType());
                 serializer.WriteObject(xw, obj);
