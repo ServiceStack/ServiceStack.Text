@@ -48,7 +48,7 @@
     <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.LightWeight" Version="4.3.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
   </ItemGroup>
 
 </Project>
