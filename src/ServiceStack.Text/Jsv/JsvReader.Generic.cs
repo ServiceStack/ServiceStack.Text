@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Runtime.CompilerServices;
 using ServiceStack.Text.Common;
 #if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
@@ -44,6 +45,15 @@ namespace ServiceStack.Text.Jsv
 
             return parseFactoryFn();
         }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void InitAot<T>()
+        {
+            Text.Jsv.JsvReader.Instance.GetParseFn<T>();
+            Text.Jsv.JsvReader<T>.Parse(null);
+            Text.Jsv.JsvReader<T>.GetParseFn();
+            Text.Jsv.JsvReader<T>.GetParseStringSegmentFn();
+        }
     }
 
     internal static class JsvReader<T>
@@ -65,16 +75,17 @@ namespace ServiceStack.Text.Jsv
             ReadFn = JsvReader.Instance.GetParseStringSegmentFn<T>();
         }
 
-        public static ParseStringDelegate GetParseFn()
-        {
-            return ReadFn != null ? (ParseStringDelegate)(v => ReadFn(new StringSegment(v))) : Parse;
-        }
+        public static ParseStringDelegate GetParseFn() => ReadFn != null
+            ? (ParseStringDelegate)(v => ReadFn(new StringSegment(v)))
+            : Parse;
 
-        public static ParseStringSegmentDelegate GetParseStringSegmentFn() => ReadFn ?? ParseStringSegment;
+        public static ParseStringSegmentDelegate GetParseStringSegmentFn() => ReadFn ?? Parse;
 
-        public static object Parse(string value) => ParseStringSegment(new StringSegment(value));
+        public static object Parse(string value) => value != null
+            ? Parse(new StringSegment(value))
+            : null;
 
-        public static object ParseStringSegment(StringSegment value)
+        public static object Parse(StringSegment value)
         {
             TypeConfig<T>.Init();
 

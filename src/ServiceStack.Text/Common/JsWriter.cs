@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
@@ -431,8 +432,7 @@ namespace ServiceStack.Text.Common
 
         public WriteObjectDelegate GetSpecialWriteFn(Type type)
         {
-            WriteObjectDelegate writeFn = null;
-            if (SpecialTypes.TryGetValue(type, out writeFn))
+            if (SpecialTypes.TryGetValue(type, out var writeFn))
                 return writeFn;
 
             if (type.IsInstanceOfType(typeof(Type)))
@@ -447,6 +447,23 @@ namespace ServiceStack.Text.Common
         public void WriteType(TextWriter writer, object value)
         {
             Serializer.WriteRawString(writer, JsConfig.TypeWriter((Type)value));
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void InitAot<T>()
+        {
+            WriteListsOfElements<T, TSerializer>.WriteList(null, null);
+            WriteListsOfElements<T, TSerializer>.WriteIList(null, null);
+            WriteListsOfElements<T, TSerializer>.WriteEnumerable(null, null);
+            WriteListsOfElements<T, TSerializer>.WriteListValueType(null, null);
+            WriteListsOfElements<T, TSerializer>.WriteIListValueType(null, null);
+            WriteListsOfElements<T, TSerializer>.WriteGenericArrayValueType(null, null);
+            WriteListsOfElements<T, TSerializer>.WriteArray(null, null);
+
+            TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
+            TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
+
+            QueryStringWriter<T>.WriteObject(null, null);
         }
     }
 }

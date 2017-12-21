@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 #if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #else
@@ -151,5 +152,15 @@ namespace ServiceStack.Text.Common
             return DeserializeType<TSerializer>.ParseAbstractType<T>;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void InitAot<T>()
+        {
+            var hold = DeserializeBuiltin<T>.Parse;
+            hold = DeserializeArray<T[], TSerializer>.Parse;
+            DeserializeType<TSerializer>.ExtractType(null);
+            DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(null, null);
+            DeserializeCollection<TSerializer>.ParseCollection<T>(null, null, null);
+            DeserializeListWithElements<T, TSerializer>.ParseGenericList(null, null, null);
+        }
     }
 }
