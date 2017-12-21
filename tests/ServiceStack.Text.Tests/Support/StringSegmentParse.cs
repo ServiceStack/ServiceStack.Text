@@ -20,14 +20,12 @@ namespace ServiceStack.Text.Tests.Support
             Assert.That(new StringSegment("1").ParseInt32(), Is.EqualTo(1));
             Assert.That(new StringSegment(int.MaxValue.ToString()).ParseInt32(), Is.EqualTo(int.MaxValue));
             Assert.That(new StringSegment(int.MinValue.ToString()).ParseInt32(), Is.EqualTo(int.MinValue));
-            Assert.Throws<FormatException>(() => new StringSegment("01").ParseInt32());
             Assert.That(new StringSegment("234").ParseInt32(), Is.EqualTo(234));
             Assert.That(new StringSegment("    234  ").ParseInt32(), Is.EqualTo(234));
             Assert.That(new StringSegment("234  ").ParseInt32(), Is.EqualTo(234));
             Assert.That(new StringSegment("   234").ParseInt32(), Is.EqualTo(234));
             Assert.That(new StringSegment("   -234    ").ParseInt32(), Is.EqualTo(-234));
             Assert.Throws<FormatException>(() => new StringSegment("").ParseInt32());
-            Assert.Throws<FormatException>(() => new StringSegment("01").ParseInt32());
             Assert.Throws<FormatException>(() => new StringSegment("-01").ParseInt32());
             Assert.Throws<FormatException>(() => new StringSegment("   - 234    ").ParseInt32());
             Assert.Throws<FormatException>(() => new StringSegment("   2.34    ").ParseInt32());

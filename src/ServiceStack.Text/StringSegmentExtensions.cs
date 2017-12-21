@@ -221,12 +221,26 @@ namespace ServiceStack.Text
                 throw new FormatException(BadFormat);
 
             ulong result = 0;
-            int i = 0;
+            int i = value.Offset;
+            int end = value.Offset + value.Length;
             var state = ParseState.LeadingWhite;
 
-            while (i < value.Length)
+            //skip leading whitespaces
+            while (i < end && JsonUtils.IsWhiteSpace(value.Buffer[i])) i++;
+
+            if (i == end)
+                throw new FormatException(BadFormat);
+
+            //skip leading zeros
+            while (i < end && value.Buffer[i] == '0')
             {
-                var c = value.GetChar(i++);
+                state = ParseState.Number;
+                i++;
+            }
+
+            while (i < end)
+            {
+                var c = value.Buffer[i++];
 
                 switch (state)
                 {
@@ -292,8 +306,16 @@ namespace ServiceStack.Text
 
             //skip leading whitespaces
             while (i < end && JsonUtils.IsWhiteSpace(value.Buffer[i])) i++;
+
             if (i == end)
                 throw new FormatException(BadFormat);
+
+            //skip leading zeros
+            while (i < end && value.Buffer[i] == '0')
+            {
+                state = ParseState.Number;
+                i++;
+            }
 
             while (i < end)
             {
