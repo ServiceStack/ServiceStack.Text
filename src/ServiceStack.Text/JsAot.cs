@@ -32,10 +32,6 @@ namespace ServiceStack
             try
             {
                 RegisterForAot();
-
-                //Uncomment if using EncryptedMessagingFeature
-                //RegisterTypeForAot<EncryptedMessage>();
-                //RegisterTypeForAot<EncryptedMessageResponse>();
             }
             catch (Exception ex)
             {
