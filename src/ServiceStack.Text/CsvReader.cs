@@ -315,6 +315,8 @@ namespace ServiceStack.Text
 
         public static List<Dictionary<string, string>> ReadStringDictionary(IEnumerable<string> rows)
         {
+            if (rows == null) return null; //AOT
+
             var to = new List<Dictionary<string, string>>();
 
             List<string> headers = null;
