@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using ServiceStack.Text.Common;
@@ -222,6 +223,22 @@ namespace ServiceStack.Text
             }
 
             return results.ConvertTo(type);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void InitAot<T>()
+        {
+            CsvSerializer<T>.WriteFn();
+            CsvSerializer<T>.WriteObject(null, null);
+            CsvWriter<T>.Write(null, default(IEnumerable<T>));
+            CsvWriter<T>.WriteRow(null, default(T));
+            CsvWriter<T>.WriteObject(null, default(IEnumerable<T>));
+            CsvWriter<T>.WriteObjectRow(null, default(IEnumerable<T>));
+
+            CsvReader<T>.ReadRow(null);
+            CsvReader<T>.ReadObject(null);
+            CsvReader<T>.ReadObjectRow(null);
+            CsvReader<T>.ReadStringDictionary(null);
         }
     }
 
@@ -517,6 +534,8 @@ namespace ServiceStack.Text
 
         public static object ReadNonEnumerableType(string row)
         {
+            if (row == null) return null; //AOT
+
             var value = readElementFn(row);
             var to = typeof(T).CreateInstance();
             valueSetter(to, value);
@@ -525,6 +544,8 @@ namespace ServiceStack.Text
 
         public static object ReadObject(string value)
         {
+            if (value == null) return null; //AOT
+
             var hold = JsState.IsCsv;
             JsState.IsCsv = true;
             try
@@ -536,7 +557,5 @@ namespace ServiceStack.Text
                 JsState.IsCsv = hold;
             }
         }
-
-
     }
 }

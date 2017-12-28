@@ -32,6 +32,10 @@ namespace ServiceStack
             try
             {
                 RegisterForAot();
+
+                //Uncomment if using EncryptedMessagingFeature
+                //RegisterTypeForAot<EncryptedMessage>();
+                //RegisterTypeForAot<EncryptedMessageResponse>();
             }
             catch (Exception ex)
             {
@@ -99,27 +103,19 @@ namespace ServiceStack
         }
 
         [Preserve]
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static void RegisterTypeForAot<T>()
         {
             AotConfig.RegisterSerializers<T>();
         }
 
         [Preserve]
-        public static void RegisterQueryStringWriter()
-        {
-            var i = 0;
-            if (QueryStringWriter<Poco>.WriteFn() != null) i++;
-        }
-
-        [Preserve]
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static int RegisterElement<T, TElement>()
+        public static void RegisterElement<T, TElement>()
         {
-            var i = 0;
             AotConfig.RegisterSerializers<TElement>();
             AotConfig.RegisterElement<T, TElement, Text.Json.JsonTypeSerializer>();
             AotConfig.RegisterElement<T, TElement, Text.Jsv.JsvTypeSerializer>();
-            return i;
         }
 
         [Preserve(AllMembers = true)]
@@ -148,7 +144,6 @@ namespace ServiceStack
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             internal static void RegisterSerializers<T>()
             {
-                var i = 0;
                 Register<T, Text.Json.JsonTypeSerializer>();
                 jsonSerializer.GetParseFn<T>();
                 jsonSerializer.GetWriteFn<T>();
@@ -161,18 +156,8 @@ namespace ServiceStack
                 jsvReader.GetParseFn<T>();
                 jsvWriter.GetWriteFn<T>();
 
-                RegisterCsvSerializer<T>();
-                RegisterQueryStringWriter();
-            }
-
-            [Preserve]
-            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-            internal static void RegisterCsvSerializer<T>()
-            {
-                CsvSerializer<T>.WriteFn();
-                CsvSerializer<T>.WriteObject(null, null);
-                CsvWriter<T>.Write(null, default(IEnumerable<T>));
-                CsvWriter<T>.WriteRow(null, default(T));
+                CsvSerializer.InitAot<T>();
+                QueryStringWriter<T>.WriteFn();
             }
 
             [Preserve]
@@ -187,8 +172,6 @@ namespace ServiceStack
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             internal static void Register<T, TSerializer>() where TSerializer : ITypeSerializer
             {
-                var i = 0;
-
                 Text.Json.JsonReader.InitAot<T>();
                 Text.Json.JsonWriter.InitAot<T>();
 
@@ -206,11 +189,11 @@ namespace ServiceStack
 
                 JsConfig<T>.ExcludeTypeInfo = false;
 
-                if (JsConfig<T>.OnDeserializedFn != null) i++;
-                if (JsConfig<T>.HasDeserializeFn) i++;
-                if (JsConfig<T>.SerializeFn != null) i++;
-                if (JsConfig<T>.DeSerializeFn != null) i++;
-                if (TypeConfig<T>.Properties != null) i++;
+                var r1 = JsConfig<T>.OnDeserializedFn;
+                var r2 = JsConfig<T>.HasDeserializeFn;
+                var r3 = JsConfig<T>.SerializeFn;
+                var r4 = JsConfig<T>.DeSerializeFn;
+                var r5 = TypeConfig<T>.Properties;
 
                 JsReader<TSerializer>.InitAot<T>();
                 JsWriter<TSerializer>.InitAot<T>();

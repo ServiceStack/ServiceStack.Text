@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using ServiceStack.Text;
@@ -90,6 +91,12 @@ namespace ServiceStack
             var writer = StringWriterThreadStatic.Allocate();
             GetWriteFn(value.GetType())(writer, value);
             return StringWriterThreadStatic.ReturnAndFree(writer);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void InitAot<T>()
+        {
+            QueryStringWriter<T>.WriteFn();
         }
     }
 

@@ -10,6 +10,8 @@ namespace ServiceStack.Text
     {
         public static void WriteRow(TextWriter writer, IEnumerable<string> row)
         {
+            if (writer == null) return; //AOT
+
             var ranOnce = false;
             foreach (var field in row)
             {
@@ -22,6 +24,8 @@ namespace ServiceStack.Text
 
         public static void WriteObjectRow(TextWriter writer, IEnumerable<object> row)
         {
+            if (writer == null) return; //AOT
+
             var ranOnce = false;
             foreach (var field in row)
             {
@@ -241,11 +245,15 @@ namespace ServiceStack.Text
 
         public static void WriteObject(TextWriter writer, object records)
         {
+            if (writer == null) return; //AOT
+
             Write(writer, (IEnumerable<T>)records);
         }
 
         public static void WriteObjectRow(TextWriter writer, object record)
         {
+            if (writer == null) return; //AOT
+
             WriteRow(writer, (T)record);
         }
 
@@ -331,6 +339,8 @@ namespace ServiceStack.Text
 
         public static void WriteRow(TextWriter writer, IEnumerable<string> row)
         {
+            if (writer == null) return; //AOT
+
             var ranOnce = false;
             foreach (var field in row)
             {
@@ -343,6 +353,8 @@ namespace ServiceStack.Text
 
         public static void Write(TextWriter writer, IEnumerable<List<string>> rows)
         {
+            if (writer == null) return; //AOT
+
             if (Headers.Count > 0)
             {
                 var ranOnce = false;
