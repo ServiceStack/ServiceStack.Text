@@ -315,37 +315,35 @@ namespace ServiceStack.Text.Tests.JsonTests
         public class DcStatus
         {
             [Format("{0:0.0} V")]
-            public Double Voltage { get; set; }
+            public double Voltage { get; set; }
+
             [Format("{0:0.000} A")]
-            public Double Current { get; set; }
+            public double Current { get; set; }
+
             [Format("{0:0} W")]
-            public Double Power
-            {
-                get { return Voltage * Current; }
-            }
+            public double Power => Voltage * Current;
 
             public string ToJson()
             {
                 return new Dictionary<string, string>
                 {
-                    { "Voltage", "{0:0.0} V".Fmt(Voltage) },
-                    { "Current", "{0:0.000} A".Fmt(Current) },
-                    { "Power", "{0:0} W".Fmt(Power) },
+                    { "Voltage", $"{Voltage:0.0} V"},
+                    { "Current", $"{Current:0.000} A"},
+                    { "Power", $"{Power:0} W"},
                 }.ToJson();
             }
         }
 
-        public class DcStatus2
+        public class DcStatusRawFn
         {
             [Format("{0:0.0} V")]
-            public Double Voltage { get; set; }
+            public double Voltage { get; set; }
+
             [Format("{0:0.000} A")]
-            public Double Current { get; set; }
+            public double Current { get; set; }
+
             [Format("{0:0} W")]
-            public Double Power
-            {
-                get { return Voltage*Current; }
-            }
+            public double Power => Voltage * Current;
         }
 
         [Test]
@@ -354,13 +352,13 @@ namespace ServiceStack.Text.Tests.JsonTests
             var test = new DcStatus { Voltage = 10, Current = 1.2 };
             Assert.That(test.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
 
-            JsConfig<DcStatus2>.RawSerializeFn = o => new Dictionary<string, string> {
-                { "Voltage", "{0:0.0} V".Fmt(o.Voltage) },
-                { "Current", "{0:0.000} A".Fmt(o.Current) },
-                { "Power", "{0:0} W".Fmt(o.Power) },
+            JsConfig<DcStatusRawFn>.RawSerializeFn = o => new Dictionary<string, string> {
+                { "Voltage", $"{o.Voltage:0.0} V"},
+                { "Current", $"{o.Current:0.000} A"},
+                { "Power", $"{o.Power:0} W"},
             }.ToJson();
 
-            var test2 = new DcStatus2 { Voltage = 10, Current = 1.2 };
+            var test2 = new DcStatusRawFn { Voltage = 10, Current = 1.2 };
             Assert.That(test2.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
 
             JsConfig.Reset();
