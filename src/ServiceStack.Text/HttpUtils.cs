@@ -46,7 +46,7 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                var existingKeyPos = qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison)
+                var existingKeyPos = qsPos + 1 == url.IndexOf(key + "=", qsPos, PclExport.Instance.InvariantComparison)
                     ? qsPos
                     : url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
 
@@ -85,7 +85,7 @@ namespace ServiceStack
             var hPos = url.IndexOf('#');
             if (hPos != -1)
             {
-                var existingKeyPos = hPos + 1 == url.IndexOf(key, hPos, PclExport.Instance.InvariantComparison)
+                var existingKeyPos = hPos + 1 == url.IndexOf(key + "=", hPos, PclExport.Instance.InvariantComparison)
                     ? hPos
                     : url.IndexOf("/" + key, hPos, PclExport.Instance.InvariantComparison);
 
