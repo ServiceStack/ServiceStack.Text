@@ -968,7 +968,7 @@ namespace ServiceStack
         }
 
         public static void UploadFile(this WebRequest webRequest, Stream fileStream, string fileName, string mimeType,
-            string accept = null, Action<HttpWebRequest> requestFilter = null, string method = "POST")
+            string accept = null, Action<HttpWebRequest> requestFilter = null, string method = "POST", string field = "file")
         {
             var httpReq = (HttpWebRequest)webRequest;
             httpReq.Method = method;
@@ -984,10 +984,8 @@ namespace ServiceStack
 
             var boundarybytes = ("\r\n--" + boundary + "--\r\n").ToAsciiBytes();
 
-            var headerTemplate = "\r\n--" + boundary +
-                                 "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\nContent-Type: {1}\r\n\r\n";
-
-            var header = string.Format(headerTemplate, fileName, mimeType);
+            var header = "\r\n--" + boundary +
+                         $"\r\nContent-Disposition: form-data; name=\"{field}\"; filename=\"{fileName}\"\r\nContent-Type: {mimeType}\r\n\r\n";
 
             var headerbytes = header.ToAsciiBytes();
 
