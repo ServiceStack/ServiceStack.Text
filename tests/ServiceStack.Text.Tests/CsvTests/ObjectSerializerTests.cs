@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Tests.CsvTests
