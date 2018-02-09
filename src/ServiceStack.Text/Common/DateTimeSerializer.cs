@@ -443,8 +443,12 @@ namespace ServiceStack.Text.Common
         public static string ToShortestXsdDateTimeString(DateTime dateTime)
         {
             dateTime = dateTime.UseConfigSpecifiedSetting();
-            var timeOfDay = dateTime.TimeOfDay;
+            if (!string.IsNullOrEmpty(JsConfig.DateTimeFormat))
+            {
+                return dateTime.ToString(JsConfig.DateTimeFormat, CultureInfo.InvariantCulture);
+            }
 
+            var timeOfDay = dateTime.TimeOfDay;
             var isStartOfDay = timeOfDay.Ticks == 0;
             if (isStartOfDay && !JsConfig.SkipDateTimeConversion)
                 return dateTime.ToString(ShortDateTimeFormat, CultureInfo.InvariantCulture);
