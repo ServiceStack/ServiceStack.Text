@@ -222,6 +222,7 @@ namespace ServiceStack.Text
             bool? preferInterfaces = null,
             bool? throwOnDeserializationError = null,
             string typeAttr = null,
+            string dateTimeFormat = null,
             Func<Type, string> typeWriter = null,
             Func<string, Type> typeFinder = null,
             bool? treatEnumAsInteger = null,
@@ -258,6 +259,7 @@ namespace ServiceStack.Text
                 PropertyConvention = propertyConvention ?? sPropertyConvention,
                 PreferInterfaces = preferInterfaces ?? sPreferInterfaces,
                 ThrowOnDeserializationError = throwOnDeserializationError ?? sThrowOnDeserializationError,
+                DateTimeFormat = dateTimeFormat ?? sDateTimeFormat,
                 TypeAttr = typeAttr ?? sTypeAttr,
                 TypeWriter = typeWriter ?? sTypeWriter,
                 TypeFinder = typeFinder ?? sTypeFinder,
@@ -272,6 +274,21 @@ namespace ServiceStack.Text
                 ModelFactory = modelFactory ?? ModelFactory,
                 ExcludePropertyReferences = excludePropertyReferences ?? sExcludePropertyReferences,
             };
+        }
+
+        private static string sDateTimeFormat;
+        public static string DateTimeFormat
+        {
+            get
+            {
+                return (JsConfigScope.Current != null ? JsConfigScope.Current.DateTimeFormat : null)
+                       ?? sDateTimeFormat;
+                       //?? DateTimeSerializer.XsdDateTimeFormatSeconds;
+            }
+            set
+            {
+                if (sDateTimeFormat == null) sDateTimeFormat = value;
+            }
         }
 
         private static bool? sConvertObjectTypesIntoStringDictionary;
@@ -974,6 +991,7 @@ namespace ServiceStack.Text
             sPreferInterfaces = null;
             sThrowOnDeserializationError = null;
             sTypeAttr = null;
+            sDateTimeFormat = null;
             sJsonTypeAttrInObject = null;
             sJsvTypeAttrInObject = null;
             sTypeWriter = null;
