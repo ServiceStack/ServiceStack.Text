@@ -14,7 +14,7 @@ ServiceStack.Text is an **independent, dependency-free** serialization library c
  - [Fast Reflection Utils](http://docs.servicestack.net/reflection-utils)
  - Several String Extensions, Collection extensions, Reflection Utils and lots more.
 
-### [Portable Class Library Support](https://github.com/ServiceStackApps/HelloMobile#portable-class-library-support)
+### [Mobile Apps Support](https://github.com/ServiceStackApps/HelloMobile)
 
 ### Try out [ServiceStack.Text Live](http://gistlyn.com/text)
 
@@ -151,17 +151,48 @@ Also a thin **.NET 4.0 Dynamic JSON** wrapper around ServiceStack's JSON library
 [ServiceStack.Razor](https://github.com/ServiceStack/ServiceStack.Text/blob/master/src/ServiceStack.Text/Pcl.Dynamic.cs) 
 project. It provides a dynamic, but more succinct API than the above options.
 
+### JS Utils
+
+ServiceStack.Text APIs for deserializing arbitrary JSON requires specifying the the Type to deserialize into. An alternative flexible approach to read any arbitrary JavaScript or JSON data structures is to use the high-performance and memory efficient JSON utils in 
+[ServiceStack Templates](http://templates.servicestack.net) implementation of JavaScript.
+
+```csharp
+JSON.parse("1")      //= int 1 
+JSON.parse("1.1")    //= double 1.1
+JSON.parse("'a'")    //= string "a"
+JSON.parse("{a:1}")  //= new Dictionary<string, object> { {"a", 1 } }
+```
+
+#### Eval
+
+Since JS Utils is an essential part of [ServiceStack Template language](http://templates.servicestack.net) it allows for advanced scenarios like implementing a text DSL or scripting language for executing custom logic or business rules you want to be able to change without having to compile or redeploy your App. It uses [Templates Sandbox](http://templates.servicestack.net/docs/sandbox) which lets you evaluate the script within a custom scope that defines what functions 
+and arguments it has access to, e.g:
+
+```csharp
+public class CustomFilter : TemplateFilter
+{
+    public string reverse(string text) => new string(text.Reverse().ToArray());
+}
+
+var scope = JS.CreateScope(
+         args: new Dictionary<string, object> { { "arg", "value"} }, 
+    functions: new CustomFilter());
+
+JS.eval("arg", scope)                                        //= "value"
+JS.eval("reverse(arg)", scope)                               //= "eulav"
+JS.eval("itemsOf(3, padRight(reverse(arg), 8, '_'))", scope) //= ["eulav___", "eulav___", "eulav___"]
+
+//= { a: ["eulav___", "eulav___", "eulav___"] }
+JS.eval("{a: itemsOf(3, padRight(reverse(arg), 8, '_')) }", scope)
+```
+
+ServiceStack's JS Utils is available in the [ServiceStack.Common](https://www.nuget.org/packages/ServiceStack.Common) NuGet package.
+
 ## Install ServiceStack.Text
 
     PM> Install-Package ServiceStack.Text
 
 > From v4.0.62+ [ServiceStack.Text is now free!](https://github.com/ServiceStack/ServiceStack/blob/master/docs/2016/v4.0.62.md#servicestacktext-is-now-free)
-
-Support for PCL platfroms requires PCL adapters in:
-
-    PM> Install-Package ServiceStack.Client
-
-### [Docs and Downloads for older v3 BSD releases](https://github.com/ServiceStackV3/ServiceStackV3)
 
 ## Copying
 
@@ -169,7 +200,6 @@ Since September 2013, ServiceStack source code is available under GNU Affero Gen
 
 ## Contributing
 
-Commits can be made to either the **master** (v4) or **v3** release branches. 
 Contributors need to approve the [Contributor License Agreement](https://docs.google.com/forms/d/16Op0fmKaqYtxGL4sg7w_g-cXXyCoWjzppgkuqzOeKyk/viewform) before any code will be reviewed, see the [Contributing wiki](https://github.com/ServiceStack/ServiceStack/wiki/Contributing) for more details. 
 
 ## ServiceStack.JsonSerializer
