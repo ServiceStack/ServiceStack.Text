@@ -309,7 +309,7 @@ namespace ServiceStack.Text.Common
 
             public bool ShouldWriteProperty(object propertyValue)
             {
-                if ((propertySuppressDefaultAttribute || JsConfig.ExcludeDefaultValues) && Equals(DefaultValue, propertyValue))
+                if (!isEnum && (propertySuppressDefaultAttribute || JsConfig.ExcludeDefaultValues) && Equals(DefaultValue, propertyValue))
                     return false;
 
                 if (!Serializer.IncludeNullValues
