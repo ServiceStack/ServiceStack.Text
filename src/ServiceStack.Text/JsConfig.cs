@@ -865,6 +865,7 @@ namespace ServiceStack.Text
             sExcludeDefaultValues = null;
             sIncludeNullValues = null;
             sIncludeNullValuesInDictionaries = null;
+            sIncludeDefaultEnums = null;
             sExcludeTypeInfo = null;
             sEmitCamelCaseNames = null;
             sEmitLowercaseUnderscoreNames = null;
