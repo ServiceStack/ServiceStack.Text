@@ -745,24 +745,32 @@ namespace ServiceStack
                 {
                     var valueType = entry.Value?.GetType();
 
-                    if (valueType == null || !valueType.IsClass || valueType == typeof(string))
+                    try
                     {
-                        to[entry.Key] = entry.Value;
-                    }
-                    else if (!TypeSerializer.HasCircularReferences(entry.Value))
-                    {
-                        if (entry.Value is IEnumerable enumerable)
+                        if (valueType == null || !valueType.IsClass || valueType == typeof(string))
                         {
                             to[entry.Key] = entry.Value;
                         }
+                        else if (!TypeSerializer.HasCircularReferences(entry.Value))
+                        {
+                            if (entry.Value is IEnumerable enumerable)
+                            {
+                                to[entry.Key] = entry.Value;
+                            }
+                            else
+                            {
+                                to[entry.Key] = entry.Value.ToSafePartialObjectDictionary();
+                            }
+                        }
                         else
                         {
-                            to[entry.Key] = entry.Value.ToSafePartialObjectDictionary();
+                            to[entry.Key] = entry.Value.ToString();
                         }
+
                     }
-                    else
+                    catch (Exception ignore)
                     {
-                        to[entry.Key] = entry.Value.ToString();
+                        Tracer.Instance.WriteDebug($"Could not retrieve value from '{valueType?.GetType().Name}': ${ignore.Message}");
                     }
                 }
             }
