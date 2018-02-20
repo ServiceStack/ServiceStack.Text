@@ -1148,6 +1148,7 @@ namespace ServiceStack
         public const string ImagePng = "image/png";
         public const string ImageGif = "image/gif";
         public const string ImageJpg = "image/jpeg";
+        public const string ImageSvg = "image/svg+xml";
 
         public const string Bson = "application/bson";
         public const string Binary = "application/octet-stream";
