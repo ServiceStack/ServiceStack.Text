@@ -74,9 +74,14 @@ namespace ServiceStack.Text.Common
                 }
             }
 
-            return (JsConfig.TryToParsePrimitiveTypeValues
-                ? ParsePrimitive(strType.Value)
-                : null) ?? Serializer.UnescapeString(strType).Value;
+            var primitiveType = JsConfig.TryToParsePrimitiveTypeValues ? ParsePrimitive(strType.Value) : null;
+            if (primitiveType != null)
+                return primitiveType;
+
+            if (Serializer.ObjectDeserializer != null)
+                return Serializer.ObjectDeserializer(strType);
+
+            return Serializer.UnescapeString(strType).Value;
         }
 
         public static Type ExtractType(string strType) => ExtractType(new StringSegment(strType));

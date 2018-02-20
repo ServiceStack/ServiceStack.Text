@@ -12,6 +12,8 @@ namespace ServiceStack.Text.Common
 {
     public interface ITypeSerializer
     {
+        Func<StringSegment, object> ObjectDeserializer { get; set; }
+
         bool IncludeNullValues { get; }
         bool IncludeNullValuesInDictionaries { get; }
         string TypeAttrInObject { get; }

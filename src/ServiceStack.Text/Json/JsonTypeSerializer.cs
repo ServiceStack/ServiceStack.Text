@@ -21,40 +21,21 @@ namespace ServiceStack.Text.Json
     {
         public static ITypeSerializer Instance = new JsonTypeSerializer();
 
-        public bool IncludeNullValues
-        {
-            get { return JsConfig.IncludeNullValues; }
-        }
+        public Func<StringSegment, object> ObjectDeserializer { get; set; }
 
-        public bool IncludeNullValuesInDictionaries
-        {
-            get { return JsConfig.IncludeNullValuesInDictionaries; }
-        }
+        public bool IncludeNullValues => JsConfig.IncludeNullValues;
 
-        public string TypeAttrInObject
-        {
-            get { return JsConfig.JsonTypeAttrInObject; }
-        }
+        public bool IncludeNullValuesInDictionaries => JsConfig.IncludeNullValuesInDictionaries;
 
-        internal static string GetTypeAttrInObject(string typeAttr)
-        {
-            return string.Format("{{\"{0}\":", typeAttr);
-        }
+        public string TypeAttrInObject => JsConfig.JsonTypeAttrInObject;
 
-        public WriteObjectDelegate GetWriteFn<T>()
-        {
-            return JsonWriter<T>.WriteFn();
-        }
+        internal static string GetTypeAttrInObject(string typeAttr) => $"{{\"{typeAttr}\":";
 
-        public WriteObjectDelegate GetWriteFn(Type type)
-        {
-            return JsonWriter.GetWriteFn(type);
-        }
+        public WriteObjectDelegate GetWriteFn<T>() => JsonWriter<T>.WriteFn();
 
-        public TypeInfo GetTypeInfo(Type type)
-        {
-            return JsonWriter.GetTypeInfo(type);
-        }
+        public WriteObjectDelegate GetWriteFn(Type type) => JsonWriter.GetWriteFn(type);
+
+        public TypeInfo GetTypeInfo(Type type) => JsonWriter.GetTypeInfo(type);
 
         /// <summary>
         /// Shortcut escape when we're sure value doesn't contain any escaped chars
@@ -98,13 +79,13 @@ namespace ServiceStack.Text.Json
 
         public void WriteObjectString(TextWriter writer, object value)
         {
-            JsonUtils.WriteString(writer, value != null ? value.ToString() : null);
+            JsonUtils.WriteString(writer, value?.ToString());
         }
 
         public void WriteFormattableObjectString(TextWriter writer, object value)
         {
             var formattable = value as IFormattable;
-            JsonUtils.WriteString(writer, formattable != null ? formattable.ToString(null, CultureInfo.InvariantCulture) : null);
+            JsonUtils.WriteString(writer, formattable?.ToString(null, CultureInfo.InvariantCulture));
         }
 
         public void WriteException(TextWriter writer, object value)

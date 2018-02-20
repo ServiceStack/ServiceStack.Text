@@ -18,6 +18,8 @@ namespace ServiceStack.Text.Jsv
     {
         public static ITypeSerializer Instance = new JsvTypeSerializer();
 
+        public Func<StringSegment, object> ObjectDeserializer { get; set; }
+
         public bool IncludeNullValues => false;
 
         public bool IncludeNullValuesInDictionaries => false;

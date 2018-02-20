@@ -154,24 +154,24 @@ namespace ServiceStack.Text.Common
             }
         }
 
-        public static void AssertAllowedRuntimeType(Type type)
+        public static bool ShouldAllowRuntmieType(Type type)
         {
             if (!JsState.IsRuntimeType)
-                return;
+                return true;
 
             if (JsConfig.AllowRuntimeType?.Invoke(type) == true)
-                return;
+                return true;
 
             var allowAttributesNamed = JsConfig.AllowRuntimeTypeWithAttributesNamed;
             if (allowAttributesNamed?.Count > 0)
             {
-                var OAttrs = type.AllAttributes();
-                foreach (var oAttr in OAttrs)
+                var oAttrs = type.AllAttributes();
+                foreach (var oAttr in oAttrs)
                 {
                     var attr = oAttr as Attribute;
                     if (attr == null) continue;
                     if (allowAttributesNamed.Contains(attr.GetType().Name))
-                        return;
+                        return true;
                 }
             }
 
@@ -182,11 +182,17 @@ namespace ServiceStack.Text.Common
                 foreach (var interfaceType in interfaces)
                 {
                     if (allowInterfacesNamed.Contains(interfaceType.Name))
-                        return;
+                        return true;
                 }
             }
 
-            throw new NotSupportedException($"{type.Name} is not an allowed Runtime Type. Whitelist Type with [RuntimeSerializable] or IRuntimeSerializable.");
+            return false;
+        }
+
+        public static void AssertAllowedRuntimeType(Type type)
+        {
+            if (!ShouldAllowRuntmieType(type))
+                throw new NotSupportedException($"{type.Name} is not an allowed Runtime Type. Whitelist Type with [RuntimeSerializable] or IRuntimeSerializable.");
         }
     }
 
