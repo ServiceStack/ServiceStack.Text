@@ -285,5 +285,32 @@ namespace ServiceStack.Text.Tests
             }
         }
 
+        [Test]
+        public void Can_serialize_JS_literal_into_DTO()
+        {
+            JsonTypeSerializer.Instance.ObjectDeserializer = segment =>
+            {
+                segment.ParseNextToken(out object value, out _);
+                return value;
+            };
+
+            var js = @"{""Object"":{ Int:1,String:'foo',Bool:true,List:[{Int:1,String:`foo`,Bool:true}],Dictionary:{key:{Int:1,String:""foo"",Bool:true}}}}";
+
+            // into DTO with Object property
+            var dtoFromJson = js.FromJson<RuntimeObject>();
+            var jsonType = (Dictionary<string, object>)dtoFromJson.Object;
+            Assert.That(jsonType["Int"], Is.EqualTo(1));
+            Assert.That(jsonType["Int"], Is.EqualTo(1));
+            Assert.That(jsonType["String"], Is.EqualTo("foo"));
+            Assert.That(jsonType["Bool"], Is.EqualTo(true));
+            var jsonList = (List<object>)jsonType["List"];
+            Assert.That(((Dictionary<string, object>)jsonList[0])["Int"], Is.EqualTo(1));
+            var jsonDict = (Dictionary<string, object>)jsonType["Dictionary"];
+            Assert.That(((Dictionary<string, object>)jsonDict["key"])["Int"], Is.EqualTo(1));
+
+            JsonTypeSerializer.Instance.ObjectDeserializer = null;
+        }
+
+
     }
 }
