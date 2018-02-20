@@ -233,11 +233,7 @@ namespace ServiceStack.Text.Tests
         {
             using (JsConfig.With(excludeTypeInfo:true))
             {
-                JsonTypeSerializer.Instance.ObjectDeserializer = segment =>
-                {
-                    segment.ParseNextToken(out object value, out _);
-                    return value;
-                };
+                JS.Configure();
 
                 var dto = new RuntimeObject
                 {
@@ -252,10 +248,8 @@ namespace ServiceStack.Text.Tests
                 };
 
                 var json = dto.ToJson();
-                json.Print();
-                Assert.That(json, Is.EqualTo(@"{""Object"":{""Int"":1,""String"":""foo"",""Bool"":true,
-                    ""List"":[{""Int"":1,""String"":""foo"",""Bool"":true}],
-                    ""Dictionary"":{""key"":{""Int"":1,""String"":""foo"",""Bool"":true}}}}".Replace("\r","").Replace("\n", "").Replace(" ","")));
+                Assert.That(json, Is.EqualTo(@"{""Object"":{""Int"":1,""String"":""foo"",""Bool"":true," +
+                    @"""List"":[{""Int"":1,""String"":""foo"",""Bool"":true}],""Dictionary"":{""key"":{""Int"":1,""String"":""foo"",""Bool"":true}}}}"));
 
                 // into object
                 var fromJson = json.FromJson<object>();
@@ -273,7 +267,6 @@ namespace ServiceStack.Text.Tests
                 var dtoFromJson = json.FromJson<RuntimeObject>();
                 jsonType = (Dictionary<string, object>) dtoFromJson.Object;
                 Assert.That(jsonType["Int"], Is.EqualTo(1));
-                Assert.That(jsonType["Int"], Is.EqualTo(1));
                 Assert.That(jsonType["String"], Is.EqualTo("foo"));
                 Assert.That(jsonType["Bool"], Is.EqualTo(true));
                 jsonList = (List<object>)jsonType["List"];
@@ -281,18 +274,14 @@ namespace ServiceStack.Text.Tests
                 jsonDict = (Dictionary<string, object>)jsonType["Dictionary"];
                 Assert.That(((Dictionary<string, object>)jsonDict["key"])["Int"], Is.EqualTo(1));
 
-                JsonTypeSerializer.Instance.ObjectDeserializer = null;
+                JS.UnConfigure();
             }
         }
 
         [Test]
         public void Can_serialize_JS_literal_into_DTO()
         {
-            JsonTypeSerializer.Instance.ObjectDeserializer = segment =>
-            {
-                segment.ParseNextToken(out object value, out _);
-                return value;
-            };
+            JS.Configure();
 
             var js = @"{""Object"":{ Int:1,String:'foo',Bool:true,List:[{Int:1,String:`foo`,Bool:true}],Dictionary:{key:{Int:1,String:""foo"",Bool:true}}}}";
 
@@ -308,7 +297,7 @@ namespace ServiceStack.Text.Tests
             var jsonDict = (Dictionary<string, object>)jsonType["Dictionary"];
             Assert.That(((Dictionary<string, object>)jsonDict["key"])["Int"], Is.EqualTo(1));
 
-            JsonTypeSerializer.Instance.ObjectDeserializer = null;
+            JS.UnConfigure();
         }
 
 
