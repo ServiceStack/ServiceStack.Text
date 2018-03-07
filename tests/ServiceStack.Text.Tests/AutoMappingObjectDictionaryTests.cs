@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 
@@ -73,6 +74,25 @@ namespace ServiceStack.Text.Tests
             };
 
             var fromDict = (User)map.FromObjectDictionary(typeof(User));
+            Assert.That(fromDict.FirstName, Is.EqualTo("1"));
+            Assert.That(fromDict.LastName, Is.EqualTo(bool.TrueString));
+            Assert.That(fromDict.Car.Age, Is.EqualTo(10));
+            Assert.That(fromDict.Car.Name, Is.EqualTo("SubCar"));
+        }
+
+        [Test]
+        public void Can_Convert_from_ObjectDictionary_with_Read_Only_Dictionary()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "FirstName", 1 },
+                { "LastName", true },
+                { "Car",  new SubCar { Age = 10, Name = "SubCar", Custom = "Custom"} },
+            };
+
+            var readOnlyMap = new ReadOnlyDictionary<string, object>(map);
+
+            var fromDict = (User)readOnlyMap.FromObjectDictionary(typeof(User));
             Assert.That(fromDict.FirstName, Is.EqualTo("1"));
             Assert.That(fromDict.LastName, Is.EqualTo(bool.TrueString));
             Assert.That(fromDict.Car.Age, Is.EqualTo(10));
