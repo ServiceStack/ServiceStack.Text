@@ -309,5 +309,24 @@ namespace ServiceStack.Text.Tests
                 new TestJArray { Id = 2, Name = "Role 2" },
             }));
         }
+
+        [Test]
+        public void Can_deserialice_string_list()
+        {
+            var obj = new JsonObject {
+                ["null"] = null,
+                ["item"] = "foo",
+                ["list"] = new List<string> { "foo", "bar", "qux" }.ToJson()
+            };
+
+            var nullList = obj["null"].FromJson<List<string>>();
+            var itemList = obj["item"].FromJson<List<string>>();
+            var listList = obj["list"].FromJson<List<string>>();
+            
+            Assert.That(nullList, Is.Null);
+            Assert.That(itemList, Is.EquivalentTo(new[]{ "foo" }));
+            Assert.That(listList, Is.EquivalentTo(new[]{ "foo", "bar", "qux" }));
+        }
+
     }
 }
