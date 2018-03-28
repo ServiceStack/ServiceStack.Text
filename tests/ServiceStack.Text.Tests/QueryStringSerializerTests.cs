@@ -131,6 +131,8 @@ namespace ServiceStack.Text.Tests
 #if !NETCORE_SUPPORT
         private T StringToPoco<T>(string str)
         {
+            var envKey = Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE");
+            if (!string.IsNullOrEmpty(envKey)) Licensing.RegisterLicense(envKey);
             using (new BasicAppHost().Init())
             {
                 NameValueCollection queryString = HttpUtility.ParseQueryString(str);
