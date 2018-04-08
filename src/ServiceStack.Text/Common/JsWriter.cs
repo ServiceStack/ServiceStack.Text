@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
@@ -282,9 +283,13 @@ namespace ServiceStack.Text.Common
             else
             {
                 if (underlyingType.IsEnum)
-                    return type.FirstAttribute<FlagsAttribute>() != null
-                        ? (WriteObjectDelegate)Serializer.WriteEnumFlags
-                        : Serializer.WriteEnum;
+                {
+                    if (type.HasAttribute<DataContractAttribute>())
+                        return Serializer.WriteEnumMember;
+                    if (type.HasAttribute<FlagsAttribute>())
+                        return Serializer.WriteEnumFlags;
+                    return Serializer.WriteEnum;
+                }
             }
 
             if (type.HasInterface(typeof(IFormattable)))

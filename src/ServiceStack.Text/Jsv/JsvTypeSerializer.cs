@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.Serialization;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 #if NETSTANDARD2_0
@@ -253,6 +254,17 @@ namespace ServiceStack.Text.Jsv
         public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
             JsWriter.WriteEnumFlags(writer, enumFlagValue);
+        }
+
+        public void WriteEnumMember(TextWriter writer, object enumValue)
+        {
+            if (enumValue == null) return;
+
+            var enumType = enumValue.GetType();
+            var mi = enumType.GetMember(enumValue.ToString());
+            var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
+            var useValue = enumMemberAttr?.Value ?? enumValue;
+            writer.Write(enumValue.ToString());
         }
 
         public object EncodeMapKey(object value)
