@@ -135,10 +135,21 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_create_new_object_using_MergeIntoObjectDictionary()
+        {
+            var customer = new User { FirstName = "John", LastName = "Doe" };
+            var map = customer.MergeIntoObjectDictionary(new { Initial = "Z" });
+            map["DisplayName"] = map["FirstName"] + " " + map["Initial"] + " " + map["LastName"];
+            var employee = map.FromObjectDictionary<Employee>();
+            
+            Assert.That(employee.DisplayName, Is.EqualTo("John Z Doe"));
+        }
+
+        [Test]
         public void Can_create_new_object_from_merged_objects()
         {
             var customer = new User { FirstName = "John", LastName = "Doe" };
-            var map = customer.MergeIntoObjectDictionary(new {Initial = "Z"});
+            var map = MergeObjects(customer, new { Initial = "Z" });
             map["DisplayName"] = map["FirstName"] + " " + map["Initial"] + " " + map["LastName"];
             var employee = map.FromObjectDictionary<Employee>();
 
