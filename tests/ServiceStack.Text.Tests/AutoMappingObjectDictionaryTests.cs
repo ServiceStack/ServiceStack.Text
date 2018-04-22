@@ -127,5 +127,30 @@ namespace ServiceStack.Text.Tests
             Assert.That(request.Meta, Is.EquivalentTo(new Dictionary<string, object> {{"foo", "bar"}}));
         }
 
+        public class Employee
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string DisplayName { get; set; }
+        }
+
+        [Test]
+        public void Can_create_new_object_from_merged_objects()
+        {
+            var customer = new User { FirstName = "John", LastName = "Doe" };
+            var map = customer.MergeIntoObjectDictionary(new {Initial = "Z"});
+            map["DisplayName"] = map["FirstName"] + " " + map["Initial"] + " " + map["LastName"];
+            var employee = map.FromObjectDictionary<Employee>();
+
+            Dictionary<string,object> MergeObjects(params object[] sources) {
+                var to = new Dictionary<string, object>(); 
+                sources.Each(x => x.ToObjectDictionary().Each(entry => to[entry.Key] = entry.Value));
+                return to;
+            }
+            
+            Assert.That(employee.DisplayName, Is.EqualTo("John Z Doe"));
+        }
+
     }
+
 }

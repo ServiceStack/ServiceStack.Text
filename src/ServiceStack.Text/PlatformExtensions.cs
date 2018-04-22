@@ -660,8 +660,7 @@ namespace ServiceStack
 
             var type = obj.GetType();
 
-            ObjectDictionaryDefinition def;
-            if (!toObjectMapCache.TryGetValue(type, out def))
+            if (!toObjectMapCache.TryGetValue(type, out var def))
                 toObjectMapCache[type] = def = CreateObjectDictionaryDefinition(type);
 
             var dict = new Dictionary<string, object>();
@@ -773,6 +772,17 @@ namespace ServiceStack
                         Tracer.Instance.WriteDebug($"Could not retrieve value from '{valueType?.GetType().Name}': ${ignore.Message}");
                     }
                 }
+            }
+            return to;
+        }
+
+        public static Dictionary<string, object> MergeIntoObjectDictionary(this object obj, params object[] sources)
+        {
+            var to = obj.ToObjectDictionary();
+            foreach (var source in sources)
+            foreach (var entry in source.ToObjectDictionary())
+            {
+                to[entry.Key] = entry.Value;
             }
             return to;
         }
