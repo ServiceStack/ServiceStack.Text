@@ -425,7 +425,8 @@ namespace ServiceStack
             if (SetUserAgentDelegate != null)
             {
                 SetUserAgentDelegate(httpReq, value);
-            } else 
+            } 
+            else 
             {
                 if (allowToChangeRestrictedHeaders)
                     httpReq.Headers[HttpRequestHeader.UserAgent] = value;
@@ -437,7 +438,8 @@ namespace ServiceStack
             if (SetContentLengthDelegate != null)
             {
                 SetContentLengthDelegate(httpReq, value);
-            } else 
+            } 
+            else 
             {
                 if (allowToChangeRestrictedHeaders)
                     httpReq.Headers[HttpRequestHeader.ContentLength] = value.ToString();
@@ -457,9 +459,9 @@ namespace ServiceStack
         public override void InitHttpWebRequest(HttpWebRequest httpReq,
             long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
         {
-            SetUserAgent(httpReq, Env.ServerUserAgent);
-            SetAllowAutoRedirect(httpReq, allowAutoRedirect);
-            SetKeepAlive(httpReq, keepAlive);
+            httpReq.UserAgent = Env.ServerUserAgent;
+            httpReq.AllowAutoRedirect = allowAutoRedirect;
+            httpReq.KeepAlive = keepAlive;
 
             if (contentLength != null)
             {
@@ -475,10 +477,15 @@ namespace ServiceStack
             bool? preAuthenticate = null)
         {
             //req.MaximumResponseHeadersLength = int.MaxValue; //throws "The message length limit was exceeded" exception
-            if (allowAutoRedirect.HasValue) SetAllowAutoRedirect(req, allowAutoRedirect.Value);
+            if (allowAutoRedirect.HasValue) 
+                req.AllowAutoRedirect = allowAutoRedirect.Value;
+
             //if (readWriteTimeout.HasValue) req.ReadWriteTimeout = (int)readWriteTimeout.Value.TotalMilliseconds;
             //if (timeout.HasValue) req.Timeout = (int)timeout.Value.TotalMilliseconds;
-            if (userAgent != null) SetUserAgent(req, userAgent);
+
+            if (userAgent != null)
+                req.UserAgent = userAgent;
+            
             //if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
         }
         
