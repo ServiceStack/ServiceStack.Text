@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Threading;
 using NUnit.Framework;
 using ServiceStack.Text.Support;
 
@@ -20,6 +22,10 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Serialize_TimeSpan()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             Assert.That(TimeSpanConverter.ToXsdDuration(oneDay), Is.EqualTo("P1D"));
             Assert.That(TimeSpanConverter.ToXsdDuration(oneHour), Is.EqualTo("PT1H"));
             Assert.That(TimeSpanConverter.ToXsdDuration(oneMinute), Is.EqualTo("PT1M"));
@@ -47,6 +53,10 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_deserialize_TimeSpan()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             Assert.That(TimeSpanConverter.FromXsdDuration("P1D"), Is.EqualTo(oneDay));
             Assert.That(TimeSpanConverter.FromXsdDuration("PT1H"), Is.EqualTo(oneHour));
             Assert.That(TimeSpanConverter.FromXsdDuration("PT1M"), Is.EqualTo(oneMinute));
