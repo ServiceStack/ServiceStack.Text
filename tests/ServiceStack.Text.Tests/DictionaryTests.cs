@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels.DataModel;
 
@@ -293,6 +295,10 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void deserizes_floats_into_to_best_fit_floating_point()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.TryToParseNumericType = true;
             JsConfig.ParsePrimitiveFloatingPointTypes = ParseAsType.Single | ParseAsType.Double;

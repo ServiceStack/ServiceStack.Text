@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Threading;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
@@ -206,6 +208,10 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Deserialize_into_String_Dictionary()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             var csv = MoviesData.Movies.ToCsv();
 
             var dynamicMap = csv.FromCsv<List<Dictionary<string, string>>>();
@@ -229,6 +235,10 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_deserialize_into_String_List()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             var csv = MoviesData.Movies.ToCsv();
 
             var dynamicList = csv.FromCsv<List<List<string>>>();

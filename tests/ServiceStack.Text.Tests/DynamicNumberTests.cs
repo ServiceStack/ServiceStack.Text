@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Globalization;
+using System.Threading;
+using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
 {
@@ -73,6 +75,10 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_convert_string_to_appropriate_popular_type()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             object o;
             Assert.That(DynamicNumber.TryParse("1", out o) && o is int i && i == 1);
             Assert.That(DynamicNumber.TryParse(int.MaxValue.ToString(), out o) && o is int imax && imax == int.MaxValue);

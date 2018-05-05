@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
@@ -45,6 +47,10 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_Serialize_numbers()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             string notNumber = "{\"field\":\"00001\"}";
             Assert.That(JsonObject.Parse(notNumber).ToJson(), Is.EqualTo(notNumber));
 
