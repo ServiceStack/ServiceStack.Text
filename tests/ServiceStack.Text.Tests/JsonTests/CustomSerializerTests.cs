@@ -328,8 +328,8 @@ namespace ServiceStack.Text.Tests.JsonTests
             {
                 return new Dictionary<string, string>
                 {
-                    { "Voltage", $"{Voltage:0.0} V"},
-                    { "Current", $"{Current:0.000} A"},
+                    { "Voltage", string.Format(CultureInfo.InvariantCulture, "{0:0.0} V", Voltage)},
+                    { "Current", string.Format(CultureInfo.InvariantCulture, "{0:0.000} A", Current)}, // Use $"{Current:0.000} A" if you don't care about culture
                     { "Power", $"{Power:0} W"},
                 }.ToJson();
             }
@@ -380,8 +380,8 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(test.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
 
             JsConfig<DcStatusRawFn>.RawSerializeFn = o => new Dictionary<string, string> {
-                { "Voltage", $"{o.Voltage:0.0} V"},
-                { "Current", $"{o.Current:0.000} A"},
+                { "Voltage", string.Format(CultureInfo.InvariantCulture, "{0:0.0} V", o.Voltage)},
+                { "Current", string.Format(CultureInfo.InvariantCulture, "{0:0.000} A", o.Current)},
                 { "Power", $"{o.Power:0} W"},
             }.ToJson();
 
