@@ -350,32 +350,6 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_deserialize_using_CustomFormat()
         {
-            var culture = new CultureInfo("en-US");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
-            var test = new DcStatus { Voltage = 10, Current = 1.2 };
-            Assert.That(test.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
-
-            JsConfig<DcStatusRawFn>.RawSerializeFn = o => new Dictionary<string, string> {
-                { "Voltage", $"{o.Voltage:0.0} V"},
-                { "Current", $"{o.Current:0.000} A"},
-                { "Power", $"{o.Power:0} W"},
-            }.ToJson();
-
-            var test2 = new DcStatusRawFn { Voltage = 10, Current = 1.2 };
-            Assert.That(test2.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
-
-            JsConfig.Reset();
-        }
-
-        [Test]
-        public void Can_deserialize_using_CustomFormat_DifferentCulture()
-        {
-            var culture = new CultureInfo("sl-SI");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
             var test = new DcStatus { Voltage = 10, Current = 1.2 };
             Assert.That(test.ToJson(), Is.EqualTo("{\"Voltage\":\"10.0 V\",\"Current\":\"1.200 A\",\"Power\":\"12 W\"}"));
 
