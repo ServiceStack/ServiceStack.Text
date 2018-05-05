@@ -295,10 +295,6 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void deserizes_floats_into_to_best_fit_floating_point()
         {
-            var culture = new CultureInfo("en-US");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.TryToParseNumericType = true;
             JsConfig.ParsePrimitiveFloatingPointTypes = ParseAsType.Single | ParseAsType.Double;
@@ -318,51 +314,7 @@ namespace ServiceStack.Text.Tests
             Assert.AreEqual(toDoubleValue, doubleValue, Math.Pow(2, 1000));
 
             var json = "{{\"float\":{0},\"double\":{1},\"int\":{2},\"long\":{3}}}"
-                .Fmt(floatValue, doubleValue, intValue, longValue);
-            var map = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
-
-            Assert.That(map["float"], Is.TypeOf<float>());
-            Assert.That(map["float"], Is.EqualTo(floatValue));
-
-            Assert.That(map["double"], Is.TypeOf<double>());
-            Assert.AreEqual((double)map["double"], doubleValue, Math.Pow(2, 1000));
-
-            Assert.That(map["int"], Is.TypeOf<int>());
-            Assert.That(map["int"], Is.EqualTo(intValue));
-
-            Assert.That(map["long"], Is.TypeOf<long>());
-            Assert.That(map["long"], Is.EqualTo(longValue));
-
-            JsConfig.Reset();
-        }
-
-        [Test]
-        public void deserizes_floats_into_to_best_fit_floating_point_DifferentCulture()
-        {
-            var culture = new CultureInfo("sl-SI");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
-            JsConfig.TryToParsePrimitiveTypeValues = true;
-            JsConfig.TryToParseNumericType = true;
-            JsConfig.ParsePrimitiveFloatingPointTypes = ParseAsType.Single | ParseAsType.Double;
-
-            float floatValue = 1.1f;
-            //TODO find a number that doesn't suck which throws in float.Parse() but not double.Parse()
-            double doubleValue = double.MaxValue - Math.Pow(2, 1000);
-            var intValue = int.MaxValue;
-            var longValue = long.MaxValue;
-
-            float notFloat;
-            Assert.That(!float.TryParse(doubleValue.ToString(), out notFloat));
-
-            var toFloatValue = float.Parse(floatValue.ToString());
-            Assert.AreEqual(toFloatValue, floatValue, 1);
-            var toDoubleValue = double.Parse(doubleValue.ToString());
-            Assert.AreEqual(toDoubleValue, doubleValue, Math.Pow(2, 1000));
-
-            var json = "{{\"float\":{0},\"double\":{1},\"int\":{2},\"long\":{3}}}"
-                .Fmt(floatValue, doubleValue, intValue, longValue);
+                .Fmt(CultureInfo.InvariantCulture, floatValue, doubleValue, intValue, longValue);
             var map = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
 
             Assert.That(map["float"], Is.TypeOf<float>());
