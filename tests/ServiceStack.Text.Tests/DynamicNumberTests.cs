@@ -88,6 +88,21 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Does_convert_string_to_appropriate_popular_type_DifferentCulture()
+        {
+            var culture = new CultureInfo("sl-SI");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            object o;
+            Assert.That(DynamicNumber.TryParse("1", out o) && o is int i && i == 1);
+            Assert.That(DynamicNumber.TryParse(int.MaxValue.ToString(), out o) && o is int imax && imax == int.MaxValue);
+            Assert.That(DynamicNumber.TryParse((int.MaxValue + (long)1).ToString(), out o) && o is long l && l == int.MaxValue + (long)1);
+            Assert.That(DynamicNumber.TryParse((long.MaxValue + (double)1).ToString(), out o) && o is double d ? d : 0, Is.EqualTo(long.MaxValue + (double)1).Within(10000));
+            Assert.That(DynamicNumber.TryParse("1.1", out o) && o is double d2 && d2 == 1.1);
+        }
+
+        [Test]
         public void Can_convert_string_into_number_types()
         {
             Assert.That(("1").ConvertTo<int>(), Is.EqualTo(1));
