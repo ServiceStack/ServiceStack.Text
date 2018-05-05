@@ -208,10 +208,6 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Deserialize_into_String_Dictionary()
         {
-            var culture = new CultureInfo("en-US");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
             var csv = MoviesData.Movies.ToCsv();
 
             var dynamicMap = csv.FromCsv<List<Dictionary<string, string>>>();
@@ -225,34 +221,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(map["Id"], Is.EqualTo(movie.Id.ToString()));
             Assert.That(map["ImdbId"], Is.EqualTo(movie.ImdbId));
             Assert.That(map["Title"], Is.EqualTo(movie.Title));
-            Assert.That(map["Rating"], Is.EqualTo(movie.Rating.ToString()));
-            Assert.That(map["Director"], Is.EqualTo(movie.Director));
-            Assert.That(map["ReleaseDate"], Is.EqualTo(movie.ReleaseDate.ToJsv()));
-            Assert.That(map["TagLine"], Is.EqualTo(movie.TagLine));
-            Assert.That(map["Genres"], Is.EqualTo(movie.Genres.ToJsv()));
-        }
-
-        [Test]
-        public void Can_Deserialize_into_String_Dictionary_DifferentCulture()
-        {
-            var culture = new CultureInfo("sl-SI");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
-            var csv = MoviesData.Movies.ToCsv();
-
-            var dynamicMap = csv.FromCsv<List<Dictionary<string, string>>>();
-            Assert.That(dynamicMap.Count, Is.EqualTo(MoviesData.Movies.Count));
-
-            dynamicMap.PrintDump();
-
-            var movie = MoviesData.Movies[0];
-            var map = dynamicMap[0];
-
-            Assert.That(map["Id"], Is.EqualTo(movie.Id.ToString()));
-            Assert.That(map["ImdbId"], Is.EqualTo(movie.ImdbId));
-            Assert.That(map["Title"], Is.EqualTo(movie.Title));
-            Assert.That(map["Rating"], Is.EqualTo(movie.Rating.ToString()));
+            Assert.That(map["Rating"], Is.EqualTo(movie.Rating.ToString(CultureInfo.InvariantCulture)));
             Assert.That(map["Director"], Is.EqualTo(movie.Director));
             Assert.That(map["ReleaseDate"], Is.EqualTo(movie.ReleaseDate.ToJsv()));
             Assert.That(map["TagLine"], Is.EqualTo(movie.TagLine));
