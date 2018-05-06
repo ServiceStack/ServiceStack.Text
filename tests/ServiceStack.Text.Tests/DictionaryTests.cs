@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.DynamicModels.DataModel;
 
@@ -312,7 +314,7 @@ namespace ServiceStack.Text.Tests
             Assert.AreEqual(toDoubleValue, doubleValue, Math.Pow(2, 1000));
 
             var json = "{{\"float\":{0},\"double\":{1},\"int\":{2},\"long\":{3}}}"
-                .Fmt(floatValue, doubleValue, intValue, longValue);
+                .Fmt(CultureInfo.InvariantCulture, floatValue, doubleValue, intValue, longValue);
             var map = JsonSerializer.DeserializeFromString<IDictionary<string, object>>(json);
 
             Assert.That(map["float"], Is.TypeOf<float>());

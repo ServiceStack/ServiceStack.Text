@@ -417,7 +417,7 @@ namespace ServiceStack.Text.Common
 
         public static TimeSpan ParseNSTimeInterval(string doubleInSecs)
         {
-            var secs = double.Parse(doubleInSecs);
+            var secs = double.Parse(doubleInSecs, CultureInfo.InvariantCulture);
             return TimeSpan.FromSeconds(secs);
         }
 

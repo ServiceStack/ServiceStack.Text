@@ -560,6 +560,10 @@ namespace ServiceStack
         {
             return Format(text, args);
         }
+        public static string Fmt(this string text, IFormatProvider provider, params object[] args)
+        {
+            return Format(provider, text, args);
+        }
 
         public static string Fmt(this string text, object arg1)
         {
