@@ -78,11 +78,7 @@ namespace ServiceStack
         public NetStandardPclExport()
         {
             this.PlatformName = Platforms.NetStandard;
-#if NETSTANDARD2_0
             this.DirSep = Path.DirectorySeparatorChar;
-#else 
-            this.DirSep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
-#endif
             var req = HttpWebRequest.Create("http://servicestack.net");
             try
             {
@@ -96,18 +92,12 @@ namespace ServiceStack
 
         public override string ReadAllText(string filePath)
         {
-            //NET Standard 1.1 does not supported Stream Reader with string constructor
-#if NETSTANDARD2_0
-            using (StreamReader rdr = File.OpenText(filePath))
+            using (var reader = File.OpenText(filePath))
             {
-                return rdr.ReadToEnd();
+                return reader.ReadToEnd();
             }
-#else            
-            return String.Empty;
-#endif
         }
 
-#if NETSTANDARD2_0
         public override bool FileExists(string filePath)
         {
             return File.Exists(filePath);
@@ -173,54 +163,30 @@ namespace ServiceStack
             }
             return relativePath;
         }        
-#endif
+
         public static PclExport Configure()
         {
             Configure(Provider);
             return Provider;
         }
 
-        public override string GetEnvironmentVariable(string name)
-        {
-#if NETSTANDARD2_0
-            return Environment.GetEnvironmentVariable(name);
-#else
-            return null;
-#endif
-        }
+        public override string GetEnvironmentVariable(string name) => Environment.GetEnvironmentVariable(name);
 
-        public override void WriteLine(string line)
-        {
-#if NETSTANDARD2_0
-            Console.WriteLine(line);
-#else
-            System.Diagnostics.Debug.WriteLine(line);
-#endif
-        }
+        public override void WriteLine(string line) => Console.WriteLine(line);
 
-        public override void WriteLine(string format, params object[] args)
-        {
-#if NETSTANDARD2_0
-            Console.WriteLine(format, args);
-#else
-            System.Diagnostics.Debug.WriteLine(format, args);
-#endif
-        }
+        public override void WriteLine(string format, params object[] args) => Console.WriteLine(format, args);
 
-#if NETSTANDARD2_0
         public override void AddCompression(WebRequest webReq)
         {
             var httpReq = (HttpWebRequest)webReq;
-            //TODO: Restore when AutomaticDecompression added to WebRequest
-            //httpReq.Headers[HttpRequestHeader.AcceptEncoding] = "gzip,deflate";
-            //httpReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            httpReq.Headers[HttpRequestHeader.AcceptEncoding] = "gzip,deflate";
+            httpReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
         }
 
         public override void AddHeader(WebRequest webReq, string name, string value)
         {
             webReq.Headers[name] = value;
         }
-#endif
 
         public override Assembly[] GetAllAssemblies()
         {
@@ -235,7 +201,6 @@ namespace ServiceStack
             return codeBase;
         }
 
-#if NETSTANDARD2_0
         public override string GetAssemblyPath(Type source)
         {
             var codeBase = GetAssemblyCodeBase(source.GetTypeInfo().Assembly);
@@ -255,7 +220,6 @@ namespace ServiceStack
         {
             return System.Text.Encoding.ASCII.GetBytes(str);
         }
-#endif
 
         public override bool InSameAssembly(Type t1, Type t2)
         {
@@ -272,9 +236,7 @@ namespace ServiceStack
         public override GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
         {
             return
-#if NETSTANDARD2_0
                 SupportsEmit ? PropertyInvoker.GetEmit(propertyInfo) :
-#endif
                 SupportsExpression
                     ? PropertyInvoker.GetExpression(propertyInfo)
                     : base.CreateGetter(propertyInfo);
@@ -283,9 +245,7 @@ namespace ServiceStack
         public override GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
         {
             return
-#if NETSTANDARD2_0
                 SupportsEmit ? PropertyInvoker.GetEmit<T>(propertyInfo) :
-#endif
                 SupportsExpression
                     ? PropertyInvoker.GetExpression<T>(propertyInfo)
                     : base.CreateGetter<T>(propertyInfo);
@@ -294,9 +254,7 @@ namespace ServiceStack
         public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
         {
             return
-#if NETSTANDARD2_0
                 SupportsEmit ? PropertyInvoker.SetEmit(propertyInfo) :
-#endif
                 SupportsExpression
                     ? PropertyInvoker.SetExpression(propertyInfo)
                     : base.CreateSetter(propertyInfo);
@@ -312,9 +270,7 @@ namespace ServiceStack
         public override GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
         {
             return
-#if NETSTANDARD2_0
                 SupportsEmit ? FieldInvoker.GetEmit(fieldInfo) :
-#endif
                 SupportsExpression
                     ? FieldInvoker.GetExpression(fieldInfo)
                     : base.CreateGetter(fieldInfo);
@@ -323,9 +279,7 @@ namespace ServiceStack
         public override GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
         {
             return
-#if NETSTANDARD2_0
                 SupportsEmit ? FieldInvoker.GetEmit<T>(fieldInfo) :
-#endif
                 SupportsExpression
                     ? FieldInvoker.GetExpression<T>(fieldInfo)
                     : base.CreateGetter<T>(fieldInfo);
@@ -334,9 +288,7 @@ namespace ServiceStack
         public override SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
         {
             return
-#if NETSTANDARD2_0
                 SupportsEmit ? FieldInvoker.SetEmit(fieldInfo) :
-#endif
                 SupportsExpression
                     ? FieldInvoker.SetExpression(fieldInfo)
                     : base.CreateSetter(fieldInfo);
@@ -362,7 +314,6 @@ namespace ServiceStack
         //    return TimeZoneInfo.ConvertTimeToUtc(dateTime);
         //}
 
-#if NETSTANDARD2_0
         public override ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))
@@ -397,7 +348,7 @@ namespace ServiceStack
 
             return result;
         }
-#endif
+
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
             if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
@@ -476,25 +427,28 @@ namespace ServiceStack
             string userAgent = null,
             bool? preAuthenticate = null)
         {
-            //req.MaximumResponseHeadersLength = int.MaxValue; //throws "The message length limit was exceeded" exception
-            if (allowAutoRedirect.HasValue) 
-                req.AllowAutoRedirect = allowAutoRedirect.Value;
+            try
+            {
+                //req.MaximumResponseHeadersLength = int.MaxValue; //throws "The message length limit was exceeded" exception
+                if (allowAutoRedirect.HasValue) 
+                    req.AllowAutoRedirect = allowAutoRedirect.Value;
 
-            //if (readWriteTimeout.HasValue) req.ReadWriteTimeout = (int)readWriteTimeout.Value.TotalMilliseconds;
-            //if (timeout.HasValue) req.Timeout = (int)timeout.Value.TotalMilliseconds;
+                if (userAgent != null)
+                    req.UserAgent = userAgent;
 
-            if (userAgent != null)
-                req.UserAgent = userAgent;
-            
-            //if (preAuthenticate.HasValue) req.PreAuthenticate = preAuthenticate.Value;
+                if (readWriteTimeout.HasValue) req.ReadWriteTimeout = (int) readWriteTimeout.Value.TotalMilliseconds;
+                if (timeout.HasValue) req.Timeout = (int) timeout.Value.TotalMilliseconds;
+
+                if (preAuthenticate.HasValue)
+                    req.PreAuthenticate = preAuthenticate.Value;
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+            }
         }
         
-#if NETSTANDARD2_0
-        public override string GetStackTrace()
-        {
-            return Environment.StackTrace;
-        }
-#endif
+        public override string GetStackTrace() => Environment.StackTrace;
 
         public override Type UseType(Type type)
         {
