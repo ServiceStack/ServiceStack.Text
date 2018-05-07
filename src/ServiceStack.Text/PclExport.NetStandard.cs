@@ -178,9 +178,16 @@ namespace ServiceStack
 
         public override void AddCompression(WebRequest webReq)
         {
-            var httpReq = (HttpWebRequest)webReq;
-            httpReq.Headers[HttpRequestHeader.AcceptEncoding] = "gzip,deflate";
-            httpReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            try
+            {
+                var httpReq = (HttpWebRequest)webReq;
+                httpReq.Headers[HttpRequestHeader.AcceptEncoding] = "gzip,deflate";
+                httpReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            }
+            catch (Exception ex)
+            {
+                Tracer.Instance.WriteError(ex);
+            }
         }
 
         public override void AddHeader(WebRequest webReq, string name, string value)
