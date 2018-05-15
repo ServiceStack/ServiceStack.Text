@@ -314,7 +314,7 @@ namespace ServiceStack.Text
         {
             var type = value?.GetType();
 
-            if (type == null || !type.IsClass || value is string)
+            if (type == null || value is string)
                 return false;
 
             if (parentValues == null)
@@ -333,7 +333,9 @@ namespace ServiceStack.Text
             }
             else
             {
-                var props = type.GetSerializableProperties();
+                var props = type.IsClass
+                    ? type.GetSerializableProperties()
+                    : type.GetPublicProperties();
 
                 foreach (var pi in props)
                 {
