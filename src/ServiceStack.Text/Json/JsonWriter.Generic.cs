@@ -107,12 +107,8 @@ namespace ServiceStack.Text.Json
 
             try
             {
-                if (++JsState.Depth > JsConfig.MaxDepth)
-                {
-                    Tracer.Instance.WriteError("Exceeded MaxDepth limit of {0} attempting to serialize {1}"
-                        .Fmt(JsConfig.MaxDepth, value.GetType().Name));
+                if (!JsState.Traverse(value))
                     return;
-                }
 
                 var type = value.GetType();
                 var writeFn = type == typeof(object)
@@ -126,7 +122,7 @@ namespace ServiceStack.Text.Json
             }
             finally
             {
-                JsState.Depth--;
+                JsState.UnTraverse();
             }
         }
 
@@ -212,18 +208,14 @@ namespace ServiceStack.Text.Json
 
             try
             {
-                if (++JsState.Depth > JsConfig.MaxDepth)
-                {
-                    Tracer.Instance.WriteError("Exceeded MaxDepth limit of {0} attempting to serialize {1}"
-                        .Fmt(JsConfig.MaxDepth, value.GetType().Name));
+                if (!JsState.Traverse(value))
                     return;
-                }
 
                 CacheFn(writer, value);
             }
             finally
             {
-                JsState.Depth--;
+                JsState.UnTraverse();
             }
         }
 
