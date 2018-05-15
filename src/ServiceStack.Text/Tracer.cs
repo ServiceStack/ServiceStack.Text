@@ -16,12 +16,23 @@ namespace ServiceStack.Text
 
             public void WriteWarning(string format, params object[] args) { }
 
-            public void WriteError(Exception ex) { }
+            public void WriteError(Exception ex)
+            {
+                if (JsConfig.ThrowOnError)
+                    throw ex;
+            }
 
-            public void WriteError(string error) { }
+            public void WriteError(string error)
+            {
+                if (JsConfig.ThrowOnError)
+                    throw new Exception(error);
+            }
 
-            public void WriteError(string format, params object[] args) { }
-
+            public void WriteError(string format, params object[] args)
+            {
+                if (JsConfig.ThrowOnError)
+                    throw new Exception(string.Format(format, args));
+            }
         }
 
         public class ConsoleTracer : ITracer
