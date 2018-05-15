@@ -28,7 +28,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Does_throw_on_invalid_JSON()
         {
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
 
             var json = "[{\"ExtId\":\"2\",\"Name\":\"VIP sj�lland\",\"Mobiles\":[\"4533333333\",\"4544444444\"]";
 

@@ -13,7 +13,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Throws_on_protected_setter()
         {
             JsConfig.Reset();
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
 
             string json = @"{""idBadProt"":""abc"", ""idGood"":""2"" }";
             Assert.Throws(typeof(SerializationException), () => JsonSerializer.DeserializeFromString(json, typeof(TestDto)), "Failed to set property 'idBadProt' with 'abc'");
@@ -23,7 +23,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Throws_on_incorrect_type()
         {
             JsConfig.Reset();
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
 
             string json = @"{""idBad"":""abc"", ""idGood"":""2"" }";
             Assert.Throws(typeof(SerializationException), () => JsonSerializer.DeserializeFromString(json, typeof(TestDto)), "Failed to set property 'idBad' with 'abc'");
@@ -33,7 +33,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void Throws_on_incorrect_type_with_data_set()
         {
             JsConfig.Reset();
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
 
             try
             {
@@ -54,7 +54,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void TestDoesNotThrow()
         {
             JsConfig.Reset();
-            JsConfig.ThrowOnDeserializationError = false;
+            JsConfig.ThrowOnError = false;
             string json = @"{""idBad"":""abc"", ""idGood"":""2"" }";
             JsonSerializer.DeserializeFromString(json, typeof(TestDto));
         }
@@ -63,11 +63,11 @@ namespace ServiceStack.Text.Tests.JsonTests
         public void TestReset()
         {
             JsConfig.Reset();
-            Assert.IsFalse(JsConfig.ThrowOnDeserializationError);
-            JsConfig.ThrowOnDeserializationError = true;
-            Assert.IsTrue(JsConfig.ThrowOnDeserializationError);
+            Assert.IsFalse(JsConfig.ThrowOnError);
+            JsConfig.ThrowOnError = true;
+            Assert.IsTrue(JsConfig.ThrowOnError);
             JsConfig.Reset();
-            Assert.IsFalse(JsConfig.ThrowOnDeserializationError);
+            Assert.IsFalse(JsConfig.ThrowOnError);
         }
 
         [DataContract]

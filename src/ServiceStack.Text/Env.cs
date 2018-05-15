@@ -154,7 +154,7 @@ namespace ServiceStack.Text
                 }
                 return referenceAssembyPath;
             }
-            set { referenceAssembyPath = value; }
+            set => referenceAssembyPath = value;
         }
     }
 }

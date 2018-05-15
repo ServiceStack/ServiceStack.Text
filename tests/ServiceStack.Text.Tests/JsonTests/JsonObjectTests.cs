@@ -37,11 +37,11 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_serialize_null_JsonObject_response()
         {
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
             var json = "{\"result\":null}";
             var dto = json.FromJson<JsonObjectResponse>();
             Assert.That(dto.result, Is.Null);
-            JsConfig.ThrowOnDeserializationError = false;
+            JsConfig.ThrowOnError = false;
         }
 
         [Test]

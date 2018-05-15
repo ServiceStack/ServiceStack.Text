@@ -169,7 +169,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_deserialize_null_Nullable_Enum()
         {
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
             string json = @"{""myEnum"":null}";
             var o = json.FromJson<NullableEnum>();
             Assert.That(o.MyEnum, Is.Null);
