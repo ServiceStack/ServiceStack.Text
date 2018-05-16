@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using NUnit.Framework;
 
@@ -28,6 +29,14 @@ namespace ServiceStack.Text.Tests.Issues
         public void Does_detect_circular_references_of_CircularMap()
         {
             Assert.That(TypeSerializer.HasCircularReferences(CreateCircularMap()));
+        }
+
+        [Test]
+        public void Does_not_report_CircularReferences_of_Built_In_Types()
+        {
+            Assert.That(TypeSerializer.HasCircularReferences(new DateTime()), Is.False);
+            Assert.That(TypeSerializer.HasCircularReferences(new TimeSpan()), Is.False);
+            Assert.That(TypeSerializer.HasCircularReferences(Guid.NewGuid()), Is.False);
         }
 
         [Test]

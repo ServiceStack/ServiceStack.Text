@@ -313,8 +313,8 @@ namespace ServiceStack.Text
         private static bool HasCircularReferences(object value, Stack<object> parentValues)
         {
             var type = value?.GetType();
-
-            if (type == null || value is string)
+            
+            if (type == null || !type.IsClass || value is string)
                 return false;
 
             if (parentValues == null)
@@ -322,20 +322,50 @@ namespace ServiceStack.Text
                 parentValues = new Stack<object>();
                 parentValues.Push(value);
             }
+            
+            bool CheckValue(object key)
+            {
+                if (parentValues.Contains(key))
+                    return true;
+
+                parentValues.Push(key);
+
+                if (HasCircularReferences(key, parentValues))
+                    return true;
+
+                parentValues.Pop();
+                return false;
+            }
 
             if (value is IEnumerable valueEnumerable)
             {
                 foreach (var item in valueEnumerable)
                 {
-                    if (HasCircularReferences(item, parentValues))
+                    if (item == null)
+                        continue;
+
+                    var itemType = item.GetType();
+                    if (itemType.IsGenericType && itemType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                    {
+                        var props = TypeProperties.Get(itemType);
+                        var key = props.GetPublicGetter("Key")(item);
+
+                        if (CheckValue(key)) 
+                            return true;
+
+                        var val = props.GetPublicGetter("Value")(item);
+
+                        if (CheckValue(val)) 
+                            return true;
+                    }
+                    
+                    if (CheckValue(item)) 
                         return true;
                 }
-            }
+            }            
             else
             {
-                var props = type.IsClass
-                    ? type.GetSerializableProperties()
-                    : type.GetPublicProperties();
+                var props = type.GetSerializableProperties();
 
                 foreach (var pi in props)
                 {
@@ -347,15 +377,8 @@ namespace ServiceStack.Text
                     if (pValue == null)
                         continue;
 
-                    if (parentValues.Contains(pValue))
+                    if (CheckValue(pValue))
                         return true;
-
-                    parentValues.Push(pValue);
-
-                    if (HasCircularReferences(pValue, parentValues))
-                        return true;
-
-                    parentValues.Pop();
                 }
             }
 
