@@ -636,6 +636,42 @@ If you’re in a trusted intranet environment this can also be used to disable t
 JsConfig.AllowRuntimeType = _ => true;
 ```
 
+### Custom Enum Serialization
+
+You can use `[EnumMember]` to change what Enum value gets serialized, e.g:
+
+```csharp
+[DataContract]
+public enum Day
+{
+    [EnumMember(Value = "MON")]
+    Monday,
+    [EnumMember(Value = "TUE")]
+    Tuesday,
+    [EnumMember(Value = "WED")]
+    Wednesday,
+    [EnumMember(Value = "THU")]
+    Thursday,
+    [EnumMember(Value = "FRI")]
+    Friday,
+    [EnumMember(Value = "SAT")]
+    Saturday,
+    [EnumMember(Value = "SUN")]
+    Sunday,            
+}
+
+class EnumMemberDto
+{
+    public Day Day { get; set; }
+}
+
+var dto = new EnumMemberDto {Day = Day.Sunday};
+var json = dto.ToJson();  //= {"Day":"SUN"}
+
+var fromDto = json.FromJson<EnumMemberDto>();
+fromDto.Day               //= Day.Sunday
+```
+
 ## TypeSerializer Details (JSV Format)
 
 Out of the box .NET provides a fairly quick but verbose Xml DataContractSerializer or a slightly more compact but slower JsonDataContractSerializer. 
