@@ -479,7 +479,7 @@ namespace ServiceStack
             var extPos = filePath.LastIndexOf('.');
             if (extPos == -1) return filePath;
 
-            var dirPos = filePath.LastIndexOfAny(DirSeps);
+            var dirPos = filePath.LastIndexOfAny(PclExport.DirSeps);
             return extPos > dirPos ? filePath.Substring(0, extPos) : filePath;
         }
 
@@ -491,8 +491,6 @@ namespace ServiceStack
             var extPos = filePath.LastIndexOf('.');
             return extPos == -1 ? Empty : filePath.Substring(extPos);
         }
-
-        static readonly char[] DirSeps = new[] { '\\', '/' };
 
         public static string ParentDirectory(this string filePath)
         {
@@ -562,6 +560,10 @@ namespace ServiceStack
         {
             return Format(text, args);
         }
+        public static string Fmt(this string text, IFormatProvider provider, params object[] args)
+        {
+            return Format(provider, text, args);
+        }
 
         public static string Fmt(this string text, object arg1)
         {
@@ -623,7 +625,7 @@ namespace ServiceStack
                 foreach (var needle in needles)
                 {
                     var pos = text.IndexOf(needle, startIndex, StringComparison.Ordinal);
-                    if ((pos >= 0) && (firstPos == -1 || pos < firstPos))
+                    if (pos >= 0 && (firstPos == -1 || pos < firstPos))
                         firstPos = pos;
                 }
             }
@@ -750,7 +752,7 @@ namespace ServiceStack
 
         public static string ToTitleCase(this string value)
         {
-            return PclExport.Instance.ToTitleCase(value);
+            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value).Replace("_", String.Empty);
         }
 
         public static string ToLowercaseUnderscore(this string value)
@@ -776,12 +778,12 @@ namespace ServiceStack
 
         public static string ToLowerSafe(this string value)
         {
-            return value != null ? value.ToLower() : null;
+            return value?.ToLower();
         }
 
         public static string ToUpperSafe(this string value)
         {
-            return value != null ? value.ToUpper() : null;
+            return value?.ToUpper();
         }
 
         public static string SafeSubstring(this string value, int startIndex)
@@ -799,10 +801,18 @@ namespace ServiceStack
             return value.Length > startIndex ? value.Substring(startIndex) : Empty;
         }
 
+        public static string SubstringWithElipsis(this string value, int startIndex, int length)
+        {
+            var str = value.SafeSubstring(startIndex, length);
+            return str.Length == length
+                ? str + "..."
+                : str;
+        }
+
         public static bool IsAnonymousType(this Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             return PclExport.Instance.IsAnonymousType(type);
         }
@@ -817,8 +827,9 @@ namespace ServiceStack
             return str.EndsWith(endsWith, PclExport.Instance.InvariantComparison);
         }
 
-        private static readonly Regex InvalidVarCharsRegex = new Regex(@"[^A-Za-z0-9]", PclExport.Instance.RegexOptions);
-        private static readonly Regex SplitCamelCaseRegex = new Regex("([A-Z]|[0-9]+)", PclExport.Instance.RegexOptions);
+        private static readonly Regex InvalidVarCharsRegex = new Regex(@"[^A-Za-z0-9_]", RegexOptions.Compiled);
+        private static readonly Regex InvalidVarRefCharsRegex = new Regex(@"[^A-Za-z0-9._]", RegexOptions.Compiled);
+        private static readonly Regex SplitCamelCaseRegex = new Regex("([A-Z]|[0-9]+)", RegexOptions.Compiled);
         private static readonly Regex HttpRegex = new Regex(@"^http://",
             PclExport.Instance.RegexOptions | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
@@ -904,11 +915,11 @@ namespace ServiceStack
             return false;
         }
 
-        public static string SafeVarName(this string text)
-        {
-            if (string.IsNullOrEmpty(text)) return null;
-            return InvalidVarCharsRegex.Replace(text, "_");
-        }
+        public static string SafeVarName(this string text) => !string.IsNullOrEmpty(text) 
+            ? InvalidVarCharsRegex.Replace(text, "_") : null;
+
+        public static string SafeVarRef(this string text) => !string.IsNullOrEmpty(text) 
+            ? InvalidVarRefCharsRegex.Replace(text, "_") : null;
 
         public static string Join(this List<string> items)
         {
@@ -955,13 +966,13 @@ namespace ServiceStack
 
         public static bool IsUserType(this Type type)
         {
-            return type.IsClass()
+            return type.IsClass
                 && !type.IsSystemType();
         }
 
         public static bool IsUserEnum(this Type type)
         {
-            return type.IsEnum()
+            return type.IsEnum
                 && !type.IsSystemType();
         }
 
@@ -1201,7 +1212,7 @@ namespace ServiceStack
 
         public static string NormalizeNewLines(this string text)
         {
-            return text?.Replace("\r\n", "\n");
+            return text?.Replace("\r\n", "\n").Trim();
         }
 
 #if !LITE

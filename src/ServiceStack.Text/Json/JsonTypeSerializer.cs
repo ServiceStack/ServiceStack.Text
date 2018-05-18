@@ -5,10 +5,11 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Pools;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 using ServiceStack.Text.Support;
@@ -21,40 +22,21 @@ namespace ServiceStack.Text.Json
     {
         public static ITypeSerializer Instance = new JsonTypeSerializer();
 
-        public bool IncludeNullValues
-        {
-            get { return JsConfig.IncludeNullValues; }
-        }
+        public Func<StringSegment, object> ObjectDeserializer { get; set; }
 
-        public bool IncludeNullValuesInDictionaries
-        {
-            get { return JsConfig.IncludeNullValuesInDictionaries; }
-        }
+        public bool IncludeNullValues => JsConfig.IncludeNullValues;
 
-        public string TypeAttrInObject
-        {
-            get { return JsConfig.JsonTypeAttrInObject; }
-        }
+        public bool IncludeNullValuesInDictionaries => JsConfig.IncludeNullValuesInDictionaries;
 
-        internal static string GetTypeAttrInObject(string typeAttr)
-        {
-            return string.Format("{{\"{0}\":", typeAttr);
-        }
+        public string TypeAttrInObject => JsConfig.JsonTypeAttrInObject;
 
-        public WriteObjectDelegate GetWriteFn<T>()
-        {
-            return JsonWriter<T>.WriteFn();
-        }
+        internal static string GetTypeAttrInObject(string typeAttr) => $"{{\"{typeAttr}\":";
 
-        public WriteObjectDelegate GetWriteFn(Type type)
-        {
-            return JsonWriter.GetWriteFn(type);
-        }
+        public WriteObjectDelegate GetWriteFn<T>() => JsonWriter<T>.WriteFn();
 
-        public TypeInfo GetTypeInfo(Type type)
-        {
-            return JsonWriter.GetTypeInfo(type);
-        }
+        public WriteObjectDelegate GetWriteFn(Type type) => JsonWriter.GetWriteFn(type);
+
+        public TypeInfo GetTypeInfo(Type type) => JsonWriter.GetTypeInfo(type);
 
         /// <summary>
         /// Shortcut escape when we're sure value doesn't contain any escaped chars
@@ -98,13 +80,13 @@ namespace ServiceStack.Text.Json
 
         public void WriteObjectString(TextWriter writer, object value)
         {
-            JsonUtils.WriteString(writer, value != null ? value.ToString() : null);
+            JsonUtils.WriteString(writer, value?.ToString());
         }
 
         public void WriteFormattableObjectString(TextWriter writer, object value)
         {
             var formattable = value as IFormattable;
-            JsonUtils.WriteString(writer, formattable != null ? formattable.ToString(null, CultureInfo.InvariantCulture) : null);
+            JsonUtils.WriteString(writer, formattable?.ToString(null, CultureInfo.InvariantCulture));
         }
 
         public void WriteException(TextWriter writer, object value)
@@ -317,6 +299,17 @@ namespace ServiceStack.Text.Json
             JsWriter.WriteEnumFlags(writer, enumFlagValue);
         }
 
+        public void WriteEnumMember(TextWriter writer, object enumValue)
+        {
+            if (enumValue == null) return;
+
+            var enumType = enumValue.GetType();
+            var mi = enumType.GetMember(enumValue.ToString());
+            var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
+            var useValue = enumMemberAttr?.Value ?? enumValue;
+            WriteRawString(writer, useValue.ToString());
+        }
+
         public ParseStringDelegate GetParseFn<T>()
         {
             return JsonReader.Instance.GetParseFn<T>();
@@ -476,12 +469,14 @@ namespace ServiceStack.Text.Json
             return Unescape(json);
         }
 
-        public static string Unescape(string input)
+        public static string Unescape(string input) => Unescape(input, true);
+        public static string Unescape(string input, bool removeQuotes)
         {
-            return Unescape(new StringSegment(input)).Value;
+            return Unescape(new StringSegment(input), removeQuotes).Value;
         }
 
-        public static StringSegment Unescape(StringSegment input)
+        public static StringSegment Unescape(StringSegment input) => Unescape(input, true);
+        public static StringSegment Unescape(StringSegment input, bool removeQuotes)
         {
             var length = input.Length;
             int start = 0;
@@ -489,15 +484,18 @@ namespace ServiceStack.Text.Json
             var output = StringBuilderThreadStatic.Allocate();
             for (; count < length;)
             {
-                if (input.GetChar(count) == JsonUtils.QuoteChar)
+                if (removeQuotes)
                 {
-                    if (start != count)
+                    if (input.GetChar(count) == JsonUtils.QuoteChar)
                     {
-                        output.Append(input.Buffer, input.Offset + start, count - start);
+                        if (start != count)
+                        {
+                            output.Append(input.Buffer, input.Offset + start, count - start);
+                        }
+                        count++;
+                        start = count;
+                        continue;
                     }
-                    count++;
-                    start = count;
-                    continue;
                 }
 
                 if (input.GetChar(count) == JsonUtils.EscapeChar)

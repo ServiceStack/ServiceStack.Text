@@ -9,6 +9,56 @@ namespace ServiceStack.Text.Tests.CsvTests
     public class ObjectSerializerTests
     {
         [Test]
+        public void MidnightAndNoonTestSerialization()
+        {
+            JsConfig.Reset();
+            JsConfig<DateTime>.SerializeFn = null;
+            JsConfig<DateTime>.Reset();
+
+            JsConfig.AlwaysUseUtc = true;
+            JsConfig.AssumeUtc = true;
+            // Set the format for DatTimeFormatting explicitly using DateTimeSerializer.XsdDateTimeFormat because it is ISO8601 fractional seconds
+            JsConfig.DateTimeFormat = DateTimeSerializer.XsdDateTimeFormat;
+
+            var midnight = new DateTime(2018, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var noon = midnight.AddHours(12);
+            var dotnetValues = new
+            {
+                Midnight = midnight.ToString("o"),
+                Noon = noon.ToString("o")
+            };
+            var data = new object[] {
+                    new POCO { DateTime = midnight },
+                    new POCO { DateTime = noon }
+                    };
+            var csv = CsvSerializer.SerializeToCsv(data);
+            // Reset back to defaults
+            JsConfig.Reset();
+            JsConfig<DateTime>.SerializeFn = null;
+            JsConfig<DateTime>.Reset();
+
+            Console.WriteLine(csv);
+
+            const string endLineChars = "\r\n";
+            Assert.AreEqual($"DateTime{endLineChars}" +
+                            $"{dotnetValues.Midnight}{endLineChars}" +
+                            $"{dotnetValues.Noon}{endLineChars}", csv);
+
+            // Now don't use custom DateTimeFormat
+            JsConfig.AlwaysUseUtc = true;
+            JsConfig.AssumeUtc = true;            
+            csv = CsvSerializer.SerializeToCsv(data);
+            Console.WriteLine(csv);
+            Assert.AreEqual($"DateTime{endLineChars}" +
+                            $"2018-01-01{endLineChars}" +
+                            $"2018-01-01T12:00:00Z{endLineChars}", csv);
+
+            JsConfig.Reset();
+            JsConfig<DateTime>.SerializeFn = null;
+            JsConfig<DateTime>.Reset();
+        }
+
+        [Test]
         public void IEnumerableObjectSerialization()
         {
             var data = GenerateSampleData();

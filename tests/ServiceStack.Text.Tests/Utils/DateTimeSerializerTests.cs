@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 using System.Xml;
 using NUnit.Framework;
 using ServiceStack.Text.Common;
@@ -69,7 +70,8 @@ namespace ServiceStack.Text.Tests.Utils
 
             Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(shortDate), Is.EqualTo(shortDateString));
             Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(shortDateTime), Is.EqualTo(shortDateTimeString));
-            Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(longDateTime), Is.EqualTo(longDateTimeString));
+            Assert.That(DateTimeSerializer.ToShortestXsdDateTimeString(longDateTime), Is.EqualTo(longDateTimeString).
+                                                                                      Or.EqualTo("1979-05-09T00:00:00.0010000Z")); //.NET Core
         }
 
         [Test]
@@ -738,6 +740,21 @@ namespace ServiceStack.Text.Tests.Utils
         [Test]
         public void Can_Parse_TimeSpan_NSTimeSpan()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            Assert.That("31536000".FromJson<TimeSpan>(), Is.EqualTo(TimeSpan.FromDays(365)));
+            Assert.That("31539661.001".FromJson<TimeSpan>(), Is.EqualTo(Time1Y1M1H1S1MS));
+        }
+
+        [Test]
+        public void Can_Parse_TimeSpan_NSTimeSpan_DifferentCulture()
+        {
+            var culture = new CultureInfo("sl-SI");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             Assert.That("31536000".FromJson<TimeSpan>(), Is.EqualTo(TimeSpan.FromDays(365)));
             Assert.That("31539661.001".FromJson<TimeSpan>(), Is.EqualTo(Time1Y1M1H1S1MS));
         }

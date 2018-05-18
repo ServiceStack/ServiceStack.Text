@@ -21,9 +21,6 @@
 		/// <returns>A string representation of the double's exact decimal value.</return>
 		public static string ToExactString(double d)
 		{
-#if XBOX
-			return BitConverter.ToString( BitConverter.GetBytes( d ) ) ;
-#else
 			if (double.IsPositiveInfinity(d))
 				return "+Infinity";
 			if (double.IsNegativeInfinity(d))
@@ -92,7 +89,6 @@
 				return "-" + ad.ToString();
 			else
 				return ad.ToString();
-#endif
 		}
 
 		/// <summary>Private class used for manipulating

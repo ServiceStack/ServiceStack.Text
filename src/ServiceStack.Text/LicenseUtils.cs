@@ -139,8 +139,8 @@ namespace ServiceStack
             internal const string ExceededOrmLiteTables = "The free-quota limit on '{0} OrmLite Tables' has been reached." + UpgradeInstructions;
             internal const string ExceededAwsTables = "The free-quota limit on '{0} AWS Tables' has been reached." + UpgradeInstructions;
             internal const string ExceededServiceStackOperations = "The free-quota limit on '{0} ServiceStack Operations' has been reached." + UpgradeInstructions;
-            internal const string ExceededAdminUi = "The Admin UI is a commerical-only premium feature." + UpgradeInstructions;
-            internal const string ExceededPremiumFeature = "Unauthorized use of a commerical-only premium feature." + UpgradeInstructions;
+            internal const string ExceededAdminUi = "The Admin UI is a commercial-only premium feature." + UpgradeInstructions;
+            internal const string ExceededPremiumFeature = "Unauthorized use of a commercial-only premium feature." + UpgradeInstructions;
             public const string UnauthorizedAccessRequest = "Unauthorized access request of a licensed feature.";
         }
 
@@ -173,17 +173,14 @@ namespace ServiceStack
                 return;
 
             string subId = null;
-#if !(PCL || NETSTANDARD1_1)
             var hold = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-#endif
             try
             {
                 var parts = licenseKeyText.SplitOnFirst('-');
                 subId = parts[0];
 
-                int subIdInt;
-                if (int.TryParse(subId, out subIdInt) && revokedSubs.Contains(subIdInt))
+                if (int.TryParse(subId, out var subIdInt) && revokedSubs.Contains(subIdInt))
                     throw new LicenseException("This subscription has been revoked. " + ContactDetails);
 
                 var key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
@@ -215,9 +212,7 @@ namespace ServiceStack
             }
             finally
             {
-#if !(PCL || NETSTANDARD1_1)
                 Thread.CurrentThread.CurrentCulture = hold;
-#endif
             }
         }
 

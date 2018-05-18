@@ -571,7 +571,7 @@ namespace ServiceStack.Text.Tests
         {
             foreach (var invalidChar in allCharsUsed)
             {
-                var singleInvalidChar = string.Format("a {0} b", invalidChar);
+                var singleInvalidChar = $"a {invalidChar} b";
 
                 var instance = new ModelWithMapAndList<string>
                 {
@@ -615,6 +615,14 @@ namespace ServiceStack.Text.Tests
             var toModel = Serialize(model);
 
             Assert.That(toModel, Is.EquivalentTo(model));
+        }
+
+        [Test]
+        public void Can_deserialize_int_with_leading_zeros()
+        {
+            Assert.That("01".FromJson<int>(), Is.EqualTo(1));
+            Assert.That("01".FromJson<long>(), Is.EqualTo(1));
+            Assert.That("01".FromJson<ulong>(), Is.EqualTo(1));
         }
 #endif
     }

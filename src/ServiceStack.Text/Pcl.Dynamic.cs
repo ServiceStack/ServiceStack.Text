@@ -11,13 +11,13 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Linq;
 using System.Text;
-#if NETSTANDARD1_1 
+#if NETSTANDARD2_0 
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;
 #endif
 
-#if !(SL5 ||  __IOS__ || NETFX_CORE)
+#if !(__IOS__)
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
@@ -99,7 +99,6 @@ namespace ServiceStack
     }
 
 //TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
-#if !(SL5 && CORECLR)
 
     public class DynamicJson : DynamicObject
     {
@@ -193,9 +192,8 @@ namespace ServiceStack
             return StringBuilderCache.ReturnAndFree(sb).ToLowerInvariant();
         }
     }
-#endif
 
-#if !(SL5 ||  __IOS__ || NETFX_CORE)
+#if !(__IOS__)
     public static class DynamicProxy
     {
         public static T GetInstanceFor<T>()
@@ -225,7 +223,7 @@ namespace ServiceStack
         static DynamicProxy()
         {
             var assemblyName = new AssemblyName("DynImpl");
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
             DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #else
             DynamicAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
@@ -246,10 +244,10 @@ namespace ServiceStack
 
             IncludeType(targetType, typeBuilder);
 
-            foreach (var face in targetType.GetTypeInterfaces())
+            foreach (var face in targetType.GetInterfaces())
                 IncludeType(face, typeBuilder);
 
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
             return typeBuilder.CreateTypeInfo().AsType();
 #else
             return typeBuilder.CreateType();
@@ -258,7 +256,7 @@ namespace ServiceStack
 
         static void IncludeType(Type typeOfT, TypeBuilder typeBuilder)
         {
-            var methodInfos = typeOfT.GetMethodInfos();
+            var methodInfos = typeOfT.GetMethods();
             foreach (var methodInfo in methodInfos)
             {
                 if (methodInfo.Name.StartsWith("set_", StringComparison.Ordinal)) continue; // we always add a set for a get.
@@ -291,14 +289,9 @@ namespace ServiceStack
             }
             else
             {
-                if (methodInfo.ReturnType.IsValueType() || methodInfo.ReturnType.IsEnum())
+                if (methodInfo.ReturnType.IsValueType || methodInfo.ReturnType.IsEnum)
                 {
-#if NETSTANDARD1_1
-                    MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance");
-#else
-                    MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance",
-                                                                       new[] { typeof(Type) });
-#endif
+                    MethodInfo getMethod = typeof(Activator).GetMethod("CreateInstance", new[] { typeof(Type) });
                     LocalBuilder lb = methodILGen.DeclareLocal(methodInfo.ReturnType);
                     methodILGen.Emit(OpCodes.Ldtoken, lb.LocalType);
                     methodILGen.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));

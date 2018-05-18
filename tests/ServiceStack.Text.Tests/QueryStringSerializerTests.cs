@@ -131,6 +131,8 @@ namespace ServiceStack.Text.Tests
 #if !NETCORE_SUPPORT
         private T StringToPoco<T>(string str)
         {
+            var envKey = Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE");
+            if (!string.IsNullOrEmpty(envKey)) Licensing.RegisterLicense(envKey);
             using (new BasicAppHost().Init())
             {
                 NameValueCollection queryString = HttpUtility.ParseQueryString(str);
@@ -141,7 +143,7 @@ namespace ServiceStack.Text.Tests
                 };
                 var httpReq = new MockHttpRequest("query", "GET", "application/json", "query", queryString,
                                                   new MemoryStream(), new NameValueCollection());
-                var request = (T)restHandler.CreateRequest(httpReq, "query");
+                var request = (T)restHandler.CreateRequestAsync(httpReq, "query").Result;
                 return request;
             }
         }

@@ -17,10 +17,10 @@ namespace ServiceStack
             var genericTypeDefinition = genericType != null
                 ? genericType.GetGenericTypeDefinition()
                 : null;
-#if !XBOX
+
             if (genericTypeDefinition == typeof(HashSet<>))
                 return new HashSet<T>(withItems);
-#endif
+
             if (genericTypeDefinition == typeof(LinkedList<>))
                 return new LinkedList<T>(withItems);
 

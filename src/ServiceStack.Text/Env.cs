@@ -15,33 +15,54 @@ namespace ServiceStack.Text
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
             var platformName = PclExport.Instance.PlatformName;
-            if (platformName != PclExport.Platforms.WindowsStore)
+            if (platformName != PclExport.Platforms.Uwp)
             {
                 IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
-                IsMonoTouch = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null
+                IsIOS = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null
                     || AssemblyUtils.FindType("Foundation.NSObject") != null;
 
                 IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
 
-                //Throws unhandled exception if not called from the main thread
-                //IsWinRT = AssemblyUtils.FindType("Windows.ApplicationModel") != null;
-
-                IsWindowsPhone = AssemblyUtils.FindType("Microsoft.Phone.Info.DeviceStatus") != null;
-
-                IsSilverlight = AssemblyUtils.FindType("System.Windows.Interop.SilverlightHost") != null;
+                try
+                {
+                    IsOSX = AssemblyUtils.FindType("Mono.AppKit") != null;
+#if NET45
+                    IsWindows = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("windir"));
+                    if (File.Exists(@"/System/Library/CoreServices/SystemVersion.plist"))
+                        IsOSX = true;
+                    string osType = File.Exists(@"/proc/sys/kernel/ostype") ? File.ReadAllText(@"/proc/sys/kernel/ostype") : null;
+                    IsLinux = osType?.IndexOf("Linux", StringComparison.OrdinalIgnoreCase) >= 0;
+#endif
+                }
+                catch (Exception) {}
             }
             else
             {
-                IsWindowsStore = true;
+                IsUWP = true;
             }
 
-#if PCL || NETSTANDARD1_1
-            IsUnix = IsMono;
-#else
+#if NETSTANDARD2_0
+            IsNetStandard = true;
+            try
+            {
+                IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+                IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+                IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
+            }
+            catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
+            IsUnix = IsOSX || IsLinux;
+            HasMultiplePlatformTargets = true;
+#elif NET45
+            IsNetFramework = true;
             var platform = (int)Environment.OSVersion.Platform;
-            IsUnix = (platform == 4) || (platform == 6) || (platform == 128);
+            IsUnix = platform == 4 || platform == 6 || platform == 128;
+            IsLinux = IsUnix;
+            if (Environment.GetEnvironmentVariable("OS")?.IndexOf("Windows", StringComparison.OrdinalIgnoreCase) >= 0)
+                IsWindows = true;
 #endif
+            SupportsExpressions = true;
+            SupportsEmit = !IsIOS;
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
@@ -55,27 +76,37 @@ namespace ServiceStack.Text
 
         public static string VersionString { get; set; }
 
-        public static decimal ServiceStackVersion = 4.00m;
+        public static decimal ServiceStackVersion = 5.00m;
+
+        public static bool IsLinux { get; set; }
+
+        public static bool IsOSX { get; set; }
 
         public static bool IsUnix { get; set; }
 
+        public static bool IsWindows { get; set; }
+
         public static bool IsMono { get; set; }
 
-        public static bool IsMonoTouch { get; set; }
+        public static bool IsIOS { get; set; }
 
         public static bool IsAndroid { get; set; }
 
-        public static bool IsWindowsStore { get; set; }
+        public static bool IsUWP { get; set; }
 
-        public static bool IsSilverlight { get; set; }
+        public static bool IsNetStandard { get; set; }
 
-        public static bool IsWindowsPhone { get; set; }
+        public static bool IsNetFramework { get; set; }
 
         public static bool SupportsExpressions { get; set; }
 
         public static bool SupportsEmit { get; set; }
 
+        public static bool StrictMode { get; set; }
+
         public static string ServerUserAgent { get; set; }
+
+        public static bool HasMultiplePlatformTargets { get; set; }
 
         private static readonly DateTime __releaseDate;
         public static DateTime GetReleaseDate()
@@ -88,7 +119,6 @@ namespace ServiceStack.Text
         {
             get
             {
-#if !SL5
                 if (!IsMono && referenceAssembyPath == null)
                 {
                     var programFilesPath = PclExport.Instance.GetEnvironmentVariable("ProgramFiles(x86)") ?? @"C:\Program Files (x86)";
@@ -122,10 +152,9 @@ namespace ServiceStack.Text
                         }
                     }
                 }
-#endif
                 return referenceAssembyPath;
             }
-            set { referenceAssembyPath = value; }
+            set => referenceAssembyPath = value;
         }
     }
 }

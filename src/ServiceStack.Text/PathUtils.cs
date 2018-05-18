@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ServiceStack.Text;
 
@@ -27,11 +28,9 @@ namespace ServiceStack
         public static string MapProjectPath(this string relativePath)
         {
             var sep = PclExport.Instance.DirSep;
-#if !NETSTANDARD1_1
-            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..");
-#else
-            return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
-#endif
+            return Env.HasMultiplePlatformTargets
+                ? PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..")
+                : PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..");
         }
         /// <summary>
         /// Maps the path of a file in the context of a VS 2017+ multi-platform project in a Console App
@@ -66,7 +65,7 @@ namespace ServiceStack
         public static string MapHostAbsolutePath(this string relativePath)
         {
             var sep = PclExport.Instance.DirSep;
-#if !NETSTANDARD1_1
+#if !NETSTANDARD2_0
             return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..");
 #else
             return PclExport.Instance.MapAbsolutePath(relativePath, $"{sep}..{sep}..{sep}..");
@@ -129,6 +128,38 @@ namespace ServiceStack
             sb.Append(path.TrimEnd('/', '\\'));
             AppendPaths(sb, ToStrings(thesePaths));
             return StringBuilderThreadStatic.ReturnAndFree(sb);
+        }
+
+        public static string ResolvePaths(this string path)
+        {
+            if (path == null || path.IndexOfAny("./", "/.") == -1)
+                return path;
+
+            var schemePos = path.IndexOf("://", StringComparison.Ordinal);
+            var prefix = schemePos >= 0
+                ? path.Substring(0, schemePos + 3)
+                : "";
+
+            var parts = path.Substring(prefix.Length).Split('/').ToList();
+            var combinedPaths = new List<string>();
+            foreach (var part in parts)
+            {
+                if (string.IsNullOrEmpty(part) || part == ".")
+                    continue;
+
+                if (part == ".." && combinedPaths.Count > 0)
+                    combinedPaths.RemoveAt(combinedPaths.Count - 1);
+                else
+                    combinedPaths.Add(part);
+            }
+
+            var resolvedPath = string.Join("/", combinedPaths);
+            if (path[0] == '/' && prefix.Length == 0)
+                resolvedPath = '/' + resolvedPath;
+
+            return path[path.Length - 1] == '/' && resolvedPath.Length > 0
+                ? prefix + resolvedPath + '/'
+                : prefix + resolvedPath;
         }
 
         public static string[] ToStrings(object[] thesePaths)

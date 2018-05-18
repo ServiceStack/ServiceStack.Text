@@ -1,4 +1,4 @@
-﻿#if !(XBOX || SL5 || NETFX_CORE || WP || PCL || NETSTANDARD1_1)
+﻿#if !NETSTANDARD2_0
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -22,7 +22,7 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Support;
 
-#if !__IOS__
+#if !__IOS__ && !NETSTANDARD2_0
 using System.Reflection.Emit;
 using FastMember = ServiceStack.Text.FastMember;
 #endif
@@ -69,11 +69,6 @@ namespace ServiceStack
             return File.ReadAllText(filePath);
         }
 
-        public override string ToTitleCase(string value)
-        {
-            return TextInfo.ToTitleCase(value).Replace("_", String.Empty);
-        }
-
         public override string ToInvariantUpper(char value)
         {
             return value.ToString(CultureInfo.InvariantCulture).ToUpper();
@@ -82,7 +77,7 @@ namespace ServiceStack
         public override bool IsAnonymousType(Type type)
         {
             return type.HasAttribute<CompilerGeneratedAttribute>()
-                   && type.IsGeneric() && type.Name.Contains("AnonymousType")
+                   && type.IsGenericType && type.Name.Contains("AnonymousType")
                    && (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal))
                    && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
@@ -130,6 +125,7 @@ namespace ServiceStack
 #if ANDROID
 #elif __IOS__
 #elif __MAC__
+#elif NETSTANDARD2_0
 #else
             string licenceKeyText;
             try
@@ -279,7 +275,7 @@ namespace ServiceStack
 
         public override bool InSameAssembly(Type t1, Type t2)
         {
-            return t1.GetAssembly() == t2.GetAssembly();
+            return t1.Assembly == t2.Assembly;
         }
 
         public override Type GetGenericCollectionType(Type type)
@@ -450,7 +446,7 @@ namespace ServiceStack
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
 #if !(__IOS__ || LITE)
-            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+            if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.Parse;
@@ -462,7 +458,7 @@ namespace ServiceStack
         public override ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
         {
 #if !(__IOS__ || LITE)
-            if (type.AssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
+            if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
                 return DeserializeDynamic<TSerializer>.ParseStringSegment;
@@ -593,7 +589,7 @@ namespace ServiceStack
 	}
 #endif
 
-#if NET45 || NETFX_CORE
+#if NET45 || NETSTANDARD2_0
     public class Net45PclExport : Net40PclExport
     {
         public static new Net45PclExport Provider = new Net45PclExport();
@@ -612,253 +608,6 @@ namespace ServiceStack
         {
             return stream.WriteAsync(bytes, 0, bytes.Length)
                 .ContinueWith(t => stream.FlushAsync());
-        }
-    }
-#endif
-
-#if __IOS__ || __MAC__
-    [Preserve(AllMembers = true)]
-    internal class Poco
-    {
-        public string Dummy { get; set; }
-    }
-
-    public class IosPclExport : Net40PclExport
-    {
-        public static new IosPclExport Provider = new IosPclExport();
-
-        public IosPclExport()
-        {
-            PlatformName = "IOS";
-            SupportsEmit = SupportsExpression = false;
-        }
-
-        public new static void Configure()
-        {
-            Configure(Provider);
-        }
-
-        public override void ResetStream(Stream stream)
-        {
-            // MonoTouch throws NotSupportedException when setting System.Net.WebConnectionStream.Position
-            // Not sure if the stream is used later though, so may have to copy to MemoryStream and
-            // pass that around instead after this point?
-        }
-
-        /// <summary>
-        /// Provide hint to IOS AOT compiler to pre-compile generic classes for all your DTOs.
-        /// Just needs to be called once in a static constructor.
-        /// </summary>
-        [Preserve]
-        public static void InitForAot()
-        {
-        }
-
-        [Preserve]
-        public override void RegisterForAot()
-        {
-            RegisterTypeForAot<Poco>();
-
-            RegisterElement<Poco, string>();
-
-            RegisterElement<Poco, bool>();
-            RegisterElement<Poco, char>();
-            RegisterElement<Poco, byte>();
-            RegisterElement<Poco, sbyte>();
-            RegisterElement<Poco, short>();
-            RegisterElement<Poco, ushort>();
-            RegisterElement<Poco, int>();
-            RegisterElement<Poco, uint>();
-
-            RegisterElement<Poco, long>();
-            RegisterElement<Poco, ulong>();
-            RegisterElement<Poco, float>();
-            RegisterElement<Poco, double>();
-            RegisterElement<Poco, decimal>();
-
-            RegisterElement<Poco, bool?>();
-            RegisterElement<Poco, char?>();
-            RegisterElement<Poco, byte?>();
-            RegisterElement<Poco, sbyte?>();
-            RegisterElement<Poco, short?>();
-            RegisterElement<Poco, ushort?>();
-            RegisterElement<Poco, int?>();
-            RegisterElement<Poco, uint?>();
-            RegisterElement<Poco, long?>();
-            RegisterElement<Poco, ulong?>();
-            RegisterElement<Poco, float?>();
-            RegisterElement<Poco, double?>();
-            RegisterElement<Poco, decimal?>();
-
-            //RegisterElement<Poco, JsonValue>();
-
-            RegisterTypeForAot<DayOfWeek>(); // used by DateTime
-
-            // register built in structs
-            RegisterTypeForAot<Guid>();
-            RegisterTypeForAot<TimeSpan>();
-            RegisterTypeForAot<DateTime>();
-            RegisterTypeForAot<DateTimeOffset>();
-
-            RegisterTypeForAot<Guid?>();
-            RegisterTypeForAot<TimeSpan?>();
-            RegisterTypeForAot<DateTime?>();
-            RegisterTypeForAot<DateTimeOffset?>();
-        }
-
-        [Preserve]
-        public static void RegisterTypeForAot<T>()
-        {
-            AotConfig.RegisterSerializers<T>();
-        }
-
-        [Preserve]
-        public static void RegisterQueryStringWriter()
-        {
-            var i = 0;
-            if (QueryStringWriter<Poco>.WriteFn() != null) i++;
-        }
-
-        [Preserve]
-        public static int RegisterElement<T, TElement>()
-        {
-            var i = 0;
-            i += AotConfig.RegisterSerializers<TElement>();
-            AotConfig.RegisterElement<T, TElement, JsonTypeSerializer>();
-            AotConfig.RegisterElement<T, TElement, Text.Jsv.JsvTypeSerializer>();
-            return i;
-        }
-
-        ///<summary>
-        /// Class contains Ahead-of-Time (AOT) explicit class declarations which is used only to workaround "-aot-only" exceptions occured on device only. 
-        /// </summary>			
-        [Preserve(AllMembers = true)]
-        internal class AotConfig
-        {
-            internal static JsReader<JsonTypeSerializer> jsonReader;
-            internal static JsWriter<JsonTypeSerializer> jsonWriter;
-            internal static JsReader<Text.Jsv.JsvTypeSerializer> jsvReader;
-            internal static JsWriter<Text.Jsv.JsvTypeSerializer> jsvWriter;
-            internal static JsonTypeSerializer jsonSerializer;
-            internal static Text.Jsv.JsvTypeSerializer jsvSerializer;
-
-            static AotConfig()
-            {
-                jsonSerializer = new JsonTypeSerializer();
-                jsvSerializer = new Text.Jsv.JsvTypeSerializer();
-                jsonReader = new JsReader<JsonTypeSerializer>();
-                jsonWriter = new JsWriter<JsonTypeSerializer>();
-                jsvReader = new JsReader<Text.Jsv.JsvTypeSerializer>();
-                jsvWriter = new JsWriter<Text.Jsv.JsvTypeSerializer>();
-            }
-
-            internal static int RegisterSerializers<T>()
-            {
-                var i = 0;
-                i += Register<T, JsonTypeSerializer>();
-                if (jsonSerializer.GetParseFn<T>() != null) i++;
-                if (jsonSerializer.GetWriteFn<T>() != null) i++;
-                if (jsonReader.GetParseFn<T>() != null) i++;
-                if (jsonWriter.GetWriteFn<T>() != null) i++;
-
-                i += Register<T, Text.Jsv.JsvTypeSerializer>();
-                if (jsvSerializer.GetParseFn<T>() != null) i++;
-                if (jsvSerializer.GetWriteFn<T>() != null) i++;
-                if (jsvReader.GetParseFn<T>() != null) i++;
-                if (jsvWriter.GetWriteFn<T>() != null) i++;
-
-                //RegisterCsvSerializer<T>();
-                RegisterQueryStringWriter();
-                return i;
-            }
-
-            internal static void RegisterCsvSerializer<T>()
-            {
-                CsvSerializer<T>.WriteFn();
-                CsvSerializer<T>.WriteObject(null, null);
-                CsvWriter<T>.Write(null, default(IEnumerable<T>));
-                CsvWriter<T>.WriteRow(null, default(T));
-            }
-
-            public static ParseStringDelegate GetParseFn(Type type)
-            {
-                var parseFn = JsonTypeSerializer.Instance.GetParseFn(type);
-                return parseFn;
-            }
-
-            internal static int Register<T, TSerializer>() where TSerializer : ITypeSerializer
-            {
-                var i = 0;
-
-                if (JsonWriter<T>.WriteFn() != null) i++;
-                if (JsonWriter.Instance.GetWriteFn<T>() != null) i++;
-                if (JsonReader.Instance.GetParseFn<T>() != null) i++;
-                if (JsonReader<T>.Parse(null) != null) i++;
-                if (JsonReader<T>.GetParseFn() != null) i++;
-                //if (JsWriter.GetTypeSerializer<JsonTypeSerializer>().GetWriteFn<T>() != null) i++;
-                if (new List<T>() != null) i++;
-                if (new T[0] != null) i++;
-
-                JsConfig<T>.ExcludeTypeInfo = false;
-
-                if (JsConfig<T>.OnDeserializedFn != null) i++;
-                if (JsConfig<T>.HasDeserializeFn) i++;
-                if (JsConfig<T>.SerializeFn != null) i++;
-                if (JsConfig<T>.DeSerializeFn != null) i++;
-                //JsConfig<T>.SerializeFn = arg => "";
-                //JsConfig<T>.DeSerializeFn = arg => default(T);
-                if (TypeConfig<T>.Properties != null) i++;
-
-/*
-                if (WriteType<T, TSerializer>.Write != null) i++;
-                if (WriteType<object, TSerializer>.Write != null) i++;
-				
-                if (DeserializeBuiltin<T>.Parse != null) i++;
-                if (DeserializeArray<T[], TSerializer>.Parse != null) i++;
-                DeserializeType<TSerializer>.ExtractType(null);
-                DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(null, null);
-                DeserializeCollection<TSerializer>.ParseCollection<T>(null, null, null);
-                DeserializeListWithElements<T, TSerializer>.ParseGenericList(null, null, null);
-
-                SpecializedQueueElements<T>.ConvertToQueue(null);
-                SpecializedQueueElements<T>.ConvertToStack(null);
-*/
-
-                WriteListsOfElements<T, TSerializer>.WriteList(null, null);
-                WriteListsOfElements<T, TSerializer>.WriteIList(null, null);
-                WriteListsOfElements<T, TSerializer>.WriteEnumerable(null, null);
-                WriteListsOfElements<T, TSerializer>.WriteListValueType(null, null);
-                WriteListsOfElements<T, TSerializer>.WriteIListValueType(null, null);
-                WriteListsOfElements<T, TSerializer>.WriteGenericArrayValueType(null, null);
-                WriteListsOfElements<T, TSerializer>.WriteArray(null, null);
-
-                TranslateListWithElements<T>.LateBoundTranslateToGenericICollection(null, null);
-                TranslateListWithConvertibleElements<T, T>.LateBoundTranslateToGenericICollection(null, null);
-
-                QueryStringWriter<T>.WriteObject(null, null);
-                return i;
-            }
-
-            internal static void RegisterElement<T, TElement, TSerializer>() where TSerializer : ITypeSerializer
-            {
-                DeserializeDictionary<TSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
-                DeserializeDictionary<TSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
-
-                ToStringDictionaryMethods<T, TElement, TSerializer>.WriteIDictionary(null, null, null, null);
-                ToStringDictionaryMethods<TElement, T, TSerializer>.WriteIDictionary(null, null, null, null);
-
-                // Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
-                // No idea why this is happening because there is no visible exception raised.  Suspect IOS is swallowing an AOT exception somewhere.
-                DeserializeArrayWithElements<TElement, TSerializer>.ParseGenericArray(null, null);
-                DeserializeListWithElements<TElement, TSerializer>.ParseGenericList(null, null, null);
-
-                // Cannot use the line below for some unknown reason - when trying to compile to run on device, mtouch bombs during native code compile.
-                // Something about this line or its inner workings is offensive to mtouch. Luckily this was not needed for my List<Guide> issue.
-                // DeserializeCollection<JsonTypeSerializer>.ParseCollection<TElement>(null, null, null);
-
-                TranslateListWithElements<TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
-                TranslateListWithConvertibleElements<TElement, TElement>.LateBoundTranslateToGenericICollection(null, typeof(List<TElement>));
-            }
         }
     }
 #endif
@@ -1124,16 +873,11 @@ namespace ServiceStack
             {
                 return RSAalg.VerifyData(unsignedData, sha, encryptedData);
             }
-            //SL5 || WP
-            //return RSAalg.VerifyData(unsignedData, encryptedData, new EMSAPKCS1v1_5_SHA1()); 
         }
 
 #if !__IOS__
         //ReflectionExtensions
         const string DataContract = "DataContractAttribute";
-
-        static readonly ConcurrentDictionary<Type, FastMember.TypeAccessor> typeAccessorMap
-            = new ConcurrentDictionary<Type, FastMember.TypeAccessor>();
 
         public static DataContractAttribute GetWeakDataContract(this Type type)
         {
@@ -1142,14 +886,12 @@ namespace ServiceStack
             {
                 var attrType = attr.GetType();
 
-                FastMember.TypeAccessor accessor;
-                if (!typeAccessorMap.TryGetValue(attrType, out accessor))
-                    typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
+                var accessor = TypeProperties.Get(attr.GetType());
 
                 return new DataContractAttribute
                 {
-                    Name = (string)accessor[attr, "Name"],
-                    Namespace = (string)accessor[attr, "Namespace"],
+                    Name = (string)accessor.GetPublicGetter("Name")(attr),
+                    Namespace = (string)accessor.GetPublicGetter("Namespace")(attr),
                 };
             }
             return null;
@@ -1162,18 +904,16 @@ namespace ServiceStack
             {
                 var attrType = attr.GetType();
 
-                FastMember.TypeAccessor accessor;
-                if (!typeAccessorMap.TryGetValue(attrType, out accessor))
-                    typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
+                var accessor = TypeProperties.Get(attr.GetType());
 
                 var newAttr = new DataMemberAttribute
                 {
-                    Name = (string)accessor[attr, "Name"],
-                    EmitDefaultValue = (bool)accessor[attr, "EmitDefaultValue"],
-                    IsRequired = (bool)accessor[attr, "IsRequired"],
+                    Name = (string)accessor.GetPublicGetter("Name")(attr),
+                    EmitDefaultValue = (bool)accessor.GetPublicGetter("EmitDefaultValue")(attr),
+                    IsRequired = (bool)accessor.GetPublicGetter("IsRequired")(attr),
                 };
 
-                var order = (int)accessor[attr, "Order"];
+                var order = (int)accessor.GetPublicGetter("Order")(attr);
                 if (order >= 0)
                     newAttr.Order = order; //Throws Exception if set to -1
 
@@ -1189,18 +929,16 @@ namespace ServiceStack
             {
                 var attrType = attr.GetType();
 
-                FastMember.TypeAccessor accessor;
-                if (!typeAccessorMap.TryGetValue(attrType, out accessor))
-                    typeAccessorMap[attrType] = accessor = FastMember.TypeAccessor.Create(attr.GetType());
+                var accessor = TypeProperties.Get(attr.GetType());
 
                 var newAttr = new DataMemberAttribute
                 {
-                    Name = (string)accessor[attr, "Name"],
-                    EmitDefaultValue = (bool)accessor[attr, "EmitDefaultValue"],
-                    IsRequired = (bool)accessor[attr, "IsRequired"],
+                    Name = (string)accessor.GetPublicGetter("Name")(attr),
+                    EmitDefaultValue = (bool)accessor.GetPublicGetter("EmitDefaultValue")(attr),
+                    IsRequired = (bool)accessor.GetPublicGetter("IsRequired")(attr),
                 };
 
-                var order = (int)accessor[attr, "Order"];
+                var order = (int)accessor.GetPublicGetter("Order")(attr);
                 if (order >= 0)
                     newAttr.Order = order; //Throws Exception if set to -1
 
@@ -1212,7 +950,7 @@ namespace ServiceStack
     }
 }
 
-#if !__IOS__
+#if !__IOS__ && !NETSTANDARD2_0
 
 //Not using it here, but @marcgravell's stuff is too good not to include
 // http://code.google.com/p/fast-member/ Apache License 2.0

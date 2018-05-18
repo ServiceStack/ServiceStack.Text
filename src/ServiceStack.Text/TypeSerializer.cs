@@ -90,7 +90,7 @@ namespace ServiceStack.Text
             {
                 return SerializeToString(value, value.GetType());
             }
-            if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
                 JsState.IsWritingDynamic = true;
                 var result = SerializeToString(value, value.GetType());
@@ -125,7 +125,7 @@ namespace ServiceStack.Text
             {
                 SerializeToWriter(value, value.GetType(), writer);
             }
-            else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            else if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
                 JsState.IsWritingDynamic = false;
                 SerializeToWriter(value, value.GetType(), writer);
@@ -156,7 +156,7 @@ namespace ServiceStack.Text
             {
                 SerializeToStream(value, value.GetType(), stream);
             }
-            else if (typeof(T).IsAbstract() || typeof(T).IsInterface())
+            else if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
                 JsState.IsWritingDynamic = false;
                 SerializeToStream(value, value.GetType(), stream);
@@ -204,8 +204,34 @@ namespace ServiceStack.Text
         /// Useful extension method to get the Dictionary[string,string] representation of any POCO type.
         /// </summary>
         /// <returns></returns>
-        public static Dictionary<string, string> ToStringDictionary<T>(this T obj)
+        public static Dictionary<string, string> ToStringDictionary(this object obj)
         {
+            if (obj == null)
+                return new Dictionary<string, string>();
+
+            if (obj is Dictionary<string, string> strDictionary)
+                return strDictionary;
+
+            if (obj is IEnumerable<KeyValuePair<string, string>> kvpStrings)
+            {
+                var to = new Dictionary<string, string>();
+                foreach (var kvp in kvpStrings)
+                {
+                    to[kvp.Key] = kvp.Value;
+                }
+                return to;
+            }
+
+            if (obj is IEnumerable<KeyValuePair<string, object>> kvps)
+            {
+                var to = new Dictionary<string, string>();
+                foreach (var kvp in kvps)
+                {
+                    to[kvp.Key] = kvp.Value.ToJsv();
+                }
+                return to;
+            }
+
             var jsv = SerializeToString(obj);
             var map = DeserializeFromString<Dictionary<string, string>>(jsv);
             return map;
@@ -274,9 +300,8 @@ namespace ServiceStack.Text
                 sb.AppendFormat("{0} {1}", param.ParameterType.Name, param.Name);
             }
 
-            var methodName = fn.Method().Name;
-            var info = "{0} {1}({2})".Fmt(method.ReturnType.Name, methodName, 
-                StringBuilderThreadStatic.ReturnAndFree(sb));
+            var methodName = fn.Method.Name;
+            var info = $"{method.ReturnType.Name} {methodName}({StringBuilderThreadStatic.ReturnAndFree(sb)})";
             return info;
         }
 
@@ -287,9 +312,9 @@ namespace ServiceStack.Text
 
         private static bool HasCircularReferences(object value, Stack<object> parentValues)
         {
-            var type = value != null ? value.GetType() : null;
-
-            if (type == null || !type.IsClass() || value is string)
+            var type = value?.GetType();
+            
+            if (type == null || !type.IsClass || value is string)
                 return false;
 
             if (parentValues == null)
@@ -297,16 +322,47 @@ namespace ServiceStack.Text
                 parentValues = new Stack<object>();
                 parentValues.Push(value);
             }
+            
+            bool CheckValue(object key)
+            {
+                if (parentValues.Contains(key))
+                    return true;
 
-            var valueEnumerable = value as IEnumerable;
-            if (valueEnumerable != null)
+                parentValues.Push(key);
+
+                if (HasCircularReferences(key, parentValues))
+                    return true;
+
+                parentValues.Pop();
+                return false;
+            }
+
+            if (value is IEnumerable valueEnumerable)
             {
                 foreach (var item in valueEnumerable)
                 {
-                    if (HasCircularReferences(item, parentValues))
+                    if (item == null)
+                        continue;
+
+                    var itemType = item.GetType();
+                    if (itemType.IsGenericType && itemType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                    {
+                        var props = TypeProperties.Get(itemType);
+                        var key = props.GetPublicGetter("Key")(item);
+
+                        if (CheckValue(key)) 
+                            return true;
+
+                        var val = props.GetPublicGetter("Value")(item);
+
+                        if (CheckValue(val)) 
+                            return true;
+                    }
+                    
+                    if (CheckValue(item)) 
                         return true;
                 }
-            }
+            }            
             else
             {
                 var props = type.GetSerializableProperties();
@@ -316,20 +372,13 @@ namespace ServiceStack.Text
                     if (pi.GetIndexParameters().Length > 0)
                         continue;
 
-                    var mi = pi.PropertyGetMethod();
+                    var mi = pi.GetGetMethod(nonPublic:false);
                     var pValue = mi != null ? mi.Invoke(value, null) : null;
                     if (pValue == null)
                         continue;
 
-                    if (parentValues.Contains(pValue))
+                    if (CheckValue(pValue))
                         return true;
-
-                    parentValues.Push(pValue);
-
-                    if (HasCircularReferences(pValue, parentValues))
-                        return true;
-
-                    parentValues.Pop();
                 }
             }
 

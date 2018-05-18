@@ -280,7 +280,7 @@ namespace StackExchange.Profiling
             }
         }
 
-#if !NETSTANDARD // TODO: Revisit in .NET Standard 2.0
+#if !NETCOREAPP1_1 // TODO: Revisit in .NET Standard 2.0
         /// <summary>
         /// Create a DEEP clone of this MiniProfiler.
         /// </summary>

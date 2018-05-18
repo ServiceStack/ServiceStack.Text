@@ -6,8 +6,8 @@ namespace ServiceStack.Text.Tests
     {
         public string S;
         public int I;
-        public long L;
-        public double D;
+        public long L = 0;
+        public double DL = 0;
     }
 
     struct ValueTypeFields

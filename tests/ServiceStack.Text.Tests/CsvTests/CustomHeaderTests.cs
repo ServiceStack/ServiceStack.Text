@@ -92,6 +92,30 @@ namespace ServiceStack.Text.Tests.CsvTests
         }
 
         [Test]
+        public void Can_deserialize_partial_custom_headers_map()
+        {
+            CsvConfig<TableItem>.CustomHeadersMap = new Dictionary<string, string> {
+                {"Column1Data", "Column 1"},
+                {"Column3Data", "Column,3"},
+                {"Column5Data", "Column 5"},
+            };
+
+            var csv = "Column 1,\"Column,3\",Column 5\r\n"
+                    + "I,To,Novels\r\n"
+                    + "I am,Cool,Awesome\r\n";
+
+            var data = CsvSerializer.DeserializeFromString<List<TableItem>>(csv);
+            
+            Assert.That(data[0].Column1Data, Is.EqualTo("I"));
+            Assert.That(data[0].Column3Data, Is.EqualTo("To"));
+            Assert.That(data[0].Column5Data, Is.EqualTo("Novels"));
+            
+            Assert.That(data[1].Column1Data, Is.EqualTo("I am"));
+            Assert.That(data[1].Column3Data, Is.EqualTo("Cool"));
+            Assert.That(data[1].Column5Data, Is.EqualTo("Awesome"));
+        }
+
+        [Test]
         public void Can_serialize_without_headers()
         {
             CsvConfig<TableItem>.OmitHeaders = true;

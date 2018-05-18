@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using ServiceStack.Text.Json;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;
@@ -12,6 +12,8 @@ namespace ServiceStack.Text.Common
 {
     public interface ITypeSerializer
     {
+        Func<StringSegment, object> ObjectDeserializer { get; set; }
+
         bool IncludeNullValues { get; }
         bool IncludeNullValuesInDictionaries { get; }
         string TypeAttrInObject { get; }
@@ -52,6 +54,7 @@ namespace ServiceStack.Text.Common
         void WriteDecimal(TextWriter writer, object decimalValue);
         void WriteEnum(TextWriter writer, object enumValue);
         void WriteEnumFlags(TextWriter writer, object enumFlagValue);
+        void WriteEnumMember(TextWriter writer, object enumFlagValue);
 
         //object EncodeMapKey(object value);
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ServiceStack.Text.Json;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 using ServiceStack.Text.Support;
@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Common
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
             }
 
-            var ctor = tupleType.DeclaredConstructors()
+            var ctor = tupleType.GetConstructors()
                 .First(x => x.GetParameters().Length == genericArgs.Length);
             return ctor.Invoke(argValues);
         }

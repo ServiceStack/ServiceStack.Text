@@ -19,7 +19,6 @@ namespace ServiceStack.Text
 
         private static Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
 
-#if !XBOX
         /// <summary>
         /// Find the type from the name supplied
         /// </summary>
@@ -30,9 +29,7 @@ namespace ServiceStack.Text
             Type type = null;
             if (TypeCache.TryGetValue(typeName, out type)) return type;
 
-#if !SL5
             type = Type.GetType(typeName);
-#endif
             if (type == null)
             {
                 var typeDef = new AssemblyTypeDefinition(typeName);
@@ -52,7 +49,6 @@ namespace ServiceStack.Text
 
             return type;
         }
-#endif
 
         /// <summary>
         /// The top-most interface of the given type, if any.
@@ -60,10 +56,10 @@ namespace ServiceStack.Text
         public static Type MainInterface<T>()
         {
             var t = typeof(T);
-            if (t.BaseType() == typeof(object))
+            if (t.BaseType == typeof(object))
             {
                 // on Windows, this can be just "t.GetInterfaces()" but Mono doesn't return in order.
-                var interfaceType = t.Interfaces().FirstOrDefault(i => !t.Interfaces().Any(i2 => i2.Interfaces().Contains(i)));
+                var interfaceType = t.GetInterfaces().FirstOrDefault(i => !t.GetInterfaces().Any(i2 => i2.GetInterfaces().Contains(i)));
                 if (interfaceType != null) return interfaceType;
             }
             return t; // not safe to use interface, as it might be a superclass's one.

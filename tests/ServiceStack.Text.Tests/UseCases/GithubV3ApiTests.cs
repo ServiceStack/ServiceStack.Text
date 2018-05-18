@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests.UseCases
     /// Stand-alone C# client for the Github v3 API
     /// Uses only ServiceStack.Text (+NUnit for tests)
     /// </summary>
-    [TestFixture, Explicit]
+    [TestFixture, Ignore("Requires 3rd Party API")]
     public class GithubV3ApiGatewayTests
     {
         [Test]
@@ -37,7 +37,7 @@ namespace ServiceStack.Text.Tests.UseCases
         public T GetJson<T>(string route, params object[] routeArgs)
         {
             return GithubApiBaseUrl.AppendPath(route.Fmt(routeArgs))
-                .GetJsonFromUrl()
+                .GetJsonFromUrl(requestFilter:x => x.UserAgent = "ServiceStack.Text.Tests")
                 .FromJson<T>();
         }
 

@@ -12,7 +12,7 @@
 
 using System;
 using System.Reflection;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;
@@ -42,10 +42,10 @@ namespace ServiceStack.Text.Common
         /// <returns></returns>
         public static ConstructorInfo GetTypeStringConstructor(Type type)
         {
-            foreach (var ci in type.DeclaredConstructors())
+            foreach (var ci in type.GetConstructors())
             {
                 var paramInfos = ci.GetParameters();
-                var matchFound = (paramInfos.Length == 1 && paramInfos[0].ParameterType == typeof(string));
+                var matchFound = paramInfos.Length == 1 && paramInfos[0].ParameterType == typeof(string);
                 if (matchFound)
                 {
                     return ci;

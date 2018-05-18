@@ -169,12 +169,78 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_deserialize_null_Nullable_Enum()
         {
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
             string json = @"{""myEnum"":null}";
             var o = json.FromJson<NullableEnum>();
             Assert.That(o.MyEnum, Is.Null);
 
             JsConfig.Reset();
+        }
+
+        [Test]
+        public void Does_write_EnumValues_when_ExcludeDefaultValues()
+        {
+            using (JsConfig.With(excludeDefaultValues:true))
+            {
+                Assert.That(new ClassWithEnums
+                {
+                    NoFlagsEnum = EnumWithoutFlags.One
+                }.ToJson(), Is.EqualTo("{\"FlagsEnum\":0,\"NoFlagsEnum\":\"One\"}"));
+
+                Assert.That(new ClassWithEnums
+                {
+                    NoFlagsEnum = EnumWithoutFlags.Zero
+                }.ToJson(), Is.EqualTo("{\"FlagsEnum\":0,\"NoFlagsEnum\":\"Zero\"}"));
+            }
+
+            using (JsConfig.With(excludeDefaultValues:true, includeDefaultEnums:false))
+            {
+                Assert.That(new ClassWithEnums
+                {
+                    NoFlagsEnum = EnumWithoutFlags.One
+                }.ToJson(), Is.EqualTo("{\"NoFlagsEnum\":\"One\"}"));
+
+                Assert.That(new ClassWithEnums
+                {
+                    NoFlagsEnum = EnumWithoutFlags.Zero
+                }.ToJson(), Is.EqualTo("{}"));
+            }
+        }
+        
+        [DataContract]
+        public enum Day
+        {
+            [EnumMember(Value = "MON")]
+            Monday,
+            [EnumMember(Value = "TUE")]
+            Tuesday,
+            [EnumMember(Value = "WED")]
+            Wednesday,
+            [EnumMember(Value = "THU")]
+            Thursday,
+            [EnumMember(Value = "FRI")]
+            Friday,
+            [EnumMember(Value = "SAT")]
+            Saturday,
+            [EnumMember(Value = "SUN")]
+            Sunday,            
+        }
+
+        class EnumMemberDto
+        {
+            public Day Day { get; set; }
+        }
+
+        [Test]
+        public void Does_serialize_EnumMember_Value()
+        {
+            var dto = new EnumMemberDto {Day = Day.Sunday};
+            var json = dto.ToJson();
+            
+            Assert.That(json, Is.EqualTo("{\"Day\":\"SUN\"}"));
+
+            var fromDto = json.FromJson<EnumMemberDto>();
+            Assert.That(fromDto.Day, Is.EqualTo(Day.Sunday));
         }
 
     }

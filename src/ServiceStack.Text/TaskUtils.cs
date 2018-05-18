@@ -150,20 +150,12 @@ namespace ServiceStack
 
         public static void Sleep(int timeMs)
         {
-#if PCL || NETSTANDARD1_1
-            Task.Delay(timeMs).Wait();
-#else
             Thread.Sleep(timeMs);
-#endif
         }
 
         public static void Sleep(TimeSpan time)
         {
-#if PCL || NETSTANDARD1_1
-            Task.Delay(time).Wait();
-#else
             Thread.Sleep(time);
-#endif
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-#if NETSTANDARD1_1  
+#if NETSTANDARD2_0  
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;
@@ -81,7 +81,7 @@ namespace ServiceStack.Text.Common
         internal static ParseStringSegmentDelegate GetGenericQueueParseFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
-            var elementType = enumerableInterface.GenericTypeArguments()[0];
+            var elementType = enumerableInterface.GetGenericArguments()[0];
             var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
             var mi = genericType.GetStaticMethod("ConvertToQueue");
             var convertToQueue = (ConvertObjectDelegate)mi.MakeDelegate(typeof(ConvertObjectDelegate));
@@ -111,7 +111,7 @@ namespace ServiceStack.Text.Common
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
 
-            var elementType = enumerableInterface.GenericTypeArguments()[0];
+            var elementType = enumerableInterface.GetGenericArguments()[0];
             var genericType = typeof(SpecializedQueueElements<>).MakeGenericType(elementType);
             var mi = genericType.GetStaticMethod("ConvertToStack");
             var convertToQueue = (ConvertObjectDelegate)mi.MakeDelegate(typeof(ConvertObjectDelegate));
@@ -131,7 +131,7 @@ namespace ServiceStack.Text.Common
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
             if (enumerableInterface == null) return null;
-            var elementType = enumerableInterface.GenericTypeArguments()[0];
+            var elementType = enumerableInterface.GetGenericArguments()[0];
             var genericType = typeof(SpecializedEnumerableElements<,>).MakeGenericType(typeof(T), elementType);
             var fi = genericType.GetPublicStaticField("ConvertFn");
 
@@ -165,13 +165,13 @@ namespace ServiceStack.Text.Common
 
         static SpecializedEnumerableElements()
         {
-            foreach (var ctorInfo in typeof(TCollection).DeclaredConstructors())
+            foreach (var ctorInfo in typeof(TCollection).GetConstructors())
             {
                 var ctorParams = ctorInfo.GetParameters();
                 if (ctorParams.Length != 1) continue;
                 var ctorParam = ctorParams[0];
 
-                if (typeof(IEnumerable).AssignableFrom(ctorParam.ParameterType)
+                if (typeof(IEnumerable).IsAssignableFrom(ctorParam.ParameterType)
                     || ctorParam.ParameterType.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
                 {
                     ConvertFn = fromObject =>

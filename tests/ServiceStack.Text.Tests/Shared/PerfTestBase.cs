@@ -7,13 +7,13 @@ namespace ServiceStack.Common.Tests
 {
     public class PerfTestBase
     {
-        protected int DefaultIterations { get; set; }
-        protected List<int> MultipleIterations { get; set; }
+        public int DefaultIterations { get; set; }
+        public int[] MultipleIterations { get; set; }
 
         public PerfTestBase()
         {
             this.DefaultIterations = 10000;
-            this.MultipleIterations = new List<int> { 1000, 10000, 100000, 1000000 };
+            this.MultipleIterations = new [] { 1000, 10000, 100000, 1000000 };
         }
 
         protected StringBuilder SbLog = new StringBuilder();

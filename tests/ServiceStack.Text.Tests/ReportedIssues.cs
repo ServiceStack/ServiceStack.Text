@@ -330,6 +330,68 @@ namespace ServiceStack.Text.Tests
             var deserialized = TypeSerializer.DeserializeFromString<TestMappedList>(serialized);
             Assert.That(deserialized.IntArrayProp, Is.EqualTo(type.IntArrayProp));
         }
+
+
+        [Test]
+        public void Null_Reference_Exception_On_Inherited_Field_With_No_Setter()
+        {
+            string testString = null;
+            InheritedFieldErrorTest parentClass = new InheritedFieldErrorTest(), parentClassResult = null;
+            InheritedFieldErrorTestChild childClass = new InheritedFieldErrorTestChild(), childClassResult = null;
+            Assert.DoesNotThrow(() => { testString = JsonSerializer.SerializeToString(parentClass); });
+            Assert.IsNotNull(testString);
+            Assert.IsNotEmpty(testString);
+            Assert.DoesNotThrow(() => { parentClassResult = JsonSerializer.DeserializeFromString<InheritedFieldErrorTest>(testString); });
+            Assert.IsNotNull(parentClassResult);
+            Assert.DoesNotThrow(() => { testString = JsonSerializer.SerializeToString(childClass); });
+            Assert.IsNotNull(testString);
+            Assert.IsNotEmpty(testString);
+            Assert.DoesNotThrow(() => { childClassResult = JsonSerializer.DeserializeFromString<InheritedFieldErrorTestChild>(testString); });
+            Assert.IsNotNull(childClassResult);
+        }
+
+        [System.Runtime.Serialization.DataContract]
+        public class InheritedFieldErrorTest
+        {
+            [System.Runtime.Serialization.DataMember]
+            protected bool test = false;
+        }
+
+        [System.Runtime.Serialization.DataContract]
+        public class InheritedFieldErrorTestChild : InheritedFieldErrorTest
+        {
+        }
+
+        [Test]
+        public void Null_Reference_Exception_On_Inherited_Property_With_No_Setter()
+        {
+            string testString = null;
+            InheritedPropertyErrorTest parentClass = new InheritedPropertyErrorTest(), parentClassResult = null;
+            InheritedPropertyErrorTestChild childClass = new InheritedPropertyErrorTestChild(), childClassResult = null;
+            Assert.DoesNotThrow(() => { testString = JsonSerializer.SerializeToString(parentClass); });
+            Assert.IsNotNull(testString);
+            Assert.IsNotEmpty(testString);
+            Assert.DoesNotThrow(() => { parentClassResult = JsonSerializer.DeserializeFromString<InheritedPropertyErrorTest>(testString); });
+            Assert.IsNotNull(parentClassResult);
+            Assert.DoesNotThrow(() => { testString = JsonSerializer.SerializeToString(childClass); });
+            Assert.IsNotNull(testString);
+            Assert.IsNotEmpty(testString);
+            Assert.DoesNotThrow(() => { childClassResult = JsonSerializer.DeserializeFromString<InheritedPropertyErrorTestChild>(testString); });
+            Assert.IsNotNull(childClassResult);
+        }
+
+
+        [System.Runtime.Serialization.DataContract]
+        public class InheritedPropertyErrorTest
+        {
+            [System.Runtime.Serialization.DataMember]
+            protected bool Test { get; }
+        }
+
+        [System.Runtime.Serialization.DataContract]
+        public class InheritedPropertyErrorTestChild : InheritedPropertyErrorTest
+        {
+        }
     }
 
     public class TestMappedList

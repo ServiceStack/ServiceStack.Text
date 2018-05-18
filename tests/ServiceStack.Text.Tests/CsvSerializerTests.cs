@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Threading;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
@@ -9,6 +11,9 @@ using ServiceStack.Text.Tests.Support;
 namespace ServiceStack.Text.Tests
 {
     [TestFixture]
+#if NETCORE_SUPPORT
+    [Ignore("Fix Northwind.dll")]
+#endif
     public class CsvSerializerTests
     {
         static CsvSerializerTests()
@@ -216,7 +221,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(map["Id"], Is.EqualTo(movie.Id.ToString()));
             Assert.That(map["ImdbId"], Is.EqualTo(movie.ImdbId));
             Assert.That(map["Title"], Is.EqualTo(movie.Title));
-            Assert.That(map["Rating"], Is.EqualTo(movie.Rating.ToString()));
+            Assert.That(map["Rating"], Is.EqualTo(movie.Rating.ToString(CultureInfo.InvariantCulture)));
             Assert.That(map["Director"], Is.EqualTo(movie.Director));
             Assert.That(map["ReleaseDate"], Is.EqualTo(movie.ReleaseDate.ToJsv()));
             Assert.That(map["TagLine"], Is.EqualTo(movie.TagLine));
@@ -249,7 +254,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(first[0], Is.EqualTo(movie.Id.ToString()));
             Assert.That(first[1], Is.EqualTo(movie.ImdbId));
             Assert.That(first[2], Is.EqualTo(movie.Title));
-            Assert.That(first[3], Is.EqualTo(movie.Rating.ToString()));
+            Assert.That(first[3], Is.EqualTo(movie.Rating.ToString(CultureInfo.InvariantCulture)));
             Assert.That(first[4], Is.EqualTo(movie.Director));
             Assert.That(first[5], Is.EqualTo(movie.ReleaseDate.ToJsv()));
             Assert.That(first[6], Is.EqualTo(movie.TagLine));
@@ -270,6 +275,106 @@ namespace ServiceStack.Text.Tests
             Assert.That(row, Is.EqualTo(NorthwindData.OrderDetails[0]));
 
             CsvConfig.Reset();
+        }
+
+        [Test]
+        public void Can_serialize_ObjectDictionary_list()
+        {
+            var rows = new List<Dictionary<string, object>>
+            {
+                new Dictionary<string, object>
+                {
+                    { "Id", 1 },
+                    { "CustomerId", "ALFKI" },
+                },
+                new Dictionary<string, object>
+                {
+                    { "Id", 2 },
+                    { "CustomerId", "ANATR" },
+                },
+            };
+
+            Assert.That(rows.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI\n2,ANATR").Or.EqualTo("CustomerId,Id\nALFKI,1\nANATR,2"));
+        }
+
+        [Test]
+        public void Can_serialize_StringDictionary_list()
+        {
+            var rows = new List<Dictionary<string, string>>
+            {
+                new Dictionary<string, string>
+                {
+                    { "Id", "1" },
+                    { "CustomerId", "ALFKI" },
+                },
+                new Dictionary<string, string>
+                {
+                    { "Id", "2" },
+                    { "CustomerId", "ANATR" },
+                },
+            };
+
+            Assert.That(rows.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI\n2,ANATR").Or.EqualTo("CustomerId,Id\nALFKI,1\nANATR,2"));
+        }
+
+        [Test]
+        public void Can_serialize_single_ObjectDictionary_or_ObjectKvps()
+        {
+            var row = new Dictionary<string, object>
+            {
+                { "Id", 1 },
+                { "CustomerId", "ALFKI" },
+            };
+
+            Assert.That(row.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
+
+            var kvps = new[]
+            {
+                new KeyValuePair<string, object>("Id", 1),
+                new KeyValuePair<string, object>("CustomerId", "ALFKI"),
+            };
+
+            Assert.That(kvps.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
+        }
+
+        [Test]
+        public void Can_serialize_single_ObjectDictionary_or_ObjectKvps_WithEmptyString()
+        {
+            var row = new Dictionary<string, object>
+            {
+                { "Id", 1 },
+                { "CustomerId", "" },
+            };
+
+            Assert.That(row.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,").Or.EqualTo("CustomerId,Id\n,1"));
+
+            var kvps = new[]
+            {
+                new KeyValuePair<string, object>("Id", 1),
+                new KeyValuePair<string, object>("CustomerId", ""),
+            };
+
+            Assert.That(kvps.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,").Or.EqualTo("CustomerId,Id\n,1"));
+        }
+        
+        [Test]
+        public void Can_serialize_single_StringDictionary_or_StringKvps()
+        {
+            var row = new Dictionary<string, string>
+            {
+                { "Id", "1" },
+                { "CustomerId", "ALFKI" },
+            };
+
+            Assert.That(row.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
+
+            var kvps = new[]
+            {
+                new KeyValuePair<string, string>("Id", "1"),
+                new KeyValuePair<string, string>("CustomerId", "ALFKI"),
+            };
+
+            Assert.That(kvps.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,CustomerId\n1,ALFKI").Or.EqualTo("CustomerId,Id\nALFKI,1"));
         }
 
         [Test]

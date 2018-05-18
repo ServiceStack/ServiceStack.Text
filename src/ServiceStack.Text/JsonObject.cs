@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -170,7 +171,7 @@ namespace ServiceStack.Text
             }
 
             double doubleValue;
-            if (double.TryParse(strValue, out doubleValue))
+            if (double.TryParse(strValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out doubleValue))
             {
                 return doubleValue < JsonUtils.MaxInteger && doubleValue > JsonUtils.MinInteger;
             }

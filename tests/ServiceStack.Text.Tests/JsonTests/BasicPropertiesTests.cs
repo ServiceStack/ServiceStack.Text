@@ -185,7 +185,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_deserialize_null_Nested_HashSet()
         {
-            JsConfig.ThrowOnDeserializationError = true;
+            JsConfig.ThrowOnError = true;
             string json = @"{""set"":null}";
             var o = json.FromJson<ModelWithHashSet>();
             Assert.That(o.Set, Is.Null);

@@ -300,5 +300,36 @@ namespace ServiceStack.Text.Tests
             Assert.That(mc.ToJson(), Is.EqualTo("{\"some-title\":\"Some random title\"}"));
         }
 
+        [DataContract]
+        public class AliasWithDataContract
+        {
+            public int Id { get; set; }
+
+            [DataMember(Name = "alias")]
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Does_use_alias_and_is_optin_with_DataContract_Attribute()
+        {
+            var dto = new AliasWithDataContract { Id = 1, Name = "foo" };
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"alias\":\"foo\"}"));
+        }
+
+        public class AliasWithoutDataContract
+        {
+            public int Id { get; set; }
+
+            [DataMember(Name = "alias")]
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Does_use_alias_and_is_not_optin_without_DataContract_Attribute()
+        {
+            var dto = new AliasWithoutDataContract { Id = 1, Name = "foo" };
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":1,\"alias\":\"foo\"}"));
+        }
+
     }
 }

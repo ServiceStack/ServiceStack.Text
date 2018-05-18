@@ -46,7 +46,7 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                var existingKeyPos = qsPos + 1 == url.IndexOf(key, qsPos, PclExport.Instance.InvariantComparison)
+                var existingKeyPos = qsPos + 1 == url.IndexOf(key + "=", qsPos, PclExport.Instance.InvariantComparison)
                     ? qsPos
                     : url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
 
@@ -85,7 +85,7 @@ namespace ServiceStack
             var hPos = url.IndexOf('#');
             if (hPos != -1)
             {
-                var existingKeyPos = hPos + 1 == url.IndexOf(key, hPos, PclExport.Instance.InvariantComparison)
+                var existingKeyPos = hPos + 1 == url.IndexOf(key + "=", hPos, PclExport.Instance.InvariantComparison)
                     ? hPos
                     : url.IndexOf("/" + key, hPos, PclExport.Instance.InvariantComparison);
 
@@ -104,6 +104,20 @@ namespace ServiceStack
             }
             var prefix = url.IndexOf('#') == -1 ? "#" : "/";
             return url + prefix + key + "=" + val.UrlEncode();
+        }
+
+        public static bool HasRequestBody(string httpMethod)
+        {
+            switch (httpMethod)
+            {
+                case HttpMethods.Get:
+                case HttpMethods.Delete:
+                case HttpMethods.Head:
+                case HttpMethods.Options:
+                    return false;
+            }
+
+            return true;
         }
 
         public static string GetJsonFromUrl(this string url,
@@ -520,6 +534,10 @@ namespace ServiceStack
                     writer.Write(requestBody);
                 }
             }
+            else if (method != null && HasRequestBody(method))
+            {
+                webReq.ContentLength = 0;
+            }
 
             using (var webRes = PclExport.Instance.GetResponse(webReq))
             using (var stream = webRes.GetResponseStream())
@@ -805,12 +823,10 @@ namespace ServiceStack
             if (ex == null)
                 return null;
 
-            var webEx = ex as WebException;
-            if (webEx != null)
+            if (ex is WebException webEx)
                 return GetStatus(webEx);
 
-            var hasStatus = ex as IHasStatusCode;
-            if (hasStatus != null)
+            if (ex is IHasStatusCode hasStatus)
                 return (HttpStatusCode)hasStatus.StatusCode;
 
             return null;
@@ -829,12 +845,8 @@ namespace ServiceStack
 
         public static string GetResponseBody(this Exception ex)
         {
-            var webEx = ex as WebException;
-            if (webEx == null || webEx.Response == null
-#if !(SL5 || PCL || NETSTANDARD1_1)
-                || webEx.Status != WebExceptionStatus.ProtocolError
-#endif
-            ) return null;
+            if (!(ex is WebException webEx) || webEx.Response == null || webEx.Status != WebExceptionStatus.ProtocolError) 
+                return null;
 
             var errorResponse = (HttpWebResponse)webEx.Response;
             using (var reader = new StreamReader(errorResponse.GetResponseStream(), UseEncoding))
@@ -956,7 +968,7 @@ namespace ServiceStack
         }
 
         public static void UploadFile(this WebRequest webRequest, Stream fileStream, string fileName, string mimeType,
-            string accept = null, Action<HttpWebRequest> requestFilter = null, string method = "POST")
+            string accept = null, Action<HttpWebRequest> requestFilter = null, string method = "POST", string field = "file")
         {
             var httpReq = (HttpWebRequest)webRequest;
             httpReq.Method = method;
@@ -972,10 +984,8 @@ namespace ServiceStack
 
             var boundarybytes = ("\r\n--" + boundary + "--\r\n").ToAsciiBytes();
 
-            var headerTemplate = "\r\n--" + boundary +
-                                 "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\nContent-Type: {1}\r\n\r\n";
-
-            var header = string.Format(headerTemplate, fileName, mimeType);
+            var header = "\r\n--" + boundary +
+                         $"\r\nContent-Disposition: form-data; name=\"{field}\"; filename=\"{fileName}\"\r\nContent-Type: {mimeType}\r\n\r\n";
 
             var headerbytes = header.ToAsciiBytes();
 
@@ -1138,6 +1148,7 @@ namespace ServiceStack
         public const string ImagePng = "image/png";
         public const string ImageGif = "image/gif";
         public const string ImageJpg = "image/jpeg";
+        public const string ImageSvg = "image/svg+xml";
 
         public const string Bson = "application/bson";
         public const string Binary = "application/octet-stream";
@@ -1425,7 +1436,7 @@ namespace ServiceStack
 
     public static class HttpMethods
     {
-        static readonly string[] allVerbs = new[] {
+        static readonly string[] allVerbs = {
             "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT", // RFC 2616
             "PROPFIND", "PROPPATCH", "MKCOL", "COPY", "MOVE", "LOCK", "UNLOCK",    // RFC 2518
             "VERSION-CONTROL", "REPORT", "CHECKOUT", "CHECKIN", "UNCHECKOUT",
@@ -1440,14 +1451,8 @@ namespace ServiceStack
 
         public static HashSet<string> AllVerbs = new HashSet<string>(allVerbs);
 
-        public static bool HasVerb(string httpVerb)
-        {
-#if NETFX_CORE
-            return allVerbs.Any(p => p.Equals(httpVerb.ToUpper()));
-#else
-            return AllVerbs.Contains(httpVerb.ToUpper());
-#endif
-        }
+        public static bool Exists(string httpMethod) => AllVerbs.Contains(httpMethod.ToUpper());
+        public static bool HasVerb(string httpVerb) => Exists(httpVerb);
 
         public const string Get = "GET";
         public const string Put = "PUT";

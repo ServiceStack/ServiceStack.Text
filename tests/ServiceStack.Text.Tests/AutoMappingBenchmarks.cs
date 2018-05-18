@@ -152,10 +152,10 @@ namespace ServiceStack.Common.Tests
         }
     }
 
-    [TestFixture]
+    [Ignore("Perf test"), TestFixture]
     public class AutoMappingPerfTests : PerfTestBase
     {
-        [Explicit, Test]
+        [Test]
         public void Compare_handwritten_vs_AutoMapping()
         {
             CompareMultipleRuns(

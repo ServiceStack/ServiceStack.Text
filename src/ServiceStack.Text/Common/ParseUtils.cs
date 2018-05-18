@@ -11,6 +11,8 @@
 //
 
 using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace ServiceStack.Text.Common
 {
@@ -21,11 +23,7 @@ namespace ServiceStack.Text.Common
 
         public static object NullValueType(Type type)
         {
-#if NETFX_CORE
-            return type.GetTypeInfo().IsValueType ? Activator.CreateInstance(type) : null;
-#else
             return type.GetDefaultValue();
-#endif
         }
 
         public static object ParseObject(string value)
@@ -44,7 +42,7 @@ namespace ServiceStack.Text.Common
                 return x => new Uri(x.FromCsvField());
 
             //Warning: typeof(object).IsInstanceOfType(typeof(Type)) == True??
-            if (type.InstanceOfType(typeof(Type)))
+            if (type.IsInstanceOfType(typeof(Type)))
                 return ParseType;
 
             if (type == typeof(Exception))
@@ -73,6 +71,21 @@ namespace ServiceStack.Text.Common
                     str = str.Replace("_", "");
             }
 
+            if (enumType.HasAttribute<DataContractAttribute>())
+            {
+                var enumNames = Enum.GetNames(enumType);
+                var enumValues = Enum.GetValues(enumType);
+                var i = 0;                
+                foreach (var enumValue in enumValues)
+                {
+                    var enumName = enumNames[i++];
+                    var mi = enumType.GetMember(enumName)[0];
+                    var useValue = mi.FirstAttribute<EnumMemberAttribute>()?.Value ?? enumValue;
+                    if (string.Equals(str, useValue.ToString(), StringComparison.OrdinalIgnoreCase))
+                        return enumValue;
+                }
+            }
+            
             return Enum.Parse(enumType, str, ignoreCase: true);
         }
     }

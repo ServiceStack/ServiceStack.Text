@@ -5,6 +5,8 @@ using System.Xml;
 using NUnit.Framework;
 using ServiceStack.Auth;
 using ServiceStack.Messaging;
+using ServiceStack.Templates;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Tests
 {
@@ -14,6 +16,16 @@ namespace ServiceStack.Text.Tests
     }
 
     public class AType {}
+
+    public class JsonType
+    {
+        public int Int { get; set; }
+        public string String { get; set; }
+        public bool Bool { get; set; }
+        public string Null { get; set; }
+        public List<object> List { get; set; }
+        public Dictionary<string, object> Dictionary { get; set; }
+    }
 
     [DataContract]
     public class DtoType { }
@@ -199,5 +211,95 @@ namespace ServiceStack.Text.Tests
             var fromJson = json.FromJson<Message>();
             Assert.That(fromJson.Body.GetType(), Is.EqualTo(typeof(AType)));
         }
+
+        [Test]
+        public void Does_allow_Unknown_Type_in_RequestLogEntry()
+        {
+            //Uses JsConfig.AllowRuntimeTypeInTypes
+
+            var logEntry = new RequestLogEntry //Internal Type used for ServiceStack LogEntry
+            {
+                RequestDto = new AType()
+            };
+
+            var json = logEntry.ToJson();
+
+            var fromJson = json.FromJson<RequestLogEntry>();
+            Assert.That(fromJson.RequestDto.GetType(), Is.EqualTo(typeof(AType)));
+        }
+
+        [Test]
+        public void Can_deserialize_object_with_unknown_JSON_into_object_type()
+        {
+            using (JsConfig.With(excludeTypeInfo:true))
+            {
+                JS.Configure();
+
+                var dto = new RuntimeObject
+                {
+                    Object = new JsonType
+                    {
+                        Int = 1,
+                        String = "foo",
+                        Bool = true,
+                        List = new List<object> { new JsonType{Int = 1, String = "foo", Bool = true} },
+                        Dictionary = new Dictionary<string, object> {{ "key", new JsonType{Int = 1, String = "foo", Bool = true} }},
+                    }
+                };
+
+                var json = dto.ToJson();
+                Assert.That(json, Is.EqualTo(@"{""Object"":{""Int"":1,""String"":""foo"",""Bool"":true," +
+                    @"""List"":[{""Int"":1,""String"":""foo"",""Bool"":true}],""Dictionary"":{""key"":{""Int"":1,""String"":""foo"",""Bool"":true}}}}"));
+
+                // into object
+                var fromJson = json.FromJson<object>();
+                var jsonObj = (Dictionary<string, object>)fromJson;
+                var jsonType = (Dictionary<string, object>)jsonObj["Object"];
+                Assert.That(jsonType["Int"], Is.EqualTo(1));
+                Assert.That(jsonType["String"], Is.EqualTo("foo"));
+                Assert.That(jsonType["Bool"], Is.EqualTo(true));
+                var jsonList = (List<object>)jsonType["List"];
+                Assert.That(((Dictionary<string, object>)jsonList[0])["Int"], Is.EqualTo(1));
+                var jsonDict = (Dictionary<string, object>)jsonType["Dictionary"];
+                Assert.That(((Dictionary<string, object>)jsonDict["key"])["Int"], Is.EqualTo(1));
+
+                // into DTO with Object property
+                var dtoFromJson = json.FromJson<RuntimeObject>();
+                jsonType = (Dictionary<string, object>) dtoFromJson.Object;
+                Assert.That(jsonType["Int"], Is.EqualTo(1));
+                Assert.That(jsonType["String"], Is.EqualTo("foo"));
+                Assert.That(jsonType["Bool"], Is.EqualTo(true));
+                jsonList = (List<object>)jsonType["List"];
+                Assert.That(((Dictionary<string, object>)jsonList[0])["Int"], Is.EqualTo(1));
+                jsonDict = (Dictionary<string, object>)jsonType["Dictionary"];
+                Assert.That(((Dictionary<string, object>)jsonDict["key"])["Int"], Is.EqualTo(1));
+
+                JS.UnConfigure();
+            }
+        }
+
+        [Test]
+        public void Can_serialize_JS_literal_into_DTO()
+        {
+            JS.Configure();
+
+            var js = @"{""Object"":{ Int:1,String:'foo',Bool:true,List:[{Int:1,String:`foo`,Bool:true}],Dictionary:{key:{Int:1,String:""foo"",Bool:true}}}}";
+
+            // into DTO with Object property
+            var dtoFromJson = js.FromJson<RuntimeObject>();
+            var jsonType = (Dictionary<string, object>)dtoFromJson.Object;
+            Assert.That(jsonType["Int"], Is.EqualTo(1));
+            Assert.That(jsonType["Int"], Is.EqualTo(1));
+            Assert.That(jsonType["String"], Is.EqualTo("foo"));
+            Assert.That(jsonType["Bool"], Is.EqualTo(true));
+            var jsonList = (List<object>)jsonType["List"];
+            Assert.That(((Dictionary<string, object>)jsonList[0])["Int"], Is.EqualTo(1));
+            var jsonDict = (Dictionary<string, object>)jsonType["Dictionary"];
+            Assert.That(((Dictionary<string, object>)jsonDict["key"])["Int"], Is.EqualTo(1));
+
+            JS.UnConfigure();
+        }
+
+
     }
 }

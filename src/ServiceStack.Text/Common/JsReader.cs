@@ -2,7 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-#if NETSTANDARD1_1
+using System.Runtime.CompilerServices;
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;
@@ -51,7 +52,7 @@ namespace ServiceStack.Text.Common
             if (JsConfig<T>.HasDeserializeFn)
                 return value => JsConfig<T>.ParseFn(Serializer, value.Value);
 
-            if (type.IsEnum())
+            if (type.IsEnum)
                 return x => ParseUtils.TryParseEnum(type, Serializer.UnescapeSafeString(x).Value);
 
             if (type == typeof(string))
@@ -104,13 +105,13 @@ namespace ServiceStack.Text.Common
                 return pclParseFn;
 
             var isDictionary = typeof(T) != typeof(IEnumerable) && typeof(T) != typeof(ICollection)
-                && (typeof(T).AssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
+                && (typeof(T).IsAssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
             if (isDictionary)
             {
                 return DeserializeDictionary<TSerializer>.GetParseStringSegmentMethod(type);
             }
 
-            var isEnumerable = typeof(T).AssignableFrom(typeof(IEnumerable))
+            var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
                 || typeof(T).HasInterface(typeof(IEnumerable));
             if (isEnumerable)
             {
@@ -118,7 +119,7 @@ namespace ServiceStack.Text.Common
                 if (parseFn != null) return parseFn;
             }
 
-            if (type.IsValueType())
+            if (type.IsValueType)
             {
                 //at first try to find more faster `ParseStringSegment` method
                 var staticParseStringSegmentMethod = StaticParseMethod<T>.ParseStringSegment;
@@ -151,5 +152,15 @@ namespace ServiceStack.Text.Common
             return DeserializeType<TSerializer>.ParseAbstractType<T>;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void InitAot<T>()
+        {
+            var hold = DeserializeBuiltin<T>.Parse;
+            hold = DeserializeArray<T[], TSerializer>.Parse;
+            DeserializeType<TSerializer>.ExtractType(null);
+            DeserializeArrayWithElements<T, TSerializer>.ParseGenericArray(null, null);
+            DeserializeCollection<TSerializer>.ParseCollection<T>(null, null, null);
+            DeserializeListWithElements<T, TSerializer>.ParseGenericList(null, null, null);
+        }
     }
 }

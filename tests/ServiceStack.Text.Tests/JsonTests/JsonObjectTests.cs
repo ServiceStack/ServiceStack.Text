@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests.JsonTests
@@ -26,9 +28,61 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(JsonObject.Parse("{ \n\t  \n\r}"), Is.Empty);
         }
 
+
+        public class JsonObjectResponse
+        {
+            public JsonObject result { get; set; }
+        }
+
+        [Test]
+        public void Can_serialize_null_JsonObject_response()
+        {
+            JsConfig.ThrowOnError = true;
+            var json = "{\"result\":null}";
+            var dto = json.FromJson<JsonObjectResponse>();
+            Assert.That(dto.result, Is.Null);
+            JsConfig.ThrowOnError = false;
+        }
+
         [Test]
         public void Can_Serialize_numbers()
         {
+            var culture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            string notNumber = "{\"field\":\"00001\"}";
+            Assert.That(JsonObject.Parse(notNumber).ToJson(), Is.EqualTo(notNumber));
+
+            string num1 = "{\"field\":0}";
+            Assert.That(JsonObject.Parse(num1).ToJson(), Is.EqualTo(num1));
+
+            string num2 = "{\"field\":0.5}";
+            Assert.That(JsonObject.Parse(num2).ToJson(), Is.EqualTo(num2));
+
+            string num3 = "{\"field\":.5}";
+            Assert.That(JsonObject.Parse(num3).ToJson(), Is.EqualTo(num3));
+
+            string num4 = "{\"field\":12312}";
+            Assert.That(JsonObject.Parse(num4).ToJson(), Is.EqualTo(num4));
+
+            string num5 = "{\"field\":12312.1231}";
+            Assert.That(JsonObject.Parse(num5).ToJson(), Is.EqualTo(num5));
+
+            string num6 = "{\"field\":1435252569117}";
+            Assert.That(JsonObject.Parse(num6).ToJson(), Is.EqualTo(num6));
+
+            string num7 = "{\"field\":1435052569117}";
+            Assert.That(JsonObject.Parse(num7).ToJson(), Is.EqualTo(num7));
+        }
+
+        [Test]
+        public void Can_Serialize_numbers_DifferentCulture()
+        {
+            var culture = new CultureInfo("sl-SI");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             string notNumber = "{\"field\":\"00001\"}";
             Assert.That(JsonObject.Parse(notNumber).ToJson(), Is.EqualTo(notNumber));
 

@@ -19,7 +19,7 @@ using System.Text;
 using System.Threading;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Pools;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #endif
 using ServiceStack.Text.Support;
@@ -41,7 +41,7 @@ namespace ServiceStack.Text.Common
         {
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(KeyValuePair<,>));
 
-            var keyValuePairArgs = mapInterface.GenericTypeArguments();
+            var keyValuePairArgs = mapInterface.GetGenericArguments();
             var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(keyValuePairArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 

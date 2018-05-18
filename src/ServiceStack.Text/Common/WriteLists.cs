@@ -216,7 +216,20 @@ namespace ServiceStack.Text.Common
 
         static WriteListsOfElements()
         {
-            ElementWriteFn = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn<T>();
+            var fn = JsWriter.GetTypeSerializer<TSerializer>().GetWriteFn<T>();
+            ElementWriteFn = (writer, obj) => {
+                try 
+                { 
+                    if (!JsState.Traverse(obj))
+                        return;
+                    
+                    fn(writer, obj);
+                }
+                finally 
+                {
+                    JsState.UnTraverse();
+                }
+            };
         }
 
         public static void WriteList(TextWriter writer, object oList)
@@ -499,12 +512,12 @@ namespace ServiceStack.Text.Common
             if (type == typeof(IList<long>))
                 return WriteListsOfElements<long, TSerializer>.WriteIListValueType;
 
-            var elementType = listInterface.GenericTypeArguments()[0];
+            var elementType = listInterface.GetGenericArguments()[0];
 
-            var isGenericList = typeof(T).IsGeneric()
-                && typeof(T).GenericTypeDefinition() == typeof(List<>);
+            var isGenericList = typeof(T).IsGenericType
+                && typeof(T).GetGenericTypeDefinition() == typeof(List<>);
 
-            if (elementType.IsValueType()
+            if (elementType.IsValueType
                 && JsWriter.ShouldUseDefaultToStringMethod(elementType))
             {
                 if (isGenericList)

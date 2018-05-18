@@ -29,15 +29,12 @@ using System.Threading;
 
 namespace ServiceStack.Text //Internalize to avoid conflicts
 {
-#if !SL5
     using Events = RecyclableMemoryStreamManager.Events;
-#endif
 
     public static class MemoryStreamFactory
     {
         public static bool UseRecyclableMemoryStream { get; set; }
 
-#if !SL5
         public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
 
         public static MemoryStream GetStream()
@@ -67,30 +64,8 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                 ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, bytes, index, count)
                 : new MemoryStream(bytes, index, count);
         }
-#else
-        public static MemoryStream GetStream()
-        {
-            return new MemoryStream();
-        }
-
-        public static MemoryStream GetStream(int capacity)
-        {
-            return new MemoryStream(capacity);
-        }
-
-        public static MemoryStream GetStream(byte[] bytes)
-        {
-            return new MemoryStream(bytes);
-        }
-
-        public static MemoryStream GetStream(byte[] bytes, int index, int count)
-        {
-            return new MemoryStream(bytes, index, count);
-        }
-#endif
     }
 
-#if !SL5
     /// <summary>
     /// Manages pools of RecyclableMemoryStream objects.
     /// </summary>
@@ -934,7 +909,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
 
                 Events.Write.MemoryStreamFinalized(this.id, this.tag, this.allocationStack);
 
-#if !(PCL || NETSTANDARD1_1)
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
@@ -943,7 +917,6 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
                     base.Dispose(disposing);
                     return;
                 }
-#endif
 
                 this.memoryManager.ReportStreamFinalized();
             }
@@ -971,11 +944,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <summary>
         /// Equivalent to Dispose
         /// </summary>
-#if !(PCL || NETSTANDARD1_1)
         public override void Close()
-#else
-        public void Close()
-#endif
         {
             this.Dispose(true);
         }
@@ -1100,11 +1069,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         /// <remarks>IMPORTANT: Doing a Write() after calling GetBuffer() invalidates the buffer. The old buffer is held onto
         /// until Dispose is called, but the next time GetBuffer() is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-#if !(PCL || NETSTANDARD1_1)
         public override byte[] GetBuffer()
-#else
-        public byte[] GetBuffer()
-#endif
         {
             this.CheckDisposed();
 
@@ -1655,5 +1620,4 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             }
         }
     }
-#endif
 }

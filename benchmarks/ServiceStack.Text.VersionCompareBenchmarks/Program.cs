@@ -10,16 +10,26 @@ namespace ServiceStack.Text.Benchmarks
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            BenchmarkRunner.Run<JsonSerializationBenchmarks>(
-              ManualConfig
-                .Create(DefaultConfig.Instance)
-                //.With(Job.RyuJitX64)
-                //.With(Job.Core)
-		.With(Job.Clr)
-                .With(new BenchmarkDotNet.Diagnosers.CompositeDiagnoser())
-                .With(ExecutionValidator.FailOnError)
-            );
+            var benchmarks = new[] {
+                typeof(JsonDeserializationBenchmarks),
+                typeof(ParseBuiltinBenchmarks)
+            };
+
+            var switcher = new BenchmarkSwitcher(benchmarks);
+
+            foreach (var benchmark in benchmarks)
+            {
+                switcher.Run(
+                    args: new[] {benchmark.Name},
+                    config: ManualConfig
+                    .Create(DefaultConfig.Instance)
+                    //.With(Job.RyuJitX64)
+                    .With(Job.Core)
+                    .With(Job.Clr)
+                    .With(new BenchmarkDotNet.Diagnosers.CompositeDiagnoser())
+                    .With(ExecutionValidator.FailOnError)
+                );
+            }
         }
     }
 }

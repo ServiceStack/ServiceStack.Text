@@ -417,7 +417,7 @@ namespace ServiceStack.Text.Common
 
         public static TimeSpan ParseNSTimeInterval(string doubleInSecs)
         {
-            var secs = double.Parse(doubleInSecs);
+            var secs = double.Parse(doubleInSecs, CultureInfo.InvariantCulture);
             return TimeSpan.FromSeconds(secs);
         }
 
@@ -442,8 +442,13 @@ namespace ServiceStack.Text.Common
 
         public static string ToShortestXsdDateTimeString(DateTime dateTime)
         {
-            var timeOfDay = dateTime.TimeOfDay;
+            dateTime = dateTime.UseConfigSpecifiedSetting();
+            if (!string.IsNullOrEmpty(JsConfig.DateTimeFormat))
+            {
+                return dateTime.ToString(JsConfig.DateTimeFormat, CultureInfo.InvariantCulture);
+            }
 
+            var timeOfDay = dateTime.TimeOfDay;
             var isStartOfDay = timeOfDay.Ticks == 0;
             if (isStartOfDay && !JsConfig.SkipDateTimeConversion)
                 return dateTime.ToString(ShortDateTimeFormat, CultureInfo.InvariantCulture);
@@ -582,13 +587,18 @@ namespace ServiceStack.Text.Common
 
         internal static TimeZoneInfo LocalTimeZone = GetLocalTimeZoneInfo();
 
-        public static void WriteWcfJsonDate(TextWriter writer, DateTime dateTime)
+        private static DateTime UseConfigSpecifiedSetting(this DateTime dateTime)
         {
             if (JsConfig.AssumeUtc && dateTime.Kind == DateTimeKind.Unspecified)
             {
-                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
             }
+            return dateTime;
+        }
 
+        public static void WriteWcfJsonDate(TextWriter writer, DateTime dateTime)
+        {
+            dateTime = dateTime.UseConfigSpecifiedSetting();
             switch (JsConfig.DateHandler)
             {
                 case DateHandler.ISO8601:

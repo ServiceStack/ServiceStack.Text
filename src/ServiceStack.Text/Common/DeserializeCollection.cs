@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Linq;
-#if NETSTANDARD1_1
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Primitives;
 #else
 using ServiceStack.Text.Support;
@@ -43,7 +43,7 @@ namespace ServiceStack.Text.Common
             if (type.HasInterface(typeof(ICollection<int>)))
                 return value => ParseIntCollection(value, type);
 
-            var elementType = collectionInterface.GenericTypeArguments()[0];
+            var elementType = collectionInterface.GetGenericArguments()[0];
             var supportedTypeParseMethod = Serializer.GetParseStringSegmentFn(elementType);
             if (supportedTypeParseMethod != null)
             {
@@ -96,8 +96,7 @@ namespace ServiceStack.Text.Common
 
         public static object ParseCollectionType(StringSegment value, Type createType, Type elementType, ParseStringSegmentDelegate parseFn)
         {
-            ParseCollectionDelegate parseDelegate;
-            if (ParseDelegateCache.TryGetValue(elementType, out parseDelegate))
+            if (ParseDelegateCache.TryGetValue(elementType, out var parseDelegate))
                 return parseDelegate(value, createType, parseFn);
 
             var mi = typeof(DeserializeCollection<TSerializer>).GetStaticMethod("ParseCollection", 
