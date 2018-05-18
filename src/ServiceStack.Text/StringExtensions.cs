@@ -788,6 +788,7 @@ namespace ServiceStack
 
         public static string SafeSubstring(this string value, int startIndex)
         {
+            if (String.IsNullOrEmpty(value)) return Empty;
             return SafeSubstring(value, startIndex, value.Length);
         }
 
