@@ -1131,6 +1131,7 @@ namespace ServiceStack
         public const string Csv = "text/csv";
         public const string ProtoBuf = "application/x-protobuf";
         public const string JavaScript = "text/javascript";
+        public const string WebAssembly = "application/wasm";
 
         public const string FormUrlEncoded = "application/x-www-form-urlencoded";
         public const string MultiPartFormData = "multipart/form-data";
@@ -1172,13 +1173,12 @@ namespace ServiceStack
         public static string GetMimeType(string fileNameOrExt)
         {
             if (string.IsNullOrEmpty(fileNameOrExt))
-                throw new ArgumentNullException("fileNameOrExt");
+                throw new ArgumentNullException(nameof(fileNameOrExt));
 
             var parts = fileNameOrExt.Split('.');
             var fileExt = parts[parts.Length - 1];
 
-            string mimeType;
-            if (ExtensionMimeTypes.TryGetValue(fileExt, out mimeType))
+            if (ExtensionMimeTypes.TryGetValue(fileExt, out var mimeType))
             {
                 return mimeType;
             }
@@ -1275,6 +1275,9 @@ namespace ServiceStack
                     return "application/font-woff";
                 case "woff2":
                     return "application/font-woff2";
+                    
+                case "wasm":
+                    return "application/wasm";
 
                 default:
                     return "application/" + fileExt;
