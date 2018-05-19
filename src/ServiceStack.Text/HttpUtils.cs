@@ -1303,7 +1303,7 @@ namespace ServiceStack
                     return "application/font-woff2";
                     
                 case "dll":
-                    return "application/x-msdownload";
+                    return "application/octet-stream";
                     
                 case "wasm":
                     return "application/wasm";
