@@ -1253,13 +1253,34 @@ namespace ServiceStack
                     return "application/" + fileExt;
 
                 case "xls":
+                case "xla":
                     return "application/x-excel";
 
+                case "xlsx":
+                    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                case "xltx":
+                    return "application/vnd.openxmlformats-officedocument.spreadsheetml.template";
+
                 case "doc":
+                case "dot":
                     return "application/msword";
+
+                case "docx":
+                    return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                case "dotx":
+                    return "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
 
                 case "ppt":
                     return "application/powerpoint";
+
+                case "pps":
+                case "ppa":
+                    return "application/vnd.ms-powerpoint";
+
+                case "pptx":
+                    return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+                case "potx":
+                    return "application/vnd.openxmlformats-officedocument.presentationml.template";
 
                 case "gz":
                 case "tgz":
