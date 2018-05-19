@@ -1253,6 +1253,7 @@ namespace ServiceStack
                     return "application/" + fileExt;
 
                 case "xls":
+                case "xlt":
                 case "xla":
                     return "application/x-excel";
 
@@ -1271,8 +1272,7 @@ namespace ServiceStack
                     return "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
 
                 case "ppt":
-                    return "application/powerpoint";
-
+                case "oit":
                 case "pps":
                 case "ppa":
                     return "application/vnd.ms-powerpoint";
@@ -1281,6 +1281,11 @@ namespace ServiceStack
                     return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
                 case "potx":
                     return "application/vnd.openxmlformats-officedocument.presentationml.template";
+                case "ppsx":
+                    return "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+
+                case "mdb":
+                    return "application/vnd.ms-access";
 
                 case "gz":
                 case "tgz":
