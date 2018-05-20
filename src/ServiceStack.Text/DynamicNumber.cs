@@ -21,6 +21,9 @@ namespace ServiceStack
         object sub(object lhs, object rhs);
         object mul(object lhs, object rhs);
         object div(object lhs, object rhs);
+        object mod(object lhs, object rhs);
+        object pow(object lhs, object rhs);
+        object log(object lhs, object rhs);
         
         object bitwiseAnd(object lhs, object rhs);
         object bitwiseOr(object lhs, object rhs);
@@ -57,6 +60,9 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
         
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -93,7 +99,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
@@ -129,7 +138,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
@@ -165,7 +177,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
@@ -201,6 +216,9 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -237,7 +255,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
@@ -273,6 +294,9 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -309,7 +333,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
@@ -345,7 +372,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
@@ -381,7 +411,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
@@ -417,7 +450,10 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
-        
+        public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
+        public object pow(object lhs, object rhs) => Math.Pow((double) Convert(lhs), (double) Convert(rhs));
+        public object log(object lhs, object rhs) => Math.Log((double) Convert(lhs), (double) Convert(rhs));
+
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
@@ -551,19 +587,28 @@ namespace ServiceStack
         public static object Divide(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).div(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object BitwiseAnd(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseAnd(lhs, rhs);
+        public static object Mod(object lhs, object rhs) => AssertNumbers(nameof(Mod), lhs, rhs).mod(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object BitwiseOr(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseOr(lhs, rhs);
+        public static object Pow(object lhs, object rhs) => AssertNumbers(nameof(Pow), lhs, rhs).pow(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object BitwiseXOr(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseXOr(lhs, rhs);
+        public static object Log(object lhs, object rhs) => AssertNumbers(nameof(Log), lhs, rhs).log(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object BitwiseLeftShift(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseLeftShift(lhs, rhs);
+        public static object BitwiseAnd(object lhs, object rhs) => AssertNumbers(nameof(BitwiseAnd), lhs, rhs).bitwiseAnd(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object BitwiseRightShift(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseRightShift(lhs, rhs);
+        public static object BitwiseOr(object lhs, object rhs) => AssertNumbers(nameof(BitwiseOr), lhs, rhs).bitwiseOr(lhs, rhs);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object BitwiseXOr(object lhs, object rhs) => AssertNumbers(nameof(BitwiseXOr), lhs, rhs).bitwiseXOr(lhs, rhs);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object BitwiseLeftShift(object lhs, object rhs) => AssertNumbers(nameof(BitwiseLeftShift), lhs, rhs).bitwiseLeftShift(lhs, rhs);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object BitwiseRightShift(object lhs, object rhs) => AssertNumbers(nameof(BitwiseRightShift), lhs, rhs).bitwiseRightShift(lhs, rhs);
 
         public static bool TryParse(string strValue, out object result)
         {
