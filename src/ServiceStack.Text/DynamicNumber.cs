@@ -21,9 +21,12 @@ namespace ServiceStack
         object sub(object lhs, object rhs);
         object mul(object lhs, object rhs);
         object div(object lhs, object rhs);
+        
         object bitwiseAnd(object lhs, object rhs);
         object bitwiseOr(object lhs, object rhs);
         object bitwiseXOr(object lhs, object rhs);
+        object bitwiseLeftShift(object lhs, object rhs);
+        object bitwiseRightShift(object lhs, object rhs);
     }
 
     public class DynamicSByte : IDynamicNumber
@@ -54,9 +57,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
     }
 
     public class DynamicByte : IDynamicNumber
@@ -87,9 +93,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
     }
 
     public class DynamicShort : IDynamicNumber
@@ -120,9 +129,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
     }
 
     public class DynamicUShort : IDynamicNumber
@@ -153,9 +165,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
     }
 
     public class DynamicInt : IDynamicNumber
@@ -186,9 +201,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
     }
 
     public class DynamicUInt : IDynamicNumber
@@ -219,9 +237,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << (int)Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> (int)Convert(rhs);
     }
 
     public class DynamicLong : IDynamicNumber
@@ -252,9 +273,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << (int)Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> (int)Convert(rhs);
     }
 
     public class DynamicULong : IDynamicNumber
@@ -285,9 +309,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
+        public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << (int)Convert(rhs);
+        public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> (int)Convert(rhs);
     }
 
     public class DynamicFloat : IDynamicNumber
@@ -318,9 +345,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseLeftShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseRightShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
     }
 
     public class DynamicDouble : IDynamicNumber
@@ -351,9 +381,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseLeftShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseRightShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
     }
 
     public class DynamicDecimal : IDynamicNumber
@@ -384,9 +417,12 @@ namespace ServiceStack
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
         public object mul(object lhs, object rhs) => Convert(lhs) * Convert(rhs);
         public object div(object lhs, object rhs) => Convert(lhs) / Convert(rhs);
+        
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseLeftShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseRightShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
     }
 
     public static class DynamicNumber
@@ -522,6 +558,12 @@ namespace ServiceStack
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object BitwiseXOr(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseXOr(lhs, rhs);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object BitwiseLeftShift(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseLeftShift(lhs, rhs);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object BitwiseRightShift(object lhs, object rhs) => AssertNumbers(nameof(Divide), lhs, rhs).bitwiseRightShift(lhs, rhs);
 
         public static bool TryParse(string strValue, out object result)
         {
