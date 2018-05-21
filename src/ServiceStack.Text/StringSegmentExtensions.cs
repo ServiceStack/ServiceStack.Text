@@ -1131,7 +1131,7 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool StartsWith(this StringSegment text, string value) => text.StartsWith(value, StringComparison.OrdinalIgnoreCase);
+        public static bool StartsWith(this StringSegment text, string value) => text.StartsWith(value, StringComparison.Ordinal);
 
         public static bool StartsWith(this StringSegment text, string value, StringComparison comparisonType)
         {
@@ -1146,7 +1146,7 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool EndsWith(this StringSegment text, string value) => text.EndsWith(value, StringComparison.OrdinalIgnoreCase);
+        public static bool EndsWith(this StringSegment text, string value) => text.EndsWith(value, StringComparison.Ordinal);
 
         public static bool EndsWith(this StringSegment text, string value, StringComparison comparisonType)
         {
