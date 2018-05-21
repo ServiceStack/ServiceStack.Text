@@ -328,5 +328,26 @@ namespace ServiceStack.Text.Tests
             Assert.That(listList, Is.EquivalentTo(new[]{ "foo", "bar", "qux" }));
         }
 
+        [Test]
+        public void Can_deserialize_Inherited_JSON_Object()
+        {
+            var jsonValue = "{\"test\":[\"Test1\",\"Test Two\"]}";
+
+            var jsonObject = JsonSerializer.DeserializeFromString<JsonObject>(jsonValue);
+            var inheritedJsonObject = JsonSerializer.DeserializeFromString<InheritedJsonObject>(jsonValue);
+
+            string testString = jsonObject.Child("test");
+            string inheritedTestString = inheritedJsonObject.Child("test");
+
+            Assert.AreEqual(testString, inheritedTestString);
+
+            var serializedJsonObject = JsonSerializer.SerializeToString<JsonObject>(jsonObject);
+            var serializedInheritedJsonObject = JsonSerializer.SerializeToString<InheritedJsonObject>(inheritedJsonObject);
+
+            Assert.AreEqual(serializedJsonObject, serializedInheritedJsonObject);
+        }
+        
+        public class InheritedJsonObject : JsonObject { }
+
     }
 }

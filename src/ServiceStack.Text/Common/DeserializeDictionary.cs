@@ -67,6 +67,12 @@ namespace ServiceStack.Text.Common
             {
                 return ParseJsonObject;
             }
+            if (typeof(JsonObject).IsAssignableFrom(type))
+            {
+                var method = typeof(DeserializeDictionary<TSerializer>).GetMethod("ParseInheritedJsonObject");
+                method = method.MakeGenericMethod(type);
+                return Delegate.CreateDelegate(typeof(ParseStringSegmentDelegate), method) as ParseStringSegmentDelegate;
+            }
 
             var dictionaryArgs = mapInterface.GetGenericArguments();
             var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(dictionaryArgs[KeyIndex]);
@@ -82,6 +88,36 @@ namespace ServiceStack.Text.Common
         }
 
         public static JsonObject ParseJsonObject(string value) => ParseJsonObject(new StringSegment(value));
+        
+        public static T ParseInheritedJsonObject<T>(StringSegment value) where T : JsonObject, new()
+        {
+            if (value.Length == 0)
+                return null;
+
+            var index = VerifyAndGetStartIndex(value, typeof(T));
+
+            var result = new T();
+
+            if (JsonTypeSerializer.IsEmptyMap(value, index)) return result;
+
+            var valueLength = value.Length;
+            while (index < valueLength)
+            {
+                var keyValue = Serializer.EatMapKey(value, ref index);
+                Serializer.EatMapKeySeperator(value, ref index);
+                var elementValue = Serializer.EatValue(value, ref index);
+                if (!keyValue.HasValue) continue;
+
+                var mapKey = keyValue.Value;
+                var mapValue = elementValue.Value;
+
+                result[mapKey] = mapValue;
+
+                Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
+            }
+
+            return result;
+        }
 
         public static JsonObject ParseJsonObject(StringSegment value)
         {
