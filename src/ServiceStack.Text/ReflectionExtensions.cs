@@ -334,8 +334,8 @@ namespace ServiceStack
         static Dictionary<Type, EmptyCtorDelegate> ConstructorMethods = new Dictionary<Type, EmptyCtorDelegate>();
         public static EmptyCtorDelegate GetConstructorMethod(Type type)
         {
-            EmptyCtorDelegate emptyCtorFn;
-            if (ConstructorMethods.TryGetValue(type, out emptyCtorFn)) return emptyCtorFn;
+            if (ConstructorMethods.TryGetValue(type, out var emptyCtorFn)) 
+                return emptyCtorFn;
 
             emptyCtorFn = GetConstructorMethodToCache(type);
 
@@ -355,8 +355,8 @@ namespace ServiceStack
         static Dictionary<string, EmptyCtorDelegate> TypeNamesMap = new Dictionary<string, EmptyCtorDelegate>();
         public static EmptyCtorDelegate GetConstructorMethod(string typeName)
         {
-            EmptyCtorDelegate emptyCtorFn;
-            if (TypeNamesMap.TryGetValue(typeName, out emptyCtorFn)) return emptyCtorFn;
+            if (TypeNamesMap.TryGetValue(typeName, out var emptyCtorFn)) 
+                return emptyCtorFn;
 
             var type = JsConfig.TypeFinder(typeName);
             if (type == null) return null;
