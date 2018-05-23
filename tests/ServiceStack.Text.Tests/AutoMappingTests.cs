@@ -49,6 +49,16 @@ namespace ServiceStack.Text.Tests
         public string Car { get; set; }
     }
 
+    public class AgedUserWithNullable : UserDto
+    {
+        public long? Age { get; set; }
+    }
+
+    public class AgedUser : UserDto
+    {
+        public long Age { get; set; }
+    }
+
     public enum Color
     {
         Red,

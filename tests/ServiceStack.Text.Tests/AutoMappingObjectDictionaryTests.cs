@@ -99,6 +99,44 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromDict.Car.Name, Is.EqualTo("SubCar"));
         }
 
+        [Test]
+        public void Can_Convert_from_ObjectDictionary_with_SubClass_Type()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "FirstName", "Foo" },
+                { "LastName", "Bar" },
+                { "Car",  "Jag" },
+                { "Age",  21 },
+            };
+
+            var userDto = map.FromObjectDictionary<AgedUser>();
+            
+            Assert.That(userDto.FirstName, Is.EqualTo("Foo"));
+            Assert.That(userDto.LastName, Is.EqualTo("Bar"));
+            Assert.That(userDto.Car, Is.EqualTo("Jag"));
+            Assert.That(userDto.Age, Is.EqualTo(21));
+        }
+
+        [Test]
+        public void Can_Convert_from_ObjectDictionary_with_SubClass_Type_With_Nullable_Properties()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "FirstName", "Foo" },
+                { "LastName", "Bar" },
+                { "Car",  "Jag" },
+                { "Age",  21 },
+            };
+
+            var userDto = map.FromObjectDictionary<AgedUserWithNullable>();
+            
+            Assert.That(userDto.FirstName, Is.EqualTo("Foo"));
+            Assert.That(userDto.LastName, Is.EqualTo("Bar"));
+            Assert.That(userDto.Car, Is.EqualTo("Jag"));
+            Assert.That(userDto.Age, Is.EqualTo(21));
+        }
+
         public class QueryCustomers : QueryDb<Customer>
         {
             public string CustomerId { get; set; }
