@@ -206,6 +206,42 @@ namespace ServiceStack.Text.Tests
                 }.ToJson(), Is.EqualTo("{}"));
             }
         }
+        
+        [DataContract]
+        public enum Day
+        {
+            [EnumMember(Value = "MON")]
+            Monday,
+            [EnumMember(Value = "TUE")]
+            Tuesday,
+            [EnumMember(Value = "WED")]
+            Wednesday,
+            [EnumMember(Value = "THU")]
+            Thursday,
+            [EnumMember(Value = "FRI")]
+            Friday,
+            [EnumMember(Value = "SAT")]
+            Saturday,
+            [EnumMember(Value = "SUN")]
+            Sunday,            
+        }
+
+        class EnumMemberDto
+        {
+            public Day Day { get; set; }
+        }
+
+        [Test]
+        public void Does_serialize_EnumMember_Value()
+        {
+            var dto = new EnumMemberDto {Day = Day.Sunday};
+            var json = dto.ToJson();
+            
+            Assert.That(json, Is.EqualTo("{\"Day\":\"SUN\"}"));
+
+            var fromDto = json.FromJson<EnumMemberDto>();
+            Assert.That(fromDto.Day, Is.EqualTo(Day.Sunday));
+        }
 
     }
 }

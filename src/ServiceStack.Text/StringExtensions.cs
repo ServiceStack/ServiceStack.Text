@@ -823,8 +823,9 @@ namespace ServiceStack
             return str.EndsWith(endsWith, PclExport.Instance.InvariantComparison);
         }
 
-        private static readonly Regex InvalidVarCharsRegex = new Regex(@"[^A-Za-z0-9]", PclExport.Instance.RegexOptions);
-        private static readonly Regex SplitCamelCaseRegex = new Regex("([A-Z]|[0-9]+)", PclExport.Instance.RegexOptions);
+        private static readonly Regex InvalidVarCharsRegex = new Regex(@"[^A-Za-z0-9_]", RegexOptions.Compiled);
+        private static readonly Regex InvalidVarRefCharsRegex = new Regex(@"[^A-Za-z0-9._]", RegexOptions.Compiled);
+        private static readonly Regex SplitCamelCaseRegex = new Regex("([A-Z]|[0-9]+)", RegexOptions.Compiled);
         private static readonly Regex HttpRegex = new Regex(@"^http://",
             PclExport.Instance.RegexOptions | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
@@ -910,11 +911,11 @@ namespace ServiceStack
             return false;
         }
 
-        public static string SafeVarName(this string text)
-        {
-            if (string.IsNullOrEmpty(text)) return null;
-            return InvalidVarCharsRegex.Replace(text, "_");
-        }
+        public static string SafeVarName(this string text) => !string.IsNullOrEmpty(text) 
+            ? InvalidVarCharsRegex.Replace(text, "_") : null;
+
+        public static string SafeVarRef(this string text) => !string.IsNullOrEmpty(text) 
+            ? InvalidVarRefCharsRegex.Replace(text, "_") : null;
 
         public static string Join(this List<string> items)
         {

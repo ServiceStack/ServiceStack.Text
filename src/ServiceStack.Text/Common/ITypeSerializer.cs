@@ -54,6 +54,7 @@ namespace ServiceStack.Text.Common
         void WriteDecimal(TextWriter writer, object decimalValue);
         void WriteEnum(TextWriter writer, object enumValue);
         void WriteEnumFlags(TextWriter writer, object enumFlagValue);
+        void WriteEnumMember(TextWriter writer, object enumFlagValue);
 
         //object EncodeMapKey(object value);
 

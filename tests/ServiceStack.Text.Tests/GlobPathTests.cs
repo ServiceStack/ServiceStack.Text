@@ -47,6 +47,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("dir/a/b/c/d/e/file.json".GlobPath("dir/**/*.json"));
 
             Assert.That("/jspm_packages/npm/zone.js@0.6.26.json".GlobPath("jspm_packages/**/*.json"));
+            Assert.That("/.well-known/acme-challenge/XzF9VXFuw4UMBVdiX2jDj2vykjrvEsQR8AZ8kJiaBdk".GlobPath(".well-known/**/*"));
         }
     }
 }
