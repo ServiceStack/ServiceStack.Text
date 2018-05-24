@@ -30,6 +30,7 @@ namespace ServiceStack
         object bitwiseXOr(object lhs, object rhs);
         object bitwiseLeftShift(object lhs, object rhs);
         object bitwiseRightShift(object lhs, object rhs);
+        object bitwiseNot(object target);
     }
 
     public class DynamicSByte : IDynamicNumber
@@ -69,6 +70,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicByte : IDynamicNumber
@@ -108,6 +110,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicShort : IDynamicNumber
@@ -147,6 +150,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicUShort : IDynamicNumber
@@ -186,6 +190,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicInt : IDynamicNumber
@@ -225,6 +230,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicUInt : IDynamicNumber
@@ -264,6 +270,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << (int)Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> (int)Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicLong : IDynamicNumber
@@ -303,6 +310,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << (int)Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> (int)Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicULong : IDynamicNumber
@@ -342,6 +350,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => Convert(lhs) ^ Convert(rhs);
         public object bitwiseLeftShift(object lhs, object rhs) => Convert(lhs) << (int)Convert(rhs);
         public object bitwiseRightShift(object lhs, object rhs) => Convert(lhs) >> (int)Convert(rhs);
+        public object bitwiseNot(object target) => ~Convert(target);
     }
 
     public class DynamicFloat : IDynamicNumber
@@ -381,6 +390,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseLeftShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseRightShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseNot(object target) => throw new NotSupportedException("Bitwise operators only supported on integer types");
     }
 
     public class DynamicDouble : IDynamicNumber
@@ -420,6 +430,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseLeftShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseRightShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseNot(object target) => throw new NotSupportedException("Bitwise operators only supported on integer types");
     }
 
     public class DynamicDecimal : IDynamicNumber
@@ -459,6 +470,7 @@ namespace ServiceStack
         public object bitwiseXOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseLeftShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseRightShift(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
+        public object bitwiseNot(object target) => throw new NotSupportedException("Bitwise operators only supported on integer types");
     }
 
     public static class DynamicNumber
@@ -533,6 +545,19 @@ namespace ServiceStack
             return maxNumber;
         }
 
+        public static IDynamicNumber Get(object obj)
+        {
+            if (obj == null)
+                return null;
+
+            if (obj is string lhsString && !TryParse(lhsString, out obj))
+                return null;
+
+            return TryGetRanking(obj.GetType(), out int lhsRanking)
+                ? RankNumbers[lhsRanking]
+                : null;
+        }
+        
         public static IDynamicNumber GetNumber(object lhs, object rhs)
         {
             if (lhs == null || rhs == null)
