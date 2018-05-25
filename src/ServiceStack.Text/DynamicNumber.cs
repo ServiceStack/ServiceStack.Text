@@ -636,7 +636,7 @@ namespace ServiceStack
         public static object BitwiseRightShift(object lhs, object rhs) => AssertNumbers(nameof(BitwiseRightShift), lhs, rhs).bitwiseRightShift(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object BitwiseNot(object lhs) => GetNumber(lhs).bitwiseNot(lhs, rhs);
+        public static object BitwiseNot(object lhs) => Get(lhs).bitwiseNot(lhs);
 
         public static bool TryParse(string strValue, out object result)
         {

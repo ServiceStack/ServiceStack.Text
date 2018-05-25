@@ -1173,7 +1173,10 @@ namespace ServiceStack.Text
             return value.Length > startIndex ? value.Subsegment(startIndex) : TypeConstants.EmptyStringSegment;
         }
 
-        public static string SubstringWithElipsis(this StringSegment value, int startIndex, int length)
+        [Obsolete("typo")]
+        public static string SubstringWithElipsis(this StringSegment value, int startIndex, int length) => SubstringWithEllipsis(value, startIndex, length);
+
+        public static string SubstringWithEllipsis(this StringSegment value, int startIndex, int length)
         {
             var str = value.SafeSubsegment(startIndex, length);
             return str.Length == length
