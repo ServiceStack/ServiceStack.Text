@@ -810,23 +810,19 @@ namespace ServiceStack
                 if (underlyingToType.IsIntegerType())
                     return fromValue => Convert.ChangeType(fromValue, underlyingToType, null);
             }
-            else if (toType.IsNullableType())
-            {
-                return null;
-            }
             else if (typeof(IEnumerable).IsAssignableFrom(fromType))
             {
                 return fromValue =>
                 {
                     var listResult = TranslateListWithElements.TryTranslateCollections(
-                        fromType, toType, fromValue);
+                        fromType, underlyingToType, fromValue);
 
                     return listResult ?? fromValue;
                 };
             }
-            else if (toType.IsValueType)
+            else if (underlyingToType.IsValueType)
             {
-                return fromValue => Convert.ChangeType(fromValue, toType, provider: null);
+                return fromValue => Convert.ChangeType(fromValue, underlyingToType, provider: null);
             }
             else 
             {
