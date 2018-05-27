@@ -204,7 +204,7 @@ namespace ServiceStack.Text.Tests
                         { "NLongId", defaults.NLongId.ToString() },
                         { "NGuid", defaults.NGuid.ToString() },
                         { "NBool", defaults.NBool.ToString() },
-                        { "NDateTime", defaults.NDateTime.ToString() },
+                        { "NDateTime", defaults.NDateTime?.ToString("o") },
                         { "NFloat", defaults.NFloat.ToString() },
                         { "NDouble", defaults.NDouble.ToString() },
                         { "NDecimal", defaults.NDecimal.ToString() },
