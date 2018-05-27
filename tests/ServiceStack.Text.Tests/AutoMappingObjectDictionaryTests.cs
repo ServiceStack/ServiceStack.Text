@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
+using ServiceStack.Common.Tests.Models;
 
 namespace ServiceStack.Text.Tests
 {
@@ -99,44 +100,6 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromDict.Car.Name, Is.EqualTo("SubCar"));
         }
 
-        [Test]
-        public void Can_Convert_from_ObjectDictionary_with_SubClass_Type()
-        {
-            var map = new Dictionary<string, object>
-            {
-                { "FirstName", "Foo" },
-                { "LastName", "Bar" },
-                { "Car",  "Jag" },
-                { "Age",  21 },
-            };
-
-            var userDto = map.FromObjectDictionary<AgedUser>();
-            
-            Assert.That(userDto.FirstName, Is.EqualTo("Foo"));
-            Assert.That(userDto.LastName, Is.EqualTo("Bar"));
-            Assert.That(userDto.Car, Is.EqualTo("Jag"));
-            Assert.That(userDto.Age, Is.EqualTo(21));
-        }
-
-        [Test]
-        public void Can_Convert_from_ObjectDictionary_with_SubClass_Type_With_Nullable_Properties()
-        {
-            var map = new Dictionary<string, object>
-            {
-                { "FirstName", "Foo" },
-                { "LastName", "Bar" },
-                { "Car",  "Jag" },
-                { "Age",  21 },
-            };
-
-            var userDto = map.FromObjectDictionary<AgedUserWithNullable>();
-            
-            Assert.That(userDto.FirstName, Is.EqualTo("Foo"));
-            Assert.That(userDto.LastName, Is.EqualTo("Bar"));
-            Assert.That(userDto.Car, Is.EqualTo("Jag"));
-            Assert.That(userDto.Age, Is.EqualTo(21));
-        }
-
         public class QueryCustomers : QueryDb<Customer>
         {
             public string CustomerId { get; set; }
@@ -200,6 +163,56 @@ namespace ServiceStack.Text.Tests
             Assert.That(employee.DisplayName, Is.EqualTo("John Z Doe"));
         }
 
+        [Test, TestCaseSource(nameof(TestDataFromObjectDictionaryWithNullableTypes))]
+        public void Can_Convert_from_ObjectDictionary_with_Nullable_Properties(
+            Dictionary<string, object> map,
+            ModelWithFieldsOfNullableTypes expected)
+        {
+            var actual = map.FromObjectDictionary<ModelWithFieldsOfNullableTypes>();
+
+            ModelWithFieldsOfNullableTypes.AssertIsEqual(actual, expected);
+        }
+
+        private static IEnumerable<TestCaseData> TestDataFromObjectDictionaryWithNullableTypes
+        {
+            get
+            {
+                var defaults = ModelWithFieldsOfNullableTypes.CreateConstant(1);
+
+                yield return new TestCaseData(
+                    new Dictionary<string, object>
+                    {
+                        { "Id", defaults.Id },
+                        { "NId", defaults.NId },
+                        { "NLongId", defaults.NLongId },
+                        { "NGuid", defaults.NGuid },
+                        { "NBool", defaults.NBool },
+                        { "NDateTime", defaults.NDateTime },
+                        { "NFloat", defaults.NFloat },
+                        { "NDouble", defaults.NDouble },
+                        { "NDecimal", defaults.NDecimal },
+                        { "NTimeSpan", defaults.NTimeSpan }
+                    },
+                    defaults).SetName("All values populated");
+
+                yield return new TestCaseData(
+                    new Dictionary<string, object>
+                    {
+                        { "Id", defaults.Id.ToString() },
+                        { "NId", defaults.NId.ToString() },
+                        { "NLongId", defaults.NLongId.ToString() },
+                        { "NGuid", defaults.NGuid.ToString() },
+                        { "NBool", defaults.NBool.ToString() },
+                        { "NDateTime", defaults.NDateTime.ToString() },
+                        { "NFloat", defaults.NFloat.ToString() },
+                        { "NDouble", defaults.NDouble.ToString() },
+                        { "NDecimal", defaults.NDecimal.ToString() },
+                        { "NTimeSpan", defaults.NTimeSpan.ToString() }
+                    },
+                    defaults).SetName("All values populated as strings");
+            }
+        }
     }
+
 
 }
