@@ -363,6 +363,7 @@ namespace ServiceStack
             return to;
         }
 
+        [Obsolete("Use PopulateWithNonDefaultValues")]
         public static object PopulateInstance(this object to, object from)
         {
             if (to == null || from == null)
