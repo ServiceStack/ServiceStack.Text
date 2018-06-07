@@ -669,7 +669,7 @@ namespace ServiceStack
             }
         }
 
-        public static Task<byte[]> SendBytesToUrlAsync(this string url, string method = null,
+        public static async Task<byte[]> SendBytesToUrlAsync(this string url, string method = null,
             byte[] requestBody = null, string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
         {
@@ -687,9 +687,7 @@ namespace ServiceStack
             if (ResultsFilter != null)
             {
                 var result = ResultsFilter.GetBytes(webReq, requestBody);
-                var tcsResult = new TaskCompletionSource<byte[]>();
-                tcsResult.SetResult(result);
-                return tcsResult.Task;
+                return result;
             }
 
             if (requestBody != null)
@@ -700,32 +698,13 @@ namespace ServiceStack
                 }
             }
 
-            var taskWebRes = webReq.GetResponseAsync();
-            var tcs = new TaskCompletionSource<byte[]>();
+            var webRes = await webReq.GetResponseAsync();
+            responseFilter?.Invoke((HttpWebResponse)webRes);
 
-            taskWebRes.ContinueWith(task =>
+            using (var stream = webRes.GetResponseStream())
             {
-                if (task.Exception != null)
-                {
-                    tcs.SetException(task.Exception);
-                    return;
-                }
-                if (task.IsCanceled)
-                {
-                    tcs.SetCanceled();
-                    return;
-                }
-
-                var webRes = task.Result;
-                responseFilter?.Invoke((HttpWebResponse)webRes);
-
-                using (var stream = webRes.GetResponseStream())
-                {
-                    tcs.SetResult(stream.ReadFully());
-                }
-            });
-
-            return tcs.Task;
+                return stream.ReadFully();
+            }
         }
 
         public static bool IsAny300(this Exception ex)
@@ -838,7 +817,7 @@ namespace ServiceStack
         public static IEnumerable<string> ReadLines(this WebResponse webRes)
         {
             using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream, UseEncoding, detectEncodingFromByteOrderMarks:true, 1024, leaveOpen:true))
+            using (var reader = new StreamReader(stream, UseEncoding, true, 1024, leaveOpen:true))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
