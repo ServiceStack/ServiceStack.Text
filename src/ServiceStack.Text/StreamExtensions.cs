@@ -316,6 +316,25 @@ namespace ServiceStack
             }
         }
 
+        public static Task<string> ReadToEndAsync(this MemoryStream ms)
+        {
+            ms.Position = 0;
+            try
+            {
+                var ret = JsConfig.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
+                return ret.InTask();
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
+                
+                using (var reader = new StreamReader(ms, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+                {
+                    return reader.ReadToEndAsync();
+                }
+            }
+        }
+
         public static string ReadToEnd(this Stream stream)
         {
             if (stream is MemoryStream ms)
@@ -332,10 +351,34 @@ namespace ServiceStack
             }
         }
 
+        public static Task<string> ReadToEndAsync(this Stream stream)
+        {
+            if (stream is MemoryStream ms)
+                return ms.ReadToEndAsync();
+
+            if (stream.CanSeek)
+            {
+                stream.Position = 0;
+            }
+  
+            using (var reader = new StreamReader(stream, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+            {
+                return reader.ReadToEndAsync();
+            }
+        }
+
         public static MemoryStream CopyToNewMemoryStream(this Stream stream)
         {
             var ms = MemoryStreamFactory.GetStream();
             stream.CopyTo(ms);
+            ms.Position = 0;
+            return ms;
+        }
+
+        public static async Task<MemoryStream> CopyToNewMemoryStreamAsync(this Stream stream)
+        {
+            var ms = MemoryStreamFactory.GetStream();
+            await stream.CopyToAsync(ms);
             ms.Position = 0;
             return ms;
         }
