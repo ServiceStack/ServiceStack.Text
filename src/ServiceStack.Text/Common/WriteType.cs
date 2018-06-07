@@ -605,7 +605,7 @@ namespace ServiceStack.Text.Common
                             var enumerableWriter = new StreamWriter(ms); //ms disposed in using 
                             propertyWriter.WriteFn(enumerableWriter, propertyValue);
                             enumerableWriter.Flush();
-                            var output = ms.ToArray().FromUtf8Bytes();
+                            var output = ms.ReadToEnd();
                             output = output.Trim(ArrayBrackets);
                             writer.Write(output);
                         }

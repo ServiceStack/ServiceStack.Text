@@ -297,6 +297,21 @@ namespace ServiceStack
             }
             return StringBuilderCache.ReturnAndFree(sb);
         }
-        
+
+        public static string ReadToEnd(this MemoryStream ms)
+        {
+            ms.Position = 0;
+            var ret = JsonSerializer.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
+            return ret;
+        }
+
+        public static string ReadToEnd(this Stream stream)
+        {
+            stream.Position = 0;
+            using (var reader = new StreamReader(stream, JsonSerializer.UTF8Encoding))
+            {
+                return reader.ReadToEnd();
+            }
+        }
     }
 }

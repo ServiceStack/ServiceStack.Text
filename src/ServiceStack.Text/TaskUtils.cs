@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace ServiceStack
 {
     public static class TaskUtils
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<T> FromResult<T>(T result)
         {
             var taskSource = new TaskCompletionSource<T>();
@@ -17,6 +19,7 @@ namespace ServiceStack
             return taskSource.Task;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<T> InTask<T>(this T result)
         {
             var taskSource = new TaskCompletionSource<T>();
@@ -24,6 +27,7 @@ namespace ServiceStack
             return taskSource.Task;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<T> InTask<T>(this Exception ex)
         {
             var taskSource = new TaskCompletionSource<T>();
@@ -31,6 +35,7 @@ namespace ServiceStack
             return taskSource.Task;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSuccess(this Task task)
         {
             return !task.IsFaulted && task.IsCompleted;
