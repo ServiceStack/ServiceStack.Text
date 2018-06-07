@@ -373,7 +373,7 @@ namespace ServiceStack
         }
 
 
-        public static Task WriteToAsync(this MemoryStream stream, Stream output, CancellationToken token=default) => 
+        public static Task WriteToAsync(this MemoryStream stream, Stream output, CancellationToken token=default(CancellationToken)) => 
             WriteToAsync(stream, output, JsConfig.UTF8Encoding, token);
         
         public static async Task WriteToAsync(this MemoryStream stream, Stream output, Encoding encoding, CancellationToken token)
