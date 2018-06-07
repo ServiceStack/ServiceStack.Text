@@ -313,5 +313,13 @@ namespace ServiceStack
                 return reader.ReadToEnd();
             }
         }
+
+        public static MemoryStream CopyToNewMemoryStream(this Stream stream)
+        {
+            var ms = MemoryStreamFactory.GetStream();
+            stream.CopyTo(ms);
+            ms.Position = 0;
+            return ms;
+        }
     }
 }
