@@ -329,7 +329,7 @@ namespace ServiceStack
             }
             catch (UnauthorizedAccessException e)
             {
-                Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
+                Tracer.Instance.WriteWarning("MemoryStream in ReadToEndAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 
                 using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen:true))
                 {
@@ -369,6 +369,25 @@ namespace ServiceStack
             using (var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true))
             {
                 return reader.ReadToEndAsync();
+            }
+        }
+
+
+        public static Task WriteToAsync(this MemoryStream stream, Stream output, CancellationToken token=default) => 
+            WriteToAsync(stream, output, JsConfig.UTF8Encoding, token);
+        
+        public static async Task WriteToAsync(this MemoryStream stream, Stream output, Encoding encoding, CancellationToken token)
+        {
+            try
+            {
+                await output.WriteAsync(stream.GetBuffer(), 0, (int) stream.Length, token);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Tracer.Instance.WriteWarning("MemoryStream in WriteToAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
+
+                var bytes = stream.ToArray();
+                await output.WriteAsync(bytes, 0, bytes.Length, token);
             }
         }
 
