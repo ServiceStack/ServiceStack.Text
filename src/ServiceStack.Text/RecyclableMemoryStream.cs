@@ -47,22 +47,22 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         public static MemoryStream GetStream(int capacity)
         {
             return UseRecyclableMemoryStream
-                ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, capacity)
+                ? RecyclableInstance.GetStream(nameof(MemoryStreamFactory), capacity)
                 : new MemoryStream(capacity);
         }
 
         public static MemoryStream GetStream(byte[] bytes)
         {
             return UseRecyclableMemoryStream
-                ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, bytes, 0, bytes.Length)
-                : new MemoryStream(bytes);
+                ? RecyclableInstance.GetStream(nameof(MemoryStreamFactory), bytes, 0, bytes.Length)
+                : new MemoryStream(bytes, 0, bytes.Length, writable:true, publiclyVisible:true);
         }
 
         public static MemoryStream GetStream(byte[] bytes, int index, int count)
         {
             return UseRecyclableMemoryStream
-                ? RecyclableInstance.GetStream(typeof(MemoryStreamFactory).Name, bytes, index, count)
-                : new MemoryStream(bytes, index, count);
+                ? RecyclableInstance.GetStream(nameof(MemoryStreamFactory), bytes, index, count)
+                : new MemoryStream(bytes, index, count, writable:true, publiclyVisible:true);
         }
     }
 
