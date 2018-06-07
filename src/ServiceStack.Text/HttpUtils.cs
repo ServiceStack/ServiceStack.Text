@@ -541,15 +541,12 @@ namespace ServiceStack
 
             using (var webRes = PclExport.Instance.GetResponse(webReq))
             using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream, UseEncoding))
             {
-                responseFilter?.Invoke((HttpWebResponse)webRes);
-
-                return reader.ReadToEnd();
+                return stream.ReadToEnd(UseEncoding);
             }
         }
 
-        public static Task<string> SendStringToUrlAsync(this string url, string method = null, string requestBody = null,
+        public static async Task<string> SendStringToUrlAsync(this string url, string method = null, string requestBody = null,
             string contentType = null, string accept = "*/*", Action<HttpWebRequest> requestFilter = null,
             Action<HttpWebResponse> responseFilter = null)
         {
@@ -567,9 +564,7 @@ namespace ServiceStack
             if (ResultsFilter != null)
             {
                 var result = ResultsFilter.GetString(webReq, requestBody);
-                var tcsResult = new TaskCompletionSource<string>();
-                tcsResult.SetResult(result);
-                return tcsResult.Task;
+                return result;
             }
 
             if (requestBody != null)
@@ -581,33 +576,13 @@ namespace ServiceStack
                 }
             }
 
-            var taskWebRes = webReq.GetResponseAsync();
-            var tcs = new TaskCompletionSource<string>();
+            var webRes = await webReq.GetResponseAsync();
+            responseFilter?.Invoke((HttpWebResponse)webRes);
 
-            taskWebRes.ContinueWith(task =>
+            using (var stream = webRes.GetResponseStream())
             {
-                if (task.Exception != null)
-                {
-                    tcs.SetException(task.Exception);
-                    return;
-                }
-                if (task.IsCanceled)
-                {
-                    tcs.SetCanceled();
-                    return;
-                }
-
-                var webRes = task.Result;
-                responseFilter?.Invoke((HttpWebResponse)webRes);
-
-                using (var stream = webRes.GetResponseStream())
-                using (var reader = new StreamReader(stream, UseEncoding))
-                {
-                    tcs.SetResult(reader.ReadToEnd());
-                }
-            });
-
-            return tcs.Task;
+                return await stream.ReadToEndAsync();
+            }
         }
 
         public static byte[] GetBytesFromUrl(this string url, string accept = "*/*",
@@ -849,25 +824,21 @@ namespace ServiceStack
                 return null;
 
             var errorResponse = (HttpWebResponse)webEx.Response;
-            using (var reader = new StreamReader(errorResponse.GetResponseStream(), UseEncoding))
-            {
-                return reader.ReadToEnd();
-            }
+            return errorResponse.GetResponseStream().ReadToEnd(UseEncoding);
         }
 
         public static string ReadToEnd(this WebResponse webRes)
         {
             using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream, UseEncoding))
             {
-                return reader.ReadToEnd();
+                return stream.ReadToEnd(UseEncoding);
             }
         }
 
         public static IEnumerable<string> ReadLines(this WebResponse webRes)
         {
             using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream, UseEncoding))
+            using (var reader = new StreamReader(stream, UseEncoding, detectEncodingFromByteOrderMarks:true, 1024, leaveOpen:true))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)

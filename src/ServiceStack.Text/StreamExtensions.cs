@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ServiceStack.Text;
@@ -297,45 +298,48 @@ namespace ServiceStack
             return StringBuilderCache.ReturnAndFree(sb);
         }
 
-        public static string ReadToEnd(this MemoryStream ms)
+        public static string ReadToEnd(this MemoryStream ms) => ReadToEnd(ms, JsConfig.UTF8Encoding);
+        public static string ReadToEnd(this MemoryStream ms, Encoding encoding)
         {
             ms.Position = 0;
             try
             {
-                var ret = JsConfig.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
+                var ret = encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
                 return ret;
             }
             catch (UnauthorizedAccessException e)
             {
                 Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 
-                using (var reader = new StreamReader(ms, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+                using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen:true))
                 {
                     return reader.ReadToEnd();
                 }
             }
         }
 
-        public static Task<string> ReadToEndAsync(this MemoryStream ms)
+        public static Task<string> ReadToEndAsync(this MemoryStream ms) => ReadToEndAsync(ms, JsConfig.UTF8Encoding);
+        public static Task<string> ReadToEndAsync(this MemoryStream ms, Encoding encoding)
         {
             ms.Position = 0;
             try
             {
-                var ret = JsConfig.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
+                var ret = encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
                 return ret.InTask();
             }
             catch (UnauthorizedAccessException e)
             {
                 Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 
-                using (var reader = new StreamReader(ms, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+                using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen:true))
                 {
                     return reader.ReadToEndAsync();
                 }
             }
         }
 
-        public static string ReadToEnd(this Stream stream)
+        public static string ReadToEnd(this Stream stream) => ReadToEnd(stream, JsConfig.UTF8Encoding);
+        public static string ReadToEnd(this Stream stream, Encoding encoding)
         {
             if (stream is MemoryStream ms)
                 return ms.ReadToEnd();
@@ -345,13 +349,14 @@ namespace ServiceStack
                 stream.Position = 0;
             }
   
-            using (var reader = new StreamReader(stream, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+            using (var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true))
             {
                 return reader.ReadToEnd();
             }
         }
 
-        public static Task<string> ReadToEndAsync(this Stream stream)
+        public static Task<string> ReadToEndAsync(this Stream stream) => ReadToEndAsync(stream, JsConfig.UTF8Encoding);
+        public static Task<string> ReadToEndAsync(this Stream stream, Encoding encoding)
         {
             if (stream is MemoryStream ms)
                 return ms.ReadToEndAsync();
@@ -361,7 +366,7 @@ namespace ServiceStack
                 stream.Position = 0;
             }
   
-            using (var reader = new StreamReader(stream, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+            using (var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true))
             {
                 return reader.ReadToEndAsync();
             }

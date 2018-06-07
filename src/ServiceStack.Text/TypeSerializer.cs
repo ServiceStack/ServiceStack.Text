@@ -33,7 +33,7 @@ namespace ServiceStack.Text
             JsConfig.InitStatics();
         }
 
-        [Obsolete("Use JsConfig")]
+        [Obsolete("Use JsConfig.UTF8Encoding")]
         public static UTF8Encoding UTF8Encoding
         {
             get => JsConfig.UTF8Encoding;
