@@ -307,6 +307,9 @@ namespace ServiceStack
 
         public static string ReadToEnd(this Stream stream)
         {
+            if (stream is MemoryStream ms)
+                return ms.ReadToEnd();
+            
             stream.Position = 0;
             using (var reader = new StreamReader(stream, JsonSerializer.UTF8Encoding))
             {
