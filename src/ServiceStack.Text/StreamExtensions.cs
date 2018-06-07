@@ -16,8 +16,7 @@ namespace ServiceStack
     {
         public static long WriteTo(this Stream inStream, Stream outStream)
         {
-            var memoryStream = inStream as MemoryStream;
-            if (memoryStream != null)
+            if (inStream is MemoryStream memoryStream)
             {
                 memoryStream.WriteTo(outStream);
                 return memoryStream.Position;
@@ -311,7 +310,7 @@ namespace ServiceStack
                 return ms.ReadToEnd();
             
             stream.Position = 0;
-            using (var reader = new StreamReader(stream, JsonSerializer.UTF8Encoding))
+            using (var reader = new StreamReader(stream, JsonSerializer.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
             {
                 return reader.ReadToEnd();
             }
