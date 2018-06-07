@@ -29,7 +29,12 @@ namespace ServiceStack.Text
             JsConfig.InitStatics();
         }
 
-        public static Encoding UTF8Encoding = PclExport.Instance.GetUTF8Encoding(false);
+        [Obsolete("Use JsConfig")]
+        public static UTF8Encoding UTF8Encoding
+        {
+            get => JsConfig.UTF8Encoding;
+            set => JsConfig.UTF8Encoding = value;
+        }
 
         public static T DeserializeFromString<T>(string value)
         {
@@ -147,7 +152,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                var writer = new StreamWriter(stream, UTF8Encoding);
+                var writer = new StreamWriter(stream, JsConfig.UTF8Encoding);
                 JsonWriter<T>.WriteRootObject(writer, value);
                 writer.Flush();
             }
@@ -155,46 +160,36 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object value, Type type, Stream stream)
         {
-            var writer = new StreamWriter(stream, UTF8Encoding);
+            var writer = new StreamWriter(stream, JsConfig.UTF8Encoding);
             JsonWriter.GetWriteFn(type)(writer, value);
             writer.Flush();
         }
 
         public static T DeserializeFromStream<T>(Stream stream)
         {
-            using (var reader = new StreamReader(stream, UTF8Encoding))
-            {
-                return DeserializeFromString<T>(reader.ReadToEnd());
-            }
+            return DeserializeFromString<T>(stream.ReadToEnd());
         }
 
         public static object DeserializeFromStream(Type type, Stream stream)
         {
-            using (var reader = new StreamReader(stream, UTF8Encoding))
-            {
-                return DeserializeFromString(reader.ReadToEnd(), type);
-            }
+            return DeserializeFromString(stream.ReadToEnd(), type);
         }
 
         public static T DeserializeResponse<T>(WebRequest webRequest)
         {
             using (var webRes = PclExport.Instance.GetResponse(webRequest))
+            using (var stream = webRes.GetResponseStream())
             {
-                using (var stream = webRes.GetResponseStream())
-                {
-                    return DeserializeFromStream<T>(stream);
-                }
+                return DeserializeFromStream<T>(stream);
             }
         }
 
         public static object DeserializeResponse<T>(Type type, WebRequest webRequest)
         {
             using (var webRes = PclExport.Instance.GetResponse(webRequest))
+            using (var stream = webRes.GetResponseStream())
             {
-                using (var stream = webRes.GetResponseStream())
-                {
-                    return DeserializeFromStream(type, stream);
-                }
+                return DeserializeFromStream(type, stream);
             }
         }
 

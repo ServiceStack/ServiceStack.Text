@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -201,6 +202,8 @@ namespace ServiceStack.Text
 
             return scope;
         }
+
+        public static UTF8Encoding UTF8Encoding { get; set; } = new UTF8Encoding(false);
 
         public static JsConfigScope With(
             bool? convertObjectTypesIntoStringDictionary = null,

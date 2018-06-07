@@ -22,7 +22,7 @@ namespace ServiceStack.Text.Tests
                 using (var sr = new StreamReader(ms))
                 {
                     ms.Position = 0;
-                    var ssJson = sr.ReadToEnd();
+                    var ssJson = ms.ReadToEnd();
                     Assert.That(ssJson, Is.EqualTo(json));
 
                     ms.Position = 0;

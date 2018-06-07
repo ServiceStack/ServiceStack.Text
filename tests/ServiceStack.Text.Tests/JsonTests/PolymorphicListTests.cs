@@ -242,12 +242,8 @@ namespace ServiceStack.Text.Tests.JsonTests
                 using (var stream = new MemoryStream())
                 {
                     dataContractJsonSerializer.WriteObject(stream, originalList);
-                    stream.Position = 0;
-                    using (var reader = new StreamReader(stream))
-                    {
-                        var json = reader.ReadToEnd();
-                        deserializedList = JsonSerializer.DeserializeFromString<List<Animal>>(json);
-                    }
+                    var json = stream.ReadToEnd();
+                    deserializedList = JsonSerializer.DeserializeFromString<List<Animal>>(json);
                 }
 
                 Assert.That(deserializedList.Count, Is.EqualTo(originalList.Count));
@@ -331,7 +327,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             {
                 var regex = new Regex(@"^(?<type>[^:]+):#(?<namespace>.*)$");
                 var match = regex.Match(value);
-                var typeName = string.Format("{0}.{1}", match.Groups["namespace"].Value, match.Groups["type"].Value.Replace(".", "+"));
+                var typeName = $"{match.Groups["namespace"].Value}.{match.Groups["type"].Value.Replace(".", "+")}";
                 return AssemblyUtils.FindType(typeName);
             };
 
@@ -354,12 +350,8 @@ namespace ServiceStack.Text.Tests.JsonTests
                 using (var stream = new MemoryStream())
                 {
                     dataContractJsonSerializer.WriteObject(stream, originalPets);
-                    stream.Position = 0;
-                    using (var reader = new StreamReader(stream))
-                    {
-                        var json = reader.ReadToEnd();
-                        deserializedPets = JsonSerializer.DeserializeFromString<Pets>(json);
-                    }
+                    var json = stream.ReadToEnd();
+                    deserializedPets = JsonSerializer.DeserializeFromString<Pets>(json);
                 }
 
                 Assert.That(deserializedPets.Cat.GetType(), Is.EqualTo(originalPets.Cat.GetType()));

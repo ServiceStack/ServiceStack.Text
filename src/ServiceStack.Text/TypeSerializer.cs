@@ -33,7 +33,12 @@ namespace ServiceStack.Text
             JsConfig.InitStatics();
         }
 
-        public static Encoding UTF8Encoding = PclExport.Instance.GetUTF8Encoding(false);
+        [Obsolete("Use JsConfig")]
+        public static UTF8Encoding UTF8Encoding
+        {
+            get => JsConfig.UTF8Encoding;
+            set => JsConfig.UTF8Encoding = value;
+        }
 
         public const string DoubleQuoteString = "\"\"";
 
@@ -164,7 +169,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                var writer = new StreamWriter(stream, UTF8Encoding);
+                var writer = new StreamWriter(stream, JsConfig.UTF8Encoding);
                 JsvWriter<T>.WriteRootObject(writer, value);
                 writer.Flush();
             }
@@ -172,7 +177,7 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object value, Type type, Stream stream)
         {
-            var writer = new StreamWriter(stream, UTF8Encoding);
+            var writer = new StreamWriter(stream, JsConfig.UTF8Encoding);
             JsvWriter.GetWriteFn(type)(writer, value);
             writer.Flush();
         }
@@ -186,18 +191,12 @@ namespace ServiceStack.Text
 
         public static T DeserializeFromStream<T>(Stream stream)
         {
-            using (var reader = new StreamReader(stream, UTF8Encoding))
-            {
-                return DeserializeFromString<T>(reader.ReadToEnd());
-            }
+            return DeserializeFromString<T>(stream.ReadToEnd());
         }
 
         public static object DeserializeFromStream(Type type, Stream stream)
         {
-            using (var reader = new StreamReader(stream, UTF8Encoding))
-            {
-                return DeserializeFromString(reader.ReadToEnd(), type);
-            }
+            return DeserializeFromString(stream.ReadToEnd(), type);
         }
 
         /// <summary>

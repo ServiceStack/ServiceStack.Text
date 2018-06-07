@@ -81,9 +81,7 @@ namespace ServiceStack.Text
                         var serializer = new DataContractSerializer(from.GetType());
                         serializer.WriteObject(xw, from);
                         xw.Flush();
-                        ms.Seek(0, SeekOrigin.Begin);
-                        var reader = new StreamReader(ms);
-                        return reader.ReadToEnd();
+                        return ms.ReadToEnd();
                     }
                 }
             }

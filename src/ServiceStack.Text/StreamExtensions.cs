@@ -300,7 +300,7 @@ namespace ServiceStack
         public static string ReadToEnd(this MemoryStream ms)
         {
             ms.Position = 0;
-            var ret = JsonSerializer.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
+            var ret = JsConfig.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
             return ret;
         }
 
@@ -308,9 +308,13 @@ namespace ServiceStack
         {
             if (stream is MemoryStream ms)
                 return ms.ReadToEnd();
-            
-            stream.Position = 0;
-            using (var reader = new StreamReader(stream, JsonSerializer.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+
+            if (stream.CanSeek)
+            {
+                stream.Position = 0;
+            }
+  
+            using (var reader = new StreamReader(stream, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
             {
                 return reader.ReadToEnd();
             }

@@ -91,7 +91,7 @@ namespace ServiceStack.Text.Tests.Benchmarks
         public void SerializeJsonStringToStreamUsingDirectStreamWriter()
         {
             stream.Position = 0;
-            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
+            var writer = new DirectStreamWriter(stream, JsConfig.UTF8Encoding);
             JsonWriter<string>.WriteRootObject(writer, serializedString);
             writer.Flush();
         }
@@ -100,7 +100,7 @@ namespace ServiceStack.Text.Tests.Benchmarks
         public void SerializeJsonString256ToStreamUsingDirectStreamWriter()
         {
             stream.Position = 0;
-            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
+            var writer = new DirectStreamWriter(stream, JsConfig.UTF8Encoding);
             JsonWriter<string>.WriteRootObject(writer, serializedString256);
             writer.Flush();
         }
@@ -109,7 +109,7 @@ namespace ServiceStack.Text.Tests.Benchmarks
         public void SerializeJsonString512ToStreamUsingDirectStreamWriter()
         {
             stream.Position = 0;
-            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
+            var writer = new DirectStreamWriter(stream, JsConfig.UTF8Encoding);
             JsonWriter<string>.WriteRootObject(writer, serializedString512);
             writer.Flush();
         }
@@ -118,7 +118,7 @@ namespace ServiceStack.Text.Tests.Benchmarks
         public void SerializeJsonString4096ToStreamUsingDirectStreamWriter()
         {
             stream.Position = 0;
-            var writer = new DirectStreamWriter(stream, JsonSerializer.UTF8Encoding);
+            var writer = new DirectStreamWriter(stream, JsConfig.UTF8Encoding);
             JsonWriter<string>.WriteRootObject(writer, serializedString4096);
             writer.Flush();
         }
