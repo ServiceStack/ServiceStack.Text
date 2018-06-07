@@ -332,6 +332,15 @@ namespace ServiceStack
             return output;
         }
 
+        public static string ToBase64UrlSafe(this MemoryStream ms)
+        {
+            var output = Convert.ToBase64String(ms.GetBuffer(), 0, (int)ms.Length);
+            output = output.LeftPart('='); // Remove any trailing '='s
+            output = output.Replace('+', '-'); // 62nd char of encoding
+            output = output.Replace('/', '_'); // 63rd char of encoding
+            return output;
+        }
+
         // from JWT spec
         public static byte[] FromBase64UrlSafe(this string input)
         {
