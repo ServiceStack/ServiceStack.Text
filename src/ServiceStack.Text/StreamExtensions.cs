@@ -300,8 +300,20 @@ namespace ServiceStack
         public static string ReadToEnd(this MemoryStream ms)
         {
             ms.Position = 0;
-            var ret = JsConfig.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
-            return ret;
+            try
+            {
+                var ret = JsConfig.UTF8Encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
+                return ret;
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
+                
+                using (var reader = new StreamReader(ms, JsConfig.UTF8Encoding, true, DefaultBufferSize, leaveOpen:true))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
         }
 
         public static string ReadToEnd(this Stream stream)
