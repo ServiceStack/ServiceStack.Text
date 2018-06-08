@@ -37,8 +37,9 @@ namespace ServiceStack.Text
         /// </summary>
         public static string Get(this Dictionary<string, string> map, string key)
         {
-            string strVal;
-            return map.TryGetValue(key, out strVal) ? JsonTypeSerializer.Instance.UnescapeString(strVal) : null;
+            return map.TryGetValue(key, out var strVal) 
+                ? JsonTypeSerializer.Instance.UnescapeString(strVal) 
+                : null;
         }
 
         public static JsonArrayObjects ArrayObjects(this string json)
@@ -96,16 +97,14 @@ namespace ServiceStack.Text
 
         public JsonArrayObjects ArrayObjects(string propertyName)
         {
-            string strValue;
-            return this.TryGetValue(propertyName, out strValue)
+            return this.TryGetValue(propertyName, out var strValue)
                 ? JsonArrayObjects.Parse(strValue)
                 : null;
         }
 
         public JsonObject Object(string propertyName)
         {
-            string strValue;
-            return this.TryGetValue(propertyName, out strValue)
+            return this.TryGetValue(propertyName, out var strValue)
                 ? Parse(strValue)
                 : null;
         }
@@ -162,16 +161,14 @@ namespace ServiceStack.Text
 
             if (!strValue.Contains("."))
             {
-                long longValue;
-                if (long.TryParse(strValue, out longValue))
+                if (long.TryParse(strValue, out var longValue))
                 {
                     return longValue < JsonUtils.MaxInteger && longValue > JsonUtils.MinInteger;
                 }
                 return false;
             }
 
-            double doubleValue;
-            if (double.TryParse(strValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out doubleValue))
+            if (double.TryParse(strValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var doubleValue))
             {
                 return doubleValue < JsonUtils.MaxInteger && doubleValue > JsonUtils.MinInteger;
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using NUnit.Framework;
@@ -441,5 +442,70 @@ namespace ServiceStack.Text.Tests.JsonTests
             // There can be more nested objects in here
         }
 
+        
+        public class CreateEvent
+        {
+            public EventContent Event { get; set; }
+        }
+
+        public class EventContent
+        {
+            public JsonObject EventPayLoad { get; set; }
+            public object EventObject { get; set; }
+        }
+
+        public class EventPayLoadPosition
+        {
+            public double? Heading { get; set; }
+
+            public double? Accuracy { get; set; }
+
+            public double? Speed { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_custom_JsonObject_payload()
+        {
+            var json = "{\"Event\":{\"EventPayload\":{\"Heading\":1.1}}}";
+            var dto = json.FromJson<CreateEvent>();
+            
+            Assert.That(dto.Event.EventPayLoad.Get("Heading"), Is.EqualTo("1.1"));
+
+            var payload = dto.Event.EventPayLoad.ConvertTo<EventPayLoadPosition>();
+            Assert.That(payload.Heading, Is.EqualTo(1.1));
+        }
+
+        [Test]
+        public void Can_deserialize_custom_object_payload()
+        {
+            JS.Configure();
+            
+            var json = "{\"Event\":{\"EventObject\":{\"Heading\":1.1}}}";
+            var dto = json.FromJson<CreateEvent>();
+
+            var obj = (Dictionary<string, object>)dto.Event.EventObject;
+
+            var payload = obj.FromObjectDictionary<EventPayLoadPosition>();
+
+            Assert.That(payload.Heading, Is.EqualTo(1.1));
+
+            JS.UnConfigure();
+        }
+
+        [Test]
+        public void Can_deserialize_custom_JsonObject_with_incorrect_payload()
+        {
+            var json = "{\"Event\":{\"EventPayload\":{\"Heading\":24.687999725341797.0}}}";
+            var dto = json.FromJson<CreateEvent>();
+
+            try
+            {
+                var payload = dto.Event.EventPayLoad.ConvertTo<EventPayLoadPosition>();
+                Assert.Fail("Should throw");
+            }
+            catch (FormatException e) {}
+        }
+        
+        
     }
 }
