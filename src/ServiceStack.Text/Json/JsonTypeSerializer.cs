@@ -390,7 +390,7 @@ namespace ServiceStack.Text.Json
         public string UnescapeString(string value)
         {
             var i = 0;
-            return UnEscapeJsonString(value, ref i);
+            return UnescapeJsonString(value, ref i);
         }
 
         public StringSegment UnescapeString(StringSegment value)
@@ -418,21 +418,21 @@ namespace ServiceStack.Text.Json
             return UnescapeJsonString(json, ref index);
         }
 
-        private static string UnEscapeJsonString(string json, ref int index)
+        private static string UnescapeJsonString(string json, ref int index)
         {
             return UnescapeJsonString(new StringSegment(json), ref index).Value;
         }
 
         private static StringSegment UnescapeJsonString(StringSegment json, ref int index) =>
-            UnescapeJsString(json, JsonUtils.QuoteChar, ref index);
+            UnescapeJsString(json, JsonUtils.QuoteChar, true, ref index);
 
         public static StringSegment UnescapeJsString(StringSegment json, char quoteChar)
         {
             var ignore = 0;
-            return UnescapeJsString(json, quoteChar, ref ignore);
+            return UnescapeJsString(json, quoteChar, false, ref ignore);
         }
         
-        public static StringSegment UnescapeJsString(StringSegment json, char quoteChar, ref int index)
+        public static StringSegment UnescapeJsString(StringSegment json, char quoteChar, bool removeQuotes, ref int index)
         {
             if (json.IsNullOrEmpty()) return json;
             var jsonLength = json.Length;
@@ -470,7 +470,7 @@ namespace ServiceStack.Text.Json
                 if (i == end) return new StringSegment(buffer, offset + index, jsonLength - index);
             }
 
-            return Unescape(json);
+            return Unescape(json, removeQuotes:removeQuotes);
         }
         
         public static string Unescape(string input) => Unescape(input, true);
