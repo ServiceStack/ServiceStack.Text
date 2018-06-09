@@ -613,7 +613,7 @@ namespace ServiceStack.Text
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
             get => (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnDeserializationError : null)
                    ?? sThrowOnError
-                   ?? Env.StrictMode;
+                   ?? false;
             set
             {
                 if (!sThrowOnError.HasValue) sThrowOnError = value;
