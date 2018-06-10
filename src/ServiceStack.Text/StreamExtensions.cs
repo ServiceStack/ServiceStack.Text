@@ -391,6 +391,18 @@ namespace ServiceStack
             }
         }
 
+        public static Task WriteToAsync(this Stream stream, Stream output, CancellationToken token=default(CancellationToken)) => 
+            WriteToAsync(stream, output, JsConfig.UTF8Encoding, token);
+        
+        
+        public static Task WriteToAsync(this Stream stream, Stream output, Encoding encoding, CancellationToken token)
+        {
+            if (stream is MemoryStream ms)
+                return ms.WriteToAsync(output, encoding, token);
+            
+            return stream.CopyToAsync(output, token);
+        }
+
         public static MemoryStream CopyToNewMemoryStream(this Stream stream)
         {
             var ms = MemoryStreamFactory.GetStream();
