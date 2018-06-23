@@ -4,15 +4,24 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace ServiceStack.Text
 {
+    //From: https://github.com/aspnet/Common/blob/dev/src/Microsoft.Extensions.Primitives/StringSegment.cs
+    
     /// <summary>
     /// An optimized representation of a substring.
     /// </summary>
-    public struct StringSegment : IEquatable<StringSegment>, IEquatable<string>
+    [Obsolete("Use ReadOnlyMemory<char> instead")]
+    public readonly struct StringSegment : IEquatable<StringSegment>, IEquatable<string>
     {
+        /// <summary>
+        /// A <see cref="StringSegment"/> for <see cref="string.Empty"/>.
+        /// </summary>
+        public static readonly StringSegment Empty = string.Empty;
+
         /// <summary>
         /// Initializes an instance of the <see cref="StringSegment"/> struct.
         /// </summary>
@@ -58,20 +67,20 @@ namespace ServiceStack.Text
         {
             if (buffer == null)
             {
-                return new ArgumentNullException(nameof(buffer));
+                return ThrowHelper.GetArgumentNullException(ExceptionArgument.buffer);
             }
 
             if (offset < 0)
             {
-                return new ArgumentOutOfRangeException(nameof(offset));
+                return ThrowHelper.GetArgumentOutOfRangeException(ExceptionArgument.offset);
             }
 
             if (length < 0)
             {
-                return new ArgumentOutOfRangeException(nameof(length));
+                return ThrowHelper.GetArgumentOutOfRangeException(ExceptionArgument.length);
             }
 
-            return new ArgumentException("invalid offset or length");
+            return ThrowHelper.GetArgumentException(ExceptionResource.Argument_InvalidOffsetLength);
         }
 
         /// <summary>
@@ -115,6 +124,60 @@ namespace ServiceStack.Text
             get { return Buffer != null; }
         }
 
+        /// <summary>
+        /// Gets the <see cref="char"/> at a specified position in the current <see cref="StringSegment"/>.
+        /// </summary>
+        /// <param name="index">The offset into the <see cref="StringSegment"/></param>
+        /// <returns>The <see cref="char"/> at a specified position.</returns>
+        public char this[int index]
+        {
+            get
+            {
+                if ((uint)index >= (uint)Length)
+                {
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index);
+                }
+
+                return Buffer[Offset + index];
+            }
+        }
+
+        /// <summary>
+        /// Gets a <see cref="ReadOnlySpan{T}"/> from the current <see cref="StringSegment"/>.
+        /// </summary>
+        /// <returns>The <see cref="ReadOnlySpan{T}"/> from this <see cref="StringSegment"/>.</returns>
+        public ReadOnlySpan<char> AsSpan() => Buffer.AsSpan(Offset, Length);
+
+        /// <summary>
+        /// Gets a <see cref="ReadOnlyMemory{T}"/> from the current <see cref="StringSegment"/>.
+        /// </summary>
+        /// <returns>The <see cref="ReadOnlyMemory{T}"/> from this <see cref="StringSegment"/>.</returns>
+        public ReadOnlyMemory<char> AsMemory() => Buffer.AsMemory(Offset, Length);
+
+        /// <summary>
+        /// Compares substrings of two specified <see cref="StringSegment"/> objects using the specified rules,
+        /// and returns an integer that indicates their relative position in the sort order.
+        /// </summary>
+        /// <param name="a">The first StringSegment to compare.</param>
+        /// <param name="b">The second StringSegment to compare.</param>
+        /// <param name="comparisonType">One of the enumeration values that specifies the rules for the comparison.</param>
+        /// <returns>
+        /// A 32-bit signed integer indicating the lexical relationship between the two comparands.
+        /// The value is negative if <paramref name="a"/> is less than <paramref name="b"/>, 0 if the two comparands are equal,
+        /// and positive if <paramref name="a"/> is greater than <paramref name="b"/>.
+        /// </returns>
+        public static int Compare(StringSegment a, StringSegment b, StringComparison comparisonType)
+        {
+            var minLength = Math.Min(a.Length, b.Length);
+            var diff = string.Compare(a.Buffer, a.Offset, b.Buffer, b.Offset, minLength, comparisonType);
+            if (diff == 0)
+            {
+                diff = a.Length - b.Length;
+            }
+
+            return diff;
+        }
+
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
@@ -123,7 +186,7 @@ namespace ServiceStack.Text
                 return false;
             }
 
-            return obj is StringSegment && Equals((StringSegment)obj);
+            return obj is StringSegment segment && Equals(segment);
         }
 
         /// <summary>
@@ -154,6 +217,21 @@ namespace ServiceStack.Text
             return string.Compare(Buffer, Offset, other.Buffer, other.Offset, textLength, comparisonType) == 0;
         }
 
+        // This handles StringSegment.Equals(string, StringSegment, StringComparison) and StringSegment.Equals(StringSegment, string, StringComparison)
+        // via the implicit type converter
+        /// <summary>
+        /// Determines whether two specified StringSegment objects have the same value. A parameter specifies the culture, case, and
+        /// sort rules used in the comparison.
+        /// </summary>
+        /// <param name="a">The first StringSegment to compare.</param>
+        /// <param name="b">The second StringSegment to compare.</param>
+        /// <param name="comparisonType">One of the enumeration values that specifies the rules for the comparison.</param>
+        /// <returns><code>true</code> if the objects are equal; otherwise, <code>false</code>.</returns>
+        public static bool Equals(StringSegment a, StringSegment b, StringComparison comparisonType)
+        {
+            return a.Equals(b, comparisonType);
+        }
+
         /// <summary>
         /// Checks if the specified <see cref="string"/> is equal to the current <see cref="StringSegment"/>.
         /// </summary>
@@ -174,7 +252,7 @@ namespace ServiceStack.Text
         {
             if (text == null)
             {
-                throw new ArgumentNullException(nameof(text));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.text);
             }
 
             int textLength = text.Length;
@@ -200,6 +278,7 @@ namespace ServiceStack.Text
             }
             else
             {
+                // TODO: PERF; Note that .NET Core strings use randomized hash codes for security reasons.
                 return Value.GetHashCode();
             }
         }
@@ -226,6 +305,28 @@ namespace ServiceStack.Text
             return !left.Equals(right);
         }
 
+        // PERF: Do NOT add a implicit converter from StringSegment to String. That would negate most of the perf safety.
+        /// <summary>
+        /// Creates a new <see cref="StringSegment"/> from the given <see cref="string"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="string"/> to convert to a <see cref="StringSegment"/></param>
+        public static implicit operator StringSegment(string value)
+        {
+            return new StringSegment(value);
+        }
+
+        /// <summary>
+        /// Creates a see <see cref="ReadOnlySpan{T}"/> from the given <see cref="StringSegment"/>.
+        /// </summary>
+        /// <param name="segment">The <see cref="StringSegment"/> to convert to a <see cref="ReadOnlySpan{T}"/>.</param>
+        public static implicit operator ReadOnlySpan<char>(StringSegment segment) => segment.AsSpan();
+
+        /// <summary>
+        /// Creates a see <see cref="ReadOnlyMemory{T}"/> from the given <see cref="StringSegment"/>.
+        /// </summary>
+        /// <param name="segment">The <see cref="StringSegment"/> to convert to a <see cref="ReadOnlyMemory{T}"/>.</param>
+        public static implicit operator ReadOnlyMemory<char>(StringSegment segment) => segment.AsMemory();
+
         /// <summary>
         /// Checks if the beginning of this <see cref="StringSegment"/> matches the specified <see cref="string"/> when compared using the specified <paramref name="comparisonType"/>.
         /// </summary>
@@ -236,7 +337,7 @@ namespace ServiceStack.Text
         {
             if (text == null)
             {
-                throw new ArgumentNullException(nameof(text));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.text);
             }
 
             var textLength = text.Length;
@@ -258,7 +359,7 @@ namespace ServiceStack.Text
         {
             if (text == null)
             {
-                throw new ArgumentNullException(nameof(text));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.text);
             }
 
             var textLength = text.Length;
@@ -272,29 +373,54 @@ namespace ServiceStack.Text
 
         /// <summary>
         /// Retrieves a substring from this <see cref="StringSegment"/>.
+        /// The substring starts at the position specified by <paramref name="offset"/> and has the remaining length.
+        /// </summary>
+        /// <param name="offset">The zero-based starting character position of a substring in this <see cref="StringSegment"/>.</param>
+        /// <returns>A <see cref="string"/> that is equivalent to the substring of remaining length that begins at
+        /// <paramref name="offset"/> in this <see cref="StringSegment"/></returns>
+        public string Substring(int offset)
+        {
+            return Substring(offset, Length - offset);
+        }
+
+        /// <summary>
+        /// Retrieves a substring from this <see cref="StringSegment"/>.
         /// The substring starts at the position specified by <paramref name="offset"/> and has the specified <paramref name="length"/>.
         /// </summary>
         /// <param name="offset">The zero-based starting character position of a substring in this <see cref="StringSegment"/>.</param>
         /// <param name="length">The number of characters in the substring.</param>
-        /// <returns>A <see cref="string"/> that is equivalent to the substring of length <paramref name="length"/> that begins at <paramref name="offset"/> in this <see cref="StringSegment"/></returns>
+        /// <returns>A <see cref="string"/> that is equivalent to the substring of length <paramref name="length"/> that begins at
+        /// <paramref name="offset"/> in this <see cref="StringSegment"/></returns>
         public string Substring(int offset, int length)
         {
             if (!HasValue)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
             }
 
             if (offset < 0 || offset + length > Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
             }
 
             if (length < 0 || Offset + offset + length > Buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.length);
             }
 
             return Buffer.Substring(Offset + offset, length);
+        }
+
+        /// <summary>
+        /// Retrieves a <see cref="StringSegment"/> that represents a substring from this <see cref="StringSegment"/>.
+        /// The <see cref="StringSegment"/> starts at the position specified by <paramref name="offset"/>.
+        /// </summary>
+        /// <param name="offset">The zero-based starting character position of a substring in this <see cref="StringSegment"/>.</param>
+        /// <returns>A <see cref="StringSegment"/> that begins at <paramref name="offset"/> in this <see cref="StringSegment"/>
+        /// whose length is the remainder.</returns>
+        public StringSegment Subsegment(int offset)
+        {
+            return Subsegment(offset, Length - offset);
         }
 
         /// <summary>
@@ -308,17 +434,17 @@ namespace ServiceStack.Text
         {
             if (!HasValue)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
             }
 
             if (offset < 0 || offset + length > Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
             }
 
             if (length < 0 || Offset + offset + length > Buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.length);
             }
 
             return new StringSegment(Buffer, Offset + offset, length);
@@ -336,12 +462,12 @@ namespace ServiceStack.Text
         {
             if (start < 0 || Offset + start > Buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
             }
 
             if (count < 0 || Offset + start + count > Buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count);
             }
             var index = Buffer.IndexOf(c, start + Offset, count);
             if (index != -1)
@@ -374,6 +500,88 @@ namespace ServiceStack.Text
         public int IndexOf(char c)
         {
             return IndexOf(c, 0, Length);
+        }
+
+        /// <summary>
+        /// Reports the zero-based index of the first occurrence in this instance of any character in a specified array
+        /// of Unicode characters. The search starts at a specified character position and examines a specified number
+        /// of character positions.
+        /// </summary>
+        /// <param name="anyOf">A Unicode character array containing one or more characters to seek.</param>
+        /// <param name="startIndex">The search starting position.</param>
+        /// <param name="count">The number of character positions to examine.</param>
+        /// <returns>The zero-based index position of the first occurrence in this instance where any character in anyOf
+        /// was found; -1 if no character in anyOf was found.</returns>
+        public int IndexOfAny(char[] anyOf, int startIndex, int count)
+        {
+            if (!HasValue)
+            {
+                return -1;
+            }
+
+            if (startIndex < 0 || Offset + startIndex > Buffer.Length)
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.start);
+            }
+
+            if (count < 0 || Offset + startIndex + count > Buffer.Length)
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count);
+            }
+
+            var index = Buffer.IndexOfAny(anyOf, Offset + startIndex, count);
+            if (index == -1)
+            {
+                return index;
+            }
+
+            return index - Offset;
+        }
+
+        /// <summary>
+        /// Reports the zero-based index of the first occurrence in this instance of any character in a specified array
+        /// of Unicode characters. The search starts at a specified character position.
+        /// </summary>
+        /// <param name="anyOf">A Unicode character array containing one or more characters to seek.</param>
+        /// <param name="startIndex">The search starting position.</param>
+        /// <returns>The zero-based index position of the first occurrence in this instance where any character in anyOf
+        /// was found; -1 if no character in anyOf was found.</returns>
+        public int IndexOfAny(char[] anyOf, int startIndex)
+        {
+            return IndexOfAny(anyOf, startIndex, Length - startIndex);
+        }
+
+        /// <summary>
+        /// Reports the zero-based index of the first occurrence in this instance of any character in a specified array
+        /// of Unicode characters.
+        /// </summary>
+        /// <param name="anyOf">A Unicode character array containing one or more characters to seek.</param>
+        /// <returns>The zero-based index position of the first occurrence in this instance where any character in anyOf
+        /// was found; -1 if no character in anyOf was found.</returns>
+        public int IndexOfAny(char[] anyOf)
+        {
+            return IndexOfAny(anyOf, 0, Length);
+        }
+
+        /// <summary>
+        /// Reports the zero-based index position of the last occurrence of a specified Unicode character within this instance.
+        /// </summary>
+        /// <param name="value">The Unicode character to seek.</param>
+        /// <returns>The zero-based index position of value if that character is found, or -1 if it is not.</returns>
+        public int LastIndexOf(char value)
+        {
+            if (!HasValue)
+            {
+                return -1;
+            }
+
+            var index = Buffer.LastIndexOf(value, Offset + Length - 1, Length);
+            if (index == -1)
+            {
+                return -1;
+            }
+
+            return index - Offset;
         }
 
         /// <summary>
@@ -426,6 +634,28 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
+        /// Splits a string into StringSegments that are based on the characters in an array.
+        /// </summary>
+        /// <param name="chars">A character array that delimits the substrings in this string, an empty array that
+        /// contains no delimiters, or null.</param>
+        /// <returns>An <see cref="StringTokenizer"/> whose elements contain the StringSegmeents from this instance
+        /// that are delimited by one or more characters in separator.</returns>
+//        public StringTokenizer Split(char[] chars)
+//        {
+//            return new StringTokenizer(this, chars);
+//        }
+
+        /// <summary>
+        /// Indicates whether the specified StringSegment is null or an Empty string.
+        /// </summary>
+        /// <param name="value">The StringSegment to test.</param>
+        /// <returns></returns>
+        public static bool IsNullOrEmpty(StringSegment value)
+        {
+            return !value.HasValue || value.Length == 0;
+        }
+
+        /// <summary>
         /// Returns the <see cref="string"/> represented by this <see cref="StringSegment"/> or <code>String.Empty</code> if the <see cref="StringSegment"/> does not contain a value.
         /// </summary>
         /// <returns>The <see cref="string"/> represented by this <see cref="StringSegment"/> or <code>String.Empty</code> if the <see cref="StringSegment"/> does not contain a value.</returns>
@@ -434,6 +664,72 @@ namespace ServiceStack.Text
             return Value ?? string.Empty;
         }
     }
+    
+    internal static class ThrowHelper
+    {
+        internal static void ThrowArgumentNullException(ExceptionArgument argument)
+        {
+            throw new ArgumentNullException(GetArgumentName(argument));
+        }
+
+        internal static void ThrowArgumentOutOfRangeException(ExceptionArgument argument)
+        {
+            throw new ArgumentOutOfRangeException(GetArgumentName(argument));
+        }
+
+        internal static ArgumentNullException GetArgumentNullException(ExceptionArgument argument)
+        {
+            return new ArgumentNullException(GetArgumentName(argument));
+        }
+
+        internal static ArgumentOutOfRangeException GetArgumentOutOfRangeException(ExceptionArgument argument)
+        {
+            return new ArgumentOutOfRangeException(GetArgumentName(argument));
+        }
+
+        internal static ArgumentException GetArgumentException(ExceptionResource resource)
+        {
+            return new ArgumentException(resource.ToString());
+        }
+
+        private static string GetArgumentName(ExceptionArgument argument)
+        {
+            Debug.Assert(Enum.IsDefined(typeof(ExceptionArgument), argument),
+                "The enum value is not defined, please check the ExceptionArgument Enum.");
+
+            return argument.ToString();
+        }
+
+        private static string GetResourceName(ExceptionResource resource)
+        {
+            Debug.Assert(Enum.IsDefined(typeof(ExceptionResource), resource),
+                "The enum value is not defined, please check the ExceptionResource Enum.");
+
+            return resource.ToString();
+        }
+    }
+
+    internal enum ExceptionArgument
+    {
+        buffer,
+        offset,
+        length,
+        text,
+        start,
+        count,
+        index,
+        value,
+        capacity,
+        separators
+    }
+
+    internal enum ExceptionResource
+    {
+        Argument_InvalidOffsetLength,
+        Capacity_CannotChangeAfterWriteStarted,
+        Capacity_NotEnough,
+        Capacity_NotUsedEntirely
+    }    
 }
 
 #endif

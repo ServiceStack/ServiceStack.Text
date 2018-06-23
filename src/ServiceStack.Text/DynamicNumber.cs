@@ -4,9 +4,6 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#endif
 
 namespace ServiceStack
 {
@@ -366,7 +363,7 @@ namespace ServiceStack
 
         public bool TryParse(string str, out object result)
         {
-            if (new StringSegment(str).TryParseFloat(out float value))
+            if (str.AsSpan().TryParseFloat(out float value))
             {
                 result = value;
                 return true;
@@ -406,7 +403,7 @@ namespace ServiceStack
 
         public bool TryParse(string str, out object result)
         {
-            if (new StringSegment(str).TryParseDouble(out double value))
+            if (str.AsSpan().TryParseDouble(out double value))
             {
                 result = value;
                 return true;
@@ -446,7 +443,7 @@ namespace ServiceStack
 
         public bool TryParse(string str, out object result)
         {
-            if (new StringSegment(str).TryParseDecimal(out decimal value))
+            if (str.AsSpan().TryParseDecimal(out decimal value))
             {
                 result = value;
                 return true;
@@ -677,14 +674,14 @@ namespace ServiceStack
                 }
             }
 
-            var segValue = new StringSegment(strValue);
-            if (segValue.TryParseDouble(out double doubleValue))
+            var spanValue = strValue.AsSpan();
+            if (spanValue.TryParseDouble(out double doubleValue))
             {
                 result = doubleValue;
                 return true;
             }
 
-            if (segValue.TryParseDecimal(out decimal decimalValue))
+            if (spanValue.TryParseDecimal(out decimal decimalValue))
             {
                 result = decimalValue;
                 return true;
@@ -699,7 +696,7 @@ namespace ServiceStack
             if (!(strValue?.Length > 0))
                 return false;
 
-            var segValue = new StringSegment(strValue);
+            var segValue = strValue.AsSpan();
             result = segValue.ParseNumber(bestFit:true);
             return result != null;
         }

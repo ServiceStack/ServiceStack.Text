@@ -15,8 +15,8 @@ namespace ServiceStack.Text
         private static CultureInfo sRealNumberCultureInfo;
         public static CultureInfo RealNumberCultureInfo
         {
-            get { return sRealNumberCultureInfo ?? CultureInfo.InvariantCulture; }
-            set { sRealNumberCultureInfo = value; }
+            get => sRealNumberCultureInfo ?? CultureInfo.InvariantCulture;
+            set => sRealNumberCultureInfo = value;
         }
 
         [ThreadStatic]
@@ -24,10 +24,7 @@ namespace ServiceStack.Text
         private static string sItemSeperatorString;
         public static string ItemSeperatorString
         {
-            get
-            {
-                return tsItemSeperatorString ?? sItemSeperatorString ?? JsWriter.ItemSeperatorString;
-            }
+            get => tsItemSeperatorString ?? sItemSeperatorString ?? JsWriter.ItemSeperatorString;
             set
             {
                 tsItemSeperatorString = value;
@@ -41,10 +38,7 @@ namespace ServiceStack.Text
         private static string sItemDelimiterString;
         public static string ItemDelimiterString
         {
-            get
-            {
-                return tsItemDelimiterString ?? sItemDelimiterString ?? JsWriter.QuoteString;
-            }
+            get => tsItemDelimiterString ?? sItemDelimiterString ?? JsWriter.QuoteString;
             set
             {
                 tsItemDelimiterString = value;
@@ -61,10 +55,7 @@ namespace ServiceStack.Text
         private static string sEscapedItemDelimiterString;
         internal static string EscapedItemDelimiterString
         {
-            get
-            {
-                return tsEscapedItemDelimiterString ?? sEscapedItemDelimiterString ?? DefaultEscapedItemDelimiterString;
-            }
+            get => tsEscapedItemDelimiterString ?? sEscapedItemDelimiterString ?? DefaultEscapedItemDelimiterString;
             set
             {
                 tsEscapedItemDelimiterString = value;
@@ -79,10 +70,7 @@ namespace ServiceStack.Text
         private static string[] sEscapeStrings;
         public static string[] EscapeStrings
         {
-            get
-            {
-                return tsEscapeStrings ?? sEscapeStrings ?? defaultEscapeStrings;
-            }
+            get => tsEscapeStrings ?? sEscapeStrings ?? defaultEscapeStrings;
             private set
             {
                 tsEscapeStrings = value;
@@ -105,10 +93,7 @@ namespace ServiceStack.Text
         private static string sRowSeparatorString;
         public static string RowSeparatorString
         {
-            get
-            {
-                return tsRowSeparatorString ?? sRowSeparatorString ?? "\r\n";
-            }
+            get => tsRowSeparatorString ?? sRowSeparatorString ?? "\r\n";
             set
             {
                 tsRowSeparatorString = value;
@@ -135,10 +120,7 @@ namespace ServiceStack.Text
         private static Dictionary<string, string> customHeadersMap;
         public static Dictionary<string, string> CustomHeadersMap
         {
-            get
-            {
-                return customHeadersMap;
-            }
+            get => customHeadersMap;
             set
             {
                 customHeadersMap = value;

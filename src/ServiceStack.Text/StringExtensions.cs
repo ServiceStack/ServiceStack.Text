@@ -531,6 +531,11 @@ namespace ServiceStack
             return TypeSerializer.DeserializeFromString<T>(jsv);
         }
 
+        public static T FromJsvSpan<T>(this ReadOnlySpan<char> jsv)
+        {
+            return TypeSerializer.DeserializeFromSpan<T>(jsv);
+        }
+
         public static string ToJson<T>(this T obj)
         {
             return JsConfig.PreferInterfaces
@@ -548,6 +553,11 @@ namespace ServiceStack
         public static T FromJson<T>(this string json)
         {
             return JsonSerializer.DeserializeFromString<T>(json);
+        }
+
+        public static T FromJsonSpan<T>(this ReadOnlySpan<char> json)
+        {
+            return JsonSerializer.DeserializeFromSpan<T>(json);
         }
 
         public static string ToCsv<T>(this T obj)

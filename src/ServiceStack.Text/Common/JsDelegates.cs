@@ -13,12 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
-#endif
-
 
 namespace ServiceStack.Text.Common
 {
@@ -28,13 +22,13 @@ namespace ServiceStack.Text.Common
 
     internal delegate void WriteDelegate(TextWriter writer, object value);
 
-    internal delegate ParseStringSegmentDelegate ParseFactoryDelegate();
+    internal delegate ParseStringSpanDelegate ParseFactoryDelegate();
 
     public delegate void WriteObjectDelegate(TextWriter writer, object obj);
 
     public delegate object ParseStringDelegate(string stringValue);
 
-    public delegate object ParseStringSegmentDelegate(StringSegment value);
+    public delegate object ParseStringSpanDelegate(ReadOnlySpan<char> value);
 
     public delegate object ConvertObjectDelegate(object fromObject);
 

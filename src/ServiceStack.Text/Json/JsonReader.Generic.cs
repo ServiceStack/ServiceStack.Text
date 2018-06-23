@@ -6,10 +6,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using ServiceStack.Text.Common;
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#endif
-using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Json
 {
@@ -19,9 +15,11 @@ namespace ServiceStack.Text.Json
 
         private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
-        internal static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(new StringSegment(v));
+        internal static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(v.AsSpan());
 
-        internal static ParseStringSegmentDelegate GetParseStringSegmentFn(Type type)
+        internal static ParseStringSpanDelegate GetParseSpanFn(Type type) => v => GetParseStringSegmentFn(type)(v);
+
+        internal static ParseStringSpanDelegate GetParseStringSegmentFn(Type type)
         {
             ParseFnCache.TryGetValue(type, out var parseFactoryFn);
 
@@ -29,7 +27,7 @@ namespace ServiceStack.Text.Json
                 return parseFactoryFn();
 
             var genericType = typeof(JsonReader<>).MakeGenericType(type);
-            var mi = genericType.GetStaticMethod("GetParseStringSegmentFn");    
+            var mi = genericType.GetStaticMethod(nameof(GetParseStringSegmentFn));    
             parseFactoryFn = (ParseFactoryDelegate)mi.MakeDelegate(typeof(ParseFactoryDelegate));
 
             Dictionary<Type, ParseFactoryDelegate> snapshot, newCache;
@@ -51,7 +49,7 @@ namespace ServiceStack.Text.Json
         public static void InitAot<T>()
         {
             Text.Json.JsonReader.Instance.GetParseFn<T>();
-            Text.Json.JsonReader<T>.Parse(null);
+            Text.Json.JsonReader<T>.Parse(TypeConstants.NullSpan);
             Text.Json.JsonReader<T>.GetParseFn();
             Text.Json.JsonReader<T>.GetParseStringSegmentFn();
         }
@@ -59,7 +57,7 @@ namespace ServiceStack.Text.Json
 
     internal static class JsonReader<T>
     {
-        private static ParseStringSegmentDelegate ReadFn;
+        private static ParseStringSpanDelegate ReadFn;
 
         static JsonReader()
         {
@@ -77,16 +75,16 @@ namespace ServiceStack.Text.Json
         }
 
         public static ParseStringDelegate GetParseFn() => ReadFn != null 
-            ? (ParseStringDelegate)(v => ReadFn(new StringSegment(v))) 
+            ? (ParseStringDelegate)(v => ReadFn(v.AsSpan())) 
             : Parse;
 
-        public static ParseStringSegmentDelegate GetParseStringSegmentFn() => ReadFn ?? Parse;
+        public static ParseStringSpanDelegate GetParseStringSegmentFn() => ReadFn ?? Parse;
 
         public static object Parse(string value) => value != null 
-            ? Parse(new StringSegment(value))
+            ? Parse(value.AsSpan())
             : null;
 
-        public static object Parse(StringSegment value)
+        public static object Parse(ReadOnlySpan<char> value)
         {
             TypeConfig<T>.Init();
 
@@ -107,9 +105,9 @@ namespace ServiceStack.Text.Json
                 Refresh();
             }
 
-            return value.HasValue
-                    ? ReadFn(value)
-                    : null;
+            return !value.IsEmpty
+                ? ReadFn(value)
+                : null;
         }
     }
 }

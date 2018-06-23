@@ -111,13 +111,11 @@ namespace ServiceStack.Text.Common
                 switch (JsConfig.DateHandler)
                 {
                     case DateHandler.UnixTime:
-                        int unixTime;
-                        if (int.TryParse(dateTimeStr, out unixTime))
+                        if (int.TryParse(dateTimeStr, out var unixTime))
                             return unixTime.FromUnixTime();
                         break;
                     case DateHandler.UnixTimeMs:
-                        long unixTimeMs;
-                        if (long.TryParse(dateTimeStr, out unixTimeMs))
+                        if (long.TryParse(dateTimeStr, out var unixTimeMs))
                             return unixTimeMs.FromUnixTimeMs();
                         break;
                     case DateHandler.ISO8601:

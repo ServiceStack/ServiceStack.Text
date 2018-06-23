@@ -14,6 +14,8 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 
@@ -42,9 +44,22 @@ namespace ServiceStack.Text
             return (T)JsonReader<T>.Parse(value);
         }
 
+        public static T DeserializeFromSpan<T>(ReadOnlySpan<char> value)
+        {
+            if (value.IsEmpty) return default(T);
+            return (T)JsonReader<T>.Parse(value);
+        }
+
         public static T DeserializeFromReader<T>(TextReader reader)
         {
             return DeserializeFromString<T>(reader.ReadToEnd());
+        }
+
+        public static object DeserializeFromSpan(Type type, ReadOnlySpan<char> json)
+        {
+            return json.IsEmpty
+                ? null
+                : JsonReader.GetParseSpanFn(type)(json);
         }
 
         public static object DeserializeFromString(string value, Type type)
@@ -173,6 +188,11 @@ namespace ServiceStack.Text
         public static object DeserializeFromStream(Type type, Stream stream)
         {
             return DeserializeFromString(stream.ReadToEnd(), type);
+        }
+
+        public static Task<object> DeserializeFromStreamAsync(Type type, Stream stream)
+        {
+            return MemoryProvider.Instance.DeserializeAsync(type, stream, DeserializeFromSpan);
         }
 
         public static T DeserializeResponse<T>(WebRequest webRequest)

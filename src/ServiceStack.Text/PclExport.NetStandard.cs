@@ -315,12 +315,12 @@ namespace ServiceStack
         {
             if (type == typeof(StringCollection))
             {
-                return v => ParseStringCollection<TSerializer>(new StringSegment(v));
+                return v => ParseStringCollection<TSerializer>(v.AsSpan());
             }
             return null;
         }
 
-        public override ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
+        public override ParseStringSpanDelegate GetSpecializedCollectionParseStringSpanMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))
             {
@@ -329,9 +329,9 @@ namespace ServiceStack
             return null;
         }
 
-        private static StringCollection ParseStringCollection<TSerializer>(StringSegment value) where TSerializer : ITypeSerializer
+        private static StringCollection ParseStringCollection<TSerializer>(ReadOnlySpan<char> value) where TSerializer : ITypeSerializer
         {
-            if (!(value = DeserializeListWithElements<TSerializer>.StripList(value)).HasValue) return null;
+            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)).IsEmpty) return null;
 
             var result = new StringCollection();
 
@@ -357,12 +357,12 @@ namespace ServiceStack
             return null;
         }
 
-        public override ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+        public override ParseStringSpanDelegate GetJsReaderParseStringSpanMethod<TSerializer>(Type type)
         {
             if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
-                return DeserializeDynamic<TSerializer>.ParseStringSegment;
+                return DeserializeDynamic<TSerializer>.ParseStringSpan;
             }
             
             return null;
@@ -608,7 +608,7 @@ namespace ServiceStack
                 if (JsonWriter<T>.WriteFn() != null) i++;
                 if (JsonWriter.Instance.GetWriteFn<T>() != null) i++;
                 if (JsonReader.Instance.GetParseFn<T>() != null) i++;
-                if (JsonReader<T>.Parse(null) != null) i++;
+                if (JsonReader<T>.Parse(default(ReadOnlySpan<char>)) != null) i++;
                 if (JsonReader<T>.GetParseFn() != null) i++;
                 //if (JsWriter.GetTypeSerializer<JsonTypeSerializer>().GetWriteFn<T>() != null) i++;
                 if (new List<T>() != null) i++;
@@ -641,16 +641,16 @@ namespace ServiceStack
 
             internal static void RegisterElement<T, TElement, TSerializer>() where TSerializer : ITypeSerializer
             {
-                DeserializeDictionary<TSerializer>.ParseDictionary<T, TElement>(null, null, null, null);
-                DeserializeDictionary<TSerializer>.ParseDictionary<TElement, T>(null, null, null, null);
+                DeserializeDictionary<TSerializer>.ParseDictionary<T, TElement>(default(ReadOnlySpan<char>), null, null, null);
+                DeserializeDictionary<TSerializer>.ParseDictionary<TElement, T>(default(ReadOnlySpan<char>), null, null, null);
 
                 ToStringDictionaryMethods<T, TElement, TSerializer>.WriteIDictionary(null, null, null, null);
                 ToStringDictionaryMethods<TElement, T, TSerializer>.WriteIDictionary(null, null, null, null);
 
                 // Include List deserialisations from the Register<> method above.  This solves issue where List<Guid> properties on responses deserialise to null.
                 // No idea why this is happening because there is no visible exception raised.  Suspect IOS is swallowing an AOT exception somewhere.
-                DeserializeArrayWithElements<TElement, TSerializer>.ParseGenericArray(null, null);
-                DeserializeListWithElements<TElement, TSerializer>.ParseGenericList(null, null, null);
+                DeserializeArrayWithElements<TElement, TSerializer>.ParseGenericArray(default(ReadOnlySpan<char>), null);
+                DeserializeListWithElements<TElement, TSerializer>.ParseGenericList(default(ReadOnlySpan<char>), null, null);
 
                 // Cannot use the line below for some unknown reason - when trying to compile to run on device, mtouch bombs during native code compile.
                 // Something about this line or its inner workings is offensive to mtouch. Luckily this was not needed for my List<Guide> issue.

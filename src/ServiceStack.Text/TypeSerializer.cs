@@ -17,6 +17,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Jsv;
 using ServiceStack.Text.Pools;
@@ -65,6 +66,12 @@ namespace ServiceStack.Text
             return (T)JsvReader<T>.Parse(value);
         }
 
+        public static T DeserializeFromSpan<T>(ReadOnlySpan<char> value)
+        {
+            if (value.IsEmpty) return default(T);
+            return (T)JsvReader<T>.Parse(value);
+        }
+
         public static T DeserializeFromReader<T>(TextReader reader)
         {
             return DeserializeFromString<T>(reader.ReadToEnd());
@@ -79,8 +86,15 @@ namespace ServiceStack.Text
         public static object DeserializeFromString(string value, Type type)
         {
             return value == null
-                       ? null
-                       : JsvReader.GetParseFn(type)(value);
+               ? null
+               : JsvReader.GetParseFn(type)(value);
+        }
+
+        public static object DeserializeFromSpan(Type type, ReadOnlySpan<char> json)
+        {
+            return json.IsEmpty
+                ? null
+                : JsvReader.GetParseSpanFn(type)(json);
         }
 
         public static object DeserializeFromReader(TextReader reader, Type type)
@@ -197,6 +211,11 @@ namespace ServiceStack.Text
         public static object DeserializeFromStream(Type type, Stream stream)
         {
             return DeserializeFromString(stream.ReadToEnd(), type);
+        }
+
+        public static Task<object> DeserializeFromStreamAsync(Type type, Stream stream)
+        {
+            return MemoryProvider.Instance.DeserializeAsync(type, stream, DeserializeFromSpan);
         }
 
         /// <summary>

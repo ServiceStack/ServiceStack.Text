@@ -11,14 +11,7 @@
 //
 
 using System;
-using System.Reflection;
-using System.Linq;
 using ServiceStack.Text.Jsv;
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
-#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -58,24 +51,26 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-        public static ParseStringSegmentDelegate GetParseStringSegmentFn<T>(string parseMethod)
+        delegate T ParseStringSegmentGenericDelegate<T>(ReadOnlySpan<char> value);
+
+        public static ParseStringSpanDelegate GetParseStringSegmentFn<T>(string parseMethod)
         {
             // Get the static Parse(string) method on the type supplied
             var parseMethodInfo = typeof(T).GetStaticMethod(parseMethod, new[] { typeof(string) });
             if (parseMethodInfo == null)
                 return null;
 
-            ParseStringSegmentDelegate parseDelegate = null;
+            ParseStringSpanDelegate parseDelegate = null;
             try
             {
                 if (parseMethodInfo.ReturnType != typeof(T))
                 {
-                    parseDelegate = (ParseStringSegmentDelegate)parseMethodInfo.MakeDelegate(typeof(ParseStringSegmentDelegate), false);
+                    parseDelegate = (ParseStringSpanDelegate)parseMethodInfo.MakeDelegate(typeof(ParseStringSpanDelegate), false);
                 }
                 if (parseDelegate == null)
                 {
                     //Try wrapping strongly-typed return with wrapper fn.
-                    var typedParseDelegate = (Func<StringSegment, T>)parseMethodInfo.MakeDelegate(typeof(Func<StringSegment, T>));
+                    var typedParseDelegate = (ParseStringSegmentGenericDelegate<T>)parseMethodInfo.MakeDelegate(typeof(ParseStringSegmentGenericDelegate<T>));
                     parseDelegate = x => typedParseDelegate(x);
                 }
             }
@@ -85,7 +80,7 @@ namespace ServiceStack.Text.Common
             }
 
             if (parseDelegate != null)
-                return value => parseDelegate(new StringSegment(value.Value.FromCsvField()));
+                return value => parseDelegate(value.ToString().FromCsvField().AsSpan());
 
             return null;
         }
@@ -97,15 +92,15 @@ namespace ServiceStack.Text.Common
         const string ParseStringSegmentMethod = "ParseStringSegment";
 
         private static readonly ParseStringDelegate CacheFn;
-        private static readonly ParseStringSegmentDelegate CacheStringSegmentFn;
+        private static readonly ParseStringSpanDelegate CacheStringSpanFn;
 
         public static ParseStringDelegate Parse => CacheFn;
-        public static ParseStringSegmentDelegate ParseStringSegment => CacheStringSegmentFn;
+        public static ParseStringSpanDelegate ParseStringSpan => CacheStringSpanFn;
 
         static StaticParseMethod()
         {
             CacheFn = ParseMethodUtilities.GetParseFn<T>(ParseMethod);
-            CacheStringSegmentFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseMethod);
+            CacheStringSpanFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseMethod);
         }
 
     }
@@ -122,15 +117,15 @@ namespace ServiceStack.Text.Common
             : "ParseStringSegmentJson";
 
         private static readonly ParseStringDelegate CacheFn;
-        private static readonly ParseStringSegmentDelegate CacheStringSegmentFn;
+        private static readonly ParseStringSpanDelegate CacheStringSpanFn;
 
         public static ParseStringDelegate Parse => CacheFn;
-        public static ParseStringSegmentDelegate ParseStringSegment => CacheStringSegmentFn;
+        public static ParseStringSpanDelegate ParseStringSpan => CacheStringSpanFn;
 
         static StaticParseRefTypeMethod()
         {
             CacheFn = ParseMethodUtilities.GetParseFn<T>(ParseMethod);
-            CacheStringSegmentFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseStringSegmentMethod);
+            CacheStringSpanFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseStringSegmentMethod);
         }
     }
 

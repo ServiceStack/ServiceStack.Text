@@ -12,13 +12,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using ServiceStack.Text.Support;
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#endif
 
 namespace ServiceStack.Text.Common
 {
@@ -27,9 +22,9 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig) => v => GetParseStringSegmentMethod(typeConfig)(new StringSegment(v));
+        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig) => v => GetParseStringSegmentMethod(typeConfig)(v.AsSpan());
 
-        internal static ParseStringSegmentDelegate GetParseStringSegmentMethod(TypeConfig typeConfig)
+        internal static ParseStringSpanDelegate GetParseStringSegmentMethod(TypeConfig typeConfig)
         {
             var type = typeConfig.Type;
 
@@ -41,13 +36,13 @@ namespace ServiceStack.Text.Common
                 return value => ctorFn();
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-                ? (ParseStringSegmentDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
+                ? (ParseStringSpanDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
                 : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, map);
         }
 
-        public static object ObjectStringToType(string strType) => ObjectStringToType(new StringSegment(strType));
+        public static object ObjectStringToType(string strType) => ObjectStringToType(strType.AsSpan());
 
-        public static object ObjectStringToType(StringSegment strType)
+        public static object ObjectStringToType(ReadOnlySpan<char> strType)
         {
             var type = ExtractType(strType);
             if (type != null)
@@ -59,44 +54,44 @@ namespace ServiceStack.Text.Common
 
             if (JsConfig.ConvertObjectTypesIntoStringDictionary && !strType.IsNullOrEmpty())
             {
-                if (strType.GetChar(0) == JsWriter.MapStartChar)
+                if (strType[0] == JsWriter.MapStartChar)
                 {
-                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, v => Serializer.UnescapeString(v).Value, v => Serializer.UnescapeString(v).Value);
+                    var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, v => Serializer.UnescapeString(v).ToString(), v => Serializer.UnescapeString(v).ToString());
                     if (dynamicMatch != null && dynamicMatch.Count > 0)
                     {
                         return dynamicMatch;
                     }
                 }
 
-                if (strType.GetChar(0) == JsWriter.ListStartChar)
+                if (strType[0] == JsWriter.ListStartChar)
                 {
-                    return DeserializeList<List<object>, TSerializer>.ParseStringSegment(strType);
+                    return DeserializeList<List<object>, TSerializer>.ParseStringSpan(strType);
                 }
             }
 
-            var primitiveType = JsConfig.TryToParsePrimitiveTypeValues ? ParsePrimitive(strType.Value) : null;
+            var primitiveType = JsConfig.TryToParsePrimitiveTypeValues ? ParsePrimitive(strType) : null;
             if (primitiveType != null)
                 return primitiveType;
 
             if (Serializer.ObjectDeserializer != null)
                 return Serializer.ObjectDeserializer(strType);
 
-            return Serializer.UnescapeString(strType).Value;
+            return Serializer.UnescapeString(strType).ToString();
         }
 
-        public static Type ExtractType(string strType) => ExtractType(new StringSegment(strType));
+        public static Type ExtractType(string strType) => ExtractType(strType.AsSpan());
 
         //TODO: optimize ExtractType
-        public static Type ExtractType(StringSegment strType)
+        public static Type ExtractType(ReadOnlySpan<char> strType)
         {
-            if (!strType.HasValue || strType.Length <= 1) return null;
+            if (strType.IsEmpty || strType.Length <= 1) return null;
 
-            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType.GetChar(1));
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType[1]);
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
                 if (pos >= 0)
-                    strType = new StringSegment("{" + strType.Substring(pos, strType.Length - pos));
+                    strType = ("{" + strType.Substring(pos, strType.Length - pos)).AsSpan();
             }
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
@@ -104,7 +99,7 @@ namespace ServiceStack.Text.Common
                 && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex)).Value;
+                var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex)).ToString();
 
                 var type = JsConfig.TypeFinder(typeName);
 
@@ -121,9 +116,9 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-        public static object ParseAbstractType<T>(string value) => ParseAbstractType<T>(new StringSegment(value));
+        public static object ParseAbstractType<T>(string value) => ParseAbstractType<T>(value.AsSpan());
 
-        public static object ParseAbstractType<T>(StringSegment value)
+        public static object ParseAbstractType<T>(ReadOnlySpan<char> value)
         {
             if (typeof(T).IsAbstract)
             {
@@ -182,12 +177,12 @@ namespace ServiceStack.Text.Common
             return Serializer.UnescapeString(value);
         }
 
-        public static object ParsePrimitive(string value) => ParsePrimitive(new StringSegment(value));
+        public static object ParsePrimitive(string value) => ParsePrimitive(value.AsSpan());
 
-        public static object ParsePrimitive(StringSegment value)
+        public static object ParsePrimitive(ReadOnlySpan<char> value)
         {
             var fn = JsConfig.ParsePrimitiveFn;
-            var result = fn?.Invoke(value.Value);
+            var result = fn?.Invoke(value.ToString());
             if (result != null)
                 return result;
 
@@ -214,23 +209,23 @@ namespace ServiceStack.Text.Common
 
     internal class TypeAccessor
     {
-        internal ParseStringSegmentDelegate GetProperty;
+        internal ParseStringSpanDelegate GetProperty;
         internal SetMemberDelegate SetProperty;
         internal Type PropertyType;
 
         public static Type ExtractType(ITypeSerializer Serializer, string strType)
-            => ExtractType(Serializer, new StringSegment(strType));
+            => ExtractType(Serializer, strType.AsSpan());
 
-        public static Type ExtractType(ITypeSerializer Serializer, StringSegment strType)
+        public static Type ExtractType(ITypeSerializer Serializer, ReadOnlySpan<char> strType)
         {
-            if (!strType.HasValue || strType.Length <= 1) return null;
+            if (strType.IsEmpty || strType.Length <= 1) return null;
 
-            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType.GetChar(1));
+            var hasWhitespace = Json.JsonUtils.WhiteSpaceChars.Contains(strType[1]);
             if (hasWhitespace)
             {
                 var pos = strType.IndexOf('"');
                 if (pos >= 0)
-                    strType = new StringSegment("{" + strType.Substring(pos));
+                    strType = ("{" + strType.Substring(pos)).AsSpan();
             }
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
@@ -238,7 +233,7 @@ namespace ServiceStack.Text.Common
                 && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
             {
                 var propIndex = typeAttrInObject.Length;
-                var typeName = Serializer.EatValue(strType, ref propIndex).Value;
+                var typeName = Serializer.EatValue(strType, ref propIndex).ToString();
                 var type = JsConfig.TypeFinder(typeName);
 
                 if (type == null)
@@ -259,7 +254,7 @@ namespace ServiceStack.Text.Common
             };
         }
 
-        internal static ParseStringSegmentDelegate GetPropertyMethod(ITypeSerializer serializer, PropertyInfo propertyInfo)
+        internal static ParseStringSpanDelegate GetPropertyMethod(ITypeSerializer serializer, PropertyInfo propertyInfo)
         {
             var getPropertyFn = serializer.GetParseStringSegmentFn(propertyInfo.PropertyType);
             if (propertyInfo.PropertyType == typeof(object) || 
@@ -344,12 +339,12 @@ namespace ServiceStack.Text.Common
             return (flag & flags) != 0;
         }
 
-        public static object ParseNumber(this StringSegment value) => ParseNumber(value, JsConfig.TryParseIntoBestFit);
-        public static object ParseNumber(this StringSegment value, bool bestFit)
+        public static object ParseNumber(this ReadOnlySpan<char> value) => ParseNumber(value, JsConfig.TryParseIntoBestFit);
+        public static object ParseNumber(this ReadOnlySpan<char> value, bool bestFit)
         {
             if (value.Length == 1)
             {
-                int singleDigit = value.GetChar(0);
+                int singleDigit = value[0];
                 if (singleDigit >= 48 || singleDigit <= 57) // 0 - 9
                 {
                     var result = singleDigit - 48;

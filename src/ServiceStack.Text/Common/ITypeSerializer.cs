@@ -1,18 +1,14 @@
 using System;
 using System.IO;
 using ServiceStack.Text.Json;
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
-#endif
-
 
 namespace ServiceStack.Text.Common
 {
+    public delegate object ObjectDeserializerDelegate(ReadOnlySpan<char> value);
+    
     public interface ITypeSerializer
     {
-        Func<StringSegment, object> ObjectDeserializer { get; set; }
+        ObjectDeserializerDelegate ObjectDeserializer { get; set; }
 
         bool IncludeNullValues { get; }
         bool IncludeNullValuesInDictionaries { get; }
@@ -59,30 +55,30 @@ namespace ServiceStack.Text.Common
         //object EncodeMapKey(object value);
 
         ParseStringDelegate GetParseFn<T>();
-        ParseStringSegmentDelegate GetParseStringSegmentFn<T>();
+        ParseStringSpanDelegate GetParseStringSegmentFn<T>();
         ParseStringDelegate GetParseFn(Type type);
-        ParseStringSegmentDelegate GetParseStringSegmentFn(Type type);
+        ParseStringSpanDelegate GetParseStringSegmentFn(Type type);
 
         string ParseRawString(string value);
         string ParseString(string value);
-        string ParseString(StringSegment value);
+        string ParseString(ReadOnlySpan<char> value);
         string UnescapeString(string value);
-        StringSegment UnescapeString(StringSegment value);
+        ReadOnlySpan<char> UnescapeString(ReadOnlySpan<char> value);
         string UnescapeSafeString(string value);
-        StringSegment UnescapeSafeString(StringSegment value);
+        ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value);
         string EatTypeValue(string value, ref int i);
-        StringSegment EatTypeValue(StringSegment value, ref int i);
+        ReadOnlySpan<char> EatTypeValue(ReadOnlySpan<char> value, ref int i);
         bool EatMapStartChar(string value, ref int i);
-        bool EatMapStartChar(StringSegment value, ref int i);
+        bool EatMapStartChar(ReadOnlySpan<char> value, ref int i);
         string EatMapKey(string value, ref int i);
-        StringSegment EatMapKey(StringSegment value, ref int i);
+        ReadOnlySpan<char> EatMapKey(ReadOnlySpan<char> value, ref int i);
         bool EatMapKeySeperator(string value, ref int i);
-        bool EatMapKeySeperator(StringSegment value, ref int i);
+        bool EatMapKeySeperator(ReadOnlySpan<char> value, ref int i);
         void EatWhitespace(string value, ref int i);
-        void EatWhitespace(StringSegment value, ref int i);
+        void EatWhitespace(ReadOnlySpan<char> value, ref int i);
         string EatValue(string value, ref int i);
-        StringSegment EatValue(StringSegment value, ref int i);
+        ReadOnlySpan<char> EatValue(ReadOnlySpan<char> value, ref int i);
         bool EatItemSeperatorOrMapEndChar(string value, ref int i);
-        bool EatItemSeperatorOrMapEndChar(StringSegment value, ref int i);
+        bool EatItemSeperatorOrMapEndChar(ReadOnlySpan<char> value, ref int i);
     }
 }

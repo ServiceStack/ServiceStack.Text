@@ -11,11 +11,6 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Linq;
 using System.Text;
-#if NETSTANDARD2_0 
-using Microsoft.Extensions.Primitives;
-#else
-using ServiceStack.Text.Support;
-#endif
 
 #if !(__IOS__)
 using System.Reflection;
@@ -29,19 +24,19 @@ namespace ServiceStack
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        private static readonly ParseStringSegmentDelegate CachedParseFn;
+        private static readonly ParseStringSpanDelegate CachedParseFn;
         static DeserializeDynamic()
         {
             CachedParseFn = ParseDynamic;
         }
 
-        public static ParseStringDelegate Parse => v => CachedParseFn(new StringSegment(v));
+        public static ParseStringDelegate Parse => v => CachedParseFn(v.AsSpan());
 
-        public static ParseStringSegmentDelegate ParseStringSegment => CachedParseFn;
+        public static ParseStringSpanDelegate ParseStringSpan => CachedParseFn;
 
-        public static IDynamicMetaObjectProvider ParseDynamic(string value) => ParseDynamic(new StringSegment(value));
+        public static IDynamicMetaObjectProvider ParseDynamic(string value) => ParseDynamic(value.AsSpan());
 
-        public static IDynamicMetaObjectProvider ParseDynamic(StringSegment value)
+        public static IDynamicMetaObjectProvider ParseDynamic(ReadOnlySpan<char> value)
         {
             var index = VerifyAndGetStartIndex(value, typeof(ExpandoObject));
 
@@ -60,7 +55,7 @@ namespace ServiceStack
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
 
-                var mapKey = Serializer.UnescapeString(keyValue).Value;
+                var mapKey = Serializer.UnescapeString(keyValue).ToString();
 
                 if (JsonUtils.IsJsObject(elementValue))
                 {
@@ -68,15 +63,15 @@ namespace ServiceStack
                 }
                 else if (JsonUtils.IsJsArray(elementValue))
                 {
-                    container[mapKey] = DeserializeList<List<object>, TSerializer>.ParseStringSegment(elementValue);
+                    container[mapKey] = DeserializeList<List<object>, TSerializer>.ParseStringSpan(elementValue);
                 }
                 else if (tryToParsePrimitiveTypes)
                 {
-                    container[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue) ?? Serializer.UnescapeString(elementValue);
+                    container[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue) ?? Serializer.UnescapeString(elementValue).ToString();
                 }
                 else
                 {
-                    container[mapKey] = Serializer.UnescapeString(elementValue);
+                    container[mapKey] = Serializer.UnescapeString(elementValue).ToString();
                 }
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
@@ -85,7 +80,7 @@ namespace ServiceStack
             return result;
         }
 
-        private static int VerifyAndGetStartIndex(StringSegment value, Type createMapType)
+        private static int VerifyAndGetStartIndex(ReadOnlySpan<char> value, Type createMapType)
         {
             var index = 0;
             if (!Serializer.EatMapStartChar(value, ref index))

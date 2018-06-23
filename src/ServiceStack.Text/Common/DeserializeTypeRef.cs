@@ -18,7 +18,7 @@ namespace ServiceStack.Text.Common
 
         internal static SerializationException GetSerializationException(string propertyName, string propertyValueString, Type propertyType, Exception e)
         {
-            var serializationException = new SerializationException(String.Format("Failed to set property '{0}' with '{1}'", propertyName, propertyValueString), e);
+            var serializationException = new SerializationException($"Failed to set property '{propertyName}' with '{propertyValueString}'", e);
             if (propertyName != null)
             {
                 serializationException.Data.Add("propertyName", propertyName);
@@ -34,7 +34,7 @@ namespace ServiceStack.Text.Common
             return serializationException;
         }
 
-        internal static Dictionary<HashedStringSegment, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
+        internal static Dictionary<string, TypeAccessor> GetTypeAccessorMap(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
             var isDataContract = type.IsDto();
@@ -43,7 +43,7 @@ namespace ServiceStack.Text.Common
             var fieldInfos = type.GetSerializableFields();
             if (propertyInfos.Length == 0 && fieldInfos.Length == 0) return null;
 
-            var map = new Dictionary<HashedStringSegment, TypeAccessor>();
+            var map = new Dictionary<string, TypeAccessor>(StringComparer.OrdinalIgnoreCase);
 
             if (propertyInfos.Length != 0)
             {
@@ -58,7 +58,7 @@ namespace ServiceStack.Text.Common
                             propertyName = dcsDataMember.Name;
                         }
                     }
-                    map[new HashedStringSegment(propertyName)] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
+                    map[propertyName] = TypeAccessor.Create(serializer, typeConfig, propertyInfo);
                 }
             }
 
@@ -75,7 +75,7 @@ namespace ServiceStack.Text.Common
                             fieldName = dcsDataMember.Name;
                         }
                     }
-                    map[new HashedStringSegment(fieldName)] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
+                    map[fieldName] = TypeAccessor.Create(serializer, typeConfig, fieldInfo);
                 }
             }
             return map;

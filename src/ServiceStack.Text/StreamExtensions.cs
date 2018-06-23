@@ -55,7 +55,7 @@ namespace ServiceStack
         /// @jonskeet: Collection of utility methods which operate on streams.
         /// r285, February 26th 2009: http://www.yoda.arachsys.com/csharp/miscutil/
         /// </summary>
-        const int DefaultBufferSize = 8 * 1024;
+        public const int DefaultBufferSize = 8 * 1024;
 
         /// <summary>
         /// Reads the given stream up to the end, returning the data as a byte
@@ -359,7 +359,7 @@ namespace ServiceStack
         public static Task<string> ReadToEndAsync(this Stream stream, Encoding encoding)
         {
             if (stream is MemoryStream ms)
-                return ms.ReadToEndAsync();
+                return ms.ReadToEndAsync(encoding);
 
             if (stream.CanSeek)
             {
@@ -371,7 +371,6 @@ namespace ServiceStack
                 return reader.ReadToEndAsync();
             }
         }
-
 
         public static Task WriteToAsync(this MemoryStream stream, Stream output, CancellationToken token=default(CancellationToken)) => 
             WriteToAsync(stream, output, JsConfig.UTF8Encoding, token);
@@ -389,6 +388,18 @@ namespace ServiceStack
                 var bytes = stream.ToArray();
                 await output.WriteAsync(bytes, 0, bytes.Length, token);
             }
+        }
+        
+        public static Task WriteToAsync(this Stream stream, Stream output, CancellationToken token=default(CancellationToken)) => 
+            WriteToAsync(stream, output, JsConfig.UTF8Encoding, token);
+        
+        
+        public static Task WriteToAsync(this Stream stream, Stream output, Encoding encoding, CancellationToken token)
+        {
+            if (stream is MemoryStream ms)
+                return ms.WriteToAsync(output, encoding, token);
+            
+            return stream.CopyToAsync(output, token);
         }
 
         public static Task WriteToAsync(this Stream stream, Stream output, CancellationToken token=default(CancellationToken)) => 

@@ -34,6 +34,12 @@ namespace ServiceStack
 
         public static readonly object EmptyObject = new object();
         public static readonly StringSegment EmptyStringSegment = new StringSegment(null);
+        
+        public const char NonWidthWhiteSpace = (char)0x200B; //Use zero-width space marker to capture empty string
+        public static char[] NonWidthWhiteSpaceChars = { (char)0x200B };
+        
+        public static ReadOnlySpan<char> NullSpan => default(ReadOnlySpan<char>);
+        public static ReadOnlySpan<char> EmptySpan => new ReadOnlySpan<char>(NonWidthWhiteSpaceChars);
 
         public static readonly string[] EmptyStringArray = new string[0];
         public static readonly long[] EmptyLongArray = new long[0];

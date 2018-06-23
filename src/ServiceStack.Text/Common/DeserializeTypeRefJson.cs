@@ -1,27 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Reflection;
 using ServiceStack.Text.Json;
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#endif
-using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
 {
     // Provides a contract for mapping properties to their type accessors
     internal interface IPropertyNameResolver
     {
-        TypeAccessor GetTypeAccessorForProperty(StringSegment propertyName, Dictionary<HashedStringSegment, TypeAccessor> typeAccessorMap);
+        TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap);
     }
     // The default behavior is that the target model must match property names exactly
     internal class DefaultPropertyNameResolver : IPropertyNameResolver
     {
-        public virtual TypeAccessor GetTypeAccessorForProperty(StringSegment propertyName, Dictionary<HashedStringSegment, TypeAccessor> typeAccessorMap)
+        public virtual TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
         {
-            TypeAccessor typeAccessor;
-            typeAccessorMap.TryGetValue(new HashedStringSegment(propertyName), out typeAccessor);
+            typeAccessorMap.TryGetValue(propertyName.ToString(), out var typeAccessor);
             return typeAccessor;
         }
     }
@@ -29,23 +22,20 @@ namespace ServiceStack.Text.Common
     internal class LenientPropertyNameResolver : DefaultPropertyNameResolver
     {
 
-        public override TypeAccessor GetTypeAccessorForProperty(StringSegment propertyName, Dictionary<HashedStringSegment, TypeAccessor> typeAccessorMap)
+        public override TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
         {
-            TypeAccessor typeAccessor;
-
             // map is case-insensitive by default, so simply remove hyphens and underscores
-            return typeAccessorMap.TryGetValue(new HashedStringSegment(RemoveSeparators(propertyName)), out typeAccessor)
-                       ? typeAccessor
-                       : base.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
+            return typeAccessorMap.TryGetValue(RemoveSeparators(propertyName), out var typeAccessor)
+               ? typeAccessor
+               : base.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
         }
 
         //TODO: optimize
-        private static string RemoveSeparators(StringSegment propertyName)
+        private static string RemoveSeparators(ReadOnlySpan<char> propertyName)
         {
             // "lowercase-hyphen" or "lowercase_underscore" -> lowercaseunderscore
-            return propertyName.Value.Replace("-", String.Empty).Replace("_", String.Empty);
+            return propertyName.ToString().Replace("-", string.Empty).Replace("_", string.Empty);
         }
-
     }
 
     internal static class DeserializeTypeRefJson
@@ -56,31 +46,31 @@ namespace ServiceStack.Text.Common
             TypeConfig typeConfig,
             string strType,
             EmptyCtorDelegate ctorFn,
-            Dictionary<HashedStringSegment, TypeAccessor> typeAccessorMap) =>
-            StringToType(typeConfig, new StringSegment(strType), ctorFn, typeAccessorMap);
+            Dictionary<string, TypeAccessor> typeAccessorMap) =>
+            StringToType(typeConfig, strType.AsSpan(), ctorFn, typeAccessorMap);
 
-        static readonly StringSegment typeAttr = new StringSegment(JsWriter.TypeAttr);
+        static readonly ReadOnlyMemory<char> typeAttr = JsWriter.TypeAttr.AsMemory();
 
         internal static object StringToType(
         TypeConfig typeConfig,
-        StringSegment strType,
+        ReadOnlySpan<char> strType,
         EmptyCtorDelegate ctorFn,
-        Dictionary<HashedStringSegment, TypeAccessor> typeAccessorMap)
+        Dictionary<string, TypeAccessor> typeAccessorMap)
         {
             var index = 0;
             var type = typeConfig.Type;
 
-            if (!strType.HasValue)
+            if (strType.IsEmpty)
                 return null;
 
-            var buffer = strType.Buffer;
-            var offset = strType.Offset;
+            var buffer = strType;
+            var offset = 0;
             var strTypeLength = strType.Length;
 
             //if (!Serializer.EatMapStartChar(strType, ref index))
             for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
             if (buffer[offset + index] != JsWriter.MapStartChar)
-                throw DeserializeTypeRef.CreateSerializationError(type, strType.Value);
+                throw DeserializeTypeRef.CreateSerializationError(type, strType.ToString());
 
             index++;
             if (JsonTypeSerializer.IsEmptyMap(strType, index)) return ctorFn();
@@ -104,18 +94,18 @@ namespace ServiceStack.Text.Common
 
                 //if we already have an instance don't check type info, because then we will have a half deserialized object
                 //we could throw here or just use the existing instance.
-                if (instance == null && possibleTypeInfo && propertyName == typeAttr)
+                if (instance == null && possibleTypeInfo && propertyName.Equals(typeAttr.Span, StringComparison.OrdinalIgnoreCase))
                 {
                     var explicitTypeName = Serializer.ParseString(propertyValueStr);
                     var explicitType = JsConfig.TypeFinder(explicitTypeName);
 
                     if (explicitType == null || explicitType.IsInterface || explicitType.IsAbstract)
                     {
-                        Tracer.Instance.WriteWarning("Could not find type: " + propertyValueStr);
+                        Tracer.Instance.WriteWarning("Could not find type: " + propertyValueStr.ToString());
                     }
                     else if (!type.IsAssignableFrom(explicitType))
                     {
-                        Tracer.Instance.WriteWarning("Could not assign type: " + propertyValueStr);
+                        Tracer.Instance.WriteWarning("Could not assign type: " + propertyValueStr.ToString());
                     }
                     else
                     {
@@ -153,7 +143,7 @@ namespace ServiceStack.Text.Common
 
                 var typeAccessor = propertyResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
 
-                var propType = possibleTypeInfo && propertyValueStr.GetChar(0) == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
+                var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
                 if (propType != null)
                 {
                     try
@@ -165,7 +155,7 @@ namespace ServiceStack.Text.Common
 
                             var propertyValue = parseFn(propertyValueStr);
                             if (typeConfig.OnDeserializing != null)
-                                propertyValue = typeConfig.OnDeserializing(instance, propertyName.Value, propertyValue);
+                                propertyValue = typeConfig.OnDeserializing(instance, propertyName.ToString(), propertyValue);
                             typeAccessor.SetProperty(instance, propertyValue);
                         }
 
@@ -183,9 +173,9 @@ namespace ServiceStack.Text.Common
                     }
                     catch (Exception e)
                     {
-                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType, propertyName.Value, propertyValueStr.Value, e);
-                        if (JsConfig.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.Value, propertyValueStr.Value, propType, e);
-                        else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName, propertyValueStr.Value);
+                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType, propertyName.ToString(), propertyValueStr.ToString(), e);
+                        if (JsConfig.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.ToString(), propertyValueStr.ToString(), propType, e);
+                        else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName.ToString(), propertyValueStr.ToString());
                     }
                 }
 
@@ -195,21 +185,21 @@ namespace ServiceStack.Text.Common
                     {
                         var propertyValue = typeAccessor.GetProperty(propertyValueStr);
                         if (typeConfig.OnDeserializing != null)
-                            propertyValue = typeConfig.OnDeserializing(instance, propertyName.Value, propertyValue);
+                            propertyValue = typeConfig.OnDeserializing(instance, propertyName.ToString(), propertyValue);
                         typeAccessor.SetProperty(instance, propertyValue);
                     }
                     catch (NotSupportedException) { throw; }
                     catch (Exception e)
                     {
-                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType ?? typeAccessor.PropertyType, propertyName.Value, propertyValueStr.Value, e);
-                        if (JsConfig.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.Value, propertyValueStr.Value, typeAccessor.PropertyType, e);
-                        else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName, propertyValueStr.Value);
+                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType ?? typeAccessor.PropertyType, propertyName.ToString(), propertyValueStr.ToString(), e);
+                        if (JsConfig.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.ToString(), propertyValueStr.ToString(), typeAccessor.PropertyType, e);
+                        else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName.ToString(), propertyValueStr.ToString());
                     }
                 }
                 else
                 {
                     // the property is not known by the DTO
-                    typeConfig.OnDeserializing?.Invoke(instance, propertyName.Value, propertyValueStr.Value);
+                    typeConfig.OnDeserializing?.Invoke(instance, propertyName.ToString(), propertyValueStr.ToString());
                 }
 
                 //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);

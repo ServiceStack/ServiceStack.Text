@@ -61,7 +61,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Null_or_Empty_string_returns_null()
         {
-            var convertedJsvValues = TypeSerializer.DeserializeFromString<List<string>>(null);
+            var convertedJsvValues = TypeSerializer.DeserializeFromString<List<string>>((string)null);
             Assert.That(convertedJsvValues, Is.EqualTo(null));
 
             convertedJsvValues = TypeSerializer.DeserializeFromString<List<string>>(string.Empty);
@@ -78,7 +78,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Null_or_Empty_string_returns_null_Map()
         {
-            var convertedStringValues = TypeSerializer.DeserializeFromString<Dictionary<string, string>>(null);
+            var convertedStringValues = TypeSerializer.DeserializeFromString<Dictionary<string, string>>((string)null);
             Assert.That(convertedStringValues, Is.EqualTo(null));
 
             convertedStringValues = TypeSerializer.DeserializeFromString<Dictionary<string, string>>(string.Empty);
@@ -133,7 +133,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_convert_to_nullable_enum_with_null_value()
         {
-            var enumValue = TypeSerializer.DeserializeFromString<TestEnum?>(null);
+            var enumValue = TypeSerializer.DeserializeFromString<TestEnum?>((string)null);
             Assert.That(enumValue, Is.Null);
         }
 

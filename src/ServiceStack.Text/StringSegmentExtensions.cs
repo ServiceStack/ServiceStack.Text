@@ -24,6 +24,16 @@ namespace ServiceStack.Text
         public static StringSegment ToStringSegment(this string value) => new StringSegment(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringSegment ToStringSegment(this ReadOnlySpan<char> value) => new StringSegment(value.Value());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<char> SpanValue(this StringSegment value) => !value.HasValue
+            ? default
+            : value.Length == 0
+                ? TypeConstants.EmptySpan
+                : value.AsSpan();
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty(this StringSegment value) => value.Buffer == null || value.Length == 0;
 
         public static bool IsNullOrWhiteSpace(this StringSegment value)

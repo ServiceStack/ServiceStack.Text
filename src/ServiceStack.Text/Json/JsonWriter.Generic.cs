@@ -33,8 +33,7 @@ namespace ServiceStack.Text.Json
         {
             try
             {
-                WriteObjectDelegate writeFn;
-                if (WriteFnCache.TryGetValue(type, out writeFn)) return writeFn;
+                if (WriteFnCache.TryGetValue(type, out var writeFn)) return writeFn;
 
                 var genericType = typeof(JsonWriter<>).MakeGenericType(type);
                 var mi = genericType.GetStaticMethod("WriteFn");
@@ -68,8 +67,7 @@ namespace ServiceStack.Text.Json
         {
             try
             {
-                TypeInfo writeFn;
-                if (JsonTypeInfoCache.TryGetValue(type, out writeFn)) return writeFn;
+                if (JsonTypeInfoCache.TryGetValue(type, out var writeFn)) return writeFn;
 
                 var genericType = typeof(JsonWriter<>).MakeGenericType(type);
                 var mi = genericType.GetStaticMethod("GetTypeInfo");

@@ -415,7 +415,7 @@ namespace ServiceStack
             return null;
         }
 
-        public override ParseStringSegmentDelegate GetDictionaryParseStringSegmentMethod<TSerializer>(Type type)
+        public override ParseStringSpanDelegate GetDictionaryParseStringSpanMethod<TSerializer>(Type type)
         {
             if (type == typeof(Hashtable))
             {
@@ -433,7 +433,7 @@ namespace ServiceStack
             return null;
         }
 
-        public override ParseStringSegmentDelegate GetSpecializedCollectionParseStringSegmentMethod<TSerializer>(Type type)
+        public override ParseStringSpanDelegate GetSpecializedCollectionParseStringSpanMethod<TSerializer>(Type type)
         {
             if (type == typeof(StringCollection))
             {
@@ -455,13 +455,13 @@ namespace ServiceStack
             return null;
         }
 
-        public override ParseStringSegmentDelegate GetJsReaderParseStringSegmentMethod<TSerializer>(Type type)
+        public override ParseStringSpanDelegate GetJsReaderParseStringSpanMethod<TSerializer>(Type type)
         {
 #if !(__IOS__ || LITE)
             if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
-                return DeserializeDynamic<TSerializer>.ParseStringSegment;
+                return DeserializeDynamic<TSerializer>.ParseStringSpan;
             }
 #endif
             return null;
@@ -634,7 +634,7 @@ namespace ServiceStack
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        private static int VerifyAndGetStartIndex(StringSegment value, Type createMapType)
+        private static int VerifyAndGetStartIndex(ReadOnlySpan<char> value, Type createMapType)
         {
             var index = 0;
             if (!Serializer.EatMapStartChar(value, ref index))
@@ -646,11 +646,11 @@ namespace ServiceStack
             return index;
         }
 
-        public static Hashtable ParseHashtable(string value) => ParseHashtable(new StringSegment(value));
+        public static Hashtable ParseHashtable(string value) => ParseHashtable(value.AsSpan());
 
-        public static Hashtable ParseHashtable(StringSegment value)
+        public static Hashtable ParseHashtable(ReadOnlySpan<char> value)
         {
-            if (!value.HasValue)
+            if (value.IsEmpty)
                 return null;
 
             var index = VerifyAndGetStartIndex(value, typeof(Hashtable));
@@ -665,10 +665,10 @@ namespace ServiceStack
                 var keyValue = Serializer.EatMapKey(value, ref index);
                 Serializer.EatMapKeySeperator(value, ref index);
                 var elementValue = Serializer.EatValue(value, ref index);
-                if (!keyValue.HasValue) continue;
+                if (keyValue.IsEmpty) continue;
 
-                var mapKey = keyValue.Value;
-                var mapValue = elementValue.Value;
+                var mapKey = keyValue.ToString();
+                var mapValue = elementValue.ToString();
 
                 result[mapKey] = mapValue;
 
@@ -678,10 +678,10 @@ namespace ServiceStack
             return result;
         }
 
-        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer => ParseStringCollection<TS>(new StringSegment(value));
+        public static StringCollection ParseStringCollection<TS>(string value) where TS : ITypeSerializer => ParseStringCollection<TS>(value.AsSpan());
 
 
-        public static StringCollection ParseStringCollection<TS>(StringSegment value) where TS : ITypeSerializer
+        public static StringCollection ParseStringCollection<TS>(ReadOnlySpan<char> value) where TS : ITypeSerializer
         {
             if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
             return value.Length == 0

@@ -25,6 +25,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             public bool Boolean { get; set; }
             public DateTime DateTime { get; set; }
             public string NullString { get; set; }
+            public string EmptyString { get; set; }
 
             public static JsonPrimitives Create(int i)
             {
@@ -135,6 +136,12 @@ namespace ServiceStack.Text.Tests.JsonTests
                 Is.EqualTo(new string[] { "abc", null, "cde", null }));
         }
 
+        [Test]
+        public void Can_parse_mixed_enumarable_empty_strings()
+        {
+            Assert.That(JsonSerializer.DeserializeFromString<IEnumerable<string>>("[\"abc\",\"\",\"cde\",\"\"]"),
+                Is.EqualTo(new string[] { "abc", "", "cde", "" }));
+        }
 
         [Test]
         public void Can_handle_json_primitives()
@@ -149,11 +156,12 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_parse_json_with_nulls()
         {
-            const string json = "{\"Int\":1,\"NullString\":null}";
+            const string json = "{\"Int\":1,\"NullString\":null,\"EmptyString\":\"\"}";
             var value = JsonSerializer.DeserializeFromString<JsonPrimitives>(json);
 
             Assert.That(value.Int, Is.EqualTo(1));
             Assert.That(value.NullString, Is.Null);
+            Assert.That(value.EmptyString, Is.EqualTo(""));
         }
 
         [Test]
