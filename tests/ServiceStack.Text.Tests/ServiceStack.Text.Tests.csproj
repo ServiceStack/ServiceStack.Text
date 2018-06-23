@@ -26,7 +26,7 @@
     <PackageReference Include="NUnit" Version="3.9.0" />
     <PackageReference Include="protobuf-net" Version="2.3.8-alpha1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.0" />
+    <PackageReference Include="System.Memory" Version="4.5.1" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
