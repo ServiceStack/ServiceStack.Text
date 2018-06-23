@@ -16,6 +16,7 @@ using System.Runtime.InteropServices;
 using System.Net;
 
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Primitives;
 
@@ -73,21 +74,10 @@ namespace ServiceStack
                 .GetProperty("ContentLength")
                 ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, long>));
 
-        private bool allowToChangeRestrictedHeaders;
-
         public NetStandardPclExport()
         {
             this.PlatformName = Platforms.NetStandard;
             this.DirSep = Path.DirectorySeparatorChar;
-            var req = HttpWebRequest.Create("http://servicestack.net");
-            try
-            {
-                req.Headers[HttpRequestHeader.UserAgent] = "ServiceStack";
-                allowToChangeRestrictedHeaders = true;
-            } catch (ArgumentException)
-            {
-                allowToChangeRestrictedHeaders = false;
-            }
         }
 
         public override string ReadAllText(string filePath)
@@ -386,8 +376,14 @@ namespace ServiceStack
             } 
             else 
             {
-                if (allowToChangeRestrictedHeaders)
-                    httpReq.Headers[HttpRequestHeader.UserAgent] = value;
+                try
+                {
+                    httpReq.UserAgent = value;
+                }
+                catch (Exception e) // API may have been removed by Xamarin's Linker
+                {
+                    Tracer.Instance.WriteError(e);
+                }
             }
         }
 
@@ -399,8 +395,14 @@ namespace ServiceStack
             } 
             else 
             {
-                if (allowToChangeRestrictedHeaders)
-                    httpReq.Headers[HttpRequestHeader.ContentLength] = value.ToString();
+                try
+                {
+                    httpReq.ContentLength = value;
+                }
+                catch (Exception e) // API may have been removed by Xamarin's Linker
+                {
+                    Tracer.Instance.WriteError(e);
+                }
             }
         }
 
