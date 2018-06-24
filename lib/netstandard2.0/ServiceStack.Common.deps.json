@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETStandard,Version=v2.0/",
-    "signature": "4a4350c796d2c9943fd6baef688d669112ee7244"
+    "signature": "06b3e4ccc099f4d9f00cc7038fd870e67b80c6cc"
   },
   "compilationOptions": {},
   "targets": {
@@ -20,6 +20,7 @@
           "System.Net.Requests": "4.3.0",
           "System.Reflection.TypeExtensions": "4.3.0",
           "System.Runtime.Serialization.Primitives": "4.3.0",
+          "System.ValueTuple": "4.5.0",
           "ServiceStack.Text": "5.0.0.0"
         },
         "runtime": {
@@ -870,6 +871,7 @@
           }
         }
       },
+      "System.ValueTuple/4.5.0": {},
       "ServiceStack.Interfaces/1.0.0": {
         "dependencies": {
           "System.Runtime.Serialization.Primitives": "4.3.0"
@@ -1446,6 +1448,13 @@
       "sha512": "sha512-k/+g4b7vjdd4aix83sTgC9VG6oXYKAktSfNIJUNGxPEj7ryEOfzHHhfnmsZvjxawwcD9HyWXKCXmPjX8U4zeSw==",
       "path": "system.threading.threadpool/4.3.0",
       "hashPath": "system.threading.threadpool.4.3.0.nupkg.sha512"
+    },
+    "System.ValueTuple/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xZtSZNEHGa+tGsKuP4sh257vxJ/yemShz4EusmomkynMzuEDDjVaErBNewpzEF6swUgbcrSQAX3ELsEp1zCOwA==",
+      "path": "system.valuetuple/4.5.0",
+      "hashPath": "system.valuetuple.4.5.0.nupkg.sha512"
     },
     "ServiceStack.Interfaces/1.0.0": {
       "type": "project",
