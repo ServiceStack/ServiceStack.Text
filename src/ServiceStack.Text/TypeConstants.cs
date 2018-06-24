@@ -33,16 +33,15 @@ namespace ServiceStack
         public static readonly Task<object> EmptyTask;
 
         public static readonly object EmptyObject = new object();
-        public static readonly StringSegment EmptyStringSegment = new StringSegment(null);
         
         public const char NonWidthWhiteSpace = (char)0x200B; //Use zero-width space marker to capture empty string
         public static char[] NonWidthWhiteSpaceChars = { (char)0x200B };
         
-        public static ReadOnlySpan<char> NullSpan => default(ReadOnlySpan<char>);
-        public static ReadOnlySpan<char> EmptySpan => new ReadOnlySpan<char>(NonWidthWhiteSpaceChars);
+        public static ReadOnlySpan<char> NullStringSpan => default;
+        public static ReadOnlySpan<char> EmptyStringSpan => new ReadOnlySpan<char>(NonWidthWhiteSpaceChars);
 
-        public static ReadOnlyMemory<char> NullMemory => default(ReadOnlyMemory<char>);
-        public static ReadOnlyMemory<char> EmptyMemory => "".AsMemory();
+        public static ReadOnlyMemory<char> NullStringMemory => default;
+        public static ReadOnlyMemory<char> EmptyStringMemory => "".AsMemory();
 
         public static readonly string[] EmptyStringArray = new string[0];
         public static readonly long[] EmptyLongArray = new long[0];
@@ -54,7 +53,6 @@ namespace ServiceStack
         public static readonly Type[] EmptyTypeArray = new Type[0];
         public static readonly FieldInfo[] EmptyFieldInfoArray = new FieldInfo[0];
         public static readonly PropertyInfo[] EmptyPropertyInfoArray = new PropertyInfo[0];
-        public static readonly StringSegment[] EmptyStringSegmentArray = new StringSegment[0];
 
         public static readonly byte[][] EmptyByteArrayArray = new byte[0][];
 
@@ -71,6 +69,12 @@ namespace ServiceStack
         public static readonly List<Type> EmptyTypeList = new List<Type>(0);
         public static readonly List<FieldInfo> EmptyFieldInfoList = new List<FieldInfo>(0);
         public static readonly List<PropertyInfo> EmptyPropertyInfoList = new List<PropertyInfo>(0);
+
+        [Obsolete("Use ReadOnlyMemory<char> or ReadOnlySpan<char>")]
+        public static readonly StringSegment EmptyStringSegment = new StringSegment(null);
+        [Obsolete("Use ReadOnlyMemory<char> or ReadOnlySpan<char>")]
+        public static readonly StringSegment[] EmptyStringSegmentArray = new StringSegment[0];
+        [Obsolete("Use ReadOnlyMemory<char> or ReadOnlySpan<char>")]
         public static readonly List<StringSegment> EmptyStringSegmentList = new List<StringSegment>(0);
     }
 

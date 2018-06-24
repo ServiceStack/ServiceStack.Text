@@ -377,7 +377,7 @@ namespace ServiceStack.Text.Json
             index++;
             var str = buffer.Slice(startIndex, Math.Min(index, jsonLength) - startIndex - 1);
             if (str.Length == 0)
-                return TypeConstants.EmptySpan; 
+                return TypeConstants.EmptyStringSpan; 
                     
             return str;
         }
@@ -450,7 +450,7 @@ namespace ServiceStack.Text.Json
                     index += strEndPos + 1;
                     return potentialValue.Length > 0
                         ? potentialValue
-                        : TypeConstants.EmptySpan;
+                        : TypeConstants.EmptyStringSpan;
                 }
             }
             else

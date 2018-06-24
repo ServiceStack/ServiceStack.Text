@@ -53,6 +53,73 @@ namespace ServiceStack.Text
             return i == 0 ? literal : literal.Slice(i < literal.Length ? i : literal.Length);
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ParseBoolean(this ReadOnlyMemory<char> value) => MemoryProvider.Instance.ParseBoolean(value.Span);
+
+        public static bool TryParseBoolean(this ReadOnlyMemory<char> value, out bool result) =>
+            MemoryProvider.Instance.TryParseBoolean(value.Span, out result);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryParseDecimal(this ReadOnlyMemory<char> value, out decimal result) =>
+            MemoryProvider.Instance.TryParseDecimal(value.Span, out result);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryParseFloat(this ReadOnlyMemory<char> value, out float result) => 
+            MemoryProvider.Instance.TryParseFloat(value.Span, out result);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryParseDouble(this ReadOnlyMemory<char> value, out double result) => 
+            MemoryProvider.Instance.TryParseDouble(value.Span, out result);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal ParseDecimal(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseDecimal(value.Span);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ParseFloat(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseFloat(value.Span);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double ParseDouble(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseDouble(value.Span);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static sbyte ParseSByte(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseSByte(value.Span);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte ParseByte(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseByte(value.Span);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static short ParseInt16(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseInt16(value.Span);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ParseUInt16(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseUInt16(value.Span);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ParseInt32(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseInt32(value.Span);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ParseUInt32(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseUInt32(value.Span);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ParseInt64(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseInt64(value.Span);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ulong ParseUInt64(this ReadOnlyMemory<char> value) => 
+            MemoryProvider.Instance.ParseUInt64(value.Span);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guid ParseGuid(this ReadOnlyMemory<char> value) =>
+            MemoryProvider.Instance.ParseGuid(value.Span);
+        
         public static ReadOnlyMemory<char> LeftPart(this ReadOnlyMemory<char> strVal, char needle)
         {
             if (strVal.IsEmpty) return strVal;
@@ -129,7 +196,7 @@ namespace ServiceStack.Text
         {
             if (startIndex >= text.Length)
             {
-                line = TypeConstants.NullMemory;
+                line = TypeConstants.NullStringMemory;
                 return false;
             }
 
@@ -162,7 +229,7 @@ namespace ServiceStack.Text
         {
             if (startIndex >= text.Length)
             {
-                part = TypeConstants.NullMemory;
+                part = TypeConstants.NullStringMemory;
                 return false;
             }
 
@@ -300,7 +367,13 @@ namespace ServiceStack.Text
         public static bool StartsWith(this ReadOnlyMemory<char> value, string other) => value.Span.StartsWith(other.AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool StartsWith(this ReadOnlyMemory<char> value, string other, StringComparison comparison) => value.Span.StartsWith(other.AsSpan(), comparison);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EndsWith(this ReadOnlyMemory<char> value, string other) => value.Span.EndsWith(other.AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EndsWith(this ReadOnlyMemory<char> value, string other, StringComparison comparison) => value.Span.EndsWith(other.AsSpan(), comparison);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EqualsOrdinal(this ReadOnlyMemory<char> value, string other) => value.Span.Equals(other.AsSpan(), StringComparison.Ordinal);
@@ -342,12 +415,20 @@ namespace ServiceStack.Text
 
         public static ReadOnlyMemory<char> SafeSlice(this ReadOnlyMemory<char> value, int startIndex, int length)
         {
-            if (value.IsEmpty) return TypeConstants.NullMemory;
+            if (value.IsEmpty) return TypeConstants.NullStringMemory;
             if (startIndex < 0) startIndex = 0;
             if (value.Length >= startIndex + length)
                 return value.Slice(startIndex, length);
 
-            return value.Length > startIndex ? value.Slice(startIndex) : TypeConstants.NullMemory;
+            return value.Length > startIndex ? value.Slice(startIndex) : TypeConstants.NullStringMemory;
+        }
+
+        public static string SubstringWithEllipsis(this ReadOnlyMemory<char> value, int startIndex, int length)
+        {
+            var str = value.Slice(startIndex, length);
+            return str.Length == length
+                ? str.ToString() + "..."
+                : str.ToString();
         }
 
         public static ReadOnlyMemory<byte> ToUtf8(this ReadOnlyMemory<char> chars) =>

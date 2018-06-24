@@ -49,7 +49,7 @@ namespace ServiceStack.Text.Json
         public static void InitAot<T>()
         {
             Text.Json.JsonReader.Instance.GetParseFn<T>();
-            Text.Json.JsonReader<T>.Parse(TypeConstants.NullSpan);
+            Text.Json.JsonReader<T>.Parse(TypeConstants.NullStringSpan);
             Text.Json.JsonReader<T>.GetParseFn();
             Text.Json.JsonReader<T>.GetParseStringSegmentFn();
         }

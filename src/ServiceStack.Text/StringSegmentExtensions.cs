@@ -33,7 +33,7 @@ namespace ServiceStack.Text
         public static ReadOnlySpan<char> SpanValue(this StringSegment value) => !value.HasValue
             ? default
             : value.Length == 0
-                ? TypeConstants.EmptySpan
+                ? TypeConstants.EmptyStringSpan
                 : value.AsSpan();
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1198,20 +1198,6 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<string> ToStringList(this IEnumerable<StringSegment> from)
-        {
-            var to = new List<string>();
-            if (from != null)
-            {
-                foreach (var item in from)
-                {
-                    to.Add(item.ToString());
-                }
-            }
-            return to;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EqualsIgnoreCase(this StringSegment value, string other) => value.Equals(other, StringComparison.OrdinalIgnoreCase);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1241,6 +1227,20 @@ namespace ServiceStack.Text
                 return value.Subsegment(startIndex, length);
 
             return value.Length > startIndex ? value.Subsegment(startIndex) : TypeConstants.EmptyStringSegment;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<string> ToStringList(this IEnumerable<ReadOnlyMemory<char>> from)
+        {
+            var to = new List<string>();
+            if (from != null)
+            {
+                foreach (var item in from)
+                {
+                    to.Add(item.ToString());
+                }
+            }
+            return to;
         }
 
     }

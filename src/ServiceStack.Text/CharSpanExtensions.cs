@@ -59,7 +59,7 @@ namespace ServiceStack.Text
                 .ToString().Replace(CsvConfig.EscapedItemDelimiterString, CsvConfig.ItemDelimiterString);
             
             if (ret == string.Empty)
-                return TypeConstants.EmptySpan;
+                return TypeConstants.EmptyStringSpan;
 
             return ret.AsSpan();
         }
@@ -142,7 +142,7 @@ namespace ServiceStack.Text
         {
             if (startIndex >= text.Length)
             {
-                line = TypeConstants.NullSpan;
+                line = TypeConstants.NullStringSpan;
                 return false;
             }
 
@@ -174,7 +174,7 @@ namespace ServiceStack.Text
         {
             if (startIndex >= text.Length)
             {
-                part = TypeConstants.NullSpan;
+                part = TypeConstants.NullStringSpan;
                 return false;
             }
 
@@ -377,7 +377,7 @@ namespace ServiceStack.Text
         public static ReadOnlySpan<char> WithoutExtension(this ReadOnlySpan<char> filePath)
         {
             if (filePath.IsNullOrEmpty())
-                return TypeConstants.NullSpan;
+                return TypeConstants.NullStringSpan;
 
             var extPos = filePath.LastIndexOf('.');
             if (extPos == -1) return filePath;
@@ -389,16 +389,16 @@ namespace ServiceStack.Text
         public static ReadOnlySpan<char> GetExtension(this ReadOnlySpan<char> filePath)
         {
             if (filePath.IsNullOrEmpty())
-                return TypeConstants.NullSpan;
+                return TypeConstants.NullStringSpan;
 
             var extPos = filePath.LastIndexOf('.');
-            return extPos == -1 ? TypeConstants.NullSpan : filePath.Slice(extPos);
+            return extPos == -1 ? TypeConstants.NullStringSpan : filePath.Slice(extPos);
         }
 
         public static ReadOnlySpan<char> ParentDirectory(this ReadOnlySpan<char> filePath)
         {
             if (filePath.IsNullOrEmpty())
-                return TypeConstants.NullSpan;
+                return TypeConstants.NullStringSpan;
 
             var dirSep = filePath.IndexOf(PclExport.Instance.DirSep) != -1
                 ? PclExport.Instance.DirSep
@@ -407,7 +407,7 @@ namespace ServiceStack.Text
                     : (char)0;
 
             if (dirSep == 0)
-                return TypeConstants.NullSpan;
+                return TypeConstants.NullStringSpan;
             
             MemoryExtensions.TrimEnd(filePath, dirSep).SplitOnLast(dirSep, out var first, out _); 
             return first;
@@ -476,7 +476,7 @@ namespace ServiceStack.Text
             if (length == value.Length)
                 return value;
             if (length == 0)
-                return TypeConstants.NullSpan;
+                return TypeConstants.NullStringSpan;
             return value.Slice(start, length);
         }
 
@@ -485,12 +485,12 @@ namespace ServiceStack.Text
 
         public static ReadOnlySpan<char> SafeSlice(this ReadOnlySpan<char> value, int startIndex, int length)
         {
-            if (value.IsEmpty) return TypeConstants.NullSpan;
+            if (value.IsEmpty) return TypeConstants.NullStringSpan;
             if (startIndex < 0) startIndex = 0;
             if (value.Length >= startIndex + length)
                 return value.Slice(startIndex, length);
 
-            return value.Length > startIndex ? value.Slice(startIndex) : TypeConstants.NullSpan;
+            return value.Length > startIndex ? value.Slice(startIndex) : TypeConstants.NullStringSpan;
         }
 
         public static string SubstringWithEllipsis(this ReadOnlySpan<char> value, int startIndex, int length)
@@ -528,6 +528,12 @@ namespace ServiceStack.Text
         public static bool StartsWith(this ReadOnlySpan<char> value, string other) => value.StartsWith(other.AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool StartsWith(this ReadOnlySpan<char> value, string other, StringComparison comparison) => value.StartsWith(other.AsSpan(), comparison);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EndsWith(this ReadOnlySpan<char> value, string other, StringComparison comparison) => value.EndsWith(other.AsSpan(), comparison);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EndsWith(this ReadOnlySpan<char> value, string other) => value.EndsWith(other.AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -548,12 +554,12 @@ namespace ServiceStack.Text
 
         public static ReadOnlySpan<char> SafeSubstring(this ReadOnlySpan<char> value, int startIndex, int length)
         {
-            if (value.IsEmpty) return TypeConstants.NullSpan;
+            if (value.IsEmpty) return TypeConstants.NullStringSpan;
             if (startIndex < 0) startIndex = 0;
             if (value.Length >= (startIndex + length))
                 return value.Slice(startIndex, length);
 
-            return value.Length > startIndex ? value.Slice(startIndex) : TypeConstants.NullSpan;
+            return value.Length > startIndex ? value.Slice(startIndex) : TypeConstants.NullStringSpan;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
