@@ -41,11 +41,22 @@ namespace ServiceStack.Text
 
         public abstract byte[] ParseBase64(ReadOnlySpan<char> value);
 
-        public abstract Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token = default(CancellationToken));
+        public abstract Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token = default);
 
-        public abstract Task<object> DeserializeAsync(Type type, Stream stream, TypeDeserializer deserializer);
+        public abstract Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default);
+
+        public abstract Task<object> DeserializeAsync(Stream stream, Type type, TypeDeserializer deserializer);
 
         public abstract StringBuilder Append(StringBuilder sb, ReadOnlySpan<char> value);
+
+        public abstract int GetUtf8CharCount(ReadOnlySpan<byte> bytes);
+        public abstract int GetUtf8ByteCount(ReadOnlySpan<char> chars);
+
+        public abstract ReadOnlyMemory<byte> ToUtf8(ReadOnlySpan<char> source);
+        public abstract ReadOnlyMemory<char> FromUtf8(ReadOnlySpan<byte> source);
+
+        public abstract int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination);
+        public abstract int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination);
     }
 
     public delegate object TypeDeserializer(Type type, ReadOnlySpan<char> source);
@@ -629,38 +640,56 @@ namespace ServiceStack.Text
             {
                 var chars = value.ToArray();
                 int bytesCount = Encoding.UTF8.GetBytes(chars, 0, chars.Length, bytes, 0);
-                stream.Write(bytes, 0, bytesCount);
+                return stream.WriteAsync(bytes, 0, bytesCount, token);
             }
             finally
             {
                 BufferPool.ReleaseBufferToPool(ref bytes);
             }
-
-            return TypeConstants.EmptyTask;
         }
 
-
-        public override async Task<object> DeserializeAsync(Type type, Stream stream, TypeDeserializer deserializer)
+        public override Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default)
         {
-            //TODO optimize Stream -> UTF-8 ReadOnlySpan<char>
-
-            if (stream is MemoryStream ms)
+            byte[] bytes = BufferPool.GetBuffer(value.Length);
+            try
             {
-                var body = await ms.ReadToEndAsync(Encoding.UTF8);
-                var ret = deserializer(type, body.AsSpan());
-                return ret;
+                value.CopyTo(bytes);
+                return stream.WriteAsync(bytes, 0, value.Length, token);
             }
-
-            if (stream.CanSeek)
+            finally
             {
-                stream.Position = 0;
+                BufferPool.ReleaseBufferToPool(ref bytes);
             }
+        }
+
+        public override async Task<object> DeserializeAsync(Stream stream, Type type, TypeDeserializer deserializer)
+        {
+            var fromPool = false;
             
-            using (var reader = new StreamReader(stream, Encoding.UTF8, true, StreamExtensions.DefaultBufferSize, leaveOpen:true))
+            if (!(stream is MemoryStream ms))
             {
-                var body = await reader.ReadToEndAsync();
-                var ret = deserializer(type, body.AsSpan());
+                fromPool = true;
+                
+                if (stream.CanSeek)
+                    stream.Position = 0;
+
+                ms = await stream.CopyToNewMemoryStreamAsync();
+            }
+
+            var bytes = ms.GetBufferAsBytes();
+            var utf8 = CharPool.GetBuffer(Encoding.UTF8.GetCharCount(bytes, 0, (int)ms.Length));
+            try
+            {
+                var charsWritten = Encoding.UTF8.GetChars(bytes, 0, (int) ms.Length, utf8, 0);
+                var ret = deserializer(type, new ReadOnlySpan<char>(utf8, 0, charsWritten)); 
                 return ret;
+            }
+            finally 
+            {
+                CharPool.ReleaseBufferToPool(ref utf8);
+                
+                if (fromPool)
+                    ms.Dispose();
             }
         }
 
@@ -672,6 +701,44 @@ namespace ServiceStack.Text
         public override StringBuilder Append(StringBuilder sb, ReadOnlySpan<char> value)
         {
             return sb.Append(value.ToArray());
+        }
+
+        public override int GetUtf8CharCount(ReadOnlySpan<byte> bytes) => Encoding.UTF8.GetCharCount(bytes.ToArray()); //SLOW
+
+        public override int GetUtf8ByteCount(ReadOnlySpan<char> chars) => Encoding.UTF8.GetByteCount(chars.ToArray()); //SLOW
+        
+        public override ReadOnlyMemory<byte> ToUtf8(ReadOnlySpan<char> source)
+        {
+            var chars = source.ToArray();
+            var bytes = new byte[Encoding.UTF8.GetByteCount(chars)];
+            var bytesWritten = Encoding.UTF8.GetBytes(chars, 0, source.Length, bytes, 0);
+            return new ReadOnlyMemory<byte>(bytes, 0, bytesWritten);
+        }
+
+        public override ReadOnlyMemory<char> FromUtf8(ReadOnlySpan<byte> source)
+        {
+            var bytes = source.ToArray();
+            var chars = new char[Encoding.UTF8.GetCharCount(bytes)];
+            var charsWritten = Encoding.UTF8.GetChars(bytes, 0, source.Length, chars, 0);
+            return new ReadOnlyMemory<char>(chars, 0, charsWritten);
+        }
+
+        public override int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination)
+        {
+            var chars = source.ToArray();
+            var bytes = destination.ToArray();
+            var bytesWritten = Encoding.UTF8.GetBytes(chars, 0, source.Length, bytes, 0);
+            new ReadOnlySpan<byte>(bytes, 0, bytesWritten).CopyTo(destination);
+            return bytesWritten;
+        }
+
+        public override int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination)
+        {
+            var bytes = source.ToArray();
+            var chars = destination.ToArray();
+            var charsWritten = Encoding.UTF8.GetChars(bytes, 0, source.Length, chars, 0);
+            new ReadOnlySpan<char>(chars, 0, charsWritten).CopyTo(destination);
+            return charsWritten;
         }
 
         private static Guid ParseGeneralStyleGuid(ReadOnlySpan<char> value, out int len)

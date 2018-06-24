@@ -41,6 +41,9 @@ namespace ServiceStack
         public static ReadOnlySpan<char> NullSpan => default(ReadOnlySpan<char>);
         public static ReadOnlySpan<char> EmptySpan => new ReadOnlySpan<char>(NonWidthWhiteSpaceChars);
 
+        public static ReadOnlyMemory<char> NullMemory => default(ReadOnlyMemory<char>);
+        public static ReadOnlyMemory<char> EmptyMemory => "".AsMemory();
+
         public static readonly string[] EmptyStringArray = new string[0];
         public static readonly long[] EmptyLongArray = new long[0];
         public static readonly int[] EmptyIntArray = new int[0];

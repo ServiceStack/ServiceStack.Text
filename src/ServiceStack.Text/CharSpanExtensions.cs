@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServiceStack.Text
 {
-    public static class SpanExtensions
+    public static class CharSpanExtensions
     {
         /// <summary>
         /// Returns null if Length == 0, string.Empty if value[0] == NonWidthWhitespace, otherise returns value.ToString()
@@ -146,19 +146,21 @@ namespace ServiceStack.Text
                 return false;
             }
 
-            var nextLinePos = text.Slice(startIndex).IndexOfAny('\r', '\n');
+            text = text.Slice(startIndex);
+
+            var nextLinePos = text.IndexOfAny('\r', '\n');
             if (nextLinePos == -1)
             {
-                var nextLine = text.Slice(startIndex, text.Length - startIndex);
-                startIndex = text.Length;
+                var nextLine = text.Slice(0, text.Length);
+                startIndex += text.Length;
                 line = nextLine;
                 return true;
             }
             else
             {
-                var nextLine = text.Slice(startIndex, nextLinePos - startIndex);
+                var nextLine = text.Slice(0, nextLinePos);
 
-                startIndex = nextLinePos + 1;
+                startIndex += nextLinePos + 1;
 
                 if (text[nextLinePos] == '\r' && text.Length > nextLinePos + 1 && text[nextLinePos + 1] == '\n')
                     startIndex += 1;
@@ -180,14 +182,14 @@ namespace ServiceStack.Text
             var nextPartPos = text.IndexOf(needle);
             if (nextPartPos == -1)
             {
-                var nextPart = text.Slice(text.Length);
+                var nextPart = text.Slice(0, text.Length);
                 startIndex += text.Length;
                 part = nextPart;
                 return true;
             }
             else
             {
-                var nextPart = text.Slice(nextPartPos);
+                var nextPart = text.Slice(0, nextPartPos);
                 startIndex += nextPartPos + needle.Length;
                 part = nextPart;
                 return true;
@@ -503,7 +505,21 @@ namespace ServiceStack.Text
         public static int IndexOf(this ReadOnlySpan<char> value, string other) => value.IndexOf(other.AsSpan());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IndexOf(this ReadOnlySpan<char> value, string needle, int start)
+        {
+            var pos = value.Slice(start).IndexOf(needle.AsSpan());
+            return pos == -1 ? -1 : start + pos;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int LastIndexOf(this ReadOnlySpan<char> value, string other) => value.LastIndexOf(other.AsSpan());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this ReadOnlySpan<char> value, string needle, int start)
+        {
+            var pos = value.Slice(start).LastIndexOf(needle.AsSpan());
+            return pos == -1 ? -1 : start + pos;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EqualsOrdinal(this ReadOnlySpan<char> value, string other) => value.Equals(other.AsSpan(), StringComparison.Ordinal);
@@ -546,5 +562,11 @@ namespace ServiceStack.Text
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] ParseBase64(this ReadOnlySpan<char> value) => MemoryProvider.Instance.ParseBase64(value);
+
+        public static ReadOnlyMemory<byte> ToUtf8(this ReadOnlySpan<char> value) =>
+            MemoryProvider.Instance.ToUtf8(value);
+
+        public static ReadOnlyMemory<char> FromUtf8(this ReadOnlySpan<byte> value) =>
+            MemoryProvider.Instance.FromUtf8(value);
     }
 }

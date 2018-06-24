@@ -215,7 +215,7 @@ namespace ServiceStack.Text
 
         public static Task<object> DeserializeFromStreamAsync(Type type, Stream stream)
         {
-            return MemoryProvider.Instance.DeserializeAsync(type, stream, DeserializeFromSpan);
+            return MemoryProvider.Instance.DeserializeAsync(stream, type, DeserializeFromSpan);
         }
 
         /// <summary>

@@ -89,27 +89,44 @@ namespace ServiceStack.Memory
             return TypeConstants.EmptyTask;
         }
 
-        public override async Task<object> DeserializeAsync(Type type, Stream stream, TypeDeserializer deserializer)
+        public override async Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default)
         {
-            //TODO optimize Stream -> UTF-8 ReadOnlySpan<char>
+            await stream.WriteAsync(value, token);
+        }
 
-            if (stream is MemoryStream ms)
-            {
-                var body = await ms.ReadToEndAsync(Encoding.UTF8);
-                var ret = deserializer(type, body.AsSpan());
-                return ret;
-            }
-
-            if (stream.CanSeek)
-            {
-                stream.Position = 0;
-            }
+        public override async Task<object> DeserializeAsync(Stream stream, Type type, TypeDeserializer deserializer)
+        {
+            var fromPool = false;
             
-            using (var reader = new StreamReader(stream, Encoding.UTF8, true, StreamExtensions.DefaultBufferSize, leaveOpen:true))
+            if (!(stream is MemoryStream ms))
             {
-                var body = await reader.ReadToEndAsync();
-                var ret = deserializer(type, body.AsSpan());
+                fromPool = true;
+                
+                if (stream.CanSeek)
+                    stream.Position = 0;
+
+                ms = await stream.CopyToNewMemoryStreamAsync();
+            }
+
+            return Deserialize(type, deserializer, ms, fromPool);
+        }
+
+        private static object Deserialize(Type type, TypeDeserializer deserializer, MemoryStream memoryStream, bool fromPool)
+        {
+            var bytes = memoryStream.GetBufferAsSpan();
+            var chars = CharPool.GetBuffer(Encoding.UTF8.GetCharCount(bytes));
+            try
+            {
+                Encoding.UTF8.GetChars(bytes, chars);
+                var ret = deserializer(type, chars);
                 return ret;
+            }
+            finally
+            {
+                CharPool.ReleaseBufferToPool(ref chars);
+
+                if (fromPool)
+                    memoryStream.Dispose();
             }
         }
 
@@ -117,5 +134,27 @@ namespace ServiceStack.Memory
         {
             return sb.Append(value);
         }
+
+        public override int GetUtf8CharCount(ReadOnlySpan<byte> bytes) => Encoding.UTF8.GetCharCount(bytes);
+
+        public override int GetUtf8ByteCount(ReadOnlySpan<char> chars) => Encoding.UTF8.GetByteCount(chars);
+
+        public override ReadOnlyMemory<byte> ToUtf8(ReadOnlySpan<char> source)
+        {
+            Memory<byte> bytes = new byte[Encoding.UTF8.GetByteCount(source)];
+            var bytesWritten = Encoding.UTF8.GetBytes(source, bytes.Span);
+            return bytes.Slice(0, bytesWritten);
+        }
+
+        public override ReadOnlyMemory<char> FromUtf8(ReadOnlySpan<byte> source)
+        {
+            Memory<char> chars = new char[Encoding.UTF8.GetCharCount(source)];
+            var charsWritten = Encoding.UTF8.GetChars(source, chars.Span);
+            return chars.Slice(0, charsWritten);
+        }
+
+        public override int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination) => Encoding.UTF8.GetBytes(source, destination);
+
+        public override int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination) => Encoding.UTF8.GetChars(source, destination);
     }    
 }
