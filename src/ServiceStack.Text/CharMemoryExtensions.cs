@@ -52,6 +52,78 @@ namespace ServiceStack.Text
 
             return i == 0 ? literal : literal.Slice(i < literal.Length ? i : literal.Length);
         }
+
+        public static ReadOnlyMemory<char> LeftPart(this ReadOnlyMemory<char> strVal, char needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(0, pos);
+        }
+
+        public static ReadOnlyMemory<char> LeftPart(this ReadOnlyMemory<char> strVal, string needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(0, pos);
+        }
+
+        public static ReadOnlyMemory<char> RightPart(this ReadOnlyMemory<char> strVal, char needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(pos + 1);
+        }
+
+        public static ReadOnlyMemory<char> RightPart(this ReadOnlyMemory<char> strVal, string needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.IndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(pos + needle.Length);
+        }
+
+        public static ReadOnlyMemory<char> LastLeftPart(this ReadOnlyMemory<char> strVal, char needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(0, pos);
+        }
+
+        public static ReadOnlyMemory<char> LastLeftPart(this ReadOnlyMemory<char> strVal, string needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(0, pos);
+        }
+
+        public static ReadOnlyMemory<char> LastRightPart(this ReadOnlyMemory<char> strVal, char needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(pos + 1);
+        }
+
+        public static ReadOnlyMemory<char> LastRightPart(this ReadOnlyMemory<char> strVal, string needle)
+        {
+            if (strVal.IsEmpty) return strVal;
+            var pos = strVal.LastIndexOf(needle);
+            return pos == -1
+                ? strVal
+                : strVal.Slice(pos + needle.Length);
+        }
         
         public static bool TryReadLine(this ReadOnlyMemory<char> text, out ReadOnlyMemory<char> line, ref int startIndex)
         {
@@ -185,7 +257,17 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IndexOf(this ReadOnlyMemory<char> value, char needle) => value.Span.IndexOf(needle);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOf(this ReadOnlyMemory<char> value, string needle) => value.Span.IndexOf(needle.AsSpan());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IndexOf(this ReadOnlyMemory<char> value, char needle, int start)
+        {
+            var pos = value.Slice(start).Span.IndexOf(needle);
+            return pos == -1 ? -1 : start + pos;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOf(this ReadOnlyMemory<char> value, string needle, int start)
@@ -195,7 +277,17 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this ReadOnlyMemory<char> value, char needle) => value.Span.LastIndexOf(needle);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int LastIndexOf(this ReadOnlyMemory<char> value, string needle) => value.Span.LastIndexOf(needle.AsSpan());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this ReadOnlyMemory<char> value, char needle, int start)
+        {
+            var pos = value.Slice(start).Span.LastIndexOf(needle);
+            return pos == -1 ? -1 : start + pos;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int LastIndexOf(this ReadOnlyMemory<char> value, string needle, int start)
@@ -246,9 +338,9 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReadOnlyMemory<char> SafeSubsegment(this ReadOnlyMemory<char> value, int startIndex) => SafeSubsegment(value, startIndex, value.Length);
+        public static ReadOnlyMemory<char> SafeSlice(this ReadOnlyMemory<char> value, int startIndex) => SafeSlice(value, startIndex, value.Length);
 
-        public static ReadOnlyMemory<char> SafeSubsegment(this ReadOnlyMemory<char> value, int startIndex, int length)
+        public static ReadOnlyMemory<char> SafeSlice(this ReadOnlyMemory<char> value, int startIndex, int length)
         {
             if (value.IsEmpty) return TypeConstants.NullMemory;
             if (startIndex < 0) startIndex = 0;

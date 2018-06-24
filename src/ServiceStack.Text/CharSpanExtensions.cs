@@ -239,13 +239,13 @@ namespace ServiceStack.Text
                 : strVal.Slice(0, pos);
         }
 
-        public static ReadOnlySpan<char> LeftPart(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle)
+        public static ReadOnlySpan<char> LeftPart(this ReadOnlySpan<char> strVal, string needle)
         {
             if (strVal.IsEmpty) return strVal;
             var pos = strVal.IndexOf(needle);
             return pos == -1
                 ? strVal
-                : strVal.Subsegment(0, pos);
+                : strVal.Slice(0, pos);
         }
 
         public static ReadOnlySpan<char> RightPart(this ReadOnlySpan<char> strVal, char needle)
@@ -254,16 +254,16 @@ namespace ServiceStack.Text
             var pos = strVal.IndexOf(needle);
             return pos == -1
                 ? strVal
-                : strVal.Subsegment(pos + 1);
+                : strVal.Slice(pos + 1);
         }
 
-        public static ReadOnlySpan<char> RightPart(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle)
+        public static ReadOnlySpan<char> RightPart(this ReadOnlySpan<char> strVal, string needle)
         {
             if (strVal.IsEmpty) return strVal;
             var pos = strVal.IndexOf(needle);
             return pos == -1
                 ? strVal
-                : strVal.Subsegment(pos + needle.Length);
+                : strVal.Slice(pos + needle.Length);
         }
 
         public static ReadOnlySpan<char> LastLeftPart(this ReadOnlySpan<char> strVal, char needle)
@@ -272,16 +272,16 @@ namespace ServiceStack.Text
             var pos = strVal.LastIndexOf(needle);
             return pos == -1
                 ? strVal
-                : strVal.Subsegment(0, pos);
+                : strVal.Slice(0, pos);
         }
 
-        public static ReadOnlySpan<char> LastLeftPart(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle)
+        public static ReadOnlySpan<char> LastLeftPart(this ReadOnlySpan<char> strVal, string needle)
         {
             if (strVal.IsEmpty) return strVal;
             var pos = strVal.LastIndexOf(needle);
             return pos == -1
                 ? strVal
-                : strVal.Subsegment(0, pos);
+                : strVal.Slice(0, pos);
         }
 
         public static ReadOnlySpan<char> LastRightPart(this ReadOnlySpan<char> strVal, char needle)
@@ -293,19 +293,19 @@ namespace ServiceStack.Text
                 : strVal.Slice(pos + 1);
         }
 
-        public static ReadOnlySpan<char> LastRightPart(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle)
+        public static ReadOnlySpan<char> LastRightPart(this ReadOnlySpan<char> strVal, string needle)
         {
             if (strVal.IsEmpty) return strVal;
             var pos = strVal.LastIndexOf(needle);
             return pos == -1
                 ? strVal
-                : strVal.Subsegment(pos + needle.Length);
+                : strVal.Slice(pos + needle.Length);
         }
 
         public static void SplitOnFirst(this ReadOnlySpan<char> strVal, char needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
         {
-            first = default(ReadOnlySpan<char>);
-            last = default(ReadOnlySpan<char>);
+            first = default;
+            last = default;
             if (strVal.IsEmpty) return;
             
             var pos = strVal.IndexOf(needle);
@@ -322,8 +322,8 @@ namespace ServiceStack.Text
 
         public static void SplitOnFirst(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
         {
-            first = default(ReadOnlySpan<char>);
-            last = default(ReadOnlySpan<char>);
+            first = default;
+            last = default;
             if (strVal.IsEmpty) return;
             
             var pos = strVal.IndexOf(needle);
@@ -340,8 +340,8 @@ namespace ServiceStack.Text
 
         public static void SplitOnLast(this ReadOnlySpan<char> strVal, char needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
         {
-            first = default(ReadOnlySpan<char>);
-            last = default(ReadOnlySpan<char>);
+            first = default;
+            last = default;
             if (strVal.IsEmpty) return;
             
             var pos = strVal.LastIndexOf(needle);
@@ -358,8 +358,8 @@ namespace ServiceStack.Text
 
         public static void SplitOnLast(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
         {
-            first = default(ReadOnlySpan<char>);
-            last = default(ReadOnlySpan<char>);
+            first = default;
+            last = default;
             if (strVal.IsEmpty) return;
             
             var pos = strVal.LastIndexOf(needle);
@@ -481,9 +481,9 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReadOnlySpan<char> SafeSubsegment(this ReadOnlySpan<char> value, int startIndex) => SafeSubsegment(value, startIndex, value.Length);
+        public static ReadOnlySpan<char> SafeSlice(this ReadOnlySpan<char> value, int startIndex) => SafeSlice(value, startIndex, value.Length);
 
-        public static ReadOnlySpan<char> SafeSubsegment(this ReadOnlySpan<char> value, int startIndex, int length)
+        public static ReadOnlySpan<char> SafeSlice(this ReadOnlySpan<char> value, int startIndex, int length)
         {
             if (value.IsEmpty) return TypeConstants.NullSpan;
             if (startIndex < 0) startIndex = 0;
