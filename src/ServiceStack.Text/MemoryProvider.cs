@@ -335,14 +335,6 @@ namespace ServiceStack.Text
             return result;
         }
 
-        public object ParseSignedInteger(ReadOnlySpan<char> value)
-        {
-            var longValue = ParseInt64(value);
-            if (longValue >= int.MinValue && longValue <= int.MaxValue)
-                return (int)longValue;
-            return longValue;
-        }
-
         public decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands = false)
         {
             if (value.Length == 0)

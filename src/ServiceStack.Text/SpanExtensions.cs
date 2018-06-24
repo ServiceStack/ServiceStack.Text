@@ -130,6 +130,14 @@ namespace ServiceStack.Text
         public static Guid ParseGuid(this ReadOnlySpan<char> value) =>
             MemoryProvider.Instance.ParseGuid(value);
         
+        public static object ParseSignedInteger(this ReadOnlySpan<char> value)
+        {
+            var longValue = ParseInt64(value);
+            if (longValue >= int.MinValue && longValue <= int.MaxValue)
+                return (int)longValue;
+            return longValue;
+        }
+        
         public static bool TryReadLine(this ReadOnlySpan<char> text, out ReadOnlySpan<char> line, ref int startIndex)
         {
             if (startIndex >= text.Length)
@@ -190,8 +198,33 @@ namespace ServiceStack.Text
         public static ReadOnlySpan<char> Advance(this ReadOnlySpan<char> text, int to) => text.Slice(to, text.Length - to);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<char> AdvancePastWhitespace(this ReadOnlySpan<char> literal)
+        {
+            var i = 0;
+            while (i < literal.Length && char.IsWhiteSpace(literal[i]))
+                i++;
+
+            return i == 0 ? literal : literal.Slice(i < literal.Length ? i : literal.Length);
+        }
+
+        public static ReadOnlySpan<char> AdvancePastChar(this ReadOnlySpan<char> literal, char delim)
+        {
+            var i = 0;
+            var c = (char) 0;
+            while (i < literal.Length && (c = literal[i]) != delim)
+                i++;
+
+            if (c == delim)
+                return literal.Slice(i + 1);
+
+            return i == 0 ? literal : literal.Slice(i < literal.Length ? i : literal.Length);
+        }
+
+        [Obsolete("Use Slice()")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ReadOnlySpan<char> Subsegment(this ReadOnlySpan<char> text, int startPos) => text.Slice(startPos, text.Length - startPos);
 
+        [Obsolete("Use Slice()")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ReadOnlySpan<char> Subsegment(this ReadOnlySpan<char> text, int startPos, int length) => text.Slice(startPos, length);
 
@@ -465,6 +498,21 @@ namespace ServiceStack.Text
                 ? str.ToString() + "..."
                 : str.ToString();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IndexOf(this ReadOnlySpan<char> value, string other) => value.IndexOf(other.AsSpan());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LastIndexOf(this ReadOnlySpan<char> value, string other) => value.LastIndexOf(other.AsSpan());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EqualsOrdinal(this ReadOnlySpan<char> value, string other) => value.Equals(other.AsSpan(), StringComparison.Ordinal);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool StartsWith(this ReadOnlySpan<char> value, string other) => value.StartsWith(other.AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EndsWith(this ReadOnlySpan<char> value, string other) => value.EndsWith(other.AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EqualsIgnoreCase(this ReadOnlySpan<char> value, ReadOnlySpan<char> other) => value.Equals(other, StringComparison.OrdinalIgnoreCase);

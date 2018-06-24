@@ -24,5 +24,17 @@ namespace ServiceStack.Text.Tests
             
             Assert.That(n.SequenceEqual(e)); //null + "" spans are considered equal
         }
+
+        [Test]
+        public void Can_not_detect_null_empty_string_memory()
+        {
+            var n = ((string)null).AsMemory();
+            var e = "".AsMemory();
+            
+            Assert.That(!n.Equals(e)); //null + "" memory are not equal
+
+            Assert.That(n.Equals(((string)null).AsMemory()));
+            Assert.That(e.Equals("".AsMemory()));
+        }
     }
 }

@@ -27,6 +27,9 @@ namespace ServiceStack.Text
         public static StringSegment ToStringSegment(this ReadOnlySpan<char> value) => new StringSegment(value.Value());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EqualsOrdinal(this ReadOnlySpan<char> value, StringSegment other) => value.Equals(other.AsSpan(), StringComparison.Ordinal);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ReadOnlySpan<char> SpanValue(this StringSegment value) => !value.HasValue
             ? default
             : value.Length == 0
