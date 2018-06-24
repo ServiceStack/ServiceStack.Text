@@ -19,7 +19,7 @@ namespace ServiceStack.Text.Pools
 
         private BufferPool() { }
         private const int POOL_SIZE = 20;
-        public const int BUFFER_LENGTH = 1024;
+        public const int BUFFER_LENGTH = 1450; //<= MTU - DJB
         private static readonly CachedBuffer[] Pool = new CachedBuffer[POOL_SIZE];
 
         public static byte[] GetBuffer()
