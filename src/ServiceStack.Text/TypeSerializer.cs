@@ -90,11 +90,11 @@ namespace ServiceStack.Text
                : JsvReader.GetParseFn(type)(value);
         }
 
-        public static object DeserializeFromSpan(Type type, ReadOnlySpan<char> json)
+        public static object DeserializeFromSpan(Type type, ReadOnlySpan<char> value)
         {
-            return json.IsEmpty
+            return value.IsEmpty
                 ? null
-                : JsvReader.GetParseSpanFn(type)(json);
+                : JsvReader.GetParseSpanFn(type)(value);
         }
 
         public static object DeserializeFromReader(TextReader reader, Type type)

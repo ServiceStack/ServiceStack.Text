@@ -55,11 +55,11 @@ namespace ServiceStack.Text
             return DeserializeFromString<T>(reader.ReadToEnd());
         }
 
-        public static object DeserializeFromSpan(Type type, ReadOnlySpan<char> json)
+        public static object DeserializeFromSpan(Type type, ReadOnlySpan<char> value)
         {
-            return json.IsEmpty
+            return value.IsEmpty
                 ? null
-                : JsonReader.GetParseSpanFn(type)(json);
+                : JsonReader.GetParseSpanFn(type)(value);
         }
 
         public static object DeserializeFromString(string value, Type type)

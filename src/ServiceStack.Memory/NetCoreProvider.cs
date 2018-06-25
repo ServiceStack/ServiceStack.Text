@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ServiceStack.Text;
+using ServiceStack.Text.Common;
 using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Memory
@@ -94,7 +95,7 @@ namespace ServiceStack.Memory
             await stream.WriteAsync(value, token);
         }
 
-        public override async Task<object> DeserializeAsync(Stream stream, Type type, TypeDeserializer deserializer)
+        public override async Task<object> DeserializeAsync(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
         {
             var fromPool = false;
             
@@ -111,14 +112,15 @@ namespace ServiceStack.Memory
             return Deserialize(type, deserializer, ms, fromPool);
         }
 
-        private static object Deserialize(Type type, TypeDeserializer deserializer, MemoryStream memoryStream, bool fromPool)
+        private static object Deserialize(Type type, DeserializeStringSpanDelegate deserializer, MemoryStream memoryStream, bool fromPool)
         {
             var bytes = memoryStream.GetBufferAsSpan();
             var chars = CharPool.GetBuffer(Encoding.UTF8.GetCharCount(bytes));
             try
             {
-                Encoding.UTF8.GetChars(bytes, chars);
-                var ret = deserializer(type, chars);
+                var charsWritten = Encoding.UTF8.GetChars(bytes, chars);
+                ReadOnlySpan<char> charsSpan = chars; 
+                var ret = deserializer(type, charsSpan.Slice(0, charsWritten));
                 return ret;
             }
             finally

@@ -24,6 +24,8 @@ namespace ServiceStack.Text.Common
 
     internal delegate ParseStringSpanDelegate ParseFactoryDelegate();
 
+    public delegate object DeserializeStringSpanDelegate(Type type, ReadOnlySpan<char> source);
+
     public delegate void WriteObjectDelegate(TextWriter writer, object obj);
 
     public delegate object ParseStringDelegate(string stringValue);

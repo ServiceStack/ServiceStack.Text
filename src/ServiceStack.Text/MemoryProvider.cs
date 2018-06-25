@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Pools;
 
@@ -45,7 +46,7 @@ namespace ServiceStack.Text
 
         public abstract Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default);
 
-        public abstract Task<object> DeserializeAsync(Stream stream, Type type, TypeDeserializer deserializer);
+        public abstract Task<object> DeserializeAsync(Stream stream, Type type, DeserializeStringSpanDelegate deserializer);
 
         public abstract StringBuilder Append(StringBuilder sb, ReadOnlySpan<char> value);
 
@@ -58,8 +59,6 @@ namespace ServiceStack.Text
         public abstract int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination);
         public abstract int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination);
     }
-
-    public delegate object TypeDeserializer(Type type, ReadOnlySpan<char> source);
 
     public sealed class DefaultMemoryProvider : MemoryProvider
     {
@@ -662,7 +661,7 @@ namespace ServiceStack.Text
             }
         }
 
-        public override async Task<object> DeserializeAsync(Stream stream, Type type, TypeDeserializer deserializer)
+        public override async Task<object> DeserializeAsync(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
         {
             var fromPool = false;
             
