@@ -11,10 +11,12 @@ using ServiceStack.Text.Pools;
 
 namespace ServiceStack.Memory
 {
-    public sealed class NetCoreProvider : MemoryProvider
+    public sealed class NetCoreMemory : MemoryProvider
     {
-        private NetCoreProvider(){}
-        public static void Configure() => Instance = new NetCoreProvider();
+        private NetCoreMemory(){}
+        public static readonly NetCoreMemory Provider = new NetCoreMemory();  
+        
+        public static void Configure() => Instance = Provider;
         
         public override bool ParseBoolean(ReadOnlySpan<char> value) => bool.Parse(value);
 

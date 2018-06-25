@@ -9,7 +9,7 @@ namespace ServiceStack.Text.Tests
         public void Setup()
         {
 #if NETCORE
-            ServiceStack.Memory.NetCoreProvider.Configure();
+            ServiceStack.Memory.NetCoreMemory.Configure();
 #endif
         }
     }

@@ -8,7 +8,7 @@
     <owners>ServiceStack</owners>
     <summary>ServiceStack .NET Core Platform bindings for native System.Memory Span APIs</summary>
     <description>
-      Install in .NET Core 2.1 App and call `NetCoreProvider.Configure()` on Startup 
+      Install in .NET Core 2.1 App and call `NetCoreMemory.Configure()` on Startup 
       to have ServiceStack.Text delegate to use .NET Core App's native System.Memory Span APIs. 
     </description> 
     <projectUrl>https://github.com/ServiceStack/ServiceStack.Text</projectUrl>
