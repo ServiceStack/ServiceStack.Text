@@ -301,6 +301,14 @@ namespace ServiceStack
             return StringBuilderCache.ReturnAndFree(sb);
         }
 
+        /// <summary>
+        /// Returns bytes in publiclyVisible MemoryStream
+        /// </summary>
+        public static MemoryStream InMemoryStream(this byte[] bytes)
+        {
+            return new MemoryStream(bytes, 0, bytes.Length, writable: true, publiclyVisible: true);
+        }
+
         public static string ReadToEnd(this MemoryStream ms) => ReadToEnd(ms, JsConfig.UTF8Encoding);
         public static string ReadToEnd(this MemoryStream ms, Encoding encoding)
         {

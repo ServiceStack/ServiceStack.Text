@@ -13,7 +13,7 @@ namespace ServiceStack.Text
 {
     public abstract class MemoryProvider
     {
-        public static MemoryProvider Instance = new DefaultMemoryProvider();
+        public static MemoryProvider Instance = DefaultMemory.Provider;
 
         protected const string BadFormat = "Input string was not in a correct format.";
         protected const string OverflowMessage = "Value was either too large or too small for an {0}.";
@@ -60,8 +60,13 @@ namespace ServiceStack.Text
         public abstract int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination);
     }
 
-    public sealed class DefaultMemoryProvider : MemoryProvider
+    public sealed class DefaultMemory : MemoryProvider
     {
+        public static readonly DefaultMemory Provider = new DefaultMemory();
+        private DefaultMemory(){}
+
+        public static void Configure() => Instance = Provider;
+        
         public override bool ParseBoolean(ReadOnlySpan<char> value)
         {
             if (!value.TryParseBoolean(out bool result))
