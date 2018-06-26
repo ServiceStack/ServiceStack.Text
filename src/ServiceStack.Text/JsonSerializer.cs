@@ -195,6 +195,12 @@ namespace ServiceStack.Text
             return MemoryProvider.Instance.DeserializeAsync(stream, type, DeserializeFromSpan);
         }
 
+        public static async Task<T> DeserializeFromStreamAsync<T>(Stream stream)
+        {
+            var obj = await MemoryProvider.Instance.DeserializeAsync(stream, typeof(T), DeserializeFromSpan);
+            return (T)obj;
+        }
+
         public static T DeserializeResponse<T>(WebRequest webRequest)
         {
             using (var webRes = PclExport.Instance.GetResponse(webRequest))

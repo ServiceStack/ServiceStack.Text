@@ -218,6 +218,12 @@ namespace ServiceStack.Text
             return MemoryProvider.Instance.DeserializeAsync(stream, type, DeserializeFromSpan);
         }
 
+        public static async Task<T> DeserializeFromStreamAsync<T>(Stream stream)
+        {
+            var obj = await MemoryProvider.Instance.DeserializeAsync(stream, typeof(T), DeserializeFromSpan);
+            return (T)obj;
+        }
+
         /// <summary>
         /// Useful extension method to get the Dictionary[string,string] representation of any POCO type.
         /// </summary>
