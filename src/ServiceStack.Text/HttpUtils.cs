@@ -542,6 +542,7 @@ namespace ServiceStack
             using (var webRes = PclExport.Instance.GetResponse(webReq))
             using (var stream = webRes.GetResponseStream())
             {
+                responseFilter?.Invoke((HttpWebResponse)webRes);
                 return stream.ReadToEnd(UseEncoding);
             }
         }
@@ -576,12 +577,13 @@ namespace ServiceStack
                 }
             }
 
-            var webRes = await webReq.GetResponseAsync();
-            responseFilter?.Invoke((HttpWebResponse)webRes);
-
-            using (var stream = webRes.GetResponseStream())
+            using (var webRes = await webReq.GetResponseAsync())
             {
-                return await stream.ReadToEndAsync();
+                responseFilter?.Invoke((HttpWebResponse)webRes);
+                using (var stream = webRes.GetResponseStream())
+                {
+                    return await stream.ReadToEndAsync();
+                }
             }
         }
 
