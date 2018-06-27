@@ -25,17 +25,14 @@ namespace ServiceStack.Memory
         public override bool TryParseBoolean(ReadOnlySpan<char> value, out bool result) =>
             bool.TryParse(value, out result);
 
-        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) =>
-            decimal.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
+        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) => DefaultMemory.TryParseDecimal(value, allowThousands: true, out result);
+        public override decimal ParseDecimal(ReadOnlySpan<char> value) => DefaultMemory.ParseDecimal(value, allowThousands: true);
 
         public override bool TryParseFloat(ReadOnlySpan<char> value, out float result) =>
             float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
 
         public override bool TryParseDouble(ReadOnlySpan<char> value, out double result) =>
             double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
-
-        public override decimal ParseDecimal(ReadOnlySpan<char> value) =>
-            decimal.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
         
         public override float ParseFloat(ReadOnlySpan<char> value) =>
             float.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
@@ -54,6 +51,8 @@ namespace ServiceStack.Memory
         public override int ParseInt32(ReadOnlySpan<char> value) => int.Parse(value);
 
         public override uint ParseUInt32(ReadOnlySpan<char> value) => uint.Parse(value);
+        
+        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value, style);
 
         public override long ParseInt64(ReadOnlySpan<char> value) => long.Parse(value);
 

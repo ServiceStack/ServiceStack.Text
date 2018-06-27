@@ -4,45 +4,46 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text.Json
 {
-    public class JsonTypeSerializer
+    public sealed class JsonTypeSerializer
         : ITypeSerializer
     {
         public static ITypeSerializer Instance = new JsonTypeSerializer();
 
-        public ObjectDeserializerDelegate ObjectDeserializer { get; set; }
+        public override ObjectDeserializerDelegate ObjectDeserializer { get; set; }
 
-        public bool IncludeNullValues => JsConfig.IncludeNullValues;
+        public override bool IncludeNullValues => JsConfig.IncludeNullValues;
 
-        public bool IncludeNullValuesInDictionaries => JsConfig.IncludeNullValuesInDictionaries;
+        public override bool IncludeNullValuesInDictionaries => JsConfig.IncludeNullValuesInDictionaries;
 
-        public string TypeAttrInObject => JsConfig.JsonTypeAttrInObject;
+        public override string TypeAttrInObject => JsConfig.JsonTypeAttrInObject;
 
         internal static string GetTypeAttrInObject(string typeAttr) => $"{{\"{typeAttr}\":";
 
-        public WriteObjectDelegate GetWriteFn<T>() => JsonWriter<T>.WriteFn();
+        public override WriteObjectDelegate GetWriteFn<T>() => JsonWriter<T>.WriteFn();
 
-        public WriteObjectDelegate GetWriteFn(Type type) => JsonWriter.GetWriteFn(type);
+        public override WriteObjectDelegate GetWriteFn(Type type) => JsonWriter.GetWriteFn(type);
 
-        public TypeInfo GetTypeInfo(Type type) => JsonWriter.GetTypeInfo(type);
+        public override TypeInfo GetTypeInfo(Type type) => JsonWriter.GetTypeInfo(type);
 
         /// <summary>
         /// Shortcut escape when we're sure value doesn't contain any escaped chars
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="value"></param>
-        public void WriteRawString(TextWriter writer, string value)
+        public override void WriteRawString(TextWriter writer, string value)
         {
             writer.Write(JsWriter.QuoteChar);
             writer.Write(value);
             writer.Write(JsWriter.QuoteChar);
         }
 
-        public void WritePropertyName(TextWriter writer, string value)
+        public override void WritePropertyName(TextWriter writer, string value)
         {
             if (JsState.WritingKeyCount > 0)
             {
@@ -56,12 +57,12 @@ namespace ServiceStack.Text.Json
             }
         }
 
-        public void WriteString(TextWriter writer, string value)
+        public override void WriteString(TextWriter writer, string value)
         {
             JsonUtils.WriteString(writer, value);
         }
 
-        public void WriteBuiltIn(TextWriter writer, object value)
+        public override void WriteBuiltIn(TextWriter writer, object value)
         {
             if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
 
@@ -70,23 +71,23 @@ namespace ServiceStack.Text.Json
             if (JsState.WritingKeyCount > 0 && !JsState.IsWritingValue) writer.Write(JsonUtils.QuoteChar);
         }
 
-        public void WriteObjectString(TextWriter writer, object value)
+        public override void WriteObjectString(TextWriter writer, object value)
         {
             JsonUtils.WriteString(writer, value?.ToString());
         }
 
-        public void WriteFormattableObjectString(TextWriter writer, object value)
+        public override void WriteFormattableObjectString(TextWriter writer, object value)
         {
             var formattable = value as IFormattable;
             JsonUtils.WriteString(writer, formattable?.ToString(null, CultureInfo.InvariantCulture));
         }
 
-        public void WriteException(TextWriter writer, object value)
+        public override void WriteException(TextWriter writer, object value)
         {
             WriteString(writer, ((Exception)value).Message);
         }
 
-        public void WriteDateTime(TextWriter writer, object oDateTime)
+        public override void WriteDateTime(TextWriter writer, object oDateTime)
         {
             var dateTime = (DateTime)oDateTime;
             switch (JsConfig.DateHandler)
@@ -104,7 +105,7 @@ namespace ServiceStack.Text.Json
             writer.Write(JsWriter.QuoteString);
         }
 
-        public void WriteNullableDateTime(TextWriter writer, object dateTime)
+        public override void WriteNullableDateTime(TextWriter writer, object dateTime)
         {
             if (dateTime == null)
                 writer.Write(JsonUtils.Null);
@@ -112,14 +113,14 @@ namespace ServiceStack.Text.Json
                 WriteDateTime(writer, dateTime);
         }
 
-        public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
+        public override void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
         {
             writer.Write(JsWriter.QuoteString);
             DateTimeSerializer.WriteWcfJsonDateTimeOffset(writer, (DateTimeOffset)oDateTimeOffset);
             writer.Write(JsWriter.QuoteString);
         }
 
-        public void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
+        public override void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
         {
             if (dateTimeOffset == null)
                 writer.Write(JsonUtils.Null);
@@ -127,7 +128,7 @@ namespace ServiceStack.Text.Json
                 WriteDateTimeOffset(writer, dateTimeOffset);
         }
 
-        public void WriteTimeSpan(TextWriter writer, object oTimeSpan)
+        public override void WriteTimeSpan(TextWriter writer, object oTimeSpan)
         {
             var stringValue = JsConfig.TimeSpanHandler == TimeSpanHandler.StandardFormat
                 ? oTimeSpan.ToString()
@@ -135,31 +136,31 @@ namespace ServiceStack.Text.Json
             WriteRawString(writer, stringValue);
         }
 
-        public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
+        public override void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
         {
 
             if (oTimeSpan == null) return;
             WriteTimeSpan(writer, ((TimeSpan?)oTimeSpan).Value);
         }
 
-        public void WriteGuid(TextWriter writer, object oValue)
+        public override void WriteGuid(TextWriter writer, object oValue)
         {
             WriteRawString(writer, ((Guid)oValue).ToString("N"));
         }
 
-        public void WriteNullableGuid(TextWriter writer, object oValue)
+        public override void WriteNullableGuid(TextWriter writer, object oValue)
         {
             if (oValue == null) return;
             WriteRawString(writer, ((Guid)oValue).ToString("N"));
         }
 
-        public void WriteBytes(TextWriter writer, object oByteValue)
+        public override void WriteBytes(TextWriter writer, object oByteValue)
         {
             if (oByteValue == null) return;
             WriteRawString(writer, Convert.ToBase64String((byte[])oByteValue));
         }
 
-        public void WriteChar(TextWriter writer, object charValue)
+        public override void WriteChar(TextWriter writer, object charValue)
         {
             if (charValue == null)
                 writer.Write(JsonUtils.Null);
@@ -167,7 +168,7 @@ namespace ServiceStack.Text.Json
                 WriteString(writer, ((char)charValue).ToString());
         }
 
-        public void WriteByte(TextWriter writer, object byteValue)
+        public override void WriteByte(TextWriter writer, object byteValue)
         {
             if (byteValue == null)
                 writer.Write(JsonUtils.Null);
@@ -175,7 +176,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((byte)byteValue);
         }
 
-        public void WriteSByte(TextWriter writer, object sbyteValue)
+        public override void WriteSByte(TextWriter writer, object sbyteValue)
         {
             if (sbyteValue == null)
                 writer.Write(JsonUtils.Null);
@@ -183,7 +184,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((sbyte)sbyteValue);
         }
 
-        public void WriteInt16(TextWriter writer, object intValue)
+        public override void WriteInt16(TextWriter writer, object intValue)
         {
             if (intValue == null)
                 writer.Write(JsonUtils.Null);
@@ -191,7 +192,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((short)intValue);
         }
 
-        public void WriteUInt16(TextWriter writer, object intValue)
+        public override void WriteUInt16(TextWriter writer, object intValue)
         {
             if (intValue == null)
                 writer.Write(JsonUtils.Null);
@@ -199,7 +200,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((ushort)intValue);
         }
 
-        public void WriteInt32(TextWriter writer, object intValue)
+        public override void WriteInt32(TextWriter writer, object intValue)
         {
             if (intValue == null)
                 writer.Write(JsonUtils.Null);
@@ -207,7 +208,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((int)intValue);
         }
 
-        public void WriteUInt32(TextWriter writer, object uintValue)
+        public override void WriteUInt32(TextWriter writer, object uintValue)
         {
             if (uintValue == null)
                 writer.Write(JsonUtils.Null);
@@ -215,7 +216,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((uint)uintValue);
         }
 
-        public void WriteInt64(TextWriter writer, object integerValue)
+        public override void WriteInt64(TextWriter writer, object integerValue)
         {
             if (integerValue == null)
                 writer.Write(JsonUtils.Null);
@@ -223,7 +224,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((long)integerValue);
         }
 
-        public void WriteUInt64(TextWriter writer, object ulongValue)
+        public override void WriteUInt64(TextWriter writer, object ulongValue)
         {
             if (ulongValue == null)
             {
@@ -233,7 +234,7 @@ namespace ServiceStack.Text.Json
                 writer.Write((ulong)ulongValue);
         }
 
-        public void WriteBool(TextWriter writer, object boolValue)
+        public override void WriteBool(TextWriter writer, object boolValue)
         {
             if (boolValue == null)
                 writer.Write(JsonUtils.Null);
@@ -241,7 +242,7 @@ namespace ServiceStack.Text.Json
                 writer.Write(((bool)boolValue) ? JsonUtils.True : JsonUtils.False);
         }
 
-        public void WriteFloat(TextWriter writer, object floatValue)
+        public override void WriteFloat(TextWriter writer, object floatValue)
         {
             if (floatValue == null)
                 writer.Write(JsonUtils.Null);
@@ -255,7 +256,7 @@ namespace ServiceStack.Text.Json
             }
         }
 
-        public void WriteDouble(TextWriter writer, object doubleValue)
+        public override void WriteDouble(TextWriter writer, object doubleValue)
         {
             if (doubleValue == null)
                 writer.Write(JsonUtils.Null);
@@ -269,7 +270,7 @@ namespace ServiceStack.Text.Json
             }
         }
 
-        public void WriteDecimal(TextWriter writer, object decimalValue)
+        public override void WriteDecimal(TextWriter writer, object decimalValue)
         {
             if (decimalValue == null)
                 writer.Write(JsonUtils.Null);
@@ -277,7 +278,7 @@ namespace ServiceStack.Text.Json
                 writer.Write(((decimal)decimalValue).ToString(CultureInfo.InvariantCulture));
         }
 
-        public void WriteEnum(TextWriter writer, object enumValue)
+        public override void WriteEnum(TextWriter writer, object enumValue)
         {
             if (enumValue == null) return;
             if (GetTypeInfo(enumValue.GetType()).IsNumeric)
@@ -286,12 +287,12 @@ namespace ServiceStack.Text.Json
                 WriteRawString(writer, enumValue.ToString());
         }
 
-        public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+        public override void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
             JsWriter.WriteEnumFlags(writer, enumFlagValue);
         }
 
-        public void WriteEnumMember(TextWriter writer, object enumValue)
+        public override void WriteEnumMember(TextWriter writer, object enumValue)
         {
             if (enumValue == null) return;
 
@@ -302,43 +303,42 @@ namespace ServiceStack.Text.Json
             WriteRawString(writer, useValue.ToString());
         }
 
-        public ParseStringDelegate GetParseFn<T>()
+        public override ParseStringDelegate GetParseFn<T>()
         {
             return JsonReader.Instance.GetParseFn<T>();
         }
 
-        public ParseStringSpanDelegate GetParseStringSegmentFn<T>()
+        public override ParseStringSpanDelegate GetParseStringSegmentFn<T>()
         {
             return JsonReader.Instance.GetParseStringSegmentFn<T>();
         }
 
-        public ParseStringDelegate GetParseFn(Type type)
+        public override ParseStringDelegate GetParseFn(Type type)
         {
             return JsonReader.GetParseFn(type);
         }
 
-        public ParseStringSpanDelegate GetParseStringSegmentFn(Type type)
+        public override ParseStringSpanDelegate GetParseStringSegmentFn(Type type)
         {
             return JsonReader.GetParseStringSegmentFn(type);
         }
 
-        public string ParseRawString(string value)
+        public override string ParseRawString(string value)
         {
             return value;
         }
 
-        public string ParseString(ReadOnlySpan<char> value)
+        public override string ParseString(ReadOnlySpan<char> value)
         {
             return value.IsNullOrEmpty() ? null : ParseRawString(value.ToString());
         }
 
-        public string ParseString(string value)
+        public override string ParseString(string value)
         {
             return string.IsNullOrEmpty(value) ? value : ParseRawString(value);
         }
 
-        public static bool IsEmptyMap(string value, int i = 1) => IsEmptyMap(value.AsSpan());
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEmptyMap(ReadOnlySpan<char> value, int i = 1)
         {
             for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
@@ -382,21 +382,21 @@ namespace ServiceStack.Text.Json
             return str;
         }
 
-        public string UnescapeString(string value)
+        public override string UnescapeString(string value)
         {
             var i = 0;
             return UnescapeJsonString(value, ref i);
         }
 
-        public ReadOnlySpan<char> UnescapeString(ReadOnlySpan<char> value)
+        public override ReadOnlySpan<char> UnescapeString(ReadOnlySpan<char> value)
         {
             var i = 0;
             return UnescapeJsonString(value, ref i);
         }
 
-        public string UnescapeSafeString(string value) => UnescapeSafeString(value.AsSpan()).ToString();
+        public override string UnescapeSafeString(string value) => UnescapeSafeString(value.AsSpan()).ToString();
 
-        public ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value)
+        public override ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value)
         {
             if (value.IsNullOrEmpty()) return value;
             return value[0] == JsonUtils.QuoteChar && value[value.Length - 1] == JsonUtils.QuoteChar
@@ -549,8 +549,8 @@ namespace ServiceStack.Text.Json
                         case 'u':
                             if (count + 4 < length)
                             {
-                                var unicodeString = input.Substring(count + 1, 4);
-                                var unicodeIntVal = uint.Parse(unicodeString, NumberStyles.HexNumber);
+                                var unicodeString = input.Slice(count + 1, 4);
+                                var unicodeIntVal = MemoryProvider.Instance.ParseUInt32(unicodeString, NumberStyles.HexNumber);
                                 output.Append(ConvertFromUtf32((int)unicodeIntVal));
                                 count += 5;
                             }
@@ -562,16 +562,16 @@ namespace ServiceStack.Text.Json
                         case 'x':
                             if (count + 4 < length)
                             {
-                                var unicodeString = input.Substring(count + 1, 4);
-                                var unicodeIntVal = uint.Parse(unicodeString, NumberStyles.HexNumber);
+                                var unicodeString = input.Slice(count + 1, 4);
+                                var unicodeIntVal = MemoryProvider.Instance.ParseUInt32(unicodeString, NumberStyles.HexNumber);
                                 output.Append(ConvertFromUtf32((int)unicodeIntVal));
                                 count += 5;
                             }
                             else
                             if (count + 2 < length)
                             {
-                                var unicodeString = input.Substring(count + 1, 2);
-                                var unicodeIntVal = uint.Parse(unicodeString, NumberStyles.HexNumber);
+                                var unicodeString = input.Slice(count + 1, 2);
+                                var unicodeIntVal = MemoryProvider.Instance.ParseUInt32(unicodeString, NumberStyles.HexNumber);
                                 output.Append(ConvertFromUtf32((int)unicodeIntVal));
                                 count += 3;
                             }
@@ -609,31 +609,30 @@ namespace ServiceStack.Text.Json
             if (utf32 < 0x10000)
                 return new string((char)utf32, 1);
             utf32 -= 0x10000;
-            return new string(new[] {(char) ((utf32 >> 10) + 0xD800),
-                                (char) (utf32 % 0x0400 + 0xDC00)});
+            return new string(new[] {(char) ((utf32 >> 10) + 0xD800), (char) (utf32 % 0x0400 + 0xDC00)});
         }
 
-        public string EatTypeValue(string value, ref int i)
+        public override string EatTypeValue(string value, ref int i)
         {
             return EatValue(value, ref i);
         }
 
-        public ReadOnlySpan<char> EatTypeValue(ReadOnlySpan<char> value, ref int i)
+        public override ReadOnlySpan<char> EatTypeValue(ReadOnlySpan<char> value, ref int i)
         {
             return EatValue(value, ref i);
         }
 
-        public bool EatMapStartChar(string value, ref int i) => EatMapStartChar(value.AsSpan(), ref i);
+        public override bool EatMapStartChar(string value, ref int i) => EatMapStartChar(value.AsSpan(), ref i);
 
-        public bool EatMapStartChar(ReadOnlySpan<char> value, ref int i)
+        public override bool EatMapStartChar(ReadOnlySpan<char> value, ref int i)
         {
             for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             return value[i++] == JsWriter.MapStartChar;
         }
 
-        public string EatMapKey(string value, ref int i) => EatMapKey(value.AsSpan(), ref i).ToString();
+        public override string EatMapKey(string value, ref int i) => EatMapKey(value.AsSpan(), ref i).ToString();
 
-        public ReadOnlySpan<char> EatMapKey(ReadOnlySpan<char> value, ref int i)
+        public override ReadOnlySpan<char> EatMapKey(ReadOnlySpan<char> value, ref int i)
         {
             var valueLength = value.Length;
             for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
@@ -670,22 +669,22 @@ namespace ServiceStack.Text.Json
             return value.Subsegment(tokenStartPos, i - tokenStartPos);
         }
 
-        public bool EatMapKeySeperator(string value, ref int i) => EatMapKeySeperator(value.AsSpan(), ref i);
+        public override bool EatMapKeySeperator(string value, ref int i) => EatMapKeySeperator(value.AsSpan(), ref i);
 
 
-        public bool EatMapKeySeperator(ReadOnlySpan<char> value, ref int i)
+        public override bool EatMapKeySeperator(ReadOnlySpan<char> value, ref int i)
         {
             for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             if (value.Length == i) return false;
             return value[i++] == JsWriter.MapKeySeperator;
         }
 
-        public bool EatItemSeperatorOrMapEndChar(string value, ref int i)
+        public override bool EatItemSeperatorOrMapEndChar(string value, ref int i)
         {
             return EatItemSeperatorOrMapEndChar(value.AsSpan(), ref i);
         }
 
-        public bool EatItemSeperatorOrMapEndChar(ReadOnlySpan<char> value, ref int i)
+        public override bool EatItemSeperatorOrMapEndChar(ReadOnlySpan<char> value, ref int i)
         {
             for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
 
@@ -704,22 +703,22 @@ namespace ServiceStack.Text.Json
             return success;
         }
 
-        public void EatWhitespace(ReadOnlySpan<char> value, ref int i)
+        public override void EatWhitespace(ReadOnlySpan<char> value, ref int i)
         {
             for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
         }
 
-        public void EatWhitespace(string value, ref int i)
+        public override void EatWhitespace(string value, ref int i)
         {
             for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
         }
 
-        public string EatValue(string value, ref int i)
+        public override string EatValue(string value, ref int i)
         {
             return EatValue(value.AsSpan(), ref i).ToString();
         }
 
-        public ReadOnlySpan<char> EatValue(ReadOnlySpan<char> value, ref int i)
+        public override ReadOnlySpan<char> EatValue(ReadOnlySpan<char> value, ref int i)
         {
             var buf = value;
             var valueLength = value.Length;
@@ -772,7 +771,7 @@ namespace ServiceStack.Text.Json
                             break;
                         }
                     }
-                    return value.Subsegment(tokenStartPos, i - tokenStartPos);
+                    return value.Slice(tokenStartPos, i - tokenStartPos);
 
                 //Is List, i.e. [...]
                 case JsWriter.ListStartChar:
@@ -801,7 +800,7 @@ namespace ServiceStack.Text.Json
                             break;
                         }
                     }
-                    return value.Subsegment(tokenStartPos, i - tokenStartPos);
+                    return value.Slice(tokenStartPos, i - tokenStartPos);
             }
 
             //Is Value
@@ -819,8 +818,8 @@ namespace ServiceStack.Text.Json
                 }
             }
 
-            var strValue = value.Subsegment(tokenStartPos, i - tokenStartPos);
-            return strValue.Equals(JsonUtils.Null.AsSpan(), StringComparison.Ordinal) ? default : strValue;
+            var strValue = value.Slice(tokenStartPos, i - tokenStartPos);
+            return strValue.EqualsOrdinal(JsonUtils.Null) ? default : strValue;
         }
     }
 

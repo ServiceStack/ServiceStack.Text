@@ -72,7 +72,7 @@ namespace ServiceStack.Text.Common
                     : value;
             var pos = 0;
             Serializer.EatWhitespace(ret, ref pos);
-            var val = ret.Subsegment(pos, ret.Length - pos);
+            var val = ret.Slice(pos, ret.Length - pos);
             if (val.Length == 0)
                 return TypeConstants.EmptyStringSpan;
             return val;

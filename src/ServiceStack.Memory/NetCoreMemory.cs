@@ -55,6 +55,8 @@ namespace ServiceStack.Memory
 
         public override uint ParseUInt32(ReadOnlySpan<char> value) => uint.Parse(value);
 
+        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value.ToString(), NumberStyles.HexNumber);
+
         public override long ParseInt64(ReadOnlySpan<char> value) => long.Parse(value);
 
         public override ulong ParseUInt64(ReadOnlySpan<char> value) => ulong.Parse(value);

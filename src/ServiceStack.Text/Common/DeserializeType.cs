@@ -96,7 +96,7 @@ namespace ServiceStack.Text.Common
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
             if (strType.Length > typeAttrInObject.Length
-                && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
+                && strType.Slice(0, typeAttrInObject.Length).EqualsOrdinal(typeAttrInObject))
             {
                 var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.UnescapeSafeString(Serializer.EatValue(strType, ref propIndex)).ToString();
@@ -230,7 +230,7 @@ namespace ServiceStack.Text.Common
 
             var typeAttrInObject = Serializer.TypeAttrInObject;
             if (strType.Length > typeAttrInObject.Length
-                && strType.Substring(0, typeAttrInObject.Length) == typeAttrInObject)
+                && strType.Slice(0, typeAttrInObject.Length).EqualsOrdinal(typeAttrInObject))
             {
                 var propIndex = typeAttrInObject.Length;
                 var typeName = Serializer.EatValue(strType, ref propIndex).ToString();

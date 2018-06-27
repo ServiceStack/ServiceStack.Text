@@ -23,16 +23,17 @@ namespace ServiceStack.Text
         protected const string BadFormat = "Input string was not in a correct format.";
         protected const string OverflowMessage = "Value was either too large or too small for an {0}.";
 
-        public abstract bool ParseBoolean(ReadOnlySpan<char> value);
         public abstract bool TryParseBoolean(ReadOnlySpan<char> value, out bool result);
+        public abstract bool ParseBoolean(ReadOnlySpan<char> value);
 
         public abstract bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result);
-        public abstract bool TryParseFloat(ReadOnlySpan<char> value, out float result);
-        public abstract bool TryParseDouble(ReadOnlySpan<char> value, out double result);
-
-        public abstract float ParseFloat(ReadOnlySpan<char> value);
-        public abstract double ParseDouble(ReadOnlySpan<char> value);
         public abstract decimal ParseDecimal(ReadOnlySpan<char> value);
+
+        public abstract bool TryParseFloat(ReadOnlySpan<char> value, out float result);
+        public abstract float ParseFloat(ReadOnlySpan<char> value);
+        
+        public abstract bool TryParseDouble(ReadOnlySpan<char> value, out double result);
+        public abstract double ParseDouble(ReadOnlySpan<char> value);
 
         public abstract sbyte ParseSByte(ReadOnlySpan<char> value);
         public abstract byte ParseByte(ReadOnlySpan<char> value);
@@ -40,6 +41,7 @@ namespace ServiceStack.Text
         public abstract ushort ParseUInt16(ReadOnlySpan<char> value);
         public abstract int ParseInt32(ReadOnlySpan<char> value);
         public abstract uint ParseUInt32(ReadOnlySpan<char> value);
+        public abstract uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style);
         public abstract long ParseInt64(ReadOnlySpan<char> value);
         public abstract ulong ParseUInt64(ReadOnlySpan<char> value);
 
@@ -93,16 +95,13 @@ namespace ServiceStack.Text
             return value.CompareIgnoreCase(bool.FalseString.AsSpan());
         }
 
-        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) => decimal.TryParse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
+        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) => TryParseDecimal(value, allowThousands: true, out result);
+        public override decimal ParseDecimal(ReadOnlySpan<char> value) => ParseDecimal(value, allowThousands: true);
 
         public override bool TryParseFloat(ReadOnlySpan<char> value, out float result) => float.TryParse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
-
-        public override bool TryParseDouble(ReadOnlySpan<char> value, out double result) => double.TryParse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
-
-        public override decimal ParseDecimal(ReadOnlySpan<char> value) => decimal.Parse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
-
         public override float ParseFloat(ReadOnlySpan<char> value) => float.Parse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
+        public override bool TryParseDouble(ReadOnlySpan<char> value, out double result) => double.TryParse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
         public override double ParseDouble(ReadOnlySpan<char> value) => double.Parse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
         public override sbyte ParseSByte(ReadOnlySpan<char> value) => (sbyte)ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
@@ -116,6 +115,8 @@ namespace ServiceStack.Text
         public override int ParseInt32(ReadOnlySpan<char> value) => (int)ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
 
         public override uint ParseUInt32(ReadOnlySpan<char> value) => (uint)ParseUnsignedInteger(value, UInt32.MaxValue);
+
+        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value.ToString(), NumberStyles.HexNumber);
 
         public override long ParseInt64(ReadOnlySpan<char> value) => ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
 
@@ -355,12 +356,21 @@ namespace ServiceStack.Text
             return result;
         }
 
-        public decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands = false)
+        public static decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands)
         {
-            if (value.Length == 0)
+            if (!TryParseDecimal(value, allowThousands, out var result))
                 throw new FormatException(BadFormat);
 
-            decimal result = 0;
+            return result;
+        }
+        
+        public static bool TryParseDecimal(ReadOnlySpan<char> value, bool allowThousands, out decimal result)
+        {
+            result = 0;
+
+            if (value.Length == 0)
+                return false;
+
             ulong preResult = 0;
             bool isLargeNumber = false;
             int i = 0;
@@ -391,7 +401,7 @@ namespace ServiceStack.Text
                             state = ParseState.FractionNumber;
 
                             if (i == end)
-                                throw new FormatException(BadFormat);
+                                return false;
                         }
                         else if (c == '0')
                         {
@@ -402,7 +412,7 @@ namespace ServiceStack.Text
                             preResult = (ulong)(c - '0');
                             state = ParseState.Number;
                         }
-                        else throw new FormatException(BadFormat);
+                        else return false;
                         break;
                     case ParseState.Sign:
                         if (c == '.')
@@ -411,7 +421,7 @@ namespace ServiceStack.Text
                             state = ParseState.FractionNumber;
 
                             if (i == end)
-                                throw new FormatException(BadFormat);
+                                return false;
                         }
                         else if (c == '0')
                         {
@@ -422,7 +432,7 @@ namespace ServiceStack.Text
                             preResult = (ulong)(c - '0');
                             state = ParseState.Number;
                         }
-                        else throw new FormatException(BadFormat);
+                        else return false;
                         break;
                     case ParseState.Number:
                         if (c == '.')
@@ -455,26 +465,26 @@ namespace ServiceStack.Text
                         else if (allowThousands && c == ',')
                         {
                         }
-                        else throw new FormatException(BadFormat);
+                        else return false;
                         break;
                     case ParseState.DecimalPoint:
                         if (c == '.')
                         {
                             state = ParseState.FractionNumber;
                         }
-                        else throw new FormatException(BadFormat);
+                        else return false;
                         break;
                     case ParseState.FractionNumber:
                         if (JsonUtils.IsWhiteSpace(c))
                         {
                             if (noIntegerPart)
-                                throw new FormatException(BadFormat);
+                                return false;
                             state = ParseState.TrailingWhite;
                         }
                         else if (c == 'e' || c == 'E')
                         {
                             if (noIntegerPart && scale == 0)
-                                throw new FormatException(BadFormat);
+                                return false;
                             state = ParseState.Exponent;
                         }
                         else if (c >= '0' && c <= '9')
@@ -497,14 +507,14 @@ namespace ServiceStack.Text
                             }
                             scale++;
                         }
-                        else throw new FormatException(BadFormat);
+                        else return false;
                         break;
                     case ParseState.Exponent:
                         bool expNegative = false;
                         if (c == '-')
                         {
                             if (i == end)
-                                throw new FormatException(BadFormat);
+                                return false;
 
                             expNegative = true;
                             c = value[i++];
@@ -512,7 +522,7 @@ namespace ServiceStack.Text
                         else if (c == '+')
                         {
                             if (i == end)
-                                throw new FormatException(BadFormat);
+                                return false;
                             c = value[i++];
                         }
 
@@ -521,7 +531,10 @@ namespace ServiceStack.Text
 
                         if (c > '0' && c <= '9')
                         {
-                            var exp = ParseSByte(value.Slice(i - 1, end - i + 1));
+                            var exp = (int)ParseSignedInteger(value.Slice(i - 1, end - i + 1), int.MaxValue, int.MinValue);
+                            if (exp < sbyte.MinValue || exp > sbyte.MaxValue)
+                                return false;
+                            
                             if (!expNegative)
                             {
                                 exp = (sbyte)-exp;
@@ -529,7 +542,7 @@ namespace ServiceStack.Text
 
                             if (exp >= 0 || scale > -exp)
                             {
-                                scale += exp;
+                                scale += (sbyte)exp;
                             }
                             else
                             {
@@ -558,15 +571,15 @@ namespace ServiceStack.Text
                             //set i to end of string, because ParseInt16 eats number and all trailing whites
                             i = end;
                         }
-                        else throw new FormatException(BadFormat);
+                        else return false;
                         break;
                     case ParseState.TrailingWhite:
                         if (!JsonUtils.IsWhiteSpace(c))
-                            throw new FormatException(BadFormat);
+                            return false;
                         break;
                 }
             }
-
+            
             if (!isLargeNumber)
             {
                 var mid = (int)(preResult >> 32);
@@ -579,9 +592,8 @@ namespace ServiceStack.Text
                 result = new decimal(bits[0], bits[1], bits[2], negative, (byte)scale);
             }
 
-            return result;
+            return true;
         }
-        
         
         private static readonly byte[] lo16 = {
             255, 255, 255, 255, 255, 255, 255, 255, 255, 255,

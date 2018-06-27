@@ -5,29 +5,28 @@ using ServiceStack.Text.Json;
 namespace ServiceStack.Text.Common
 {
     // Provides a contract for mapping properties to their type accessors
-    internal interface IPropertyNameResolver
+    internal abstract class PropertyNameResolver
     {
-        TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap);
+        public abstract TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap);
     }
     // The default behavior is that the target model must match property names exactly
-    internal class DefaultPropertyNameResolver : IPropertyNameResolver
+    internal sealed class DefaultPropertyNameResolver : PropertyNameResolver
     {
-        public virtual TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
+        public override TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
         {
             typeAccessorMap.TryGetValue(propertyName.ToString(), out var typeAccessor);
             return typeAccessor;
         }
     }
     // The lenient behavior is that properties on the target model can be .NET-cased, while the source JSON can differ
-    internal class LenientPropertyNameResolver : DefaultPropertyNameResolver
+    internal sealed class LenientPropertyNameResolver : PropertyNameResolver
     {
-
         public override TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
         {
             // map is case-insensitive by default, so simply remove hyphens and underscores
             return typeAccessorMap.TryGetValue(RemoveSeparators(propertyName), out var typeAccessor)
                ? typeAccessor
-               : base.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
+               : typeAccessorMap.TryGetValue(propertyName.ToString(), out typeAccessor) ? typeAccessor : null;
         }
 
         //TODO: optimize

@@ -38,7 +38,7 @@ namespace ServiceStack.Text.Common
                 var elementValue = Serializer.EatValue(value, ref index);
                 if (keyValue.IsEmpty) continue;
 
-                var keyIndex = keyValue.Substring("Item".Length).ToInt() - 1;
+                var keyIndex = keyValue.Slice("Item".Length).ParseInt32() - 1;
                 var parseFn = Serializer.GetParseStringSegmentFn(genericArgs[keyIndex]);
                 argValues[keyIndex] = parseFn(elementValue);
 

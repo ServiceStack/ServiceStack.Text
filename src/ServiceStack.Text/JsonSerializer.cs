@@ -31,6 +31,8 @@ namespace ServiceStack.Text
             JsConfig.InitStatics();
         }
 
+        public static int BufferSize = 1024;
+
         [Obsolete("Use JsConfig.UTF8Encoding")]
         public static UTF8Encoding UTF8Encoding
         {
@@ -40,14 +42,12 @@ namespace ServiceStack.Text
 
         public static T DeserializeFromString<T>(string value)
         {
-            if (string.IsNullOrEmpty(value)) return default(T);
-            return (T)JsonReader<T>.Parse(value);
+            return JsonReader<T>.Parse(value) is T obj ? obj : default(T);
         }
 
         public static T DeserializeFromSpan<T>(ReadOnlySpan<char> value)
         {
-            if (value.IsEmpty) return default(T);
-            return (T)JsonReader<T>.Parse(value);
+            return JsonReader<T>.Parse(value) is T obj ? obj : default(T);
         }
 
         public static T DeserializeFromReader<T>(TextReader reader)
@@ -167,7 +167,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                var writer = new StreamWriter(stream, JsConfig.UTF8Encoding);
+                var writer = new StreamWriter(stream, JsConfig.UTF8Encoding, BufferSize, leaveOpen:true);
                 JsonWriter<T>.WriteRootObject(writer, value);
                 writer.Flush();
             }
@@ -175,7 +175,7 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object value, Type type, Stream stream)
         {
-            var writer = new StreamWriter(stream, JsConfig.UTF8Encoding);
+            var writer = new StreamWriter(stream, JsConfig.UTF8Encoding, BufferSize, leaveOpen:true);
             JsonWriter.GetWriteFn(type)(writer, value);
             writer.Flush();
         }

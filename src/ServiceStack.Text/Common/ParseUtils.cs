@@ -18,8 +18,8 @@ namespace ServiceStack.Text.Common
 {
     internal static class ParseUtils
     {
-        public static readonly IPropertyNameResolver DefaultPropertyNameResolver = new DefaultPropertyNameResolver();
-        public static readonly IPropertyNameResolver LenientPropertyNameResolver = new LenientPropertyNameResolver();
+        public static readonly PropertyNameResolver DefaultPropertyNameResolver = new DefaultPropertyNameResolver();
+        public static readonly PropertyNameResolver LenientPropertyNameResolver = new LenientPropertyNameResolver();
 
         public static object NullValueType(Type type)
         {
