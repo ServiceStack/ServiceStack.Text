@@ -22,7 +22,13 @@
       <group targetFramework="net45">
         <dependency id="System.Memory" version="[4.5.1, )" />
       </group>
-      <group targetFramework=".netstandard2.0">
+      <group targetFramework="netstandard2.0">
+        <dependency id="Microsoft.Extensions.Primitives" version="[2.1.1, )" />
+        <dependency id="System.Runtime" version="[4.3.0, )" />
+        <dependency id="Microsoft.CSharp" version="[4.4.0, )" />
+        <dependency id="System.Memory" version="[4.5.1, )" />
+      </group>
+      <group targetFramework="netcoreapp2.1">
         <dependency id="Microsoft.Extensions.Primitives" version="[2.1.1, )" />
         <dependency id="System.Runtime" version="[4.3.0, )" />
         <dependency id="Microsoft.CSharp" version="[4.4.0, )" />

@@ -13,7 +13,12 @@ namespace ServiceStack.Text
 {
     public abstract class MemoryProvider
     {
-        public static MemoryProvider Instance = DefaultMemory.Provider;
+        public static MemoryProvider Instance = 
+#if NETCORE2_1
+            ServiceStack.Memory.NetCoreMemory.Provider;
+#else
+            DefaultMemory.Provider;
+#endif
 
         protected const string BadFormat = "Input string was not in a correct format.";
         protected const string OverflowMessage = "Value was either too large or too small for an {0}.";
@@ -43,9 +48,9 @@ namespace ServiceStack.Text
         public abstract byte[] ParseBase64(ReadOnlySpan<char> value);
 
         public abstract Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token = default);
-
         public abstract Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default);
 
+        public abstract object Deserialize(Stream stream, Type type, DeserializeStringSpanDelegate deserializer);
         public abstract Task<object> DeserializeAsync(Stream stream, Type type, DeserializeStringSpanDelegate deserializer);
 
         public abstract StringBuilder Append(StringBuilder sb, ReadOnlySpan<char> value);
@@ -666,6 +671,23 @@ namespace ServiceStack.Text
             }
         }
 
+        public override object Deserialize(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
+        {
+            var fromPool = false;
+
+            if (!(stream is MemoryStream ms))
+            {
+                fromPool = true;
+
+                if (stream.CanSeek)
+                    stream.Position = 0;
+
+                ms = stream.CopyToNewMemoryStream();
+            }
+
+            return Deserialize(ms, fromPool, type, deserializer);
+        }
+
         public override async Task<object> DeserializeAsync(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
         {
             var fromPool = false;
@@ -680,18 +702,23 @@ namespace ServiceStack.Text
                 ms = await stream.CopyToNewMemoryStreamAsync();
             }
 
+            return Deserialize(ms, fromPool, type, deserializer);
+        }
+
+        private static object Deserialize(MemoryStream ms, bool fromPool, Type type, DeserializeStringSpanDelegate deserializer)
+        {
             var bytes = ms.GetBufferAsBytes();
             var utf8 = CharPool.GetBuffer(Encoding.UTF8.GetCharCount(bytes, 0, (int)ms.Length));
             try
             {
-                var charsWritten = Encoding.UTF8.GetChars(bytes, 0, (int) ms.Length, utf8, 0);
-                var ret = deserializer(type, new ReadOnlySpan<char>(utf8, 0, charsWritten)); 
+                var charsWritten = Encoding.UTF8.GetChars(bytes, 0, (int)ms.Length, utf8, 0);
+                var ret = deserializer(type, new ReadOnlySpan<char>(utf8, 0, charsWritten));
                 return ret;
             }
-            finally 
+            finally
             {
                 CharPool.ReleaseBufferToPool(ref utf8);
-                
+
                 if (fromPool)
                     ms.Dispose();
             }

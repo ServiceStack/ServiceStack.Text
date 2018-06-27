@@ -3,6 +3,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <LangVersion>7.2</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+    <DefineConstants>$(DefineConstants);NETCORE2_1</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceStack.Text\ServiceStack.Text.csproj" />
   </ItemGroup>

@@ -182,12 +182,12 @@ namespace ServiceStack.Text
 
         public static T DeserializeFromStream<T>(Stream stream)
         {
-            return DeserializeFromString<T>(stream.ReadToEnd());
+            return (T)MemoryProvider.Instance.Deserialize(stream, typeof(T), DeserializeFromSpan);
         }
 
         public static object DeserializeFromStream(Type type, Stream stream)
         {
-            return DeserializeFromString(stream.ReadToEnd(), type);
+            return MemoryProvider.Instance.Deserialize(stream, type, DeserializeFromSpan);
         }
 
         public static Task<object> DeserializeFromStreamAsync(Type type, Stream stream)

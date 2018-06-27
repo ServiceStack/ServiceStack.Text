@@ -1,6 +1,8 @@
 REM SET BUILD=Debug
 SET BUILD=Release
 
+COPY ..\src\ServiceStack.Memory\NetCoreMemory.cs ..\src\ServiceStack.Text\
+
 COPY ..\..\ServiceStack\src\ServiceStack.Interfaces\bin\%BUILD%\net45\ServiceStack.Interfaces.* net45
 COPY ..\..\ServiceStack\src\ServiceStack.Interfaces\bin\%BUILD%\netstandard2.0\ServiceStack.Interfaces.* netstandard2.0
 

@@ -81,7 +81,8 @@
 
     <ItemGroup>
       <TextFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/net45/ServiceStack.Text.*"></TextFiles>
-      <TextCoreFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard2.0/ServiceStack.Text.*"></TextCoreFiles>
+      <TextStandardFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netstandard2.0/ServiceStack.Text.*"></TextStandardFiles>
+      <TextCoreFiles Include="$(SrcDir)/ServiceStack.Text/bin/$(Configuration)/netcoreapp2.1/ServiceStack.Text.*"></TextCoreFiles>
       <MemoryFiles Include="$(SrcDir)/ServiceStack.Memory/bin/$(Configuration)/netcoreapp2.1/ServiceStack.Memory.*"></MemoryFiles>
     </ItemGroup>
 
@@ -94,7 +95,10 @@
     <Copy SourceFiles="%(TextFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/net45" />
 
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard2.0" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard2.0')" />
-    <Copy SourceFiles="%(TextCoreFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard2.0" />
+    <Copy SourceFiles="%(TextStandardFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/netstandard2.0" />
+
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/netcoreapp2.1" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/netcoreapp2.1')" />
+    <Copy SourceFiles="%(TextCoreFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text/lib/netcoreapp2.1" />
 
     <!-- Pack ServiceStack.Text -->
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text/servicestack.text.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
@@ -102,7 +106,10 @@
 
     <!-- ServiceStack.Text.Core -->
     <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard2.0" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard2.0')" />
-    <Copy SourceFiles="%(TextCoreFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard2.0" />
+    <Copy SourceFiles="%(TextStandardFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netstandard2.0" />
+
+    <MakeDir Directories="$(NuGetPackageDir)/ServiceStack.Text/lib/netcoreapp2.1" Condition="!Exists('$(NuGetPackageDir)/ServiceStack.Text/lib/netcoreapp2.1')" />
+    <Copy SourceFiles="%(TextCoreFiles.Identity)" DestinationFolder="$(NuGetPackageDir)/ServiceStack.Text.Core/lib/netcoreapp2.1" />
 
     <Exec Command="&quot;$(NuGetPath)&quot; pack &quot;$(NuGetPackageDir)/ServiceStack.Text.Core/servicestack.text.core.nuspec&quot; -OutputDirectory &quot;$(NuGetPackageDir)&quot; -Version $(PackageVersion) -Symbols"
           LogStandardErrorAsError="true" />

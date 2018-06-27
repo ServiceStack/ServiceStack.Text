@@ -268,7 +268,8 @@ namespace ServiceStack
         public static int AsyncBufferSize = 81920; // CopyToAsync() default value
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WriteAsync(this Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default) => MemoryProvider.Instance.WriteAsync(stream, value, token);
+        public static Task WriteAsync(this Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default) => 
+            MemoryProvider.Instance.WriteAsync(stream, value, token);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default) => stream.WriteAsync(bytes, 0, bytes.Length, token);
@@ -277,7 +278,8 @@ namespace ServiceStack
         public static Task CopyToAsync(this Stream input, Stream output, CancellationToken token = default) => input.CopyToAsync(output, AsyncBufferSize, token);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default) => stream.WriteAsync(text.ToUtf8Bytes(), token);
+        public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default) => 
+            MemoryProvider.Instance.WriteAsync(stream, text.AsSpan(), token);
 
         public static string ToMd5Hash(this Stream stream)
         {
