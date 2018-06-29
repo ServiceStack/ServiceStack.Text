@@ -353,36 +353,35 @@ namespace ServiceStack.Text.Json
             return value[i++] == JsWriter.MapEndChar;
         }
 
-        internal static string ParseString(string json, ref int index)
-        {
-            return ParseString(json.AsSpan(), ref index).ToString();
-        }
-
         internal static ReadOnlySpan<char> ParseString(ReadOnlySpan<char> json, ref int index)
         {
             var jsonLength = json.Length;
-            var buffer = json;
 
-            if (buffer[index] != JsonUtils.QuoteChar)
+            if (json[index] != JsonUtils.QuoteChar)
                 throw new Exception("Invalid unquoted string starting with: " + json.SafeSubstring(50).ToString());
 
             var startIndex = ++index;
             do
             {
-                char c = buffer[index];
-                if (c == JsonUtils.QuoteChar) break;
-                if (c != JsonUtils.EscapeChar) continue;
-                c = buffer[index];
-                index++;
-                if (c == 'u')
+                var c = json[index];
+
+                if (c == JsonUtils.QuoteChar) 
+                    break;
+                
+                if (c == JsonUtils.EscapeChar)
                 {
-                    index += 4;
+                    index++;
+                    if (json[index] == 'u')
+                        index += 4;
                 }
+                
             } while (index++ < jsonLength);
+
             if (index == jsonLength)
                 throw new Exception("Invalid unquoted string ending with: " + json.SafeSubstring(json.Length - 50, 50).ToString());
+            
             index++;
-            var str = buffer.Slice(startIndex, Math.Min(index, jsonLength) - startIndex - 1);
+            var str = json.Slice(startIndex, Math.Min(index, jsonLength) - startIndex - 1);
             if (str.Length == 0)
                 return TypeConstants.EmptyStringSpan; 
                     
@@ -401,6 +400,13 @@ namespace ServiceStack.Text.Json
         {
             var i = 0;
             return UnescapeJsonString(value, ref i);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object UnescapeStringAsObject(ReadOnlySpan<char> value)
+        {
+            var ignore = 0;
+            return UnescapeJsString(value, JsonUtils.QuoteChar, removeQuotes: true, ref ignore).Value();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -704,8 +710,7 @@ namespace ServiceStack.Text.Json
 
             if (i == value.Length) return false;
 
-            var success = value[i] == JsWriter.ItemSeperator
-                || value[i] == JsWriter.MapEndChar;
+            var success = value[i] == JsWriter.ItemSeperator || value[i] == JsWriter.MapEndChar;
 
             i++;
 
@@ -736,14 +741,13 @@ namespace ServiceStack.Text.Json
         {
             var buf = value;
             var valueLength = value.Length;
-            var offset = 0;
             if (i == valueLength) return default;
 
-            while (i < valueLength && JsonUtils.IsWhiteSpace(buf[offset + i])) i++; //Whitespace inline
+            while (i < valueLength && JsonUtils.IsWhiteSpace(buf[i])) i++; //Whitespace inline
             if (i == valueLength) return default;
 
             var tokenStartPos = i;
-            var valueChar = buf[offset + i];
+            var valueChar = buf[i];
             var withinQuotes = false;
             var endsToEat = 1;
 
@@ -752,7 +756,7 @@ namespace ServiceStack.Text.Json
                 //If we are at the end, return.
                 case JsWriter.ItemSeperator:
                 case JsWriter.MapEndChar:
-                    return default(ReadOnlySpan<char>);
+                    return default;
 
                 //Is Within Quotes, i.e. "..."
                 case JsWriter.QuoteChar:
@@ -762,7 +766,7 @@ namespace ServiceStack.Text.Json
                 case JsWriter.MapStartChar:
                     while (++i < valueLength)
                     {
-                        valueChar = buf[offset +i];
+                        valueChar = buf[i];
 
                         if (valueChar == JsonUtils.EscapeChar)
                         {
@@ -791,7 +795,7 @@ namespace ServiceStack.Text.Json
                 case JsWriter.ListStartChar:
                     while (++i < valueLength)
                     {
-                        valueChar = buf[offset + i];
+                        valueChar = buf[i];
 
                         if (valueChar == JsonUtils.EscapeChar)
                         {
@@ -820,7 +824,7 @@ namespace ServiceStack.Text.Json
             //Is Value
             while (++i < valueLength)
             {
-                valueChar = buf[offset + i];
+                valueChar = buf[i];
 
                 if (valueChar == JsWriter.ItemSeperator
                     || valueChar == JsWriter.MapEndChar
@@ -833,7 +837,10 @@ namespace ServiceStack.Text.Json
             }
 
             var strValue = value.Slice(tokenStartPos, i - tokenStartPos);
-            return strValue.EqualsOrdinal(JsonUtils.Null) ? default : strValue;
+            
+            return strValue.Equals(JsonUtils.Null.AsSpan(), StringComparison.Ordinal) 
+                ? default 
+                : strValue;
         }
     }
 

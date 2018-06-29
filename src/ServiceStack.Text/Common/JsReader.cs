@@ -51,7 +51,7 @@ namespace ServiceStack.Text.Common
                 return x => ParseUtils.TryParseEnum(type, Serializer.UnescapeSafeString(x).Value());
 
             if (type == typeof(string))
-                return v => Serializer.UnescapeString(v).Value();
+                return Serializer.UnescapeStringAsObject;
 
             if (type == typeof(object))
                 return DeserializeType<TSerializer>.ObjectStringToType;

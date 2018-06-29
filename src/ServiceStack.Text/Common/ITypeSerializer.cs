@@ -64,6 +64,7 @@ namespace ServiceStack.Text.Common
         string ParseString(ReadOnlySpan<char> value);
         string UnescapeString(string value);
         ReadOnlySpan<char> UnescapeString(ReadOnlySpan<char> value);
+        object UnescapeStringAsObject(ReadOnlySpan<char> value);
         string UnescapeSafeString(string value);
         ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value);
         string EatTypeValue(string value, ref int i);

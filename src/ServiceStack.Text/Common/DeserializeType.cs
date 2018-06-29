@@ -34,13 +34,30 @@ namespace ServiceStack.Text.Common
             var ctorFn = JsConfig.ModelFactory(type);
             if (accessors == null)
                 return value => ctorFn();
+            
+            if (typeof(TSerializer) == typeof(Json.JsonTypeSerializer))
+                return new StringToTypeContext(typeConfig, ctorFn, accessors).DeserializeJson;
 
-            return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-                ? (ParseStringSpanDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, accessors))
-                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, accessors);
+            return new StringToTypeContext(typeConfig, ctorFn, accessors).DeserializeJsv;
         }
 
-        public static object ObjectStringToType(string strType) => ObjectStringToType(strType.AsSpan());
+        internal struct StringToTypeContext
+        {
+            private readonly TypeConfig typeConfig;
+            private readonly EmptyCtorDelegate ctorFn;
+            private readonly KeyValuePair<string, TypeAccessor>[] accessors;
+            
+            public StringToTypeContext(TypeConfig typeConfig, EmptyCtorDelegate ctorFn, KeyValuePair<string, TypeAccessor>[] accessors)
+            {
+                this.typeConfig = typeConfig;
+                this.ctorFn = ctorFn;
+                this.accessors = accessors;
+            }
+
+            internal object DeserializeJson(ReadOnlySpan<char> value) => DeserializeTypeRefJson.StringToType(value, typeConfig, ctorFn, accessors);
+
+            internal object DeserializeJsv(ReadOnlySpan<char> value) => DeserializeTypeRefJsv.StringToType(value, typeConfig, ctorFn, accessors);
+        }
 
         public static object ObjectStringToType(ReadOnlySpan<char> strType)
         {

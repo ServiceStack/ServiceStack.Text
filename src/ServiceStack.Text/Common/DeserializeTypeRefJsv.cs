@@ -11,9 +11,8 @@ namespace ServiceStack.Text.Common
 
         static readonly ReadOnlyMemory<char> typeAttr = JsWriter.TypeAttr.AsMemory();
 
-        internal static object StringToType(
+        internal static object StringToType(ReadOnlySpan<char> strType,
             TypeConfig typeConfig,
-            ReadOnlySpan<char> strType,
             EmptyCtorDelegate ctorFn,
             KeyValuePair<string, TypeAccessor>[] typeAccessors)
         {
@@ -29,7 +28,6 @@ namespace ServiceStack.Text.Common
 
             if (JsonTypeSerializer.IsEmptyMap(strType)) 
                 return ctorFn();
-
 
             object instance = null;
             var lenient = JsConfig.PropertyConvention == PropertyConvention.Lenient;

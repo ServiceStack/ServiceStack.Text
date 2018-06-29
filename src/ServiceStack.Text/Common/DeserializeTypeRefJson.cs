@@ -10,9 +10,8 @@ namespace ServiceStack.Text.Common
 
         static readonly ReadOnlyMemory<char> typeAttr = JsWriter.TypeAttr.AsMemory();
 
-        internal static object StringToType(
+        internal static object StringToType(ReadOnlySpan<char> strType,
             TypeConfig typeConfig,
-            ReadOnlySpan<char> strType,
             EmptyCtorDelegate ctorFn,
             KeyValuePair<string, TypeAccessor>[] typeAccessors)
         {
@@ -31,14 +30,16 @@ namespace ServiceStack.Text.Common
                 throw DeserializeTypeRef.CreateSerializationError(type, strType.ToString());
 
             index++;
-            if (JsonTypeSerializer.IsEmptyMap(strType, index)) return ctorFn();
+            if (JsonTypeSerializer.IsEmptyMap(strType, index)) 
+                return ctorFn();
 
             object instance = null;
             var lenient = JsConfig.PropertyConvention == PropertyConvention.Lenient;
 
             while (index < strTypeLength)
             {
-                var propertyName = JsonTypeSerializer.ParseJsonString(strType, ref index);
+//                var propertyName = JsonTypeSerializer.ParseJsonString(strType, ref index);
+                var propertyName = JsonTypeSerializer.UnescapeJsString(strType, JsonUtils.QuoteChar, removeQuotes:true, ref index);
 
                 //Serializer.EatMapKeySeperator(strType, ref index);
                 for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline

@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
@@ -274,6 +275,12 @@ namespace ServiceStack.Text.Jsv
         public ParseStringSpanDelegate GetParseStringSegmentFn<T>() => JsvReader.Instance.GetParseStringSegmentFn<T>();
 
         public ParseStringSpanDelegate GetParseStringSegmentFn(Type type) => JsvReader.GetParseStringSegmentFn(type);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object UnescapeStringAsObject(ReadOnlySpan<char> value)
+        {
+            return value.FromCsvField().Value();
+        }
 
         public string UnescapeSafeString(string value) => value.FromCsvField();
 
