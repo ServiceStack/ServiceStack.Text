@@ -362,6 +362,17 @@ namespace ServiceStack.Text
             }
         }
 
+        private static string[] sExcludePropertyReferences;
+        public static string[] ExcludePropertyReferences
+        {
+            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludePropertyReferences : null)
+                   ?? sExcludePropertyReferences;
+            set
+            {
+                if (sExcludePropertyReferences != null) sExcludePropertyReferences = value;
+            }
+        }
+
         private static bool? sExcludeDefaultValues;
         public static bool ExcludeDefaultValues
         {
@@ -584,6 +595,28 @@ namespace ServiceStack.Text
             {
                 if (!sEmitLowercaseUnderscoreNames.HasValue) sEmitLowercaseUnderscoreNames = value;
             }
+        }
+
+        internal static PropertyConfigs GetPropertyConfigs()
+        {
+            var scope = JsConfigScope.Current;
+            if (scope != null)
+            {
+                return new PropertyConfigs {
+                    EmitCamelCaseNames = scope.EmitCamelCaseNames ?? sEmitCamelCaseNames ?? false,
+                    EmitLowercaseUnderscoreNames = scope.EmitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames ?? false,
+                    ExcludeDefaultValues = scope.ExcludeDefaultValues ??  sExcludeDefaultValues ?? false,
+                    ExcludePropertyReferences = scope.ExcludePropertyReferences ?? sExcludePropertyReferences,
+                    IncludeDefaultEnums = scope.IncludeDefaultEnums ?? sIncludeDefaultEnums ?? true,                    
+                };
+            }
+            return new PropertyConfigs {
+                EmitCamelCaseNames = sEmitCamelCaseNames ?? false,
+                EmitLowercaseUnderscoreNames = sEmitLowercaseUnderscoreNames ?? false,
+                ExcludeDefaultValues = sExcludeDefaultValues ?? false,
+                ExcludePropertyReferences = sExcludePropertyReferences,
+                IncludeDefaultEnums = sIncludeDefaultEnums ?? true,                    
+            };
         }
 
         /// <summary>
@@ -814,17 +847,6 @@ namespace ServiceStack.Text
             }
         }
 
-        private static string[] sExcludePropertyReferences;
-        public static string[] ExcludePropertyReferences
-        {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludePropertyReferences : null)
-                   ?? sExcludePropertyReferences;
-            set
-            {
-                if (sExcludePropertyReferences != null) sExcludePropertyReferences = value;
-            }
-        }
-
         private static HashSet<Type> sExcludeTypes;
         public static HashSet<Type> ExcludeTypes
         {
@@ -975,6 +997,16 @@ namespace ServiceStack.Text
         {
             // Run the type's static constructor (which may set OnDeserialized, etc.) before we cache any information about it
             RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);
+        }
+
+        internal static PropertyConfigs GetPropertyConfigs()
+        {
+            var config = JsConfig.GetPropertyConfigs();
+            if (EmitCamelCaseNames != null)
+                config.EmitCamelCaseNames = EmitCamelCaseNames.Value;
+            if (EmitLowercaseUnderscoreNames != null)
+                config.EmitLowercaseUnderscoreNames = EmitLowercaseUnderscoreNames.Value;
+            return config;
         }
 
         /// <summary>
@@ -1266,5 +1298,15 @@ namespace ServiceStack.Text
         /// </summary>
         StandardFormat
     }
+    
+    internal ref struct PropertyConfigs
+    {
+        internal bool ExcludeDefaultValues;
+        internal bool IncludeDefaultEnums;
+        internal string[] ExcludePropertyReferences;
+        internal bool EmitCamelCaseNames;
+        internal bool EmitLowercaseUnderscoreNames;
+    }
+
 }
 

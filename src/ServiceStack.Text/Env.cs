@@ -72,6 +72,8 @@ namespace ServiceStack.Text
             VersionString = ServiceStackVersion.ToString(CultureInfo.InvariantCulture);
 
             __releaseDate = new DateTime(2001,01,01);
+            
+            PclExport.Instance.Init();
         }
 
         public static string VersionString { get; set; }

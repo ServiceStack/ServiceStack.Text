@@ -11,14 +11,9 @@ using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
 using System.Globalization;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 using System.Net;
 
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using Microsoft.Extensions.Primitives;
 
 namespace ServiceStack
 {

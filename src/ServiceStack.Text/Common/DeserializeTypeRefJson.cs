@@ -40,7 +40,6 @@ namespace ServiceStack.Text.Common
 
             while (index < strTypeLength)
             {
-//                var propertyName = JsonTypeSerializer.ParseJsonString(strType, ref index);
                 var propertyName = JsonTypeSerializer.UnescapeJsString(strType, JsonUtils.QuoteChar, removeQuotes:true, ref index);
 
                 //Serializer.EatMapKeySeperator(strType, ref index);

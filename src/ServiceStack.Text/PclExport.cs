@@ -38,6 +38,12 @@ namespace ServiceStack
 
         static PclExport() {}
 
+        public virtual void Init()
+        {
+            this.SupportsEmit = Env.SupportsEmit;
+            this.SupportsExpression = Env.SupportsExpressions;
+        }
+
         public static bool ConfigureProvider(string typeName)
         {
             var type = Type.GetType(typeName);

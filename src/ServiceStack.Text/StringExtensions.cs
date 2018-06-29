@@ -789,7 +789,7 @@ namespace ServiceStack
                 else
                 {
                     sb.Append("_");
-                    sb.Append(char.ToLowerInvariant(t));
+                    sb.Append(char.ToLower(t));
                 }
             }
             return StringBuilderThreadStatic.ReturnAndFree(sb);
