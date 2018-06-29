@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceStack.Text.TestsCons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Memory", "ServiceStack.Memory\ServiceStack.Memory.csproj", "{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Benchmarks", "..\tests\ServiceStack.Text.Benchmarks\ServiceStack.Text.Benchmarks.csproj", "{FF1E5617-FD95-496F-B591-17DA6E0B364F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
