@@ -121,14 +121,6 @@ namespace ServiceStack.Text
                     case "appendutcoffset":
                         scope.AppendUtcOffset = boolValue;
                         break;
-                    case "eu":
-                    case "escapeunicode":
-                        scope.EscapeUnicode = boolValue;
-                        break;
-                    case "ehc":
-                    case "escapehtmlchars":
-                        scope.EscapeHtmlChars = boolValue;
-                        break;
                     case "ipf":
                     case "includepublicfields":
                         scope.IncludePublicFields = boolValue;
@@ -233,7 +225,7 @@ namespace ServiceStack.Text
             bool? alwaysUseUtc = null,
             bool? assumeUtc = null,
             bool? appendUtcOffset = null,
-            bool? escapeUnicode = null,
+            bool? escapeUnicode = null, //Unused (but breaking change to remove optional params)
             bool? includePublicFields = null,
             int? maxDepth = null,
             EmptyCtorFactoryDelegate modelFactory = null,
@@ -271,7 +263,6 @@ namespace ServiceStack.Text
                 AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
                 AssumeUtc = assumeUtc ?? sAssumeUtc,
                 AppendUtcOffset = appendUtcOffset ?? sAppendUtcOffset,
-                EscapeUnicode = escapeUnicode ?? sEscapeUnicode,
                 IncludePublicFields = includePublicFields ?? sIncludePublicFields,
                 MaxDepth = maxDepth ?? sMaxDepth,
                 ModelFactory = modelFactory ?? ModelFactory,
@@ -731,34 +722,12 @@ namespace ServiceStack.Text
         /// <summary>
         /// Gets or sets a value indicating if unicode symbols should be serialized as "\uXXXX".
         /// </summary>
-        private static bool? sEscapeUnicode;
-        public static bool EscapeUnicode
-        {
-            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.EscapeUnicode : null)
-                   ?? sEscapeUnicode
-                   ?? false;
-            set
-            {
-                if (!sEscapeUnicode.HasValue) sEscapeUnicode = value;
-            }
-        }
+        public static bool EscapeUnicode { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if HTML entity chars [&gt; &lt; &amp; = '] should be escaped as "\uXXXX".
         /// </summary>
-        private static bool? sEscapeHtmlChars;
-        public static bool EscapeHtmlChars
-        {
-            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.EscapeHtmlChars : null)
-                   ?? sEscapeHtmlChars
-                   ?? false;
-            set
-            {
-                if (!sEscapeHtmlChars.HasValue) sEscapeHtmlChars = value;
-            }
-        }
+        public static bool EscapeHtmlChars { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if the framework should call an error handler when
@@ -917,8 +886,6 @@ namespace ServiceStack.Text
             sAssumeUtc = null;
             sSkipDateTimeConversion = null;
             sAppendUtcOffset = null;
-            sEscapeUnicode = null;
-            sEscapeHtmlChars = null;
             sOnDeserializationError = null;
             sIncludePublicFields = null;
             HasSerializeFn = new HashSet<Type>();
@@ -930,7 +897,12 @@ namespace ServiceStack.Text
             __uniqueTypes = new HashSet<Type>();
             sMaxDepth = null;
             sParsePrimitiveIntegerTypes = null;
-            sParsePrimitiveFloatingPointTypes = null;
+            sParsePrimitiveFloatingPointTypes = null;           
+
+            //Called when writing each string, too expensive to maintain as scoped config
+            EscapeUnicode = false;
+            EscapeHtmlChars = false;
+            
             AllowRuntimeType = null;
             AllowRuntimeTypeWithAttributesNamed = new HashSet<string>
             {
