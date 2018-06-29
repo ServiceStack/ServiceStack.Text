@@ -40,23 +40,23 @@ namespace ServiceStack.Memory
         public override double ParseDouble(ReadOnlySpan<char> value) =>
             double.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
-        public override sbyte ParseSByte(ReadOnlySpan<char> value) => sbyte.Parse(value);
+        public override sbyte ParseSByte(ReadOnlySpan<char> value) => SignedInteger<sbyte>.ParseSByte(value);
 
-        public override byte ParseByte(ReadOnlySpan<char> value) => byte.Parse(value);
+        public override byte ParseByte(ReadOnlySpan<char> value) => UnsignedInteger<byte>.ParseByte(value);
 
-        public override short ParseInt16(ReadOnlySpan<char> value) => short.Parse(value);
+        public override short ParseInt16(ReadOnlySpan<char> value) => SignedInteger<short>.ParseInt16(value);
 
-        public override ushort ParseUInt16(ReadOnlySpan<char> value) => ushort.Parse(value);
+        public override ushort ParseUInt16(ReadOnlySpan<char> value) => UnsignedInteger<ushort>.ParseUInt16(value);
 
-        public override int ParseInt32(ReadOnlySpan<char> value) => int.Parse(value);
+        public override int ParseInt32(ReadOnlySpan<char> value) => SignedInteger<int>.ParseInt32(value);
 
-        public override uint ParseUInt32(ReadOnlySpan<char> value) => uint.Parse(value);
-        
-        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value, style);
+        public override uint ParseUInt32(ReadOnlySpan<char> value) => UnsignedInteger<uint>.ParseUInt32(value);
 
-        public override long ParseInt64(ReadOnlySpan<char> value) => long.Parse(value);
+        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value.ToString(), style);
 
-        public override ulong ParseUInt64(ReadOnlySpan<char> value) => ulong.Parse(value);
+        public override long ParseInt64(ReadOnlySpan<char> value) => SignedInteger<int>.ParseInt64(value);
+
+        public override ulong ParseUInt64(ReadOnlySpan<char> value) => UnsignedInteger<ulong>.ParseUInt64(value);
 
         public override Guid ParseGuid(ReadOnlySpan<char> value) => Guid.Parse(value);
         

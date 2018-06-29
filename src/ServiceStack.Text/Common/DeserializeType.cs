@@ -22,22 +22,22 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig) => v => GetParseStringSegmentMethod(typeConfig)(v.AsSpan());
+        internal static ParseStringDelegate GetParseMethod(TypeConfig typeConfig) => v => GetParseStringSpanMethod(typeConfig)(v.AsSpan());
 
-        internal static ParseStringSpanDelegate GetParseStringSegmentMethod(TypeConfig typeConfig)
+        internal static ParseStringSpanDelegate GetParseStringSpanMethod(TypeConfig typeConfig)
         {
             var type = typeConfig.Type;
 
             if (!type.IsStandardClass()) return null;
-            var map = DeserializeTypeRef.GetTypeAccessorMap(typeConfig, Serializer);
+            var accessors = DeserializeTypeRef.GetTypeAccessors(typeConfig, Serializer);
 
             var ctorFn = JsConfig.ModelFactory(type);
-            if (map == null)
+            if (accessors == null)
                 return value => ctorFn();
 
             return typeof(TSerializer) == typeof(Json.JsonTypeSerializer)
-                ? (ParseStringSpanDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, map))
-                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, map);
+                ? (ParseStringSpanDelegate)(value => DeserializeTypeRefJson.StringToType(typeConfig, value, ctorFn, accessors))
+                : value => DeserializeTypeRefJsv.StringToType(typeConfig, value, ctorFn, accessors);
         }
 
         public static object ObjectStringToType(string strType) => ObjectStringToType(strType.AsSpan());
@@ -206,7 +206,40 @@ namespace ServiceStack.Text.Common
             return (ParsePrimitive(value) ?? ParseQuotedPrimitive(value));
         }
     }
+        
+    internal static class TypeAccessorUtils
+    {
+        internal static TypeAccessor Get(this KeyValuePair<string, TypeAccessor>[] accessors, ReadOnlySpan<char> propertyName, bool lenient)
+        {
+            if (lenient)
+            {
+                //TODO: optimize
+                propertyName = propertyName.ToString().Replace("-", string.Empty).Replace("_", string.Empty).AsSpan();
+            }
 
+            //Binary Search
+            var lo = 0;
+            var hi = accessors.Length - 1;
+            var mid = (lo + hi + 1) / 2; 
+
+            while (lo <= hi)
+            {
+                var test = accessors[mid];
+                var cmp = propertyName.CompareTo(test.Key.AsSpan(), StringComparison.OrdinalIgnoreCase);
+                if (cmp == 0)
+                    return test.Value;
+
+                if (cmp < 0)
+                    hi = mid - 1;
+                else
+                    lo = mid + 1;
+
+                mid = (lo + hi + 1) / 2;  
+            }
+            return null;
+        }
+    }
+    
     internal class TypeAccessor
     {
         internal ParseStringSpanDelegate GetProperty;

@@ -19,16 +19,16 @@ namespace ServiceStack.Text.Common
         private static readonly ParseStringSpanDelegate CachedParseFn;
         static DeserializeBuiltin()
         {
-            CachedParseFn = GetParseStringSegmentFn();
+            CachedParseFn = GetParseStringSpanFn();
         }
 
         public static ParseStringDelegate Parse => v => CachedParseFn(v.AsSpan());
 
         public static ParseStringSpanDelegate ParseStringSpan => CachedParseFn;
 
-        private static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(v.AsSpan());
+        private static ParseStringDelegate GetParseFn() => v => GetParseStringSpanFn()(v.AsSpan());
 
-        private static ParseStringSpanDelegate GetParseStringSegmentFn()
+        private static ParseStringSpanDelegate GetParseStringSpanFn()
         {
             var nullableType = Nullable.GetUnderlyingType(typeof(T));
             if (nullableType == null)
@@ -45,28 +45,29 @@ namespace ServiceStack.Text.Common
                               value[0] == 'o' && value[1] == 'n' :
                               value.ParseBoolean();
 
-                    case TypeCode.Byte:
-                        return value => value.ParseByte();
                     case TypeCode.SByte:
-                        return value => value.ParseSByte();
+                        return SignedInteger<sbyte>.ParseObject;
+                    case TypeCode.Byte:
+                        return UnsignedInteger<byte>.ParseObject;
                     case TypeCode.Int16:
-                        return value => value.ParseInt16();
+                        return SignedInteger<short>.ParseObject;
                     case TypeCode.UInt16:
-                        return value => value.ParseUInt16();
+                        return UnsignedInteger<ushort>.ParseObject;
                     case TypeCode.Int32:
-                        return value => value.ParseInt32();
+                        return SignedInteger<int>.ParseObject;
                     case TypeCode.UInt32:
-                        return value => value.ParseUInt32();
+                        return UnsignedInteger<uint>.ParseObject;
                     case TypeCode.Int64:
-                        return value => value.ParseInt64();
+                        return SignedInteger<long>.ParseObject;
                     case TypeCode.UInt64:
-                        return value => value.ParseUInt64();
+                        return UnsignedInteger<ulong>.ParseObject;
+
                     case TypeCode.Single:
-                        return value => value.ParseFloat();
+                        return value => MemoryProvider.Instance.ParseFloat(value);
                     case TypeCode.Double:
-                        return value => value.ParseDouble();
+                        return value => MemoryProvider.Instance.ParseDouble(value);
                     case TypeCode.Decimal:
-                        return value => value.ParseDecimal();
+                        return value => MemoryProvider.Instance.ParseDecimal(value);
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestXsdDateTime(value.ToString());
                     case TypeCode.Char:
@@ -94,22 +95,23 @@ namespace ServiceStack.Text.Common
                               value[0] == 'o' && value[1] == 'n' :
                               value.ParseBoolean();
 
-                    case TypeCode.Byte:
-                        return value => value.IsNullOrEmpty() ? (byte?)null : value.ParseByte();
                     case TypeCode.SByte:
-                        return value => value.IsNullOrEmpty() ? (sbyte?)null : value.ParseSByte();
+                        return SignedInteger<sbyte>.ParseNullableObject;
+                    case TypeCode.Byte:
+                        return UnsignedInteger<byte>.ParseNullableObject;
                     case TypeCode.Int16:
-                        return value => value.IsNullOrEmpty() ? (short?)null : value.ParseInt16();
+                        return SignedInteger<short>.ParseNullableObject;
                     case TypeCode.UInt16:
-                        return value => value.IsNullOrEmpty() ? (ushort?)null : value.ParseUInt16();
+                        return UnsignedInteger<ushort>.ParseNullableObject;
                     case TypeCode.Int32:
-                        return value => value.IsNullOrEmpty() ? (int?)null : value.ParseInt32();
+                        return SignedInteger<int>.ParseNullableObject;
                     case TypeCode.UInt32:
-                        return value => value.IsNullOrEmpty() ? (uint?)null : value.ParseUInt32();
+                        return UnsignedInteger<uint>.ParseNullableObject;
                     case TypeCode.Int64:
-                        return value => value.IsNullOrEmpty() ? (long?)null : value.ParseInt64();
+                        return SignedInteger<long>.ParseNullableObject;
                     case TypeCode.UInt64:
-                        return value => value.IsNullOrEmpty() ? (ulong?)null : value.ParseUInt64();
+                        return UnsignedInteger<ulong>.ParseNullableObject;
+
                     case TypeCode.Single:
                         return value => value.IsNullOrEmpty() ? (float?)null : value.ParseFloat();
                     case TypeCode.Double:

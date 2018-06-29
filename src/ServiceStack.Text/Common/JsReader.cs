@@ -28,19 +28,19 @@ namespace ServiceStack.Text.Common
             var onDeserializedFn = JsConfig<T>.OnDeserializedFn;
             if (onDeserializedFn != null)
             {
-                var parseFn = GetCoreParseStringSegmentFn<T>();
+                var parseFn = GetCoreParseStringSpanFn<T>();
                 return value => onDeserializedFn((T)parseFn(value));
             }
 
-            return GetCoreParseStringSegmentFn<T>();
+            return GetCoreParseStringSpanFn<T>();
         }
 
         private ParseStringDelegate GetCoreParseFn<T>()
         {
-            return v => GetCoreParseStringSegmentFn<T>()(v.AsSpan());
+            return v => GetCoreParseStringSpanFn<T>()(v.AsSpan());
         }
 
-        private ParseStringSpanDelegate GetCoreParseStringSegmentFn<T>()
+        private ParseStringSpanDelegate GetCoreParseStringSpanFn<T>()
         {
             var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
@@ -111,7 +111,8 @@ namespace ServiceStack.Text.Common
             if (isEnumerable)
             {
                 var parseFn = DeserializeSpecializedCollections<T, TSerializer>.ParseStringSpan;
-                if (parseFn != null) return parseFn;
+                if (parseFn != null) 
+                    return parseFn;
             }
 
             if (type.IsValueType)
@@ -137,12 +138,13 @@ namespace ServiceStack.Text.Common
                     return value => staticParseMethod(Serializer.UnescapeSafeString(value).ToString());
             }
 
-            var typeConstructor = DeserializeType<TSerializer>.GetParseStringSegmentMethod(TypeConfig<T>.GetState());
+            var typeConstructor = DeserializeType<TSerializer>.GetParseStringSpanMethod(TypeConfig<T>.GetState());
             if (typeConstructor != null)
                 return typeConstructor;
 
             var stringConstructor = DeserializeTypeUtils.GetParseStringSegmentMethod(type);
-            if (stringConstructor != null) return stringConstructor;
+            if (stringConstructor != null) 
+                return stringConstructor;
 
             return DeserializeType<TSerializer>.ParseAbstractType<T>;
         }

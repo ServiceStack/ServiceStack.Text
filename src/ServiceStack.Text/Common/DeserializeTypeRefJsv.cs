@@ -15,7 +15,7 @@ namespace ServiceStack.Text.Common
             TypeConfig typeConfig,
             ReadOnlySpan<char> strType,
             EmptyCtorDelegate ctorFn,
-            Dictionary<string, TypeAccessor> typeAccessorMap)
+            KeyValuePair<string, TypeAccessor>[] typeAccessors)
         {
             var index = 0;
             var type = typeConfig.Type;
@@ -27,13 +27,12 @@ namespace ServiceStack.Text.Common
             if (strType[index++] != JsWriter.MapStartChar)
                 throw DeserializeTypeRef.CreateSerializationError(type, strType.ToString());
 
-            if (JsonTypeSerializer.IsEmptyMap(strType)) return ctorFn();
+            if (JsonTypeSerializer.IsEmptyMap(strType)) 
+                return ctorFn();
+
 
             object instance = null;
-
-            var propertyResolver = JsConfig.PropertyConvention == PropertyConvention.Lenient
-                ? ParseUtils.LenientPropertyNameResolver
-                : ParseUtils.DefaultPropertyNameResolver;
+            var lenient = JsConfig.PropertyConvention == PropertyConvention.Lenient;
 
             var strTypeLength = strType.Length;
             while (index < strTypeLength)
@@ -78,10 +77,10 @@ namespace ServiceStack.Text.Common
                             if (derivedType != type)
                             {
                                 var derivedTypeConfig = new TypeConfig(derivedType);
-                                var map = DeserializeTypeRef.GetTypeAccessorMap(derivedTypeConfig, Serializer);
+                                var map = DeserializeTypeRef.GetTypeAccessors(derivedTypeConfig, Serializer);
                                 if (map != null)
                                 {
-                                    typeAccessorMap = map;
+                                    typeAccessors = map;
                                 }
                             }
                         }
@@ -95,7 +94,7 @@ namespace ServiceStack.Text.Common
 
                 if (instance == null) instance = ctorFn();
 
-                var typeAccessor = propertyResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
+                var typeAccessor = typeAccessors.Get(propertyName, lenient);
 
                 var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
                 if (propType != null)

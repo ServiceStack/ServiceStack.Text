@@ -61,7 +61,7 @@ namespace ServiceStack.Text.Common
         public static ReadOnlySpan<char> StripList(ReadOnlySpan<char> value)
         {
             if (value.IsNullOrEmpty())
-                return default(ReadOnlySpan<char>);
+                return default;
 
             value = value.Trim();
 
@@ -70,9 +70,7 @@ namespace ServiceStack.Text.Common
             var ret = value[0] == JsWriter.ListStartChar
                     ? value.Slice(startQuotePos, value.Length - endQuotePos)
                     : value;
-            var pos = 0;
-            Serializer.EatWhitespace(ret, ref pos);
-            var val = ret.Slice(pos, ret.Length - pos);
+            var val = ret.AdvancePastWhitespace();
             if (val.Length == 0)
                 return TypeConstants.EmptyStringSpan;
             return val;
@@ -176,7 +174,7 @@ namespace ServiceStack.Text.Common
                 return isReadOnly ? (ICollection<T>)Activator.CreateInstance(createListType, to) : to;
 
             var tryToParseItemsAsPrimitiveTypes =
-                JsConfig.TryToParsePrimitiveTypeValues && typeof(T) == typeof(object);
+                typeof(T) == typeof(object) && JsConfig.TryToParsePrimitiveTypeValues;
 
             if (!value.IsNullOrEmpty())
             {
@@ -194,7 +192,7 @@ namespace ServiceStack.Text.Common
                         }
                         else
                         {
-                            to.Add(default(T));
+                            to.Add(default);
                         }
                         Serializer.EatWhitespace(value, ref i);
                     } while (++i < value.Length);
@@ -225,12 +223,12 @@ namespace ServiceStack.Text.Common
                         {
                             // If we ate a separator and we are at the end of the value, 
                             // it means the last element is empty => add default
-                            to.Add(default(T));
+                            to.Add(default);
                             continue;
                         }
 
                         if (isEmpty)
-                            to.Add(default(T));
+                            to.Add(default);
                     }
 
                 }

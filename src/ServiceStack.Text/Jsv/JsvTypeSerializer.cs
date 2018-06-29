@@ -10,45 +10,45 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Jsv
 {
-    public sealed class JsvTypeSerializer
+    public struct JsvTypeSerializer
         : ITypeSerializer
     {
         public static ITypeSerializer Instance = new JsvTypeSerializer();
 
-        public override ObjectDeserializerDelegate ObjectDeserializer { get; set; }
+        public ObjectDeserializerDelegate ObjectDeserializer { get; set; }
 
-        public override bool IncludeNullValues => false;
+        public bool IncludeNullValues => false;
 
-        public override bool IncludeNullValuesInDictionaries => false;
+        public bool IncludeNullValuesInDictionaries => false;
 
-        public override string TypeAttrInObject => JsConfig.JsvTypeAttrInObject;
+        public string TypeAttrInObject => JsConfig.JsvTypeAttrInObject;
 
         internal static string GetTypeAttrInObject(string typeAttr) => $"{{{typeAttr}:";
 
-        public override WriteObjectDelegate GetWriteFn<T>() => JsvWriter<T>.WriteFn();
+        public WriteObjectDelegate GetWriteFn<T>() => JsvWriter<T>.WriteFn();
 
-        public override WriteObjectDelegate GetWriteFn(Type type) => JsvWriter.GetWriteFn(type);
+        public WriteObjectDelegate GetWriteFn(Type type) => JsvWriter.GetWriteFn(type);
 
         static readonly TypeInfo DefaultTypeInfo = new TypeInfo { EncodeMapKey = false };
 
-        public override TypeInfo GetTypeInfo(Type type) => DefaultTypeInfo;
+        public TypeInfo GetTypeInfo(Type type) => DefaultTypeInfo;
 
-        public override void WriteRawString(TextWriter writer, string value)
+        public void WriteRawString(TextWriter writer, string value)
         {
             writer.Write(value.EncodeJsv());
         }
 
-        public override void WritePropertyName(TextWriter writer, string value)
+        public void WritePropertyName(TextWriter writer, string value)
         {
             writer.Write(value);
         }
 
-        public override void WriteBuiltIn(TextWriter writer, object value)
+        public void WriteBuiltIn(TextWriter writer, object value)
         {
             writer.Write(value);
         }
 
-        public override void WriteObjectString(TextWriter writer, object value)
+        public void WriteObjectString(TextWriter writer, object value)
         {
             if (value != null)
             {
@@ -63,12 +63,12 @@ namespace ServiceStack.Text.Jsv
             }
         }
 
-        public override void WriteException(TextWriter writer, object value)
+        public void WriteException(TextWriter writer, object value)
         {
             writer.Write(((Exception)value).Message.EncodeJsv());
         }
 
-        public override void WriteString(TextWriter writer, string value)
+        public void WriteString(TextWriter writer, string value)
         {
             if (JsState.QueryStringMode && !string.IsNullOrEmpty(value) && value.StartsWith(JsWriter.QuoteString) && value.EndsWith(JsWriter.QuoteString))
                 value = String.Concat(JsWriter.QuoteChar, value, JsWriter.QuoteChar);
@@ -78,13 +78,13 @@ namespace ServiceStack.Text.Jsv
             writer.Write(value == "" ? "\"\"" : value.EncodeJsv());
         }
 
-        public override void WriteFormattableObjectString(TextWriter writer, object value)
+        public void WriteFormattableObjectString(TextWriter writer, object value)
         {
             var f = (IFormattable)value;
             writer.Write(f.ToString(null, CultureInfo.InvariantCulture).EncodeJsv());
         }
 
-        public override void WriteDateTime(TextWriter writer, object oDateTime)
+        public void WriteDateTime(TextWriter writer, object oDateTime)
         {
             var dateTime = (DateTime)oDateTime;
             switch (JsConfig.DateHandler)
@@ -100,112 +100,112 @@ namespace ServiceStack.Text.Jsv
             writer.Write(DateTimeSerializer.ToShortestXsdDateTimeString((DateTime)oDateTime));
         }
 
-        public override void WriteNullableDateTime(TextWriter writer, object dateTime)
+        public void WriteNullableDateTime(TextWriter writer, object dateTime)
         {
             if (dateTime == null) return;
             WriteDateTime(writer, dateTime);
         }
 
-        public override void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
+        public void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset)
         {
             writer.Write(((DateTimeOffset)oDateTimeOffset).ToString("o"));
         }
 
-        public override void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
+        public void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset)
         {
             if (dateTimeOffset == null) return;
             this.WriteDateTimeOffset(writer, dateTimeOffset);
         }
 
-        public override void WriteTimeSpan(TextWriter writer, object oTimeSpan)
+        public void WriteTimeSpan(TextWriter writer, object oTimeSpan)
         {
             writer.Write(DateTimeSerializer.ToXsdTimeSpanString((TimeSpan)oTimeSpan));
         }
 
-        public override void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
+        public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
         {
             if (oTimeSpan == null) return;
             writer.Write(DateTimeSerializer.ToXsdTimeSpanString((TimeSpan?)oTimeSpan));
         }
 
-        public override void WriteGuid(TextWriter writer, object oValue)
+        public void WriteGuid(TextWriter writer, object oValue)
         {
             writer.Write(((Guid)oValue).ToString("N"));
         }
 
-        public override void WriteNullableGuid(TextWriter writer, object oValue)
+        public void WriteNullableGuid(TextWriter writer, object oValue)
         {
             if (oValue == null) return;
             writer.Write(((Guid)oValue).ToString("N"));
         }
 
-        public override void WriteBytes(TextWriter writer, object oByteValue)
+        public void WriteBytes(TextWriter writer, object oByteValue)
         {
             if (oByteValue == null) return;
             writer.Write(Convert.ToBase64String((byte[])oByteValue));
         }
 
-        public override void WriteChar(TextWriter writer, object charValue)
+        public void WriteChar(TextWriter writer, object charValue)
         {
             if (charValue == null) return;
             writer.Write((char)charValue);
         }
 
-        public override void WriteByte(TextWriter writer, object byteValue)
+        public void WriteByte(TextWriter writer, object byteValue)
         {
             if (byteValue == null) return;
             writer.Write((byte)byteValue);
         }
 
-        public override void WriteSByte(TextWriter writer, object sbyteValue)
+        public void WriteSByte(TextWriter writer, object sbyteValue)
         {
             if (sbyteValue == null) return;
             writer.Write((sbyte)sbyteValue);
         }
 
-        public override void WriteInt16(TextWriter writer, object intValue)
+        public void WriteInt16(TextWriter writer, object intValue)
         {
             if (intValue == null) return;
             writer.Write((short)intValue);
         }
 
-        public override void WriteUInt16(TextWriter writer, object intValue)
+        public void WriteUInt16(TextWriter writer, object intValue)
         {
             if (intValue == null) return;
             writer.Write((ushort)intValue);
         }
 
-        public override void WriteInt32(TextWriter writer, object intValue)
+        public void WriteInt32(TextWriter writer, object intValue)
         {
             if (intValue == null) return;
             writer.Write((int)intValue);
         }
 
-        public override void WriteUInt32(TextWriter writer, object uintValue)
+        public void WriteUInt32(TextWriter writer, object uintValue)
         {
             if (uintValue == null) return;
             writer.Write((uint)uintValue);
         }
 
-        public override void WriteUInt64(TextWriter writer, object ulongValue)
+        public void WriteUInt64(TextWriter writer, object ulongValue)
         {
             if (ulongValue == null) return;
             writer.Write((ulong)ulongValue);
         }
 
-        public override void WriteInt64(TextWriter writer, object longValue)
+        public void WriteInt64(TextWriter writer, object longValue)
         {
             if (longValue == null) return;
             writer.Write((long)longValue);
         }
 
-        public override void WriteBool(TextWriter writer, object boolValue)
+        public void WriteBool(TextWriter writer, object boolValue)
         {
             if (boolValue == null) return;
             writer.Write((bool)boolValue);
         }
 
-        public override void WriteFloat(TextWriter writer, object floatValue)
+        public void WriteFloat(TextWriter writer, object floatValue)
         {
             if (floatValue == null) return;
             var floatVal = (float)floatValue;
@@ -217,7 +217,7 @@ namespace ServiceStack.Text.Jsv
                 writer.Write(floatVal.ToString("r", cultureInfo ?? CultureInfo.InvariantCulture));
         }
 
-        public override void WriteDouble(TextWriter writer, object doubleValue)
+        public void WriteDouble(TextWriter writer, object doubleValue)
         {
             if (doubleValue == null) return;
             var doubleVal = (double)doubleValue;
@@ -229,7 +229,7 @@ namespace ServiceStack.Text.Jsv
                 writer.Write(doubleVal.ToString(cultureInfo ?? CultureInfo.InvariantCulture));
         }
 
-        public override void WriteDecimal(TextWriter writer, object decimalValue)
+        public void WriteDecimal(TextWriter writer, object decimalValue)
         {
             if (decimalValue == null) return;
             var cultureInfo = JsState.IsCsv ? CsvConfig.RealNumberCultureInfo : null;
@@ -237,7 +237,7 @@ namespace ServiceStack.Text.Jsv
             writer.Write(((decimal)decimalValue).ToString(cultureInfo ?? CultureInfo.InvariantCulture));
         }
 
-        public override void WriteEnum(TextWriter writer, object enumValue)
+        public void WriteEnum(TextWriter writer, object enumValue)
         {
             if (enumValue == null) return;
             if (JsConfig.TreatEnumAsInteger)
@@ -246,12 +246,12 @@ namespace ServiceStack.Text.Jsv
                 writer.Write(enumValue.ToString());
         }
 
-        public override void WriteEnumFlags(TextWriter writer, object enumFlagValue)
+        public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
         {
             JsWriter.WriteEnumFlags(writer, enumFlagValue);
         }
 
-        public override void WriteEnumMember(TextWriter writer, object enumValue)
+        public void WriteEnumMember(TextWriter writer, object enumValue)
         {
             if (enumValue == null) return;
 
@@ -267,44 +267,44 @@ namespace ServiceStack.Text.Jsv
             return value;
         }
 
-        public override ParseStringDelegate GetParseFn<T>() => JsvReader.Instance.GetParseFn<T>();
+        public ParseStringDelegate GetParseFn<T>() => JsvReader.Instance.GetParseFn<T>();
 
-        public override ParseStringDelegate GetParseFn(Type type) => JsvReader.GetParseFn(type);
+        public ParseStringDelegate GetParseFn(Type type) => JsvReader.GetParseFn(type);
 
-        public override ParseStringSpanDelegate GetParseStringSegmentFn<T>() => JsvReader.Instance.GetParseStringSegmentFn<T>();
+        public ParseStringSpanDelegate GetParseStringSegmentFn<T>() => JsvReader.Instance.GetParseStringSegmentFn<T>();
 
-        public override ParseStringSpanDelegate GetParseStringSegmentFn(Type type) => JsvReader.GetParseStringSegmentFn(type);
+        public ParseStringSpanDelegate GetParseStringSegmentFn(Type type) => JsvReader.GetParseStringSegmentFn(type);
 
-        public override string UnescapeSafeString(string value) => value.FromCsvField();
+        public string UnescapeSafeString(string value) => value.FromCsvField();
 
-        public override ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value) => value.FromCsvField();
+        public ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value) => value.FromCsvField();
 
-        public override string ParseRawString(string value) => value;
+        public string ParseRawString(string value) => value;
 
-        public override string ParseString(string value) => value.FromCsvField();
+        public string ParseString(string value) => value.FromCsvField();
 
-        public override string ParseString(ReadOnlySpan<char> value) => value.ToString().FromCsvField();
+        public string ParseString(ReadOnlySpan<char> value) => value.ToString().FromCsvField();
 
-        public override string UnescapeString(string value) => value.FromCsvField();
+        public string UnescapeString(string value) => value.FromCsvField();
 
-        public override ReadOnlySpan<char> UnescapeString(ReadOnlySpan<char> value) => value.FromCsvField();
+        public ReadOnlySpan<char> UnescapeString(ReadOnlySpan<char> value) => value.FromCsvField();
 
-        public override string EatTypeValue(string value, ref int i) => EatValue(value, ref i);
+        public string EatTypeValue(string value, ref int i) => EatValue(value, ref i);
 
-        public override ReadOnlySpan<char> EatTypeValue(ReadOnlySpan<char> value, ref int i) => EatValue(value, ref i);
+        public ReadOnlySpan<char> EatTypeValue(ReadOnlySpan<char> value, ref int i) => EatValue(value, ref i);
 
-        public override bool EatMapStartChar(string value, ref int i) => EatMapStartChar(value, ref i);
+        public bool EatMapStartChar(string value, ref int i) => EatMapStartChar(value, ref i);
 
-        public override bool EatMapStartChar(ReadOnlySpan<char> value, ref int i)
+        public bool EatMapStartChar(ReadOnlySpan<char> value, ref int i)
         {
             var success = value[i] == JsWriter.MapStartChar;
             if (success) i++;
             return success;
         }
 
-        public override string EatMapKey(string value, ref int i) => EatMapKey(value.AsSpan(), ref i).ToString();
+        public string EatMapKey(string value, ref int i) => EatMapKey(value.AsSpan(), ref i).ToString();
 
-        public override ReadOnlySpan<char> EatMapKey(ReadOnlySpan<char> value, ref int i)
+        public ReadOnlySpan<char> EatMapKey(ReadOnlySpan<char> value, ref int i)
         {
             var tokenStartPos = i;
 
@@ -356,17 +356,17 @@ namespace ServiceStack.Text.Jsv
             return value.Slice(tokenStartPos, i - tokenStartPos);
         }
 
-        public override bool EatMapKeySeperator(string value, ref int i)
+        public bool EatMapKeySeperator(string value, ref int i)
         {
             return value[i++] == JsWriter.MapKeySeperator;
         }
 
-        public override bool EatMapKeySeperator(ReadOnlySpan<char> value, ref int i)
+        public bool EatMapKeySeperator(ReadOnlySpan<char> value, ref int i)
         {
             return value[i++] == JsWriter.MapKeySeperator;
         }
 
-        public override bool EatItemSeperatorOrMapEndChar(string value, ref int i)
+        public bool EatItemSeperatorOrMapEndChar(string value, ref int i)
         {
             if (i == value.Length) return false;
 
@@ -376,7 +376,7 @@ namespace ServiceStack.Text.Jsv
             return success;
         }
 
-        public override bool EatItemSeperatorOrMapEndChar(ReadOnlySpan<char> value, ref int i)
+        public bool EatItemSeperatorOrMapEndChar(ReadOnlySpan<char> value, ref int i)
         {
             if (i == value.Length) return false;
 
@@ -387,16 +387,16 @@ namespace ServiceStack.Text.Jsv
         }
 
 
-        public override void EatWhitespace(string value, ref int i) {}
+        public void EatWhitespace(string value, ref int i) {}
 
-        public override void EatWhitespace(ReadOnlySpan<char> value, ref int i) { }
+        public void EatWhitespace(ReadOnlySpan<char> value, ref int i) { }
 
-        public override string EatValue(string value, ref int i)
+        public string EatValue(string value, ref int i)
         {
             return EatValue(value.AsSpan(), ref i).ToString();
         }
 
-        public override ReadOnlySpan<char> EatValue(ReadOnlySpan<char> value, ref int i)
+        public ReadOnlySpan<char> EatValue(ReadOnlySpan<char> value, ref int i)
         {
             var tokenStartPos = i;
             var valueLength = value.Length;

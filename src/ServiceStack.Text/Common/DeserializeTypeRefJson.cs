@@ -4,57 +4,17 @@ using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
-    // Provides a contract for mapping properties to their type accessors
-    internal abstract class PropertyNameResolver
-    {
-        public abstract TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap);
-    }
-    // The default behavior is that the target model must match property names exactly
-    internal sealed class DefaultPropertyNameResolver : PropertyNameResolver
-    {
-        public override TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
-        {
-            typeAccessorMap.TryGetValue(propertyName.ToString(), out var typeAccessor);
-            return typeAccessor;
-        }
-    }
-    // The lenient behavior is that properties on the target model can be .NET-cased, while the source JSON can differ
-    internal sealed class LenientPropertyNameResolver : PropertyNameResolver
-    {
-        public override TypeAccessor GetTypeAccessorForProperty(ReadOnlySpan<char> propertyName, Dictionary<string, TypeAccessor> typeAccessorMap)
-        {
-            // map is case-insensitive by default, so simply remove hyphens and underscores
-            return typeAccessorMap.TryGetValue(RemoveSeparators(propertyName), out var typeAccessor)
-               ? typeAccessor
-               : typeAccessorMap.TryGetValue(propertyName.ToString(), out typeAccessor) ? typeAccessor : null;
-        }
-
-        //TODO: optimize
-        private static string RemoveSeparators(ReadOnlySpan<char> propertyName)
-        {
-            // "lowercase-hyphen" or "lowercase_underscore" -> lowercaseunderscore
-            return propertyName.ToString().Replace("-", string.Empty).Replace("_", string.Empty);
-        }
-    }
-
     internal static class DeserializeTypeRefJson
     {
         private static readonly JsonTypeSerializer Serializer = (JsonTypeSerializer)JsonTypeSerializer.Instance;
 
-        internal static object StringToType(
-            TypeConfig typeConfig,
-            string strType,
-            EmptyCtorDelegate ctorFn,
-            Dictionary<string, TypeAccessor> typeAccessorMap) =>
-            StringToType(typeConfig, strType.AsSpan(), ctorFn, typeAccessorMap);
-
         static readonly ReadOnlyMemory<char> typeAttr = JsWriter.TypeAttr.AsMemory();
 
         internal static object StringToType(
-        TypeConfig typeConfig,
-        ReadOnlySpan<char> strType,
-        EmptyCtorDelegate ctorFn,
-        Dictionary<string, TypeAccessor> typeAccessorMap)
+            TypeConfig typeConfig,
+            ReadOnlySpan<char> strType,
+            EmptyCtorDelegate ctorFn,
+            KeyValuePair<string, TypeAccessor>[] typeAccessors)
         {
             var index = 0;
             var type = typeConfig.Type;
@@ -63,29 +23,25 @@ namespace ServiceStack.Text.Common
                 return null;
 
             var buffer = strType;
-            var offset = 0;
             var strTypeLength = strType.Length;
 
             //if (!Serializer.EatMapStartChar(strType, ref index))
-            for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
-            if (buffer[offset + index] != JsWriter.MapStartChar)
+            for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
+            if (buffer[index] != JsWriter.MapStartChar)
                 throw DeserializeTypeRef.CreateSerializationError(type, strType.ToString());
 
             index++;
             if (JsonTypeSerializer.IsEmptyMap(strType, index)) return ctorFn();
 
             object instance = null;
-
-            var propertyResolver = JsConfig.PropertyConvention == PropertyConvention.Lenient
-                ? ParseUtils.LenientPropertyNameResolver
-                : ParseUtils.DefaultPropertyNameResolver;
+            var lenient = JsConfig.PropertyConvention == PropertyConvention.Lenient;
 
             while (index < strTypeLength)
             {
                 var propertyName = JsonTypeSerializer.ParseJsonString(strType, ref index);
 
                 //Serializer.EatMapKeySeperator(strType, ref index);
-                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
                 if (strTypeLength != index) index++;
 
                 var propertyValueStr = Serializer.EatValue(strType, ref index);
@@ -125,10 +81,10 @@ namespace ServiceStack.Text.Common
                             if (derivedType != type)
                             {
                                 var derivedTypeConfig = new TypeConfig(derivedType);
-                                var map = DeserializeTypeRef.GetTypeAccessorMap(derivedTypeConfig, Serializer);
+                                var map = DeserializeTypeRef.GetTypeAccessors(derivedTypeConfig, Serializer);
                                 if (map != null)
                                 {
-                                    typeAccessorMap = map;
+                                    typeAccessors = map;
                                 }
                             }
                         }
@@ -140,7 +96,7 @@ namespace ServiceStack.Text.Common
 
                 if (instance == null) instance = ctorFn();
 
-                var typeAccessor = propertyResolver.GetTypeAccessorForProperty(propertyName, typeAccessorMap);
+                var typeAccessor = typeAccessors.Get(propertyName, lenient);
 
                 var propType = possibleTypeInfo && propertyValueStr[0] == '_' ? TypeAccessor.ExtractType(Serializer, propertyValueStr) : null;
                 if (propType != null)
@@ -159,13 +115,13 @@ namespace ServiceStack.Text.Common
                         }
 
                         //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-                        for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+                        for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
                         if (index != strTypeLength)
                         {
-                            var success = buffer[offset + index] == JsWriter.ItemSeperator || buffer[offset + index] == JsWriter.MapEndChar;
+                            var success = buffer[index] == JsWriter.ItemSeperator || buffer[index] == JsWriter.MapEndChar;
                             index++;
                             if (success)
-                                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+                                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
                         }
 
                         continue;
@@ -202,13 +158,13 @@ namespace ServiceStack.Text.Common
                 }
 
                 //Serializer.EatItemSeperatorOrMapEndChar(strType, ref index);
-                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+                for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
                 if (index != strType.Length)
                 {
-                    var success = buffer[offset + index] == JsWriter.ItemSeperator || buffer[offset + index] == JsWriter.MapEndChar;
+                    var success = buffer[index] == JsWriter.ItemSeperator || buffer[index] == JsWriter.MapEndChar;
                     index++;
                     if (success)
-                        for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[offset + index])) break; } //Whitespace inline
+                        for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
                 }
 
             }

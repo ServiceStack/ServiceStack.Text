@@ -13,15 +13,15 @@ namespace ServiceStack.Text
 {
     public abstract class MemoryProvider
     {
-        public static MemoryProvider Instance = 
+        public static MemoryProvider Instance =
 #if NETCORE2_1
             ServiceStack.Memory.NetCoreMemory.Provider;
 #else
             DefaultMemory.Provider;
 #endif
 
-        protected const string BadFormat = "Input string was not in a correct format.";
-        protected const string OverflowMessage = "Value was either too large or too small for an {0}.";
+        internal const string BadFormat = "Input string was not in a correct format.";
+        internal const string OverflowMessage = "Value was either too large or too small for an {0}.";
 
         public abstract bool TryParseBoolean(ReadOnlySpan<char> value, out bool result);
         public abstract bool ParseBoolean(ReadOnlySpan<char> value);
@@ -31,7 +31,7 @@ namespace ServiceStack.Text
 
         public abstract bool TryParseFloat(ReadOnlySpan<char> value, out float result);
         public abstract float ParseFloat(ReadOnlySpan<char> value);
-        
+
         public abstract bool TryParseDouble(ReadOnlySpan<char> value, out double result);
         public abstract double ParseDouble(ReadOnlySpan<char> value);
 
@@ -53,7 +53,9 @@ namespace ServiceStack.Text
         public abstract Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default);
 
         public abstract object Deserialize(Stream stream, Type type, DeserializeStringSpanDelegate deserializer);
-        public abstract Task<object> DeserializeAsync(Stream stream, Type type, DeserializeStringSpanDelegate deserializer);
+
+        public abstract Task<object> DeserializeAsync(Stream stream, Type type,
+            DeserializeStringSpanDelegate deserializer);
 
         public abstract StringBuilder Append(StringBuilder sb, ReadOnlySpan<char> value);
 
@@ -70,10 +72,10 @@ namespace ServiceStack.Text
     public sealed class DefaultMemory : MemoryProvider
     {
         public static readonly DefaultMemory Provider = new DefaultMemory();
-        private DefaultMemory(){}
+        private DefaultMemory() { }
 
         public static void Configure() => Instance = Provider;
-        
+
         public override bool ParseBoolean(ReadOnlySpan<char> value)
         {
             if (!value.TryParseBoolean(out bool result))
@@ -81,7 +83,7 @@ namespace ServiceStack.Text
 
             return result;
         }
- 
+
         public override bool TryParseBoolean(ReadOnlySpan<char> value, out bool result)
         {
             result = false;
@@ -95,49 +97,47 @@ namespace ServiceStack.Text
             return value.CompareIgnoreCase(bool.FalseString.AsSpan());
         }
 
-        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) => TryParseDecimal(value, allowThousands: true, out result);
+        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) =>
+            TryParseDecimal(value, allowThousands: true, out result);
+
         public override decimal ParseDecimal(ReadOnlySpan<char> value) => ParseDecimal(value, allowThousands: true);
 
-        public override bool TryParseFloat(ReadOnlySpan<char> value, out float result) => float.TryParse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
-        public override float ParseFloat(ReadOnlySpan<char> value) => float.Parse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+        public override bool TryParseFloat(ReadOnlySpan<char> value, out float result) => float.TryParse(
+            value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
+            out result);
 
-        public override bool TryParseDouble(ReadOnlySpan<char> value, out double result) => double.TryParse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
-        public override double ParseDouble(ReadOnlySpan<char> value) => double.Parse(value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+        public override float ParseFloat(ReadOnlySpan<char> value) => float.Parse(value.ToString(),
+            NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
-        public override sbyte ParseSByte(ReadOnlySpan<char> value) => (sbyte)ParseSignedInteger(value, sbyte.MaxValue, sbyte.MinValue);
+        public override bool TryParseDouble(ReadOnlySpan<char> value, out double result) => double.TryParse(
+            value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
+            out result);
 
-        public override byte ParseByte(ReadOnlySpan<char> value) => (byte)ParseUnsignedInteger(value, byte.MaxValue);
+        public override double ParseDouble(ReadOnlySpan<char> value) => double.Parse(value.ToString(),
+            NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
-        public override short ParseInt16(ReadOnlySpan<char> value) => (short)ParseSignedInteger(value, short.MaxValue, short.MinValue);
+        public override sbyte ParseSByte(ReadOnlySpan<char> value) => SignedInteger<sbyte>.ParseSByte(value);
 
-        public override ushort ParseUInt16(ReadOnlySpan<char> value) => (ushort)ParseUnsignedInteger(value, ushort.MaxValue);
+        public override byte ParseByte(ReadOnlySpan<char> value) => UnsignedInteger<byte>.ParseByte(value);
 
-        public override int ParseInt32(ReadOnlySpan<char> value) => (int)ParseSignedInteger(value, Int32.MaxValue, Int32.MinValue);
+        public override short ParseInt16(ReadOnlySpan<char> value) => SignedInteger<short>.ParseInt16(value);
 
-        public override uint ParseUInt32(ReadOnlySpan<char> value) => (uint)ParseUnsignedInteger(value, UInt32.MaxValue);
+        public override ushort ParseUInt16(ReadOnlySpan<char> value) => UnsignedInteger<ushort>.ParseUInt16(value);
 
-        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value.ToString(), NumberStyles.HexNumber);
+        public override int ParseInt32(ReadOnlySpan<char> value) => SignedInteger<int>.ParseInt32(value);
 
-        public override long ParseInt64(ReadOnlySpan<char> value) => ParseSignedInteger(value, Int64.MaxValue, Int64.MinValue);
+        public override uint ParseUInt32(ReadOnlySpan<char> value) => UnsignedInteger<uint>.ParseUInt32(value);
 
-        public override ulong ParseUInt64(ReadOnlySpan<char> value) => ParseUnsignedInteger(value, UInt64.MaxValue);
+        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value.ToString(), style);
 
-        enum ParseState
-        {
-            LeadingWhite,
-            Sign,
-            Number,
-            DecimalPoint,
-            FractionNumber,
-            Exponent,
-            ExponentSign,
-            ExponentValue,
-            TrailingWhite
-        }
+        public override long ParseInt64(ReadOnlySpan<char> value) => SignedInteger<int>.ParseInt64(value);
 
-        private static Exception CreateOverflowException(long maxValue) =>
+        public override ulong ParseUInt64(ReadOnlySpan<char> value) => UnsignedInteger<ulong>.ParseUInt64(value);
+
+        internal static Exception CreateOverflowException(long maxValue) =>
             new OverflowException(string.Format(OverflowMessage, SignedMaxValueToIntType(maxValue)));
-        private static Exception CreateOverflowException(ulong maxValue) =>
+
+        internal static Exception CreateOverflowException(ulong maxValue) =>
             new OverflowException(string.Format(OverflowMessage, UnsignedMaxValueToIntType(maxValue)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -176,186 +176,6 @@ namespace ServiceStack.Text
             }
         }
 
-        public static ulong ParseUnsignedInteger(ReadOnlySpan<char> value, ulong maxValue)
-        {
-            if (value.Length == 0)
-                throw new FormatException(BadFormat);
-
-            ulong result = 0;
-            int i = 0;
-            int end = value.Length;
-            var state = ParseState.LeadingWhite;
-
-            //skip leading whitespaces
-            while (i < end && JsonUtils.IsWhiteSpace(value[i])) i++;
-
-            if (i == end)
-                throw new FormatException(BadFormat);
-
-            //skip leading zeros
-            while (i < end && value[i] == '0')
-            {
-                state = ParseState.Number;
-                i++;
-            }
-
-            while (i < end)
-            {
-                var c = value[i++];
-
-                switch (state)
-                {
-                    case ParseState.LeadingWhite:
-                        if (JsonUtils.IsWhiteSpace(c))
-                            break;
-                        if (c == '0')
-                        {
-                            state = ParseState.TrailingWhite;
-                        }
-                        else if (c > '0' && c <= '9')
-                        {
-                            result = (ulong)(c - '0');
-                            state = ParseState.Number;
-                        }
-                        else throw new FormatException(BadFormat);
-                        break;
-                    case ParseState.Number:
-                        if (c >= '0' && c <= '9')
-                        {
-                            checked
-                            {
-                                result = 10 * result + (ulong)(c - '0');
-                            }
-                            if (result > maxValue) //check only minvalue, because in absolute value it's greater than maxvalue
-                                throw CreateOverflowException(maxValue);
-                        }
-                        else if (JsonUtils.IsWhiteSpace(c))
-                        {
-                            state = ParseState.TrailingWhite;
-                        }
-                        else throw new FormatException(BadFormat);
-                        break;
-                    case ParseState.TrailingWhite:
-                        if (JsonUtils.IsWhiteSpace(c))
-                        {
-                            state = ParseState.TrailingWhite;
-                        }
-                        else throw new FormatException(BadFormat);
-                        break;
-                }
-            }
-
-            if (state != ParseState.Number && state != ParseState.TrailingWhite)
-                throw new FormatException(BadFormat);
-
-            return result;
-        }
-
-        public static long ParseSignedInteger(ReadOnlySpan<char> value, long maxValue, long minValue)
-        {
-            if (value.IsEmpty)
-                throw new ArgumentNullException(nameof(value));
-
-            if (value.Length == 0)
-                throw new FormatException(BadFormat);
-
-            long result = 0;
-            int i = 0;
-            int end = value.Length;
-            var state = ParseState.LeadingWhite;
-            bool negative = false;
-
-            //skip leading whitespaces
-            while (i < end && JsonUtils.IsWhiteSpace(value[i])) i++;
-
-            if (i == end)
-                throw new FormatException(BadFormat);
-
-            //skip leading zeros
-            while (i < end && value[i] == '0')
-            {
-                state = ParseState.Number;
-                i++;
-            }
-
-            while (i < end)
-            {
-                var c = value[i++];
-
-                switch (state)
-                {
-                    case ParseState.LeadingWhite:
-                        if (c == '-')
-                        {
-                            negative = true;
-                            state = ParseState.Sign;
-                        }
-                        else if (c == '0')
-                        {
-                            state = ParseState.TrailingWhite;
-                        }
-                        else if (c > '0' && c <= '9')
-                        {
-                            result = -(c - '0');
-                            state = ParseState.Number;
-                        }
-                        else throw new FormatException(BadFormat);
-                        break;
-                    case ParseState.Sign:
-                        if (c == '0')
-                        {
-                            state = ParseState.TrailingWhite;
-                        }
-                        else if (c > '0' && c <= '9')
-                        {
-                            result = -(c - '0');
-                            state = ParseState.Number;
-                        }
-                        else throw new FormatException(BadFormat);
-                        break;
-                    case ParseState.Number:
-                        if (c >= '0' && c <= '9')
-                        {
-                            checked
-                            {
-                                result = 10 * result - (c - '0');
-                            }
-                            if (result < minValue) //check only minvalue, because in absolute value it's greater than maxvalue
-                                throw CreateOverflowException(maxValue);
-                        }
-                        else if (JsonUtils.IsWhiteSpace(c))
-                        {
-                            state = ParseState.TrailingWhite;
-                        }
-                        else throw new FormatException(BadFormat);
-                        break;
-                    case ParseState.TrailingWhite:
-                        if (JsonUtils.IsWhiteSpace(c))
-                        {
-                            state = ParseState.TrailingWhite;
-                        }
-                        else throw new FormatException(BadFormat);
-                        break;
-                }
-            }
-
-            if (state != ParseState.Number && state != ParseState.TrailingWhite)
-                throw new FormatException(BadFormat);
-
-            if (negative)
-                return result;
-
-            checked
-            {
-                result = -result;
-            }
-
-            if (result > maxValue)
-                throw CreateOverflowException(maxValue);
-
-            return result;
-        }
-
         public static decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands)
         {
             if (!TryParseDecimal(value, allowThousands, out var result))
@@ -363,7 +183,7 @@ namespace ServiceStack.Text
 
             return result;
         }
-        
+
         public static bool TryParseDecimal(ReadOnlySpan<char> value, bool allowThousands, out decimal result)
         {
             result = 0;
@@ -409,10 +229,11 @@ namespace ServiceStack.Text
                         }
                         else if (c > '0' && c <= '9')
                         {
-                            preResult = (ulong)(c - '0');
+                            preResult = (ulong) (c - '0');
                             state = ParseState.Number;
                         }
                         else return false;
+
                         break;
                     case ParseState.Sign:
                         if (c == '.')
@@ -429,10 +250,11 @@ namespace ServiceStack.Text
                         }
                         else if (c > '0' && c <= '9')
                         {
-                            preResult = (ulong)(c - '0');
+                            preResult = (ulong) (c - '0');
                             state = ParseState.Number;
                         }
                         else return false;
+
                         break;
                     case ParseState.Number:
                         if (c == '.')
@@ -450,7 +272,7 @@ namespace ServiceStack.Text
                             }
                             else
                             {
-                                preResult = 10 * preResult + (ulong)(c - '0');
+                                preResult = 10 * preResult + (ulong) (c - '0');
                                 if (preResult > ulong.MaxValue / 10 - 10)
                                 {
                                     isLargeNumber = true;
@@ -462,10 +284,9 @@ namespace ServiceStack.Text
                         {
                             state = ParseState.TrailingWhite;
                         }
-                        else if (allowThousands && c == ',')
-                        {
-                        }
+                        else if (allowThousands && c == ',') { }
                         else return false;
+
                         break;
                     case ParseState.DecimalPoint:
                         if (c == '.')
@@ -473,6 +294,7 @@ namespace ServiceStack.Text
                             state = ParseState.FractionNumber;
                         }
                         else return false;
+
                         break;
                     case ParseState.FractionNumber:
                         if (JsonUtils.IsWhiteSpace(c))
@@ -498,16 +320,18 @@ namespace ServiceStack.Text
                             }
                             else
                             {
-                                preResult = 10 * preResult + (ulong)(c - '0');
+                                preResult = 10 * preResult + (ulong) (c - '0');
                                 if (preResult > ulong.MaxValue / 10 - 10)
                                 {
                                     isLargeNumber = true;
                                     result = preResult;
                                 }
                             }
+
                             scale++;
                         }
                         else return false;
+
                         break;
                     case ParseState.Exponent:
                         bool expNegative = false;
@@ -531,18 +355,18 @@ namespace ServiceStack.Text
 
                         if (c > '0' && c <= '9')
                         {
-                            var exp = (int)ParseSignedInteger(value.Slice(i - 1, end - i + 1), int.MaxValue, int.MinValue);
+                            var exp = SignedInteger<long>.ParseInt64(value.Slice(i - 1, end - i + 1));
                             if (exp < sbyte.MinValue || exp > sbyte.MaxValue)
                                 return false;
-                            
+
                             if (!expNegative)
                             {
-                                exp = (sbyte)-exp;
+                                exp = (sbyte) -exp;
                             }
 
                             if (exp >= 0 || scale > -exp)
                             {
-                                scale += (sbyte)exp;
+                                scale += (sbyte) exp;
                             }
                             else
                             {
@@ -565,6 +389,7 @@ namespace ServiceStack.Text
                                         }
                                     }
                                 }
+
                                 scale = 0;
                             }
 
@@ -572,6 +397,7 @@ namespace ServiceStack.Text
                             i = end;
                         }
                         else return false;
+
                         break;
                     case ParseState.TrailingWhite:
                         if (!JsonUtils.IsWhiteSpace(c))
@@ -579,22 +405,22 @@ namespace ServiceStack.Text
                         break;
                 }
             }
-            
+
             if (!isLargeNumber)
             {
-                var mid = (int)(preResult >> 32);
-                var lo = (int)(preResult & 0xffffffff);
-                result = new decimal(lo, mid, 0, negative, (byte)scale);
+                var mid = (int) (preResult >> 32);
+                var lo = (int) (preResult & 0xffffffff);
+                result = new decimal(lo, mid, 0, negative, (byte) scale);
             }
             else
             {
                 var bits = decimal.GetBits(result);
-                result = new decimal(bits[0], bits[1], bits[2], negative, (byte)scale);
+                result = new decimal(bits[0], bits[1], bits[2], negative, (byte) scale);
             }
 
             return true;
         }
-        
+
         private static readonly byte[] lo16 = {
             255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
             255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -654,7 +480,8 @@ namespace ServiceStack.Text
             return result;
         }
 
-        public override Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token = default(CancellationToken))
+        public override Task WriteAsync(Stream stream, ReadOnlySpan<char> value,
+            CancellationToken token = default(CancellationToken))
         {
             byte[] bytes = BufferPool.GetBuffer(Encoding.UTF8.GetMaxByteCount(value.Length));
             try
@@ -700,14 +527,15 @@ namespace ServiceStack.Text
             return Deserialize(ms, fromPool, type, deserializer);
         }
 
-        public override async Task<object> DeserializeAsync(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
+        public override async Task<object> DeserializeAsync(Stream stream, Type type,
+            DeserializeStringSpanDelegate deserializer)
         {
             var fromPool = false;
-            
+
             if (!(stream is MemoryStream ms))
             {
                 fromPool = true;
-                
+
                 if (stream.CanSeek)
                     stream.Position = 0;
 
@@ -717,13 +545,14 @@ namespace ServiceStack.Text
             return Deserialize(ms, fromPool, type, deserializer);
         }
 
-        private static object Deserialize(MemoryStream ms, bool fromPool, Type type, DeserializeStringSpanDelegate deserializer)
+        private static object Deserialize(MemoryStream ms, bool fromPool, Type type,
+            DeserializeStringSpanDelegate deserializer)
         {
             var bytes = ms.GetBufferAsBytes();
-            var utf8 = CharPool.GetBuffer(Encoding.UTF8.GetCharCount(bytes, 0, (int)ms.Length));
+            var utf8 = CharPool.GetBuffer(Encoding.UTF8.GetCharCount(bytes, 0, (int) ms.Length));
             try
             {
-                var charsWritten = Encoding.UTF8.GetChars(bytes, 0, (int)ms.Length, utf8, 0);
+                var charsWritten = Encoding.UTF8.GetChars(bytes, 0, (int) ms.Length, utf8, 0);
                 var ret = deserializer(type, new ReadOnlySpan<char>(utf8, 0, charsWritten));
                 return ret;
             }
@@ -746,10 +575,12 @@ namespace ServiceStack.Text
             return sb.Append(value.ToArray());
         }
 
-        public override int GetUtf8CharCount(ReadOnlySpan<byte> bytes) => Encoding.UTF8.GetCharCount(bytes.ToArray()); //SLOW
+        public override int GetUtf8CharCount(ReadOnlySpan<byte> bytes) =>
+            Encoding.UTF8.GetCharCount(bytes.ToArray()); //SLOW
 
-        public override int GetUtf8ByteCount(ReadOnlySpan<char> chars) => Encoding.UTF8.GetByteCount(chars.ToArray()); //SLOW
-        
+        public override int GetUtf8ByteCount(ReadOnlySpan<char> chars) =>
+            Encoding.UTF8.GetByteCount(chars.ToArray()); //SLOW
+
         public override ReadOnlyMemory<byte> ToUtf8(ReadOnlySpan<char> source)
         {
             var chars = source.ToArray();
@@ -846,13 +677,13 @@ namespace ServiceStack.Text
             byte b1 = ParseHexByte(buf[n], buf[n + 1]);
             n += 2;
             byte b2 = ParseHexByte(buf[n], buf[n + 1]);
-            b = (short)((b1 << 8) + b2);
+            b = (short) ((b1 << 8) + b2);
             n += 2 + dash;
 
             byte c1 = ParseHexByte(buf[n], buf[n + 1]);
             n += 2;
             byte c2 = ParseHexByte(buf[n], buf[n + 1]);
-            c = (short)((c1 << 8) + c2);
+            c = (short) ((c1 << 8) + c2);
             n += 2 + dash;
 
             d = ParseHexByte(buf[n], buf[n + 1]);
@@ -885,13 +716,341 @@ namespace ServiceStack.Text
                 if (lo == 255 || hi == 255)
                     throw new FormatException(BadFormat);
 
-                return (byte)(hi + lo);
+                return (byte) (hi + lo);
             }
             catch (IndexOutOfRangeException)
             {
                 throw new FormatException(BadFormat);
             }
         }
+    }
+
+    enum ParseState
+    {
+        LeadingWhite,
+        Sign,
+        Number,
+        DecimalPoint,
+        FractionNumber,
+        Exponent,
+        ExponentSign,
+        ExponentValue,
+        TrailingWhite
+    }
+
+    internal static class SignedInteger<T> where T : struct, IComparable<T>, IEquatable<T>, IConvertible
+    {
+        private static readonly TypeCode typeCode;
+        private static readonly long minValue;
+        private static readonly long maxValue;
+
+        static SignedInteger()
+        {
+            typeCode = Type.GetTypeCode(typeof(T));
+
+            switch (typeCode)
+            {
+                case TypeCode.SByte:
+                    minValue = sbyte.MinValue;
+                    maxValue = sbyte.MaxValue;
+                    break;
+                case TypeCode.Int16:
+                    minValue = short.MinValue;
+                    maxValue = short.MaxValue;
+                    break;
+                case TypeCode.Int32:
+                    minValue = int.MinValue;
+                    maxValue = int.MaxValue;
+                    break;
+                case TypeCode.Int64:
+                    minValue = long.MinValue;
+                    maxValue = long.MaxValue;
+                    break;
+                default:
+                    throw new NotSupportedException($"{typeof(T).Name} is not a signed integer");
+            }
+        }
+
+        internal static object ParseNullableObject(ReadOnlySpan<char> value)
+        {
+            if (value.IsNullOrEmpty())
+                return null;
+
+            return ParseObject(value);
+        }
+
+        internal static object ParseObject(ReadOnlySpan<char> value)
+        {
+            var result = ParseInt64(value);
+            switch (typeCode)
+            {
+                case TypeCode.SByte:
+                    return (sbyte) result;
+                case TypeCode.Int16:
+                    return (short) result;
+                case TypeCode.Int32:
+                    return (int) result;
+                default:
+                    return result;
+            }
+        }
+
+        public static sbyte ParseSByte(ReadOnlySpan<char> value) => (sbyte) ParseInt64(value);
+        public static short ParseInt16(ReadOnlySpan<char> value) => (short) ParseInt64(value);
+        public static int ParseInt32(ReadOnlySpan<char> value) => (int) ParseInt64(value);
+
+        public static long ParseInt64(ReadOnlySpan<char> value)
+        {
+            if (value.IsEmpty)
+                throw new ArgumentNullException(nameof(value));
+
+            if (value.Length == 0)
+                throw new FormatException(MemoryProvider.BadFormat);
+
+            long result = 0;
+            int i = 0;
+            int end = value.Length;
+            var state = ParseState.LeadingWhite;
+            bool negative = false;
+
+            //skip leading whitespaces
+            while (i < end && JsonUtils.IsWhiteSpace(value[i])) i++;
+
+            if (i == end)
+                throw new FormatException(MemoryProvider.BadFormat);
+
+            //skip leading zeros
+            while (i < end && value[i] == '0')
+            {
+                state = ParseState.Number;
+                i++;
+            }
+
+            while (i < end)
+            {
+                var c = value[i++];
+
+                switch (state)
+                {
+                    case ParseState.LeadingWhite:
+                        if (c == '-')
+                        {
+                            negative = true;
+                            state = ParseState.Sign;
+                        }
+                        else if (c == '0')
+                        {
+                            state = ParseState.TrailingWhite;
+                        }
+                        else if (c > '0' && c <= '9')
+                        {
+                            result = -(c - '0');
+                            state = ParseState.Number;
+                        }
+                        else throw new FormatException(MemoryProvider.BadFormat);
+
+                        break;
+                    case ParseState.Sign:
+                        if (c == '0')
+                        {
+                            state = ParseState.TrailingWhite;
+                        }
+                        else if (c > '0' && c <= '9')
+                        {
+                            result = -(c - '0');
+                            state = ParseState.Number;
+                        }
+                        else throw new FormatException(MemoryProvider.BadFormat);
+
+                        break;
+                    case ParseState.Number:
+                        if (c >= '0' && c <= '9')
+                        {
+                            checked
+                            {
+                                result = 10 * result - (c - '0');
+                            }
+
+                            if (result < minValue
+                            ) //check only minvalue, because in absolute value it's greater than maxvalue
+                                throw DefaultMemory.CreateOverflowException(maxValue);
+                        }
+                        else if (JsonUtils.IsWhiteSpace(c))
+                        {
+                            state = ParseState.TrailingWhite;
+                        }
+                        else throw new FormatException(MemoryProvider.BadFormat);
+
+                        break;
+                    case ParseState.TrailingWhite:
+                        if (JsonUtils.IsWhiteSpace(c))
+                        {
+                            state = ParseState.TrailingWhite;
+                        }
+                        else throw new FormatException(MemoryProvider.BadFormat);
+
+                        break;
+                }
+            }
+
+            if (state != ParseState.Number && state != ParseState.TrailingWhite)
+                throw new FormatException(MemoryProvider.BadFormat);
+
+            if (negative)
+                return result;
+
+            checked
+            {
+                result = -result;
+            }
+
+            if (result > maxValue)
+                throw DefaultMemory.CreateOverflowException(maxValue);
+
+            return result;
+        }
+    }
+
+    internal static class UnsignedInteger<T> where T : struct, IComparable<T>, IEquatable<T>, IConvertible
+    {
+        private static readonly TypeCode typeCode;
+        private static readonly ulong minValue;
+        private static readonly ulong maxValue;
+
+        static UnsignedInteger()
+        {
+            typeCode = Type.GetTypeCode(typeof(T));
+
+            switch (typeCode)
+            {
+                case TypeCode.Byte:
+                    minValue = byte.MinValue;
+                    maxValue = byte.MaxValue;
+                    break;
+                case TypeCode.UInt16:
+                    minValue = ushort.MinValue;
+                    maxValue = ushort.MaxValue;
+                    break;
+                case TypeCode.UInt32:
+                    minValue = uint.MinValue;
+                    maxValue = uint.MaxValue;
+                    break;
+                case TypeCode.UInt64:
+                    minValue = ulong.MinValue;
+                    maxValue = ulong.MaxValue;
+                    break;
+                default:
+                    throw new NotSupportedException($"{typeof(T).Name} is not a signed integer");
+            }
+        }
+
+        internal static object ParseNullableObject(ReadOnlySpan<char> value)
+        {
+            if (value.IsNullOrEmpty())
+                return null;
+
+            return ParseObject(value);
+        }
         
+        internal static object ParseObject(ReadOnlySpan<char> value)
+        {
+            var result = ParseUInt64(value);
+            switch (typeCode)
+            {
+                case TypeCode.Byte:
+                    return (byte) result;
+                case TypeCode.UInt16:
+                    return (ushort) result;
+                case TypeCode.UInt32:
+                    return (uint) result;
+                default:
+                    return result;
+            }
+        }
+
+        public static byte ParseByte(ReadOnlySpan<char> value) => (byte) ParseUInt64(value);
+        public static ushort ParseUInt16(ReadOnlySpan<char> value) => (ushort) ParseUInt64(value);
+        public static uint ParseUInt32(ReadOnlySpan<char> value) => (uint) ParseUInt64(value);
+
+        internal static ulong ParseUInt64(ReadOnlySpan<char> value)
+        {
+            if (value.Length == 0)
+                throw new FormatException(MemoryProvider.BadFormat);
+
+            ulong result = 0;
+            int i = 0;
+            int end = value.Length;
+            var state = ParseState.LeadingWhite;
+
+            //skip leading whitespaces
+            while (i < end && JsonUtils.IsWhiteSpace(value[i])) i++;
+
+            if (i == end)
+                throw new FormatException(MemoryProvider.BadFormat);
+
+            //skip leading zeros
+            while (i < end && value[i] == '0')
+            {
+                state = ParseState.Number;
+                i++;
+            }
+
+            while (i < end)
+            {
+                var c = value[i++];
+
+                switch (state)
+                {
+                    case ParseState.LeadingWhite:
+                        if (JsonUtils.IsWhiteSpace(c))
+                            break;
+                        if (c == '0')
+                        {
+                            state = ParseState.TrailingWhite;
+                        }
+                        else if (c > '0' && c <= '9')
+                        {
+                            result = (ulong) (c - '0');
+                            state = ParseState.Number;
+                        }
+                        else throw new FormatException(MemoryProvider.BadFormat);
+
+
+                        break;
+                    case ParseState.Number:
+                        if (c >= '0' && c <= '9')
+                        {
+                            checked
+                            {
+                                result = 10 * result + (ulong) (c - '0');
+                            }
+
+                            if (result > maxValue
+                            ) //check only minvalue, because in absolute value it's greater than maxvalue
+                                throw DefaultMemory.CreateOverflowException(maxValue);
+                        }
+                        else if (JsonUtils.IsWhiteSpace(c))
+                        {
+                            state = ParseState.TrailingWhite;
+                        }
+                        else throw new FormatException(MemoryProvider.BadFormat);
+
+                        break;
+                    case ParseState.TrailingWhite:
+                        if (JsonUtils.IsWhiteSpace(c))
+                        {
+                            state = ParseState.TrailingWhite;
+                        }
+                        else throw new FormatException(MemoryProvider.BadFormat);
+
+                        break;
+                }
+            }
+
+            if (state != ParseState.Number && state != ParseState.TrailingWhite)
+                throw new FormatException(MemoryProvider.BadFormat);
+
+            return result;
+        }    
     }
 }
