@@ -199,9 +199,6 @@ namespace ServiceStack.Text.Json
 
         public static void WriteObject(TextWriter writer, object value)
         {
-#if __IOS__
-			if (writer == null) return;
-#endif
             TypeConfig<T>.Init();
 
             try
@@ -219,9 +216,6 @@ namespace ServiceStack.Text.Json
 
         public static void WriteRootObject(TextWriter writer, object value)
         {
-#if __IOS__
-			if (writer == null) return;
-#endif
             TypeConfig<T>.Init();
 
             JsState.Depth = 0;

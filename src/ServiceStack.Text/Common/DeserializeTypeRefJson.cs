@@ -36,6 +36,8 @@ namespace ServiceStack.Text.Common
             object instance = null;
             var lenient = JsConfig.PropertyConvention == PropertyConvention.Lenient;
 
+            for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
+
             while (index < strTypeLength)
             {
 //                var propertyName = JsonTypeSerializer.ParseJsonString(strType, ref index);
