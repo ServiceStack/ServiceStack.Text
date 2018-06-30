@@ -29,7 +29,7 @@ namespace ServiceStack.Text.Common
             var type = typeConfig.Type;
 
             if (!type.IsStandardClass()) return null;
-            var accessors = DeserializeTypeRef.GetCachedTypeAccessors(typeConfig, Serializer);
+            var accessors = DeserializeTypeRef.GetTypeAccessors(typeConfig, Serializer);
 
             var ctorFn = JsConfig.ModelFactory(type);
             if (accessors == null)

@@ -42,14 +42,9 @@ namespace ServiceStack.Text.Common
             if (TypeAccessorsCache.TryGetValue(type, out var typeAccessors))
                 return typeAccessors;
 
-            return GetCachedTypeAccessors(new TypeConfig(type), serializer);
-        }
+            var typeConfig = new TypeConfig(type);
+            typeAccessors = GetTypeAccessors(typeConfig, serializer);
 
-        internal static KeyValuePair<string, TypeAccessor>[] GetCachedTypeAccessors(TypeConfig typeConfig, ITypeSerializer serializer)
-        {
-            var typeAccessors = GetTypeAccessors(typeConfig, serializer);
-
-            var type = typeConfig.Type;
             Dictionary<Type, KeyValuePair<string, TypeAccessor>[]> snapshot, newCache;
             do
             {
@@ -63,7 +58,7 @@ namespace ServiceStack.Text.Common
             return typeAccessors;
         }
 
-        private static KeyValuePair<string, TypeAccessor>[] GetTypeAccessors(TypeConfig typeConfig, ITypeSerializer serializer)
+        internal static KeyValuePair<string, TypeAccessor>[] GetTypeAccessors(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
             var isDataContract = type.IsDto();
