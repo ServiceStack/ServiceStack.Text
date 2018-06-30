@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading;
 using ServiceStack.Text.Support;
 
 namespace ServiceStack.Text.Common
@@ -34,7 +35,35 @@ namespace ServiceStack.Text.Common
             return serializationException;
         }
 
-        internal static KeyValuePair<string, TypeAccessor>[] GetTypeAccessors(TypeConfig typeConfig, ITypeSerializer serializer)
+        private static Dictionary<Type, KeyValuePair<string, TypeAccessor>[]> TypeAccessorsCache = new Dictionary<Type, KeyValuePair<string, TypeAccessor>[]>();
+
+        internal static KeyValuePair<string, TypeAccessor>[] GetCachedTypeAccessors(Type type, ITypeSerializer serializer)
+        {
+            if (TypeAccessorsCache.TryGetValue(type, out var typeAccessors))
+                return typeAccessors;
+
+            return GetCachedTypeAccessors(new TypeConfig(type), serializer);
+        }
+
+        internal static KeyValuePair<string, TypeAccessor>[] GetCachedTypeAccessors(TypeConfig typeConfig, ITypeSerializer serializer)
+        {
+            var typeAccessors = GetTypeAccessors(typeConfig, serializer);
+
+            var type = typeConfig.Type;
+            Dictionary<Type, KeyValuePair<string, TypeAccessor>[]> snapshot, newCache;
+            do
+            {
+                snapshot = TypeAccessorsCache;
+                newCache = new Dictionary<Type, KeyValuePair<string, TypeAccessor>[]>(TypeAccessorsCache) {
+                    [type] = typeAccessors
+                };
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref TypeAccessorsCache, newCache, snapshot), snapshot));
+
+            return typeAccessors;
+        }
+
+        private static KeyValuePair<string, TypeAccessor>[] GetTypeAccessors(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
             var isDataContract = type.IsDto();
