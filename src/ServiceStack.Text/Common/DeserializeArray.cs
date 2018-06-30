@@ -26,13 +26,13 @@ namespace ServiceStack.Text.Common
 
         public static Func<string, ParseStringDelegate, object> GetParseFn(Type type)
         {
-            var func = GetParseStringSegmentFn(type);
+            var func = GetParseStringSpanFn(type);
             return (s, d) => func(s.AsSpan(), v => d(v.ToString()));
         }
 
         private static readonly Type[] signature = {typeof(ReadOnlySpan<char>), typeof(ParseStringSpanDelegate)};
 
-        public static ParseArrayOfElementsDelegate GetParseStringSegmentFn(Type type)
+        public static ParseArrayOfElementsDelegate GetParseStringSpanFn(Type type)
         {
             if (ParseDelegateCache.TryGetValue(type, out var parseFn)) return parseFn.Invoke;
 
@@ -170,7 +170,7 @@ namespace ServiceStack.Text.Common
             var elementParseFn = Serializer.GetParseStringSegmentFn(elementType);
             if (elementParseFn != null)
             {
-                var parseFn = DeserializeArrayWithElements<TSerializer>.GetParseStringSegmentFn(elementType);
+                var parseFn = DeserializeArrayWithElements<TSerializer>.GetParseStringSpanFn(elementType);
                 return value => parseFn(value, elementParseFn);
             }
             return null;
