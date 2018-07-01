@@ -28,6 +28,9 @@ namespace ServiceStack.Memory
         public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) =>
             decimal.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
 
+        public override decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands) =>
+            decimal.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+
         public override bool TryParseFloat(ReadOnlySpan<char> value, out float result) =>
             float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
 
@@ -181,6 +184,10 @@ namespace ServiceStack.Memory
         public override int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination) => Encoding.UTF8.GetBytes(source, destination);
 
         public override int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination) => Encoding.UTF8.GetChars(source, destination);
+
+        public override byte[] ToUtf8Bytes(ReadOnlySpan<char> source) => ToUtf8(source).ToArray();
+
+        public override string FromUtf8Bytes(ReadOnlySpan<byte> source) => FromUtf8(source).ToString();
     }    
 }
 

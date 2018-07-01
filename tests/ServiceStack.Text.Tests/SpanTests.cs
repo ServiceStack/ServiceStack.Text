@@ -36,7 +36,7 @@ namespace ServiceStack.Text.Tests
             var i = 0;
             var buf = str.AsSpan();
             var pos = 0;
-            while (buf.TryReadLine(out ReadOnlySpan<char> line, ref pos))
+            while (buf.TryReadLine(out var line, ref pos))
             {
                 Assert.That(line.ToString(), Is.EqualTo(expected[i++]));
             }
@@ -54,7 +54,7 @@ namespace ServiceStack.Text.Tests
             var i = 0;
             var buf = str.AsSpan();
             var pos = 0;
-            while (buf.TryReadPart(".".AsSpan(), out ReadOnlySpan<char> part, ref pos))
+            while (buf.TryReadPart(".", out ReadOnlySpan<char> part, ref pos))
             {
                 Assert.That(part.ToString(), Is.EqualTo(expected[i++]));
             }
@@ -67,7 +67,7 @@ namespace ServiceStack.Text.Tests
             i = 0;
             buf = str.AsSpan();
             pos = 0;
-            while (buf.TryReadPart("||".AsSpan(), out ReadOnlySpan<char> part, ref pos))
+            while (buf.TryReadPart("||", out ReadOnlySpan<char> part, ref pos))
             {
                 Assert.That(part.ToString(), Is.EqualTo(expected[i++]));
             }
@@ -83,7 +83,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(first.ToString(), Is.EqualTo("a"));
             Assert.That(last.ToString(), Is.EqualTo("b:c"));
 
-            "a::b::c".AsSpan().SplitOnFirst("::".AsSpan(), out first, out last);
+            "a::b::c".AsSpan().SplitOnFirst("::", out first, out last);
             Assert.That(first.ToString(), Is.EqualTo("a"));
             Assert.That(last.ToString(), Is.EqualTo("b::c"));
         }
@@ -95,7 +95,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(first.ToString(), Is.EqualTo("a:b"));
             Assert.That(last.ToString(), Is.EqualTo("c"));
 
-            "a::b::c".AsSpan().SplitOnLast("::".AsSpan(), out first, out last);
+            "a::b::c".AsSpan().SplitOnLast("::", out first, out last);
             Assert.That(first.ToString(), Is.EqualTo("a::b"));
             Assert.That(last.ToString(), Is.EqualTo("c"));
         }

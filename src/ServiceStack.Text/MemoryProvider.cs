@@ -28,6 +28,7 @@ namespace ServiceStack.Text
 
         public abstract bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result);
         public abstract decimal ParseDecimal(ReadOnlySpan<char> value);
+        public abstract decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands);
 
         public abstract bool TryParseFloat(ReadOnlySpan<char> value, out float result);
         public abstract float ParseFloat(ReadOnlySpan<char> value);
@@ -67,6 +68,9 @@ namespace ServiceStack.Text
 
         public abstract int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination);
         public abstract int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination);
+
+        public abstract byte[] ToUtf8Bytes(ReadOnlySpan<char> source);
+        public abstract string FromUtf8Bytes(ReadOnlySpan<byte> source);
     }
 
     public sealed class DefaultMemory : MemoryProvider
@@ -101,6 +105,14 @@ namespace ServiceStack.Text
             TryParseDecimal(value, allowThousands: true, out result);
 
         public override decimal ParseDecimal(ReadOnlySpan<char> value) => ParseDecimal(value, allowThousands: true);
+
+        public override decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands)
+        {
+            if (!TryParseDecimal(value, allowThousands, out var result))
+                throw new FormatException(BadFormat);
+
+            return result;
+        }
 
         public override bool TryParseFloat(ReadOnlySpan<char> value, out float result) => float.TryParse(
             value.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
@@ -174,14 +186,6 @@ namespace ServiceStack.Text
                 default:
                     return "Unknown";
             }
-        }
-
-        public static decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands)
-        {
-            if (!TryParseDecimal(value, allowThousands, out var result))
-                throw new FormatException(BadFormat);
-
-            return result;
         }
 
         public static bool TryParseDecimal(ReadOnlySpan<char> value, bool allowThousands, out decimal result)
@@ -452,9 +456,6 @@ namespace ServiceStack.Text
         public override Guid ParseGuid(ReadOnlySpan<char> value)
         {
             if (value.IsEmpty)
-                throw new ArgumentNullException(nameof(value));
-
-            if (value.Length == 0)
                 throw new FormatException(BadFormat);
 
             //Guid can be in one of 3 forms:
@@ -614,6 +615,10 @@ namespace ServiceStack.Text
             new ReadOnlySpan<char>(chars, 0, charsWritten).CopyTo(destination);
             return charsWritten;
         }
+
+        public override byte[] ToUtf8Bytes(ReadOnlySpan<char> source) => Encoding.UTF8.GetBytes(source.ToArray());
+
+        public override string FromUtf8Bytes(ReadOnlySpan<byte> source) => Encoding.UTF8.GetString(source.ToArray());
 
         private static Guid ParseGeneralStyleGuid(ReadOnlySpan<char> value, out int len)
         {
@@ -802,9 +807,6 @@ namespace ServiceStack.Text
         public static long ParseInt64(ReadOnlySpan<char> value)
         {
             if (value.IsEmpty)
-                throw new ArgumentNullException(nameof(value));
-
-            if (value.Length == 0)
                 throw new FormatException(MemoryProvider.BadFormat);
 
             long result = 0;
@@ -974,7 +976,7 @@ namespace ServiceStack.Text
 
         internal static ulong ParseUInt64(ReadOnlySpan<char> value)
         {
-            if (value.Length == 0)
+            if (value.IsEmpty)
                 throw new FormatException(MemoryProvider.BadFormat);
 
             ulong result = 0;

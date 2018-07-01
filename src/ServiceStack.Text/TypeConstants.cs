@@ -2,11 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using ServiceStack.Text;
-
-#if NETSTANDARD2_0
-using Microsoft.Extensions.Primitives;
-#endif
 
 namespace ServiceStack
 {
@@ -69,13 +64,6 @@ namespace ServiceStack
         public static readonly List<Type> EmptyTypeList = new List<Type>(0);
         public static readonly List<FieldInfo> EmptyFieldInfoList = new List<FieldInfo>(0);
         public static readonly List<PropertyInfo> EmptyPropertyInfoList = new List<PropertyInfo>(0);
-
-        [Obsolete("Use ReadOnlyMemory<char> or ReadOnlySpan<char>")]
-        public static readonly StringSegment EmptyStringSegment = new StringSegment(null);
-        [Obsolete("Use ReadOnlyMemory<char> or ReadOnlySpan<char>")]
-        public static readonly StringSegment[] EmptyStringSegmentArray = new StringSegment[0];
-        [Obsolete("Use ReadOnlyMemory<char> or ReadOnlySpan<char>")]
-        public static readonly List<StringSegment> EmptyStringSegmentList = new List<StringSegment>(0);
     }
 
     public static class TypeConstants<T>

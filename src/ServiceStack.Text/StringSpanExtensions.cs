@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Text;
@@ -7,7 +8,11 @@ using System.Threading.Tasks;
 
 namespace ServiceStack.Text
 {
-    public static class CharSpanExtensions
+    /// <summary>
+    /// Helpful extensions on ReadOnlySpan&lt;char&gt;
+    /// Previous extensions on StringSegment available from: https://gist.github.com/mythz/9825689f0db7464d1d541cb62954614c
+    /// </summary>
+    public static class StringSpanExtensions
     {
         /// <summary>
         /// Returns null if Length == 0, string.Empty if value[0] == NonWidthWhitespace, otherise returns value.ToString()
@@ -87,48 +92,52 @@ namespace ServiceStack.Text
             MemoryProvider.Instance.ParseDecimal(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal ParseDecimal(this ReadOnlySpan<char> value, bool allowThousands) => 
+            MemoryProvider.Instance.ParseDecimal(value, allowThousands);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ParseFloat(this ReadOnlySpan<char> value) => 
             MemoryProvider.Instance.ParseFloat(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ParseDouble(this ReadOnlySpan<char> value) => 
             MemoryProvider.Instance.ParseDouble(value);
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ParseSByte(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseSByte(value);
+        public static sbyte ParseSByte(this ReadOnlySpan<char> value) =>
+            SignedInteger<sbyte>.ParseSByte(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ParseByte(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseByte(value);
+            UnsignedInteger<byte>.ParseByte(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static short ParseInt16(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseInt16(value);
+            SignedInteger<short>.ParseInt16(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort ParseUInt16(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseUInt16(value);
-        
+            UnsignedInteger<ushort>.ParseUInt16(value);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ParseInt32(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseInt32(value);
+        public static int ParseInt32(this ReadOnlySpan<char> value) =>
+            SignedInteger<int>.ParseInt32(value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ParseUInt32(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseUInt32(value);
+            UnsignedInteger<uint>.ParseUInt32(value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long ParseInt64(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseInt64(value);
+            SignedInteger<long>.ParseInt64(value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong ParseUInt64(this ReadOnlySpan<char> value) => 
-            MemoryProvider.Instance.ParseUInt64(value);
+            UnsignedInteger<ulong>.ParseUInt64(value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid ParseGuid(this ReadOnlySpan<char> value) =>
-            MemoryProvider.Instance.ParseGuid(value);
+            DefaultMemory.Provider.ParseGuid(value);
         
         public static object ParseSignedInteger(this ReadOnlySpan<char> value)
         {
@@ -170,7 +179,7 @@ namespace ServiceStack.Text
             }
         }
 
-        public static bool TryReadPart(this ReadOnlySpan<char> text, ReadOnlySpan<char> needle, out ReadOnlySpan<char> part, ref int startIndex)
+        public static bool TryReadPart(this ReadOnlySpan<char> text, string needle, out ReadOnlySpan<char> part, ref int startIndex)
         {
             if (startIndex >= text.Length)
             {
@@ -320,7 +329,7 @@ namespace ServiceStack.Text
             }
         }
 
-        public static void SplitOnFirst(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
+        public static void SplitOnFirst(this ReadOnlySpan<char> strVal, string needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
         {
             first = default;
             last = default;
@@ -356,7 +365,7 @@ namespace ServiceStack.Text
             }
         }
 
-        public static void SplitOnLast(this ReadOnlySpan<char> strVal, ReadOnlySpan<char> needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
+        public static void SplitOnLast(this ReadOnlySpan<char> strVal, string needle, out ReadOnlySpan<char> first, out ReadOnlySpan<char> last)
         {
             first = default;
             last = default;
@@ -522,6 +531,12 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EqualTo(this ReadOnlySpan<char> value, string other) => value.Equals(other.AsSpan(), StringComparison.Ordinal);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EqualTo(this ReadOnlySpan<char> value, ReadOnlySpan<char> other) => value.Equals(other, StringComparison.Ordinal);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EqualsOrdinal(this ReadOnlySpan<char> value, string other) => value.Equals(other.AsSpan(), StringComparison.Ordinal);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -574,5 +589,25 @@ namespace ServiceStack.Text
 
         public static ReadOnlyMemory<char> FromUtf8(this ReadOnlySpan<byte> value) =>
             MemoryProvider.Instance.FromUtf8(value);
+
+        public static byte[] ToUtf8Bytes(this ReadOnlySpan<char> value) =>
+            MemoryProvider.Instance.ToUtf8Bytes(value);
+
+        public static string FromUtf8Bytes(this ReadOnlySpan<byte> value) =>
+            MemoryProvider.Instance.FromUtf8Bytes(value);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<string> ToStringList(this IEnumerable<ReadOnlyMemory<char>> from)
+        {
+            var to = new List<string>();
+            if (from != null)
+            {
+                foreach (var item in from)
+                {
+                    to.Add(item.ToString());
+                }
+            }
+            return to;
+        }        
     }
 }

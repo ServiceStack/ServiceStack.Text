@@ -63,7 +63,6 @@
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <ProjectReference Include="..\..\src\ServiceStack.Memory\ServiceStack.Memory.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.*" />
     <PackageReference Include="System.Drawing.Primitives" Version="4.*" />
     <PackageReference Include="System.Collections.Specialized" Version="4.*" />
     <PackageReference Include="System.Runtime" Version="4.*" />

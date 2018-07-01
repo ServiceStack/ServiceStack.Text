@@ -3,36 +3,33 @@ using ServiceStack.Text.Support;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-#if NETCORE
-using Microsoft.Extensions.Primitives;
-#endif
 
 namespace ServiceStack.Text.Tests.Support
 {
     [TestFixture]
-    public class StringSegmentParseTests
+    public class StringSpanParseTests
     {
         [Test]
         public void Can_parse_int32()
         {
-            Assert.That(new StringSegment("0").ParseInt32(), Is.EqualTo(0));
-            Assert.That(new StringSegment("-0").ParseInt32(), Is.EqualTo(0));
-            Assert.That(new StringSegment("1").ParseInt32(), Is.EqualTo(1));
-            Assert.That(new StringSegment(int.MaxValue.ToString()).ParseInt32(), Is.EqualTo(int.MaxValue));
-            Assert.That(new StringSegment(int.MinValue.ToString()).ParseInt32(), Is.EqualTo(int.MinValue));
-            Assert.That(new StringSegment("234").ParseInt32(), Is.EqualTo(234));
-            Assert.That(new StringSegment("    234  ").ParseInt32(), Is.EqualTo(234));
-            Assert.That(new StringSegment("234  ").ParseInt32(), Is.EqualTo(234));
-            Assert.That(new StringSegment("   234").ParseInt32(), Is.EqualTo(234));
-            Assert.That(new StringSegment("   -234    ").ParseInt32(), Is.EqualTo(-234));
-            Assert.Throws<FormatException>(() => new StringSegment("").ParseInt32());
-            Assert.Throws<FormatException>(() => new StringSegment("-01").ParseInt32());
-            Assert.Throws<FormatException>(() => new StringSegment("   - 234    ").ParseInt32());
-            Assert.Throws<FormatException>(() => new StringSegment("   2.34    ").ParseInt32());
-            Assert.Throws<OverflowException>(() => new StringSegment("12345678901234567890").ParseInt32());
-            Assert.Throws<FormatException>(() => new StringSegment("abbababab").ParseInt32());
-            Assert.Throws<FormatException>(() => new StringSegment("x10").ParseInt32());
-            Assert.Throws<FormatException>(() => new StringSegment("    1234  123").ParseInt32());
+            Assert.That("0".AsSpan().ParseInt32(), Is.EqualTo(0));
+            Assert.That("-0".AsSpan().ParseInt32(), Is.EqualTo(0));
+            Assert.That("1".AsSpan().ParseInt32(), Is.EqualTo(1));
+            Assert.That(int.MaxValue.ToString().AsSpan().ParseInt32(), Is.EqualTo(int.MaxValue));
+            Assert.That(int.MinValue.ToString().AsSpan().ParseInt32(), Is.EqualTo(int.MinValue));
+            Assert.That("234".AsSpan().ParseInt32(), Is.EqualTo(234));
+            Assert.That("    234  ".AsSpan().ParseInt32(), Is.EqualTo(234));
+            Assert.That("234  ".AsSpan().ParseInt32(), Is.EqualTo(234));
+            Assert.That("   234".AsSpan().ParseInt32(), Is.EqualTo(234));
+            Assert.That("   -234    ".AsSpan().ParseInt32(), Is.EqualTo(-234));
+            Assert.Throws<FormatException>(() => "".AsSpan().ParseInt32());
+            Assert.Throws<FormatException>(() => "-01".AsSpan().ParseInt32());
+            Assert.Throws<FormatException>(() => "   - 234    ".AsSpan().ParseInt32());
+            Assert.Throws<FormatException>(() => "   2.34    ".AsSpan().ParseInt32());
+            Assert.Throws<OverflowException>(() => "12345678901234567890".AsSpan().ParseInt32());
+            Assert.Throws<FormatException>(() => "abbababab".AsSpan().ParseInt32());
+            Assert.Throws<FormatException>(() => "x10".AsSpan().ParseInt32());
+            Assert.Throws<FormatException>(() => "    1234  123".AsSpan().ParseInt32());
         }
 
         [Test]
@@ -40,20 +37,21 @@ namespace ServiceStack.Text.Tests.Support
         {
             foreach (var data in Parse_Invalid_TestData())
             {
-                Assert.Throws((Type)data[3], () => new StringSegment((string) data[0]).ParseInt32());
+                Assert.Throws((Type)data[3], () => ((string) data[0]).AsSpan().ParseInt32());
             }
         }
-
 
         //ivalid tests data from 
         //https://github.com/dotnet/corefx/blob/df8d8ac7c49e6c4acdce2ea684d8815be5da6a25/src/System.Runtime/tests/System/Int32Tests.cs#L150
         public static IEnumerable<object[]> Parse_Invalid_TestData()
         {
             // String is null, empty or entirely whitespace
-            yield return new object[] { null, NumberStyles.Integer, null, typeof(ArgumentNullException) };
-            yield return new object[] { null, NumberStyles.Any, null, typeof(ArgumentNullException) };
+            yield return new object[] { null, NumberStyles.Integer, null, typeof(FormatException) };
+            yield return new object[] { null, NumberStyles.Any, null, typeof(FormatException) };
+
             yield return new object[] { "", NumberStyles.Integer, null, typeof(FormatException) };
             yield return new object[] { "", NumberStyles.Any, null, typeof(FormatException) };
+            
             yield return new object[] { " \t \n \r ", NumberStyles.Integer, null, typeof(FormatException) };
             yield return new object[] { " \t \n \r ", NumberStyles.Any, null, typeof(FormatException) };
 
@@ -130,53 +128,53 @@ namespace ServiceStack.Text.Tests.Support
         [Test]
         public void Can_parse_decimal()
         {
-            Assert.That(new StringSegment("1234.5678").ParseDecimal(), Is.EqualTo(1234.5678m));
-            Assert.That(new StringSegment("1234").ParseDecimal(), Is.EqualTo(1234m));
-            Assert.Throws<FormatException>(() => new StringSegment(".").ParseDecimal());
-            Assert.Throws<FormatException>(() => new StringSegment("").ParseDecimal());
-            Assert.That(new StringSegment("0").ParseDecimal(), Is.EqualTo(0));
-            Assert.That(new StringSegment("-0").ParseDecimal(), Is.EqualTo(0));
-            Assert.That(new StringSegment("0.").ParseDecimal(), Is.EqualTo(0));
-            Assert.That(new StringSegment("-0.").ParseDecimal(), Is.EqualTo(0));
-            Assert.That(new StringSegment(".1").ParseDecimal(), Is.EqualTo(.1m));
-            Assert.That(new StringSegment("-.1").ParseDecimal(), Is.EqualTo(-.1m));
-            Assert.That(new StringSegment("10.001").ParseDecimal(), Is.EqualTo(10.001m));
-            Assert.That(new StringSegment("  10.001").ParseDecimal(), Is.EqualTo(10.001m));
-            Assert.That(new StringSegment("10.001  ").ParseDecimal(), Is.EqualTo(10.001m));
-            Assert.That(new StringSegment(" 10.001  ").ParseDecimal(), Is.EqualTo(10.001m));
-            Assert.That(new StringSegment("-10.001").ParseDecimal(), Is.EqualTo(-10.001m));
+            Assert.That("1234.5678".AsSpan().ParseDecimal(), Is.EqualTo(1234.5678m));
+            Assert.That("1234".AsSpan().ParseDecimal(), Is.EqualTo(1234m));
+            Assert.Throws<FormatException>(() => ".".AsSpan().ParseDecimal());
+            Assert.Throws<FormatException>(() => "".AsSpan().ParseDecimal());
+            Assert.That("0".AsSpan().ParseDecimal(), Is.EqualTo(0));
+            Assert.That("-0".AsSpan().ParseDecimal(), Is.EqualTo(0));
+            Assert.That("0.".AsSpan().ParseDecimal(), Is.EqualTo(0));
+            Assert.That("-0.".AsSpan().ParseDecimal(), Is.EqualTo(0));
+            Assert.That(".1".AsSpan().ParseDecimal(), Is.EqualTo(.1m));
+            Assert.That("-.1".AsSpan().ParseDecimal(), Is.EqualTo(-.1m));
+            Assert.That("10.001".AsSpan().ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That("  10.001".AsSpan().ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That("10.001  ".AsSpan().ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That(" 10.001  ".AsSpan().ParseDecimal(), Is.EqualTo(10.001m));
+            Assert.That("-10.001".AsSpan().ParseDecimal(), Is.EqualTo(-10.001m));
             //large
-            Assert.That(new StringSegment("12345678901234567890").ParseDecimal(), Is.EqualTo(12345678901234567890m));
-            Assert.That(new StringSegment("12345678901234567890.12").ParseDecimal(), Is.EqualTo(12345678901234567890.12m));
-            Assert.That(new StringSegment(decimal.MaxValue.ToString(CultureInfo.InvariantCulture)).ParseDecimal(), Is.EqualTo(decimal.MaxValue));
-            Assert.That(new StringSegment(decimal.MinValue.ToString(CultureInfo.InvariantCulture)).ParseDecimal(), Is.EqualTo(decimal.MinValue));
+            Assert.That("12345678901234567890".AsSpan().ParseDecimal(), Is.EqualTo(12345678901234567890m));
+            Assert.That("12345678901234567890.12".AsSpan().ParseDecimal(), Is.EqualTo(12345678901234567890.12m));
+            Assert.That(decimal.MaxValue.ToString(CultureInfo.InvariantCulture).AsSpan().ParseDecimal(), Is.EqualTo(decimal.MaxValue));
+            Assert.That(decimal.MinValue.ToString(CultureInfo.InvariantCulture).AsSpan().ParseDecimal(), Is.EqualTo(decimal.MinValue));
 
             //exponent
-            Assert.That(new StringSegment("7.67e-6").ParseDecimal(), Is.EqualTo(7.67e-6f));
-            Assert.That(new StringSegment("10.001E3").ParseDecimal(), Is.EqualTo(10001m));
-            Assert.That(new StringSegment(".001e5").ParseDecimal(), Is.EqualTo(100m));
-            Assert.That(new StringSegment("10.001E-2").ParseDecimal(), Is.EqualTo(0.10001m));
-            Assert.That(new StringSegment("10.001e-8").ParseDecimal(), Is.EqualTo(0.00000010001m));
-            Assert.That(new StringSegment("2.e2").ParseDecimal(), Is.EqualTo(200m));
-            Assert.Throws<FormatException>(() => new StringSegment(".e2").ParseDecimal());
-            Assert.That(new StringSegment("9.e+000027").ParseDecimal(), Is.EqualTo(decimal.Parse("9.e+000027", NumberStyles.Float, CultureInfo.InvariantCulture)));
+            Assert.That("7.67e-6".AsSpan().ParseDecimal(), Is.EqualTo(7.67e-6f));
+            Assert.That("10.001E3".AsSpan().ParseDecimal(), Is.EqualTo(10001m));
+            Assert.That(".001e5".AsSpan().ParseDecimal(), Is.EqualTo(100m));
+            Assert.That("10.001E-2".AsSpan().ParseDecimal(), Is.EqualTo(0.10001m));
+            Assert.That("10.001e-8".AsSpan().ParseDecimal(), Is.EqualTo(0.00000010001m));
+            Assert.That("2.e2".AsSpan().ParseDecimal(), Is.EqualTo(200m));
+            Assert.Throws<FormatException>(() => ".e2".AsSpan().ParseDecimal());
+            Assert.That("9.e+000027".AsSpan().ParseDecimal(), Is.EqualTo(decimal.Parse("9.e+000027", NumberStyles.Float, CultureInfo.InvariantCulture)));
 
             //allow thouthands
-            Assert.That(new StringSegment("1,234.5678").ParseDecimal(true), Is.EqualTo(1234.5678m));
-            Assert.Throws<FormatException>(() => new StringSegment(",1234.5678").ParseDecimal(true));
+            Assert.That("1,234.5678".AsSpan().ParseDecimal(true), Is.EqualTo(1234.5678m));
+            Assert.Throws<FormatException>(() => ",1234.5678".AsSpan().ParseDecimal(true));
 
         }
 
         [Test]
         public void Can_parse_guid()
         {
-            Assert.That(new StringSegment("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}").ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
-            Assert.That(new StringSegment("b6170a18-3dd7-4a9b-b5d6-21033b5ad162").ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
-            Assert.That(new StringSegment("b6170a183dd74a9bb5d621033b5ad162").ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
+            Assert.That("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}".AsSpan().ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
+            Assert.That("b6170a18-3dd7-4a9b-b5d6-21033b5ad162".AsSpan().ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
+            Assert.That("b6170a183dd74a9bb5d621033b5ad162".AsSpan().ParseGuid(), Is.EqualTo(new Guid("{b6170a18-3dd7-4a9b-b5d6-21033b5ad162}")));
 
             foreach (var data in GuidStrings_Valid_TestData())
             {
-                Assert.That(new StringSegment((string)data[0]).ParseGuid(), Is.EqualTo(data[2]));
+                Assert.That(((string)data[0]).AsSpan().ParseGuid(), Is.EqualTo(data[2]));
             }
         }
 
@@ -186,7 +184,7 @@ namespace ServiceStack.Text.Tests.Support
         {
             foreach (var data in GuidStrings_Invalid_TestData())
             {
-                Assert.Throws((Type)data[1], () => new StringSegment((string)data[0]).ParseGuid());
+                Assert.Throws((Type)data[1], () => ((string)data[0]).AsSpan().ParseGuid());
             }
         }
 
@@ -241,8 +239,9 @@ namespace ServiceStack.Text.Tests.Support
         //https://github.com/dotnet/corefx/blob/df8d8ac7c49e6c4acdce2ea684d8815be5da6a25/src/System.Runtime/tests/System/GuidTests.cs#L436
         public static IEnumerable<object[]> GuidStrings_Invalid_TestData()
         {
-            yield return new object[] { null, typeof(ArgumentNullException) }; // String is null
+//            yield return new object[] { null, typeof(ArgumentNullException) }; // String is null
 
+//          ReadOnlySpan<char> can't be null or empty
             yield return new object[] { "", typeof(FormatException) }; // String is invalid
             yield return new object[] { "     \t", typeof(FormatException) }; // String is invalid
 

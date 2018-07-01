@@ -25,14 +25,20 @@ namespace ServiceStack.Memory
         public override bool TryParseBoolean(ReadOnlySpan<char> value, out bool result) =>
             bool.TryParse(value, out result);
 
-        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) => DefaultMemory.TryParseDecimal(value, allowThousands: true, out result);
-        public override decimal ParseDecimal(ReadOnlySpan<char> value) => DefaultMemory.ParseDecimal(value, allowThousands: true);
+        public override bool TryParseDecimal(ReadOnlySpan<char> value, out decimal result) =>
+            decimal.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
+
+        public override decimal ParseDecimal(ReadOnlySpan<char> value, bool allowThousands) =>
+            decimal.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
         public override bool TryParseFloat(ReadOnlySpan<char> value, out float result) =>
             float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
 
         public override bool TryParseDouble(ReadOnlySpan<char> value, out double result) =>
             double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
+
+        public override decimal ParseDecimal(ReadOnlySpan<char> value) =>
+            decimal.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
         
         public override float ParseFloat(ReadOnlySpan<char> value) =>
             float.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
@@ -40,23 +46,23 @@ namespace ServiceStack.Memory
         public override double ParseDouble(ReadOnlySpan<char> value) =>
             double.Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
-        public override sbyte ParseSByte(ReadOnlySpan<char> value) => SignedInteger<sbyte>.ParseSByte(value);
+        public override sbyte ParseSByte(ReadOnlySpan<char> value) => sbyte.Parse(value);
 
-        public override byte ParseByte(ReadOnlySpan<char> value) => UnsignedInteger<byte>.ParseByte(value);
+        public override byte ParseByte(ReadOnlySpan<char> value) => byte.Parse(value);
 
-        public override short ParseInt16(ReadOnlySpan<char> value) => SignedInteger<short>.ParseInt16(value);
+        public override short ParseInt16(ReadOnlySpan<char> value) => short.Parse(value);
 
-        public override ushort ParseUInt16(ReadOnlySpan<char> value) => UnsignedInteger<ushort>.ParseUInt16(value);
+        public override ushort ParseUInt16(ReadOnlySpan<char> value) => ushort.Parse(value);
 
-        public override int ParseInt32(ReadOnlySpan<char> value) => SignedInteger<int>.ParseInt32(value);
+        public override int ParseInt32(ReadOnlySpan<char> value) => int.Parse(value);
 
-        public override uint ParseUInt32(ReadOnlySpan<char> value) => UnsignedInteger<uint>.ParseUInt32(value);
+        public override uint ParseUInt32(ReadOnlySpan<char> value) => uint.Parse(value);
 
-        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value.ToString(), style);
+        public override uint ParseUInt32(ReadOnlySpan<char> value, NumberStyles style) => uint.Parse(value.ToString(), NumberStyles.HexNumber);
 
-        public override long ParseInt64(ReadOnlySpan<char> value) => SignedInteger<int>.ParseInt64(value);
+        public override long ParseInt64(ReadOnlySpan<char> value) => long.Parse(value);
 
-        public override ulong ParseUInt64(ReadOnlySpan<char> value) => UnsignedInteger<ulong>.ParseUInt64(value);
+        public override ulong ParseUInt64(ReadOnlySpan<char> value) => ulong.Parse(value);
 
         public override Guid ParseGuid(ReadOnlySpan<char> value) => Guid.Parse(value);
         
@@ -178,6 +184,10 @@ namespace ServiceStack.Memory
         public override int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination) => Encoding.UTF8.GetBytes(source, destination);
 
         public override int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination) => Encoding.UTF8.GetChars(source, destination);
+
+        public override byte[] ToUtf8Bytes(ReadOnlySpan<char> source) => ToUtf8(source).ToArray();
+
+        public override string FromUtf8Bytes(ReadOnlySpan<byte> source) => FromUtf8(source).ToString();
     }    
 }
 

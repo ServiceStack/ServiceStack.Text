@@ -122,7 +122,7 @@ namespace ServiceStack.Text.Benchmarks
             NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
 
         [Benchmark]
-        public decimal CustomParseDecimal() => DefaultMemory.ParseDecimal("123456.123456", allowThousands: true);
+        public decimal CustomParseDecimal() => DefaultMemory.Provider.ParseDecimal("123456.123456", allowThousands: true);
     }
 
 
