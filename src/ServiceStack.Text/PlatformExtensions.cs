@@ -675,6 +675,9 @@ namespace ServiceStack
 
         public static object FromObjectDictionary(this IReadOnlyDictionary<string, object> values, Type type)
         {
+            if (values == null)
+                return null;
+            
             var alreadyDict = type == typeof(IReadOnlyDictionary<string, object>);
             if (alreadyDict)
                 return true;

@@ -130,7 +130,7 @@ namespace ServiceStack.Text.Common
                 if (keyValue.IsEmpty) continue;
 
                 var mapKey = keyValue.ToString();
-                var mapValue = elementValue.ToString();
+                var mapValue = elementValue.Value();
 
                 result[mapKey] = mapValue;
 
@@ -164,7 +164,7 @@ namespace ServiceStack.Text.Common
                 var mapKey = Serializer.UnescapeString(keyValue);
                 var mapValue = Serializer.UnescapeString(elementValue);
 
-                result[mapKey.ToString()] = mapValue.ToString();
+                result[mapKey.ToString()] = mapValue.Value();
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
             }
@@ -201,7 +201,7 @@ namespace ServiceStack.Text.Common
                 if (elementStartIndex < valueLength)
                 {
                     Serializer.EatWhitespace(value, ref elementStartIndex);
-                    to[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue.ToString(), value[elementStartIndex]);
+                    to[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue.Value(), value[elementStartIndex]);
                 }
                 else
                 {
