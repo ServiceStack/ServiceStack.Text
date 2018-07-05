@@ -100,7 +100,7 @@ namespace ServiceStack.Text.Common
                 if (keyValue.IsEmpty) continue;
 
                 var mapKey = keyValue.ToString();
-                var mapValue = elementValue.ToString();
+                var mapValue = elementValue.Value();
 
                 result[mapKey] = mapValue;
 
