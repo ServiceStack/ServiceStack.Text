@@ -67,11 +67,11 @@ namespace ServiceStack
                 }
                 else if (tryToParsePrimitiveTypes)
                 {
-                    container[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue) ?? Serializer.UnescapeString(elementValue).ToString();
+                    container[mapKey] = DeserializeType<TSerializer>.ParsePrimitive(elementValue) ?? Serializer.UnescapeString(elementValue).Value();
                 }
                 else
                 {
-                    container[mapKey] = Serializer.UnescapeString(elementValue).ToString();
+                    container[mapKey] = Serializer.UnescapeString(elementValue).Value();
                 }
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
