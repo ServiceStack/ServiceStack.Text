@@ -49,25 +49,34 @@ namespace ServiceStack
             "--MM--zzzzzz",
         };
 
-        static readonly Action<HttpWebRequest, string> SetUserAgentDelegate =
-            (Action<HttpWebRequest, string>)typeof(HttpWebRequest)
+        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
+        public static void InitHttpRequestDelegates()
+        {
+            SetUserAgentDelegate = (Action<HttpWebRequest, string>)typeof(HttpWebRequest)
                 .GetProperty("UserAgent")
                 ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, string>));
-
-        static readonly Action<HttpWebRequest, bool> SetAllowAutoRedirectDelegate =
-            (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
+            
+            SetAllowAutoRedirectDelegate = (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
                 .GetProperty("AllowAutoRedirect")
                 ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
-
-        static readonly Action<HttpWebRequest, bool> SetKeepAliveDelegate =
-            (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
+            
+            SetKeepAliveDelegate = (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
                 .GetProperty("KeepAlive")
                 ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
-
-        static readonly Action<HttpWebRequest, long> SetContentLengthDelegate =
-            (Action<HttpWebRequest, long>)typeof(HttpWebRequest)
+            
+            SetContentLengthDelegate = (Action<HttpWebRequest, long>)typeof(HttpWebRequest)
                 .GetProperty("ContentLength")
                 ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, long>));
+        }
+
+        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
+        public static Action<HttpWebRequest, string> SetUserAgentDelegate { get; set; }
+        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
+        public static Action<HttpWebRequest, bool> SetAllowAutoRedirectDelegate { get; set; }
+        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
+        public static Action<HttpWebRequest, bool> SetKeepAliveDelegate { get; set; }
+        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
+        public static Action<HttpWebRequest, long> SetContentLengthDelegate { get; set; }
 
         public NetStandardPclExport()
         {
