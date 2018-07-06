@@ -98,7 +98,7 @@ namespace ServiceStack.Text.Common
                     {
                         if (typeAccessor != null)
                         {
-                            var parseFn = Serializer.GetParseStringSegmentFn(propType);
+                            var parseFn = Serializer.GetParseStringSpanFn(propType);
                             var propertyValue = parseFn(propertyValueStr);
                             if (typeConfig.OnDeserializing != null)
                                 propertyValue = typeConfig.OnDeserializing(instance, propertyName.ToString(), propertyValue);

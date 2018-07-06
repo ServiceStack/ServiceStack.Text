@@ -272,9 +272,9 @@ namespace ServiceStack.Text.Jsv
 
         public ParseStringDelegate GetParseFn(Type type) => JsvReader.GetParseFn(type);
 
-        public ParseStringSpanDelegate GetParseStringSegmentFn<T>() => JsvReader.Instance.GetParseStringSegmentFn<T>();
+        public ParseStringSpanDelegate GetParseStringSpanFn<T>() => JsvReader.Instance.GetParseStringSpanFn<T>();
 
-        public ParseStringSpanDelegate GetParseStringSegmentFn(Type type) => JsvReader.GetParseStringSegmentFn(type);
+        public ParseStringSpanDelegate GetParseStringSpanFn(Type type) => JsvReader.GetParseStringSpanFn(type);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object UnescapeStringAsObject(ReadOnlySpan<char> value)

@@ -17,9 +17,9 @@ namespace ServiceStack.Text.Common
 {
     public class DeserializeTypeUtils
     {
-        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(v.AsSpan());
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSpanMethod(type)(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentMethod(Type type)
+        public static ParseStringSpanDelegate GetParseStringSpanMethod(Type type)
         {
             var typeConstructor = GetTypeStringConstructor(type);
             if (typeConstructor != null)

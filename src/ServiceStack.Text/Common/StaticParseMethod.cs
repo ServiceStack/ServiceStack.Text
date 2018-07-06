@@ -51,9 +51,9 @@ namespace ServiceStack.Text.Common
             return null;
         }
 
-        delegate T ParseStringSegmentGenericDelegate<T>(ReadOnlySpan<char> value);
+        delegate T ParseStringSpanGenericDelegate<T>(ReadOnlySpan<char> value);
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn<T>(string parseMethod)
+        public static ParseStringSpanDelegate GetParseStringSpanFn<T>(string parseMethod)
         {
             // Get the static Parse(string) method on the type supplied
             var parseMethodInfo = typeof(T).GetStaticMethod(parseMethod, new[] { typeof(string) });
@@ -70,7 +70,7 @@ namespace ServiceStack.Text.Common
                 if (parseDelegate == null)
                 {
                     //Try wrapping strongly-typed return with wrapper fn.
-                    var typedParseDelegate = (ParseStringSegmentGenericDelegate<T>)parseMethodInfo.MakeDelegate(typeof(ParseStringSegmentGenericDelegate<T>));
+                    var typedParseDelegate = (ParseStringSpanGenericDelegate<T>)parseMethodInfo.MakeDelegate(typeof(ParseStringSpanGenericDelegate<T>));
                     parseDelegate = x => typedParseDelegate(x);
                 }
             }
@@ -89,7 +89,7 @@ namespace ServiceStack.Text.Common
     public static class StaticParseMethod<T>
     {
         const string ParseMethod = "Parse";
-        const string ParseStringSegmentMethod = "ParseStringSegment";
+        const string ParseStringSpanMethod = "ParseStringSpanMethod";
 
         private static readonly ParseStringDelegate CacheFn;
         private static readonly ParseStringSpanDelegate CacheStringSpanFn;
@@ -100,7 +100,7 @@ namespace ServiceStack.Text.Common
         static StaticParseMethod()
         {
             CacheFn = ParseMethodUtilities.GetParseFn<T>(ParseMethod);
-            CacheStringSpanFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseMethod);
+            CacheStringSpanFn = ParseMethodUtilities.GetParseStringSpanFn<T>(ParseMethod);
         }
 
     }
@@ -112,9 +112,9 @@ namespace ServiceStack.Text.Common
             ? "ParseJsv"
             : "ParseJson";
 
-        static readonly string ParseStringSegmentMethod = typeof(TSerializer) == typeof(JsvTypeSerializer)
-            ? "ParseStringSegmentJsv"
-            : "ParseStringSegmentJson";
+        static readonly string ParseStringSpanMethod = typeof(TSerializer) == typeof(JsvTypeSerializer)
+            ? "ParseStringSpanJsv"
+            : "ParseStringSpanJson";
 
         private static readonly ParseStringDelegate CacheFn;
         private static readonly ParseStringSpanDelegate CacheStringSpanFn;
@@ -125,7 +125,7 @@ namespace ServiceStack.Text.Common
         static StaticParseRefTypeMethod()
         {
             CacheFn = ParseMethodUtilities.GetParseFn<T>(ParseMethod);
-            CacheStringSpanFn = ParseMethodUtilities.GetParseStringSegmentFn<T>(ParseStringSegmentMethod);
+            CacheStringSpanFn = ParseMethodUtilities.GetParseStringSpanFn<T>(ParseStringSpanMethod);
         }
     }
 

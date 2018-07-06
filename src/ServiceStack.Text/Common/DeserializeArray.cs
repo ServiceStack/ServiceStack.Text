@@ -110,15 +110,15 @@ namespace ServiceStack.Text.Common
     {
         private static Dictionary<Type, ParseStringSpanDelegate> ParseDelegateCache = new Dictionary<Type, ParseStringSpanDelegate>();
 
-        public static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(v.AsSpan());
+        public static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSpanFn(type)(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn(Type type)
+        public static ParseStringSpanDelegate GetParseStringSpanFn(Type type)
         {
             if (ParseDelegateCache.TryGetValue(type, out var parseFn)) return parseFn;
 
             var genericType = typeof(DeserializeArray<,>).MakeGenericType(type, typeof(TSerializer));
 
-            var mi = genericType.GetStaticMethod("GetParseStringSegmentFn");
+            var mi = genericType.GetStaticMethod("GetParseStringSpanFn");
             var parseFactoryFn = (Func<ParseStringSpanDelegate>)mi.MakeDelegate(
                 typeof(Func<ParseStringSpanDelegate>));
             parseFn = parseFactoryFn();
@@ -127,8 +127,7 @@ namespace ServiceStack.Text.Common
             do
             {
                 snapshot = ParseDelegateCache;
-                newCache = new Dictionary<Type, ParseStringSpanDelegate>(ParseDelegateCache);
-                newCache[type] = parseFn;
+                newCache = new Dictionary<Type, ParseStringSpanDelegate>(ParseDelegateCache) {[type] = parseFn};
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref ParseDelegateCache, newCache, snapshot), snapshot));
@@ -146,16 +145,16 @@ namespace ServiceStack.Text.Common
 
         static DeserializeArray()
         {
-            CacheFn = GetParseStringSegmentFn();
+            CacheFn = GetParseStringSpanFn();
         }
 
         public static ParseStringDelegate Parse => v => CacheFn(v.AsSpan());
 
         public static ParseStringSpanDelegate ParseStringSpan => CacheFn;
 
-        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(v.AsSpan());
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSpanFn()(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn()
+        public static ParseStringSpanDelegate GetParseStringSpanFn()
         {
             var type = typeof(T);
             if (!type.IsArray)
@@ -167,7 +166,7 @@ namespace ServiceStack.Text.Common
                 return v => ParseByteArray(v.ToString());
 
             var elementType = type.GetElementType();
-            var elementParseFn = Serializer.GetParseStringSegmentFn(elementType);
+            var elementParseFn = Serializer.GetParseStringSpanFn(elementType);
             if (elementParseFn != null)
             {
                 var parseFn = DeserializeArrayWithElements<TSerializer>.GetParseStringSpanFn(elementType);

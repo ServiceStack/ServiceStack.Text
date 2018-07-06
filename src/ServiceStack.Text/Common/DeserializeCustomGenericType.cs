@@ -9,9 +9,9 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(v.AsSpan());
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSpanMethod(type)(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentMethod(Type type)
+        public static ParseStringSpanDelegate GetParseStringSpanMethod(Type type)
         {
             if (type.Name.IndexOf("Tuple`", StringComparison.Ordinal) >= 0)
                 return x => ParseTuple(type, x);
@@ -39,7 +39,7 @@ namespace ServiceStack.Text.Common
                 if (keyValue.IsEmpty) continue;
 
                 var keyIndex = keyValue.Slice("Item".Length).ParseInt32() - 1;
-                var parseFn = Serializer.GetParseStringSegmentFn(genericArgs[keyIndex]);
+                var parseFn = Serializer.GetParseStringSpanFn(genericArgs[keyIndex]);
                 argValues[keyIndex] = parseFn(elementValue);
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);

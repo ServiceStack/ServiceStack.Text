@@ -15,18 +15,18 @@ namespace ServiceStack.Text.Jsv
 
         private static Dictionary<Type, ParseFactoryDelegate> ParseFnCache = new Dictionary<Type, ParseFactoryDelegate>();
 
-        public static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSegmentFn(type)(v.AsSpan());
+        public static ParseStringDelegate GetParseFn(Type type) => v => GetParseStringSpanFn(type)(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseSpanFn(Type type) => v => GetParseStringSegmentFn(type)(v);
+        public static ParseStringSpanDelegate GetParseSpanFn(Type type) => v => GetParseStringSpanFn(type)(v);
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn(Type type)
+        public static ParseStringSpanDelegate GetParseStringSpanFn(Type type)
         {
             ParseFnCache.TryGetValue(type, out var parseFactoryFn);
 
             if (parseFactoryFn != null) return parseFactoryFn();
 
             var genericType = typeof(JsvReader<>).MakeGenericType(type);
-            var mi = genericType.GetStaticMethod(nameof(GetParseStringSegmentFn));
+            var mi = genericType.GetStaticMethod(nameof(GetParseStringSpanFn));
             parseFactoryFn = (ParseFactoryDelegate)mi.MakeDelegate(typeof(ParseFactoryDelegate));
 
             Dictionary<Type, ParseFactoryDelegate> snapshot, newCache;
@@ -48,7 +48,7 @@ namespace ServiceStack.Text.Jsv
             Text.Jsv.JsvReader.Instance.GetParseFn<T>();
             Text.Jsv.JsvReader<T>.Parse(default(ReadOnlySpan<char>));
             Text.Jsv.JsvReader<T>.GetParseFn();
-            Text.Jsv.JsvReader<T>.GetParseStringSegmentFn();
+            Text.Jsv.JsvReader<T>.GetParseStringSpanFn();
         }
     }
 
@@ -68,14 +68,14 @@ namespace ServiceStack.Text.Jsv
             if (JsvReader.Instance == null)
                 return;
 
-            ReadFn = JsvReader.Instance.GetParseStringSegmentFn<T>();
+            ReadFn = JsvReader.Instance.GetParseStringSpanFn<T>();
         }
 
         public static ParseStringDelegate GetParseFn() => ReadFn != null
             ? (ParseStringDelegate)(v => ReadFn(v.AsSpan()))
             : Parse;
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn() => ReadFn ?? Parse;
+        public static ParseStringSpanDelegate GetParseStringSpanFn() => ReadFn ?? Parse;
 
         public static object Parse(string value) => value != null
             ? Parse(value.AsSpan())

@@ -55,9 +55,9 @@ namespace ServiceStack.Text.Common
         //object EncodeMapKey(object value);
 
         ParseStringDelegate GetParseFn<T>();
-        ParseStringSpanDelegate GetParseStringSegmentFn<T>();
+        ParseStringSpanDelegate GetParseStringSpanFn<T>();
         ParseStringDelegate GetParseFn(Type type);
-        ParseStringSpanDelegate GetParseStringSegmentFn(Type type);
+        ParseStringSpanDelegate GetParseStringSpanFn(Type type);
 
         string ParseRawString(string value);
         string ParseString(string value);

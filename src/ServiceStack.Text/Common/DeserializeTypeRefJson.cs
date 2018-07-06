@@ -105,7 +105,7 @@ namespace ServiceStack.Text.Common
                         if (typeAccessor != null)
                         {
                             //var parseFn = Serializer.GetParseFn(propType);
-                            var parseFn = JsonReader.GetParseStringSegmentFn(propType);
+                            var parseFn = JsonReader.GetParseStringSpanFn(propType);
 
                             var propertyValue = parseFn(propertyValueStr);
                             if (typeConfig.OnDeserializing != null)

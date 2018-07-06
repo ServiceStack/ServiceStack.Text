@@ -21,9 +21,9 @@ namespace ServiceStack.Text.Common
     {
         private static readonly ITypeSerializer Serializer = JsWriter.GetTypeSerializer<TSerializer>();
 
-        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(v.AsSpan());
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSpanMethod(type)(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentMethod(Type type)
+        public static ParseStringSpanDelegate GetParseStringSpanMethod(Type type)
         {
             var collectionInterface = type.GetTypeWithGenericInterfaceOf(typeof(ICollection<>));
             if (collectionInterface == null)
@@ -37,7 +37,7 @@ namespace ServiceStack.Text.Common
                 return value => ParseIntCollection(value, type);
 
             var elementType = collectionInterface.GetGenericArguments()[0];
-            var supportedTypeParseMethod = Serializer.GetParseStringSegmentFn(elementType);
+            var supportedTypeParseMethod = Serializer.GetParseStringSpanFn(elementType);
             if (supportedTypeParseMethod != null)
             {
                 var createCollectionType = type.HasAnyTypeDefinitionsOf(typeof(ICollection<>))

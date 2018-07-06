@@ -23,7 +23,7 @@ namespace ServiceStack.Text.Common
             return GetCoreParseFn<T>();
         }
 
-        public ParseStringSpanDelegate GetParseStringSegmentFn<T>()
+        public ParseStringSpanDelegate GetParseStringSpanFn<T>()
         {
             var onDeserializedFn = JsConfig<T>.OnDeserializedFn;
             if (onDeserializedFn != null)
@@ -75,22 +75,22 @@ namespace ServiceStack.Text.Common
                     return DeserializeList<T, TSerializer>.ParseStringSpan;
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(IDictionary<,>)))
-                    return DeserializeDictionary<TSerializer>.GetParseStringSegmentMethod(type);
+                    return DeserializeDictionary<TSerializer>.GetParseStringSpanMethod(type);
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(ICollection<>)))
-                    return DeserializeCollection<TSerializer>.GetParseStringSegmentMethod(type);
+                    return DeserializeCollection<TSerializer>.GetParseStringSpanMethod(type);
 
                 if (type.HasAnyTypeDefinitionsOf(typeof(Queue<>))
                     || type.HasAnyTypeDefinitionsOf(typeof(Stack<>)))
                     return DeserializeSpecializedCollections<T, TSerializer>.ParseStringSpan;
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(KeyValuePair<,>)))
-                    return DeserializeKeyValuePair<TSerializer>.GetParseStringSegmentMethod(type);
+                    return DeserializeKeyValuePair<TSerializer>.GetParseStringSpanMethod(type);
 
                 if (type.IsOrHasGenericInterfaceTypeOf(typeof(IEnumerable<>)))
                     return DeserializeEnumerable<T, TSerializer>.ParseStringSpan;
 
-                var customFn = DeserializeCustomGenericType<TSerializer>.GetParseStringSegmentMethod(type);
+                var customFn = DeserializeCustomGenericType<TSerializer>.GetParseStringSpanMethod(type);
                 if (customFn != null)
                     return customFn;
             }
@@ -103,7 +103,7 @@ namespace ServiceStack.Text.Common
                 && (typeof(T).IsAssignableFrom(typeof(IDictionary)) || typeof(T).HasInterface(typeof(IDictionary)));
             if (isDictionary)
             {
-                return DeserializeDictionary<TSerializer>.GetParseStringSegmentMethod(type);
+                return DeserializeDictionary<TSerializer>.GetParseStringSpanMethod(type);
             }
 
             var isEnumerable = typeof(T).IsAssignableFrom(typeof(IEnumerable))
@@ -117,10 +117,10 @@ namespace ServiceStack.Text.Common
 
             if (type.IsValueType)
             {
-                //at first try to find more faster `ParseStringSegment` method
-                var staticParseStringSegmentMethod = StaticParseMethod<T>.ParseStringSpan;
-                if (staticParseStringSegmentMethod != null)
-                    return value => staticParseStringSegmentMethod(Serializer.UnescapeSafeString(value));
+                //at first try to find more faster `ParseStringSpan` method
+                var staticParseStringSpanMethod = StaticParseMethod<T>.ParseStringSpan;
+                if (staticParseStringSpanMethod != null)
+                    return value => staticParseStringSpanMethod(Serializer.UnescapeSafeString(value));
                 
                 //then try to find `Parse` method
                 var staticParseMethod = StaticParseMethod<T>.Parse;
@@ -129,9 +129,9 @@ namespace ServiceStack.Text.Common
             }
             else
             {
-                var staticParseStringSegmentMethod = StaticParseRefTypeMethod<TSerializer, T>.ParseStringSpan;
-                if (staticParseStringSegmentMethod != null)
-                    return value => staticParseStringSegmentMethod(Serializer.UnescapeSafeString(value));
+                var staticParseStringSpanMethod = StaticParseRefTypeMethod<TSerializer, T>.ParseStringSpan;
+                if (staticParseStringSpanMethod != null)
+                    return value => staticParseStringSpanMethod(Serializer.UnescapeSafeString(value));
 
                 var staticParseMethod = StaticParseRefTypeMethod<TSerializer, T>.Parse;
                 if (staticParseMethod != null)
@@ -142,7 +142,7 @@ namespace ServiceStack.Text.Common
             if (typeConstructor != null)
                 return typeConstructor;
 
-            var stringConstructor = DeserializeTypeUtils.GetParseStringSegmentMethod(type);
+            var stringConstructor = DeserializeTypeUtils.GetParseStringSpanMethod(type);
             if (stringConstructor != null) 
                 return stringConstructor;
 

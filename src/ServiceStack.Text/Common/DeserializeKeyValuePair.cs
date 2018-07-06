@@ -26,17 +26,17 @@ namespace ServiceStack.Text.Common
         const int KeyIndex = 0;
         const int ValueIndex = 1;
 
-        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(v.AsSpan());
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSpanMethod(type)(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentMethod(Type type)
+        public static ParseStringSpanDelegate GetParseStringSpanMethod(Type type)
         {
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(KeyValuePair<,>));
 
             var keyValuePairArgs = mapInterface.GetGenericArguments();
-            var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(keyValuePairArgs[KeyIndex]);
+            var keyTypeParseMethod = Serializer.GetParseStringSpanFn(keyValuePairArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 
-            var valueTypeParseMethod = Serializer.GetParseStringSegmentFn(keyValuePairArgs[ValueIndex]);
+            var valueTypeParseMethod = Serializer.GetParseStringSpanFn(keyValuePairArgs[ValueIndex]);
             if (valueTypeParseMethod == null) return null;
 
             var createMapType = type.HasAnyTypeDefinitionsOf(typeof(KeyValuePair<,>))

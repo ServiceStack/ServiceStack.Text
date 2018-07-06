@@ -64,7 +64,7 @@ namespace ServiceStack.Text.Common
             var type = ExtractType(strType);
             if (type != null)
             {
-                var parseFn = Serializer.GetParseStringSegmentFn(type);
+                var parseFn = Serializer.GetParseStringSpanFn(type);
                 var propertyValue = parseFn(strType);
                 return propertyValue;
             }
@@ -143,7 +143,7 @@ namespace ServiceStack.Text.Common
                 var concreteType = ExtractType(value);
                 if (concreteType != null)
                 {
-                    return Serializer.GetParseStringSegmentFn(concreteType)(value);
+                    return Serializer.GetParseStringSpanFn(concreteType)(value);
                 }
                 Tracer.Instance.WriteWarning(
                     "Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);
@@ -306,7 +306,7 @@ namespace ServiceStack.Text.Common
 
         internal static ParseStringSpanDelegate GetPropertyMethod(ITypeSerializer serializer, PropertyInfo propertyInfo)
         {
-            var getPropertyFn = serializer.GetParseStringSegmentFn(propertyInfo.PropertyType);
+            var getPropertyFn = serializer.GetParseStringSpanFn(propertyInfo.PropertyType);
             if (propertyInfo.PropertyType == typeof(object) || 
                 propertyInfo.PropertyType.HasInterface(typeof(IEnumerable<object>)))
             {
@@ -368,7 +368,7 @@ namespace ServiceStack.Text.Common
             return new TypeAccessor
             {
                 PropertyType = fieldInfo.FieldType,
-                GetProperty = serializer.GetParseStringSegmentFn(fieldInfo.FieldType),
+                GetProperty = serializer.GetParseStringSpanFn(fieldInfo.FieldType),
                 SetProperty = GetSetFieldMethod(typeConfig, fieldInfo),
             };
         }

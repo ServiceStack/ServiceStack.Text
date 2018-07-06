@@ -310,9 +310,9 @@ namespace ServiceStack.Text.Json
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ParseStringSpanDelegate GetParseStringSegmentFn<T>()
+        public ParseStringSpanDelegate GetParseStringSpanFn<T>()
         {
-            return JsonReader.Instance.GetParseStringSegmentFn<T>();
+            return JsonReader.Instance.GetParseStringSpanFn<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -322,9 +322,9 @@ namespace ServiceStack.Text.Json
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ParseStringSpanDelegate GetParseStringSegmentFn(Type type)
+        public ParseStringSpanDelegate GetParseStringSpanFn(Type type)
         {
-            return JsonReader.GetParseStringSegmentFn(type);
+            return JsonReader.GetParseStringSpanFn(type);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

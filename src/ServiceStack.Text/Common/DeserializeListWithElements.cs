@@ -30,13 +30,13 @@ namespace ServiceStack.Text.Common
         public static Func<string, Type, ParseStringDelegate, object> GetListTypeParseFn(
             Type createListType, Type elementType, ParseStringDelegate parseFn)
         {
-            var func = GetListTypeParseStringSegmentFn(createListType, elementType, v => parseFn(v.ToString()));
+            var func = GetListTypeParseStringSpanFn(createListType, elementType, v => parseFn(v.ToString()));
             return (s, t, d) => func(s.AsSpan(), t, v => d(v.ToString()));
         }
 
         private static readonly Type[] signature = {typeof(ReadOnlySpan<char>), typeof(Type), typeof(ParseStringSpanDelegate)};
 
-        public static ParseListDelegate GetListTypeParseStringSegmentFn(
+        public static ParseListDelegate GetListTypeParseStringSpanFn(
             Type createListType, Type elementType, ParseStringSpanDelegate parseFn)
         {
             if (ParseDelegateCache.TryGetValue(elementType, out var parseDelegate))
@@ -247,16 +247,16 @@ namespace ServiceStack.Text.Common
 
         static DeserializeList()
         {
-            CacheFn = GetParseStringSegmentFn();
+            CacheFn = GetParseStringSpanFn();
         }
 
         public static ParseStringDelegate Parse => v => CacheFn(v.AsSpan());
 
         public static ParseStringSpanDelegate ParseStringSpan => CacheFn;
 
-        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(v.AsSpan());
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSpanFn()(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn()
+        public static ParseStringSpanDelegate GetParseStringSpanFn()
         {
             var listInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IList<>));
             if (listInterface == null)
@@ -271,13 +271,13 @@ namespace ServiceStack.Text.Common
 
             var elementType = listInterface.GetGenericArguments()[0];
 
-            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSegmentFn(elementType);
+            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSpanFn(elementType);
             if (supportedTypeParseMethod != null)
             {
                 var createListType = typeof(T).HasAnyTypeDefinitionsOf(typeof(List<>), typeof(IList<>))
                     ? null : typeof(T);
 
-                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseStringSegmentFn(createListType, elementType, supportedTypeParseMethod);
+                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseStringSpanFn(createListType, elementType, supportedTypeParseMethod);
                 return value => parseFn(value, createListType, supportedTypeParseMethod);
             }
 
@@ -293,16 +293,16 @@ namespace ServiceStack.Text.Common
 
         static DeserializeEnumerable()
         {
-            CacheFn = GetParseStringSegmentFn();
+            CacheFn = GetParseStringSpanFn();
         }
 
         public static ParseStringDelegate Parse => v => CacheFn(v.AsSpan());
 
         public static ParseStringSpanDelegate ParseStringSpan => CacheFn;
 
-        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(v.AsSpan());
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSpanFn()(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn()
+        public static ParseStringSpanDelegate GetParseStringSpanFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
             if (enumerableInterface == null)
@@ -317,12 +317,12 @@ namespace ServiceStack.Text.Common
 
             var elementType = enumerableInterface.GetGenericArguments()[0];
 
-            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSegmentFn(elementType);
+            var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSpanFn(elementType);
             if (supportedTypeParseMethod != null)
             {
                 const Type createListTypeWithNull = null; //Use conversions outside this class. see: Queue
 
-                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseStringSegmentFn(
+                var parseFn = DeserializeListWithElements<TSerializer>.GetListTypeParseStringSpanFn(
                     createListTypeWithNull, elementType, supportedTypeParseMethod);
 
                 return value => parseFn(value, createListTypeWithNull, supportedTypeParseMethod);

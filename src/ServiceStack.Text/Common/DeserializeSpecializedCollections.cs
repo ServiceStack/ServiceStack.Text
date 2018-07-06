@@ -11,16 +11,16 @@ namespace ServiceStack.Text.Common
 
         static DeserializeSpecializedCollections()
         {
-            CacheFn = GetParseStringSegmentFn();
+            CacheFn = GetParseStringSpanFn();
         }
 
         public static ParseStringDelegate Parse => v => CacheFn(v.AsSpan());
 
         public static ParseStringSpanDelegate ParseStringSpan => CacheFn;
 
-        public static ParseStringDelegate GetParseFn() => v => GetParseStringSegmentFn()(v.AsSpan());
+        public static ParseStringDelegate GetParseFn() => v => GetParseStringSpanFn()(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentFn()
+        public static ParseStringSpanDelegate GetParseStringSpanFn()
         {
             if (typeof(T).HasAnyTypeDefinitionsOf(typeof(Queue<>)))
             {
@@ -50,10 +50,10 @@ namespace ServiceStack.Text.Common
 
             if (typeof(T) == typeof(IEnumerable) || typeof(T) == typeof(ICollection))
             {
-                return GetEnumerableParseStringSegmentFn();
+                return GetEnumerableParseStringSpanFn();
             }
 
-            return GetGenericEnumerableParseStringSegmentFn();
+            return GetGenericEnumerableParseStringSpanFn();
         }
 
         public static Queue<string> ParseStringQueue(string value) => ParseStringQueue(value.AsSpan());
@@ -81,7 +81,7 @@ namespace ServiceStack.Text.Common
             var mi = genericType.GetStaticMethod("ConvertToQueue");
             var convertToQueue = (ConvertObjectDelegate)mi.MakeDelegate(typeof(ConvertObjectDelegate));
 
-            var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseStringSegmentFn();
+            var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseStringSpanFn();
 
             return x => convertToQueue(parseFn(x));
         }
@@ -111,18 +111,18 @@ namespace ServiceStack.Text.Common
             var mi = genericType.GetStaticMethod("ConvertToStack");
             var convertToQueue = (ConvertObjectDelegate)mi.MakeDelegate(typeof(ConvertObjectDelegate));
 
-            var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseStringSegmentFn();
+            var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseStringSpanFn();
 
             return x => convertToQueue(parseFn(x));
         }
 
         public static ParseStringDelegate GetEnumerableParseFn() => DeserializeListWithElements<TSerializer>.ParseStringList;
 
-        public static ParseStringSpanDelegate GetEnumerableParseStringSegmentFn() => DeserializeListWithElements<TSerializer>.ParseStringList;
+        public static ParseStringSpanDelegate GetEnumerableParseStringSpanFn() => DeserializeListWithElements<TSerializer>.ParseStringList;
 
-        public static ParseStringDelegate GetGenericEnumerableParseFn() => v => GetGenericEnumerableParseStringSegmentFn()(v.AsSpan());
+        public static ParseStringDelegate GetGenericEnumerableParseFn() => v => GetGenericEnumerableParseStringSpanFn()(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetGenericEnumerableParseStringSegmentFn()
+        public static ParseStringSpanDelegate GetGenericEnumerableParseStringSpanFn()
         {
             var enumerableInterface = typeof(T).GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
             if (enumerableInterface == null) return null;
@@ -133,7 +133,7 @@ namespace ServiceStack.Text.Common
             var convertFn = fi.GetValue(null) as ConvertObjectDelegate;
             if (convertFn == null) return null;
 
-            var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseStringSegmentFn();
+            var parseFn = DeserializeEnumerable<T, TSerializer>.GetParseStringSpanFn();
 
             return x => convertFn(parseFn(x));
         }

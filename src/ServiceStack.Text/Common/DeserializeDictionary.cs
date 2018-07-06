@@ -26,9 +26,9 @@ namespace ServiceStack.Text.Common
         const int KeyIndex = 0;
         const int ValueIndex = 1;
 
-        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSegmentMethod(type)(v.AsSpan());
+        public static ParseStringDelegate GetParseMethod(Type type) => v => GetParseStringSpanMethod(type)(v.AsSpan());
 
-        public static ParseStringSpanDelegate GetParseStringSegmentMethod(Type type)
+        public static ParseStringSpanDelegate GetParseStringSpanMethod(Type type)
         {
             var mapInterface = type.GetTypeWithGenericInterfaceOf(typeof(IDictionary<,>));
             if (mapInterface == null)
@@ -39,7 +39,7 @@ namespace ServiceStack.Text.Common
 
                 if (type == typeof(IDictionary))
                 {
-                    return GetParseStringSegmentMethod(typeof(Dictionary<object, object>));
+                    return GetParseStringSpanMethod(typeof(Dictionary<object, object>));
                 }
                 if (typeof(IDictionary).IsAssignableFrom(type))
                 {
@@ -66,10 +66,10 @@ namespace ServiceStack.Text.Common
             }
 
             var dictionaryArgs = mapInterface.GetGenericArguments();
-            var keyTypeParseMethod = Serializer.GetParseStringSegmentFn(dictionaryArgs[KeyIndex]);
+            var keyTypeParseMethod = Serializer.GetParseStringSpanFn(dictionaryArgs[KeyIndex]);
             if (keyTypeParseMethod == null) return null;
 
-            var valueTypeParseMethod = Serializer.GetParseStringSegmentFn(dictionaryArgs[ValueIndex]);
+            var valueTypeParseMethod = Serializer.GetParseStringSpanFn(dictionaryArgs[ValueIndex]);
             if (valueTypeParseMethod == null) return null;
 
             var createMapType = type.HasAnyTypeDefinitionsOf(typeof(Dictionary<,>), typeof(IDictionary<,>))
@@ -180,7 +180,7 @@ namespace ServiceStack.Text.Common
 
             var index = VerifyAndGetStartIndex(value, dictType);
 
-            var valueParseMethod = Serializer.GetParseStringSegmentFn(typeof(object));
+            var valueParseMethod = Serializer.GetParseStringSpanFn(typeof(object));
             if (valueParseMethod == null) return null;
 
             var to = (IDictionary)dictType.CreateInstance();
