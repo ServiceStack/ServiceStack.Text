@@ -50,10 +50,12 @@ namespace ServiceStack.Text
                 IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
                 IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
                 
-                if (!IsIOS && IsOSX && System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.Contains("Mono")
-                    && System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory().StartsWith("/private/var"))
+                if (!IsIOS && IsOSX && System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.Contains("Mono"))
                 {
-                    IsIOS = true; //iOS detection no longer trustworthy so assuming iOS based on some current heuristics. TODO: improve iOS detection
+                    var runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+                    //iOS detection no longer trustworthy so assuming iOS based on some current heuristics. TODO: improve iOS detection
+                    IsIOS = runtimeDir.StartsWith("/private/var") ||
+                            runtimeDir.Contains("/CoreSimulator/Devices/"); 
                 }
             }
             catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
