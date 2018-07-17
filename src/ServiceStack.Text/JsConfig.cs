@@ -99,7 +99,9 @@ namespace ServiceStack.Text
                         break;
                     case "tode":
                     case "throwondeserializationerror":
-                        scope.ThrowOnDeserializationError = boolValue;
+                    case "toe":
+                    case "throwonerror":
+                        scope.ThrowOnError = boolValue;
                         break;
                     case "teai":
                     case "treatenumasinteger":
@@ -253,7 +255,7 @@ namespace ServiceStack.Text
                 TimeSpanHandler = timeSpanHandler ?? sTimeSpanHandler,
                 PropertyConvention = propertyConvention ?? sPropertyConvention,
                 PreferInterfaces = preferInterfaces ?? sPreferInterfaces,
-                ThrowOnDeserializationError = throwOnDeserializationError ?? sThrowOnError,
+                ThrowOnError = throwOnDeserializationError ?? sThrowOnError,
                 DateTimeFormat = dateTimeFormat ?? sDateTimeFormat,
                 TypeAttr = typeAttr ?? sTypeAttr,
                 TypeWriter = typeWriter ?? sTypeWriter,
@@ -635,7 +637,7 @@ namespace ServiceStack.Text
         public static bool ThrowOnError
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnDeserializationError : null)
+            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnError : null)
                    ?? sThrowOnError
                    ?? Env.StrictMode;
             set

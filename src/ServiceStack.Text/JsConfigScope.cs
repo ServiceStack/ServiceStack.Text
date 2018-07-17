@@ -63,7 +63,7 @@ namespace ServiceStack.Text
         public PropertyConvention? PropertyConvention { get; set; }
         public bool? EmitCamelCaseNames { get; set; }
         public bool? EmitLowercaseUnderscoreNames { get; set; }
-        public bool? ThrowOnDeserializationError { get; set; }
+        public bool? ThrowOnError { get; set; }
         public bool? SkipDateTimeConversion { get; set; }
         public bool? AlwaysUseUtc { get; set; }
         public bool? AssumeUtc { get; set; }
@@ -75,5 +75,11 @@ namespace ServiceStack.Text
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }
         public string[] ExcludePropertyReferences { get; set; }
         public HashSet<Type> ExcludeTypes { get; set; }
+        
+        [Obsolete("Renamed to ThrowOnError")] public bool? ThrowOnDeserializationError
+        {
+            get => ThrowOnError;
+            set => ThrowOnError = value;
+        }
     }
 }
