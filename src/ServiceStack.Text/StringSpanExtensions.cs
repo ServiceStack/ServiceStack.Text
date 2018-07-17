@@ -70,7 +70,42 @@ namespace ServiceStack.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ParseBoolean(this ReadOnlySpan<char> value) => MemoryProvider.Instance.ParseBoolean(value);
+        public static bool ParseBoolean(this ReadOnlySpan<char> value)
+        {
+            //Lots of kids like to use '1', HTML checkboxes use 'on' as a soft convention
+            switch (value.Length)
+            {
+                case 0:
+                    return false;
+                case 1:
+                    switch (value[0])
+                    {
+                        case '1':
+                        case 't':
+                        case 'T':
+                        case 'y':
+                        case 'Y':
+                            return true;
+                        case '0':
+                        case 'f':
+                        case 'F':
+                        case 'n':
+                        case 'N':
+                            return false;
+                    }
+                    break;
+                case 2:
+                    if (value[0] == 'o' && value[1] == 'n')
+                        return true;
+                    break;
+                case 3:
+                    if (value[0] == 'o' && value[1] == 'f' && value[1] == 'f')
+                        return false;
+                    break;
+            }
+
+            return MemoryProvider.Instance.ParseBoolean(value);
+        }
 
         public static bool TryParseBoolean(this ReadOnlySpan<char> value, out bool result) =>
             MemoryProvider.Instance.TryParseBoolean(value, out result);
