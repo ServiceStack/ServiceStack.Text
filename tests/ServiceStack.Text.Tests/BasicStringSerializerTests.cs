@@ -391,7 +391,6 @@ namespace ServiceStack.Text.Tests
             return fromJsonModel;
         }
 
-#if !IOS
         public class TestClass
         {
             [Required]
@@ -624,6 +623,21 @@ namespace ServiceStack.Text.Tests
             Assert.That("01".FromJson<long>(), Is.EqualTo(1));
             Assert.That("01".FromJson<ulong>(), Is.EqualTo(1));
         }
-#endif
+        
+        public class EmptyCollections
+        {
+            public string[] Strings { get; set; }
+            public int[] Ints { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_empty_array()
+        {
+            Assert.That("[]".FromJson<string[]>(), Is.EquivalentTo(new string[0]));
+            Assert.That("[]".FromJson<int[]>(), Is.EquivalentTo(new int[0]));
+            
+            Assert.That("{\"Strings\":[]}".FromJson<EmptyCollections>().Strings, Is.EquivalentTo(new string[0]));
+            Assert.That("{\"Ints\":[]}".FromJson<EmptyCollections>().Ints, Is.EquivalentTo(new int[0]));
+        }
     }
 }
