@@ -628,6 +628,7 @@ namespace ServiceStack.Text.Tests
         {
             public string[] Strings { get; set; }
             public int[] Ints { get; set; }
+            public List<int> IntList { get; set; }
         }
 
         [Test]
@@ -635,9 +636,11 @@ namespace ServiceStack.Text.Tests
         {
             Assert.That("[]".FromJson<string[]>(), Is.EquivalentTo(new string[0]));
             Assert.That("[]".FromJson<int[]>(), Is.EquivalentTo(new int[0]));
+            Assert.That("[]".FromJson<List<int>>(), Is.EquivalentTo(new List<int>()));
             
             Assert.That("{\"Strings\":[]}".FromJson<EmptyCollections>().Strings, Is.EquivalentTo(new string[0]));
             Assert.That("{\"Ints\":[]}".FromJson<EmptyCollections>().Ints, Is.EquivalentTo(new int[0]));
+            Assert.That("{\"IntList\":[]}".FromJson<EmptyCollections>().IntList, Is.EquivalentTo(new List<int>()));
         }
     }
 }

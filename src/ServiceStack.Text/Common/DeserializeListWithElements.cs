@@ -110,8 +110,8 @@ namespace ServiceStack.Text.Common
 
         public static List<int> ParseIntList(ReadOnlySpan<char> value)
         {
-            if ((value = StripList(value)).IsEmpty) return null;
-            if (value.Length == 0) return new List<int>();
+            if ((value = StripList(value)).IsNullOrEmpty()) 
+                return value.IsEmpty ? null : new List<int>();
 
             var to = new List<int>();
             var valueLength = value.Length;
@@ -131,8 +131,8 @@ namespace ServiceStack.Text.Common
 
         public static List<byte> ParseByteList(ReadOnlySpan<char> value)
         {
-            if ((value = StripList(value)).IsEmpty) return null;
-            if (value.Length == 0) return new List<byte>();
+            if ((value = StripList(value)).IsNullOrEmpty()) 
+                return value.IsEmpty ? null : new List<byte>();
 
             var to = new List<byte>();
             var valueLength = value.Length;
@@ -161,7 +161,8 @@ namespace ServiceStack.Text.Common
 
         public static ICollection<T> ParseGenericList(ReadOnlySpan<char> value, Type createListType, ParseStringSpanDelegate parseFn)
         {
-            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)).IsEmpty) return null;
+            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)).IsEmpty) 
+                return null;
 
             var isReadOnly = createListType != null
                 && (createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));

@@ -683,10 +683,10 @@ namespace ServiceStack
 
         public static StringCollection ParseStringCollection<TS>(ReadOnlySpan<char> value) where TS : ITypeSerializer
         {
-            if ((value = DeserializeListWithElements<TS>.StripList(value)) == null) return null;
-            return value.Length == 0
-                   ? new StringCollection()
-                   : ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
+            if ((value = DeserializeListWithElements<TS>.StripList(value)).IsNullOrEmpty()) 
+                return value.IsEmpty ? null : new StringCollection();
+    
+            return ToStringCollection(DeserializeListWithElements<TSerializer>.ParseStringList(value));
         }
 
         public static StringCollection ToStringCollection(List<string> items)

@@ -335,7 +335,8 @@ namespace ServiceStack
 
         private static StringCollection ParseStringCollection<TSerializer>(ReadOnlySpan<char> value) where TSerializer : ITypeSerializer
         {
-            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)).IsEmpty) return null;
+            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)).IsNullOrEmpty()) 
+                return value.IsEmpty ? null : new StringCollection();
 
             var result = new StringCollection();
 
