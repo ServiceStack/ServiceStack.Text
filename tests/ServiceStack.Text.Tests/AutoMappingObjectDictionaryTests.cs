@@ -327,8 +327,13 @@ namespace ServiceStack.Text.Tests
             public TimeSpan Time { get; set; }
         }
 
+        public class ModelWithLong
+        {
+            public long Time { get; set; }
+        }
+
         [Test]
-        public void FromObjectDictionary_does_try_to_Convert_different_types()
+        public void FromObjectDictionary_does_Convert_long_to_TimeSpan()
         {
             var time = new TimeSpan(1,1,1,1);
             var map = new Dictionary<string, object> {
@@ -336,8 +341,14 @@ namespace ServiceStack.Text.Tests
             };
 
             var dto = map.FromObjectDictionary<ModelWithTimeSpan>();
-            
             Assert.That(dto.Time, Is.EqualTo(time));
+            
+            map = new Dictionary<string, object> {
+                [nameof(ModelWithTimeSpan.Time)] = time
+            };
+
+            var dtoLong = map.FromObjectDictionary<ModelWithLong>();
+            Assert.That(dtoLong.Time, Is.EqualTo(time.Ticks));
         }
     }
 

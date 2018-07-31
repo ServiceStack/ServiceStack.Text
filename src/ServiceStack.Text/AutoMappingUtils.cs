@@ -103,6 +103,8 @@ namespace ServiceStack
                     return c.ToString();
                 if (toType == typeof(TimeSpan) && from is long ticks)
                     return new TimeSpan(ticks);
+                if (toType == typeof(long) && from is TimeSpan time)
+                    return time.Ticks;
 
                 var destNumberType = DynamicNumber.GetNumber(toType);
                 var value = destNumberType?.ConvertFrom(from);
