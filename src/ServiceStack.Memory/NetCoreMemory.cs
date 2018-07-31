@@ -15,8 +15,9 @@ namespace ServiceStack.Memory
 {
     public sealed class NetCoreMemory : MemoryProvider
     {
-        private NetCoreMemory(){}
-        public static readonly NetCoreMemory Provider = new NetCoreMemory();  
+        private static NetCoreMemory provider;
+        public static NetCoreMemory Provider => provider ?? (provider = new NetCoreMemory());
+        private NetCoreMemory() { }
         
         public static void Configure() => Instance = Provider;
         

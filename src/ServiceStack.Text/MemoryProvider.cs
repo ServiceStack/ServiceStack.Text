@@ -75,7 +75,8 @@ namespace ServiceStack.Text
 
     public sealed class DefaultMemory : MemoryProvider
     {
-        public static readonly DefaultMemory Provider = new DefaultMemory();
+        private static DefaultMemory provider;
+        public static DefaultMemory Provider => provider ?? (provider = new DefaultMemory());
         private DefaultMemory() { }
 
         public static void Configure() => Instance = Provider;
