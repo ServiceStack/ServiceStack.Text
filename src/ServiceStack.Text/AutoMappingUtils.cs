@@ -28,34 +28,10 @@ namespace ServiceStack
             if (fromType == typeof(T))
                 return (T)from;
 
-            if (fromType.IsValueType || typeof(T).IsValueType)
+            var toType = typeof(T);
+            if (fromType.IsValueType || toType.IsValueType)
             {
-                if (!fromType.IsEnum && !typeof(T).IsEnum)
-                {
-                    if (typeof(T) == typeof(char) && from is string s)
-                        return (T)(s.Length > 0 ? (object) s[0] : null);
-                    if (typeof(T) == typeof(string) && from is char c)
-                        return (T)(object)c.ToString();
-
-                    var destNumberType = DynamicNumber.GetNumber(typeof(T));
-                    var value = destNumberType?.ConvertFrom(from);
-                    if (value != null)
-                    {
-                        if (typeof(T) == typeof(char))
-                            return (T)(object)value.ToString()[0];
-
-                        return (T)value;
-                    }
-
-                    if (typeof(T) == typeof(string))
-                    {
-                        var srcNumberType = DynamicNumber.GetNumber(from.GetType());
-                        if (srcNumberType != null)
-                            return (T)(object)srcNumberType.ToString(from);
-                    }
-                }
-
-                return (T)ChangeValueType(from, typeof(T));
+                return (T)ChangeValueType(from, toType);
             }
 
             if (typeof(IEnumerable).IsAssignableFrom(typeof(T)))
@@ -113,18 +89,51 @@ namespace ServiceStack
             }
 
             var to = type.CreateInstance();
-            return to.PopulateInstance(from);
+            return to.PopulateWithNonDefaultValues(from);
         }
 
-        private static object ChangeValueType(object from, Type type)
+        public static object ChangeValueType(object from, Type toType)
         {
-            if (from is string strValue)
-                return TypeSerializer.DeserializeFromString(strValue, type);
+            var fromType = from.GetType();
+            if (!fromType.IsEnum && !toType.IsEnum)
+            {
+                if (toType == typeof(char) && from is string s)
+                    return s.Length > 0 ? (object) s[0] : null;
+                if (toType == typeof(string) && from is char c)
+                    return c.ToString();
+                if (toType == typeof(TimeSpan) && from is long ticks)
+                    return new TimeSpan(ticks);
 
-            if (type == typeof(string))
+                var destNumberType = DynamicNumber.GetNumber(toType);
+                var value = destNumberType?.ConvertFrom(from);
+                if (value != null)
+                {
+                    if (toType == typeof(char))
+                        return value.ToString()[0];
+
+                    return value;
+                }
+
+                if (toType == typeof(string))
+                {
+                    var srcNumberType = DynamicNumber.GetNumber(from.GetType());
+                    if (srcNumberType != null)
+                        return srcNumberType.ToString(@from);
+                }
+            }
+            
+            if (from is string strValue)
+                return TypeSerializer.DeserializeFromString(strValue, toType);
+
+            if (toType == typeof(string))
                 return from.ToJsv();
 
-            return Convert.ChangeType(from, type, provider: null);
+            if (toType.HasInterface(typeof(IConvertible)))
+            {
+                return Convert.ChangeType(from, toType, provider: null);
+            }
+
+            return TypeSerializer.DeserializeFromString(from.ToJsv(), toType);
         }
 
         public static object ChangeTo(this string strValue, Type type)
@@ -149,8 +158,7 @@ namespace ServiceStack
         {
             lock (TypePropertyNamesMap)
             {
-                List<string> propertyNames;
-                if (!TypePropertyNamesMap.TryGetValue(type, out propertyNames))
+                if (!TypePropertyNamesMap.TryGetValue(type, out var propertyNames))
                 {
                     propertyNames = type.Properties().ToList().ConvertAll(x => x.Name);
                     TypePropertyNamesMap[type] = propertyNames;
@@ -823,7 +831,7 @@ namespace ServiceStack
             }
             else if (underlyingToType.IsValueType)
             {
-                return fromValue => Convert.ChangeType(fromValue, underlyingToType, provider: null);
+                return fromValue => AutoMappingUtils.ChangeValueType(fromValue, underlyingToType);
             }
             else 
             {

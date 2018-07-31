@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Northwind.Common.DataModel;
@@ -319,6 +320,24 @@ namespace ServiceStack.Text.Tests
             public IEnumerable<User> Users { get; set; }
             public Car[] Cars { get; set; }
             public IList<Color> Colors { get; set; }
+        }
+
+        public class ModelWithTimeSpan
+        {
+            public TimeSpan Time { get; set; }
+        }
+
+        [Test]
+        public void FromObjectDictionary_does_try_to_Convert_different_types()
+        {
+            var time = new TimeSpan(1,1,1,1);
+            var map = new Dictionary<string, object> {
+                [nameof(ModelWithTimeSpan.Time)] = time.Ticks
+            };
+
+            var dto = map.FromObjectDictionary<ModelWithTimeSpan>();
+            
+            Assert.That(dto.Time, Is.EqualTo(time));
         }
     }
 
