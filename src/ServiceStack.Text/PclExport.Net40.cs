@@ -7,7 +7,6 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -20,20 +19,15 @@ using System.Threading.Tasks;
 using ServiceStack.Text;
 using ServiceStack.Text.Common;
 using ServiceStack.Text.Json;
-using ServiceStack.Text.Support;
-
-#if !__IOS__ && !NETSTANDARD2_0
 using System.Reflection.Emit;
-using FastMember = ServiceStack.Text.FastMember;
-#endif
 
 namespace ServiceStack
 {
-    public class Net40PclExport : PclExport
+    public class Net45PclExport : PclExport
     {
-        public static Net40PclExport Provider = new Net40PclExport();
+        public static Net45PclExport Provider = new Net45PclExport();
 
-        public Net40PclExport()
+        public Net45PclExport()
         {
             this.DirSep = Path.DirectorySeparatorChar;
             this.AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
@@ -43,7 +37,7 @@ namespace ServiceStack
             this.InvariantComparer = StringComparer.InvariantCulture;
             this.InvariantComparerIgnoreCase = StringComparer.InvariantCultureIgnoreCase;
 
-            this.PlatformName = Environment.OSVersion.Platform.ToString();
+            this.PlatformName = Platforms.Net45;
             ReflectionOptimizer.Instance = EmitReflectionOptimizer.Provider;
         }
 
@@ -158,6 +152,12 @@ namespace ServiceStack
         public override void WriteLine(string format, params object[] args)
         {
             Console.WriteLine(format, args);
+        }
+
+        public override async Task WriteAndFlushAsync(Stream stream, byte[] bytes)
+        {
+            await stream.WriteAsync(bytes, 0, bytes.Length);
+            await stream.FlushAsync();
         }
 
         public override void AddCompression(WebRequest webReq)
@@ -460,27 +460,6 @@ namespace ServiceStack
         public override DataMemberAttribute GetWeakDataMember(FieldInfo pi)
         {
             return pi.GetWeakDataMember();
-        }
-    }
-
-    public class Net45PclExport : Net40PclExport
-    {
-        public static new Net45PclExport Provider = new Net45PclExport();
-
-        public Net45PclExport()
-        {
-            PlatformName = "NET45 " + Environment.OSVersion.Platform.ToString();
-        }
-
-        public new static void Configure()
-        {
-            Configure(Provider);
-        }
-
-        public override async Task WriteAndFlushAsync(Stream stream, byte[] bytes)
-        {
-            await stream.WriteAsync(bytes, 0, bytes.Length);
-            await stream.FlushAsync();
         }
     }
 

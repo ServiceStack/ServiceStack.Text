@@ -10,6 +10,7 @@ namespace ServiceStack
     {
         public NetCorePclExport()
         {
+            this.PlatformName = Platforms.NetCore;
             ReflectionOptimizer.Instance = EmitReflectionOptimizer.Provider;            
         }
 
