@@ -55,6 +55,7 @@ namespace ServiceStack.Text
                     IsIOS = runtimeDir.StartsWith("/private/var") ||
                             runtimeDir.Contains("/CoreSimulator/Devices/"); 
                 }
+                IsNetNative = fxDesc.Contains(".NET Native");
                 IsNetCore = fxDesc.Contains(".NET Core");
             }
             catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
@@ -106,6 +107,8 @@ namespace ServiceStack.Text
         public static bool IsIOS { get; set; }
 
         public static bool IsAndroid { get; set; }
+
+        public static bool IsNetNative { get; set; }
 
         public static bool IsUWP { get; set; }
 
@@ -183,17 +186,28 @@ namespace ServiceStack.Text
 
         private static bool IsRunningAsUwp()
         {
-            if (IsWindows7OrLower)
+            try
+            {
+                if (IsWindows7OrLower)
+                    return false;
+
+                int length = 0;
+                var sb = new System.Text.StringBuilder(0);
+                int result = GetCurrentPackageFullName(ref length, sb);
+
+                sb = new System.Text.StringBuilder(length);
+                result = GetCurrentPackageFullName(ref length, sb);
+
+                return result != APPMODEL_ERROR_NO_PACKAGE;
+            }
+            catch (TypeLoadException e) //of course the recommended code to detect UWP fails in .NET Native UWP
+            {                
+                return IsWindows && IsNetNative;
+            }
+            catch (Exception e)
+            {
                 return false;
-
-            int length = 0;
-            var sb = new System.Text.StringBuilder(0);
-            int result = GetCurrentPackageFullName(ref length, sb);
-
-            sb = new System.Text.StringBuilder(length);
-            result = GetCurrentPackageFullName(ref length, sb);
-
-            return result != APPMODEL_ERROR_NO_PACKAGE;
+            }
         }
 
         private static bool IsWindows7OrLower
