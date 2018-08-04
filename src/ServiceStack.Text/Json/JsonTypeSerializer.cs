@@ -686,7 +686,7 @@ namespace ServiceStack.Text.Json
                 }
             }
 
-            return value.Subsegment(tokenStartPos, i - tokenStartPos);
+            return value.Slice(tokenStartPos, i - tokenStartPos);
         }
 
         public bool EatMapKeySeperator(string value, ref int i) => EatMapKeySeperator(value.AsSpan(), ref i);

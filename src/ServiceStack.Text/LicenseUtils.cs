@@ -125,10 +125,10 @@ namespace ServiceStack
             PclExport.Instance.RegisterLicenseFromConfig();
         }
 
-        private static bool hasInit;
+        public static bool HasInit { get; private set; }
         public static void Init()
         {
-            hasInit = true; //Dummy method to init static constructor
+            HasInit = true; //Dummy method to init static constructor
         }
 
         public static class ErrorMessages

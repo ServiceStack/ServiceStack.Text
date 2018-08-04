@@ -917,7 +917,6 @@ namespace ServiceStack.Text
     internal static class UnsignedInteger<T> where T : struct, IComparable<T>, IEquatable<T>, IConvertible
     {
         private static readonly TypeCode typeCode;
-        private static readonly ulong minValue;
         private static readonly ulong maxValue;
 
         static UnsignedInteger()
@@ -927,19 +926,15 @@ namespace ServiceStack.Text
             switch (typeCode)
             {
                 case TypeCode.Byte:
-                    minValue = byte.MinValue;
                     maxValue = byte.MaxValue;
                     break;
                 case TypeCode.UInt16:
-                    minValue = ushort.MinValue;
                     maxValue = ushort.MaxValue;
                     break;
                 case TypeCode.UInt32:
-                    minValue = uint.MinValue;
                     maxValue = uint.MaxValue;
                     break;
                 case TypeCode.UInt64:
-                    minValue = ulong.MinValue;
                     maxValue = ulong.MaxValue;
                     break;
                 default:

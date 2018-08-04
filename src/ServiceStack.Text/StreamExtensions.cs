@@ -320,7 +320,7 @@ namespace ServiceStack
                 var ret = encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
                 return ret;
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 
@@ -337,7 +337,7 @@ namespace ServiceStack
             {
                 return new ReadOnlyMemory<byte>(ms.GetBuffer(), 0, (int)ms.Length);
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 return new ReadOnlyMemory<byte>(ms.ToArray());
@@ -350,7 +350,7 @@ namespace ServiceStack
             {
                 return new ReadOnlySpan<byte>(ms.GetBuffer(), 0, (int)ms.Length);
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 return new ReadOnlySpan<byte>(ms.ToArray());
@@ -363,7 +363,7 @@ namespace ServiceStack
             {
                 return ms.GetBuffer();
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsBytes() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 return ms.ToArray();
@@ -379,7 +379,7 @@ namespace ServiceStack
                 var ret = encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
                 return ret.InTask();
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Tracer.Instance.WriteWarning("MemoryStream in ReadToEndAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
                 
@@ -433,7 +433,7 @@ namespace ServiceStack
             {
                 await output.WriteAsync(stream.GetBuffer(), 0, (int) stream.Length, token);
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Tracer.Instance.WriteWarning("MemoryStream in WriteToAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
 

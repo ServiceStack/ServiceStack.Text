@@ -362,8 +362,8 @@ namespace ServiceStack.Text.Common
             }
 
             return propertyInfo.CanWrite
-                ? PclExport.Instance.CreateSetter(propertyInfo)
-                : PclExport.Instance.CreateSetter(fieldInfo);
+                ? ReflectionOptimizer.Instance.CreateSetter(propertyInfo)
+                : ReflectionOptimizer.Instance.CreateSetter(fieldInfo);
         }
 
         public static TypeAccessor Create(ITypeSerializer serializer, TypeConfig typeConfig, FieldInfo fieldInfo)
@@ -381,7 +381,7 @@ namespace ServiceStack.Text.Common
             if (typeConfig.Type != fieldInfo.DeclaringType)
                 fieldInfo = fieldInfo.DeclaringType.GetField(fieldInfo.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-            return PclExport.Instance.CreateSetter(fieldInfo);
+            return ReflectionOptimizer.Instance.CreateSetter(fieldInfo);
         }
     }
 

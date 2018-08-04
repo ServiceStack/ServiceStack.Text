@@ -503,7 +503,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                 var payload = dto.Event.EventPayLoad.ConvertTo<EventPayLoadPosition>();
                 Assert.Fail("Should throw");
             }
-            catch (FormatException e) {}
+            catch (FormatException) {}
         }
         
         
