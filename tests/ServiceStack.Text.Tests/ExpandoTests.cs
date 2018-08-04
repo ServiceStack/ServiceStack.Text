@@ -8,7 +8,6 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class ExpandoTests : TestBase
     {
-
         [Test]
         public void Can_serialize_one_level_expando()
         {

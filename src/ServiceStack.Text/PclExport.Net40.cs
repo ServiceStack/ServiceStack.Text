@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD2_0
+﻿#if NET45
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -27,12 +27,6 @@ using System.Reflection.Emit;
 using FastMember = ServiceStack.Text.FastMember;
 #endif
 
-#if __UNIFIED__
-using Preserve = Foundation.PreserveAttribute;
-#elif __IOS__
-using Preserve = MonoTouch.Foundation.PreserveAttribute;
-#endif
-
 namespace ServiceStack
 {
     public class Net40PclExport : PclExport
@@ -41,21 +35,16 @@ namespace ServiceStack
 
         public Net40PclExport()
         {
-            this.SupportsEmit = SupportsExpression = true;
             this.DirSep = Path.DirectorySeparatorChar;
             this.AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
             this.RegexOptions = RegexOptions.Compiled;
-#if DNXCORE50
-            this.InvariantComparison = CultureInfo.InvariantCulture.CompareInfo.GetStringComparer();
-            this.InvariantComparisonIgnoreCase = CultureInfo.InvariantCultureIgnoreCase.CompareInfo.GetStringComparer();
-#else
             this.InvariantComparison = StringComparison.InvariantCulture;
             this.InvariantComparisonIgnoreCase = StringComparison.InvariantCultureIgnoreCase;
-#endif
             this.InvariantComparer = StringComparer.InvariantCulture;
             this.InvariantComparerIgnoreCase = StringComparer.InvariantCultureIgnoreCase;
 
             this.PlatformName = Environment.OSVersion.Platform.ToString();
+            ReflectionOptimizer.Instance = EmitReflectionOptimizer.Provider;
         }
 
         public static PclExport Configure()
@@ -122,11 +111,6 @@ namespace ServiceStack
 
         public override void RegisterLicenseFromConfig()
         {
-#if ANDROID
-#elif __IOS__
-#elif __MAC__
-#elif NETSTANDARD2_0
-#else
             string licenceKeyText;
             try
             {
@@ -159,7 +143,6 @@ namespace ServiceStack
             {
                 LicenseUtils.RegisterLicense(licenceKeyText);
             }
-#endif
         }
 
         public override string GetEnvironmentVariable(string name)
@@ -285,86 +268,6 @@ namespace ServiceStack
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>), null).FirstOrDefault();
         }
 
-        public override GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
-        {
-            return
-#if NET45
-                SupportsEmit ? PropertyInvoker.GetEmit(propertyInfo) :
-#endif
-                SupportsExpression
-                    ? PropertyInvoker.GetExpression(propertyInfo)
-                    : base.CreateGetter(propertyInfo);
-        }
-
-        public override GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
-        {
-            return
-#if NET45
-                SupportsEmit ? PropertyInvoker.GetEmit<T>(propertyInfo) :
-#endif
-                    SupportsExpression
-                        ? PropertyInvoker.GetExpression<T>(propertyInfo)
-                        : base.CreateGetter<T>(propertyInfo);
-        }
-
-        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
-        {
-            return
-#if NET45
-                SupportsEmit ? PropertyInvoker.SetEmit(propertyInfo) :
-#endif
-                SupportsExpression
-                    ? PropertyInvoker.SetExpression(propertyInfo)
-                    : base.CreateSetter(propertyInfo);
-        }
-
-        public override SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
-        {
-            return SupportsExpression
-                ? PropertyInvoker.SetExpression<T>(propertyInfo)
-                : base.CreateSetter<T>(propertyInfo);
-        }
-
-        public override GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
-        {
-            return
-#if NET45
-                SupportsEmit ? FieldInvoker.GetEmit(fieldInfo) :
-#endif
-                SupportsExpression
-                    ? FieldInvoker.GetExpression(fieldInfo)
-                    : base.CreateGetter(fieldInfo);
-        }
-
-        public override GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
-        {
-            return
-#if NET45
-                SupportsEmit ? FieldInvoker.GetEmit<T>(fieldInfo) :
-#endif
-                SupportsExpression
-                    ? FieldInvoker.GetExpression<T>(fieldInfo)
-                    : base.CreateGetter<T>(fieldInfo);
-        }
-
-        public override SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
-        {
-            return
-#if NET45
-                SupportsEmit ? FieldInvoker.SetEmit(fieldInfo) :
-#endif
-                SupportsExpression
-                    ? FieldInvoker.SetExpression(fieldInfo)
-                    : base.CreateSetter(fieldInfo);
-        }
-
-        public override SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo)
-        {
-            return SupportsExpression
-                ? FieldInvoker.SetExpression<T>(fieldInfo)
-                : base.CreateSetter<T>(fieldInfo);
-        }
-
         public override string ToXsdDateTimeString(DateTime dateTime)
         {
 #if !LITE
@@ -445,7 +348,7 @@ namespace ServiceStack
 
         public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
         {
-#if !(__IOS__ || LITE)
+#if !LITE
             if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
@@ -457,7 +360,7 @@ namespace ServiceStack
 
         public override ParseStringSpanDelegate GetJsReaderParseStringSpanMethod<TSerializer>(Type type)
         {
-#if !(__IOS__ || LITE)
+#if !LITE
             if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
                 type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
             {
@@ -544,16 +447,6 @@ namespace ServiceStack
             return Environment.StackTrace;
         }
 
-#if !__IOS__
-        public override Type UseType(Type type)
-        {
-            if (type.IsInterface || type.IsAbstract)
-            {
-                return DynamicProxy.GetInstanceFor(type).GetType();
-            }
-            return type;
-        }
-
         public override DataContractAttribute GetWeakDataContract(Type type)
         {
             return type.GetWeakDataContract();
@@ -568,28 +461,8 @@ namespace ServiceStack
         {
             return pi.GetWeakDataMember();
         }
-#endif
     }
 
-#if __MAC__
-	public class MacPclExport : IosPclExport 
-	{
-		public static new MacPclExport Provider = new MacPclExport();
-
-		public MacPclExport()
-		{
-			PlatformName = "MAC";
-			SupportsEmit = SupportsExpression = true;
-		}
-		
-		public new static void Configure()
-		{
-			Configure(Provider);
-		}
-	}
-#endif
-
-#if NET45 || NETSTANDARD2_0
     public class Net45PclExport : Net40PclExport
     {
         public static new Net45PclExport Provider = new Net45PclExport();
@@ -604,30 +477,12 @@ namespace ServiceStack
             Configure(Provider);
         }
 
-        public override Task WriteAndFlushAsync(Stream stream, byte[] bytes)
+        public override async Task WriteAndFlushAsync(Stream stream, byte[] bytes)
         {
-            return stream.WriteAsync(bytes, 0, bytes.Length)
-                .ContinueWith(t => stream.FlushAsync());
+            await stream.WriteAsync(bytes, 0, bytes.Length);
+            await stream.FlushAsync();
         }
     }
-#endif
-
-#if ANDROID
-    public class AndroidPclExport : Net40PclExport
-    {
-        public static new AndroidPclExport Provider = new AndroidPclExport();
-
-        public AndroidPclExport()
-        {
-            PlatformName = "Android";
-        }
-
-        public new static void Configure()
-        {
-            Configure(Provider);
-        }
-    }
-#endif
 
     internal class SerializerUtils<TSerializer>
         where TSerializer : ITypeSerializer
@@ -760,9 +615,6 @@ namespace ServiceStack
         //XmlSerializer
         public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
         {
-#if __IOS__ || ANDROID
-            throw new NotImplementedException("Compression is not supported on this platform");
-#else
             using (var deflateStream = new System.IO.Compression.DeflateStream(stream, System.IO.Compression.CompressionMode.Compress))
             using (var xw = new System.Xml.XmlTextWriter(deflateStream, Encoding.UTF8))
             {
@@ -770,7 +622,6 @@ namespace ServiceStack
                 serializer.WriteObject(xw, from);
                 xw.Flush();
             }
-#endif
         }
 
         public static byte[] Compress<TXmlDto>(TXmlDto from)
@@ -875,7 +726,6 @@ namespace ServiceStack
             }
         }
 
-#if !__IOS__
         //ReflectionExtensions
         const string DataContract = "DataContractAttribute";
 
@@ -946,11 +796,8 @@ namespace ServiceStack
             }
             return null;
         }
-#endif
     }
 }
-
-#if !__IOS__ && !NETSTANDARD2_0
 
 //Not using it here, but @marcgravell's stuff is too good not to include
 // http://code.google.com/p/fast-member/ Apache License 2.0
@@ -1342,6 +1189,5 @@ namespace ServiceStack.Text.FastMember
         }
     }
 }
-#endif
 
 #endif

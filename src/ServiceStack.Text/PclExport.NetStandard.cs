@@ -234,74 +234,6 @@ namespace ServiceStack
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
-        public override GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
-        {
-            return
-                SupportsEmit ? PropertyInvoker.GetEmit(propertyInfo) :
-                SupportsExpression
-                    ? PropertyInvoker.GetExpression(propertyInfo)
-                    : base.CreateGetter(propertyInfo);
-        }
-
-        public override GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
-        {
-            return
-                SupportsEmit ? PropertyInvoker.GetEmit<T>(propertyInfo) :
-                SupportsExpression
-                    ? PropertyInvoker.GetExpression<T>(propertyInfo)
-                    : base.CreateGetter<T>(propertyInfo);
-        }
-
-        public override SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
-        {
-            return
-                SupportsEmit ? PropertyInvoker.SetEmit(propertyInfo) :
-                SupportsExpression
-                    ? PropertyInvoker.SetExpression(propertyInfo)
-                    : base.CreateSetter(propertyInfo);
-        }
-
-        public override SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
-        {
-            return SupportsExpression
-                ? PropertyInvoker.SetExpression<T>(propertyInfo)
-                : base.CreateSetter<T>(propertyInfo);
-        }
-
-        public override GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
-        {
-            return
-                SupportsEmit ? FieldInvoker.GetEmit(fieldInfo) :
-                SupportsExpression
-                    ? FieldInvoker.GetExpression(fieldInfo)
-                    : base.CreateGetter(fieldInfo);
-        }
-
-        public override GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
-        {
-            return
-                SupportsEmit ? FieldInvoker.GetEmit<T>(fieldInfo) :
-                SupportsExpression
-                    ? FieldInvoker.GetExpression<T>(fieldInfo)
-                    : base.CreateGetter<T>(fieldInfo);
-        }
-
-        public override SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
-        {
-            return
-                SupportsEmit ? FieldInvoker.SetEmit(fieldInfo) :
-                SupportsExpression
-                    ? FieldInvoker.SetExpression(fieldInfo)
-                    : base.CreateSetter(fieldInfo);
-        }
-
-        public override SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo)
-        {
-            return SupportsExpression
-                ? FieldInvoker.SetExpression<T>(fieldInfo)
-                : base.CreateSetter<T>(fieldInfo);
-        }
-
         public override DateTime ParseXsdDateTimeAsUtc(string dateTimeStr)
         {
             return DateTime.ParseExact(dateTimeStr, allDateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowLeadingWhite|DateTimeStyles.AllowTrailingWhite|DateTimeStyles.AdjustToUniversal)
@@ -350,29 +282,6 @@ namespace ServiceStack
 
             return result;
         }
-
-        public override ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
-        {
-            if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
-                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
-            {
-                return DeserializeDynamic<TSerializer>.Parse;
-            }
-
-            return null;
-        }
-
-        public override ParseStringSpanDelegate GetJsReaderParseStringSpanMethod<TSerializer>(Type type)
-        {
-            if (type.IsAssignableFrom(typeof(System.Dynamic.IDynamicMetaObjectProvider)) ||
-                type.HasInterface(typeof(System.Dynamic.IDynamicMetaObjectProvider)))
-            {
-                return DeserializeDynamic<TSerializer>.ParseStringSpan;
-            }
-            
-            return null;
-        }
-
         public override void SetUserAgent(HttpWebRequest httpReq, string value)
         {
             if (SetUserAgentDelegate != null)
@@ -463,15 +372,6 @@ namespace ServiceStack
         }
         
         public override string GetStackTrace() => Environment.StackTrace;
-
-        public override Type UseType(Type type)
-        {
-            if (type.IsInterface || type.IsAbstract)
-            {
-                return DynamicProxy.GetInstanceFor(type).GetType();
-            }
-            return type;
-        }
 
         public static void InitForAot()
         {

@@ -387,20 +387,7 @@ namespace ServiceStack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsDynamic(this Assembly assembly)
-        {
-            try
-            {
-                var isDyanmic = assembly is System.Reflection.Emit.AssemblyBuilder
-                                || string.IsNullOrEmpty(assembly.Location);
-                return isDyanmic;
-            }
-            catch (NotSupportedException)
-            {
-                //Ignore assembly.Location not supported in a dynamic assembly.
-                return true;
-            }
-        }
+        public static bool IsDynamic(this Assembly assembly) => ReflectionOptimizer.Instance.IsDynamic(assembly);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodInfo GetStaticMethod(this Type type, string methodName, Type[] types)

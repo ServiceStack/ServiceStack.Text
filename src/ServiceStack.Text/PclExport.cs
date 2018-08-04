@@ -31,18 +31,16 @@ namespace ServiceStack
         public static PclExport Instance
 #if NET45
           = new Net45PclExport()
+#elif NETCORE2_1
+          = new NetCorePclExport()
 #else
           = new NetStandardPclExport()
 #endif
         ;
 
-        static PclExport() {}
+        public static ReflectionOptimizer Reflection => ReflectionOptimizer.Instance;
 
-        public virtual void Init()
-        {
-            this.SupportsEmit = Env.SupportsEmit;
-            this.SupportsExpression = Env.SupportsExpressions;
-        }
+        static PclExport() {}
 
         public static bool ConfigureProvider(string typeName)
         {
@@ -72,10 +70,6 @@ namespace ServiceStack
         }
 
         public Task EmptyTask;
-
-        public bool SupportsExpression;
-
-        public bool SupportsEmit;
 
         public char DirSep = '\\';
 
@@ -268,31 +262,33 @@ namespace ServiceStack
             return new UTF8Encoding(emitBom);
         }
 
-        public virtual SetMemberDelegate CreateSetter(FieldInfo fieldInfo)
-        {
-            return fieldInfo.SetValue;
-        }
+        
+        [Obsolete("ReflectionOptimizer.CreateGetter")]
+        public GetMemberDelegate CreateGetter(PropertyInfo propertyInfo) => ReflectionOptimizer.Instance.CreateGetter(propertyInfo);
 
-        public virtual SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo)
-        {
-            return (o,x) => fieldInfo.SetValue(o,x);
-        }
+        [Obsolete("ReflectionOptimizer.CreateGetter")]
+        public GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo) => ReflectionOptimizer.Instance.CreateGetter<T>(propertyInfo);
 
-        public virtual GetMemberDelegate CreateGetter(FieldInfo fieldInfo)
-        {
-            return fieldInfo.GetValue;
-        }
+        [Obsolete("ReflectionOptimizer.CreateSetter")]
+        public SetMemberDelegate CreateSetter(PropertyInfo propertyInfo) => ReflectionOptimizer.Instance.CreateSetter(propertyInfo);
 
-        public virtual GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo)
-        {
-            return x => fieldInfo.GetValue(x);
-        }
+        [Obsolete("ReflectionOptimizer.CreateSetter")]
+        public SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo) => ReflectionOptimizer.Instance.CreateSetter<T>(propertyInfo);
+        
 
-        public virtual Type UseType(Type type)
-        {
-            return type;
-        }
+        [Obsolete("ReflectionOptimizer.CreateGetter")]
+        public virtual GetMemberDelegate CreateGetter(FieldInfo fieldInfo) => ReflectionOptimizer.Instance.CreateGetter(fieldInfo);
 
+        [Obsolete("ReflectionOptimizer.CreateGetter")]
+        public virtual GetMemberDelegate<T> CreateGetter<T>(FieldInfo fieldInfo) => ReflectionOptimizer.Instance.CreateGetter<T>(fieldInfo);
+
+        [Obsolete("ReflectionOptimizer.CreateSetter")]
+        public virtual SetMemberDelegate CreateSetter(FieldInfo fieldInfo) => ReflectionOptimizer.Instance.CreateSetter(fieldInfo);
+
+        [Obsolete("ReflectionOptimizer.CreateSetter")]
+        public virtual SetMemberDelegate<T> CreateSetter<T>(FieldInfo fieldInfo) => ReflectionOptimizer.Instance.CreateSetter<T>(fieldInfo);
+
+        
         public virtual bool InSameAssembly(Type t1, Type t2)
         {
             return t1.AssemblyQualifiedName != null && t1.AssemblyQualifiedName.Equals(t2.AssemblyQualifiedName);
@@ -303,40 +299,6 @@ namespace ServiceStack
             return type.GetInterfaces()
                 .FirstOrDefault(t => t.IsGenericType
                 && t.GetGenericTypeDefinition() == typeof(ICollection<>));
-        }
-
-        public virtual SetMemberDelegate CreateSetter(PropertyInfo propertyInfo)
-        {
-            var propertySetMethod = propertyInfo.GetSetMethod(nonPublic:true);
-            if (propertySetMethod == null) return null;
-
-            return (o, convertedValue) =>
-                propertySetMethod.Invoke(o, new[] { convertedValue });
-        }
-
-        public virtual SetMemberDelegate<T> CreateSetter<T>(PropertyInfo propertyInfo)
-        {
-            var propertySetMethod = propertyInfo.GetSetMethod(nonPublic:true);
-            if (propertySetMethod == null) return null;
-
-            return (o, convertedValue) =>
-                propertySetMethod.Invoke(o, new[] { convertedValue });
-        }
-
-        public virtual GetMemberDelegate CreateGetter(PropertyInfo propertyInfo)
-        {
-            var getMethodInfo = propertyInfo.GetGetMethod(nonPublic:true);
-            if (getMethodInfo == null) return null;
-
-            return o => propertyInfo.GetGetMethod(nonPublic:true).Invoke(o, TypeConstants.EmptyObjectArray);
-        }
-
-        public virtual GetMemberDelegate<T> CreateGetter<T>(PropertyInfo propertyInfo)
-        {
-            var getMethodInfo = propertyInfo.GetGetMethod(nonPublic:true);
-            if (getMethodInfo == null) return null;
-
-            return o => propertyInfo.GetGetMethod(nonPublic:true).Invoke(o, TypeConstants.EmptyObjectArray);
         }
 
         public virtual string ToXsdDateTimeString(DateTime dateTime)
@@ -367,46 +329,26 @@ namespace ServiceStack
         }
 
         public virtual ParseStringDelegate GetDictionaryParseMethod<TSerializer>(Type type)
-            where TSerializer : ITypeSerializer
-        {
-            return null;
-        }
+            where TSerializer : ITypeSerializer => null;
 
         public virtual ParseStringSpanDelegate GetDictionaryParseStringSpanMethod<TSerializer>(Type type)
-            where TSerializer : ITypeSerializer
-        {
-            return null;
-        }
+            where TSerializer : ITypeSerializer => null;
 
         public virtual ParseStringDelegate GetSpecializedCollectionParseMethod<TSerializer>(Type type)
-            where TSerializer : ITypeSerializer
-        {
-            return null;
-        }
+            where TSerializer : ITypeSerializer => null;
 
         public virtual ParseStringSpanDelegate GetSpecializedCollectionParseStringSpanMethod<TSerializer>(Type type)
-            where TSerializer : ITypeSerializer
-        {
-            return null;
-        }
+            where TSerializer : ITypeSerializer => null;
 
         public virtual ParseStringDelegate GetJsReaderParseMethod<TSerializer>(Type type)
-            where TSerializer : ITypeSerializer
-        {
-            return null;
-        }
+            where TSerializer : ITypeSerializer => null;
 
         public virtual ParseStringSpanDelegate GetJsReaderParseStringSpanMethod<TSerializer>(Type type)
-            where TSerializer : ITypeSerializer
-        {
-            return null;
-        }
+            where TSerializer : ITypeSerializer => null;
 
 
         public virtual void InitHttpWebRequest(HttpWebRequest httpReq,
-            long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true)
-        {            
-        }
+            long? contentLength = null, bool allowAutoRedirect = true, bool keepAlive = true) {}
 
         public virtual void CloseStream(Stream stream)
         {
@@ -428,37 +370,15 @@ namespace ServiceStack
             return licenseKeyText.ToLicenseKeyFallback();
         }
 
-        public virtual void BeginThreadAffinity()
-        {
-        }
+        public virtual void BeginThreadAffinity() {}
+        public virtual void EndThreadAffinity() {}
 
-        public virtual void EndThreadAffinity()
-        {
-        }
+        public virtual DataContractAttribute GetWeakDataContract(Type type) => null;
+        public virtual DataMemberAttribute GetWeakDataMember(PropertyInfo pi) => null;
+        public virtual DataMemberAttribute GetWeakDataMember(FieldInfo pi) => null;
 
-        public virtual DataContractAttribute GetWeakDataContract(Type type)
-        {
-            return null;
-        }
-
-        public virtual DataMemberAttribute GetWeakDataMember(PropertyInfo pi)
-        {
-            return null;
-        }
-
-        public virtual DataMemberAttribute GetWeakDataMember(FieldInfo pi)
-        {
-            return null;
-        }
-
-        public virtual void RegisterForAot()
-        {            
-        }
-
-        public virtual string GetStackTrace()
-        {
-            return null;
-        }
+        public virtual void RegisterForAot() {}
+        public virtual string GetStackTrace() => null;
 
         public virtual Task WriteAndFlushAsync(Stream stream, byte[] bytes)
         {

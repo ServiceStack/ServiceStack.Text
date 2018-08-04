@@ -128,12 +128,10 @@ namespace ServiceStack.Text.Common
                     return null;
                 }
 
-                return PclExport.Instance.UseType(type);
+                return ReflectionOptimizer.Instance.UseType(type);
             }
             return null;
         }
-
-        public static object ParseAbstractType<T>(string value) => ParseAbstractType<T>(value.AsSpan());
 
         public static object ParseAbstractType<T>(ReadOnlySpan<char> value)
         {
@@ -143,7 +141,12 @@ namespace ServiceStack.Text.Common
                 var concreteType = ExtractType(value);
                 if (concreteType != null)
                 {
-                    return Serializer.GetParseStringSpanFn(concreteType)(value);
+                    var fn = Serializer.GetParseStringSpanFn(concreteType);
+                    if (fn == ParseAbstractType<T>)
+                        return null;
+                    
+                    var ret = fn(value);
+                    return ret;
                 }
                 Tracer.Instance.WriteWarning(
                     "Could not deserialize Abstract Type with unknown concrete type: " + typeof(T).FullName);

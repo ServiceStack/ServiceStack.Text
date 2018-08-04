@@ -379,10 +379,9 @@ namespace ServiceStack
         public static EmptyCtorDelegate GetConstructorMethodToCache(Type type)
         {
             if (type == typeof(string))
-            {
-                return () => String.Empty;
-            }
-            else if (type.IsInterface)
+                return () => string.Empty;
+
+            if (type.IsInterface)
             {
                 if (type.HasGenericType())
                 {
@@ -424,26 +423,7 @@ namespace ServiceStack
                 return realizedType.CreateInstance;
             }
 
-            var emptyCtor = type.GetConstructor(Type.EmptyTypes);
-            if (emptyCtor != null)
-            {
-                if (PclExport.Instance.SupportsEmit)
-                {
-                    var dm = new System.Reflection.Emit.DynamicMethod("MyCtor", type, Type.EmptyTypes,
-                        typeof(ReflectionExtensions).Module, true);
-                    var ilgen = dm.GetILGenerator();
-                    ilgen.Emit(System.Reflection.Emit.OpCodes.Nop);
-                    ilgen.Emit(System.Reflection.Emit.OpCodes.Newobj, emptyCtor);
-                    ilgen.Emit(System.Reflection.Emit.OpCodes.Ret);
-
-                    return (EmptyCtorDelegate) dm.CreateDelegate(typeof(EmptyCtorDelegate));
-                }
-
-                return () => Activator.CreateInstance(type);
-            }
-
-            //Anonymous types don't have empty constructors
-            return () => FormatterServices.GetUninitializedObject(type);
+            return ReflectionOptimizer.Instance.CreateConstructor(type);
         }
 
         private static class TypeMeta<T>

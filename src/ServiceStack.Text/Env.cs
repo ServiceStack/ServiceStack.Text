@@ -15,7 +15,8 @@ namespace ServiceStack.Text
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
             var platformName = PclExport.Instance.PlatformName;
-            if (platformName != PclExport.Platforms.Uwp)
+            IsUWP = IsRunningAsUwp();
+            if (!IsUWP)
             {
                 IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
 
@@ -37,10 +38,6 @@ namespace ServiceStack.Text
                 }
                 catch (Exception) {}
             }
-            else
-            {
-                IsUWP = true;
-            }
 
 #if NETSTANDARD2_0
             IsNetStandard = true;
@@ -50,13 +47,15 @@ namespace ServiceStack.Text
                 IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
                 IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
                 
-                if (!IsIOS && IsOSX && System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.Contains("Mono"))
+                var fxDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+                if (!IsIOS && IsOSX && fxDesc.Contains("Mono"))
                 {
                     var runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
                     //iOS detection no longer trustworthy so assuming iOS based on some current heuristics. TODO: improve iOS detection
                     IsIOS = runtimeDir.StartsWith("/private/var") ||
                             runtimeDir.Contains("/CoreSimulator/Devices/"); 
                 }
+                IsNetCore = fxDesc.Contains(".NET Core");
             }
             catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
             IsUnix = IsOSX || IsLinux;
@@ -68,9 +67,17 @@ namespace ServiceStack.Text
             IsLinux = IsUnix;
             if (Environment.GetEnvironmentVariable("OS")?.IndexOf("Windows", StringComparison.OrdinalIgnoreCase) >= 0)
                 IsWindows = true;
+#elif NETCORE2_1
+            IsNetCore = true;
 #endif
+            
             SupportsExpressions = !IsIOS;
-            SupportsEmit = !IsIOS;
+            SupportsEmit = !IsIOS && !IsUWP;
+
+            if (IsUWP || IsIOS)
+            {
+                ReflectionOptimizer.Instance = ExpressionReflectionOptimizer.Provider;
+            }
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
@@ -80,9 +87,6 @@ namespace ServiceStack.Text
             VersionString = ServiceStackVersion.ToString(CultureInfo.InvariantCulture);
 
             __releaseDate = new DateTime(2001,01,01);
-
-            PclExport.Instance.SupportsEmit = SupportsEmit;
-            PclExport.Instance.SupportsExpression = SupportsExpressions;
         }
 
         public static string VersionString { get; set; }
@@ -109,9 +113,11 @@ namespace ServiceStack.Text
 
         public static bool IsNetFramework { get; set; }
 
-        public static bool SupportsExpressions { get; set; }
+        public static bool IsNetCore { get; set; }
 
-        public static bool SupportsEmit { get; set; }
+        public static bool SupportsExpressions { get; private set; }
+
+        public static bool SupportsEmit { get; private set; }
 
         public static bool StrictMode { get; set; }
 
@@ -167,5 +173,39 @@ namespace ServiceStack.Text
             }
             set => referenceAssembyPath = value;
         }
+        
+        //https://blogs.msdn.microsoft.com/appconsult/2016/11/03/desktop-bridge-identify-the-applications-context/
+        //https://github.com/qmatteoq/DesktopBridgeHelpers/blob/master/DesktopBridge.Helpers/Helpers.cs        
+        const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+        static extern int GetCurrentPackageFullName(ref int packageFullNameLength, System.Text.StringBuilder packageFullName);
+
+        private static bool IsRunningAsUwp()
+        {
+            if (IsWindows7OrLower)
+                return false;
+
+            int length = 0;
+            var sb = new System.Text.StringBuilder(0);
+            int result = GetCurrentPackageFullName(ref length, sb);
+
+            sb = new System.Text.StringBuilder(length);
+            result = GetCurrentPackageFullName(ref length, sb);
+
+            return result != APPMODEL_ERROR_NO_PACKAGE;
+        }
+
+        private static bool IsWindows7OrLower
+        {
+            get
+            {
+                int versionMajor = Environment.OSVersion.Version.Major;
+                int versionMinor = Environment.OSVersion.Version.Minor;
+                double version = versionMajor + (double)versionMinor / 10;
+                return version <= 6.1;
+            }
+        }    
+        
     }
 }

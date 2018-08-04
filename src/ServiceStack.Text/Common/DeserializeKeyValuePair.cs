@@ -76,6 +76,7 @@ namespace ServiceStack.Text.Common
                     valueValue = (TValue)parseValueFn(keyElementValue);
                 else
                     throw new SerializationException("Incorrect KeyValuePair property: " + key.ToString());
+
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);
             }
 
