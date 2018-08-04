@@ -75,7 +75,7 @@ namespace ServiceStack.Text
             SupportsExpressions = !IsIOS;
             SupportsEmit = !IsIOS && !IsUWP;
 
-            if (IsUWP || IsIOS)
+            if (IsNetNative || IsIOS)
             {
                 ReflectionOptimizer.Instance = ExpressionReflectionOptimizer.Provider;
             }
@@ -176,12 +176,45 @@ namespace ServiceStack.Text
             }
             set => referenceAssembyPath = value;
         }
-        
+
+        private static bool IsRunningAsUwp()
+        {
+            //TODO: find a more reliable way to detect UWP https://github.com/dotnet/corefx/issues/31599
+#if NETSTANDARD2_0
+            try
+            {
+                if (IsWindows7OrLower)
+                    return false;
+
+                var isWin = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+                var fxDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+                var isNetNative = fxDesc.Contains(".NET Native");
+                var onlyInDebugType = Type.GetType("System.Runtime.InteropServices.WindowsRuntime.IActivationFactory,System.Runtime.InteropServices.WindowsRuntime");
+                return isWin && (isNetNative || onlyInDebugType != null);
+            }
+            catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
+#endif
+            return false;
+        }
+
+        private static bool IsWindows7OrLower
+        {
+            get
+            {
+                int versionMajor = Environment.OSVersion.Version.Major;
+                int versionMinor = Environment.OSVersion.Version.Minor;
+                double version = versionMajor + (double)versionMinor / 10;
+                return version <= 6.1;
+            }
+        } 
+
+        /* Only way to determine if .NET Standard 2.0 .dll is running in UWP is now a build error from VS.NET 15.8 Preview
+         
         //https://blogs.msdn.microsoft.com/appconsult/2016/11/03/desktop-bridge-identify-the-applications-context/
         //https://github.com/qmatteoq/DesktopBridgeHelpers/blob/master/DesktopBridge.Helpers/Helpers.cs        
         const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
 
-        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
         static extern int GetCurrentPackageFullName(ref int packageFullNameLength, System.Text.StringBuilder packageFullName);
 
         private static bool IsRunningAsUwp()
@@ -209,17 +242,7 @@ namespace ServiceStack.Text
                 return false;
             }
         }
-
-        private static bool IsWindows7OrLower
-        {
-            get
-            {
-                int versionMajor = Environment.OSVersion.Version.Major;
-                int versionMinor = Environment.OSVersion.Version.Minor;
-                double version = versionMajor + (double)versionMinor / 10;
-                return version <= 6.1;
-            }
-        }    
+        */   
         
     }
 }
