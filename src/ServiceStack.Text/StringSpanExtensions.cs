@@ -643,6 +643,19 @@ namespace ServiceStack.Text
                 }
             }
             return to;
-        }        
+        }
+        
+        public static int CountOccurrencesOf(this ReadOnlySpan<char> value, char needle)
+        {
+            var count = 0;
+            var length = value.Length;
+            for (var n = length - 1; n >= 0; n--)
+            {
+                if (value[n] == needle)
+                    count++;
+            }
+            return count;
+        }
+
     }
 }
