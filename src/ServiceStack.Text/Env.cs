@@ -15,7 +15,11 @@ namespace ServiceStack.Text
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
             var platformName = PclExport.Instance.PlatformName;
+
+#if NETSTANDARD2_0
             IsUWP = IsRunningAsUwp();
+#endif
+            
             if (!IsUWP)
             {
                 IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
@@ -55,8 +59,7 @@ namespace ServiceStack.Text
                     IsIOS = runtimeDir.StartsWith("/private/var") ||
                             runtimeDir.Contains("/CoreSimulator/Devices/"); 
                 }
-                IsNetNative = fxDesc.Contains(".NET Native");
-                IsNetCore = fxDesc.Contains(".NET Core");
+                IsNetCore = fxDesc.StartsWith(".NET Core", StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
             IsUnix = IsOSX || IsLinux;
@@ -68,14 +71,16 @@ namespace ServiceStack.Text
             IsLinux = IsUnix;
             if (Environment.GetEnvironmentVariable("OS")?.IndexOf("Windows", StringComparison.OrdinalIgnoreCase) >= 0)
                 IsWindows = true;
+            SupportsDynamic = true;
 #elif NETCORE2_1
             IsNetCore = true;
+            SupportsDynamic = true;
 #endif
             
-            SupportsExpressions = !IsIOS;
-            SupportsEmit = !IsIOS && !IsUWP;
+            SupportsExpressions = true;
+            SupportsEmit = !(IsUWP || IsIOS);
 
-            if (IsNetNative || IsIOS)
+            if (!SupportsEmit)
             {
                 ReflectionOptimizer.Instance = ExpressionReflectionOptimizer.Provider;
             }
@@ -110,7 +115,7 @@ namespace ServiceStack.Text
 
         public static bool IsNetNative { get; set; }
 
-        public static bool IsUWP { get; set; }
+        public static bool IsUWP { get; private set; }
 
         public static bool IsNetStandard { get; set; }
 
@@ -121,6 +126,8 @@ namespace ServiceStack.Text
         public static bool SupportsExpressions { get; private set; }
 
         public static bool SupportsEmit { get; private set; }
+
+        public static bool SupportsDynamic { get; private set; }
 
         public static bool StrictMode { get; set; }
 
@@ -177,26 +184,18 @@ namespace ServiceStack.Text
             set => referenceAssembyPath = value;
         }
 
+#if NETSTANDARD2_0
         private static bool IsRunningAsUwp()
         {
-            //TODO: find a more reliable way to detect UWP https://github.com/dotnet/corefx/issues/31599
-#if NETSTANDARD2_0
             try
             {
-                if (IsWindows7OrLower)
-                    return false;
-
-                var isWin = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-                var fxDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-                var isNetNative = fxDesc.Contains(".NET Native");
-                var onlyInDebugType = Type.GetType("System.Runtime.InteropServices.WindowsRuntime.IActivationFactory,System.Runtime.InteropServices.WindowsRuntime");
-                return isWin && (isNetNative || onlyInDebugType != null);
+                IsNetNative = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Native", StringComparison.OrdinalIgnoreCase);
+                return IsInAppContainer || IsNetNative;
             }
-            catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
-#endif
+            catch (Exception) {}
             return false;
         }
-
+        
         private static bool IsWindows7OrLower
         {
             get
@@ -207,42 +206,70 @@ namespace ServiceStack.Text
                 return version <= 6.1;
             }
         } 
-
-        /* Only way to determine if .NET Standard 2.0 .dll is running in UWP is now a build error from VS.NET 15.8 Preview
-         
-        //https://blogs.msdn.microsoft.com/appconsult/2016/11/03/desktop-bridge-identify-the-applications-context/
-        //https://github.com/qmatteoq/DesktopBridgeHelpers/blob/master/DesktopBridge.Helpers/Helpers.cs        
-        const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
-
-        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
-        static extern int GetCurrentPackageFullName(ref int packageFullNameLength, System.Text.StringBuilder packageFullName);
-
-        private static bool IsRunningAsUwp()
+        
+        // From: https://github.com/dotnet/corefx/blob/master/src/CoreFx.Private.TestUtilities/src/System/PlatformDetection.Windows.cs
+        private static int s_isInAppContainer = -1;
+        private static bool IsInAppContainer
         {
-            try
+            // This actually checks whether code is running in a modern app. 
+            // Currently this is the only situation where we run in app container.
+            // If we want to distinguish the two cases in future,
+            // EnvironmentHelpers.IsAppContainerProcess in desktop code shows how to check for the AC token.
+            get
             {
-                if (IsWindows7OrLower)
+                if (s_isInAppContainer != -1)
+                    return s_isInAppContainer == 1;
+
+                if (!IsWindows || IsWindows7OrLower)
+                {
+                    s_isInAppContainer = 0;
                     return false;
+                }
 
-                int length = 0;
-                var sb = new System.Text.StringBuilder(0);
-                int result = GetCurrentPackageFullName(ref length, sb);
+                byte[] buffer = TypeConstants.EmptyByteArray;
+                uint bufferSize = 0;
+                try
+                {
+                    int result = GetCurrentApplicationUserModelId(ref bufferSize, buffer);
+                    switch (result)
+                    {
+                        case 15703: // APPMODEL_ERROR_NO_APPLICATION
+                            s_isInAppContainer = 0;
+                            break;
+                        case 0:     // ERROR_SUCCESS
+                        case 122:   // ERROR_INSUFFICIENT_BUFFER
+                                    // Success is actually insufficent buffer as we're really only looking for
+                                    // not NO_APPLICATION and we're not actually giving a buffer here. The
+                                    // API will always return NO_APPLICATION if we're not running under a
+                                    // WinRT process, no matter what size the buffer is.
+                            s_isInAppContainer = 1;
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Failed to get AppId, result was {result}.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    // We could catch this here, being friendly with older portable surface area should we
+                    // desire to use this method elsewhere.
+                    if (e.GetType().FullName.Equals("System.EntryPointNotFoundException", StringComparison.Ordinal))
+                    {
+                        // API doesn't exist, likely pre Win8
+                        s_isInAppContainer = 0;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
 
-                sb = new System.Text.StringBuilder(length);
-                result = GetCurrentPackageFullName(ref length, sb);
-
-                return result != APPMODEL_ERROR_NO_PACKAGE;
-            }
-            catch (TypeLoadException e) //of course the recommended code to detect UWP fails in .NET Native UWP
-            {                
-                return IsWindows && IsNetNative;
-            }
-            catch (Exception e)
-            {
-                return false;
+                return s_isInAppContainer == 1;
             }
         }
-        */   
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", ExactSpelling = true)]
+        private static extern int GetCurrentApplicationUserModelId(ref uint applicationUserModelIdLength, byte[] applicationUserModelId);
+ #endif
         
     }
 }
