@@ -14,36 +14,7 @@ namespace ServiceStack.Text
             if (PclExport.Instance == null)
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
-            var platformName = PclExport.Instance.PlatformName;
-
-#if NETSTANDARD2_0
-            IsUWP = IsRunningAsUwp();
-#endif
-            
-            if (!IsUWP)
-            {
-                IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
-
-                IsIOS = AssemblyUtils.FindType("MonoTouch.Foundation.NSObject") != null
-                    || AssemblyUtils.FindType("Foundation.NSObject") != null;
-
-                IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
-
-                try
-                {
-                    IsOSX = AssemblyUtils.FindType("Mono.AppKit") != null;
-#if NET45
-                    IsWindows = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("windir"));
-                    if (File.Exists(@"/System/Library/CoreServices/SystemVersion.plist"))
-                        IsOSX = true;
-                    string osType = File.Exists(@"/proc/sys/kernel/ostype") ? File.ReadAllText(@"/proc/sys/kernel/ostype") : null;
-                    IsLinux = osType?.IndexOf("Linux", StringComparison.OrdinalIgnoreCase) >= 0;
-#endif
-                }
-                catch (Exception) {}
-            }
-
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETCORE2_1
             IsNetStandard = true;
             try
             {
@@ -52,30 +23,64 @@ namespace ServiceStack.Text
                 IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
                 
                 var fxDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-                if (!IsIOS && IsOSX && fxDesc.Contains("Mono"))
-                {
-                    var runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
-                    //iOS detection no longer trustworthy so assuming iOS based on some current heuristics. TODO: improve iOS detection
-                    IsIOS = runtimeDir.StartsWith("/private/var") ||
-                            runtimeDir.Contains("/CoreSimulator/Devices/"); 
-                }
+                IsMono = fxDesc.Contains("Mono");
                 IsNetCore = fxDesc.StartsWith(".NET Core", StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception) {} //throws PlatformNotSupportedException in AWS lambda
             IsUnix = IsOSX || IsLinux;
             HasMultiplePlatformTargets = true;
+            IsUWP = IsRunningAsUwp();
 #elif NET45
             IsNetFramework = true;
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+                    IsWindows = true;
+                break;
+            }
+            
             var platform = (int)Environment.OSVersion.Platform;
             IsUnix = platform == 4 || platform == 6 || platform == 128;
-            IsLinux = IsUnix;
-            if (Environment.GetEnvironmentVariable("OS")?.IndexOf("Windows", StringComparison.OrdinalIgnoreCase) >= 0)
-                IsWindows = true;
+
+            if (File.Exists(@"/System/Library/CoreServices/SystemVersion.plist"))
+                IsOSX = true;
+            var osType = File.Exists(@"/proc/sys/kernel/ostype") 
+                ? File.ReadAllText(@"/proc/sys/kernel/ostype") 
+                : null;
+            IsLinux = osType?.IndexOf("Linux", StringComparison.OrdinalIgnoreCase) >= 0;
+            try
+            {
+                IsMono = AssemblyUtils.FindType("Mono.Runtime") != null;
+            }
+            catch (Exception) {}
+
             SupportsDynamic = true;
-#elif NETCORE2_1
+#endif
+
+#if NETCORE2_1
+            IsNetStandard = false;
             IsNetCore = true;
             SupportsDynamic = true;
 #endif
+
+            if (!IsUWP)
+            {
+                try
+                {
+                    IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
+                    if (IsOSX && IsMono)
+                    {
+                        var runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+                        //iOS detection no longer trustworthy so assuming iOS based on some current heuristics. TODO: improve iOS detection
+                        IsIOS = runtimeDir.StartsWith("/private/var") ||
+                                runtimeDir.Contains("/CoreSimulator/Devices/"); 
+                    }
+                }
+                catch (Exception) {}
+            }
             
             SupportsExpressions = true;
             SupportsEmit = !(IsUWP || IsIOS);
@@ -87,8 +92,10 @@ namespace ServiceStack.Text
 
             ServerUserAgent = "ServiceStack/" +
                 ServiceStackVersion + " "
-                + platformName
-                + (IsMono ? "/Mono" : "/.NET");
+                + PclExport.Instance.PlatformName
+                + (IsMono ? "/Mono" : "")
+                + (IsLinux ? "/Linux" : IsOSX ? "/OSX" : IsUnix ? "/Unix" : IsWindows ? "/Windows" : "/UnknownOS")
+                + (IsIOS ? "/iOS" : IsAndroid ? "/Android" : IsUWP ? "/UWP" : "");
 
             VersionString = ServiceStackVersion.ToString(CultureInfo.InvariantCulture);
 

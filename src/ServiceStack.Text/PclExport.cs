@@ -21,10 +21,6 @@ namespace ServiceStack
     {
         public static class Platforms
         {
-            public const string Uwp = "UWP";
-            public const string Android = "Android";
-			public const string IOS = "IOS";
-            public const string Mac = "MAC";
             public const string NetStandard = "NETStandard";
             public const string NetCore = "NetCore";
             public const string Net45 = "Net45";
