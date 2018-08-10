@@ -631,5 +631,34 @@ namespace ServiceStack.Text.Tests.JsonTests
                 Assert.That(fromJson.Count, Is.EqualTo(dto.Count));
             }
         }
+
+        [Test]
+        public void Can_deserialize_int_with_null_values()
+        {
+            var json = "{\"id\":null,\"name\":null}";
+            var dto = json.FromJson<ModelWithIdAndName>();
+            
+            Assert.That(dto.Id, Is.EqualTo(default(int)));
+            Assert.That(dto.Name, Is.Null);
+        }
+        
+        public partial class ThrowValidation
+        {
+            public virtual int Age { get; set; }
+            public virtual string Required { get; set; }
+            public virtual string Email { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_ThrowValidation_with_null_values()
+        {
+            var json = "{\"version\":null,\"age\":null,\"required\":null,\"email\":\"invalidemail\"}";
+            var dto = json.FromJson<ThrowValidation>();
+            
+            Assert.That(dto.Age, Is.EqualTo(default(int)));
+            Assert.That(dto.Required, Is.Null);            
+            Assert.That(dto.Email, Is.EqualTo("invalidemail"));            
+        }
+
     }
 }

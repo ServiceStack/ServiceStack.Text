@@ -197,8 +197,7 @@ namespace ServiceStack.Text
             try
             {
                 IsNetNative = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Native", StringComparison.OrdinalIgnoreCase);
-                var onlyInDebugType = Type.GetType("System.Runtime.InteropServices.WindowsRuntime.IActivationFactory,System.Runtime.InteropServices.WindowsRuntime");
-                return IsInAppContainer || IsNetNative || onlyInDebugType != null;
+                return IsInAppContainer || IsNetNative;
             }
             catch (Exception) {}
             return false;
