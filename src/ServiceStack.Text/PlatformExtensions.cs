@@ -669,10 +669,26 @@ namespace ServiceStack
             if (alreadyDict)
                 return true;
 
+            var to = type.CreateInstance();
+
+            PopulateInstanceInternal(values, to, type);
+            
+            return to;
+        }
+
+        public static void PopulateInstance(this IReadOnlyDictionary<string, object> values, object instance)
+        {
+            if (values == null || instance == null)
+                return;
+            
+            PopulateInstanceInternal(values, instance, instance.GetType());
+        }
+
+        private static void PopulateInstanceInternal(IReadOnlyDictionary<string, object> values, object to, Type type)
+        {
             if (!toObjectMapCache.TryGetValue(type, out var def))
                 toObjectMapCache[type] = def = CreateObjectDictionaryDefinition(type);
 
-            var to = type.CreateInstance();
             foreach (var entry in values)
             {
                 if (!def.FieldsMap.TryGetValue(entry.Key, out var fieldDef) &&
@@ -682,7 +698,6 @@ namespace ServiceStack
 
                 fieldDef.SetValue(to, entry.Value);
             }
-            return to;
         }
 
         public static T FromObjectDictionary<T>(this IReadOnlyDictionary<string, object> values)
