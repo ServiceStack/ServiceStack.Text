@@ -938,6 +938,15 @@ namespace ServiceStack
             return false;
         }
 
+        public static bool ContainsAny(this string text, StringComparison comparisonType, params string[] testMatches)
+        {
+            foreach (var testMatch in testMatches)
+            {
+                if (text.IndexOf(testMatch, comparisonType) >= 0) return true;
+            }
+            return false;
+        }
+
         public static string SafeVarName(this string text) => !string.IsNullOrEmpty(text) 
             ? InvalidVarCharsRegex.Replace(text, "_") : null;
 
