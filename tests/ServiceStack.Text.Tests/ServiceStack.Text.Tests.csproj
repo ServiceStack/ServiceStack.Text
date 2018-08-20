@@ -29,6 +29,7 @@
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Memory" Version="4.5.1" />
@@ -51,24 +52,12 @@
     <Reference Include="..\..\lib\net45\ServiceStack.dll" />
     <Reference Include="..\..\lib\net45\Northwind.Common.dll" />
   </ItemGroup>
-  <!-- Enable NunitLite build, becase NUnit is not supported on .NET Core SDK 1.0.2 
-   https://github.com/nunit/dotnet-test-nunit/issues/91 
-   To enable NUnitLite pass /p:NUNITLITE=1 into msbuild arguments
-   -->
-  <PropertyGroup Condition=" '$(NUNITLITE)' != '' ">
-    <OutputType>Exe</OutputType>
-    <DefineConstants>$(DefineConstants);NUNITLITE</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup Condition=" '$(NUNITLITE)' != '' ">
-    <PackageReference Include="NUnitLite" Version="3.9.0" />
-  </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <DefineConstants>$(DefineConstants);NETCORE_SUPPORT;NETCORE;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <ProjectReference Include="..\..\src\ServiceStack.Memory\ServiceStack.Memory.csproj" />
     <PackageReference Include="System.Collections.Specialized" Version="4.*" />
-    <PackageReference Include="System.Runtime" Version="4.*" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.*" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.*" />
     <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Interfaces.dll" />
