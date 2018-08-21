@@ -712,10 +712,10 @@ namespace ServiceStack.Text.Json
 
             var success = value[i] == JsWriter.ItemSeperator || value[i] == JsWriter.MapEndChar;
 
-            i++;
-
             if (success)
             {
+                i++;
+
                 for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             }
 

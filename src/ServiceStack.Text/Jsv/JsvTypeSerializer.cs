@@ -389,10 +389,14 @@ namespace ServiceStack.Text.Jsv
 
             var success = value[i] == JsWriter.ItemSeperator
                 || value[i] == JsWriter.MapEndChar;
-            i++;
+
+            if (success)
+            {
+                i++;
+            }
+            
             return success;
         }
-
 
         public void EatWhitespace(string value, ref int i) {}
 
