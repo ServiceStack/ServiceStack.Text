@@ -718,6 +718,8 @@ namespace ServiceStack.Text.Json
 
                 for (; i < value.Length; i++) { var c = value[i]; if (!JsonUtils.IsWhiteSpace(c)) break; } //Whitespace inline
             }
+            else if (Env.StrictMode) throw new Exception(
+                $"Expected '{JsWriter.ItemSeperator}' or '{JsWriter.MapEndChar}'");
 
             return success;
         }

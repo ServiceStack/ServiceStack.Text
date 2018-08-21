@@ -57,11 +57,14 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         [Test]
-        public void Invokes_callback_deserialization_of_array_with_missing_comma()
+        public void StrictMode_throws_Exception_on_array_with_missing_comma()
         {
+            Env.StrictMode = true;
             string json = @"{""Values"": [ { ""Val"": ""a""} { ""Val"": ""b""}] }";
+            
+            Assert.Throws<SerializationException>(() => json.FromJson<TestDtoWithArray>());
 
-            AssertThatInvalidJsonInvokesExpectedCallback<TestDtoWithArray>(json, "Values", @"[ { ""Val"": ""a""} { ""Val"": ""b""}]", typeof(TestChildDto[]), null);
+            Env.StrictMode = false;
         }
 
         [Test]
