@@ -260,7 +260,7 @@ namespace ServiceStack.Text.Jsv
             var mi = enumType.GetMember(enumValue.ToString());
             var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
             var useValue = enumMemberAttr?.Value ?? enumValue;
-            writer.Write(enumValue.ToString());
+            writer.Write(useValue.ToString());
         }
 
         public object EncodeMapKey(object value)
