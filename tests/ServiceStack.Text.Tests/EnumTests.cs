@@ -249,7 +249,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromDto.Day, Is.EqualTo(Day.Sunday));
 
             var csv = dto.ToCsv();
-            Assert.That(csv.NormalizeNewLines(), Is.EqualTo("Day\nSUN\n".NormalizeNewLines()));
+            Assert.That(csv.NormalizeNewLines(), Is.EqualTo("Day,NDay\nSUN,\n".NormalizeNewLines()));
         }
 
         [Test]
