@@ -26,26 +26,6 @@ namespace ServiceStack
 {
     public static class StringExtensions
     {
-        public static T To<T>(this string value)
-        {
-            return TypeSerializer.DeserializeFromString<T>(value);
-        }
-
-        public static T To<T>(this string value, T defaultValue)
-        {
-            return String.IsNullOrEmpty(value) ? defaultValue : TypeSerializer.DeserializeFromString<T>(value);
-        }
-
-        public static T ToOrDefaultValue<T>(this string value)
-        {
-            return String.IsNullOrEmpty(value) ? default(T) : TypeSerializer.DeserializeFromString<T>(value);
-        }
-
-        public static object To(this string value, Type type)
-        {
-            return TypeSerializer.DeserializeFromString(value, type);
-        }
-
         /// <summary>
         /// Converts from base: 0 - 62
         /// </summary>
@@ -1264,5 +1244,31 @@ namespace ServiceStack
         }
 #endif
 
+    }
+}
+
+namespace ServiceStack.Text
+{
+    public static class StringTextExtensions
+    {
+        public static T To<T>(this string value)
+        {
+            return TypeSerializer.DeserializeFromString<T>(value);
+        }
+
+        public static T To<T>(this string value, T defaultValue)
+        {
+            return String.IsNullOrEmpty(value) ? defaultValue : TypeSerializer.DeserializeFromString<T>(value);
+        }
+
+        public static T ToOrDefaultValue<T>(this string value)
+        {
+            return String.IsNullOrEmpty(value) ? default(T) : TypeSerializer.DeserializeFromString<T>(value);
+        }
+
+        public static object To(this string value, Type type)
+        {
+            return TypeSerializer.DeserializeFromString(value, type);
+        }
     }
 }
