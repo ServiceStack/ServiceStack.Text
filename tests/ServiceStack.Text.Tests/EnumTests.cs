@@ -229,6 +229,8 @@ namespace ServiceStack.Text.Tests
         class EnumMemberDto
         {
             public Day Day { get; set; }
+
+            public Day? NDay { get; set; }
         }
 
         [Test]
@@ -256,6 +258,21 @@ namespace ServiceStack.Text.Tests
             Assert.That(Day.Sunday.ToJson(), Is.EqualTo("\"SUN\""));
             Assert.That(Day.Sunday.ToJsv(), Is.EqualTo("SUN"));
             Assert.That(Day.Sunday.ToCsv(), Is.EqualTo("SUN"));
+            
+            Assert.That(((Day?)Day.Sunday).ToJson(), Is.EqualTo("\"SUN\""));
+            Assert.That(((Day?)Day.Sunday).ToJsv(), Is.EqualTo("SUN"));
+            Assert.That(((Day?)Day.Sunday).ToCsv(), Is.EqualTo("SUN"));
+        }
+        
+        class Test
+        {
+            public double Double { get; set; }
+        }
+
+        [Test]
+        public void METHOD()
+        {
+            new Test { Double = 204753574.10189867  }.ToJson().Print();
         }
 
     }
