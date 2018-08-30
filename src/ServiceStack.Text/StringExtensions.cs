@@ -1251,21 +1251,25 @@ namespace ServiceStack.Text
 {
     public static class StringTextExtensions
     {
+        [Obsolete("Use ConvertTo<T>")]
         public static T To<T>(this string value)
         {
             return TypeSerializer.DeserializeFromString<T>(value);
         }
 
+        [Obsolete("Use ConvertTo<T>")]
         public static T To<T>(this string value, T defaultValue)
         {
             return String.IsNullOrEmpty(value) ? defaultValue : TypeSerializer.DeserializeFromString<T>(value);
         }
 
+        [Obsolete("Use ConvertTo<T>")]
         public static T ToOrDefaultValue<T>(this string value)
         {
             return String.IsNullOrEmpty(value) ? default(T) : TypeSerializer.DeserializeFromString<T>(value);
         }
 
+        [Obsolete("Use ConvertTo<T>")]
         public static object To(this string value, Type type)
         {
             return TypeSerializer.DeserializeFromString(value, type);
