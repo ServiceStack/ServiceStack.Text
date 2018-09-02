@@ -26,26 +26,6 @@ namespace ServiceStack
 {
     public static class StringExtensions
     {
-        public static T To<T>(this string value)
-        {
-            return TypeSerializer.DeserializeFromString<T>(value);
-        }
-
-        public static T To<T>(this string value, T defaultValue)
-        {
-            return String.IsNullOrEmpty(value) ? defaultValue : TypeSerializer.DeserializeFromString<T>(value);
-        }
-
-        public static T ToOrDefaultValue<T>(this string value)
-        {
-            return String.IsNullOrEmpty(value) ? default(T) : TypeSerializer.DeserializeFromString<T>(value);
-        }
-
-        public static object To(this string value, Type type)
-        {
-            return TypeSerializer.DeserializeFromString(value, type);
-        }
-
         /// <summary>
         /// Converts from base: 0 - 62
         /// </summary>
@@ -946,6 +926,8 @@ namespace ServiceStack
             }
             return false;
         }
+      
+        public static bool IsValidVarName(this string name) => InvalidVarCharsRegex.IsMatch(name);
 
         public static string SafeVarName(this string text) => !string.IsNullOrEmpty(text) 
             ? InvalidVarCharsRegex.Replace(text, "_") : null;
@@ -1273,5 +1255,35 @@ namespace ServiceStack
         }
 #endif
 
+    }
+}
+
+namespace ServiceStack.Text
+{
+    public static class StringTextExtensions
+    {
+        [Obsolete("Use ConvertTo<T>")]
+        public static T To<T>(this string value)
+        {
+            return TypeSerializer.DeserializeFromString<T>(value);
+        }
+
+        [Obsolete("Use ConvertTo<T>")]
+        public static T To<T>(this string value, T defaultValue)
+        {
+            return String.IsNullOrEmpty(value) ? defaultValue : TypeSerializer.DeserializeFromString<T>(value);
+        }
+
+        [Obsolete("Use ConvertTo<T>")]
+        public static T ToOrDefaultValue<T>(this string value)
+        {
+            return String.IsNullOrEmpty(value) ? default(T) : TypeSerializer.DeserializeFromString<T>(value);
+        }
+
+        [Obsolete("Use ConvertTo<T>")]
+        public static object To(this string value, Type type)
+        {
+            return TypeSerializer.DeserializeFromString(value, type);
+        }
     }
 }

@@ -260,7 +260,7 @@ namespace ServiceStack.Text.Jsv
             var mi = enumType.GetMember(enumValue.ToString());
             var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
             var useValue = enumMemberAttr?.Value ?? enumValue;
-            writer.Write(enumValue.ToString());
+            writer.Write(useValue.ToString());
         }
 
         public object EncodeMapKey(object value)
@@ -379,7 +379,12 @@ namespace ServiceStack.Text.Jsv
 
             var success = value[i] == JsWriter.ItemSeperator
                 || value[i] == JsWriter.MapEndChar;
-            i++;
+
+            if (success)
+                i++;
+            else if (Env.StrictMode) throw new Exception(
+                $"Expected '{JsWriter.ItemSeperator}' or '{JsWriter.MapEndChar}'");
+            
             return success;
         }
 
@@ -389,10 +394,14 @@ namespace ServiceStack.Text.Jsv
 
             var success = value[i] == JsWriter.ItemSeperator
                 || value[i] == JsWriter.MapEndChar;
-            i++;
+
+            if (success)
+                i++;
+            else if (Env.StrictMode) throw new Exception(
+                $"Expected '{JsWriter.ItemSeperator}' or '{JsWriter.MapEndChar}'");
+            
             return success;
         }
-
 
         public void EatWhitespace(string value, ref int i) {}
 
@@ -407,7 +416,7 @@ namespace ServiceStack.Text.Jsv
         {
             var tokenStartPos = i;
             var valueLength = value.Length;
-            if (i == valueLength) return default(ReadOnlySpan<char>);
+            if (i == valueLength) return default;
 
             var valueChar = value[i];
             var withinQuotes = false;
@@ -418,7 +427,7 @@ namespace ServiceStack.Text.Jsv
                 //If we are at the end, return.
                 case JsWriter.ItemSeperator:
                 case JsWriter.MapEndChar:
-                    return default(ReadOnlySpan<char>);
+                    return default;
 
                 //Is Within Quotes, i.e. "..."
                 case JsWriter.QuoteChar:

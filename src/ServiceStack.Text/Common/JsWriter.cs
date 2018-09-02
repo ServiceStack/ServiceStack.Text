@@ -284,9 +284,9 @@ namespace ServiceStack.Text.Common
             {
                 if (underlyingType.IsEnum)
                 {
-                    if (type.HasAttribute<DataContractAttribute>())
+                    if (underlyingType.HasAttribute<DataContractAttribute>())
                         return Serializer.WriteEnumMember;
-                    if (type.HasAttribute<FlagsAttribute>())
+                    if (underlyingType.HasAttribute<FlagsAttribute>())
                         return Serializer.WriteEnumFlags;
                     return Serializer.WriteEnum;
                 }

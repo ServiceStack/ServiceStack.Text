@@ -229,20 +229,40 @@ namespace ServiceStack.Text.Tests
         class EnumMemberDto
         {
             public Day Day { get; set; }
+
+            public Day? NDay { get; set; }
         }
 
         [Test]
         public void Does_serialize_EnumMember_Value()
         {
-            var dto = new EnumMemberDto {Day = Day.Sunday};
-            var json = dto.ToJson();
-            
-            Assert.That(json, Is.EqualTo("{\"Day\":\"SUN\"}"));
+            var dto = new EnumMemberDto { Day = Day.Sunday };
 
+            var json = dto.ToJson();
+            Assert.That(json, Is.EqualTo("{\"Day\":\"SUN\"}"));
             var fromDto = json.FromJson<EnumMemberDto>();
             Assert.That(fromDto.Day, Is.EqualTo(Day.Sunday));
+
+            var jsv = dto.ToJsv();
+            Assert.That(jsv, Is.EqualTo("{Day:SUN}"));
+            fromDto = jsv.FromJsv<EnumMemberDto>();
+            Assert.That(fromDto.Day, Is.EqualTo(Day.Sunday));
+
+            var csv = dto.ToCsv();
+            Assert.That(csv.NormalizeNewLines(), Is.EqualTo("Day,NDay\nSUN,\n".NormalizeNewLines()));
         }
 
+        [Test]
+        public void Does_serialize_EnumMember_enum()
+        {
+            Assert.That(Day.Sunday.ToJson(), Is.EqualTo("\"SUN\""));
+            Assert.That(Day.Sunday.ToJsv(), Is.EqualTo("SUN"));
+            Assert.That(Day.Sunday.ToCsv(), Is.EqualTo("SUN"));
+            
+            Assert.That(((Day?)Day.Sunday).ToJson(), Is.EqualTo("\"SUN\""));
+            Assert.That(((Day?)Day.Sunday).ToJsv(), Is.EqualTo("SUN"));
+            Assert.That(((Day?)Day.Sunday).ToCsv(), Is.EqualTo("SUN"));
+        }
     }
 }
 

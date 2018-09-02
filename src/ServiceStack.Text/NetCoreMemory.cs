@@ -18,7 +18,7 @@ namespace ServiceStack.Memory
         private static NetCoreMemory provider;
         public static NetCoreMemory Provider => provider ?? (provider = new NetCoreMemory());
         private NetCoreMemory() { }
-    
+        
         public static void Configure() => Instance = Provider;
         
         public override bool ParseBoolean(ReadOnlySpan<char> value) => bool.Parse(value);
