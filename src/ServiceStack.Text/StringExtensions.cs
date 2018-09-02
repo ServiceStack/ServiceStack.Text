@@ -918,7 +918,7 @@ namespace ServiceStack
             return false;
         }
 
-        public static bool ContainsAny(this string text, StringComparison comparisonType, params string[] testMatches)
+        public static bool ContainsAny(this string text, string[] testMatches, StringComparison comparisonType)
         {
             foreach (var testMatch in testMatches)
             {

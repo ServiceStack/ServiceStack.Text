@@ -351,7 +351,7 @@ namespace ServiceStack.Text.Tests
             var testMatches = new string[] { "abc" };
             var input = "ABC";
 
-            Assert.That(input.ContainsAny(StringComparison.OrdinalIgnoreCase, testMatches));
+            Assert.That(input.ContainsAny(testMatches, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
