@@ -344,5 +344,14 @@ namespace ServiceStack.Text.Tests
             Assert.That("Aa_Bb".ToPascalCase(), Is.EqualTo("AaBb"));
             Assert.That("AA_BB".ToPascalCase(), Is.EqualTo("AaBb"));
         }
+
+        [Test]
+        public void Does_ContainsAny_Return_CaseInsensitive_Matches()
+        {
+            var testMatches = new string[] { "abc" };
+            var input = "ABC";
+
+            Assert.That(input.ContainsAny(StringComparison.OrdinalIgnoreCase, testMatches));
+        }
     }
 }
