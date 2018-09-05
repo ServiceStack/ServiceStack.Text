@@ -390,8 +390,7 @@ namespace ServiceStack
 
         public override LicenseKey VerifyLicenseKeyText(string licenseKeyText)
         {
-            LicenseKey key;
-            if (!licenseKeyText.VerifyLicenseKeyText(out key))
+            if (!licenseKeyText.VerifyLicenseKeyText(out LicenseKey key))
                 throw new ArgumentException("licenseKeyText");
 
             return key;
@@ -610,98 +609,6 @@ namespace ServiceStack
                 CompressToStream(from, ms);
 
                 return ms.ToArray();
-            }
-        }
-
-        //License Utils
-        public static bool VerifySignedHash(byte[] DataToVerify, byte[] SignedData, RSAParameters Key)
-        {
-            try
-            {
-                var RSAalg = new RSACryptoServiceProvider();
-                RSAalg.ImportParameters(Key);
-                return RSAalg.VerifySha1Data(DataToVerify, SignedData);
-
-            }
-            catch (CryptographicException ex)
-            {
-                Tracer.Instance.WriteError(ex);
-                return false;
-            }
-        }
-
-        public static bool VerifyLicenseKeyText(this string licenseKeyText, out LicenseKey key)
-        {
-            var publicRsaProvider = new RSACryptoServiceProvider();
-            publicRsaProvider.FromXmlString(LicenseUtils.LicensePublicKey);
-            var publicKeyParams = publicRsaProvider.ExportParameters(false);
-
-            key = licenseKeyText.ToLicenseKey();
-            var originalData = key.GetHashKeyToSign().ToUtf8Bytes();
-            var signedData = Convert.FromBase64String(key.Hash);
-
-            return VerifySignedHash(originalData, signedData, publicKeyParams);
-        }
-
-        public static bool VerifyLicenseKeyTextFallback(this string licenseKeyText, out LicenseKey key)
-        {
-            RSAParameters publicKeyParams;
-            try
-            {
-                var publicRsaProvider = new RSACryptoServiceProvider();
-                publicRsaProvider.FromXmlString(LicenseUtils.LicensePublicKey);
-                publicKeyParams = publicRsaProvider.ExportParameters(false);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Could not import LicensePublicKey", ex);
-            }
-
-            try
-            {
-                key = licenseKeyText.ToLicenseKeyFallback();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Could not deserialize LicenseKeyText Manually", ex);
-            }
-
-            byte[] originalData;
-            byte[] signedData;
-
-            try
-            {
-                originalData = key.GetHashKeyToSign().ToUtf8Bytes();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Could not convert HashKey to UTF-8", ex);
-            }
-
-            try
-            {
-                signedData = Convert.FromBase64String(key.Hash);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Could not convert key.Hash from Base64", ex);
-            }
-
-            try
-            {
-                return VerifySignedHash(originalData, signedData, publicKeyParams);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Could not Verify License Key ({originalData.Length}, {signedData.Length})", ex);
-            }
-        }
-
-        public static bool VerifySha1Data(this RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
-        {
-            using (var sha = new SHA1CryptoServiceProvider())
-            {
-                return RSAalg.VerifyData(unsignedData, sha, encryptedData);
             }
         }
 

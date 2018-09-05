@@ -164,12 +164,18 @@ namespace ServiceStack
 
         private static readonly int[] revokedSubs = { 4018, 4019, 4041, 4331, 4581 };
 
-        private static LicenseKey __activatedLicense;
+        private class __ActivatedLicense
+        {
+            internal readonly LicenseKey LicenseKey;
+            internal __ActivatedLicense(LicenseKey licenseKey) => LicenseKey = licenseKey;
+        }
+
+        private static __ActivatedLicense __activatedLicense;
         public static void RegisterLicense(string licenseKeyText)
         {
             JsConfig.InitStatics();
 
-            if (__activatedLicense != null) //Skip multple license registrations. Use RemoveLicense() to reset.
+            if (__activatedLicense != null) //Skip multiple license registrations. Use RemoveLicense() to reset.
                 return;
 
             string subId = null;
@@ -183,7 +189,7 @@ namespace ServiceStack
                 if (int.TryParse(subId, out var subIdInt) && revokedSubs.Contains(subIdInt))
                     throw new LicenseException("This subscription has been revoked. " + ContactDetails);
 
-                var key = PclExport.Instance.VerifyLicenseKeyText(licenseKeyText);
+                var key = VerifyLicenseKeyText(licenseKeyText);
                 ValidateLicenseKey(key);
             }
             catch (Exception ex)
@@ -226,7 +232,7 @@ namespace ServiceStack
             if (key.Type == LicenseType.Trial && DateTime.UtcNow > key.Expiry)
                 throw new LicenseException($"This trial license has expired on {key.Expiry:d}." + ContactDetails).Trace();
 
-            __activatedLicense = key;
+            __activatedLicense = new __ActivatedLicense(key);
         }
 
         public static void RemoveLicense()
@@ -236,7 +242,7 @@ namespace ServiceStack
 
         public static LicenseFeature ActivatedLicenseFeatures()
         {
-            return __activatedLicense != null ? __activatedLicense.GetLicensedFeatures() : LicenseFeature.None;
+            return __activatedLicense?.LicenseKey.GetLicensedFeatures() ?? LicenseFeature.None;
         }
 
         public static void ApprovedUsage(LicenseFeature licenseFeature, LicenseFeature requestedFeature,
@@ -423,12 +429,192 @@ namespace ServiceStack
 
         public static Exception GetInnerMostException(this Exception ex)
         {
-            //Extract true exception from static intializers (e.g. LicenseException)
+            //Extract true exception from static initializers (e.g. LicenseException)
             while (ex.InnerException != null)
             {
                 ex = ex.InnerException;
             }
             return ex;
         }
+        
+        //License Utils
+        public static bool VerifySignedHash(byte[] DataToVerify, byte[] SignedData, System.Security.Cryptography.RSAParameters Key)
+        {
+            try
+            {
+                var RSAalg = new System.Security.Cryptography.RSACryptoServiceProvider();
+                RSAalg.ImportParameters(Key);
+                return RSAalg.VerifySha1Data(DataToVerify, SignedData);
+
+            }
+            catch (System.Security.Cryptography.CryptographicException ex)
+            {
+                Tracer.Instance.WriteError(ex);
+                return false;
+            }
+        }
+
+        public static LicenseKey VerifyLicenseKeyText(string licenseKeyText)
+        {
+#if NET45 || NETCORE2_1
+            LicenseKey key;
+            try
+            {
+                if (!licenseKeyText.VerifyLicenseKeyText(out key))
+                    throw new ArgumentException("licenseKeyText");
+            }
+            catch (Exception e)
+            {
+                if (!VerifyLicenseKeyTextFallback(licenseKeyText, out key))
+                    throw;
+            }
+            return key;
+#else
+            return licenseKeyText.ToLicenseKey();
+#endif
+        }
+        
+        private static void FromXml(this System.Security.Cryptography.RSA rsa, string xml)
+        {
+#if NET45
+            rsa.FromXmlString(xml);
+#else
+            //throws PlatformNotSupportedException
+            var csp = ExtractFromXml(xml);
+            rsa.ImportParameters(csp);
+#endif
+        }
+        
+#if !NET45
+        private static System.Security.Cryptography.RSAParameters ExtractFromXml(string xml)
+        {
+            var csp = new System.Security.Cryptography.RSAParameters();
+            using (var reader = System.Xml.XmlReader.Create(new StringReader(xml)))
+            {
+                while (reader.Read())
+                {
+                    if (reader.NodeType != System.Xml.XmlNodeType.Element)
+                        continue;
+
+                    var elName = reader.Name;
+                    if (elName == "RSAKeyValue")
+                        continue;
+
+                    do {
+                        reader.Read();
+                    } while (reader.NodeType != System.Xml.XmlNodeType.Text && reader.NodeType != System.Xml.XmlNodeType.EndElement);
+
+                    if (reader.NodeType == System.Xml.XmlNodeType.EndElement)
+                        continue;
+
+                    var value = reader.Value;
+                    switch (elName)
+                    {
+                        case "Modulus":
+                            csp.Modulus = Convert.FromBase64String(value);
+                            break;
+                        case "Exponent":
+                            csp.Exponent = Convert.FromBase64String(value);
+                            break;
+                        case "P":
+                            csp.P = Convert.FromBase64String(value);
+                            break;
+                        case "Q":
+                            csp.Q = Convert.FromBase64String(value);
+                            break;
+                        case "DP":
+                            csp.DP = Convert.FromBase64String(value);
+                            break;
+                        case "DQ":
+                            csp.DQ = Convert.FromBase64String(value);
+                            break;
+                        case "InverseQ":
+                            csp.InverseQ = Convert.FromBase64String(value);
+                            break;
+                        case "D":
+                            csp.D = Convert.FromBase64String(value);
+                            break;
+                    }
+                }
+
+                return csp;
+            }
+        }
+#endif
+        
+        public static bool VerifyLicenseKeyText(this string licenseKeyText, out LicenseKey key)
+        {
+            var publicRsaProvider = new System.Security.Cryptography.RSACryptoServiceProvider();
+            publicRsaProvider.FromXml(LicenseUtils.LicensePublicKey);
+            var publicKeyParams = publicRsaProvider.ExportParameters(false);
+
+            key = licenseKeyText.ToLicenseKey();
+            var originalData = key.GetHashKeyToSign().ToUtf8Bytes();
+            var signedData = Convert.FromBase64String(key.Hash);
+
+            return VerifySignedHash(originalData, signedData, publicKeyParams);
+        }
+
+        public static bool VerifyLicenseKeyTextFallback(this string licenseKeyText, out LicenseKey key)
+        {
+            System.Security.Cryptography.RSAParameters publicKeyParams;
+            try
+            {
+                var publicRsaProvider = new System.Security.Cryptography.RSACryptoServiceProvider();
+                publicRsaProvider.FromXml(LicenseUtils.LicensePublicKey);
+                publicKeyParams = publicRsaProvider.ExportParameters(false);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not import LicensePublicKey", ex);
+            }
+
+            try
+            {
+                key = licenseKeyText.ToLicenseKeyFallback();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not deserialize LicenseKeyText Manually", ex);
+            }
+
+            byte[] originalData;
+            byte[] signedData;
+
+            try
+            {
+                originalData = key.GetHashKeyToSign().ToUtf8Bytes();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not convert HashKey to UTF-8", ex);
+            }
+
+            try
+            {
+                signedData = Convert.FromBase64String(key.Hash);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not convert key.Hash from Base64", ex);
+            }
+
+            try
+            {
+                return VerifySignedHash(originalData, signedData, publicKeyParams);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not Verify License Key ({originalData.Length}, {signedData.Length})", ex);
+            }
+        }
+
+        public static bool VerifySha1Data(this System.Security.Cryptography.RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
+        {
+            using (var sha = new System.Security.Cryptography.SHA1CryptoServiceProvider())
+            {
+                return RSAalg.VerifyData(unsignedData, sha, encryptedData);
+            }
+        }        
     }
 }
