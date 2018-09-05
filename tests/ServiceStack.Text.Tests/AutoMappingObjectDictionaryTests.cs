@@ -350,6 +350,54 @@ namespace ServiceStack.Text.Tests
             var dtoLong = map.FromObjectDictionary<ModelWithLong>();
             Assert.That(dtoLong.Time, Is.EqualTo(time.Ticks));
         }
+        
+        public enum CefLogSeverity
+        {
+            Default,
+            Verbose,
+            Debug = Verbose,
+            Info,
+            Warning,
+            Error,
+            ErrorReport,
+            Disable = 99,
+        }
+        
+        public class CefSettings
+        {
+            public CefLogSeverity LogSeverity { get; set; }
+        }
+
+        public class CefConfig
+        {
+            public string WindowTitle { get; set; }
+            public string Icon { get; set; }
+            public string CefPath { get; set; }
+            public string[] Args { get; set; }
+            public CefSettings CefSettings { get; set; }
+            public string StartUrl { get; set; }
+            public int? X { get; set; }
+            public int? Y { get; set; }
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public bool CenterToScreen { get; set; }
+            public bool HideConsoleWindow { get; set; }
+        }
+
+        [Test]
+        public void Can_use_PopulateInstance_to_populate_enum()
+        {
+            var map = new Dictionary<string, object> {
+                ["LogSeverity"] = "Verbose"
+            };
+            
+            var config = new CefConfig { CefSettings = new CefSettings { LogSeverity = CefLogSeverity.Info } };
+            map.PopulateInstance(config.CefSettings);
+            
+            Assert.That(config.CefSettings.LogSeverity, Is.EqualTo(CefLogSeverity.Verbose));
+        }
+        
+        
     }
 
 
