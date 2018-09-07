@@ -61,7 +61,6 @@ namespace ServiceStack.Text.Common
         internal static KeyValuePair<string, TypeAccessor>[] GetTypeAccessors(TypeConfig typeConfig, ITypeSerializer serializer)
         {
             var type = typeConfig.Type;
-            var isDataContract = type.IsDto();
 
             var propertyInfos = type.GetSerializableProperties();
             var fieldInfos = type.GetSerializableFields();
@@ -77,13 +76,10 @@ namespace ServiceStack.Text.Common
                 {
                     var propertyInfo = propertyInfos[i];
                     var propertyName = propertyInfo.Name;
-                    if (isDataContract)
+                    var dcsDataMember = propertyInfo.GetDataMember();
+                    if (dcsDataMember?.Name != null)
                     {
-                        var dcsDataMember = propertyInfo.GetDataMember();
-                        if (dcsDataMember?.Name != null)
-                        {
-                            propertyName = dcsDataMember.Name;
-                        }
+                        propertyName = dcsDataMember.Name;
                     }
 
                     accessors[i] = new KeyValuePair<string, TypeAccessor>(propertyName, TypeAccessor.Create(serializer, typeConfig, propertyInfo));
@@ -96,13 +92,10 @@ namespace ServiceStack.Text.Common
                 {
                     var fieldInfo = fieldInfos[j];
                     var fieldName = fieldInfo.Name;
-                    if (isDataContract)
+                    var dcsDataMember = fieldInfo.GetDataMember();
+                    if (dcsDataMember?.Name != null)
                     {
-                        var dcsDataMember = fieldInfo.GetDataMember();
-                        if (dcsDataMember?.Name != null)
-                        {
-                            fieldName = dcsDataMember.Name;
-                        }
+                        fieldName = dcsDataMember.Name;
                     }
 
                     accessors[i + j] = new KeyValuePair<string, TypeAccessor>(fieldName, TypeAccessor.Create(serializer, typeConfig, fieldInfo));

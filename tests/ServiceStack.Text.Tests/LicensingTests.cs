@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using NUnit.Framework;
 
@@ -44,6 +45,7 @@ namespace ServiceStack.Text.Tests
         [SetUp]
         public void SetUp()
         {
+            
             LicenseUtils.RemoveLicense();
         }
 

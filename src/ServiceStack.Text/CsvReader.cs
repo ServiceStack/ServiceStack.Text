@@ -208,7 +208,6 @@ namespace ServiceStack.Text
             PropertyConverters = new List<ParseStringDelegate>();
             PropertyConvertersMap = new Dictionary<string, ParseStringDelegate>(PclExport.Instance.InvariantComparerIgnoreCase);
 
-            var isDataContract = typeof(T).IsDto();
             foreach (var propertyInfo in TypeConfig<T>.Properties)
             {
                 if (!propertyInfo.CanWrite || propertyInfo.GetSetMethod(nonPublic:true) == null) continue;
@@ -221,12 +220,9 @@ namespace ServiceStack.Text
                 var converter = JsvReader.GetParseFn(propertyInfo.PropertyType);
                 PropertyConverters.Add(converter);
 
-                if (isDataContract)
-                {
-                    var dcsDataMemberName = propertyInfo.GetDataMemberName();
-                    if (dcsDataMemberName != null)
-                        propertyName = dcsDataMemberName;
-                }
+                var dcsDataMemberName = propertyInfo.GetDataMemberName();
+                if (dcsDataMemberName != null)
+                    propertyName = dcsDataMemberName;
 
                 Headers.Add(propertyName);
                 PropertySettersMap[propertyName] = setter;

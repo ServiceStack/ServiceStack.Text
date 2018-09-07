@@ -329,6 +329,10 @@ namespace ServiceStack.Text.Tests
         {
             var dto = new AliasWithoutDataContract { Id = 1, Name = "foo" };
             Assert.That(dto.ToJson(), Is.EqualTo("{\"Id\":1,\"alias\":\"foo\"}"));
+
+            Assert.That(dto.ToJsv(), Is.EqualTo("{Id:1,alias:foo}"));
+            
+            Assert.That(dto.ToCsv(), Is.EqualTo("Id,alias\r\n1,foo\r\n"));
         }
 
     }
