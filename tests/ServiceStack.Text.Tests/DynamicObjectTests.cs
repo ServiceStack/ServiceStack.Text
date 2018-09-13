@@ -319,25 +319,51 @@ namespace ServiceStack.Text.Tests
             JsConfig.Reset();
         }
 
-        string SerializeObject(object value)
+        string SerializeObject(object value) => new TypeWithObjects { Value = value }.ToJson();
+
+        private void SerializeObjectTypes()
         {
-            return new TypeWithObjects { Value = value }.ToJson();
+            Assert.That(SerializeObject((string) "a"), Is.EqualTo("{\"Value\":\"a\"}"));
+            Assert.That(SerializeObject((byte) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((sbyte) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((short) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((ushort) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((int) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((uint) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((long) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((ulong) 1), Is.EqualTo("{\"Value\":1}"));
+            Assert.That(SerializeObject((float) 1.1), Is.EqualTo("{\"Value\":1.1}"));
+            Assert.That(SerializeObject((double) 1.1), Is.EqualTo("{\"Value\":1.1}"));
+            Assert.That(SerializeObject((decimal) 1.1), Is.EqualTo("{\"Value\":1.1}"));
         }
+
+        object DeserializeObject(string json) => json.FromJson<TypeWithObjects>().Value;
 
         [Test]
         public void Does_serialize_number_object_types()
         {
-            Assert.That(SerializeObject((byte)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((sbyte)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((short)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((ushort)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((int)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((uint)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((long)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((ulong)1), Is.EqualTo("{\"Value\":1}"));
-            Assert.That(SerializeObject((float)1.1), Is.EqualTo("{\"Value\":1.1}"));
-            Assert.That(SerializeObject((double)1.1), Is.EqualTo("{\"Value\":1.1}"));
-            Assert.That(SerializeObject((decimal)1.1), Is.EqualTo("{\"Value\":1.1}"));
+            SerializeObjectTypes();
+
+            Assert.That(DeserializeObject("{\"Value\":\"a\"}"), Is.EqualTo((string) "a"));
+            Assert.That(DeserializeObject("{\"Value\":1}"), Is.EqualTo("1"));
+            Assert.That(DeserializeObject("{\"Value\":1.1}"), Is.EqualTo("1.1"));
+            Assert.That(DeserializeObject("{\"Value\":\"a\nb\"}"), Is.EqualTo("a\nb"));
         }
+
+        [Test]
+        public void Does_serialize_number_object_types_with_JS_utils()
+        {
+            JS.Configure();
+            
+            SerializeObjectTypes();
+
+            Assert.That(DeserializeObject("{\"Value\":\"a\"}"), Is.EqualTo("a"));
+            Assert.That(DeserializeObject("{\"Value\":1}"), Is.EqualTo(1));
+            Assert.That(DeserializeObject("{\"Value\":1.1}"), Is.EqualTo((double)1.1));
+            Assert.That(DeserializeObject("{\"Value\":\"a\nb\"}"), Is.EqualTo("a\nb"));
+
+            JS.UnConfigure();
+        }
+
     }
 }
