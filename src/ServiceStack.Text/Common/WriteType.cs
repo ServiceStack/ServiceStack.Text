@@ -73,9 +73,11 @@ namespace ServiceStack.Text.Common
         {
             if (ShouldSkipType()) return false;
 
-            Serializer.WriteRawString(writer, JsConfig.TypeAttr);
+            var config = JsConfig.GetConfig();
+
+            Serializer.WriteRawString(writer, config.TypeAttr);
             writer.Write(JsWriter.MapKeySeperator);
-            Serializer.WriteRawString(writer, JsConfig.TypeWriter(typeof(T)));
+            Serializer.WriteRawString(writer, config.TypeWriter(typeof(T)));
             return true;
         }
 
@@ -83,16 +85,15 @@ namespace ServiceStack.Text.Common
         {
             if (obj == null || ShouldSkipType()) return false;
 
-            Serializer.WriteRawString(writer, JsConfig.TypeAttr);
+            var config = JsConfig.GetConfig();
+
+            Serializer.WriteRawString(writer, config.TypeAttr);
             writer.Write(JsWriter.MapKeySeperator);
-            Serializer.WriteRawString(writer, JsConfig.TypeWriter(obj.GetType()));
+            Serializer.WriteRawString(writer, config.TypeWriter(obj.GetType()));
             return true;
         }
 
-        public static WriteObjectDelegate Write
-        {
-            get { return CacheFn; }
-        }
+        public static WriteObjectDelegate Write => CacheFn;
 
         private static WriteObjectDelegate GetWriteFn()
         {
@@ -489,7 +490,8 @@ namespace ServiceStack.Text.Common
                 for (var index = 0; index < len; index++)
                 {
                     var propertyWriter = PropertyWriters[index];
-                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize(typedInstance)) continue;
+                    if (propertyWriter.shouldSerialize != null && !propertyWriter.shouldSerialize(typedInstance)) 
+                        continue;
 
                     var propertyValue = instance != null ? propertyWriter.GetterFn(typedInstance) : null;
                     if (propertyWriter.propertySuppressDefaultAttribute && Equals(propertyWriter.DefaultValue, propertyValue))
@@ -500,8 +502,8 @@ namespace ServiceStack.Text.Common
                         && !Serializer.IncludeNullValues)
                         continue;
 
-                    if (JsConfig.ExcludePropertyReferences != null
-                        && JsConfig.ExcludePropertyReferences.Contains(propertyWriter.propertyReferenceName)) continue;
+                    if (config.ExcludePropertyReferences != null && config.ExcludePropertyReferences.Contains(propertyWriter.propertyReferenceName)) 
+                        continue;
 
                     if (i++ > 0)
                         writer.Write('&');

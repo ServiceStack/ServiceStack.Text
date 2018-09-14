@@ -225,7 +225,8 @@ namespace ServiceStack.Text.Common
 
         public static DateTime? ParseManual(string dateTimeStr)
         {
-            var dateKind = JsConfig.AssumeUtc || JsConfig.AlwaysUseUtc
+            var config = JsConfig.GetConfig();
+            var dateKind = config.AssumeUtc || config.AlwaysUseUtc
                 ? DateTimeKind.Utc
                 : DateTimeKind.Local;
 
@@ -442,21 +443,23 @@ namespace ServiceStack.Text.Common
 
         public static string ToShortestXsdDateTimeString(DateTime dateTime)
         {
+            var config = JsConfig.GetConfig();
+
             dateTime = dateTime.UseConfigSpecifiedSetting();
-            if (!string.IsNullOrEmpty(JsConfig.DateTimeFormat))
+            if (!string.IsNullOrEmpty(config.DateTimeFormat))
             {
-                return dateTime.ToString(JsConfig.DateTimeFormat, CultureInfo.InvariantCulture);
+                return dateTime.ToString(config.DateTimeFormat, CultureInfo.InvariantCulture);
             }
 
             var timeOfDay = dateTime.TimeOfDay;
             var isStartOfDay = timeOfDay.Ticks == 0;
-            if (isStartOfDay && !JsConfig.SkipDateTimeConversion)
+            if (isStartOfDay && !config.SkipDateTimeConversion)
                 return dateTime.ToString(ShortDateTimeFormat, CultureInfo.InvariantCulture);
 
             var hasFractionalSecs = (timeOfDay.Milliseconds != 0)
                 || (timeOfDay.Ticks % TimeSpan.TicksPerMillisecond != 0);
 
-            if (JsConfig.SkipDateTimeConversion)
+            if (config.SkipDateTimeConversion)
             {
                 if (!hasFractionalSecs)
                     return dateTime.Kind == DateTimeKind.Local

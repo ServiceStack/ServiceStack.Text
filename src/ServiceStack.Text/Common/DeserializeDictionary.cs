@@ -232,10 +232,12 @@ namespace ServiceStack.Text.Common
         {
             if (value.IsEmpty) return null;
 
+            var config = JsConfig.GetConfig();
+
             var tryToParseItemsAsDictionaries =
-                JsConfig.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
+                config.ConvertObjectTypesIntoStringDictionary && typeof(TValue) == typeof(object);
             var tryToParseItemsAsPrimitiveTypes =
-                JsConfig.TryToParsePrimitiveTypeValues && typeof(TValue) == typeof(object);
+                config.TryToParsePrimitiveTypeValues && typeof(TValue) == typeof(object);
 
             var index = VerifyAndGetStartIndex(value, createMapType);
 

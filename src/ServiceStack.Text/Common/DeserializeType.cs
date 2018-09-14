@@ -69,7 +69,9 @@ namespace ServiceStack.Text.Common
                 return propertyValue;
             }
 
-            if (JsConfig.ConvertObjectTypesIntoStringDictionary && !strType.IsNullOrEmpty())
+            var config = JsConfig.GetConfig();
+
+            if (config.ConvertObjectTypesIntoStringDictionary && !strType.IsNullOrEmpty())
             {
                 if (strType[0] == JsWriter.MapStartChar)
                 {
@@ -86,7 +88,7 @@ namespace ServiceStack.Text.Common
                 }
             }
 
-            var primitiveType = JsConfig.TryToParsePrimitiveTypeValues ? ParsePrimitive(strType) : null;
+            var primitiveType = config.TryToParsePrimitiveTypeValues ? ParsePrimitive(strType) : null;
             if (primitiveType != null)
                 return primitiveType;
 
@@ -156,7 +158,8 @@ namespace ServiceStack.Text.Common
 
         public static object ParseQuotedPrimitive(string value)
         {
-            var fn = JsConfig.ParsePrimitiveFn;
+            var config = JsConfig.GetConfig();
+            var fn = config.ParsePrimitiveFn;
             var result = fn?.Invoke(value);
             if (result != null)
                 return result;
@@ -184,7 +187,7 @@ namespace ServiceStack.Text.Common
                 }
             }
 
-            if (JsConfig.DateHandler == DateHandler.RFC1123)
+            if (config.DateHandler == DateHandler.RFC1123)
             {
                 // check that we have RFC1123 date:
                 // ddd, dd MMM yyyy HH:mm:ss GMT
@@ -407,15 +410,17 @@ namespace ServiceStack.Text.Common
                 }
             }
 
+            var config = JsConfig.GetConfig();
+
             // Parse as decimal
-            var acceptDecimal = JsConfig.ParsePrimitiveFloatingPointTypes.Has(ParseAsType.Decimal);
+            var acceptDecimal = config.ParsePrimitiveFloatingPointTypes.Has(ParseAsType.Decimal);
             var isDecimal = value.TryParseDecimal(out decimal decimalValue);
 
             // Check if the number is an Primitive Integer type given that we have a decimal
             if (isDecimal && decimalValue == decimal.Truncate(decimalValue))
             {
                 // Value is a whole number
-                var parseAs = JsConfig.ParsePrimitiveIntegerTypes;
+                var parseAs = config.ParsePrimitiveIntegerTypes;
                 if (parseAs.Has(ParseAsType.Byte) && decimalValue <= byte.MaxValue && decimalValue >= byte.MinValue)
                     return (byte)decimalValue;
                 if (parseAs.Has(ParseAsType.SByte) && decimalValue <= sbyte.MaxValue && decimalValue >= sbyte.MinValue)
@@ -441,12 +446,12 @@ namespace ServiceStack.Text.Common
             if (isDecimal && acceptDecimal)
                 return decimalValue;
 
-            var acceptFloat = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Single);
+            var acceptFloat = config.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Single);
             var isFloat = value.TryParseFloat(out float floatValue);
             if (acceptFloat && isFloat)
                 return floatValue;
 
-            var acceptDouble = JsConfig.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Double);
+            var acceptDouble = config.ParsePrimitiveFloatingPointTypes.HasFlag(ParseAsType.Double);
             var isDouble = value.TryParseDouble(out double doubleValue);
             if (acceptDouble && isDouble)
                 return doubleValue;

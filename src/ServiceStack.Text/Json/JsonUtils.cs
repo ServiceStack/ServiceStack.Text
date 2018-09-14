@@ -53,8 +53,9 @@ namespace ServiceStack.Text.Json
                 return;
             }
 
-            var escapeHtmlChars = JsConfig.EscapeHtmlChars;
-            var escapeUnicode = JsConfig.EscapeUnicode;
+            var config = JsConfig.GetConfig();
+            var escapeHtmlChars = config.EscapeHtmlChars;
+            var escapeUnicode = config.EscapeUnicode;
 
             if (!HasAnyEscapeChars(value, escapeHtmlChars))
             {

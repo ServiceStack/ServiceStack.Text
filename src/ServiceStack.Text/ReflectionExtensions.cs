@@ -644,7 +644,9 @@ namespace ServiceStack
                     f.HasAttribute<DataMemberAttribute>()).ToArray();
             }
 
-            if (!JsConfig.IncludePublicFields)
+            var config = JsConfig.GetConfig();
+
+            if (!config.IncludePublicFields)
                 return TypeConstants.EmptyFieldInfoArray;
 
             var publicFields = type.GetPublicFields();
@@ -653,7 +655,7 @@ namespace ServiceStack
             return publicFields
                 .Where(prop => prop.AllAttributes()
                     .All(attr => !IgnoreAttributesNamed.Contains(attr.GetType().Name)))
-                .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.FieldType))
+                .Where(prop => !config.ExcludeTypes.Contains(prop.FieldType))
                 .ToArray();
         }
 

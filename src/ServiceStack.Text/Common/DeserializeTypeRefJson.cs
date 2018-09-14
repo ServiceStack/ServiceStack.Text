@@ -33,8 +33,10 @@ namespace ServiceStack.Text.Common
             if (JsonTypeSerializer.IsEmptyMap(strType, index)) 
                 return ctorFn();
 
+            var config = JsConfig.GetConfig();
+
             object instance = null;
-            var lenient = JsConfig.PropertyConvention == PropertyConvention.Lenient;
+            var lenient = config.PropertyConvention == PropertyConvention.Lenient;
 
             for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
 
@@ -54,7 +56,7 @@ namespace ServiceStack.Text.Common
                 if (instance == null && possibleTypeInfo && propertyName.Equals(typeAttr.Span, StringComparison.OrdinalIgnoreCase))
                 {
                     var explicitTypeName = Serializer.ParseString(propertyValueStr);
-                    var explicitType = JsConfig.TypeFinder(explicitTypeName);
+                    var explicitType = config.TypeFinder(explicitTypeName);
 
                     if (explicitType == null || explicitType.IsInterface || explicitType.IsAbstract)
                     {
@@ -127,8 +129,8 @@ namespace ServiceStack.Text.Common
                     }
                     catch (Exception e)
                     {
-                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType, propertyName.ToString(), propertyValueStr.ToString(), e);
-                        if (JsConfig.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.ToString(), propertyValueStr.ToString(), propType, e);
+                        config.OnDeserializationError?.Invoke(instance, propType, propertyName.ToString(), propertyValueStr.ToString(), e);
+                        if (config.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.ToString(), propertyValueStr.ToString(), propType, e);
                         else Tracer.Instance.WriteWarning("WARN: failed to set dynamic property {0} with: {1}", propertyName.ToString(), propertyValueStr.ToString());
                     }
                 }
@@ -145,8 +147,8 @@ namespace ServiceStack.Text.Common
                     catch (NotSupportedException) { throw; }
                     catch (Exception e)
                     {
-                        if (JsConfig.OnDeserializationError != null) JsConfig.OnDeserializationError(instance, propType ?? typeAccessor.PropertyType, propertyName.ToString(), propertyValueStr.ToString(), e);
-                        if (JsConfig.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.ToString(), propertyValueStr.ToString(), typeAccessor.PropertyType, e);
+                        config.OnDeserializationError?.Invoke(instance, propType ?? typeAccessor.PropertyType, propertyName.ToString(), propertyValueStr.ToString(), e);
+                        if (config.ThrowOnError) throw DeserializeTypeRef.GetSerializationException(propertyName.ToString(), propertyValueStr.ToString(), typeAccessor.PropertyType, e);
                         else Tracer.Instance.WriteWarning("WARN: failed to set property {0} with: {1}", propertyName.ToString(), propertyValueStr.ToString());
                     }
                 }
