@@ -244,4 +244,53 @@ namespace ServiceStack.Text.Tests
             scope.Dispose();
         }
     }
+
+    public class JsConfigInitTests
+    {
+        [TearDown] public void TearDown() => JsConfig.Reset();
+        
+        [Test]
+        public void Allows_setting_config_before_Init()
+        {
+            JsConfig.MaxDepth = 1;
+            JsConfig.Init(new Config {
+                DateHandler = DateHandler.UnixTime
+            });
+        }
+        
+        [Test]
+        public void Does_not_allow_setting_JsConfig_after_Init()
+        {
+            JsConfig.Init(new Config {
+                DateHandler = DateHandler.UnixTime
+            });
+
+            Assert.Throws<NotSupportedException>(() => JsConfig.MaxDepth = 1000);
+        }
+
+        [Test]
+        public void Does_not_allow_setting_multiple_inits_in_StrictMode()
+        {
+            JsConfig.Init();
+            JsConfig.Init(new Config { MaxDepth = 1 });
+
+            Env.StrictMode = true;
+            
+            Assert.Throws<NotSupportedException>(() => JsConfig.Init());
+        }
+
+        [Test]
+        public void Does_combine_global_configs_in_multiple_inits()
+        {
+            JsConfig.Init(new Config { MaxDepth = 1 });
+            JsConfig.Init(new Config { DateHandler = DateHandler.UnixTime });
+            
+            Assert.That(JsConfig.MaxDepth, Is.EqualTo(1));
+            Assert.That(JsConfig.DateHandler, Is.EqualTo(DateHandler.UnixTime));
+
+            var newConfig = new Config();
+            Assert.That(newConfig.MaxDepth, Is.EqualTo(1));
+            Assert.That(newConfig.DateHandler, Is.EqualTo(DateHandler.UnixTime));
+        }
+    }
 }

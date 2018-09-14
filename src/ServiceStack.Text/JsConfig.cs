@@ -25,6 +25,20 @@ namespace ServiceStack.Text
         // force deterministic initialization of static constructor
         public static void InitStatics() { }
 
+        /// <summary>
+        /// Mark JsConfig global config as initialized and assert it's no longer mutated
+        /// </summary>
+        /// <param name="config"></param>
+        public static void Init() => Config.Init();
+        
+        /// <summary>
+        /// Initialize global config and assert that it's no longer mutated 
+        /// </summary>
+        /// <param name="config"></param>
+        public static void Init(Config config) => Config.Init(config);
+
+        public static bool HasInit => Config.HasInit;
+
         public static JsConfigScope BeginScope()
         {
             return new JsConfigScope(); //Populated with Config.Instance

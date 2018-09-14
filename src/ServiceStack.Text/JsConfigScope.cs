@@ -51,9 +51,26 @@ namespace ServiceStack.Text
             ? throw new NotSupportedException("JsConfig can't be mutated after JsConfig.Init(). Use BeginScope() or CreateScope() to use custom config after Init().")
             : Instance;
 
-        public static void Init() => HasInit = true;
+        private static string InitStackTrace = null;
 
-        internal static void Reset() => Instance.Populate(Defaults);
+        public static void Init() => Init(null);
+        public static void Init(Config config)
+        {
+            if (HasInit && Env.StrictMode)
+                throw new NotSupportedException($"JsConfig has already been initialized at: {InitStackTrace}");
+            
+            if (config != null)
+                instance = config;
+
+            HasInit = true;
+            InitStackTrace = Environment.StackTrace;
+        }
+
+        internal static void Reset()
+        {
+            HasInit = false;
+            Instance.Populate(Defaults);
+        }
 
         public Config()
         {
