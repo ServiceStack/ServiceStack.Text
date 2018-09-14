@@ -140,11 +140,7 @@ namespace ServiceStack.Text
         public static bool StrictMode
         {
             get => strictMode;
-            set
-            {
-                strictMode = value;
-                if (!JsConfig.HasInit) JsConfig.ThrowOnError = value;
-            }
+            set => Config.Instance.ThrowOnError = strictMode = value;
         }
 
         public static string ServerUserAgent { get; set; }
