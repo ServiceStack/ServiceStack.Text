@@ -136,7 +136,12 @@ namespace ServiceStack.Text
 
         public static bool SupportsDynamic { get; private set; }
 
-        public static bool StrictMode { get; set; }
+        private static bool strictMode;
+        public static bool StrictMode
+        {
+            get => strictMode;
+            set => JsConfig.ThrowOnError = strictMode = value;
+        }
 
         public static string ServerUserAgent { get; set; }
 
@@ -152,6 +157,7 @@ namespace ServiceStack.Text
         public static string ReferenceAssembyPath => ReferenceAssemblyPath; 
         
         private static string referenceAssemblyPath;
+
         public static string ReferenceAssemblyPath
         {
             get

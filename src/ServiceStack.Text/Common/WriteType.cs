@@ -257,7 +257,7 @@ namespace ServiceStack.Text.Common
 
         internal struct TypePropertyWriter
         {
-            internal string GetPropertyName(PropertyConfigs config)
+            internal string GetPropertyName(Config config)
             {
                 return config.EmitCamelCaseNames
                     ? propertyNameCLSFriendly
@@ -304,7 +304,7 @@ namespace ServiceStack.Text.Common
                 this.isEnum = isEnum;
             }
 
-            public bool ShouldWriteProperty(object propertyValue, PropertyConfigs config)
+            public bool ShouldWriteProperty(object propertyValue, Config config)
             {
                 var isDefaultValue = propertyValue == null || Equals(DefaultValue, propertyValue);
                 if (isDefaultValue)
@@ -393,7 +393,7 @@ namespace ServiceStack.Text.Common
 
             if (PropertyWriters != null)
             {
-                var config = JsConfig<T>.GetPropertyConfigs();
+                var config = JsConfig<T>.GetConfig();
 
                 var typedInstance = (T)instance;
                 var len = PropertyWriters.Length;
@@ -466,7 +466,7 @@ namespace ServiceStack.Text.Common
             if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
         }
 
-        internal static string GetPropertyName(string propertyName, PropertyConfigs config)
+        internal static string GetPropertyName(string propertyName, Config config)
         {
             return config.EmitCamelCaseNames
                 ? propertyName.ToCamelCase()
@@ -482,7 +482,7 @@ namespace ServiceStack.Text.Common
             var i = 0;
             if (PropertyWriters != null)
             {
-                var config = JsConfig<T>.GetPropertyConfigs();
+                var config = JsConfig<T>.GetConfig();
 
                 var typedInstance = (T)instance;
                 var len = PropertyWriters.Length;
@@ -564,7 +564,7 @@ namespace ServiceStack.Text.Common
             try
             {
                 JsState.QueryStringMode = true;
-                var config = JsConfig<T>.GetPropertyConfigs();
+                var config = JsConfig<T>.GetConfig();
 
                 var i = 0;
                 var typedInstance = (T)instance;

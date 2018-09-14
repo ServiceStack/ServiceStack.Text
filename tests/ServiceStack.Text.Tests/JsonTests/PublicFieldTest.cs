@@ -23,13 +23,13 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Public_readonly_fields_can_be_deserialized()
         {
-            using (JsConfig.BeginScope())
+            using (var config = JsConfig.BeginScope())
             {
-                JsConfig.IncludePublicFields = true;
+                config.IncludePublicFields = true;
                 var instance = new TypeWithPublicFields("Hello");
-                var deserilized = instance.ToJson();
+                var deserialized = instance.ToJson();
 
-                var copy = deserilized.FromJson<TypeWithPublicFields>();
+                var copy = deserialized.FromJson<TypeWithPublicFields>();
 
                 Assert.That(copy.Text, Is.EqualTo(instance.Text));
             }

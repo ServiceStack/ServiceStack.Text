@@ -368,7 +368,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 #endif
 
         [Test]
-        public void Can_deserialise_an_entity_containing_a_polymorphic_property_serialized_by_newtonsoft()
+        public void Can_deserialize_an_entity_containing_a_polymorphic_property_serialized_by_newtonsoft()
         {
             var json =
                     "{\"$type\":\""
@@ -396,7 +396,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         }
 
         [Test]
-        public void Can_deserialise_polymorphic_list_serialized_by_newtonsoft()
+        public void Can_deserialize_polymorphic_list_serialized_by_newtonsoft()
         {
             var json =
                     "[{\"$type\":\""

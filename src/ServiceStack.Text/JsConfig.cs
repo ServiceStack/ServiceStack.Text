@@ -11,8 +11,7 @@ using ServiceStack.Text.Jsv;
 
 namespace ServiceStack.Text
 {
-    public static class
-        JsConfig
+    public static class JsConfig
     {
         static JsConfig()
         {
@@ -28,7 +27,7 @@ namespace ServiceStack.Text
 
         public static JsConfigScope BeginScope()
         {
-            return new JsConfigScope();
+            return new JsConfigScope(); //Populated with Config.Instance
         }
 
         public static JsConfigScope CreateScope(string config, JsConfigScope scope = null)
@@ -227,332 +226,198 @@ namespace ServiceStack.Text
             bool? alwaysUseUtc = null,
             bool? assumeUtc = null,
             bool? appendUtcOffset = null,
-            bool? escapeUnicode = null, //Unused (but breaking change to remove optional params)
+            bool? escapeUnicode = null, 
             bool? includePublicFields = null,
             int? maxDepth = null,
             EmptyCtorFactoryDelegate modelFactory = null,
             string[] excludePropertyReferences = null,
-            bool? useSystemParseMethods = null)
+            bool? useSystemParseMethods = null) //Unused
         {
             return new JsConfigScope
             {
-                ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? sConvertObjectTypesIntoStringDictionary,
-                TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? sTryToParsePrimitiveTypeValues,
-                TryToParseNumericType = tryToParseNumericType ?? sTryToParseNumericType,
+                ConvertObjectTypesIntoStringDictionary = convertObjectTypesIntoStringDictionary ?? Config.Instance.ConvertObjectTypesIntoStringDictionary,
+                TryToParsePrimitiveTypeValues = tryToParsePrimitiveTypeValues ?? Config.Instance.TryToParsePrimitiveTypeValues,
+                TryToParseNumericType = tryToParseNumericType ?? Config.Instance.TryToParseNumericType,
 
-                ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? sParsePrimitiveFloatingPointTypes,
-                ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? sParsePrimitiveIntegerTypes,
+                ParsePrimitiveFloatingPointTypes = parsePrimitiveFloatingPointTypes ?? Config.Instance.ParsePrimitiveFloatingPointTypes,
+                ParsePrimitiveIntegerTypes = parsePrimitiveIntegerTypes ?? Config.Instance.ParsePrimitiveIntegerTypes,
 
-                ExcludeDefaultValues = excludeDefaultValues ?? sExcludeDefaultValues,
-                IncludeNullValues = includeNullValues ?? sIncludeNullValues,
-                IncludeNullValuesInDictionaries = includeNullValuesInDictionaries ?? sIncludeNullValuesInDictionaries,
-                IncludeDefaultEnums = includeDefaultEnums ?? sIncludeDefaultEnums,
-                ExcludeTypeInfo = excludeTypeInfo ?? sExcludeTypeInfo,
-                IncludeTypeInfo = includeTypeInfo ?? sIncludeTypeInfo,
-                EmitCamelCaseNames = emitCamelCaseNames ?? sEmitCamelCaseNames,
-                EmitLowercaseUnderscoreNames = emitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames,
-                DateHandler = dateHandler ?? sDateHandler,
-                TimeSpanHandler = timeSpanHandler ?? sTimeSpanHandler,
-                PropertyConvention = propertyConvention ?? sPropertyConvention,
-                PreferInterfaces = preferInterfaces ?? sPreferInterfaces,
-                ThrowOnError = throwOnDeserializationError ?? sThrowOnError,
-                DateTimeFormat = dateTimeFormat ?? sDateTimeFormat,
-                TypeAttr = typeAttr ?? sTypeAttr,
-                TypeWriter = typeWriter ?? sTypeWriter,
-                TypeFinder = typeFinder ?? sTypeFinder,
-                TreatEnumAsInteger = treatEnumAsInteger ?? sTreatEnumAsInteger,
-                SkipDateTimeConversion = skipDateTimeConversion ?? sSkipDateTimeConversion,
-                AlwaysUseUtc = alwaysUseUtc ?? sAlwaysUseUtc,
-                AssumeUtc = assumeUtc ?? sAssumeUtc,
-                AppendUtcOffset = appendUtcOffset ?? sAppendUtcOffset,
-                IncludePublicFields = includePublicFields ?? sIncludePublicFields,
-                MaxDepth = maxDepth ?? sMaxDepth,
-                ModelFactory = modelFactory ?? ModelFactory,
-                ExcludePropertyReferences = excludePropertyReferences ?? sExcludePropertyReferences,
+                ExcludeDefaultValues = excludeDefaultValues ?? Config.Instance.ExcludeDefaultValues,
+                IncludeNullValues = includeNullValues ?? Config.Instance.IncludeNullValues,
+                IncludeNullValuesInDictionaries = includeNullValuesInDictionaries ?? Config.Instance.IncludeNullValuesInDictionaries,
+                IncludeDefaultEnums = includeDefaultEnums ?? Config.Instance.IncludeDefaultEnums,
+                ExcludeTypeInfo = excludeTypeInfo ?? Config.Instance.ExcludeTypeInfo,
+                IncludeTypeInfo = includeTypeInfo ?? Config.Instance.IncludeTypeInfo,
+                EmitCamelCaseNames = emitCamelCaseNames ?? Config.Instance.EmitCamelCaseNames,
+                EmitLowercaseUnderscoreNames = emitLowercaseUnderscoreNames ?? Config.Instance.EmitLowercaseUnderscoreNames,
+                DateHandler = dateHandler ?? Config.Instance.DateHandler,
+                TimeSpanHandler = timeSpanHandler ?? Config.Instance.TimeSpanHandler,
+                PropertyConvention = propertyConvention ?? Config.Instance.PropertyConvention,
+                PreferInterfaces = preferInterfaces ?? Config.Instance.PreferInterfaces,
+                ThrowOnError = throwOnDeserializationError ?? Config.Instance.ThrowOnError,
+                DateTimeFormat = dateTimeFormat ?? Config.Instance.DateTimeFormat,
+                TypeAttr = typeAttr ?? Config.Instance.TypeAttr,
+                TypeWriter = typeWriter ?? Config.Instance.TypeWriter,
+                TypeFinder = typeFinder ?? Config.Instance.TypeFinder,
+                TreatEnumAsInteger = treatEnumAsInteger ?? Config.Instance.TreatEnumAsInteger,
+                SkipDateTimeConversion = skipDateTimeConversion ?? Config.Instance.SkipDateTimeConversion,
+                AlwaysUseUtc = alwaysUseUtc ?? Config.Instance.AlwaysUseUtc,
+                AssumeUtc = assumeUtc ?? Config.Instance.AssumeUtc,
+                AppendUtcOffset = appendUtcOffset ?? Config.Instance.AppendUtcOffset,
+                EscapeUnicode = escapeUnicode ?? Config.Instance.EscapeUnicode,
+                IncludePublicFields = includePublicFields ?? Config.Instance.IncludePublicFields,
+                MaxDepth = maxDepth ?? Config.Instance.MaxDepth,
+                ModelFactory = modelFactory ?? Config.Instance.ModelFactory,
+                ExcludePropertyReferences = excludePropertyReferences ?? Config.Instance.ExcludePropertyReferences,
             };
         }
 
-        private static string sDateTimeFormat;
         public static string DateTimeFormat
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.DateTimeFormat : null)
-                   ?? sDateTimeFormat;
-            set
-            {
-                if (sDateTimeFormat == null) sDateTimeFormat = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.DateTimeFormat : Config.Instance.DateTimeFormat;
+            set => Config.AssertNotInit().DateTimeFormat = value;
         }
 
-        private static bool? sConvertObjectTypesIntoStringDictionary;
         public static bool ConvertObjectTypesIntoStringDictionary
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ConvertObjectTypesIntoStringDictionary : null)
-                   ?? sConvertObjectTypesIntoStringDictionary
-                   ?? false;
-            set
-            {
-                if (!sConvertObjectTypesIntoStringDictionary.HasValue) sConvertObjectTypesIntoStringDictionary = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ConvertObjectTypesIntoStringDictionary : Config.Instance.ConvertObjectTypesIntoStringDictionary;
+            set => Config.AssertNotInit().ConvertObjectTypesIntoStringDictionary = value;
         }
 
-        private static bool? sTryToParsePrimitiveTypeValues;
         public static bool TryToParsePrimitiveTypeValues
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParsePrimitiveTypeValues : null)
-                   ?? sTryToParsePrimitiveTypeValues
-                   ?? false;
-            set
-            {
-                if (!sTryToParsePrimitiveTypeValues.HasValue) sTryToParsePrimitiveTypeValues = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TryToParsePrimitiveTypeValues : Config.Instance.TryToParsePrimitiveTypeValues;
+            set => Config.AssertNotInit().TryToParsePrimitiveTypeValues = value;
         }
 
-        private static bool? sTryToParseNumericType;
         public static bool TryToParseNumericType
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TryToParseNumericType : null)
-                   ?? sTryToParseNumericType
-                   ?? false;
-            set
-            {
-                if (!sTryToParseNumericType.HasValue) sTryToParseNumericType = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TryToParseNumericType : Config.Instance.TryToParseNumericType;
+            set => Config.AssertNotInit().TryToParseNumericType = value;
         }
 
-        private static bool? sTryParseIntoBestFit;
         public static bool TryParseIntoBestFit
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TryParseIntoBestFit : null)
-                   ?? sTryParseIntoBestFit
-                   ?? false;
-            set
-            {
-                if (!sTryParseIntoBestFit.HasValue) sTryParseIntoBestFit = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TryParseIntoBestFit : Config.Instance.TryParseIntoBestFit;
+            set => Config.AssertNotInit().TryParseIntoBestFit = value;
         }
 
-        private static ParseAsType? sParsePrimitiveFloatingPointTypes;
         public static ParseAsType ParsePrimitiveFloatingPointTypes
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFloatingPointTypes : null)
-                   ?? sParsePrimitiveFloatingPointTypes
-                   ?? ParseAsType.Decimal;
-            set
-            {
-                if (sParsePrimitiveFloatingPointTypes == null) sParsePrimitiveFloatingPointTypes = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFloatingPointTypes : Config.Instance.ParsePrimitiveFloatingPointTypes;
+            set => Config.AssertNotInit().ParsePrimitiveFloatingPointTypes = value;
         }
 
-        private static ParseAsType? sParsePrimitiveIntegerTypes;
         public static ParseAsType ParsePrimitiveIntegerTypes
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveIntegerTypes : null)
-                   ?? sParsePrimitiveIntegerTypes
-                   ?? ParseAsType.Byte | ParseAsType.SByte | ParseAsType.Int16 | ParseAsType.UInt16 | ParseAsType.Int32 | ParseAsType.UInt32 | ParseAsType.Int64 | ParseAsType.UInt64;
-            set
-            {
-                if (!sParsePrimitiveIntegerTypes.HasValue) sParsePrimitiveIntegerTypes = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveIntegerTypes : Config.Instance.ParsePrimitiveIntegerTypes;
+            set => Config.AssertNotInit().ParsePrimitiveIntegerTypes = value;
         }
 
-        private static string[] sExcludePropertyReferences;
         public static string[] ExcludePropertyReferences
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludePropertyReferences : null)
-                   ?? sExcludePropertyReferences;
-            set
-            {
-                if (sExcludePropertyReferences != null) sExcludePropertyReferences = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ExcludePropertyReferences : Config.Instance.ExcludePropertyReferences;
+            set => Config.AssertNotInit().ExcludePropertyReferences = value;
         }
 
-        private static bool? sExcludeDefaultValues;
         public static bool ExcludeDefaultValues
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeDefaultValues : null)
-                   ?? sExcludeDefaultValues
-                   ?? false;
-            set
-            {
-                if (!sExcludeDefaultValues.HasValue) sExcludeDefaultValues = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeDefaultValues : Config.Instance.ExcludeDefaultValues;
+            set => Config.AssertNotInit().ExcludeDefaultValues = value;
         }
 
-        private static bool? sIncludeNullValues;
         public static bool IncludeNullValues
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValues : null)
-                   ?? sIncludeNullValues
-                   ?? false;
-            set
-            {
-                if (!sIncludeNullValues.HasValue) sIncludeNullValues = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValues : Config.Instance.IncludeNullValues;
+            set => Config.AssertNotInit().IncludeNullValues = value;
         }
 
-        private static bool? sIncludeNullValuesInDictionaries;
         public static bool IncludeNullValuesInDictionaries
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValuesInDictionaries : null)
-                   ?? sIncludeNullValuesInDictionaries
-                   ?? false;
-            set
-            {
-                if (!sIncludeNullValuesInDictionaries.HasValue) sIncludeNullValuesInDictionaries = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.IncludeNullValuesInDictionaries : Config.Instance.IncludeNullValuesInDictionaries;
+            set => Config.AssertNotInit().IncludeNullValuesInDictionaries = value;
         }
 
-        private static bool? sIncludeDefaultEnums;
         public static bool IncludeDefaultEnums
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeDefaultEnums : null)
-                   ?? sIncludeDefaultEnums
-                   ?? true;
-            set
-            {
-                if (!sIncludeDefaultEnums.HasValue) sIncludeDefaultEnums = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.IncludeDefaultEnums : Config.Instance.IncludeDefaultEnums;
+            set => Config.AssertNotInit().IncludeDefaultEnums = value;
         }
 
-        private static bool? sTreatEnumAsInteger;
         public static bool TreatEnumAsInteger
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TreatEnumAsInteger : null)
-                   ?? sTreatEnumAsInteger
-                   ?? false;
-            set
-            {
-                if (!sTreatEnumAsInteger.HasValue) sTreatEnumAsInteger = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TreatEnumAsInteger : Config.Instance.TreatEnumAsInteger;
+            set => Config.AssertNotInit().TreatEnumAsInteger = value;
         }
 
-        private static bool? sExcludeTypeInfo;
         public static bool ExcludeTypeInfo
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypeInfo : null)
-                   ?? sExcludeTypeInfo
-                   ?? false;
-            set
-            {
-                if (!sExcludeTypeInfo.HasValue) sExcludeTypeInfo = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypeInfo : Config.Instance.ExcludeTypeInfo;
+            set => Config.AssertNotInit().ExcludeTypeInfo = value;
         }
 
-        private static bool? sIncludeTypeInfo;
         public static bool IncludeTypeInfo
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.IncludeTypeInfo : null)
-                   ?? sIncludeTypeInfo
-                   ?? false;
-            set
-            {
-                if (!sIncludeTypeInfo.HasValue) sIncludeTypeInfo = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.IncludeTypeInfo : Config.Instance.IncludeTypeInfo;
+            set => Config.AssertNotInit().IncludeTypeInfo = value;
         }
 
-        private static string sTypeAttr;
         public static string TypeAttr
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TypeAttr : null)
-                   ?? sTypeAttr
-                   ?? JsWriter.TypeAttr;
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TypeAttr : Config.Instance.TypeAttr;
             set
             {
-                if (sTypeAttr == null) sTypeAttr = value;
-                JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(value);
-                JsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(value);
+                var config = Config.AssertNotInit();
+                config.TypeAttr = value;
+                config.JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(value);
+                config.JsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(value);
             }
         }
 
-        private static string sJsonTypeAttrInObject;
-        private static readonly string defaultJsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
         internal static string JsonTypeAttrInObject
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.JsonTypeAttrInObject : null)
-                   ?? sJsonTypeAttrInObject
-                   ?? defaultJsonTypeAttrInObject;
-            set
-            {
-                if (sJsonTypeAttrInObject == null) sJsonTypeAttrInObject = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.JsonTypeAttrInObject : Config.Instance.JsonTypeAttrInObject;
+            set => Config.AssertNotInit().JsonTypeAttrInObject = value;
         }
 
-        private static string sJsvTypeAttrInObject;
-        private static readonly string defaultJsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
         internal static string JsvTypeAttrInObject
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.JsvTypeAttrInObject : null)
-                   ?? sJsvTypeAttrInObject
-                   ?? defaultJsvTypeAttrInObject;
-            set
-            {
-                if (sJsvTypeAttrInObject == null) sJsvTypeAttrInObject = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.JsvTypeAttrInObject : Config.Instance.JsvTypeAttrInObject;
+            set => Config.AssertNotInit().JsvTypeAttrInObject = value;
         }
 
-        private static Func<Type, string> sTypeWriter;
         public static Func<Type, string> TypeWriter
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TypeWriter : null)
-                   ?? sTypeWriter
-                   ?? AssemblyUtils.WriteType;
-            set
-            {
-                if (sTypeWriter == null) sTypeWriter = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TypeWriter : Config.Instance.TypeWriter;
+            set => Config.AssertNotInit().TypeWriter = value;
         }
 
-        private static Func<string, Type> sTypeFinder;
         public static Func<string, Type> TypeFinder
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TypeFinder : null)
-                   ?? sTypeFinder
-                   ?? AssemblyUtils.FindType;
-            set
-            {
-                if (sTypeFinder == null) sTypeFinder = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TypeFinder : Config.Instance.TypeFinder;
+            set => Config.AssertNotInit().TypeFinder = value;
         }
 
-        private static Func<string, object> sParsePrimitiveFn;
         public static Func<string, object> ParsePrimitiveFn
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFn : null)
-                   ?? sParsePrimitiveFn
-                   ?? null;
-            set
-            {
-                if (sParsePrimitiveFn == null) sParsePrimitiveFn = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ParsePrimitiveFn : Config.Instance.ParsePrimitiveFn;
+            set => Config.AssertNotInit().ParsePrimitiveFn = value;
         }
 
-        private static DateHandler? sDateHandler;
         public static DateHandler DateHandler
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.DateHandler : null)
-                   ?? sDateHandler
-                   ?? DateHandler.TimestampOffset;
-            set
-            {
-                if (!sDateHandler.HasValue) sDateHandler = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.DateHandler : Config.Instance.DateHandler;
+            set => Config.AssertNotInit().DateHandler = value;
         }
 
         /// <summary>
         /// Sets which format to use when serializing TimeSpans
         /// </summary>
-        private static TimeSpanHandler? sTimeSpanHandler;
         public static TimeSpanHandler TimeSpanHandler
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.TimeSpanHandler : null)
-                   ?? sTimeSpanHandler
-                   ?? TimeSpanHandler.DurationFormat;
-            set
-            {
-                if (!sTimeSpanHandler.HasValue) sTimeSpanHandler = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TimeSpanHandler : Config.Instance.TimeSpanHandler;
+            set => Config.AssertNotInit().TimeSpanHandler = value;
         }
-
 
         /// <summary>
         /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
@@ -560,90 +425,45 @@ namespace ServiceStack.Text
         /// to support user-friendly serialized formats, ie emitting camelCasing for JSON
         /// and parsing member names and enum values in a case-insensitive manner.
         /// </summary>
-        private static bool? sEmitCamelCaseNames;
         public static bool EmitCamelCaseNames
         {
-            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames : null)
-                   ?? sEmitCamelCaseNames
-                   ?? false;
-            set
-            {
-                if (!sEmitCamelCaseNames.HasValue) sEmitCamelCaseNames = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames : Config.Instance.EmitCamelCaseNames;
+            set => Config.AssertNotInit().EmitCamelCaseNames = value;
         }
 
         /// <summary>
         /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
         /// to support web-friendly serialized formats, ie emitting lowercase_underscore_casing for JSON
         /// </summary>
-        private static bool? sEmitLowercaseUnderscoreNames;
         public static bool EmitLowercaseUnderscoreNames
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.EmitLowercaseUnderscoreNames : null)
-                   ?? sEmitLowercaseUnderscoreNames
-                   ?? false;
-            set
-            {
-                if (!sEmitLowercaseUnderscoreNames.HasValue) sEmitLowercaseUnderscoreNames = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.EmitLowercaseUnderscoreNames : Config.Instance.EmitLowercaseUnderscoreNames;
+            set => Config.AssertNotInit().EmitLowercaseUnderscoreNames = value;
         }
 
-        internal static PropertyConfigs GetPropertyConfigs()
-        {
-            var scope = JsConfigScope.Current;
-            if (scope != null)
-            {
-                return new PropertyConfigs {
-                    EmitCamelCaseNames = scope.EmitCamelCaseNames ?? sEmitCamelCaseNames ?? false,
-                    EmitLowercaseUnderscoreNames = scope.EmitLowercaseUnderscoreNames ?? sEmitLowercaseUnderscoreNames ?? false,
-                    ExcludeDefaultValues = scope.ExcludeDefaultValues ??  sExcludeDefaultValues ?? false,
-                    ExcludePropertyReferences = scope.ExcludePropertyReferences ?? sExcludePropertyReferences,
-                    IncludeDefaultEnums = scope.IncludeDefaultEnums ?? sIncludeDefaultEnums ?? true,                    
-                };
-            }
-            return new PropertyConfigs {
-                EmitCamelCaseNames = sEmitCamelCaseNames ?? false,
-                EmitLowercaseUnderscoreNames = sEmitLowercaseUnderscoreNames ?? false,
-                ExcludeDefaultValues = sExcludeDefaultValues ?? false,
-                ExcludePropertyReferences = sExcludePropertyReferences,
-                IncludeDefaultEnums = sIncludeDefaultEnums ?? true,                    
-            };
-        }
+        //Avoid multiple static property checks by getting snapshot of active config
+        public static Config GetConfig() => JsConfigScope.Current != null ? JsConfigScope.Current : Config.Instance;
 
         /// <summary>
         /// Define how property names are mapped during deserialization
         /// </summary>
-        private static PropertyConvention? sPropertyConvention;
         public static PropertyConvention PropertyConvention
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.PropertyConvention : null)
-                   ?? sPropertyConvention
-                   ?? PropertyConvention.Strict;
-            set
-            {
-                if (!sPropertyConvention.HasValue) sPropertyConvention = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.PropertyConvention : Config.Instance.PropertyConvention;
+            set => Config.AssertNotInit().PropertyConvention = value;
         }
-
 
         /// <summary>
         /// Gets or sets a value indicating if the framework should throw serialization exceptions
         /// or continue regardless of serialization errors. If <see langword="true"/>  the framework
         /// will throw; otherwise, it will parse as many fields as possible. The default is <see langword="false"/>.
         /// </summary>
-        private static bool? sThrowOnError;
         public static bool ThrowOnError
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnError : null)
-                   ?? sThrowOnError
-                   ?? Env.StrictMode;
-            set
-            {
-                if (!sThrowOnError.HasValue) sThrowOnError = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ThrowOnError : Config.Instance.ThrowOnError;
+            set => Config.AssertNotInit().ThrowOnError = value;
         }
 
         [Obsolete("Renamed to ThrowOnError")]
@@ -652,21 +472,14 @@ namespace ServiceStack.Text
             get => ThrowOnError;
             set => ThrowOnError = value;
         }
-
+    
         /// <summary>
         /// Gets or sets a value indicating if the framework should always convert <see cref="DateTime"/> to UTC format instead of local time. 
         /// </summary>
-        private static bool? sAlwaysUseUtc;
         public static bool AlwaysUseUtc
         {
-            // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.AlwaysUseUtc : null)
-                   ?? sAlwaysUseUtc
-                   ?? false;
-            set
-            {
-                if (!sAlwaysUseUtc.HasValue) sAlwaysUseUtc = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.AlwaysUseUtc : Config.Instance.AlwaysUseUtc;
+            set => Config.AssertNotInit().AlwaysUseUtc = value;
         }
 
         /// <summary>
@@ -676,72 +489,61 @@ namespace ServiceStack.Text
         /// This will take precedence over other flags like AlwaysUseUtc 
         /// JsConfig.DateHandler = DateHandler.ISO8601 should be used when set true for consistent de/serialization.
         /// </summary>
-        private static bool? sSkipDateTimeConversion;
         public static bool SkipDateTimeConversion
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.SkipDateTimeConversion : null)
-                   ?? sSkipDateTimeConversion
-                   ?? false;
-            set
-            {
-                if (!sSkipDateTimeConversion.HasValue) sSkipDateTimeConversion = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.SkipDateTimeConversion : Config.Instance.SkipDateTimeConversion;
+            set => Config.AssertNotInit().SkipDateTimeConversion = value;
         }
+
         /// <summary>
         /// Gets or sets a value indicating if the framework should always assume <see cref="DateTime"/> is in UTC format if Kind is Unspecified. 
         /// </summary>
-        private static bool? sAssumeUtc;
         public static bool AssumeUtc
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.AssumeUtc : null)
-                   ?? sAssumeUtc
-                   ?? false;
-            set
-            {
-                if (!sAssumeUtc.HasValue) sAssumeUtc = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.AssumeUtc : Config.Instance.AssumeUtc;
+            set => Config.AssertNotInit().AssumeUtc = value;
         }
 
         /// <summary>
         /// Gets or sets whether we should append the Utc offset when we serialize Utc dates. Defaults to no.
         /// Only supported for when the JsConfig.DateHandler == JsonDateHandler.TimestampOffset
         /// </summary>
-        private static bool? sAppendUtcOffset;
-        public static bool? AppendUtcOffset
+        public static bool AppendUtcOffset
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.AppendUtcOffset : null)
-                   ?? sAppendUtcOffset
-                   ?? null;
-            set
-            {
-                if (sAppendUtcOffset == null) sAppendUtcOffset = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.AppendUtcOffset : Config.Instance.AppendUtcOffset;
+            set => Config.AssertNotInit().AppendUtcOffset = value;
         }
 
         /// <summary>
         /// Gets or sets a value indicating if unicode symbols should be serialized as "\uXXXX".
         /// </summary>
-        public static bool EscapeUnicode { get; set; }
+        public static bool EscapeUnicode
+        {
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.EscapeUnicode : Config.Instance.EscapeUnicode;
+            set => Config.AssertNotInit().EscapeUnicode = value;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating if HTML entity chars [&gt; &lt; &amp; = '] should be escaped as "\uXXXX".
         /// </summary>
-        public static bool EscapeHtmlChars { get; set; }
+        public static bool EscapeHtmlChars
+        {
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.EscapeHtmlChars : Config.Instance.EscapeHtmlChars;
+            set => Config.AssertNotInit().EscapeHtmlChars = value;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating if the framework should call an error handler when
         /// an exception happens during the deserialization.
         /// </summary>
         /// <remarks>Parameters have following meaning in order: deserialized entity, property name, parsed value, property type, caught exception.</remarks>
-        private static DeserializationErrorDelegate sOnDeserializationError;
         public static DeserializationErrorDelegate OnDeserializationError
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.OnDeserializationError : null)
-                   ?? sOnDeserializationError;
-            set => sOnDeserializationError = value;
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.OnDeserializationError : Config.Instance.OnDeserializationError;
+            set => Config.AssertNotInit().OnDeserializationError = value;
         }
 
         internal static HashSet<Type> HasSerializeFn = new HashSet<Type>();
@@ -750,19 +552,13 @@ namespace ServiceStack.Text
 
         public static HashSet<Type> TreatValueAsRefTypes = new HashSet<Type>();
 
-        private static bool? sPreferInterfaces;
         /// <summary>
-        /// If set to true, Interface types will be prefered over concrete types when serializing.
+        /// If set to true, Interface types will be preferred over concrete types when serializing.
         /// </summary>
         public static bool PreferInterfaces
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.PreferInterfaces : null)
-                   ?? sPreferInterfaces
-                   ?? false;
-            set
-            {
-                if (!sPreferInterfaces.HasValue) sPreferInterfaces = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.PreferInterfaces : Config.Instance.PreferInterfaces;
+            set => Config.AssertNotInit().PreferInterfaces = value;
         }
 
         internal static bool TreatAsRefType(Type valueType)
@@ -770,35 +566,22 @@ namespace ServiceStack.Text
             return TreatValueAsRefTypes.Contains(valueType.IsGenericType ? valueType.GetGenericTypeDefinition() : valueType);
         }
 
-
         /// <summary>
-        /// If set to true, Interface types will be prefered over concrete types when serializing.
+        /// If set to true, Interface types will be preferred over concrete types when serializing.
         /// </summary>
-        private static bool? sIncludePublicFields;
         public static bool IncludePublicFields
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.IncludePublicFields : null)
-                   ?? sIncludePublicFields
-                   ?? false;
-            set
-            {
-                if (!sIncludePublicFields.HasValue) sIncludePublicFields = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.IncludePublicFields : Config.Instance.IncludePublicFields;
+            set => Config.AssertNotInit().IncludePublicFields = value;
         }
 
         /// <summary>
         /// Sets the maximum depth to avoid circular dependencies
         /// </summary>
-        private static int? sMaxDepth;
         public static int MaxDepth
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.MaxDepth : null)
-                   ?? sMaxDepth
-                   ?? 50;
-            set
-            {
-                if (!sMaxDepth.HasValue) sMaxDepth = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.MaxDepth : Config.Instance.MaxDepth;
+            set => Config.AssertNotInit().MaxDepth = value;
         }
 
         /// <summary>
@@ -806,27 +589,16 @@ namespace ServiceStack.Text
         /// This is helpful for integration with IoC containers where you need to call the container constructor.
         /// Return null if you don't know how to construct the type and the parameterless constructor will be used.
         /// </summary>
-        private static EmptyCtorFactoryDelegate sModelFactory;
         public static EmptyCtorFactoryDelegate ModelFactory
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ModelFactory : null)
-                   ?? sModelFactory
-                   ?? null;
-            set
-            {
-                if (sModelFactory != null) sModelFactory = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ModelFactory : Config.Instance.ModelFactory;
+            set => Config.AssertNotInit().ModelFactory = value;
         }
 
-        private static HashSet<Type> sExcludeTypes;
         public static HashSet<Type> ExcludeTypes
         {
-            get => (JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypes : null)
-                   ?? sExcludeTypes;
-            set
-            {
-                if (sExcludePropertyReferences != null) sExcludeTypes = value;
-            }
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypes : Config.Instance.ExcludeTypes;
+            set => Config.AssertNotInit().ExcludeTypes = value;
         }
 
         public static string[] IgnoreAttributesNamed
@@ -860,50 +632,13 @@ namespace ServiceStack.Text
                 Reset(uniqueType);
             }
 
-            sModelFactory = ReflectionExtensions.GetConstructorMethodToCache;
-            sTryToParsePrimitiveTypeValues = null;
-            sTryToParseNumericType = null;
-            sTryParseIntoBestFit = null;
-            sConvertObjectTypesIntoStringDictionary = null;
-            sExcludeDefaultValues = null;
-            sIncludeNullValues = null;
-            sIncludeNullValuesInDictionaries = null;
-            sIncludeDefaultEnums = null;
-            sExcludeTypeInfo = null;
-            sEmitCamelCaseNames = null;
-            sEmitLowercaseUnderscoreNames = null;
-            sDateHandler = null;
-            sTimeSpanHandler = null;
-            sPreferInterfaces = null;
-            sThrowOnError = null;
-            sTypeAttr = null;
-            sDateTimeFormat = null;
-            sJsonTypeAttrInObject = null;
-            sJsvTypeAttrInObject = null;
-            sTypeWriter = null;
-            sTypeFinder = null;
-            sParsePrimitiveFn = null;
-            sTreatEnumAsInteger = null;
-            sAlwaysUseUtc = null;
-            sAssumeUtc = null;
-            sSkipDateTimeConversion = null;
-            sAppendUtcOffset = null;
-            sOnDeserializationError = null;
-            sIncludePublicFields = null;
+            Config.Reset();
             HasSerializeFn = new HashSet<Type>();
             HasIncludeDefaultValue = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
-            sPropertyConvention = null;
-            sExcludePropertyReferences = null;
-            sExcludeTypes = new HashSet<Type> { typeof(Stream) };
             __uniqueTypes = new HashSet<Type>();
-            sMaxDepth = null;
-            sParsePrimitiveIntegerTypes = null;
-            sParsePrimitiveFloatingPointTypes = null;           
 
             //Called when writing each string, too expensive to maintain as scoped config
-            EscapeUnicode = false;
-            EscapeHtmlChars = false;
             
             AllowRuntimeType = null;
             AllowRuntimeTypeWithAttributesNamed = new HashSet<string>
@@ -973,9 +708,9 @@ namespace ServiceStack.Text
             RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);
         }
 
-        internal static PropertyConfigs GetPropertyConfigs()
+        internal static Config GetConfig()
         {
-            var config = JsConfig.GetPropertyConfigs();
+            var config = new Config().Populate(JsConfig.GetConfig());
             if (EmitCamelCaseNames != null)
                 config.EmitCamelCaseNames = EmitCamelCaseNames.Value;
             if (EmitLowercaseUnderscoreNames != null)

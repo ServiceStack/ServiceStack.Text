@@ -212,11 +212,11 @@ namespace ServiceStack.Text.Tests
         public void Does_create_scope_from_string()
         {
             var scope = JsConfig.CreateScope("EmitCamelCaseNames,emitlowercaseunderscorenames,IncludeNullValues:false,ExcludeDefaultValues:0,IncludeDefaultEnums:1");
-            Assert.That(scope.EmitCamelCaseNames.Value);
-            Assert.That(scope.EmitLowercaseUnderscoreNames.Value);
-            Assert.That(!scope.IncludeNullValues.Value);
-            Assert.That(!scope.ExcludeDefaultValues.Value);
-            Assert.That(scope.IncludeDefaultEnums.Value);
+            Assert.That(scope.EmitCamelCaseNames);
+            Assert.That(scope.EmitLowercaseUnderscoreNames);
+            Assert.That(!scope.IncludeNullValues);
+            Assert.That(!scope.ExcludeDefaultValues);
+            Assert.That(scope.IncludeDefaultEnums);
             scope.Dispose();
 
             scope = JsConfig.CreateScope("DateHandler:ISO8601,timespanhandler:durationformat,PropertyConvention:strict");
@@ -230,11 +230,11 @@ namespace ServiceStack.Text.Tests
         public void Does_create_scope_from_string_using_CamelCaseHumps()
         {
             var scope = JsConfig.CreateScope("eccn,elun,inv:false,edv:0,ide:1");
-            Assert.That(scope.EmitCamelCaseNames.Value);
-            Assert.That(scope.EmitLowercaseUnderscoreNames.Value);
-            Assert.That(!scope.IncludeNullValues.Value);
-            Assert.That(!scope.ExcludeDefaultValues.Value);
-            Assert.That(scope.IncludeDefaultEnums.Value);
+            Assert.That(scope.EmitCamelCaseNames);
+            Assert.That(scope.EmitLowercaseUnderscoreNames);
+            Assert.That(!scope.IncludeNullValues);
+            Assert.That(!scope.ExcludeDefaultValues);
+            Assert.That(scope.IncludeDefaultEnums);
             scope.Dispose();
 
             scope = JsConfig.CreateScope("dh:ISO8601,tsh:df,pc:strict");
