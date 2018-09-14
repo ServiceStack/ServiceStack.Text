@@ -54,11 +54,6 @@ namespace ServiceStack.Text.Tests.JsonTests
         [SetUp]
         public void Setup()
         {
-#if IOS
-			JsConfig.Reset();
-			JsConfig.RegisterTypeForAot<ExampleEnumWithoutFlagsAttribute>();
-			JsConfig.RegisterTypeForAot<ExampleEnum>();
-#endif
         }
 
         [TearDown]

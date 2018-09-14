@@ -646,6 +646,7 @@ namespace ServiceStack.Text
                 Reset(uniqueType);
             }
 
+            Env.StrictMode = false;
             Config.Reset();
             HasSerializeFn = new HashSet<Type>();
             HasIncludeDefaultValue = new HashSet<Type>();
