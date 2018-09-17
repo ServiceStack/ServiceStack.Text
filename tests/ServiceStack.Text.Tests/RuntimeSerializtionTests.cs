@@ -231,7 +231,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_deserialize_object_with_unknown_JSON_into_object_type()
         {
-            using (JsConfig.With(excludeTypeInfo:true))
+            using (JsConfig.With(new Config { ExcludeTypeInfo = true }))
             {
                 JS.Configure();
 

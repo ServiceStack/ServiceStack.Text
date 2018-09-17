@@ -64,7 +64,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialize_TimeSpan_field_with_StandardTimeSpanFormat()
         {
-            using (JsConfig.With(timeSpanHandler:TimeSpanHandler.StandardFormat))
+            using (JsConfig.With(new Config { TimeSpanHandler = TimeSpanHandler.StandardFormat }))
             {
                 var period = TimeSpan.FromSeconds(70);
 
@@ -77,7 +77,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialize_NullableTimeSpan_field_with_StandardTimeSpanFormat()
         {
-            using (JsConfig.With(timeSpanHandler: TimeSpanHandler.StandardFormat))
+            using (JsConfig.With(new Config { TimeSpanHandler = TimeSpanHandler.StandardFormat }))
             {
                 var period = TimeSpan.FromSeconds(70);
 
@@ -90,7 +90,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_serialize_NullTimeSpan_field_with_StandardTimeSpanFormat()
         {
-            using (JsConfig.With(timeSpanHandler: TimeSpanHandler.StandardFormat))
+            using (JsConfig.With(new Config { TimeSpanHandler = TimeSpanHandler.StandardFormat }))
             {
                 var model = new NullableSampleModel { Id = 1 };
                 var json = JsonSerializer.SerializeToString(model);

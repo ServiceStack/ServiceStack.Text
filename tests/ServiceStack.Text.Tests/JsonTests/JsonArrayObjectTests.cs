@@ -114,9 +114,10 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             dto.PrintDump();
 
-            using (JsConfig.With(
-                emitLowercaseUnderscoreNames: true,
-                propertyConvention: PropertyConvention.Lenient))
+            using (JsConfig.With(new Config {
+                EmitLowercaseUnderscoreNames = true,
+                PropertyConvention = PropertyConvention.Lenient
+            }))
             {
                 var response = json.FromJson<CustomAuthResponse>();
                 response.PrintDump();

@@ -417,7 +417,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.AreEqual(deserilizedResult.Date, testObject.Date);
             Assert.AreEqual(DateTimeKind.Utc, deserilizedResult.Date.Kind);
 
-            using (JsConfig.With(skipDateTimeConversion: false))
+            using (JsConfig.With(new Config { SkipDateTimeConversion = false }))
             {
                 Assert.AreEqual(DateTimeKind.Local, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
@@ -431,11 +431,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.AreEqual(deserilizedResult.Date, testObject.Date);
             Assert.AreEqual(DateTimeKind.Utc, deserilizedResult.Date.Kind);
 
-            using (JsConfig.With(skipDateTimeConversion: false))
+            using (JsConfig.With(new Config { SkipDateTimeConversion = false }))
             {
                 Assert.AreEqual(DateTimeKind.Local, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
-            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false)) //It will work now
+            using (JsConfig.With(new Config { AlwaysUseUtc = true, SkipDateTimeConversion = false }))
             {
                 Assert.AreEqual(DateTimeKind.Utc, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
@@ -450,11 +450,11 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.AreEqual(deserilizedResult.Date, testObject.Date);
             Assert.AreEqual(DateTimeKind.Local, deserilizedResult.Date.Kind);
 
-            using (JsConfig.With(alwaysUseUtc: true))
+            using (JsConfig.With(new Config { AlwaysUseUtc = true }))
             {
                 Assert.AreEqual(DateTimeKind.Local, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
-            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false))
+            using (JsConfig.With(new Config { AlwaysUseUtc = true, SkipDateTimeConversion = false }))
             {
                 Assert.AreEqual(DateTimeKind.Utc, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
@@ -469,16 +469,16 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.AreEqual(deserilizedResult.Date, testObject.Date);
             Assert.AreEqual(DateTimeKind.Unspecified, deserilizedResult.Date.Kind);
 
-            using (JsConfig.With(alwaysUseUtc: true))
+            using (JsConfig.With(new Config { AlwaysUseUtc = true }))
             {
                 Assert.AreEqual(DateTimeKind.Unspecified, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
-            using (JsConfig.With(alwaysUseUtc: true, skipDateTimeConversion: false))
+            using (JsConfig.With(new Config { AlwaysUseUtc = true, SkipDateTimeConversion = false }))
             {
                 Assert.AreEqual(DateTimeKind.Utc, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
 
-            using (JsConfig.With(skipDateTimeConversion: false))
+            using (JsConfig.With(new Config { SkipDateTimeConversion = false }))
             {
                 serilizedResult = JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject);
                 deserilizedResult = JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(serilizedResult);

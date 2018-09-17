@@ -152,7 +152,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("DoubleWord".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
             Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));
 
-            using (JsConfig.With(emitLowercaseUnderscoreNames: true))
+            using (JsConfig.With(new Config { EmitLowercaseUnderscoreNames = true}))
             {
                 Assert.That("Double_Word".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
                 Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));
@@ -180,7 +180,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_write_EnumValues_when_ExcludeDefaultValues()
         {
-            using (JsConfig.With(excludeDefaultValues:true))
+            using (JsConfig.With(new Config { ExcludeDefaultValues = true }))
             {
                 Assert.That(new ClassWithEnums
                 {
@@ -193,7 +193,7 @@ namespace ServiceStack.Text.Tests
                 }.ToJson(), Is.EqualTo("{\"FlagsEnum\":0,\"NoFlagsEnum\":\"Zero\"}"));
             }
 
-            using (JsConfig.With(excludeDefaultValues:true, includeDefaultEnums:false))
+            using (JsConfig.With(new Config { ExcludeDefaultValues = true, IncludeDefaultEnums = false }))
             {
                 Assert.That(new ClassWithEnums
                 {

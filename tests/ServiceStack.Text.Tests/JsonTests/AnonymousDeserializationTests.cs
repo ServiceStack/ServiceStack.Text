@@ -53,7 +53,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             string dob = dyn.DateOfBirth;
             "DynamicJson: {0}, {1}, {2}".Print(id, name, dob);
 
-            using (JsConfig.With(convertObjectTypesIntoStringDictionary: true))
+            using (JsConfig.With(new Config { ConvertObjectTypesIntoStringDictionary = true }))
             {
                 "Object Dictionary".Print();
                 var map = (Dictionary<string, object>)json.FromJson<object>();

@@ -212,6 +212,9 @@ namespace ServiceStack.Text
 
         public static UTF8Encoding UTF8Encoding { get; set; } = new UTF8Encoding(false);
 
+        public static JsConfigScope With(Config config) => (JsConfigScope)new JsConfigScope().Populate(config);
+
+        [Obsolete("Use JsConfig.With(new Config { })")]
         public static JsConfigScope With(
             bool? convertObjectTypesIntoStringDictionary = null,
             bool? tryToParsePrimitiveTypeValues = null,

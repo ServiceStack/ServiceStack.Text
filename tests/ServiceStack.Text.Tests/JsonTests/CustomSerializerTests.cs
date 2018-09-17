@@ -185,7 +185,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Can_detect_dto_with_no_Version()
         {
-            using (JsConfig.With(modelFactory: type =>
+            using (JsConfig.With(new Config { ModelFactory = type =>
             {
                 if (typeof(IHasVersion).IsAssignableFrom(type))
                 {
@@ -197,7 +197,7 @@ namespace ServiceStack.Text.Tests.JsonTests
                     };
                 }
                 return type.CreateInstance;
-            }))
+            }}))
             {
                 var dto = new Dto { Name = "Foo" };
                 var fromDto = dto.ToJson().FromJson<DtoV1>();
@@ -226,7 +226,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             Assert.That(dto.ErrorCode, Is.Null);
 
-            using (JsConfig.With(propertyConvention: PropertyConvention.Lenient))
+            using (JsConfig.With(new Config { PropertyConvention = PropertyConvention.Lenient }))
             {
                 dto = json.FromJson<ErrorPoco>();
 
@@ -277,7 +277,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             var dto = new ModelInt { Int = 0 };
 
-            using (JsConfig.With(includeNullValues: true))
+            using (JsConfig.With(new Config { IncludeNullValues = true }))
             {
                 Assert.That(dto.ToJson(), Is.EqualTo("{\"Int\":-1}"));
             }

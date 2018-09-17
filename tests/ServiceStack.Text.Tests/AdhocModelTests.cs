@@ -363,7 +363,7 @@ namespace ServiceStack.Text.Tests
                 Assert.That(dto.ToJsv(), Is.EqualTo("{Key:Value}"));
             }
 
-            using (JsConfig.With(excludePropertyReferences: new[] { "Exclude.Id" }))
+            using (JsConfig.With(new Config { ExcludePropertyReferences = new[] { "Exclude.Id" }}))
             {
                 Assert.That(dto.ToJson(), Is.EqualTo("{\"Key\":\"Value\"}"));
                 Assert.That(dto.ToJsv(), Is.EqualTo("{Key:Value}"));

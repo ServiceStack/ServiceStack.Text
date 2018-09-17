@@ -582,7 +582,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             JsConfig<Foo>.RawSerializeFn = obj =>
             {
-                using (JsConfig.With(includeNullValues: true))
+                using (JsConfig.With(new Config { IncludeNullValues = true }))
                     return obj.ToJson();
             };
 
@@ -596,7 +596,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             JsConfig<Foo>.RawDeserializeFn = json =>
             {
-                using (JsConfig.With(includeNullValues: true))
+                using (JsConfig.With(new Config { IncludeNullValues = true }))
                     return json.FromJson<Foo>();
             };
 
@@ -608,7 +608,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [Test]
         public void Does_include_null_values_in_lists()
         {
-            using (JsConfig.With(includeNullValues: true))
+            using (JsConfig.With(new Config { IncludeNullValues = true }))
             {
                 var dto = new List<DateTime?>
                 {

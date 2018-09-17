@@ -172,7 +172,7 @@ namespace ServiceStack.Common.Tests
             var to = from.ConvertTo<BenchDestination>(); //warmup
             to = from.ConvertTo<BenchDestination>();
 
-            using (JsConfig.With(includePublicFields: true))
+            using (JsConfig.With(new Config { IncludePublicFields = true }))
             {
                 to.PrintDump();
                 from.PrintDump();

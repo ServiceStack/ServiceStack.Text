@@ -163,7 +163,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_limit_cyclical_dependencies()
         {
-            using (JsConfig.With(maxDepth: 4))
+            using (JsConfig.With(new Config { MaxDepth = 4 }))
             {
                 var p = new person();
                 p.teacher = new person { name = "sam", teacher = p };

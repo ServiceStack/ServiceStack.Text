@@ -58,7 +58,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_override_default_configuration()
         {
-            using (JsConfig.With(emitLowercaseUnderscoreNames: false))
+            using (JsConfig.With(new Config { EmitLowercaseUnderscoreNames = false }))
             {
                 Assert.That(new Foo { FooBar = "value" }.ToJson(), Is.EqualTo("{\"FooBar\":\"value\"}"));
             }
@@ -71,16 +71,14 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void TestJsonDataWithJsConfigScope()
         {
-            using (JsConfig.With(emitLowercaseUnderscoreNames: true,
-                propertyConvention: PropertyConvention.Lenient))
+            using (JsConfig.With(new Config { EmitLowercaseUnderscoreNames = true, PropertyConvention = PropertyConvention.Lenient}))
                 AssertObjectJson();
         }
 
         [Test]
         public void TestCloneObjectWithJsConfigScope()
         {
-            using (JsConfig.With(emitLowercaseUnderscoreNames: true,
-                propertyConvention: PropertyConvention.Lenient))
+            using (JsConfig.With(new Config { EmitLowercaseUnderscoreNames = true, PropertyConvention = PropertyConvention.Lenient}))
                 AssertObject();
         }
 
