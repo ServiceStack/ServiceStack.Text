@@ -349,5 +349,31 @@ namespace ServiceStack.Text.Tests
         
         public class InheritedJsonObject : JsonObject { }
 
+        [Test]
+        public void Does_escape_string_values()
+        {
+            var json = JsonObject.Parse("{\"text\":\"line\nbreak\"}");
+            Assert.That(json["text"], Is.EqualTo("line\nbreak"));
+            
+            json = JsonObject.Parse("{\"a\":{\"text\":\"line\nbreak\"}}");
+            var a = json.Object("a");
+            Assert.That(a["text"], Is.EqualTo("line\nbreak"));
+        }
+        
+        public class JsonObjectWrapper
+        {
+            public JsonObject Prop { get; set; }
+        }
+
+        [Test]
+        public void Does_escape_strings_in_JsonObject_DTO()
+        {
+            var dto = "{\"Prop\":{\"text\":\"line\nbreak\"}}".FromJson<JsonObjectWrapper>();
+            Assert.That(dto.Prop["text"], Is.EqualTo("line\nbreak"));
+            
+            dto = "{\"Prop\":{\"a\":{\"text\":\"line\nbreak\"}}}".FromJson<JsonObjectWrapper>();
+            var a = dto.Prop.Object("a");
+            Assert.That(a["text"], Is.EqualTo("line\nbreak"));
+        }
     }
 }
