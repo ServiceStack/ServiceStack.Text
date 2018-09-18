@@ -371,9 +371,66 @@ namespace ServiceStack.Text.Tests
             var dto = "{\"Prop\":{\"text\":\"line\nbreak\"}}".FromJson<JsonObjectWrapper>();
             Assert.That(dto.Prop["text"], Is.EqualTo("line\nbreak"));
             
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Prop\":{\"text\":\"line\\nbreak\"}}"));
+
             dto = "{\"Prop\":{\"a\":{\"text\":\"line\nbreak\"}}}".FromJson<JsonObjectWrapper>();
             var a = dto.Prop.Object("a");
             Assert.That(a["text"], Is.EqualTo("line\nbreak"));
+            
+            //
+            //Assert.That(dto.ToJson(), Is.EqualTo("{\"Prop\":{\"a\":{\"text\":\"line\\nbreak\"}}}"));
         }
+
+        public class StringDictionaryWrapper
+        {
+            public Dictionary<string,string> Prop { get; set; }
+        }
+
+        public class NestedStringDictionaryWrapper
+        {
+            public Dictionary<string,Dictionary<string,string>> Prop { get; set; }
+        }
+
+        [Test]
+        public void Does_serialize_StringDictionaryWrapper_line_breaks()
+        {
+            var prop = new Dictionary<string,string> {
+                ["text"] = "line\nbreak"
+            };
+            
+            Assert.That(prop.ToJson(), Is.EqualTo("{\"text\":\"line\\nbreak\"}"));
+            
+            var dto = new StringDictionaryWrapper { Prop = prop };
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Prop\":{\"text\":\"line\\nbreak\"}}"));
+            
+            var nested = new NestedStringDictionaryWrapper { Prop = new Dictionary<string, Dictionary<string, string>> {
+                    ["a"] = prop
+                } 
+            };
+            Assert.That(nested.ToJson(), Is.EqualTo("{\"Prop\":{\"a\":{\"text\":\"line\\nbreak\"}}}"));
+        }
+        
+        public class ObjectDictionaryWrapper
+        {
+            public object Prop { get; set; }
+        }
+        
+        [Test]
+        public void Does_serialize_ObjectDictionaryWrapper_line_breaks()
+        {
+            var prop = new Dictionary<string,string> {
+                ["text"] = "line\nbreak"
+            };
+
+            var dto = new ObjectDictionaryWrapper { Prop = prop };
+            Assert.That(dto.ToJson(), Is.EqualTo("{\"Prop\":{\"text\":\"line\\nbreak\"}}"));
+
+            var nested = new ObjectDictionaryWrapper { Prop = new Dictionary<string, Dictionary<string, string>> {
+                    ["a"] = prop
+                } 
+            };
+            Assert.That(nested.ToJson(), Is.EqualTo("{\"Prop\":{\"a\":{\"text\":\"line\\nbreak\"}}}"));
+        }
+
     }
 }

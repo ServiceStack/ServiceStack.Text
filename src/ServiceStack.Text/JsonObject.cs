@@ -19,16 +19,13 @@ namespace ServiceStack.Text
         /// </summary>
         public static T Get<T>(this Dictionary<string, string> map, string key, T defaultValue = default(T))
         {
-            string strVal;
-            return map.TryGetValue(key, out strVal) ? JsonSerializer.DeserializeFromString<T>(strVal) : defaultValue;
+            return map.TryGetValue(key, out var strVal) ? JsonSerializer.DeserializeFromString<T>(strVal) : defaultValue;
         }
 
         public static T[] GetArray<T>(this Dictionary<string, string> map, string key)
         {
-            var obj = map as JsonObject;
-            string value;
-            return map.TryGetValue(key, out value) 
-                ? (obj != null ? value.FromJson<T[]>() : value.FromJsv<T[]>()) 
+            return map.TryGetValue(key, out var value) 
+                ? (map is JsonObject obj ? value.FromJson<T[]>() : value.FromJsv<T[]>()) 
                 : TypeConstants<T>.EmptyArray;
         }
 
