@@ -95,7 +95,7 @@ namespace ServiceStack.Text.Common
             if (Serializer.ObjectDeserializer != null)
                 return Serializer.ObjectDeserializer(strType);
 
-            return Serializer.UnescapeString(strType).ToString();
+            return Serializer.UnescapeString(strType).Value();
         }
 
         public static Type ExtractType(string strType) => ExtractType(strType.AsSpan());
