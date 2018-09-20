@@ -12,5 +12,13 @@ namespace ServiceStack.Text.Tests.Issues
             var name = obj.Get("Name");
             Assert.That(name, Is.EqualTo(""));
         }
+
+        [Test]
+        public void Does_deserialize_empty_string_to_object()
+        {
+            var json = "\"\"";
+            var obj = json.FromJson<object>();
+            Assert.That(obj, Is.EqualTo(""));
+        }
     }
 }
