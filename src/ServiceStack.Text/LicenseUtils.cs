@@ -179,7 +179,9 @@ namespace ServiceStack
             internal __ActivatedLicense(LicenseKey licenseKey) => LicenseKey = licenseKey;
         }
 
-        public static string GetLicenseWarningMessage()
+        public static string LicenseWarningMessage { get; private set; }
+        
+        private static string GetLicenseWarningMessage()
         {
             var key = __activatedLicense?.LicenseKey;
             if (key == null)
@@ -259,9 +261,9 @@ namespace ServiceStack
 
             __activatedLicense = new __ActivatedLicense(key);
 
-            var warningMessage = GetLicenseWarningMessage();
-            if (warningMessage != null)
-                Console.WriteLine(warningMessage);
+            LicenseWarningMessage = GetLicenseWarningMessage();
+            if (LicenseWarningMessage != null)
+                Console.WriteLine(LicenseWarningMessage);
         }
 
         public static void RemoveLicense()
