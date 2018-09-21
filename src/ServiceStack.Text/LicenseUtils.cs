@@ -114,7 +114,7 @@ namespace ServiceStack
         public string Ref { get; set; }
         public string Name { get; set; }
         public LicenseType Type { get; set; }
-        public LicenseMeta Meta { get; set; }
+        public long Meta { get; set; }
         public string Hash { get; set; }
         public DateTime Expiry { get; set; }
     }
@@ -190,7 +190,7 @@ namespace ServiceStack
             if (DateTime.UtcNow > key.Expiry)
             {
                 var licenseMeta = key.Meta;
-                if (licenseMeta.HasFlag(LicenseMeta.Subscription))
+                if ((licenseMeta & (long)LicenseMeta.Subscription) != 0)
                     return $"This Annual Subscription expired on '{key.Expiry:d}', please update your License Key with this years subscription.";
             }
 

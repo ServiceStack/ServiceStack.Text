@@ -248,6 +248,15 @@ namespace ServiceStack.Text.Tests
             Assert.That(result, Is.EqualTo(fixedDate));
         }
 
+        public class OldLicenseKey
+        {
+            public string Ref { get; set; }
+            public string Name { get; set; }
+            public LicenseType Type { get; set; }
+            public string Hash { get; set; }
+            public DateTime Expiry { get; set; }
+        }
+
         [Test]
         public void Does_deserialize_LicenseKey()
         {
@@ -256,7 +265,7 @@ namespace ServiceStack.Text.Tests
                 Ref = "1000",
                 Type = LicenseType.Business,
                 Expiry = new DateTime(2001,01,01),
-                Meta = LicenseMeta.Subscription | LicenseMeta.Cores,
+                Meta = (long)(LicenseMeta.Subscription | LicenseMeta.Cores),
             };
 
             var jsv = key.ToJsv();
@@ -270,6 +279,20 @@ namespace ServiceStack.Text.Tests
             Assert.That(fromKey.Type, Is.EqualTo(key.Type));
             Assert.That(fromKey.Expiry, Is.EqualTo(key.Expiry));
             Assert.That(fromKey.Meta, Is.EqualTo(key.Meta));
+
+            var oldKey = jsv.FromJsv<OldLicenseKey>();
+            Assert.That(oldKey.Name, Is.EqualTo(key.Name));
+            Assert.That(oldKey.Ref, Is.EqualTo(key.Ref));
+            Assert.That(oldKey.Type, Is.EqualTo(key.Type));
+            Assert.That(oldKey.Expiry, Is.EqualTo(key.Expiry));
+
+            var oldJsv = oldKey.ToJsv();
+            fromKey = oldJsv.FromJsv<LicenseKey>();
+            Assert.That(fromKey.Name, Is.EqualTo(key.Name));
+            Assert.That(fromKey.Ref, Is.EqualTo(key.Ref));
+            Assert.That(fromKey.Type, Is.EqualTo(key.Type));
+            Assert.That(fromKey.Expiry, Is.EqualTo(key.Expiry));
+            Assert.That(fromKey.Meta, Is.EqualTo(0));
         }
     }
 }
