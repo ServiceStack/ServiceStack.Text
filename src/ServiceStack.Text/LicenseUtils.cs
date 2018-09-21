@@ -62,6 +62,14 @@ namespace ServiceStack
         Aws = 1 << 10,
     }
 
+    [Flags]
+    public enum LicenseMeta : long
+    {
+        None = 0,
+        Subscription = 1 << 0,
+        Cores = 1 << 1,
+    }
+
     public enum QuotaType
     {
         Operations,      //ServiceStack
@@ -106,6 +114,7 @@ namespace ServiceStack
         public string Ref { get; set; }
         public string Name { get; set; }
         public LicenseType Type { get; set; }
+        public LicenseMeta Meta { get; set; }
         public string Hash { get; set; }
         public DateTime Expiry { get; set; }
     }
@@ -168,6 +177,22 @@ namespace ServiceStack
         {
             internal readonly LicenseKey LicenseKey;
             internal __ActivatedLicense(LicenseKey licenseKey) => LicenseKey = licenseKey;
+        }
+
+        public static string GetLicenseWarningMessage()
+        {
+            var key = __activatedLicense?.LicenseKey;
+            if (key == null)
+                return null;
+
+            if (DateTime.UtcNow > key.Expiry)
+            {
+                var licenseMeta = key.Meta;
+                if (licenseMeta.HasFlag(LicenseMeta.Subscription))
+                    return $"This Annual Subscription expired on '{key.Expiry:d}', please update your License Key with this years subscription.";
+            }
+
+            return null;
         }
 
         private static __ActivatedLicense __activatedLicense;
@@ -233,6 +258,10 @@ namespace ServiceStack
                 throw new LicenseException($"This trial license has expired on {key.Expiry:d}." + ContactDetails).Trace();
 
             __activatedLicense = new __ActivatedLicense(key);
+
+            var warningMessage = GetLicenseWarningMessage();
+            if (warningMessage != null)
+                Console.WriteLine(warningMessage);
         }
 
         public static void RemoveLicense()
