@@ -247,5 +247,29 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(result, Is.EqualTo(fixedDate));
         }
+
+        [Test]
+        public void Does_deserialize_LicenseKey()
+        {
+            var key = new LicenseKey {
+                Name = "The Name",
+                Ref = "1000",
+                Type = LicenseType.Business,
+                Expiry = new DateTime(2001,01,01),
+                Meta = LicenseMeta.Subscription | LicenseMeta.Cores,
+            };
+
+            var jsv = key.ToJsv();
+            Assert.That(jsv, Does.Contain($"eta:" + (int)key.Meta));
+            jsv.Print();
+            
+            var fromKey = jsv.FromJsv<LicenseKey>();
+            
+            Assert.That(fromKey.Name, Is.EqualTo(key.Name));
+            Assert.That(fromKey.Ref, Is.EqualTo(key.Ref));
+            Assert.That(fromKey.Type, Is.EqualTo(key.Type));
+            Assert.That(fromKey.Expiry, Is.EqualTo(key.Expiry));
+            Assert.That(fromKey.Meta, Is.EqualTo(key.Meta));
+        }
     }
 }
