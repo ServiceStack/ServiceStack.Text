@@ -884,7 +884,7 @@ namespace ServiceStack
 
         public static bool EqualsIgnoreCase(this string value, string other)
         {
-            return String.Equals(value, other, StringComparison.CurrentCultureIgnoreCase);
+            return String.Equals(value, other, StringComparison.OrdinalIgnoreCase);
         }
 
         public static string ReplaceFirst(this string haystack, string needle, string replacement)
