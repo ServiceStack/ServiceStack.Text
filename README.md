@@ -360,11 +360,16 @@ JsonSerializer also supports serialization of anonymous types in much the same w
 
 ## Global Default JSON Configuration
 
-The JSON/JSV and CSV serialization can be customized globally by configuring the `JsConfig` or type-specific `JsConfig<T>` static classes with your preferred defaults, e.g:
+The JSON/JSV and CSV serialization can be customized globally by configuring the `JsConfig` or type-specific `JsConfig<T>` static classes with your preferred defaults. Global static configuration can be configured once on **Startup** using `JsConfig.Init()`, e.g:
 
 ```csharp
-JsConfig.EmitLowercaseUnderscoreNames = true; 
-JsConfig.ExcludeDefaultValues = true;
+JsConfig.Init(new Config {
+    DateHandler = DateHandler.ISO8601,
+    AlwaysUseUtc = true,
+    EmitLowercaseUnderscoreNames = false,
+    EmitCamelCaseNames = false,
+    ExcludeDefaultValues = true,                
+});
 ```
 
 The following is a list of `bool` options you can use to configure many popular preferences:
@@ -427,12 +432,29 @@ The following is a list of `bool` options you can use to configure many popular 
 
 ### Custom Config Scopes
 
-If you need to override the Global JSON Configuration defaults for adhoc JSON serialization you can use a Custom Config Scope, e.g:
+If you need to use different serialization settings from the global static defaults you can use `JsConfig.With()` to create a scoped configuration
+using property initializers:
 
 ```csharp
-using (JsConfig.With(emitCamelCaseNames:true, excludeDefaultValues:true))
+using (JsConfig.With(new Config { 
+    EmitLowercaseUnderscoreNames = true, 
+    EmitCamelCaseNames = false, 
+    PropertyConvention = PropertyConvention.Lenient))
 {
-    var json = dto.ToJson();
+    return text.FromJson<T>();
+}
+```
+
+Or if preferred you use `JsConfig.BeginScope()` to populate scoped configuration properties individually:
+
+```csharp
+using (var scope = JsConfig.BeginScope())
+{
+    scope.EmitLowercaseUnderscoreNames = true;
+    scope.EmitCamelCaseNames = false;
+    scope.PropertyConvention = PropertyConvention.Lenient;
+
+    return text.FromJson<T>();
 }
 ```
 
