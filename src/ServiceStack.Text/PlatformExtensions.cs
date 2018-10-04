@@ -665,9 +665,9 @@ namespace ServiceStack
             if (values == null)
                 return null;
             
-            var alreadyDict = type == typeof(IReadOnlyDictionary<string, object>);
+            var alreadyDict = typeof(IReadOnlyDictionary<string, object>).IsAssignableFrom(type);
             if (alreadyDict)
-                return true;
+                return values;
 
             var to = type.CreateInstance();
 

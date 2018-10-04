@@ -397,6 +397,13 @@ namespace ServiceStack.Text.Tests
             Assert.That(config.CefSettings.LogSeverity, Is.EqualTo(CefLogSeverity.Verbose));
         }
         
+        [Test]
+        public void Can_convert_Dictionary_FromObjectDictionary()
+        {
+            var dict = new Dictionary<string,object>();
+            var to = dict.FromObjectDictionary<Dictionary<string, object>>();
+            Assert.That(to == dict);
+        }
         
     }
 
