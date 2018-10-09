@@ -221,6 +221,10 @@ namespace ServiceStack
             }
             catch (Exception ex)
             {
+                //bubble unrelated project Exceptions
+                if (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException) 
+                    throw;
+                
                 if (ex is LicenseException)
                     throw;
 
