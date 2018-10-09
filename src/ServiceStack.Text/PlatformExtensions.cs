@@ -791,5 +791,26 @@ namespace ServiceStack
             }
             return to;
         }
+
+        public static Dictionary<string, string> ToStringDictionary(this IReadOnlyDictionary<string, object> from) => ToStringDictionary(from, null);
+
+        public static Dictionary<string, string> ToStringDictionary(this IReadOnlyDictionary<string, object> from, IEqualityComparer<string> comparer)
+        {
+            var to = comparer != null
+                ? new Dictionary<string, string>(comparer)
+                : new Dictionary<string, string>();
+
+            if (from != null)
+            {
+                foreach (var entry in from)
+                {
+                    to[entry.Key] = entry.Value is string s
+                        ? s
+                        : entry.Value.ConvertTo<string>();
+                }
+            }
+
+            return to;
+        }
     }
 }
