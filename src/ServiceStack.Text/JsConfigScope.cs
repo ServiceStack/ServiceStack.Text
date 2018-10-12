@@ -66,6 +66,16 @@ namespace ServiceStack.Text
             InitStackTrace = Environment.StackTrace;
         }
 
+        /// <summary>
+        /// Bypass Init checks. Only call on Startup.
+        /// </summary>
+        /// <param name="config"></param>
+        public static void UnsafeInit(Config config)
+        {
+            if (config != null)
+                instance = config;
+        }
+
         internal static void Reset()
         {
             HasInit = false;
