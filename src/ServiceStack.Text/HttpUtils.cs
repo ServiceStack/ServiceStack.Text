@@ -1072,8 +1072,10 @@ namespace ServiceStack
     public static class MimeTypes
     {
         public static Dictionary<string, string> ExtensionMimeTypes = new Dictionary<string, string>();
+        public const string Utf8Suffix = "; charset=utf-8";
 
         public const string Html = "text/html";
+        public const string HtmlUtf8 = Html + Utf8Suffix;
         public const string Xml = "application/xml";
         public const string XmlText = "text/xml";
         public const string Json = "application/json";
