@@ -758,5 +758,26 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(requestObj, Is.Not.Null);
         }
+
+        public class ModelWithUri
+        {
+            public Uri Uri { get; set; }
+        }
+        public class ModelWithUriString
+        {
+            public string Uri { get; set; }
+        }
+
+        [Test]
+        public void Does_map_Uri()
+        {
+            var dto = new ModelWithUri { Uri = new Uri("http://a.com") };
+
+            var to = new ModelWithUri().PopulateWithNonDefaultValues(dto);
+            Assert.That(to.Uri, Is.EqualTo(dto.Uri));
+
+            var toString = new ModelWithUriString().PopulateWithNonDefaultValues(dto);
+            Assert.That(toString.Uri, Is.EqualTo(dto.Uri.AbsoluteUri));
+        }
     }
 }

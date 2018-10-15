@@ -802,7 +802,7 @@ namespace ServiceStack
                 return fromValue => TypeSerializer.DeserializeFromString((string)fromValue, toType);
 
             if (toType == typeof(string))
-                return TypeSerializer.SerializeToString;
+                return o => TypeSerializer.SerializeToString(o).StripQuotes();
             
             var underlyingToType = Nullable.GetUnderlyingType(toType) ?? toType;
             var underlyingFromType = Nullable.GetUnderlyingType(fromType) ?? fromType;

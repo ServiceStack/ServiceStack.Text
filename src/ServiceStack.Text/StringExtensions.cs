@@ -677,7 +677,7 @@ namespace ServiceStack
 
         public static string StripQuotes(this string text)
         {
-            return String.IsNullOrEmpty(text) || text.Length < 2
+            return string.IsNullOrEmpty(text) || text.Length < 2
                 ? text
                 : text[0] == '"' && text[text.Length - 1] == '"'
                     ? text.Substring(1, text.Length - 2)
