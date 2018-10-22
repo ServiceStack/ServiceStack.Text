@@ -753,6 +753,9 @@ namespace ServiceStack
                 accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
         }
 
+        /// <summary>
+        /// Returns HttpWebResponse Stream which must be disposed
+        /// </summary>
         public static Stream SendStreamToUrl(this string url, string method = null,
             Stream requestBody = null, string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
@@ -782,15 +785,16 @@ namespace ServiceStack
                 }
             }
 
-            using (var webRes = PclExport.Instance.GetResponse(webReq))
-            {
-                responseFilter?.Invoke((HttpWebResponse)webRes);
+            var webRes = PclExport.Instance.GetResponse(webReq);
+            responseFilter?.Invoke((HttpWebResponse)webRes);
 
-                var stream = webRes.GetResponseStream();
-                return stream;
-            }
+            var stream = webRes.GetResponseStream();
+            return stream;
         }
 
+        /// <summary>
+        /// Returns HttpWebResponse Stream which must be disposed
+        /// </summary>
         public static async Task<Stream> SendStreamToUrlAsync(this string url, string method = null,
             Stream requestBody = null, string contentType = null, string accept = "*/*",
             Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
