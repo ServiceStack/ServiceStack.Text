@@ -708,6 +708,123 @@ namespace ServiceStack
                 return stream.ReadFully();
             }
         }
+        
+        public static Stream GetStreamFromUrl(this string url, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.SendStreamToUrl(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<Stream> GetStreamFromUrlAsync(this string url, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return url.SendStreamToUrlAsync(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Stream PostStreamToUrl(this string url, Stream requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStreamToUrl(url, method: "POST",
+                contentType: contentType, requestBody: requestBody,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<Stream> PostStreamToUrlAsync(this string url, Stream requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStreamToUrlAsync(url, method: "POST",
+                contentType: contentType, requestBody: requestBody,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Stream PutStreamToUrl(this string url, Stream requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStreamToUrl(url, method: "PUT",
+                contentType: contentType, requestBody: requestBody,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Task<Stream> PutStreamToUrlAsync(this string url, Stream requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            return SendStreamToUrlAsync(url, method: "PUT",
+                contentType: contentType, requestBody: requestBody,
+                accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+
+        public static Stream SendStreamToUrl(this string url, string method = null,
+            Stream requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            if (method != null)
+                webReq.Method = method;
+
+            if (contentType != null)
+                webReq.ContentType = contentType;
+
+            webReq.Accept = accept;
+            PclExport.Instance.AddCompression(webReq);
+
+            requestFilter?.Invoke(webReq);
+
+            if (ResultsFilter != null)
+            {
+                return new MemoryStream(ResultsFilter.GetBytes(webReq, requestBody.ReadFully()));
+            }
+
+            if (requestBody != null)
+            {
+                using (var req = PclExport.Instance.GetRequestStream(webReq))
+                {
+                    req.CopyTo(requestBody);
+                }
+            }
+
+            using (var webRes = PclExport.Instance.GetResponse(webReq))
+            {
+                responseFilter?.Invoke((HttpWebResponse)webRes);
+
+                var stream = webRes.GetResponseStream();
+                return stream;
+            }
+        }
+
+        public static async Task<Stream> SendStreamToUrlAsync(this string url, string method = null,
+            Stream requestBody = null, string contentType = null, string accept = "*/*",
+            Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            if (method != null)
+                webReq.Method = method;
+            if (contentType != null)
+                webReq.ContentType = contentType;
+
+            webReq.Accept = accept;
+            PclExport.Instance.AddCompression(webReq);
+
+            requestFilter?.Invoke(webReq);
+
+            if (ResultsFilter != null)
+            {
+                return new MemoryStream(ResultsFilter.GetBytes(webReq, requestBody.ReadFully()));
+            }
+
+            if (requestBody != null)
+            {
+                using (var req = PclExport.Instance.GetRequestStream(webReq))
+                {
+                    await req.CopyToAsync(requestBody);
+                }
+            }
+
+            var webRes = await webReq.GetResponseAsync();
+            responseFilter?.Invoke((HttpWebResponse)webRes);
+
+            var stream = webRes.GetResponseStream();
+            return stream;
+        }
 
         public static bool IsAny300(this Exception ex)
         {
