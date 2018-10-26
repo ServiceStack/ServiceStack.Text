@@ -142,7 +142,6 @@ namespace ServiceStack.Text.Json
     public class TypeInfo
     {
         internal bool EncodeMapKey;
-        internal bool IsNumeric;
     }
 
     /// <summary>
@@ -189,7 +188,6 @@ namespace ServiceStack.Text.Json
             TypeInfo = new TypeInfo
             {
                 EncodeMapKey = typeof(T) == typeof(bool) || isNumeric,
-                IsNumeric = isNumeric
             };
 
             CacheFn = typeof(T) == typeof(object)

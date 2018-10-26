@@ -49,10 +49,6 @@ namespace ServiceStack.Text.Common
         void WriteDouble(TextWriter writer, object doubleValue);
         void WriteDecimal(TextWriter writer, object decimalValue);
         void WriteEnum(TextWriter writer, object enumValue);
-        void WriteEnumFlags(TextWriter writer, object enumFlagValue);
-        void WriteEnumMember(TextWriter writer, object enumFlagValue);
-
-        //object EncodeMapKey(object value);
 
         ParseStringDelegate GetParseFn<T>();
         ParseStringSpanDelegate GetParseStringSpanFn<T>();

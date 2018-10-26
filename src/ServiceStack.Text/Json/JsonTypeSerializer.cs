@@ -280,27 +280,13 @@ namespace ServiceStack.Text.Json
 
         public void WriteEnum(TextWriter writer, object enumValue)
         {
-            if (enumValue == null) return;
-            if (GetTypeInfo(enumValue.GetType()).IsNumeric)
-                JsWriter.WriteEnumFlags(writer, enumValue);
+            if (enumValue == null) 
+                return;
+            var serializedValue = CachedTypeInfo.Get(enumValue.GetType()).EnumInfo.GetSerializedValue(enumValue);
+            if (serializedValue is string strEnum)
+                WriteRawString(writer, strEnum);
             else
-                WriteRawString(writer, enumValue.ToString());
-        }
-
-        public void WriteEnumFlags(TextWriter writer, object enumFlagValue)
-        {
-            JsWriter.WriteEnumFlags(writer, enumFlagValue);
-        }
-
-        public void WriteEnumMember(TextWriter writer, object enumValue)
-        {
-            if (enumValue == null) return;
-
-            var enumType = enumValue.GetType();
-            var mi = enumType.GetMember(enumValue.ToString());
-            var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
-            var useValue = enumMemberAttr?.Value ?? enumValue;
-            WriteRawString(writer, useValue.ToString());
+                JsWriter.WriteEnumFlags(writer, enumValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

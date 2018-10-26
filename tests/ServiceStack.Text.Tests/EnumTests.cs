@@ -36,7 +36,7 @@ namespace ServiceStack.Text.Tests
             public EnumWithFlags? NullableFlagsEnum { get; set; }
             public EnumWithoutFlags? NullableNoFlagsEnum { get; set; }
         }
-
+        
         [Test]
         public void Can_correctly_serialize_enums()
         {
@@ -263,6 +263,33 @@ namespace ServiceStack.Text.Tests
             Assert.That(((Day?)Day.Sunday).ToJsv(), Is.EqualTo("SUN"));
             Assert.That(((Day?)Day.Sunday).ToCsv(), Is.EqualTo("SUN"));
         }
+
+        public class GetDayOfWeekAsInt
+        {
+            public DayOfWeek DayOfWeek { get; set; }
+        }
+
+        [Test]
+        public void Can_override_TreatEnumAsInteger()
+        {
+            JsConfig.Init(new Config
+            {
+                TreatEnumAsInteger = false,
+            });
+
+            using (JsConfig.With(new Config
+            {
+                TreatEnumAsInteger = true
+            }))
+            {
+                Assert.That(new GetDayOfWeekAsInt { DayOfWeek = DayOfWeek.Tuesday }.ToJson(), Is.EqualTo("{\"DayOfWeek\":2}"));
+            }
+
+            Assert.That(new GetDayOfWeekAsInt { DayOfWeek = DayOfWeek.Tuesday }.ToJson(), Is.EqualTo("{\"DayOfWeek\":\"Tuesday\"}"));
+            
+            JsConfig.Reset();
+        }
+
     }
 }
 
