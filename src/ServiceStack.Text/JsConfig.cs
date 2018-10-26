@@ -877,7 +877,7 @@ namespace ServiceStack.Text
             set { onDeserializedFn = value; RefreshRead(); }
         }
 
-        public static bool HasDeserialingFn => OnDeserializingFn != null;
+        public static bool HasDeserializingFn => OnDeserializingFn != null;
 
         private static Func<T, string, object, object> onDeserializingFn;
         public static Func<T, string, object, object> OnDeserializingFn

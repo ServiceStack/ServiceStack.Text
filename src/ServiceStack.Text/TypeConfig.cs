@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace ServiceStack.Text
 {
@@ -23,7 +25,7 @@ namespace ServiceStack.Text
             JsConfig.AddUniqueType(Type);
         }
     }
-
+    
     public static class TypeConfig<T>
     {
         internal static TypeConfig config;
@@ -87,7 +89,7 @@ namespace ServiceStack.Text
 
             Fields = config.Type.GetSerializableFields().ToArray();
     
-            if (!JsConfig<T>.HasDeserialingFn)
+            if (!JsConfig<T>.HasDeserializingFn)
                 OnDeserializing = ReflectionExtensions.GetOnDeserializing<T>();
             else
                 config.OnDeserializing = (instance, memberName, value) => JsConfig<T>.OnDeserializingFn((T)instance, memberName, value);

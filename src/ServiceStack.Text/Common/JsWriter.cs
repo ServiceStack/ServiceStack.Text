@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
 
@@ -155,7 +154,7 @@ namespace ServiceStack.Text.Common
             }
         }
 
-        public static bool ShouldAllowRuntmieType(Type type)
+        public static bool ShouldAllowRuntimeType(Type type)
         {
             if (!JsState.IsRuntimeType)
                 return true;
@@ -169,8 +168,7 @@ namespace ServiceStack.Text.Common
                 var oAttrs = type.AllAttributes();
                 foreach (var oAttr in oAttrs)
                 {
-                    var attr = oAttr as Attribute;
-                    if (attr == null) continue;
+                    if (!(oAttr is Attribute attr)) continue;
                     if (allowAttributesNamed.Contains(attr.GetType().Name))
                         return true;
                 }
@@ -192,7 +190,7 @@ namespace ServiceStack.Text.Common
 
         public static void AssertAllowedRuntimeType(Type type)
         {
-            if (!ShouldAllowRuntmieType(type))
+            if (!ShouldAllowRuntimeType(type))
                 throw new NotSupportedException($"{type.Name} is not an allowed Runtime Type. Whitelist Type with [RuntimeSerializable] or IRuntimeSerializable.");
         }
     }
@@ -284,10 +282,6 @@ namespace ServiceStack.Text.Common
             {
                 if (underlyingType.IsEnum)
                 {
-                    if (underlyingType.HasAttribute<DataContractAttribute>())
-                        return Serializer.WriteEnumMember;
-                    if (underlyingType.HasAttribute<FlagsAttribute>())
-                        return Serializer.WriteEnumFlags;
                     return Serializer.WriteEnum;
                 }
             }
@@ -439,7 +433,7 @@ namespace ServiceStack.Text.Common
             return Serializer.WriteBuiltIn;
         }
 
-        public Dictionary<Type, WriteObjectDelegate> SpecialTypes;
+        public readonly Dictionary<Type, WriteObjectDelegate> SpecialTypes;
 
         public WriteObjectDelegate GetSpecialWriteFn(Type type)
         {
