@@ -999,87 +999,35 @@ namespace ServiceStack
 
         public static bool IsTuple(this Type type) => type.Name.StartsWith("Tuple`");
 
-        public static bool IsInt(this string text)
-        {
-            if (string.IsNullOrEmpty(text)) return false;
-            int ret;
-            return int.TryParse(text, out ret);
-        }
+        public static bool IsInt(this string text) => !string.IsNullOrEmpty(text) && int.TryParse(text, out _);
 
-        public static int ToInt(this string text)
-        {
-            return text == null ? default(int) : Int32.Parse(text);
-        }
+        public static int ToInt(this string text) => text == null ? default(int) : int.Parse(text);
 
-        public static int ToInt(this string text, int defaultValue)
-        {
-            int ret;
-            return int.TryParse(text, out ret) ? ret : defaultValue;
-        }
+        public static int ToInt(this string text, int defaultValue) => int.TryParse(text, out var ret) ? ret : defaultValue;
 
-        public static long ToInt64(this string text)
-        {
-            return long.Parse(text);
-        }
+        public static long ToInt64(this string text) => long.Parse(text);
 
-        public static long ToInt64(this string text, long defaultValue)
-        {
-            long ret;
-            return long.TryParse(text, out ret) ? ret : defaultValue;
-        }
+        public static long ToInt64(this string text, long defaultValue) => long.TryParse(text, out var ret) ? ret : defaultValue;
 
-        public static float ToFloat(this string text)
-        {
-            return text == null ? default(float) : float.Parse(text);
-        }
+        public static float ToFloat(this string text) => text == null ? default(float) : float.Parse(text);
 
-        public static float ToFloatInvariant(this string text)
-        {
-            return text == null ? default(float) : float.Parse(text, CultureInfo.InvariantCulture);
-        }
+        public static float ToFloatInvariant(this string text) => text == null ? default(float) : float.Parse(text, CultureInfo.InvariantCulture);
 
-        public static float ToFloat(this string text, float defaultValue)
-        {
-            float ret;
-            return float.TryParse(text, out ret) ? ret : defaultValue;
-        }
+        public static float ToFloat(this string text, float defaultValue) => float.TryParse(text, out var ret) ? ret : defaultValue;
 
-        public static double ToDouble(this string text)
-        {
-            return text == null ? default(double) : double.Parse(text);
-        }
+        public static double ToDouble(this string text) => text == null ? default(double) : double.Parse(text);
 
-        public static double ToDoubleInvariant(this string text)
-        {
-            return text == null ? default(double) : double.Parse(text, CultureInfo.InvariantCulture);
-        }
+        public static double ToDoubleInvariant(this string text) => text == null ? default(double) : double.Parse(text, CultureInfo.InvariantCulture);
 
-        public static double ToDouble(this string text, double defaultValue)
-        {
-            double ret;
-            return double.TryParse(text, out ret) ? ret : defaultValue;
-        }
+        public static double ToDouble(this string text, double defaultValue) => double.TryParse(text, out var ret) ? ret : defaultValue;
 
-        public static decimal ToDecimal(this string text)
-        {
-            return text == null ? default(decimal) : decimal.Parse(text);
-        }
+        public static decimal ToDecimal(this string text) => text == null ? default(decimal) : decimal.Parse(text);
 
-        public static decimal ToDecimalInvariant(this string text)
-        {
-            return text == null ? default(decimal) : decimal.Parse(text, CultureInfo.InvariantCulture);
-        }
+        public static decimal ToDecimalInvariant(this string text) => text == null ? default(decimal) : decimal.Parse(text, CultureInfo.InvariantCulture);
 
-        public static decimal ToDecimal(this string text, decimal defaultValue)
-        {
-            decimal ret;
-            return decimal.TryParse(text, out ret) ? ret : defaultValue;
-        }
+        public static decimal ToDecimal(this string text, decimal defaultValue) => decimal.TryParse(text, out var ret) ? ret : defaultValue;
 
-        public static bool Matches(this string value, string pattern)
-        {
-            return value.Glob(pattern);
-        }
+        public static bool Matches(this string value, string pattern) => value.Glob(pattern);
 
         public static bool Glob(this string value, string pattern)
         {
