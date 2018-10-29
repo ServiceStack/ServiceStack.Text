@@ -264,6 +264,13 @@ namespace ServiceStack.Text.Tests
             Assert.That(((Day?)Day.Sunday).ToCsv(), Is.EqualTo("SUN"));
         }
 
+        [Test]
+        public void Can_deserialize_EnumMember_with_int_value()
+        {
+            var fromDto = "{\"Day\":1}".FromJson<EnumMemberDto>();
+            Assert.That(fromDto.Day, Is.EqualTo(Day.Tuesday));
+        }
+
         public class GetDayOfWeekAsInt
         {
             public DayOfWeek DayOfWeek { get; set; }

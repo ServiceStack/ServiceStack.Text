@@ -99,7 +99,7 @@ namespace ServiceStack.Text
             if (enumMemberReverseLookup.TryGetValue(serializedValue, out var enumValue))
                 return enumValue;
             
-            return Enum.Parse(enumType, serializedValue, ignoreCase: true);
+            return Enum.Parse(enumType, serializedValue, ignoreCase: true); //Also parses quoted int values, e.g. "1"
         }
     }
     
