@@ -11,7 +11,7 @@ namespace ServiceStack.Text
 
         public static CachedTypeInfo Get(Type type)
         {
-            if (CacheMap.TryGetValue(type, out CachedTypeInfo value))
+            if (CacheMap.TryGetValue(type, out var value))
                 return value;
 
             var instance = new CachedTypeInfo(type);
@@ -40,26 +40,6 @@ namespace ServiceStack.Text
     
     public class EnumInfo
     {
-        internal EnumInfo(Type enumType)
-        {
-            var enumValues = Enum.GetValues(enumType);
-            foreach (var enumValue in enumValues)
-            {
-                var mi = enumType.GetMember(enumValue.ToString());
-                var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
-                if (enumMemberAttr?.Value != null)
-                {
-                    if (enumMemberValues == null)
-                        enumMemberValues = new Dictionary<object, object>();
-                    enumMemberValues[enumValue] = enumMemberAttr.Value;
-                }
-            }
-            isEnumFlag = enumType.IsEnumFlags();
-        }
-
-        private readonly bool isEnumFlag;
-        private readonly Dictionary<object, object> enumMemberValues;
-
         public static EnumInfo GetEnumInfo(Type type)
         {
             if (type.IsEnum)
@@ -72,6 +52,39 @@ namespace ServiceStack.Text
             return null;
         }
 
+        private readonly Type enumType;
+        private EnumInfo(Type enumType)
+        {
+            this.enumType = enumType;
+            var enumValues = Enum.GetValues(enumType);
+            enumMemberReverseLookup = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            
+            foreach (var enumValue in enumValues)
+            {
+                var strEnum = enumValue.ToString();
+                var mi = enumType.GetMember(strEnum);
+                var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
+                if (enumMemberAttr?.Value != null)
+                {
+                    if (enumMemberValues == null)
+                    {
+                        enumMemberValues = new Dictionary<object, string>();
+                    }
+                    enumMemberValues[enumValue] = enumMemberAttr.Value;
+                    enumMemberReverseLookup[enumMemberAttr.Value] = enumValue;
+                }
+                else
+                {
+                    enumMemberReverseLookup[strEnum] = enumValue;
+                }
+            }
+            isEnumFlag = enumType.IsEnumFlags();
+        }
+
+        private readonly bool isEnumFlag;
+        private readonly Dictionary<object, string> enumMemberValues;
+        private readonly Dictionary<string, object> enumMemberReverseLookup;
+
         public object GetSerializedValue(object enumValue)
         {
             if (enumMemberValues != null && enumMemberValues.TryGetValue(enumValue, out var memberValue))
@@ -79,6 +92,14 @@ namespace ServiceStack.Text
             if (isEnumFlag || JsConfig.TreatEnumAsInteger)
                 return enumValue;
             return enumValue.ToString();
+        }
+
+        public object Parse(string serializedValue)
+        {
+            if (enumMemberReverseLookup.TryGetValue(serializedValue, out var enumValue))
+                return enumValue;
+            
+            return Enum.Parse(enumType, serializedValue, ignoreCase: true);
         }
     }
     

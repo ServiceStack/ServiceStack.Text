@@ -283,12 +283,15 @@ namespace ServiceStack.Text.Tests
             }))
             {
                 Assert.That(new GetDayOfWeekAsInt { DayOfWeek = DayOfWeek.Tuesday }.ToJson(), Is.EqualTo("{\"DayOfWeek\":2}"));
+                Assert.That("{\"DayOfWeek\":2}".FromJson<GetDayOfWeekAsInt>().DayOfWeek, Is.EqualTo(DayOfWeek.Tuesday));
             }
 
             Assert.That(new GetDayOfWeekAsInt { DayOfWeek = DayOfWeek.Tuesday }.ToJson(), Is.EqualTo("{\"DayOfWeek\":\"Tuesday\"}"));
+            Assert.That("{\"DayOfWeek\":\"Tuesday\"}".FromJson<GetDayOfWeekAsInt>().DayOfWeek, Is.EqualTo(DayOfWeek.Tuesday));
             
             JsConfig.Reset();
         }
+
 
     }
 }

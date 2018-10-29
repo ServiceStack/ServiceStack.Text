@@ -68,22 +68,8 @@ namespace ServiceStack.Text.Common
                     str = str.Replace("_", "");
             }
 
-            if (enumType.HasAttribute<DataContractAttribute>())
-            {
-                var enumNames = Enum.GetNames(enumType);
-                var enumValues = Enum.GetValues(enumType);
-                var i = 0;                
-                foreach (var enumValue in enumValues)
-                {
-                    var enumName = enumNames[i++];
-                    var mi = enumType.GetMember(enumName)[0];
-                    var useValue = mi.FirstAttribute<EnumMemberAttribute>()?.Value ?? enumValue;
-                    if (string.Equals(str, useValue.ToString(), StringComparison.OrdinalIgnoreCase))
-                        return enumValue;
-                }
-            }
-            
-            return Enum.Parse(enumType, str, ignoreCase: true);
+            var enumInfo = CachedTypeInfo.Get(enumType).EnumInfo;
+            return enumInfo.Parse(str);
         }
     }
 
