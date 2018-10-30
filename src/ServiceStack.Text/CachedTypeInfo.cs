@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
 
@@ -56,14 +57,14 @@ namespace ServiceStack.Text
         private EnumInfo(Type enumType)
         {
             this.enumType = enumType;
-            var enumValues = Enum.GetValues(enumType);
             enumMemberReverseLookup = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            
-            foreach (var enumValue in enumValues)
+
+            var enumMembers = enumType.GetFields(BindingFlags.Public | BindingFlags.Static);
+            foreach (var fi in enumMembers)
             {
-                var strEnum = enumValue.ToString();
-                var mi = enumType.GetMember(strEnum);
-                var enumMemberAttr = mi[0].FirstAttribute<EnumMemberAttribute>();
+                var enumValue = fi.GetValue(null);
+                var strEnum = fi.Name;
+                var enumMemberAttr = fi.FirstAttribute<EnumMemberAttribute>();
                 if (enumMemberAttr?.Value != null)
                 {
                     if (enumMemberValues == null)

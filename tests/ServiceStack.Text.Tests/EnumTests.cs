@@ -299,6 +299,17 @@ namespace ServiceStack.Text.Tests
             JsConfig.Reset();
         }
 
+        public class FeatureDto
+        {
+            public LicenseFeature Feature { get; set; }
+        }
+        
+        [Test]
+        public void Can_deserialize_Flag_Enum_with_multiple_same_values()
+        {
+            var key = "{\"Feature\":\"Premium\"}".FromJson<FeatureDto>();
+            Assert.That(key.Feature, Is.EqualTo(LicenseFeature.Premium));
+        }
 
     }
 }
