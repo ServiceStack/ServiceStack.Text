@@ -131,6 +131,36 @@ namespace ServiceStack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this MethodInfo mi) => mi.AllAttributes().Any(x => x.GetType() == typeof(T));
 
+        private static Dictionary<MemberInfo, bool> hasAttributeCache = new Dictionary<MemberInfo, bool>();
+        public static bool HasAttributeCached<T>(this MemberInfo memberInfo)
+        {
+            if (hasAttributeCache.TryGetValue(memberInfo, out var hasAttr))
+                return hasAttr;
+
+            hasAttr = memberInfo is Type t 
+                ? t.AllAttributes().Any(x => x.GetType() == typeof(T))
+                : memberInfo is PropertyInfo pi
+                ? pi.AllAttributes().Any(x => x.GetType() == typeof(T))
+                : memberInfo is FieldInfo fi
+                ? fi.AllAttributes().Any(x => x.GetType() == typeof(T))
+                : memberInfo is MethodInfo mi
+                ? mi.AllAttributes().Any(x => x.GetType() == typeof(T))
+                : throw new NotSupportedException(memberInfo.GetType().Name);
+            
+            Dictionary<MemberInfo, bool> snapshot, newCache;
+            do
+            {
+                snapshot = hasAttributeCache;
+                newCache = new Dictionary<MemberInfo, bool>(hasAttributeCache) {
+                    [memberInfo] = hasAttr
+                };
+
+            } while (!ReferenceEquals(
+                Interlocked.CompareExchange(ref hasAttributeCache, newCache, snapshot), snapshot));
+
+            return hasAttr;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttributeNamed(this Type type, string name)
         {
@@ -556,8 +586,9 @@ namespace ServiceStack
             do
             {
                 snapshot = GenericTypeCache;
-                newCache = new Dictionary<string, Type>(GenericTypeCache);
-                newCache[key] = genericType;
+                newCache = new Dictionary<string, Type>(GenericTypeCache) {
+                    [key] = genericType
+                };
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref GenericTypeCache, newCache, snapshot), snapshot));
