@@ -498,7 +498,7 @@ namespace ServiceStack
                 if (!licenseKeyText.VerifyLicenseKeyText(out key))
                     throw new ArgumentException("licenseKeyText");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (!VerifyLicenseKeyTextFallback(licenseKeyText, out key))
                     throw;

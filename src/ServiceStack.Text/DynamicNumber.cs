@@ -580,8 +580,8 @@ namespace ServiceStack
             if (number == null)
             {
                 throw new ArgumentException($"Invalid numbers passed to {name}: " +
-                                            $"({lhs?.GetType().Name ?? "null"} '{lhs?.ToString().SubstringWithElipsis(0, 100)}', " +
-                                            $"{rhs?.GetType().Name ?? "null"} '{rhs?.ToString().SubstringWithElipsis(0, 100)}')");
+                                            $"({lhs?.GetType().Name ?? "null"} '{lhs?.ToString().SubstringWithEllipsis(0, 100)}', " +
+                                            $"{rhs?.GetType().Name ?? "null"} '{rhs?.ToString().SubstringWithEllipsis(0, 100)}')");
             }
 
             return number;

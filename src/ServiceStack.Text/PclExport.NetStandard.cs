@@ -49,35 +49,6 @@ namespace ServiceStack
             "--MM--zzzzzz",
         };
 
-        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
-        public static void InitHttpRequestDelegates()
-        {
-            SetUserAgentDelegate = (Action<HttpWebRequest, string>)typeof(HttpWebRequest)
-                .GetProperty("UserAgent")
-                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, string>));
-            
-            SetAllowAutoRedirectDelegate = (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
-                .GetProperty("AllowAutoRedirect")
-                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
-            
-            SetKeepAliveDelegate = (Action<HttpWebRequest, bool>)typeof(HttpWebRequest)
-                .GetProperty("KeepAlive")
-                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, bool>));
-            
-            SetContentLengthDelegate = (Action<HttpWebRequest, long>)typeof(HttpWebRequest)
-                .GetProperty("ContentLength")
-                ?.GetSetMethod(nonPublic:true)?.CreateDelegate(typeof(Action<HttpWebRequest, long>));
-        }
-
-        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
-        public static Action<HttpWebRequest, string> SetUserAgentDelegate { get; set; }
-        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
-        public static Action<HttpWebRequest, bool> SetAllowAutoRedirectDelegate { get; set; }
-        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
-        public static Action<HttpWebRequest, bool> SetKeepAliveDelegate { get; set; }
-        [Obsolete("Temp API to be removed in future. Submit Issue if ever needed")]
-        public static Action<HttpWebRequest, long> SetContentLengthDelegate { get; set; }
-
         public NetStandardPclExport()
         {
             this.PlatformName = Platforms.NetStandard;
@@ -284,50 +255,50 @@ namespace ServiceStack
         }
         public override void SetUserAgent(HttpWebRequest httpReq, string value)
         {
-            if (SetUserAgentDelegate != null)
+            try
             {
-                SetUserAgentDelegate(httpReq, value);
-            } 
-            else 
+                httpReq.UserAgent = value;
+            }
+            catch (Exception e) // API may have been removed by Xamarin's Linker
             {
-                try
-                {
-                    httpReq.UserAgent = value;
-                }
-                catch (Exception e) // API may have been removed by Xamarin's Linker
-                {
-                    Tracer.Instance.WriteError(e);
-                }
+                Tracer.Instance.WriteError(e);
             }
         }
 
         public override void SetContentLength(HttpWebRequest httpReq, long value)
         {
-            if (SetContentLengthDelegate != null)
+            try
             {
-                SetContentLengthDelegate(httpReq, value);
-            } 
-            else 
+                httpReq.ContentLength = value;
+            }
+            catch (Exception e) // API may have been removed by Xamarin's Linker
             {
-                try
-                {
-                    httpReq.ContentLength = value;
-                }
-                catch (Exception e) // API may have been removed by Xamarin's Linker
-                {
-                    Tracer.Instance.WriteError(e);
-                }
+                Tracer.Instance.WriteError(e);
             }
         }
 
         public override void SetAllowAutoRedirect(HttpWebRequest httpReq, bool value)
         {
-            SetAllowAutoRedirectDelegate?.Invoke(httpReq, value);
+            try
+            {
+                httpReq.AllowAutoRedirect = value;
+            }
+            catch (Exception e) // API may have been removed by Xamarin's Linker
+            {
+                Tracer.Instance.WriteError(e);
+            }
         }
 
         public override void SetKeepAlive(HttpWebRequest httpReq, bool value)
         {
-            SetKeepAliveDelegate?.Invoke(httpReq, value);
+            try
+            {
+                httpReq.KeepAlive = value;
+            }
+            catch (Exception e) // API may have been removed by Xamarin's Linker
+            {
+                Tracer.Instance.WriteError(e);
+            }
         }
 
         public override void InitHttpWebRequest(HttpWebRequest httpReq,
