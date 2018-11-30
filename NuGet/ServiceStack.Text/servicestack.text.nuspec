@@ -8,8 +8,9 @@
     <owners>ServiceStack</owners>
     <summary>.NET's fastest JSON, JSV and CSV Text Serializers</summary>
     <description>
-        .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
-        Contains ServiceStack's high-performance text-processing powers, for more info see: https://servicestack.net/text
+      .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
+      Contains ServiceStack's high-performance text-processing powers, for more info see:
+      https://github.com/ServiceStack/ServiceStack.Text
     </description> 
     <projectUrl>https://github.com/ServiceStack/ServiceStack.Text</projectUrl>
     <licenseUrl>https://servicestack.net/terms</licenseUrl>
