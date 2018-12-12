@@ -37,12 +37,16 @@
             <NugetPackageFilesToDelete Include="$(NuGetPackageDir)/*.nupkg"/>
         </ItemGroup>
         <Delete Files="@(NugetPackageFilesToDelete)" />
-        <!-- need to remove old caches from nuget restore from .Core csproj's -->
-        <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
+        <CallTarget Targets="ClearNuGetRestoreCaches" />
         <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Restore" />
 
         <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
                  Properties="Configuration=$(Configuration)" />
+    </Target>
+
+    <!-- need to remove old caches from nuget restore from .Core csproj's -->
+    <Target Name="ClearNuGetRestoreCaches">
+        <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
     </Target>
 
     <Target Name="UpdateVersion">
@@ -81,7 +85,7 @@
                  Properties="Configuration=$(Configuration)" />
 
         <!-- ServiceStack.Text.Core -->
-        <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
+        <CallTarget Targets="ClearNuGetRestoreCaches" />
         <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Core.csproj" Targets="Restore" />
         <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Core.csproj"
                  Targets="Build;Pack"
