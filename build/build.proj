@@ -51,7 +51,7 @@
         <ItemGroup>
             <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
                 <Find>ServiceStackVersion = \d+\.\d+m;</Find>
-                <ReplaceWith>ServiceStackVersion = $(EnvVersion)m;</ReplaceWith>
+                <ReplaceWith>ServiceStackVersion = $(MajorVersion).$(MinorVersion)$(PatchVersion)m;</ReplaceWith>
             </RegexTransform>
 
             <RegexTransform Include="$(SrcDir)/ServiceStack.Text/Env.cs">
