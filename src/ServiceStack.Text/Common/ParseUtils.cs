@@ -61,7 +61,7 @@ namespace ServiceStack.Text.Common
             if (str == null)
                 return null;
 
-            if (JsConfig.EmitLowercaseUnderscoreNames)
+            if (JsConfig.TextCase == TextCase.SnakeCase)
             {
                 string[] names = Enum.GetNames(enumType);
                 if (Array.IndexOf(names, str) == -1)    // case sensitive ... could use Linq Contains() extension with StringComparer.InvariantCultureIgnoreCase instead for a slight penalty

@@ -100,11 +100,11 @@ namespace ServiceStack.Text
                         break;
                     case "eccn":
                     case "emitcamelcasenames":
-                        scope.EmitCamelCaseNames = boolValue;
+                        scope.TextCase = boolValue ? TextCase.CamelCase : TextCase.Default;
                         break;
                     case "elun":
                     case "emitlowercaseunderscorenames":
-                        scope.EmitLowercaseUnderscoreNames = boolValue;
+                        scope.TextCase = boolValue ? TextCase.SnakeCase : TextCase.Default;
                         break;
                     case "pi":
                     case "preferinterfaces":
@@ -201,6 +201,28 @@ namespace ServiceStack.Text
                             case "s":
                             case "strict":
                                 scope.PropertyConvention = PropertyConvention.Strict;
+                                break;
+                        }
+                        break;
+                    case "tc":
+                    case "textcase":
+                        switch (value)
+                        {
+                            case "d":
+                            case "default":
+                                scope.TextCase = TextCase.Default;
+                                break;
+                            case "pc":
+                            case "pascalcase":
+                                scope.TextCase = TextCase.PascalCase;
+                                break;
+                            case "cc":
+                            case "camelcase":
+                                scope.TextCase = TextCase.CamelCase;
+                                break;
+                            case "sc":
+                            case "snakecase":
+                                scope.TextCase = TextCase.SnakeCase;
                                 break;
                         }
                         break;
@@ -437,11 +459,18 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
-        /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
-        /// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
-        /// to support user-friendly serialized formats, ie emitting camelCasing for JSON
-        /// and parsing member names and enum values in a case-insensitive manner.
+        /// Text case to use for property names (Default = PascalCase)
         /// </summary>
+        public static TextCase TextCase
+        {
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.TextCase : Config.Instance.TextCase;
+            set => Config.AssertNotInit().TextCase = value;
+        }
+
+        /// <summary>
+        /// Emitting camelCase for property names 
+        /// </summary>
+        [Obsolete("Use TextCase = TextCase.CamelCase")]
         public static bool EmitCamelCaseNames
         {
             get => JsConfigScope.Current != null ? JsConfigScope.Current.EmitCamelCaseNames : Config.Instance.EmitCamelCaseNames;
@@ -449,9 +478,9 @@ namespace ServiceStack.Text
         }
 
         /// <summary>
-        /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
-        /// to support web-friendly serialized formats, ie emitting lowercase_underscore_casing for JSON
+        /// Emitting lowercase_underscore_casing for property names 
         /// </summary>
+        [Obsolete("Use TextCase = TextCase.SnakeCase")]
         public static bool EmitLowercaseUnderscoreNames
         {
             // obeying the use of ThreadStatic, but allowing for setting JsConfig once as is the normal case
@@ -729,10 +758,8 @@ namespace ServiceStack.Text
         internal static Config GetConfig()
         {
             var config = new Config().Populate(JsConfig.GetConfig());
-            if (EmitCamelCaseNames != null)
-                config.EmitCamelCaseNames = EmitCamelCaseNames.Value;
-            if (EmitLowercaseUnderscoreNames != null)
-                config.EmitLowercaseUnderscoreNames = EmitLowercaseUnderscoreNames.Value;
+            if (TextCase != TextCase.Default)
+                config.TextCase = TextCase;
             return config;
         }
 
@@ -747,14 +774,29 @@ namespace ServiceStack.Text
         public static bool? ExcludeTypeInfo = null;
 
         /// <summary>
-        /// <see langword="true"/> if the <see cref="ITypeSerializer"/> is configured
-        /// to take advantage of <see cref="CLSCompliantAttribute"/> specification,
-        /// to support user-friendly serialized formats, ie emitting camelCasing for JSON
-        /// and parsing member names and enum values in a case-insensitive manner.
+        /// Text case to use for property names (Default = PascalCase)
         /// </summary>
-        public static bool? EmitCamelCaseNames = null;
+        public static TextCase TextCase { get; set; }
 
-        public static bool? EmitLowercaseUnderscoreNames = null;
+        /// <summary>
+        /// Emitting camelCase for property names 
+        /// </summary>
+        [Obsolete("Use TextCase = TextCase.CamelCase")]
+        public static bool? EmitCamelCaseNames
+        {
+            get => TextCase == TextCase.CamelCase;
+            set => TextCase = value == true ? TextCase.CamelCase : TextCase.Default;
+        }
+
+        /// <summary>
+        /// Emitting lowercase_underscore_casing for property names 
+        /// </summary>
+        [Obsolete("Use TextCase = TextCase.SnakeCase")]
+        public static bool? EmitLowercaseUnderscoreNames
+        {
+            get => TextCase == TextCase.SnakeCase;
+            set => TextCase = value == true ? TextCase.SnakeCase : TextCase.Default;
+        }
 
         public static bool IncludeDefaultValue
         {
@@ -1025,14 +1067,25 @@ namespace ServiceStack.Text
         /// </summary>
         StandardFormat
     }
-    
-    internal ref struct PropertyConfigs
+
+    public enum TextCase
     {
-        internal bool ExcludeDefaultValues;
-        internal bool IncludeDefaultEnums;
-        internal string[] ExcludePropertyReferences;
-        internal bool EmitCamelCaseNames;
-        internal bool EmitLowercaseUnderscoreNames;
+        /// <summary>
+        /// If unspecified uses PascalCase
+        /// </summary>
+        Default,
+        /// <summary>
+        /// PascalCase
+        /// </summary>
+        PascalCase,
+        /// <summary>
+        /// camelCase
+        /// </summary>
+        CamelCase,
+        /// <summary>
+        /// snake_case
+        /// </summary>
+        SnakeCase,
     }
 
 }

@@ -260,11 +260,15 @@ namespace ServiceStack.Text.Common
         {
             internal string GetPropertyName(Config config)
             {
-                return config.EmitCamelCaseNames
-                    ? propertyNameCLSFriendly
-                    : config.EmitLowercaseUnderscoreNames
-                        ? propertyNameLowercaseUnderscore
-                        : propertyName;
+                switch (config.TextCase) 
+                {
+                    case TextCase.CamelCase:
+                        return propertyNameCLSFriendly;
+                    case TextCase.SnakeCase:
+                        return propertyNameLowercaseUnderscore;
+                    default:
+                        return propertyName;
+                }
             }
             
             internal readonly Type PropertyType;
@@ -469,11 +473,15 @@ namespace ServiceStack.Text.Common
 
         internal static string GetPropertyName(string propertyName, Config config)
         {
-            return config.EmitCamelCaseNames
-                ? propertyName.ToCamelCase()
-                : config.EmitLowercaseUnderscoreNames
-                    ? propertyName.ToLowercaseUnderscore()
-                    : propertyName;
+            switch (config.TextCase) 
+            {
+                case TextCase.CamelCase:
+                    return propertyName.ToCamelCase();
+                case TextCase.SnakeCase:
+                    return propertyName.ToLowercaseUnderscore();
+                default:
+                    return propertyName;
+            }
         }
 
         private static readonly char[] ArrayBrackets = { '[', ']' };

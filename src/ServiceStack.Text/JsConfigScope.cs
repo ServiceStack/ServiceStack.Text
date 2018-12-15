@@ -116,8 +116,23 @@ namespace ServiceStack.Text
         public DateHandler DateHandler { get; set; }
         public TimeSpanHandler TimeSpanHandler { get; set; }
         public PropertyConvention PropertyConvention { get; set; }
-        public bool EmitCamelCaseNames { get; set; }
-        public bool EmitLowercaseUnderscoreNames { get; set; }
+
+        public TextCase TextCase { get; set; }
+        
+        [Obsolete("Use TextCase = TextCase.CamelCase")]
+        public bool EmitCamelCaseNames
+        {
+            get => TextCase == TextCase.CamelCase;
+            set => TextCase = value ? TextCase.CamelCase : TextCase.Default;
+        }
+
+        [Obsolete("Use TextCase = TextCase.SnakeCase")]
+        public bool EmitLowercaseUnderscoreNames
+        {
+            get => TextCase == TextCase.SnakeCase;
+            set => TextCase = value ? TextCase.SnakeCase : TextCase.Default;
+        }
+
         public bool ThrowOnError { get; set; }
         public bool SkipDateTimeConversion { get; set; }
         public bool AlwaysUseUtc { get; set; }
@@ -158,8 +173,7 @@ namespace ServiceStack.Text
             ParsePrimitiveFn = null,
             DateHandler = Text.DateHandler.TimestampOffset,
             TimeSpanHandler = Text.TimeSpanHandler.DurationFormat,
-            EmitCamelCaseNames = false,
-            EmitLowercaseUnderscoreNames = false,
+            TextCase = TextCase.Default,
             PropertyConvention = Text.PropertyConvention.Strict,
             ThrowOnError = Env.StrictMode,
             SkipDateTimeConversion = false,
@@ -201,8 +215,7 @@ namespace ServiceStack.Text
             ParsePrimitiveFn = config.ParsePrimitiveFn;
             DateHandler = config.DateHandler;
             TimeSpanHandler = config.TimeSpanHandler;
-            EmitCamelCaseNames = config.EmitCamelCaseNames;
-            EmitLowercaseUnderscoreNames = config.EmitLowercaseUnderscoreNames;
+            TextCase = config.TextCase;
             PropertyConvention = config.PropertyConvention;
             ThrowOnError = config.ThrowOnError;
             SkipDateTimeConversion = config.SkipDateTimeConversion;
