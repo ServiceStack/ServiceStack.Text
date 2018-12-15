@@ -2,8 +2,8 @@
   <PropertyGroup>
     <PackageId>ServiceStack.Text</PackageId>
     <AssemblyName>ServiceStack.Text</AssemblyName>
-    <Title>.NET's fastest JSON Serializer by ServiceStack</Title>
     <TargetFrameworks>net45;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <Title>.NET's fastest JSON Serializer by ServiceStack</Title>
     <PackageDescription>
       .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
       Contains ServiceStack's high-performance text-processing powers, for more info see:
