@@ -100,11 +100,11 @@ namespace ServiceStack.Text
                         break;
                     case "eccn":
                     case "emitcamelcasenames":
-                        scope.TextCase = boolValue ? TextCase.CamelCase : TextCase.Default;
+                        scope.TextCase = boolValue ? TextCase.CamelCase : scope.TextCase;
                         break;
                     case "elun":
                     case "emitlowercaseunderscorenames":
-                        scope.TextCase = boolValue ? TextCase.SnakeCase : TextCase.Default;
+                        scope.TextCase = boolValue ? TextCase.SnakeCase : scope.TextCase;
                         break;
                     case "pi":
                     case "preferinterfaces":
@@ -785,7 +785,7 @@ namespace ServiceStack.Text
         public static bool? EmitCamelCaseNames
         {
             get => TextCase == TextCase.CamelCase;
-            set => TextCase = value == true ? TextCase.CamelCase : TextCase.Default;
+            set => TextCase = value == true ? TextCase.CamelCase : TextCase;
         }
 
         /// <summary>
@@ -795,7 +795,7 @@ namespace ServiceStack.Text
         public static bool? EmitLowercaseUnderscoreNames
         {
             get => TextCase == TextCase.SnakeCase;
-            set => TextCase = value == true ? TextCase.SnakeCase : TextCase.Default;
+            set => TextCase = value == true ? TextCase.SnakeCase : TextCase;
         }
 
         public static bool IncludeDefaultValue
@@ -1016,7 +1016,8 @@ namespace ServiceStack.Text
             RawSerializeFn = null;
             DeSerializeFn = null;
             ExcludePropertyNames = null;
-            EmitCamelCaseNames = EmitLowercaseUnderscoreNames = IncludeTypeInfo = ExcludeTypeInfo = null;
+            TextCase = TextCase.Default;
+            IncludeTypeInfo = ExcludeTypeInfo = null;
         }
 
         public static void RefreshRead()

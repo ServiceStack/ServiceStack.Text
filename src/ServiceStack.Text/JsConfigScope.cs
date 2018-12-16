@@ -123,7 +123,7 @@ namespace ServiceStack.Text
         public bool EmitCamelCaseNames
         {
             get => TextCase == TextCase.CamelCase;
-            set => TextCase = value ? TextCase.CamelCase : TextCase.Default;
+            set => TextCase = value ? TextCase.CamelCase : TextCase;
         }
 
         [Obsolete("Use TextCase = TextCase.SnakeCase")]
