@@ -30,17 +30,11 @@
     </Target>
 
     <Target Name="BuildSolutions">
+        <ItemGroup>
+            <NugetPackageFilesToDelete Include="$(NuGetPackageDir)/*.nupkg"/>
+        </ItemGroup>
+        <Delete Files="@(NugetPackageFilesToDelete)" />
         <CallTarget Targets="ClearNuGetRestoreCaches" />
-        <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Restore" />
-
-        <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text.sln" Targets="Build"
-                 Properties="Configuration=$(Configuration)" />
-
-        <!-- Northwind.Common -->
-        <MSBuild Projects="$(BuildSolutionDir)/tests/Northwind.Common/Northwind.Common.csproj" Targets="Restore" />
-        <MSBuild Projects="$(BuildSolutionDir)/tests/Northwind.Common/Northwind.Common.csproj"
-                 Targets="Build"
-                 Properties="Configuration=$(Configuration)" />
     </Target>
 
     <!-- need to remove old caches from nuget restore from .Core csproj's -->
@@ -73,13 +67,9 @@
 
     <Target Name="Default" DependsOnTargets="$(DoBuildSolutionsDependsOn)">
 
-        <!-- ServiceStack.Memory -->
-        <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Memory/ServiceStack.Memory.csproj"
-                 Targets="Build;Pack"
-                 Properties="Configuration=$(Configuration)" />
-
-        <!-- ServiceStack.Text -->
-        <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj"
+        <!-- ServiceStack.Text.Core -->
+        <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Core.csproj" Targets="Restore" />
+        <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.Core.csproj"
                  Targets="Build;Pack"
                  Properties="Configuration=$(Configuration)" />
 
