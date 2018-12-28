@@ -628,6 +628,11 @@ namespace ServiceStack
                 if (SetValueFn == null)
                     return;
 
+                if (value is IReadOnlyDictionary<string, object> dictionary)
+                {
+                    value = dictionary.FromObjectDictionary(Type);
+                }
+
                 if (!Type.IsInstanceOfType(value))
                 {
                     lock (this)
