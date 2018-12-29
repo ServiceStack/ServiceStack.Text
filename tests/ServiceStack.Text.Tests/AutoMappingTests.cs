@@ -43,6 +43,17 @@ namespace ServiceStack.Text.Tests
         public string Custom { get; set; }
     }
 
+    public class CarWithSpecs : Car
+    {
+        public List<CarSpec> Specs { get; set; }
+    }
+
+    public class CarSpec
+    {
+        public string Item { get; set; }
+        public string Value { get; set; }
+    }
+
     public class UserDto
     {
         public string FirstName { get; set; }

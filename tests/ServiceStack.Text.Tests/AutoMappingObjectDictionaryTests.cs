@@ -405,6 +405,146 @@ namespace ServiceStack.Text.Tests
             Assert.That(to == dict);
         }
         
+        [Test]
+        public void Can_convert_inner_dictionary()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "FirstName", "Foo" },
+                { "LastName", "Bar" },
+                { "Car", new Dictionary<string, object>
+                {
+                    { "Name", "Tesla" },
+                    { "Age", 2 }
+                }}
+            };
+
+            var user = map.FromObjectDictionary<User>();
+
+            Assert.That(user.FirstName, Is.EqualTo("Foo"));
+            Assert.That(user.LastName, Is.EqualTo("Bar"));
+            Assert.That(user.Car, Is.Not.Null);
+            Assert.That(user.Car.Name, Is.EqualTo("Tesla"));
+            Assert.That(user.Car.Age, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Can_convert_inner_collection_of_dictionaries()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "Name", "Tesla" },
+                { "Age", "2" },
+                { "Specs", new List<Dictionary<string, object>>
+                {
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "Model"},
+                        {"Value", "S"}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "Engine"},
+                        {"Value", "Electric"}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "Color"},
+                        {"Value", "Red"}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "PowerKW"},
+                        {"Value", 285}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "TorqueNm"},
+                        {"Value", 430}
+                    },
+                }}
+            };
+
+            var carWithSpecs = map.FromObjectDictionary<CarWithSpecs>();
+
+            Assert.That(carWithSpecs.Name, Is.EqualTo("Tesla"));
+            Assert.That(carWithSpecs.Age, Is.EqualTo(2));
+            Assert.That(carWithSpecs.Specs.Count, Is.EqualTo(5));
+            var model = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "Model");
+            Assert.That(model, Is.Not.Null);
+            Assert.That(model.Value, Is.EqualTo("S"));
+            var engine = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "Engine");
+            Assert.That(engine, Is.Not.Null);
+            Assert.That(engine.Value, Is.EqualTo("Electric"));
+            var color = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "Color");
+            Assert.That(color, Is.Not.Null);
+            Assert.That(color.Value, Is.EqualTo("Red"));
+            var power = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "PowerKW");
+            Assert.That(power, Is.Not.Null);
+            Assert.That(power.Value, Is.EqualTo("285"));
+            var torque = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "TorqueNm");
+            Assert.That(torque, Is.Not.Null);
+            Assert.That(torque.Value, Is.EqualTo("430"));
+        }
+
+        [Test]
+        public void Can_convert_inner_array_of_dictionaries()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "Name", "Tesla" },
+                { "Age", "2" },
+                { "Specs", new[]
+                {
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "Model"},
+                        {"Value", "S"}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "Engine"},
+                        {"Value", "Electric"}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "Color"},
+                        {"Value", "Red"}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "PowerKW"},
+                        {"Value", 285}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Item", "TorqueNm"},
+                        {"Value", 430}
+                    },
+                }}
+            };
+
+            var carWithSpecs = map.FromObjectDictionary<CarWithSpecs>();
+
+            Assert.That(carWithSpecs.Name, Is.EqualTo("Tesla"));
+            Assert.That(carWithSpecs.Age, Is.EqualTo(2));
+            Assert.That(carWithSpecs.Specs.Count, Is.EqualTo(5));
+            var model = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "Model");
+            Assert.That(model, Is.Not.Null);
+            Assert.That(model.Value, Is.EqualTo("S"));
+            var engine = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "Engine");
+            Assert.That(engine, Is.Not.Null);
+            Assert.That(engine.Value, Is.EqualTo("Electric"));
+            var color = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "Color");
+            Assert.That(color, Is.Not.Null);
+            Assert.That(color.Value, Is.EqualTo("Red"));
+            var power = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "PowerKW");
+            Assert.That(power, Is.Not.Null);
+            Assert.That(power.Value, Is.EqualTo("285"));
+            var torque = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "TorqueNm");
+            Assert.That(torque, Is.Not.Null);
+            Assert.That(torque.Value, Is.EqualTo("430"));
+        }
     }
 
 
