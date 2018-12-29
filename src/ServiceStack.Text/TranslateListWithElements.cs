@@ -102,12 +102,8 @@ namespace ServiceStack.Text
             if (fromElType == null || toElType == null)
                 return null;
 
-            if (fromElType == typeof(object) || toElType.IsAssignableFrom(fromElType))
-                return TranslateToGenericICollectionCache(fromValue, toPropertyType, toElType);
-
-            return null;
+            return TranslateToGenericICollectionCache(fromValue, toPropertyType, toElType);
         }
-
     }
 
     public class ConvertibleTypeKey
