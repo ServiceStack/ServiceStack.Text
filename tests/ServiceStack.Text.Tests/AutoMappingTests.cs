@@ -779,5 +779,12 @@ namespace ServiceStack.Text.Tests
             var toString = new ModelWithUriString().PopulateWithNonDefaultValues(dto);
             Assert.That(toString.Uri, Is.EqualTo(dto.Uri.AbsoluteUri));
         }
+
+        [Test]
+        public void Can_convert_string_to_collection()
+        {
+            Assert.That("a,b,c".ConvertTo<string[]>(), Is.EquivalentTo(new[]{ "a", "b", "c" }));
+            Assert.That("1,2,3".ConvertTo<int[]>(), Is.EquivalentTo(new[]{ 1, 2, 3 }));
+        }
     }
 }
