@@ -8,11 +8,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F7FB50ED
 		..\build\build.bat = ..\build\build.bat
 		..\build\build.proj = ..\build\build.proj
 		..\build\build.tasks = ..\build\build.tasks
-		..\build\copy.bat = ..\build\copy.bat
 		..\README.md = ..\README.md
-		..\NuGet\ServiceStack.Text.Core\servicestack.text.core.nuspec = ..\NuGet\ServiceStack.Text.Core\servicestack.text.core.nuspec
-		..\NuGet\ServiceStack.Text\servicestack.text.nuspec = ..\NuGet\ServiceStack.Text\servicestack.text.nuspec
-		..\NuGet\ServiceStack.Memory\servicestack.memory.nuspec = ..\NuGet\ServiceStack.Memory\servicestack.memory.nuspec
+		Directory.Build.props = Directory.Build.props
+		ServiceStack.Text\ServiceStack.Text.Core.csproj = ServiceStack.Text\ServiceStack.Text.Core.csproj
+		..\build\build-core.proj = ..\build\build-core.proj
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceStack.Text", "ServiceStack.Text\ServiceStack.Text.csproj", "{579B3FDB-CDAD-44E1-8417-885C38E49A0E}"
@@ -24,6 +23,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Memory", "ServiceStack.Memory\ServiceStack.Memory.csproj", "{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Benchmarks", "..\tests\ServiceStack.Text.Benchmarks\ServiceStack.Text.Benchmarks.csproj", "{FF1E5617-FD95-496F-B591-17DA6E0B364F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Common", "..\tests\Northwind.Common\Northwind.Common.csproj", "{573926E5-F332-462D-A740-31706708A032}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +52,9 @@ Global
 		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{573926E5-F332-462D-A740-31706708A032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{573926E5-F332-462D-A740-31706708A032}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{573926E5-F332-462D-A740-31706708A032}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

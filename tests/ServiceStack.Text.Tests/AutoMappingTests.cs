@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Web.Script.Serialization;
 #endif
 using NUnit.Framework;
+using ServiceStack.DataAnnotations;
 using ServiceStack.Text.Tests.DynamicModels;
 using ServiceStack.Web;
 
@@ -40,6 +41,17 @@ namespace ServiceStack.Text.Tests
     public class SubCar : Car
     {
         public string Custom { get; set; }
+    }
+
+    public class CarWithSpecs : Car
+    {
+        public List<CarSpec> Specs { get; set; }
+    }
+
+    public class CarSpec
+    {
+        public string Item { get; set; }
+        public string Value { get; set; }
     }
 
     public class UserDto
@@ -778,6 +790,39 @@ namespace ServiceStack.Text.Tests
 
             var toString = new ModelWithUriString().PopulateWithNonDefaultValues(dto);
             Assert.That(toString.Uri, Is.EqualTo(dto.Uri.AbsoluteUri));
+        }
+
+        public class ViewModel
+        {
+            public string Public { get; set; }
+            
+            [IgnoreOnSelect]
+            public string Private { get; set; }
+        }
+        
+        [Test]
+        public void Does_convert_same_model_without_Attributes()
+        {
+            var vm = new ViewModel().PopulateFromPropertiesWithoutAttribute(
+                new ViewModel { Public = "Public", Private = "Private" },
+                typeof(IgnoreOnSelectAttribute));
+            
+            Assert.That(vm.Public, Is.EqualTo("Public"));
+            Assert.That(vm.Private, Is.Null);
+        }
+
+        [Test]
+        public void Can_use_ToObjectDictionary_to_Remove_Property_with_Attribute()
+        {
+            var vm = new ViewModel {Public = "Public", Private = "Private"};
+            var map = vm.ToObjectDictionary();
+            vm.GetType().GetProperties()
+                .Where(x => x.HasAttribute<IgnoreOnSelectAttribute>())
+                .Each(x => map.Remove(x.Name));
+
+            vm = map.FromObjectDictionary<ViewModel>();
+            Assert.That(vm.Public, Is.EqualTo("Public"));
+            Assert.That(vm.Private, Is.Null);
         }
 
         [Test]

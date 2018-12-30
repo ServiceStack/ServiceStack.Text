@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>ServiceStack.Text</PackageId>
+    <PackageId>ServiceStack.Text.Core</PackageId>
     <AssemblyName>ServiceStack.Text</AssemblyName>
-    <TargetFrameworks>net45;netstandard2.0;netcoreapp2.1</TargetFrameworks>
-    <Title>.NET's fastest JSON Serializer by ServiceStack</Title>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <Title>ServiceStack.Text .NET Standard 2.0</Title>
     <PackageDescription>
       .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
       Contains ServiceStack's high-performance text-processing powers, for more info see:
@@ -14,13 +14,6 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <DefineConstants>$(DefineConstants);NETSTANDARD2_0;NETCORE2_1</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Threading" />
-    <Reference Include="System.Threading.Tasks" />
-    <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="System.Memory" Version="4.5.1" />
-  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />

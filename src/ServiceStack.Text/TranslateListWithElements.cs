@@ -102,12 +102,8 @@ namespace ServiceStack.Text
             if (fromElType == null || toElType == null)
                 return null;
 
-            if (fromElType == typeof(object) || toElType.IsAssignableFrom(fromElType))
-                return TranslateToGenericICollectionCache(fromValue, toPropertyType, toElType);
-
-            return null;
+            return TranslateToGenericICollectionCache(fromValue, toPropertyType, toElType);
         }
-
     }
 
     public class ConvertibleTypeKey
@@ -199,7 +195,15 @@ namespace ServiceStack.Text
             var to = (ICollection<T>)CreateInstance(toInstanceOfType);
             foreach (var item in fromList)
             {
-                to.Add((T)item);
+                if (item is IReadOnlyDictionary<string, object> dictionary)
+                {
+                    var convertedItem = dictionary.FromObjectDictionary<T>();
+                    to.Add(convertedItem);
+                }
+                else
+                {
+                    to.Add((T)item);
+                }
             }
             return to;
         }

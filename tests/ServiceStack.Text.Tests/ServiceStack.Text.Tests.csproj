@@ -20,6 +20,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" />
+    <ProjectReference Include="..\Northwind.Common\Northwind.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
@@ -33,6 +34,7 @@
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Memory" Version="4.5.1" />
+    <PackageReference Include="ServiceStack" Version="$(Version)" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
@@ -46,11 +48,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="..\..\lib\net45\ServiceStack.Interfaces.dll" />
-    <Reference Include="..\..\lib\net45\ServiceStack.Client.dll" />
-    <Reference Include="..\..\lib\net45\ServiceStack.Common.dll" />
-    <Reference Include="..\..\lib\net45\ServiceStack.dll" />
-    <Reference Include="..\..\lib\net45\Northwind.Common.dll" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <DefineConstants>$(DefineConstants);NETCORE_SUPPORT;NETCORE;NETSTANDARD2_0</DefineConstants>
@@ -60,11 +57,6 @@
     <PackageReference Include="System.Collections.Specialized" Version="4.*" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.*" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.*" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Interfaces.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Client.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Common.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\Northwind.Common.dll" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

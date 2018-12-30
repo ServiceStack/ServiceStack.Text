@@ -12,7 +12,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [SetUp]
         public void SetUp()
         {
-            JsConfig.EmitLowercaseUnderscoreNames = true;
+            JsConfig.TextCase = TextCase.SnakeCase;
         }
 
         [TearDown]

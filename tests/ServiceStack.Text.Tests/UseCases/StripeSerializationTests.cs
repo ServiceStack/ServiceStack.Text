@@ -13,7 +13,7 @@ namespace ServiceStack.Text.Tests.UseCases
         {
             JsConfig.DateHandler = DateHandler.UnixTime;
             JsConfig.PropertyConvention = PropertyConvention.Lenient;
-            JsConfig.EmitLowercaseUnderscoreNames = true;
+            JsConfig.TextCase = TextCase.SnakeCase;
             QueryStringSerializer.ComplexTypeStrategy = QueryStringStrategy.FormUrlEncoded;
         }
 

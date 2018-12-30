@@ -37,7 +37,7 @@ namespace ServiceStack.Text.Common
             var strTypeLength = strType.Length;
             while (index < strTypeLength)
             {
-                var propertyName = Serializer.EatMapKey(strType, ref index);
+                var propertyName = Serializer.EatMapKey(strType, ref index).Trim();
 
                 //Serializer.EatMapKeySeperator(strType, ref index);
                 index++;
