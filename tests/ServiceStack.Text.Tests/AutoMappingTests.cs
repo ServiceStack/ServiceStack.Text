@@ -179,11 +179,71 @@ namespace ServiceStack.Text.Tests
         public int Ignored { get; set; }
     }
 
+    public class PersonWithWrappedDateOfBirth : User
+    {
+        public WrappedDateTimeOffset DateOfBirth { get; set; }
+    }
+
+    public class PersonWithDateOfBirth : User
+    {
+        public DateTimeOffset DateOfBirth { get; set; }
+    }
+
+    public class WrappedDateTimeOffset
+    {
+        private readonly DateTimeOffset dateTimeOffset;
+
+        public WrappedDateTimeOffset(DateTimeOffset dateTimeOffset)
+        {
+            this.dateTimeOffset = dateTimeOffset;
+        }
+
+        public DateTimeOffset ToDateTimeOffset()
+        {
+            return dateTimeOffset;
+        }
+    }
+
+    public class WrappedDateTimeOffsetToDateTimeOffsetConverter : ICustomTypeConverter
+    {
+        public bool CanConvert(object from, Type toType)
+        {
+            return from is WrappedDateTimeOffset && 
+                   toType == typeof(DateTimeOffset);
+        }
+
+        public object ConvertFrom(object from)
+        {
+            return (from as WrappedDateTimeOffset)?.ToDateTimeOffset();
+        }
+    }
+
+    public class DateTimeOffsetToWrappedDateTimeOffsetConverter : ICustomTypeConverter
+    {
+        public bool CanConvert(object from, Type toType)
+        {
+            return from is DateTimeOffset && 
+                   toType == typeof(WrappedDateTimeOffset);
+        }
+
+        public object ConvertFrom(object from)
+        {
+            return new WrappedDateTimeOffset((DateTimeOffset)from);
+        }
+    }
+
+
     public class ReadOnlyAttribute : AttributeBase { }
 
     [TestFixture]
     public class AutoMappingTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            SsConfig.Clear();
+        }
+
         [Test]
         public void Does_populate()
         {
@@ -698,6 +758,80 @@ namespace ServiceStack.Text.Tests
         {
             var obj = (Dictionary<string, ClassWithEnum>)AutoMappingUtils.CreateDefaultValue(typeof(Dictionary<string, ClassWithEnum>), new Dictionary<Type, int>());
             Assert.That(obj, Is.Not.Null);
+        }
+
+        [Test]
+        public void Can_Convert_Props_With_CustomTypeConverter()
+        {
+            SsConfig.CustomTypeConverters.Add(new WrappedDateTimeOffsetToDateTimeOffsetConverter());
+
+            var personWithWrappedDateOfBirth = new PersonWithWrappedDateOfBirth
+            {
+                FirstName = "Foo",
+                LastName = "Bar",
+                DateOfBirth = new WrappedDateTimeOffset(
+                    new DateTimeOffset(1971, 3, 23, 4, 30, 0, TimeSpan.Zero))
+            };
+
+            var personWithDoB = personWithWrappedDateOfBirth.ConvertTo<PersonWithDateOfBirth>();
+
+            Assert.That(personWithDoB.FirstName, Is.EqualTo("Foo"));
+            Assert.That(personWithDoB.LastName, Is.EqualTo("Bar"));
+            Assert.That(personWithDoB.DateOfBirth, Is.Not.Null);
+            Assert.That(personWithDoB.DateOfBirth.Year, Is.EqualTo(1971));
+            Assert.That(personWithDoB.DateOfBirth.Month, Is.EqualTo(3));
+            Assert.That(personWithDoB.DateOfBirth.Day, Is.EqualTo(23));
+            Assert.That(personWithDoB.DateOfBirth.Hour, Is.EqualTo(4));
+            Assert.That(personWithDoB.DateOfBirth.Minute, Is.EqualTo(30));
+            Assert.That(personWithDoB.DateOfBirth.Second, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Can_Convert_Anonymous_Types_With_CustomTypeConverter()
+        {
+            SsConfig.CustomTypeConverters.Add(new DateTimeOffsetToWrappedDateTimeOffsetConverter());
+
+            var personWithDateOfBirth = new
+            {
+                FirstName = "Foo",
+                LastName = "Bar",
+                DateOfBirth = new DateTimeOffset(1971, 3, 23, 4, 30, 0, TimeSpan.Zero)
+            };
+
+            var personWithWrappedDoB = personWithDateOfBirth.ConvertTo<PersonWithWrappedDateOfBirth>();
+
+            Assert.That(personWithWrappedDoB.FirstName, Is.EqualTo("Foo"));
+            Assert.That(personWithWrappedDoB.LastName, Is.EqualTo("Bar"));
+            Assert.That(personWithWrappedDoB.DateOfBirth, Is.Not.Null);
+            var dto = personWithWrappedDoB.DateOfBirth.ToDateTimeOffset();
+            Assert.That(dto, Is.Not.Null);
+            Assert.That(dto.Year, Is.EqualTo(1971));
+            Assert.That(dto.Month, Is.EqualTo(3));
+            Assert.That(dto.Day, Is.EqualTo(23));
+            Assert.That(dto.Hour, Is.EqualTo(4));
+            Assert.That(dto.Minute, Is.EqualTo(30));
+            Assert.That(dto.Second, Is.EqualTo(0));
+        }
+
+        // TODO: Work out a way we can capture and monitor the Trace log in the test, as exceptions are caught in Populate method
+        [Test]
+        public void Should_Not_Throw_Exception_When_Multiple_Same_Type_CustomTypeConverters_Found()
+        {
+            SsConfig.CustomTypeConverters.Add(new WrappedDateTimeOffsetToDateTimeOffsetConverter());
+            SsConfig.CustomTypeConverters.Add(new WrappedDateTimeOffsetToDateTimeOffsetConverter());
+
+            var personWithWrappedDateOfBirth = new PersonWithWrappedDateOfBirth
+            {
+                DateOfBirth = new WrappedDateTimeOffset(
+                    new DateTimeOffset(1971, 3, 23, 4, 30, 0, TimeSpan.Zero))
+            };
+
+            var personWithDoB = personWithWrappedDateOfBirth.ConvertTo<PersonWithDateOfBirth>();
+
+            // Object returned but mapping failed
+            Assert.That(personWithDoB.FirstName, Is.Null);
+            Assert.That(personWithDoB.LastName, Is.Null);
+            Assert.That(personWithDoB.DateOfBirth, Is.EqualTo(DateTimeOffset.MinValue));
         }
     }
 

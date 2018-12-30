@@ -95,6 +95,13 @@ namespace ServiceStack
         public static object ChangeValueType(object from, Type toType)
         {
             var fromType = from.GetType();
+
+            var customTypeConverter = GetCustomTypeConverter(from, toType);
+            if (customTypeConverter != null)
+            {
+                return customTypeConverter.ConvertFrom(from);
+            }
+
             if (!fromType.IsEnum && !toType.IsEnum)
             {
                 if (toType == typeof(char) && from is string s)
@@ -136,6 +143,23 @@ namespace ServiceStack
             }
 
             return TypeSerializer.DeserializeFromString(from.ToJsv(), toType);
+        }
+
+        public static ICustomTypeConverter GetCustomTypeConverter(object from, Type toType)
+        {
+            var customTypeConverters = SsConfig.CustomTypeConverters
+                .Where(p => p.CanConvert(from, toType))
+                .ToList();
+
+            if (!customTypeConverters.Any()) return null;
+
+            if (customTypeConverters.Count > 1)
+            {
+                throw new Exception(
+                    $"More than one ICustomTypeConverter is registered to handle the conversion from {from.GetType().Name} to {toType.Name}");
+            }
+
+            return customTypeConverters.Single();
         }
 
         public static object ChangeTo(this string strValue, Type type)
@@ -760,14 +784,22 @@ namespace ServiceStack
                 {
                     var fromValue = assignmentEntry.GetValueFn(from);
 
-                    if (valuePredicate != null)
+                    var customTypeConverter = AutoMappingUtils.GetCustomTypeConverter(fromValue, toType);
+                    if (customTypeConverter != null)
                     {
-                        if (!valuePredicate(fromValue, fromMember.PropertyInfo.PropertyType)) continue;
+                        fromValue = customTypeConverter.ConvertFrom(fromValue);
                     }
-
-                    if (assignmentEntry.ConvertValueFn != null)
+                    else
                     {
-                        fromValue = assignmentEntry.ConvertValueFn(fromValue);
+                        if (valuePredicate != null)
+                        {
+                            if (!valuePredicate(fromValue, fromMember.PropertyInfo.PropertyType)) continue;
+                        }
+
+                        if (assignmentEntry.ConvertValueFn != null)
+                        {
+                            fromValue = assignmentEntry.ConvertValueFn(fromValue);
+                        }
                     }
 
                     var setterFn = assignmentEntry.SetValueFn;

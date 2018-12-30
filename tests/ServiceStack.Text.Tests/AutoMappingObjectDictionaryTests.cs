@@ -11,6 +11,12 @@ namespace ServiceStack.Text.Tests
     [TestFixture]
     public class AutoMappingObjectDictionaryTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            SsConfig.Clear();
+        }
+
         [Test]
         public void Can_convert_Car_to_ObjectDictionary()
         {
@@ -544,6 +550,32 @@ namespace ServiceStack.Text.Tests
             var torque = carWithSpecs.Specs.SingleOrDefault(s => s.Item == "TorqueNm");
             Assert.That(torque, Is.Not.Null);
             Assert.That(torque.Value, Is.EqualTo("430"));
+        }
+
+        [Test]
+        public void Can_convert_prop_with_CustomTypeConverter()
+        {
+            SsConfig.CustomTypeConverters.Add(new WrappedDateTimeOffsetToDateTimeOffsetConverter());
+
+            var map = new Dictionary<string, object>
+            {
+                { "FirstName", "Foo" },
+                { "LastName", "Bar" },
+                { "DateOfBirth", new WrappedDateTimeOffset(
+                    new DateTimeOffset(1971, 3, 23, 4, 30, 0, TimeSpan.Zero)) }
+            };
+
+            var personWithDoB = map.FromObjectDictionary<PersonWithDateOfBirth>();
+
+            Assert.That(personWithDoB.FirstName, Is.EqualTo("Foo"));
+            Assert.That(personWithDoB.LastName, Is.EqualTo("Bar"));
+            Assert.That(personWithDoB.DateOfBirth, Is.Not.Null);
+            Assert.That(personWithDoB.DateOfBirth.Year, Is.EqualTo(1971));
+            Assert.That(personWithDoB.DateOfBirth.Month, Is.EqualTo(3));
+            Assert.That(personWithDoB.DateOfBirth.Day, Is.EqualTo(23));
+            Assert.That(personWithDoB.DateOfBirth.Hour, Is.EqualTo(4));
+            Assert.That(personWithDoB.DateOfBirth.Minute, Is.EqualTo(30));
+            Assert.That(personWithDoB.DateOfBirth.Second, Is.EqualTo(0));
         }
     }
 
