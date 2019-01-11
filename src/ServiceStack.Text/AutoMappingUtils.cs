@@ -19,6 +19,32 @@ namespace ServiceStack
 
     public static class AutoMappingUtils
     {
+        private static readonly ConcurrentDictionary<Tuple<Type, Type>, GetMemberDelegate> converters
+            = new ConcurrentDictionary<Tuple<Type, Type>, GetMemberDelegate>();
+
+        public static void Reset()
+        {
+            converters.Clear();
+            AssignmentDefinitionCache.Clear();
+        }
+
+        public static void RegisterConverter<From, To>(Func<From, To> converter)
+        {
+            JsConfig.InitStatics();
+            converters[Tuple.Create(typeof(From), typeof(To))] = x => converter((From)x);
+        }
+
+        public static GetMemberDelegate GetConverter(Type fromType, Type toType)
+        {
+            if (converters.IsEmpty)
+                return null;
+
+            var key = Tuple.Create(fromType, toType);
+            return converters.TryGetValue(key, out var converter)
+                ? converter
+                : null;
+        }
+        
         public static T ConvertTo<T>(this object from)
         {
             if (from == null)
@@ -546,17 +572,17 @@ namespace ServiceStack
             }
         }
 
-        public static void SetGenericCollection(Type realisedListType, object genericObj, Dictionary<Type, int> recursionInfo)
+        public static void SetGenericCollection(Type realizedListType, object genericObj, Dictionary<Type, int> recursionInfo)
         {
-            var args = realisedListType.GetGenericArguments();
+            var args = realizedListType.GetGenericArguments();
             if (args.Length != 1)
             {
-                Tracer.Instance.WriteError("Found a generic list that does not take one generic argument: {0}", realisedListType);
+                Tracer.Instance.WriteError("Found a generic list that does not take one generic argument: {0}", realizedListType);
 
                 return;
             }
 
-            var methodInfo = realisedListType.GetMethodInfo("Add");
+            var methodInfo = realizedListType.GetMethodInfo("Add");
             if (methodInfo != null)
             {
                 var argValues = CreateDefaultValues(args, recursionInfo);
@@ -741,13 +767,15 @@ namespace ServiceStack
 
                 if (fromMember.PropertyInfo != null && propertyInfoPredicate != null)
                 {
-                    if (!propertyInfoPredicate(fromMember.PropertyInfo)) continue;
+                    if (!propertyInfoPredicate(fromMember.PropertyInfo)) 
+                        continue;
                 }
 
                 var fromType = fromMember.Type;
                 var toType = toMember.Type;
                 try
                 {
+                    
                     var fromValue = assignmentEntry.GetValueFn(from);
 
                     if (valuePredicate != null
@@ -756,7 +784,7 @@ namespace ServiceStack
                         if (!valuePredicate(fromValue, fromMember.PropertyInfo.PropertyType)) 
                             continue;
                     }
-
+                    
                     if (assignmentEntry.ConvertValueFn != null)
                     {
                         fromValue = assignmentEntry.ConvertValueFn(fromValue);
@@ -789,6 +817,10 @@ namespace ServiceStack
         {
             if (fromType == toType)
                 return null;
+
+            var converter = AutoMappingUtils.GetConverter(fromType, toType);
+            if (converter != null)
+                return converter;
 
             if (fromType == typeof(string))
                 return fromValue => TypeSerializer.DeserializeFromString((string)fromValue, toType);

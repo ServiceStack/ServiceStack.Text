@@ -680,6 +680,7 @@ namespace ServiceStack.Text
 
             Env.StrictMode = false;
             Config.Reset();
+            AutoMappingUtils.Reset();
             HasSerializeFn = new HashSet<Type>();
             HasIncludeDefaultValue = new HashSet<Type>();
             TreatValueAsRefTypes = new HashSet<Type> { typeof(KeyValuePair<,>) };
