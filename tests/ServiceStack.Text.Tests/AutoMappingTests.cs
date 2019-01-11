@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Web.Script.Serialization;
 #endif
 using NUnit.Framework;
+using ServiceStack.Common.Tests.Models;
 using ServiceStack.DataAnnotations;
 using ServiceStack.Text.Tests.DynamicModels;
 using ServiceStack.Web;
@@ -831,5 +832,30 @@ namespace ServiceStack.Text.Tests
             Assert.That("a,b,c".ConvertTo<string[]>(), Is.EquivalentTo(new[]{ "a", "b", "c" }));
             Assert.That("1,2,3".ConvertTo<int[]>(), Is.EquivalentTo(new[]{ 1, 2, 3 }));
         }
+        
+        [Test]
+        public void Translate_Between_Models_of_different_types_and_nullables()
+        {
+            var fromObj = ModelWithFieldsOfDifferentTypes.CreateConstant(1);
+
+            var toObj = fromObj.ConvertTo<ModelWithFieldsOfDifferentTypesAsNullables>();
+
+            Console.WriteLine(toObj.Dump());
+
+            ModelWithFieldsOfDifferentTypesAsNullables.AssertIsEqual(fromObj, toObj);
+        }
+
+        [Test]
+        public void Translate_Between_Models_of_nullables_and_different_types()
+        {
+            var fromObj = ModelWithFieldsOfDifferentTypesAsNullables.CreateConstant(1);
+
+            var toObj = fromObj.ConvertTo<ModelWithFieldsOfDifferentTypes>();
+
+            Console.WriteLine(toObj.Dump());
+
+            ModelWithFieldsOfDifferentTypesAsNullables.AssertIsEqual(toObj, fromObj);
+        }
+
     }
 }

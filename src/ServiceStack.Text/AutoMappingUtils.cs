@@ -418,10 +418,10 @@ namespace ServiceStack
                 return;
             }
 
-            var propertySetMetodInfo = propertyInfo.GetSetMethod(nonPublic:true);
-            if (propertySetMetodInfo != null)
+            var propertySetMethodInfo = propertyInfo.GetSetMethod(nonPublic:true);
+            if (propertySetMethodInfo != null)
             {
-                propertySetMetodInfo.Invoke(obj, new[] { value });
+                propertySetMethodInfo.Invoke(obj, new[] { value });
             }
         }
 
@@ -750,9 +750,11 @@ namespace ServiceStack
                 {
                     var fromValue = assignmentEntry.GetValueFn(from);
 
-                    if (valuePredicate != null)
+                    if (valuePredicate != null
+                        && fromType == toType) // don't short-circuit nullable <-> non-null values
                     {
-                        if (!valuePredicate(fromValue, fromMember.PropertyInfo.PropertyType)) continue;
+                        if (!valuePredicate(fromValue, fromMember.PropertyInfo.PropertyType)) 
+                            continue;
                     }
 
                     if (assignmentEntry.ConvertValueFn != null)
