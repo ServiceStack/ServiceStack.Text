@@ -134,6 +134,8 @@ namespace ServiceStack.Text.Tests
             Assert.That(personWithDoB.FirstName, Is.Null);
             Assert.That(personWithDoB.LastName, Is.Null);
             Assert.That(personWithDoB.DateOfBirth, Is.EqualTo(DateTimeOffset.MinValue));
+             
+            AutoMappingUtils.Reset();
         }
     }
 }
