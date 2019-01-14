@@ -280,7 +280,7 @@ namespace ServiceStack.Text.Jsv
 
         public ReadOnlySpan<char> EatTypeValue(ReadOnlySpan<char> value, ref int i) => EatValue(value, ref i);
 
-        public bool EatMapStartChar(string value, ref int i) => EatMapStartChar(value, ref i);
+        public bool EatMapStartChar(string value, ref int i) => EatMapStartChar(value.AsSpan(), ref i);
 
         public bool EatMapStartChar(ReadOnlySpan<char> value, ref int i)
         {
