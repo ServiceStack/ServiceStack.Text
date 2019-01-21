@@ -11,6 +11,7 @@
 //
 
 using System;
+using ServiceStack.Text.Json;
 
 namespace ServiceStack.Text.Common
 {
@@ -64,7 +65,7 @@ namespace ServiceStack.Text.Common
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestXsdDateTime(value.ToString());
                     case TypeCode.Char:
-                        return value => value[0];
+                        return value => value.Length == 0 ? (char)0 : value.Length == 1 ? value[0] : JsonTypeSerializer.Unescape(value)[0];
                 }
 
                 if (typeof(T) == typeof(Guid))
@@ -109,7 +110,7 @@ namespace ServiceStack.Text.Common
                     case TypeCode.DateTime:
                         return value => DateTimeSerializer.ParseShortestNullableXsdDateTime(value.ToString());
                     case TypeCode.Char:
-                        return value => value.IsEmpty ? (char?)null : value[0];
+                        return value => value.IsEmpty ? (char?)null : value.Length == 1 ? value[0] : JsonTypeSerializer.Unescape(value)[0];
                 }
 
                 if (typeof(T) == typeof(TimeSpan?))
