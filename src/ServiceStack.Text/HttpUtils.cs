@@ -46,9 +46,9 @@ namespace ServiceStack
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
-                var existingKeyPos = qsPos + 1 == url.IndexOf(key + "=", qsPos, PclExport.Instance.InvariantComparison)
+                var existingKeyPos = qsPos + 1 == url.IndexOf(key + "=", qsPos, StringComparison.Ordinal)
                     ? qsPos
-                    : url.IndexOf("&" + key, qsPos, PclExport.Instance.InvariantComparison);
+                    : url.IndexOf("&" + key, qsPos, StringComparison.Ordinal);
 
                 if (existingKeyPos != -1)
                 {

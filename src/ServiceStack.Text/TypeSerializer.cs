@@ -13,6 +13,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -252,6 +253,16 @@ namespace ServiceStack.Text
                 foreach (var kvp in kvps)
                 {
                     to[kvp.Key] = kvp.Value.ToJsv();
+                }
+                return to;
+            }
+
+            if (obj is NameValueCollection nvc)
+            {
+                var to = new Dictionary<string, string>();
+                for (var i = 0; i < nvc.Count; i++)
+                {
+                    to[nvc.GetKey(i)] = nvc.Get(i);
                 }
                 return to;
             }

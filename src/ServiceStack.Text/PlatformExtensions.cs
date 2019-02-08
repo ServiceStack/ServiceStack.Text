@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -677,6 +678,16 @@ namespace ServiceStack
                 foreach (var entry in stringDict)
                 {
                     to[entry.Key] = entry.Value;
+                }
+                return to;
+            }
+
+            if (obj is NameValueCollection nvc)
+            {
+                var to = new Dictionary<string, object>();
+                for (var i = 0; i < nvc.Count; i++)
+                {
+                    to[nvc.GetKey(i)] = nvc.Get(i);
                 }
                 return to;
             }
