@@ -51,6 +51,15 @@ namespace ServiceStack.Text.Tests.JsonTests
             public int Id { get; set; }
             [DataMember]
             public string Name { get; set; }
+            
+            [DataMember(Name = "sur_name")]
+            public string LastName { get; set; }
+            
+            [DataMember(Name = "current_age")]
+            public int CurrentAge { get; set; }
+            
+            [DataMember(Name = "birth_day")]
+            public DateTime BirthDay { get; set; }
         }
 
         class WithUnderscore
@@ -78,13 +87,43 @@ namespace ServiceStack.Text.Tests.JsonTests
             var person = new Person
             {
                 Id = 123,
-                Name = "Abc"
+                Name = "Abc",
+                LastName = "Xyz"
             };
             Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,name:Abc}"));
             Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"name\":\"Abc\"}"));
         }
-
-
+        
+        [Test]
+        public void Can_override_name_and_deserialize_with_lenient_scope()
+        {
+            var person = new Person
+            {
+                Id = 123,
+                Name = "Abc",
+                LastName = "Xyz",
+                BirthDay = new DateTime(2000,1,2,12,0,0),
+                CurrentAge = 19
+            };
+            
+            using (JsConfig.With(new Config { 
+                    TextCase = TextCase.SnakeCase,
+                    PropertyConvention = PropertyConvention.Lenient }))
+            {
+                var test = new List<Person>();
+                test.Add(person);
+                var personSerialized = test.ToJson();
+                var personFromString = personSerialized.FromJson<List<Person>>();
+            
+                Assert.That(person.Id, Is.EqualTo(personFromString[0].Id));
+                Assert.That(person.Name, Is.EqualTo(personFromString[0].Name));
+                Assert.That(person.LastName, Is.EqualTo(personFromString[0].LastName));
+                Assert.That(person.BirthDay, Is.EqualTo(personFromString[0].BirthDay));
+                Assert.That(person.CurrentAge, Is.EqualTo(personFromString[0].CurrentAge));
+            }
+        }
+        
+        
         class WithUnderscoreSeveralDigits
         {
             public int? user_id_00_11 { get; set; }
