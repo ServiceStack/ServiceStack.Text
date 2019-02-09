@@ -234,12 +234,6 @@ namespace ServiceStack.Text.Common
     {
         internal static TypeAccessor Get(this KeyValuePair<string, TypeAccessor>[] accessors, ReadOnlySpan<char> propertyName, bool lenient)
         {
-            if (lenient)
-            {
-                //TODO: optimize
-                propertyName = propertyName.ToString().Replace("-", string.Empty).Replace("_", string.Empty).AsSpan();
-            }
-
             //Binary Search
             var lo = 0;
             var hi = accessors.Length - 1;
@@ -259,6 +253,31 @@ namespace ServiceStack.Text.Common
 
                 mid = (lo + hi + 1) / 2;  
             }
+
+            if (lenient)
+            {
+                lo = 0;
+                hi = accessors.Length - 1;
+                mid = (lo + hi + 1) / 2; 
+
+                var lenientName = propertyName.ToString().Replace("-", string.Empty).Replace("_", string.Empty).AsSpan();
+
+                while (lo <= hi)
+                {
+                    var test = accessors[mid];
+                    var cmp = lenientName.CompareTo(test.Key.AsSpan(), StringComparison.OrdinalIgnoreCase);
+                    if (cmp == 0)
+                        return test.Value;
+
+                    if (cmp < 0)
+                        hi = mid - 1;
+                    else
+                        lo = mid + 1;
+
+                    mid = (lo + hi + 1) / 2;  
+                }
+            }
+            
             return null;
         }
     }

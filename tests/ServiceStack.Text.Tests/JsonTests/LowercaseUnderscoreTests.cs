@@ -56,10 +56,10 @@ namespace ServiceStack.Text.Tests.JsonTests
             public string LastName { get; set; }
             
             [DataMember(Name = "current_age")]
-            public int CurrentAge { get; set; }
+            public int? CurrentAge { get; set; }
             
             [DataMember(Name = "birth_day")]
-            public DateTime BirthDay { get; set; }
+            public DateTime? BirthDay { get; set; }
         }
 
         class WithUnderscore
@@ -90,8 +90,8 @@ namespace ServiceStack.Text.Tests.JsonTests
                 Name = "Abc",
                 LastName = "Xyz"
             };
-            Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,name:Abc}"));
-            Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"name\":\"Abc\"}"));
+            Assert.That(TypeSerializer.SerializeToString(person), Is.EqualTo("{MyID:123,name:Abc,sur_name:Xyz}"));
+            Assert.That(JsonSerializer.SerializeToString(person), Is.EqualTo("{\"MyID\":123,\"name\":\"Abc\",\"sur_name\":\"Xyz\"}"));
         }
         
         [Test]
@@ -110,16 +110,16 @@ namespace ServiceStack.Text.Tests.JsonTests
                     TextCase = TextCase.SnakeCase,
                     PropertyConvention = PropertyConvention.Lenient }))
             {
-                var test = new List<Person>();
-                test.Add(person);
+                var test = new List<Person> {person};
                 var personSerialized = test.ToJson();
                 var personFromString = personSerialized.FromJson<List<Person>>();
-            
-                Assert.That(person.Id, Is.EqualTo(personFromString[0].Id));
-                Assert.That(person.Name, Is.EqualTo(personFromString[0].Name));
-                Assert.That(person.LastName, Is.EqualTo(personFromString[0].LastName));
-                Assert.That(person.BirthDay, Is.EqualTo(personFromString[0].BirthDay));
-                Assert.That(person.CurrentAge, Is.EqualTo(personFromString[0].CurrentAge));
+
+                var fromJson = personFromString[0];
+                Assert.That(person.Id, Is.EqualTo(fromJson.Id));
+                Assert.That(person.Name, Is.EqualTo(fromJson.Name));
+                Assert.That(person.LastName, Is.EqualTo(fromJson.LastName));
+                Assert.That(person.BirthDay.Value, Is.EqualTo(fromJson.BirthDay.Value));
+                Assert.That(person.CurrentAge.Value, Is.EqualTo(fromJson.CurrentAge.Value));
             }
         }
         
