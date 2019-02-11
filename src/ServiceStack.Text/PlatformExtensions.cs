@@ -740,7 +740,8 @@ namespace ServiceStack
             {
                 if (!def.FieldsMap.TryGetValue(entry.Key, out var fieldDef) &&
                     !def.FieldsMap.TryGetValue(entry.Key.ToPascalCase(), out fieldDef)
-                    || entry.Value == null)
+                    || entry.Value == null 
+                    || entry.Value == DBNull.Value)
                     continue;
 
                 fieldDef.SetValue(to, entry.Value);
