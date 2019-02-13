@@ -38,11 +38,7 @@ namespace ServiceStack
             converters[Tuple.Create(typeof(From), typeof(To))] = x => converter((From)x);
         }
 
-        public static void IgnoreMapping<From, To>()
-        {
-            JsConfig.InitStatics();
-            ignoreMappings[Tuple.Create(typeof(From),typeof(To))] = true;
-        }
+        public static void IgnoreMapping<From, To>() => IgnoreMapping(typeof(From), typeof(To));
 
         public static void IgnoreMapping(Type fromType, Type toType)
         {
@@ -107,6 +103,9 @@ namespace ServiceStack
             var fromType = from.GetType();
             if (fromType == toType)
                 return from;
+
+            if (ShouldIgnoreMapping(fromType, toType))
+                return null;
 
             if (!skipConverters)
             {
@@ -780,6 +779,29 @@ namespace ServiceStack
         {
             if (AutoMappingUtils.ShouldIgnoreMapping(readMember.Type,writeMember.Type))
                 return;
+
+            // Ignore mapping collections if Element Types are ignored
+            if (typeof(IEnumerable).IsAssignableFrom(readMember.Type) && typeof(IEnumerable).IsAssignableFrom(writeMember.Type))
+            {
+                var fromGenericDef = readMember.Type.GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
+                var toGenericDef = readMember.Type.GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
+                if (fromGenericDef != null && toGenericDef != null)
+                {
+                    // Check if to/from Key or Value Types are ignored   
+                    if (AutoMappingUtils.ShouldIgnoreMapping(fromGenericDef.GetGenericArguments()[0],toGenericDef.GetGenericArguments()[0]))
+                        return;
+                    if (AutoMappingUtils.ShouldIgnoreMapping(fromGenericDef.GetGenericArguments()[1],toGenericDef.GetGenericArguments()[1]))
+                        return;
+                }
+                else if (readMember.Type != typeof(string) && writeMember.Type != typeof(string))
+                {
+                    var elFromType = readMember.Type.GetCollectionType();
+                    var elToType = writeMember.Type.GetCollectionType();
+
+                    if (AutoMappingUtils.ShouldIgnoreMapping(elFromType,elToType))
+                        return;
+                }
+            }
 
             this.AssignmentMemberMap[name] = new AssignmentEntry(name, readMember, writeMember);
         }

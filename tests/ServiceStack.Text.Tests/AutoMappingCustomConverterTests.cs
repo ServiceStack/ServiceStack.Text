@@ -157,13 +157,10 @@ namespace ServiceStack.Text.Tests
             var users = new UsersData {
                 Id = 1,
                 User = user,
-                Users = new List<User> { user }
+                Users = { user }
             };
 
             var dtoUsers = users.ConvertTo<UsersDto>();
-            
-            dtoUsers.PrintDump();
-            
             Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
 
             void AssertUser(UserDto userDto)
@@ -180,7 +177,33 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Can_ignore_converting_collections()
+        public void Does_ignore_POCO_mappings()
+        {
+            AutoMappingUtils.IgnoreMapping<User, UserDto>();
+
+            var user = new User {
+                FirstName = "John",
+                LastName = "Doe",
+                Car = new Car { Name = "BMW X6", Age = 3 }
+            };
+            var users = new UsersData {
+                Id = 1,
+                User = user,
+                Users = { user }
+            };
+
+            var dtoUsers = users.ConvertTo<UsersDto>();
+            Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
+
+            Assert.That(user.ConvertTo<UserDto>(), Is.Null);
+            Assert.That(dtoUsers.User, Is.Null);
+            Assert.That(dtoUsers.Users, Is.Empty);
+            
+            AutoMappingUtils.Reset();
+        }
+
+        [Test]
+        public void Does_ignore_collection_mappings()
         {
             AutoMappingUtils.IgnoreMapping<List<User>, List<UserDto>>();
             
@@ -199,7 +222,7 @@ namespace ServiceStack.Text.Tests
             dtoUsers.PrintDump();
 
             Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
-            Assert.That(dtoUsers.Users, Is.Null);
+            Assert.That(dtoUsers.Users, Is.Empty);
            
             AutoMappingUtils.Reset();
         }
