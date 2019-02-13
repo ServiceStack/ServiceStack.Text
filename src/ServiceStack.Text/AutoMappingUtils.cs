@@ -22,9 +22,13 @@ namespace ServiceStack
         private static readonly ConcurrentDictionary<Tuple<Type, Type>, GetMemberDelegate> converters
             = new ConcurrentDictionary<Tuple<Type, Type>, GetMemberDelegate>();
 
+        private static ConcurrentDictionary<Tuple<Type, Type>,bool> ignoreMappings
+            = new ConcurrentDictionary<Tuple<Type, Type>,bool>();
+
         public static void Reset()
         {
             converters.Clear();
+            ignoreMappings.Clear();
             AssignmentDefinitionCache.Clear();
         }
 
@@ -33,6 +37,21 @@ namespace ServiceStack
             JsConfig.InitStatics();
             converters[Tuple.Create(typeof(From), typeof(To))] = x => converter((From)x);
         }
+
+        public static void IgnoreMapping<From, To>()
+        {
+            JsConfig.InitStatics();
+            ignoreMappings[Tuple.Create(typeof(From),typeof(To))] = true;
+        }
+
+        public static void IgnoreMapping(Type fromType, Type toType)
+        {
+            JsConfig.InitStatics();
+            ignoreMappings[Tuple.Create(fromType, toType)] = true;
+        }
+
+        public static bool ShouldIgnoreMapping(Type fromType, Type toType) =>
+            ignoreMappings.ContainsKey(Tuple.Create(fromType, toType));
 
         public static GetMemberDelegate GetConverter(Type fromType, Type toType)
         {
@@ -724,6 +743,9 @@ namespace ServiceStack
 
         public void AddMatch(string name, AssignmentMember readMember, AssignmentMember writeMember)
         {
+            if (AutoMappingUtils.ShouldIgnoreMapping(readMember.Type,writeMember.Type))
+                return;
+
             this.AssignmentMemberMap[name] = new AssignmentEntry(name, readMember, writeMember);
         }
 
@@ -817,7 +839,7 @@ namespace ServiceStack
         {
             if (fromType == toType)
                 return null;
-
+            
             var converter = AutoMappingUtils.GetConverter(fromType, toType);
             if (converter != null)
                 return converter;
@@ -846,12 +868,32 @@ namespace ServiceStack
             }
             else if (typeof(IEnumerable).IsAssignableFrom(fromType))
             {
-                return fromValue =>
-                {
-                    var listResult = TranslateListWithElements.TryTranslateCollections(
-                        fromType, underlyingToType, fromValue);
+                return fromValue => {
+                    var fromElementType = fromType.GetCollectionType();
+                    var toElementType = underlyingToType.GetCollectionType();
 
-                    return listResult ?? fromValue;
+                    if (fromElementType != null && toElementType != null &&
+                        fromElementType != toElementType && fromValue is IEnumerable values)
+                    {
+                        var to = new List<object>();
+                        foreach (var item in values)
+                        {
+                            var toItem = item.ConvertTo(toElementType);
+                            to.Add(toItem);
+                        }
+
+                        var listResult = TranslateListWithElements.TryTranslateCollections(
+                            to.GetType(), underlyingToType, to);
+
+                        return listResult ?? fromValue;
+                    }
+                    else
+                    {
+                        var listResult = TranslateListWithElements.TryTranslateCollections(
+                            fromType, underlyingToType, fromValue);
+
+                        return listResult ?? fromValue;
+                    }
                 };
             }
             else if (underlyingToType.IsValueType)

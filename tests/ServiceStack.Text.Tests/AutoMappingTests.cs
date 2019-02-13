@@ -62,6 +62,17 @@ namespace ServiceStack.Text.Tests
         public string Car { get; set; }
     }
 
+    public class UsersData
+    {
+        public int Id { get; set; }
+        public List<User> Users { get; set; }
+    }
+    public class UsersDto
+    {
+        public int Id { get; set; }
+        public List<UserDto> Users { get; set; }
+    }
+
     public enum Color
     {
         Red,
@@ -188,11 +199,10 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_populate()
         {
-            var user = new User()
-            {
+            var user = new User {
                 FirstName = "Demis",
                 LastName = "Bellot",
-                Car = new Car() { Name = "BMW X6", Age = 3 }
+                Car = new Car { Name = "BMW X6", Age = 3 }
             };
 
             var userDto = new UserDto().PopulateWith(user);

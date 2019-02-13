@@ -137,5 +137,57 @@ namespace ServiceStack.Text.Tests
              
             AutoMappingUtils.Reset();
         }
+
+        [Test]
+        public void Can_Convert_POCO_collections_with_custom_Converter()
+        {
+            AutoMappingUtils.RegisterConverter((User from) => from.ConvertTo<UserDto>());
+            AutoMappingUtils.RegisterConverter((Car from) => $"{from.Name} ({from.Age})");
+            
+            var users = new UsersData {
+                Id = 1,
+                Users = new List<User> {
+                    new User {
+                        FirstName = "Demis",
+                        LastName = "Bellot",
+                        Car = new Car { Name = "BMW X6", Age = 3 }
+                    }
+                }
+            };
+
+            var dtoUsers = users.ConvertTo<UsersDto>();
+            
+            Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
+            Assert.That(dtoUsers.Users[0].FirstName, Is.EqualTo(users.Users[0].FirstName));
+            Assert.That(dtoUsers.Users[0].LastName, Is.EqualTo(users.Users[0].LastName));
+            Assert.That(dtoUsers.Users[0].Car, Is.EqualTo("BMW X6 (3)"));
+           
+            AutoMappingUtils.Reset();
+        }
+
+        [Test]
+        public void Can_ignore_converting_collections()
+        {
+            AutoMappingUtils.IgnoreMapping<List<User>, List<UserDto>>();
+            
+            var users = new UsersData {
+                Id = 1,
+                Users = new List<User> {
+                    new User {
+                        FirstName = "Demis",
+                        LastName = "Bellot",
+                        Car = new Car { Name = "BMW X6", Age = 3 }
+                    }
+                }
+            };
+
+            var dtoUsers = users.ConvertTo<UsersDto>();
+            
+            Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
+            Assert.That(dtoUsers.Users, Is.Null);
+           
+            AutoMappingUtils.Reset();
+        }
+
     }
 }
