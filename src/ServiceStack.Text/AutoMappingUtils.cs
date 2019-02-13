@@ -17,12 +17,41 @@ namespace ServiceStack
     [DataContract(Namespace = "http://schemas.servicestack.net/types")]
     public class CustomHttpResult { }
 
+    /// <summary>
+    /// Customize ServiceStack AutoMapping Behavior
+    /// </summary>
+    public static class AutoMapping
+    {
+        /// <summary>
+        /// Register Type to Type AutoMapping converter 
+        /// </summary>
+        public static void RegisterConverter<From, To>(Func<From, To> converter)
+        {
+            JsConfig.InitStatics();
+            AutoMappingUtils.converters[Tuple.Create(typeof(From), typeof(To))] = x => converter((From)x);
+        }
+
+        /// <summary>
+        /// Ignore Type to Type Mapping (including collections containing them) 
+        /// </summary>
+        public static void IgnoreMapping<From, To>() => IgnoreMapping(typeof(From), typeof(To));
+
+        /// <summary>
+        /// Ignore Type to Type Mapping (including collections containing them) 
+        /// </summary>
+        public static void IgnoreMapping(Type fromType, Type toType)
+        {
+            JsConfig.InitStatics();
+            AutoMappingUtils.ignoreMappings[Tuple.Create(fromType, toType)] = true;
+        }
+    }
+
     public static class AutoMappingUtils
     {
-        private static readonly ConcurrentDictionary<Tuple<Type, Type>, GetMemberDelegate> converters
+        internal static readonly ConcurrentDictionary<Tuple<Type, Type>, GetMemberDelegate> converters
             = new ConcurrentDictionary<Tuple<Type, Type>, GetMemberDelegate>();
 
-        private static ConcurrentDictionary<Tuple<Type, Type>,bool> ignoreMappings
+        internal static readonly ConcurrentDictionary<Tuple<Type, Type>,bool> ignoreMappings
             = new ConcurrentDictionary<Tuple<Type, Type>,bool>();
 
         public static void Reset()
@@ -31,20 +60,9 @@ namespace ServiceStack
             ignoreMappings.Clear();
             AssignmentDefinitionCache.Clear();
         }
-
-        public static void RegisterConverter<From, To>(Func<From, To> converter)
-        {
-            JsConfig.InitStatics();
-            converters[Tuple.Create(typeof(From), typeof(To))] = x => converter((From)x);
-        }
-
-        public static void IgnoreMapping<From, To>() => IgnoreMapping(typeof(From), typeof(To));
-
-        public static void IgnoreMapping(Type fromType, Type toType)
-        {
-            JsConfig.InitStatics();
-            ignoreMappings[Tuple.Create(fromType, toType)] = true;
-        }
+        
+        [Obsolete("Use AutoMapping.RegisterConverter")]
+        public static void RegisterConverter<From, To>(Func<From, To> converter) => throw new NotSupportedException("Deprecated: Use AutoMapping.RegisterConverter");
 
         public static bool ShouldIgnoreMapping(Type fromType, Type toType) =>
             ignoreMappings.ContainsKey(Tuple.Create(fromType, toType));

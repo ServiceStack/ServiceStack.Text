@@ -34,7 +34,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_convert_prop_with_CustomTypeConverter()
         {
-            AutoMappingUtils.RegisterConverter((WrappedDateTimeOffset from) => from.ToDateTimeOffset());
+            AutoMapping.RegisterConverter((WrappedDateTimeOffset from) => from.ToDateTimeOffset());
 
             var map = new Dictionary<string, object>
             {
@@ -62,7 +62,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Convert_Props_With_CustomTypeConverter()
         {
-            AutoMappingUtils.RegisterConverter((WrappedDateTimeOffset from) => from.ToDateTimeOffset());
+            AutoMapping.RegisterConverter((WrappedDateTimeOffset from) => from.ToDateTimeOffset());
 
             var personWithWrappedDateOfBirth = new PersonWithWrappedDateOfBirth
             {
@@ -90,7 +90,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Convert_Anonymous_Types_With_CustomTypeConverter()
         {
-            AutoMappingUtils.RegisterConverter((DateTimeOffset from) => new WrappedDateTimeOffset(from));
+            AutoMapping.RegisterConverter((DateTimeOffset from) => new WrappedDateTimeOffset(from));
 
             var personWithDateOfBirth = new
             {
@@ -120,7 +120,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Should_Not_Throw_Exception_When_Multiple_Same_Type_CustomTypeConverters_Found()
         {
-            AutoMappingUtils.RegisterConverter((DateTimeOffset from) => new WrappedDateTimeOffset(from));
+            AutoMapping.RegisterConverter((DateTimeOffset from) => new WrappedDateTimeOffset(from));
 
             var personWithWrappedDateOfBirth = new PersonWithWrappedDateOfBirth
             {
@@ -141,13 +141,13 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Convert_POCO_collections_with_custom_Converter()
         {
-            AutoMappingUtils.RegisterConverter((User from) => {
+            AutoMapping.RegisterConverter((User from) => {
                 var to = from.ConvertTo<UserDto>(skipConverters:true); // avoid infinite recursion
                 to.FirstName += "!";
                 to.LastName += "!";
                 return to;
             });
-            AutoMappingUtils.RegisterConverter((Car from) => $"{from.Name} ({from.Age})");
+            AutoMapping.RegisterConverter((Car from) => $"{from.Name} ({from.Age})");
 
             var user = new User {
                 FirstName = "John",
@@ -181,7 +181,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_ignore_POCO_mappings()
         {
-            AutoMappingUtils.IgnoreMapping<User, UserDto>();
+            AutoMapping.IgnoreMapping<User, UserDto>();
 
             var user = new User {
                 FirstName = "John",
@@ -209,8 +209,8 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_ignore_collection_mappings()
         {
-            AutoMappingUtils.IgnoreMapping<List<User>, List<UserDto>>();
-            AutoMappingUtils.IgnoreMapping<Dictionary<int, User>, Dictionary<int, UserDto>>();
+            AutoMapping.IgnoreMapping<List<User>, List<UserDto>>();
+            AutoMapping.IgnoreMapping<Dictionary<int, User>, Dictionary<int, UserDto>>();
             
             var users = new UsersData {
                 Id = 1,
