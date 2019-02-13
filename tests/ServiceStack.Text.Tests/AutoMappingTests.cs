@@ -67,14 +67,16 @@ namespace ServiceStack.Text.Tests
         public int Id { get; set; }
         
         public User User { get; set; }
-        public List<User> Users { get; set; } = new List<User>();
+        public List<User> UsersList { get; set; } = new List<User>();
+        public Dictionary<int, User> UsersMap { get; set; } = new Dictionary<int, User>();
     }
     public class UsersDto
     {
         public int Id { get; set; }
 
         public UserDto User { get; set; }
-        public List<UserDto> Users { get; set; } = new List<UserDto>();
+        public List<UserDto> UsersList { get; set; } = new List<UserDto>();
+        public Dictionary<int, UserDto> UsersMap { get; set; } = new Dictionary<int, UserDto>();
     }
 
     public enum Color

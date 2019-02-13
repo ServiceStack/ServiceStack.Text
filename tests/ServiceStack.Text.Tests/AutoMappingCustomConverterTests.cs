@@ -157,7 +157,8 @@ namespace ServiceStack.Text.Tests
             var users = new UsersData {
                 Id = 1,
                 User = user,
-                Users = { user }
+                UsersList = { user },
+                UsersMap = { {1,user} }
             };
 
             var dtoUsers = users.ConvertTo<UsersDto>();
@@ -171,7 +172,8 @@ namespace ServiceStack.Text.Tests
             }
             AssertUser(user.ConvertTo<UserDto>());
             AssertUser(dtoUsers.User);
-            AssertUser(dtoUsers.Users[0]);
+            AssertUser(dtoUsers.UsersList[0]);
+            AssertUser(dtoUsers.UsersMap[1]);
 
             AutoMappingUtils.Reset();
         }
@@ -189,7 +191,8 @@ namespace ServiceStack.Text.Tests
             var users = new UsersData {
                 Id = 1,
                 User = user,
-                Users = { user }
+                UsersList = { user },
+                UsersMap = {{1,user}}
             };
 
             var dtoUsers = users.ConvertTo<UsersDto>();
@@ -197,7 +200,8 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(user.ConvertTo<UserDto>(), Is.Null);
             Assert.That(dtoUsers.User, Is.Null);
-            Assert.That(dtoUsers.Users, Is.Empty);
+            Assert.That(dtoUsers.UsersList, Is.Empty);
+            Assert.That(dtoUsers.UsersMap, Is.Empty);
             
             AutoMappingUtils.Reset();
         }
@@ -206,10 +210,11 @@ namespace ServiceStack.Text.Tests
         public void Does_ignore_collection_mappings()
         {
             AutoMappingUtils.IgnoreMapping<List<User>, List<UserDto>>();
+            AutoMappingUtils.IgnoreMapping<Dictionary<int, User>, Dictionary<int, UserDto>>();
             
             var users = new UsersData {
                 Id = 1,
-                Users = new List<User> {
+                UsersList = new List<User> {
                     new User {
                         FirstName = "John",
                         LastName = "Doe",
@@ -222,7 +227,8 @@ namespace ServiceStack.Text.Tests
             dtoUsers.PrintDump();
 
             Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
-            Assert.That(dtoUsers.Users, Is.Empty);
+            Assert.That(dtoUsers.UsersList, Is.Empty);
+            Assert.That(dtoUsers.UsersMap, Is.Empty);
            
             AutoMappingUtils.Reset();
         }

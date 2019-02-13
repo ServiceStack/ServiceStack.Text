@@ -670,30 +670,43 @@ namespace ServiceStack
 
         public static object TryConvertCollections(Type fromType, Type toType, object fromValue)
         {
-            if (!(fromValue is IDictionary) && fromValue is IEnumerable values)
+            if (fromValue is IEnumerable values)
             {
-                var fromElementType = fromType.GetCollectionType();
-                var toElementType = toType.GetCollectionType();
-
-                if (fromElementType != null && toElementType != null &&
-                    fromElementType != toElementType &&
-                    !(typeof(IDictionary).IsAssignableFrom(fromElementType) || typeof(IDictionary).IsAssignableFrom(toElementType)))
+                if (fromValue is IDictionary d)
                 {
-                    var to = new List<object>();
-                    foreach (var item in values)
+                    var from = fromValue.ToObjectDictionary();
+                    var to = from.FromObjectDictionary(toType);
+                    return to;
+                }
+                else
+                {
+                    var fromElementType = fromType.GetCollectionType();
+                    var toElementType = toType.GetCollectionType();
+
+                    if (fromElementType != null && toElementType != null && fromElementType != toElementType)
                     {
-                        var toItem = item.ConvertTo(toElementType);
-                        to.Add(toItem);
+                        if (typeof(IDictionary).IsAssignableFrom(fromElementType) || typeof(IDictionary).IsAssignableFrom(toElementType))
+                        {
+                            var from = fromValue.ToObjectDictionary();
+                            var to = from.FromObjectDictionary(toElementType);
+                            return to;
+                        }
+                        else
+                        {
+                            var to = new List<object>();
+                            foreach (var item in values)
+                            {
+                                var toItem = item.ConvertTo(toElementType);
+                                to.Add(toItem);
+                            }
+                            var ret = TranslateListWithElements.TryTranslateCollections(to.GetType(), toType, to);
+                            return ret ?? fromValue;
+                        }
                     }
-                    var ret = TranslateListWithElements.TryTranslateCollections(
-                        to.GetType(), toType, to);
-                    return ret ?? fromValue;
                 }
             }
 
-            var listResult = TranslateListWithElements.TryTranslateCollections(
-                fromType, toType, fromValue);
-
+            var listResult = TranslateListWithElements.TryTranslateCollections(fromType, toType, fromValue);
             return listResult ?? fromValue;
         }
     }
@@ -784,13 +797,15 @@ namespace ServiceStack
             if (typeof(IEnumerable).IsAssignableFrom(readMember.Type) && typeof(IEnumerable).IsAssignableFrom(writeMember.Type))
             {
                 var fromGenericDef = readMember.Type.GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
-                var toGenericDef = readMember.Type.GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
+                var toGenericDef = writeMember.Type.GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
                 if (fromGenericDef != null && toGenericDef != null)
                 {
                     // Check if to/from Key or Value Types are ignored   
-                    if (AutoMappingUtils.ShouldIgnoreMapping(fromGenericDef.GetGenericArguments()[0],toGenericDef.GetGenericArguments()[0]))
+                    var fromArgs = fromGenericDef.GetGenericArguments();
+                    var toArgs = toGenericDef.GetGenericArguments();
+                    if (AutoMappingUtils.ShouldIgnoreMapping(fromArgs[0],toArgs[0]))
                         return;
-                    if (AutoMappingUtils.ShouldIgnoreMapping(fromGenericDef.GetGenericArguments()[1],toGenericDef.GetGenericArguments()[1]))
+                    if (AutoMappingUtils.ShouldIgnoreMapping(fromArgs[1],toArgs[1]))
                         return;
                 }
                 else if (readMember.Type != typeof(string) && writeMember.Type != typeof(string))

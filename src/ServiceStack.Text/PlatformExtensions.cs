@@ -682,6 +682,16 @@ namespace ServiceStack
                 return to;
             }
 
+            if (obj is IDictionary d)
+            {
+                var to = new Dictionary<string, object>();
+                foreach (var key in d.Keys)
+                {
+                    to[key.ToString()] = d[key];
+                }
+                return to;
+            }
+
             if (obj is NameValueCollection nvc)
             {
                 var to = new Dictionary<string, object>();
@@ -718,7 +728,33 @@ namespace ServiceStack
 
             var to = type.CreateInstance();
 
-            PopulateInstanceInternal(values, to, type);
+            if (to is IDictionary d)
+            {
+                var genericDef = type.GetTypeWithGenericTypeDefinitionOf(typeof(IReadOnlyDictionary<,>));
+                if (genericDef != null)
+                {
+                    var toKeyType = genericDef.GetGenericArguments()[0];
+                    var toValueType = genericDef.GetGenericArguments()[1];
+                    
+                    foreach (var entry in values)
+                    {
+                        var toKey = entry.Key.ConvertTo(toKeyType);
+                        var toValue = entry.Value.ConvertTo(toValueType);
+                        d[toKey] = toValue;
+                    }
+                }
+                else
+                {
+                    foreach (var entry in values)
+                    {
+                        d[entry.Key] = entry.Value;
+                    }
+                }
+            }
+            else
+            {
+                PopulateInstanceInternal(values, to, type);
+            }
             
             return to;
         }
