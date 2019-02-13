@@ -65,11 +65,15 @@ namespace ServiceStack.Text.Tests
     public class UsersData
     {
         public int Id { get; set; }
+        
+        public User User { get; set; }
         public List<User> Users { get; set; }
     }
     public class UsersDto
     {
         public int Id { get; set; }
+
+        public UserDto User { get; set; }
         public List<UserDto> Users { get; set; }
     }
 

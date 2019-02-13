@@ -63,8 +63,9 @@ namespace ServiceStack
                 ? converter
                 : null;
         }
-        
-        public static T ConvertTo<T>(this object from)
+
+        public static T ConvertTo<T>(this object from) => from.ConvertTo<T>(skipConverters:false);
+        public static T ConvertTo<T>(this object from, bool skipConverters)
         {
             if (from == null)
                 return default(T);
@@ -73,7 +74,7 @@ namespace ServiceStack
             if (fromType == typeof(T))
                 return (T)from;
 
-            return (T)ConvertTo(from, typeof(T));
+            return (T)ConvertTo(from, typeof(T), skipConverters);
         }
 
         public static T CreateCopy<T>(this T from)
@@ -83,7 +84,7 @@ namespace ServiceStack
 
             if (typeof(IEnumerable).IsAssignableFrom(typeof(T)))
             {
-                var listResult = TryConvertCollections(from.GetType(), typeof(T), from);
+                var listResult = TranslateListWithElements.TryTranslateCollections(from.GetType(), typeof(T), from);
                 return (T)listResult;
             }
 
@@ -97,29 +98,38 @@ namespace ServiceStack
             return to;
         }
 
-        public static object ConvertTo(this object from, Type type)
+        public static object ConvertTo(this object from, Type toType) => from.ConvertTo(toType, skipConverters: false);
+        public static object ConvertTo(this object from, Type toType, bool skipConverters)
         {
             if (from == null)
                 return null;
 
-            if (from.GetType() == type)
+            var fromType = from.GetType();
+            if (fromType == toType)
                 return from;
 
-            if (from.GetType().IsValueType || type.IsValueType)
-                return ChangeValueType(from, type);
+            if (!skipConverters)
+            {
+                var converter = GetConverter(fromType, toType);
+                if (converter != null)
+                    return converter(from);
+            }
+
+            if (fromType.IsValueType || toType.IsValueType)
+                return ChangeValueType(from, toType);
 
             if (from is string str)
-                return TypeSerializer.DeserializeFromString(str, type);
+                return TypeSerializer.DeserializeFromString(str, toType);
             if (from is ReadOnlyMemory<char> rom)
-                return TypeSerializer.DeserializeFromSpan(type, rom.Span);
+                return TypeSerializer.DeserializeFromSpan(toType, rom.Span);
 
-            if (typeof(IEnumerable).IsAssignableFrom(type))
+            if (typeof(IEnumerable).IsAssignableFrom(toType))
             {
-                var listResult = TryConvertCollections(from.GetType(), type, from);
+                var listResult = TryConvertCollections(fromType, toType, from);
                 return listResult;
             }
 
-            var to = type.CreateInstance();
+            var to = toType.CreateInstance();
             return to.PopulateWithNonDefaultValues(from);
         }
 

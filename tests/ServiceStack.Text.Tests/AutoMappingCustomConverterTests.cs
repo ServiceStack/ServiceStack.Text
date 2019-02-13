@@ -141,18 +141,23 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Can_Convert_POCO_collections_with_custom_Converter()
         {
-            AutoMappingUtils.RegisterConverter((User from) => from.ConvertTo<UserDto>());
+            AutoMappingUtils.RegisterConverter((User from) => {
+                var to = from.ConvertTo<UserDto>(skipConverters:true); // avoid infinite recursion
+                to.FirstName += "!";
+                to.LastName += "!";
+                return to;
+            });
             AutoMappingUtils.RegisterConverter((Car from) => $"{from.Name} ({from.Age})");
-            
+
+            var user = new User {
+                FirstName = "John",
+                LastName = "Doe",
+                Car = new Car { Name = "BMW X6", Age = 3 }
+            };
             var users = new UsersData {
                 Id = 1,
-                Users = new List<User> {
-                    new User {
-                        FirstName = "John",
-                        LastName = "Doe",
-                        Car = new Car { Name = "BMW X6", Age = 3 }
-                    }
-                }
+                User = user,
+                Users = new List<User> { user }
             };
 
             var dtoUsers = users.ConvertTo<UsersDto>();
@@ -160,10 +165,17 @@ namespace ServiceStack.Text.Tests
             dtoUsers.PrintDump();
             
             Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
-            Assert.That(dtoUsers.Users[0].FirstName, Is.EqualTo(users.Users[0].FirstName));
-            Assert.That(dtoUsers.Users[0].LastName, Is.EqualTo(users.Users[0].LastName));
-            Assert.That(dtoUsers.Users[0].Car, Is.EqualTo("BMW X6 (3)"));
-           
+
+            void AssertUser(UserDto userDto)
+            {
+                Assert.That(userDto.FirstName, Is.EqualTo(user.FirstName + "!"));
+                Assert.That(userDto.LastName, Is.EqualTo(user.LastName + "!"));
+                Assert.That(userDto.Car, Is.EqualTo($"{user.Car.Name} ({user.Car.Age})"));
+            }
+            AssertUser(user.ConvertTo<UserDto>());
+            AssertUser(dtoUsers.User);
+            AssertUser(dtoUsers.Users[0]);
+
             AutoMappingUtils.Reset();
         }
 
