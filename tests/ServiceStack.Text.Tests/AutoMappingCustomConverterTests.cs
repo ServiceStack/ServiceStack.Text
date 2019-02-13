@@ -148,14 +148,16 @@ namespace ServiceStack.Text.Tests
                 Id = 1,
                 Users = new List<User> {
                     new User {
-                        FirstName = "Demis",
-                        LastName = "Bellot",
+                        FirstName = "John",
+                        LastName = "Doe",
                         Car = new Car { Name = "BMW X6", Age = 3 }
                     }
                 }
             };
 
             var dtoUsers = users.ConvertTo<UsersDto>();
+            
+            dtoUsers.PrintDump();
             
             Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
             Assert.That(dtoUsers.Users[0].FirstName, Is.EqualTo(users.Users[0].FirstName));
@@ -174,15 +176,16 @@ namespace ServiceStack.Text.Tests
                 Id = 1,
                 Users = new List<User> {
                     new User {
-                        FirstName = "Demis",
-                        LastName = "Bellot",
+                        FirstName = "John",
+                        LastName = "Doe",
                         Car = new Car { Name = "BMW X6", Age = 3 }
                     }
                 }
             };
 
             var dtoUsers = users.ConvertTo<UsersDto>();
-            
+            dtoUsers.PrintDump();
+
             Assert.That(dtoUsers.Id, Is.EqualTo(users.Id));
             Assert.That(dtoUsers.Users, Is.Null);
            
