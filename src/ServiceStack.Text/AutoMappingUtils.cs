@@ -683,25 +683,17 @@ namespace ServiceStack
                     var fromElementType = fromType.GetCollectionType();
                     var toElementType = toType.GetCollectionType();
 
-                    if (fromElementType != null && toElementType != null && fromElementType != toElementType)
+                    if (fromElementType != null && toElementType != null && fromElementType != toElementType && 
+                        !(typeof(IDictionary).IsAssignableFrom(fromElementType) || typeof(IDictionary).IsAssignableFrom(toElementType)))
                     {
-                        if (typeof(IDictionary).IsAssignableFrom(fromElementType) || typeof(IDictionary).IsAssignableFrom(toElementType))
+                        var to = new List<object>();
+                        foreach (var item in values)
                         {
-                            var from = fromValue.ToObjectDictionary();
-                            var to = from.FromObjectDictionary(toElementType);
-                            return to;
+                            var toItem = item.ConvertTo(toElementType);
+                            to.Add(toItem);
                         }
-                        else
-                        {
-                            var to = new List<object>();
-                            foreach (var item in values)
-                            {
-                                var toItem = item.ConvertTo(toElementType);
-                                to.Add(toItem);
-                            }
-                            var ret = TranslateListWithElements.TryTranslateCollections(to.GetType(), toType, to);
-                            return ret ?? fromValue;
-                        }
+                        var ret = TranslateListWithElements.TryTranslateCollections(to.GetType(), toType, to);
+                        return ret ?? fromValue;
                     }
                 }
             }
