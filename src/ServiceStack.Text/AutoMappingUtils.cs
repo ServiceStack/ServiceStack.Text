@@ -83,9 +83,7 @@ namespace ServiceStack
 
             if (typeof(IEnumerable).IsAssignableFrom(typeof(T)))
             {
-                var listResult = TranslateListWithElements.TryTranslateCollections(
-                    from.GetType(), typeof(T), from);
-
+                var listResult = TryConvertCollections(from.GetType(), typeof(T), from);
                 return (T)listResult;
             }
 
@@ -117,9 +115,7 @@ namespace ServiceStack
 
             if (typeof(IEnumerable).IsAssignableFrom(type))
             {
-                var listResult = TranslateListWithElements.TryTranslateCollections(
-                    from.GetType(), type, from);
-
+                var listResult = TryConvertCollections(from.GetType(), type, from);
                 return listResult;
             }
 
@@ -662,6 +658,35 @@ namespace ServiceStack
             }
             while ((baseType = baseType.BaseType) != null);
         }
+
+        public static object TryConvertCollections(Type fromType, Type toType, object fromValue)
+        {
+            if (!(fromValue is IDictionary) && fromValue is IEnumerable values)
+            {
+                var fromElementType = fromType.GetCollectionType();
+                var toElementType = toType.GetCollectionType();
+
+                if (fromElementType != null && toElementType != null &&
+                    fromElementType != toElementType &&
+                    !(typeof(IDictionary).IsAssignableFrom(fromElementType) || typeof(IDictionary).IsAssignableFrom(toElementType)))
+                {
+                    var to = new List<object>();
+                    foreach (var item in values)
+                    {
+                        var toItem = item.ConvertTo(toElementType);
+                        to.Add(toItem);
+                    }
+                    var ret = TranslateListWithElements.TryTranslateCollections(
+                        to.GetType(), toType, to);
+                    return ret ?? fromValue;
+                }
+            }
+
+            var listResult = TranslateListWithElements.TryTranslateCollections(
+                fromType, toType, fromValue);
+
+            return listResult ?? fromValue;
+        }
     }
 
     public class AssignmentEntry
@@ -868,33 +893,7 @@ namespace ServiceStack
             }
             else if (typeof(IEnumerable).IsAssignableFrom(fromType))
             {
-                return fromValue => {
-                    var fromElementType = fromType.GetCollectionType();
-                    var toElementType = underlyingToType.GetCollectionType();
-
-                    if (fromElementType != null && toElementType != null &&
-                        fromElementType != toElementType && fromValue is IEnumerable values)
-                    {
-                        var to = new List<object>();
-                        foreach (var item in values)
-                        {
-                            var toItem = item.ConvertTo(toElementType);
-                            to.Add(toItem);
-                        }
-
-                        var listResult = TranslateListWithElements.TryTranslateCollections(
-                            to.GetType(), underlyingToType, to);
-
-                        return listResult ?? fromValue;
-                    }
-                    else
-                    {
-                        var listResult = TranslateListWithElements.TryTranslateCollections(
-                            fromType, underlyingToType, fromValue);
-
-                        return listResult ?? fromValue;
-                    }
-                };
+                return fromValue => AutoMappingUtils.TryConvertCollections(fromType, underlyingToType, fromValue);
             }
             else if (underlyingToType.IsValueType)
             {
