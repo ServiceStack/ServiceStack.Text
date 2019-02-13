@@ -674,9 +674,23 @@ namespace ServiceStack
             {
                 if (fromValue is IDictionary d)
                 {
-                    var from = fromValue.ToObjectDictionary();
-                    var to = from.FromObjectDictionary(toType);
-                    return to;
+                    if (toType.GetDictionaryEntryTypes(out var toKeyType, out var toValueType))
+                    {
+                        var to = (IDictionary)toType.CreateInstance();
+                        foreach (var key in d.Keys)
+                        {
+                            var toKey = key.ConvertTo(toKeyType);
+                            var toValue = d[key].ConvertTo(toValueType);
+                            to[toKey] = toValue;
+                        }
+                        return to;
+                    }
+                    else
+                    {
+                        var from = fromValue.ToObjectDictionary();
+                        var to = from.FromObjectDictionary(toType);
+                        return to;
+                    }
                 }
                 else
                 {

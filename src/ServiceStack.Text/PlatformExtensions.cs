@@ -717,6 +717,20 @@ namespace ServiceStack
             return dict;
         }
 
+        public static bool GetDictionaryEntryTypes(this Type dictType, out Type keyType, out Type valueType)
+        {
+            var genericDef = dictType.GetTypeWithGenericTypeDefinitionOf(typeof(IReadOnlyDictionary<,>));
+            if (genericDef != null)
+            {
+                var genericArgs = genericDef.GetGenericArguments();
+                keyType = genericArgs[0];
+                valueType = genericArgs[1];
+                return true;
+            }
+            keyType = valueType = null;
+            return false;
+        }
+
         public static object FromObjectDictionary(this IReadOnlyDictionary<string, object> values, Type type)
         {
             if (values == null)
@@ -727,15 +741,10 @@ namespace ServiceStack
                 return values;
 
             var to = type.CreateInstance();
-
             if (to is IDictionary d)
             {
-                var genericDef = type.GetTypeWithGenericTypeDefinitionOf(typeof(IReadOnlyDictionary<,>));
-                if (genericDef != null)
+                if (type.GetDictionaryEntryTypes(out var toKeyType, out var toValueType))
                 {
-                    var toKeyType = genericDef.GetGenericArguments()[0];
-                    var toValueType = genericDef.GetGenericArguments()[1];
-                    
                     foreach (var entry in values)
                     {
                         var toKey = entry.Key.ConvertTo(toKeyType);
