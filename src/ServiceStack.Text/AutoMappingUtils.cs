@@ -96,7 +96,7 @@ namespace ServiceStack
             if (typeof(T).IsValueType)
                 return (T)ChangeValueType(from, typeof(T));
 
-            if (typeof(IEnumerable).IsAssignableFrom(typeof(T)))
+            if (typeof(IEnumerable).IsAssignableFrom(typeof(T)) && typeof(T) != typeof(string))
             {
                 var listResult = TranslateListWithElements.TryTranslateCollections(from.GetType(), typeof(T), from);
                 return (T)listResult;
@@ -140,6 +140,9 @@ namespace ServiceStack
             if (from is ReadOnlyMemory<char> rom)
                 return TypeSerializer.DeserializeFromSpan(toType, rom.Span);
 
+            if (toType == typeof(string))
+                return from.ToJsv();
+            
             if (typeof(IEnumerable).IsAssignableFrom(toType))
             {
                 var listResult = TryConvertCollections(fromType, toType, from);
@@ -962,7 +965,7 @@ namespace ServiceStack
                 if (underlyingToType.IsIntegerType())
                     return fromValue => Convert.ChangeType(fromValue, underlyingToType, null);
             }
-            else if (typeof(IEnumerable).IsAssignableFrom(fromType))
+            else if (typeof(IEnumerable).IsAssignableFrom(fromType) && underlyingToType != typeof(string))
             {
                 return fromValue => AutoMappingUtils.TryConvertCollections(fromType, underlyingToType, fromValue);
             }
@@ -976,6 +979,8 @@ namespace ServiceStack
                 {
                     if (fromValue == null)
                         return fromValue;
+                    if (toType == typeof(string))
+                        return fromValue.ToJsv();
 
                     var toValue = toType.CreateInstance();
                     toValue.PopulateWith(fromValue);

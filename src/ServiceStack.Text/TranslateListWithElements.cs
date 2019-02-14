@@ -27,8 +27,7 @@ namespace ServiceStack.Text
 
         public static object TranslateToGenericICollectionCache(object from, Type toInstanceOfType, Type elementType)
         {
-            ConvertInstanceDelegate translateToFn;
-            if (TranslateICollectionCache.TryGetValue(toInstanceOfType, out translateToFn))
+            if (TranslateICollectionCache.TryGetValue(toInstanceOfType, out var translateToFn))
                 return translateToFn(from, toInstanceOfType);
 
             var genericType = typeof(TranslateListWithElements<>).MakeGenericType(elementType);
@@ -39,8 +38,9 @@ namespace ServiceStack.Text
             do
             {
                 snapshot = TranslateICollectionCache;
-                newCache = new Dictionary<Type, ConvertInstanceDelegate>(TranslateICollectionCache);
-                newCache[elementType] = translateToFn;
+                newCache = new Dictionary<Type, ConvertInstanceDelegate>(TranslateICollectionCache) {
+                    [elementType] = translateToFn
+                };
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref TranslateICollectionCache, newCache, snapshot), snapshot));
@@ -55,8 +55,7 @@ namespace ServiceStack.Text
             object from, Type toInstanceOfType, Type fromElementType)
         {
             var typeKey = new ConvertibleTypeKey(toInstanceOfType, fromElementType);
-            ConvertInstanceDelegate translateToFn;
-            if (TranslateConvertibleICollectionCache.TryGetValue(typeKey, out translateToFn)) return translateToFn(from, toInstanceOfType);
+            if (TranslateConvertibleICollectionCache.TryGetValue(typeKey, out var translateToFn)) return translateToFn(from, toInstanceOfType);
 
             var toElementType = toInstanceOfType.FirstGenericType().GetGenericArguments()[0];
             var genericType = typeof(TranslateListWithConvertibleElements<,>).MakeGenericType(fromElementType, toElementType);
@@ -67,8 +66,9 @@ namespace ServiceStack.Text
             do
             {
                 snapshot = TranslateConvertibleICollectionCache;
-                newCache = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>(TranslateConvertibleICollectionCache);
-                newCache[typeKey] = translateToFn;
+                newCache = new Dictionary<ConvertibleTypeKey, ConvertInstanceDelegate>(TranslateConvertibleICollectionCache) {
+                    [typeKey] = translateToFn
+                };
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref TranslateConvertibleICollectionCache, newCache, snapshot), snapshot));
@@ -109,23 +109,23 @@ namespace ServiceStack.Text
     public class ConvertibleTypeKey
     {
         public Type ToInstanceType { get; set; }
-        public Type FromElemenetType { get; set; }
+        public Type FromElementType { get; set; }
 
         public ConvertibleTypeKey()
         {
         }
 
-        public ConvertibleTypeKey(Type toInstanceType, Type fromElemenetType)
+        public ConvertibleTypeKey(Type toInstanceType, Type fromElementType)
         {
             ToInstanceType = toInstanceType;
-            FromElemenetType = fromElemenetType;
+            FromElementType = fromElementType;
         }
 
         public bool Equals(ConvertibleTypeKey other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(other.ToInstanceType, ToInstanceType) && Equals(other.FromElemenetType, FromElemenetType);
+            return other.ToInstanceType == ToInstanceType && other.FromElementType == FromElementType;
         }
 
         public override bool Equals(object obj)
@@ -141,7 +141,7 @@ namespace ServiceStack.Text
             unchecked
             {
                 return ((ToInstanceType != null ? ToInstanceType.GetHashCode() : 0) * 397)
-                    ^ (FromElemenetType != null ? FromElemenetType.GetHashCode() : 0);
+                    ^ (FromElementType != null ? FromElementType.GetHashCode() : 0);
             }
         }
     }

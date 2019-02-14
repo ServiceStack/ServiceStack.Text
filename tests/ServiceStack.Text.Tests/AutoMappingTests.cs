@@ -873,5 +873,11 @@ namespace ServiceStack.Text.Tests
             ModelWithFieldsOfDifferentTypesAsNullables.AssertIsEqual(toObj, fromObj);
         }
 
+        [Test]
+        public void Can_convert_to_array_to_string()
+        {
+            Assert.That(new []{ new ViewModel { Public = "A"} }.ConvertTo<string>(), Is.Not.Empty);
+            Assert.That(new []{ DayOfWeek.Monday }.ConvertTo<string>(), Is.Not.Empty);
+        }
     }
 }
