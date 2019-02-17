@@ -630,31 +630,34 @@ namespace ServiceStack
                 if (SetValueFn == null)
                     return;
 
-                if (value is IEnumerable<KeyValuePair<string, object>> dictionary)
+                if (Type != typeof(object))
                 {
-                    value = dictionary.FromObjectDictionary(Type);
-                }
-
-                if (!Type.IsInstanceOfType(value))
-                {
-                    lock (this)
+                    if (value is IEnumerable<KeyValuePair<string, object>> dictionary)
                     {
-                        //Only caches object converter used on first use
-                        if (ConvertType == null)
+                        value = dictionary.FromObjectDictionary(Type);
+                    }
+
+                    if (!Type.IsInstanceOfType(value))
+                    {
+                        lock (this)
                         {
-                            ConvertType = value.GetType();
-                            ConvertValueFn = TypeConverter.CreateTypeConverter(ConvertType, Type);
+                            //Only caches object converter used on first use
+                            if (ConvertType == null)
+                            {
+                                ConvertType = value.GetType();
+                                ConvertValueFn = TypeConverter.CreateTypeConverter(ConvertType, Type);
+                            }
                         }
-                    }
 
-                    if (ConvertType.IsInstanceOfType(value))
-                    {
-                        value = ConvertValueFn(value);
-                    }
-                    else
-                    {
-                        var tempConvertFn = TypeConverter.CreateTypeConverter(value.GetType(), Type);
-                        value = tempConvertFn(value);
+                        if (ConvertType.IsInstanceOfType(value))
+                        {
+                            value = ConvertValueFn(value);
+                        }
+                        else
+                        {
+                            var tempConvertFn = TypeConverter.CreateTypeConverter(value.GetType(), Type);
+                            value = tempConvertFn(value);
+                        }
                     }
                 }
 

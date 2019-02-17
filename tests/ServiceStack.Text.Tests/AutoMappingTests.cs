@@ -857,6 +857,34 @@ namespace ServiceStack.Text.Tests
             Assert.That(stringKvps.ConvertTo<List<KeyValuePair<object,string>>>(), Is.EquivalentTo(kvpsStringValue));
             Assert.That(stringKvps.ConvertTo<List<KeyValuePair<string,string>>>(), Is.EquivalentTo(stringKvps));
         }
+
+        class HasObject
+        {
+            public object Value { get; set; }
+        }
+
+        [Test]
+        public void Can_convert_dictionary_to_HasObject()
+        {
+            var objDict = new ObjectDictionary {
+                ["value"] = new ObjectDictionary {
+                    ["a"] = 1
+                }
+            };
+
+            var to = objDict.FromObjectDictionary<HasObject>();
+            Assert.That(to.Value, Is.EqualTo(objDict["value"]));
+            
+            var kvps = new ObjectDictionary {
+                ["value"] = new List<KeyValuePair<string,int>> {
+                    new KeyValuePair<string, int>("a",1)
+                }
+            };
+            
+            to = objDict.FromObjectDictionary<HasObject>();
+            Assert.That(to.Value, Is.EqualTo(objDict["value"]));
+        }
+        
     }
 
     public enum ClassWithEnumType
