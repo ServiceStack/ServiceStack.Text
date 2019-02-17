@@ -751,8 +751,14 @@ namespace ServiceStack.Text.Tests
             var stringKvps = new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("a", "1")
             };
+            var objDict = new ObjectDictionary {
+                { "a", 1 }
+            };
             
             var genericMapStringValue = new Dictionary<string, object> {
+                { "a", "1" }
+            };
+            var objDictStringValue = new ObjectDictionary {
                 { "a", "1" }
             };
             var kvpsStringValue = new List<KeyValuePair<string, object>> {
@@ -764,30 +770,35 @@ namespace ServiceStack.Text.Tests
             Assert.That(genericMap.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
             Assert.That(genericMap.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvps));
             Assert.That(genericMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            Assert.That(genericMap.ConvertTo<ObjectDictionary>(), Is.EquivalentTo(objDict));
             
             Assert.That(stringMap.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMapStringValue));
             Assert.That(stringMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
             Assert.That(stringMap.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
             Assert.That(stringMap.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvpsStringValue));
             Assert.That(stringMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            Assert.That(stringMap.ConvertTo<ObjectDictionary>(), Is.EquivalentTo(objDictStringValue));
             
             Assert.That(intMap.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMap));
             Assert.That(intMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
             Assert.That(intMap.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
             Assert.That(intMap.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvps));
             Assert.That(intMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            Assert.That(intMap.ConvertTo<ObjectDictionary>(), Is.EquivalentTo(objDict));
             
             Assert.That(kvps.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMap));
             Assert.That(kvps.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
             Assert.That(kvps.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
             Assert.That(kvps.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvps));
             Assert.That(kvps.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            Assert.That(kvps.ConvertTo<ObjectDictionary>(), Is.EquivalentTo(objDict));
             
             Assert.That(stringKvps.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMapStringValue));
             Assert.That(stringKvps.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
             Assert.That(stringKvps.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
             Assert.That(stringKvps.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvpsStringValue));
             Assert.That(stringKvps.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            Assert.That(stringKvps.ConvertTo<ObjectDictionary>(), Is.EquivalentTo(objDictStringValue));
         }
 
         [Test]
