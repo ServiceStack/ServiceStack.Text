@@ -119,7 +119,7 @@ namespace ServiceStack
                 return null;
 
             var fromType = from.GetType();
-            if (fromType == toType)
+            if (fromType == toType || toType == typeof(object))
                 return from;
 
             if (ShouldIgnoreMapping(fromType, toType))
@@ -194,6 +194,27 @@ namespace ServiceStack
             if (toType.HasInterface(typeof(IConvertible)))
             {
                 return Convert.ChangeType(from, toType, provider: null);
+            }
+
+            var toKvpType = toType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+            if (toKvpType != null)
+            {
+                var fromKvpType = fromType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+                if (fromKvpType != null)
+                {
+                    var fromProps = TypeProperties.Get(fromKvpType);
+                    var fromKey = fromProps.GetPublicGetter("Key")(from);
+                    var fromValue = fromProps.GetPublicGetter("Value")(from);
+                    
+                    var toKvpArgs = toKvpType.GetGenericArguments();
+                    var toKeyType = toKvpArgs[0];
+                    var toValueType = toKvpArgs[1];
+                    var toCtor = toKvpType.GetConstructor(toKvpArgs);
+                    var toKey = fromKey.ConvertTo(toKeyType);
+                    var toValue = fromValue.ConvertTo(toValueType);
+                    var to = toCtor.Invoke(new[] {toKey,toValue});
+                    return to;
+                }
             }
 
             return TypeSerializer.DeserializeFromString(from.ToJsv(), toType);
@@ -688,48 +709,196 @@ namespace ServiceStack
             }
             while ((baseType = baseType.BaseType) != null);
         }
-
+        
         public static object TryConvertCollections(Type fromType, Type toType, object fromValue)
         {
             if (fromValue is IEnumerable values)
             {
                 if (fromValue is IDictionary d)
                 {
-                    if (toType.GetDictionaryEntryTypes(out var toKeyType, out var toValueType))
+                    var obj = toType.CreateInstance();
+                    switch (obj)
                     {
-                        var to = (IDictionary)toType.CreateInstance();
-                        foreach (var key in d.Keys)
-                        {
-                            var toKey = key.ConvertTo(toKeyType);
-                            var toValue = d[key].ConvertTo(toValueType);
-                            to[toKey] = toValue;
+                        case List<KeyValuePair<string, string>> toList: {
+                            foreach (var key in d.Keys)
+                            {
+                                var toKey = key.ConvertTo<string>();
+                                var toValue = d[key].ConvertTo<string>();
+                                toList.Add(new KeyValuePair<string, string>(toKey, toValue));
+                            }
+                            return toList;
                         }
-                        return to;
-                    }
-                    else
-                    {
-                        var from = fromValue.ToObjectDictionary();
-                        var to = from.FromObjectDictionary(toType);
-                        return to;
+                        case List<KeyValuePair<string, object>> toObjList: {
+                            foreach (var key in d.Keys)
+                            {
+                                var toKey = key.ConvertTo<string>();
+                                var toValue = d[key];
+                                toObjList.Add(new KeyValuePair<string, object>(toKey, toValue));
+                            }
+                            return toObjList;
+                        }
+                        case IDictionary toDict: {
+                            if (toType.GetKeyValuePairsTypes(out var toKeyType, out var toValueType))
+                            {
+                                foreach (var key in d.Keys)
+                                {
+                                    var toKey = toKeyType != null
+                                        ? key.ConvertTo(toKeyType)
+                                        : key;
+                                    var toValue = d[key].ConvertTo(toValueType);
+                                    toDict[toKey] = toValue;
+                                }
+                                return toDict;
+                            }
+                            else
+                            {
+                                var from = fromValue.ToObjectDictionary();
+                                var to = from.FromObjectDictionary(toType);
+                                return to;
+                            }
+                        }
                     }
                 }
-                else
+                
+                var genericDef = fromType.GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
+                if (genericDef != null)
                 {
-                    var fromElementType = fromType.GetCollectionType();
-                    var toElementType = toType.GetCollectionType();
-
-                    if (fromElementType != null && toElementType != null && fromElementType != toElementType && 
-                        !(typeof(IDictionary).IsAssignableFrom(fromElementType) || typeof(IDictionary).IsAssignableFrom(toElementType)))
+                    var genericEnumType = genericDef.GetGenericArguments()[0];
+                    var genericKvps = genericEnumType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+                    if (genericKvps != null)
                     {
-                        var to = new List<object>();
-                        foreach (var item in values)
+                        // Improve perf with Specialized handling of common KVP combinations 
+                        var obj = toType.CreateInstance();
+                        if (fromValue is IEnumerable<KeyValuePair<string, string>> sKvps)
                         {
-                            var toItem = item.ConvertTo(toElementType);
-                            to.Add(toItem);
+                            switch (obj) {
+                                case IDictionary toDict: {
+                                    toType.GetKeyValuePairsTypes(out var toKeyType, out var toValueType);
+                                    foreach (var entry in sKvps)
+                                    {
+                                        var toKey = toKeyType != null
+                                            ? entry.Key.ConvertTo(toKeyType)
+                                            : entry.Key;
+                                        toDict[toKey] = toValueType != null
+                                            ? entry.Value.ConvertTo(toValueType)
+                                            : entry.Value;
+                                    }
+                                    return toDict;
+                                }
+                                case List<KeyValuePair<string, string>> toList: {
+                                    foreach (var entry in sKvps)
+                                    {
+                                        toList.Add(new KeyValuePair<string, string>(entry.Key, entry.Value));
+                                    }
+                                    return toList;
+                                }
+                                case List<KeyValuePair<string, object>> toObjList: {
+                                    foreach (var entry in sKvps)
+                                    {
+                                        toObjList.Add(new KeyValuePair<string, object>(entry.Key, entry.Value));
+                                    }
+                                    return toObjList;
+                                }
+                            }
                         }
-                        var ret = TranslateListWithElements.TryTranslateCollections(to.GetType(), toType, to);
-                        return ret ?? fromValue;
+                        else if (fromValue is IEnumerable<KeyValuePair<string, object>> oKvps)
+                        {
+                            switch (obj) {
+                                case IDictionary toDict:
+                                {
+                                    toType.GetKeyValuePairsTypes(out var toKeyType, out var toValueType);
+                                    foreach (var entry in oKvps)
+                                    {
+                                        var toKey = entry.Key.ConvertTo<string>();
+                                        toDict[toKey] = toValueType != null
+                                            ? entry.Value.ConvertTo(toValueType)
+                                            : entry.Value;
+                                    }
+                                    return toDict;
+                                }
+                                case List<KeyValuePair<string, string>> toList: {
+                                    foreach (var entry in oKvps)
+                                    {
+                                        toList.Add(new KeyValuePair<string, string>(entry.Key, entry.Value.ConvertTo<string>()));
+                                    }
+                                    return toList;
+                                }
+                                case List<KeyValuePair<string, object>> toObjList: {
+                                    foreach (var entry in oKvps)
+                                    {
+                                        toObjList.Add(new KeyValuePair<string, object>(entry.Key, entry.Value));
+                                    }
+                                    return toObjList;
+                                }
+                            }
+                        }
+                        
+                        
+                        // Fallback for handling any KVP combo
+                        var toKvpDefType = toType.GetKeyValuePairTypeDef();
+                        switch (obj) {
+                            case IDictionary toDict:
+                            {
+                                var keyProp = TypeProperties.Get(toKvpDefType).GetPublicGetter("Key");
+                                var valueProp = TypeProperties.Get(toKvpDefType).GetPublicGetter("Value");
+                                
+                                foreach (var entry in values)
+                                {
+                                    var toKvp = entry.ConvertTo(toKvpDefType);
+                                    var toKey = keyProp(toKvp);
+                                    var toValue = valueProp(toKvp);
+                                    toDict[toKey] = toValue;
+                                }
+                                return toDict;
+                            }
+                            case List<KeyValuePair<string, string>> toStringList: {
+                                foreach (var entry in values)
+                                {
+                                    var toEntry = entry.ConvertTo(toKvpDefType);
+                                    toStringList.Add((KeyValuePair<string, string>) toEntry);
+                                }
+                                return toStringList;
+                            }
+                            case List<KeyValuePair<string, object>> toObjList: {
+                                foreach (var entry in values)
+                                {
+                                    var toEntry = entry.ConvertTo(toKvpDefType);
+                                    toObjList.Add((KeyValuePair<string, object>) toEntry);
+                                }
+                                return toObjList;
+                            }
+                            case IEnumerable toList:
+                            {
+                                var addMethod = toType.GetMethod(nameof(IList.Add), new[] {toKvpDefType});
+                                if (addMethod != null)
+                                {
+                                    foreach (var entry in values)
+                                    {
+                                        var toEntry = entry.ConvertTo(toKvpDefType);
+                                        addMethod.Invoke(toList, new[] { toEntry });
+                                    }
+                                    return toList;
+                                }
+                                break;
+                            }
+                        }
                     }
+                }
+
+                var fromElementType = fromType.GetCollectionType();
+                var toElementType = toType.GetCollectionType();
+
+                if (fromElementType != null && toElementType != null && fromElementType != toElementType && 
+                    !(typeof(IDictionary).IsAssignableFrom(fromElementType) || typeof(IDictionary).IsAssignableFrom(toElementType)))
+                {
+                    var to = new List<object>();
+                    foreach (var item in values)
+                    {
+                        var toItem = item.ConvertTo(toElementType);
+                        to.Add(toItem);
+                    }
+                    var ret = TranslateListWithElements.TryTranslateCollections(to.GetType(), toType, to);
+                    return ret ?? fromValue;
                 }
             }
 

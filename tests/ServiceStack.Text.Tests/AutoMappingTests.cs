@@ -716,6 +716,136 @@ namespace ServiceStack.Text.Tests
             var obj = (Dictionary<string, ClassWithEnum>)AutoMappingUtils.CreateDefaultValue(typeof(Dictionary<string, ClassWithEnum>), new Dictionary<Type, int>());
             Assert.That(obj, Is.Not.Null);
         }
+
+        [Test]
+        public void Can_get_generic_types_from_Dictionary_or_KVPs()
+        {
+            typeof(Dictionary<string, object>).GetKeyValuePairsTypes(out var keyType, out var valueType);
+            Assert.That(keyType, Is.EqualTo(typeof(string)));
+            Assert.That(valueType, Is.EqualTo(typeof(object)));
+            
+            typeof(IEnumerable<KeyValuePair<string, object>>).GetKeyValuePairsTypes(out keyType, out valueType);
+            Assert.That(keyType, Is.EqualTo(typeof(string)));
+            Assert.That(valueType, Is.EqualTo(typeof(object)));
+            
+            typeof(List<KeyValuePair<string, object>>).GetKeyValuePairsTypes(out keyType, out valueType);
+            Assert.That(keyType, Is.EqualTo(typeof(string)));
+            Assert.That(valueType, Is.EqualTo(typeof(object)));
+        }
+
+        [Test]
+        public void Can_convert_between_different_types_of_Dictionaries_and_KVP_values()
+        {
+            var genericMap = new Dictionary<string, object> {
+                { "a", 1 }
+            };
+            var stringMap = new Dictionary<string, string> {
+                {"a", "1"}
+            };
+            var intMap = new Dictionary<string, int> {
+                {"a", 1}
+            };
+            var kvps = new List<KeyValuePair<string, object>> {
+                new KeyValuePair<string, object>("a", 1)
+            };
+            var stringKvps = new List<KeyValuePair<string, string>> {
+                new KeyValuePair<string, string>("a", "1")
+            };
+            
+            var genericMapStringValue = new Dictionary<string, object> {
+                { "a", "1" }
+            };
+            var kvpsStringValue = new List<KeyValuePair<string, object>> {
+                new KeyValuePair<string, object>("a", "1")
+            };
+            
+            Assert.That(genericMap.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMap));
+            Assert.That(genericMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(genericMap.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
+            Assert.That(genericMap.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvps));
+            Assert.That(genericMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(stringMap.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMapStringValue));
+            Assert.That(stringMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(stringMap.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
+            Assert.That(stringMap.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvpsStringValue));
+            Assert.That(stringMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(intMap.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMap));
+            Assert.That(intMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(intMap.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
+            Assert.That(intMap.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvps));
+            Assert.That(intMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(kvps.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMap));
+            Assert.That(kvps.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(kvps.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
+            Assert.That(kvps.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvps));
+            Assert.That(kvps.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(stringKvps.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(genericMapStringValue));
+            Assert.That(stringKvps.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(stringKvps.ConvertTo<Dictionary<string,int>>(), Is.EquivalentTo(intMap));
+            Assert.That(stringKvps.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(kvpsStringValue));
+            Assert.That(stringKvps.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+        }
+
+        [Test]
+        public void Can_convert_between_different_types_of_Dictionaries_and_KVP_keys()
+        {
+            var genericMap = new Dictionary<object, string> {
+                { 1, "a" }
+            };
+            var stringMap = new Dictionary<string, string> {
+                {"1","a"}
+            };
+            var intMap = new Dictionary<int, string> {
+                {1,"a"}
+            };
+            var kvps = new List<KeyValuePair<object, string>> {
+                new KeyValuePair<object,string>(1, "a")
+            };
+            var stringKvps = new List<KeyValuePair<string, string>> {
+                new KeyValuePair<string, string>("1","a")
+            };
+            
+            var genericMapStringValue = new Dictionary<object,string> {
+                { "1","a" }
+            };
+            var kvpsStringValue = new List<KeyValuePair<object,string>> {
+                new KeyValuePair<object,string>("1","a")
+            };
+            
+            Assert.That(genericMap.ConvertTo<Dictionary<object,string>>(), Is.EquivalentTo(genericMap));
+            Assert.That(genericMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(genericMap.ConvertTo<Dictionary<int,string>>(), Is.EquivalentTo(intMap));
+            Assert.That(genericMap.ConvertTo<List<KeyValuePair<object,string>>>(), Is.EquivalentTo(kvps));
+            Assert.That(genericMap.ConvertTo<List<KeyValuePair<string,string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(stringMap.ConvertTo<Dictionary<object,string>>(), Is.EquivalentTo(genericMapStringValue));
+            Assert.That(stringMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(stringMap.ConvertTo<Dictionary<int,string>>(), Is.EquivalentTo(intMap));
+            Assert.That(stringMap.ConvertTo<List<KeyValuePair<object,string>>>(), Is.EquivalentTo(kvpsStringValue));
+            Assert.That(stringMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(intMap.ConvertTo<Dictionary<object,string>>(), Is.EquivalentTo(genericMap));
+            Assert.That(intMap.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(intMap.ConvertTo<Dictionary<int,string>>(), Is.EquivalentTo(intMap));
+            Assert.That(intMap.ConvertTo<List<KeyValuePair<object,string>>>(), Is.EquivalentTo(kvps));
+            Assert.That(intMap.ConvertTo<List<KeyValuePair<string, string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(kvps.ConvertTo<Dictionary<object,string>>(), Is.EquivalentTo(genericMap));
+            Assert.That(kvps.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(kvps.ConvertTo<Dictionary<int,string>>(), Is.EquivalentTo(intMap));
+            Assert.That(kvps.ConvertTo<List<KeyValuePair<object,string>>>(), Is.EquivalentTo(kvps));
+            Assert.That(kvps.ConvertTo<List<KeyValuePair<string,string>>>(), Is.EquivalentTo(stringKvps));
+            
+            Assert.That(stringKvps.ConvertTo<Dictionary<object,string>>(), Is.EquivalentTo(genericMapStringValue));
+            Assert.That(stringKvps.ConvertTo<Dictionary<string,string>>(), Is.EquivalentTo(stringMap));
+            Assert.That(stringKvps.ConvertTo<Dictionary<int,string>>(), Is.EquivalentTo(intMap));
+            Assert.That(stringKvps.ConvertTo<List<KeyValuePair<object,string>>>(), Is.EquivalentTo(kvpsStringValue));
+            Assert.That(stringKvps.ConvertTo<List<KeyValuePair<string,string>>>(), Is.EquivalentTo(stringKvps));
+        }
     }
 
     public enum ClassWithEnumType

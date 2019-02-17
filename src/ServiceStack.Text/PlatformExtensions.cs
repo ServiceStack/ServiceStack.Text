@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Xml;
 using ServiceStack.Text;
 
 namespace ServiceStack
@@ -629,7 +630,7 @@ namespace ServiceStack
                 if (SetValueFn == null)
                     return;
 
-                if (value is IReadOnlyDictionary<string, object> dictionary)
+                if (value is IEnumerable<KeyValuePair<string, object>> dictionary)
                 {
                     value = dictionary.FromObjectDictionary(Type);
                 }
@@ -717,33 +718,50 @@ namespace ServiceStack
             return dict;
         }
 
-        public static bool GetDictionaryEntryTypes(this Type dictType, out Type keyType, out Type valueType)
+        public static Type GetKeyValuePairTypeDef(this Type dictType)
         {
-            var genericDef = dictType.GetTypeWithGenericTypeDefinitionOf(typeof(IReadOnlyDictionary<,>));
+            //matches IDictionary<,>, IReadOnlyDictionary<,>, List<KeyValuePair<string, object>>
+            var genericDef = dictType.GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
+            if (genericDef == null) 
+                return null;
+            
+            var genericEnumType = genericDef.GetGenericArguments()[0];
+            return genericEnumType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+        }
+        
+        public static bool GetKeyValuePairsTypes(this Type dictType, out Type keyType, out Type valueType)
+        {
+            //matches IDictionary<,>, IReadOnlyDictionary<,>, List<KeyValuePair<string, object>>
+            var genericDef = dictType.GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
             if (genericDef != null)
             {
-                var genericArgs = genericDef.GetGenericArguments();
-                keyType = genericArgs[0];
-                valueType = genericArgs[1];
-                return true;
+                var genericEnumType = genericDef.GetGenericArguments()[0];
+                var genericKvps = genericEnumType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+                if (genericKvps != null)
+                {
+                    var genericArgs = genericEnumType.GetGenericArguments();
+                    keyType = genericArgs[0];
+                    valueType = genericArgs[1];
+                    return true;
+                }
             }
             keyType = valueType = null;
             return false;
         }
 
-        public static object FromObjectDictionary(this IReadOnlyDictionary<string, object> values, Type type)
+        public static object FromObjectDictionary(this IEnumerable<KeyValuePair<string, object>> values, Type type)
         {
             if (values == null)
                 return null;
             
-            var alreadyDict = typeof(IReadOnlyDictionary<string, object>).IsAssignableFrom(type);
+            var alreadyDict = typeof(IEnumerable<KeyValuePair<string, object>>).IsAssignableFrom(type);
             if (alreadyDict)
                 return values;
 
             var to = type.CreateInstance();
             if (to is IDictionary d)
             {
-                if (type.GetDictionaryEntryTypes(out var toKeyType, out var toValueType))
+                if (type.GetKeyValuePairsTypes(out var toKeyType, out var toValueType))
                 {
                     foreach (var entry in values)
                     {
@@ -768,7 +786,7 @@ namespace ServiceStack
             return to;
         }
 
-        public static void PopulateInstance(this IReadOnlyDictionary<string, object> values, object instance)
+        public static void PopulateInstance(this IEnumerable<KeyValuePair<string, object>> values, object instance)
         {
             if (values == null || instance == null)
                 return;
@@ -776,7 +794,7 @@ namespace ServiceStack
             PopulateInstanceInternal(values, instance, instance.GetType());
         }
 
-        private static void PopulateInstanceInternal(IReadOnlyDictionary<string, object> values, object to, Type type)
+        private static void PopulateInstanceInternal(IEnumerable<KeyValuePair<string, object>> values, object to, Type type)
         {
             if (!toObjectMapCache.TryGetValue(type, out var def))
                 toObjectMapCache[type] = def = CreateObjectDictionaryDefinition(type);
@@ -793,7 +811,7 @@ namespace ServiceStack
             }
         }
 
-        public static T FromObjectDictionary<T>(this IReadOnlyDictionary<string, object> values)
+        public static T FromObjectDictionary<T>(this IEnumerable<KeyValuePair<string, object>> values)
         {
             return (T)values.FromObjectDictionary(typeof(T));
         }
@@ -885,9 +903,9 @@ namespace ServiceStack
             return to;
         }
 
-        public static Dictionary<string, string> ToStringDictionary(this IReadOnlyDictionary<string, object> from) => ToStringDictionary(from, null);
+        public static Dictionary<string, string> ToStringDictionary(this IEnumerable<KeyValuePair<string, object>> from) => ToStringDictionary(from, null);
 
-        public static Dictionary<string, string> ToStringDictionary(this IReadOnlyDictionary<string, object> from, IEqualityComparer<string> comparer)
+        public static Dictionary<string, string> ToStringDictionary(this IEnumerable<KeyValuePair<string, object>> from, IEqualityComparer<string> comparer)
         {
             var to = comparer != null
                 ? new Dictionary<string, string>(comparer)

@@ -248,14 +248,7 @@ namespace ServiceStack.Text
             }
 
             if (obj is IEnumerable<KeyValuePair<string, object>> kvps)
-            {
-                var to = new Dictionary<string, string>();
-                foreach (var kvp in kvps)
-                {
-                    to[kvp.Key] = kvp.Value.ToJsv();
-                }
-                return to;
-            }
+                return PlatformExtensions.ToStringDictionary(kvps);
 
             if (obj is NameValueCollection nvc)
             {

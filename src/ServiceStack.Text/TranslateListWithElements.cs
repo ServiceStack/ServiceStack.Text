@@ -195,7 +195,7 @@ namespace ServiceStack.Text
             var to = (ICollection<T>)CreateInstance(toInstanceOfType);
             foreach (var item in fromList)
             {
-                if (item is IReadOnlyDictionary<string, object> dictionary)
+                if (item is IEnumerable<KeyValuePair<string, object>> dictionary)
                 {
                     var convertedItem = dictionary.FromObjectDictionary<T>();
                     to.Add(convertedItem);
