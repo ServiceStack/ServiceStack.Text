@@ -1011,6 +1011,34 @@ namespace ServiceStack.Text.Tests
             Assert.That(vm.Private, Is.Null);
         }
 
+        class DictionaryTest
+        {
+            public string A { get; set; }
+            public int B { get; set; }
+            public bool C { get; set; }
+            public double D { get; set; }
+        }
+
+        [Test]
+        public void Can_convert_anonymous_object_to_ObjectDictionary()
+        {
+            var newObj = new { A = "a", B = 1, C = true, D = 2.0 };
+            var type = new DictionaryTest { A = "a", B = 1, C = true, D = 2.0 };
+            var expected = new Dictionary<string, object> {
+                ["A"] = "a",
+                ["B"] = 1,
+                ["C"] = true,
+                ["D"] = 2.0
+            };
+
+            var to = newObj.ToObjectDictionary();
+            Assert.That(to, Is.EquivalentTo(expected));
+            to = type.ToObjectDictionary();
+            Assert.That(to, Is.EquivalentTo(expected));
+            to = expected.ToObjectDictionary();
+            Assert.That(to, Is.EquivalentTo(expected));
+        }
+
         [Test]
         public void Can_convert_string_to_collection()
         {
