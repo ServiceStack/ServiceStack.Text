@@ -160,12 +160,15 @@ namespace ServiceStack
 
         public static object ChangeValueType(object from, Type toType)
         {
+            var s = from as string;
+            
             var fromType = from.GetType();
             if (!fromType.IsEnum && !toType.IsEnum)
             {
-                if (toType == typeof(char) && from is string s)
+                var toString = toType == typeof(string);
+                if (toType == typeof(char) && s != null)
                     return s.Length > 0 ? (object) s[0] : null;
-                if (toType == typeof(string) && from is char c)
+                if (toString && from is char c)
                     return c.ToString();
                 if (toType == typeof(TimeSpan) && from is long ticks)
                     return new TimeSpan(ticks);
@@ -173,25 +176,30 @@ namespace ServiceStack
                     return time.Ticks;
 
                 var destNumberType = DynamicNumber.GetNumber(toType);
-                var value = destNumberType?.ConvertFrom(from);
-                if (value != null)
+                if (destNumberType != null)
                 {
-                    if (toType == typeof(char))
-                        return value.ToString()[0];
-
-                    return value;
+                    if (s != null && s == string.Empty)
+                        return destNumberType.DefaultValue;
+                    
+                    var value = destNumberType.ConvertFrom(from);
+                    if (value != null)
+                    {
+                        return toType == typeof(char) 
+                            ? value.ToString()[0] 
+                            : value;
+                    }
                 }
 
-                if (toType == typeof(string))
+                if (toString)
                 {
                     var srcNumberType = DynamicNumber.GetNumber(from.GetType());
                     if (srcNumberType != null)
-                        return srcNumberType.ToString(@from);
+                        return srcNumberType.ToString(from);
                 }
             }
             
-            if (from is string strValue)
-                return TypeSerializer.DeserializeFromString(strValue, toType);
+            if (s != null)
+                return TypeSerializer.DeserializeFromString(s, toType);
 
             if (toType == typeof(string))
                 return from.ToJsv();

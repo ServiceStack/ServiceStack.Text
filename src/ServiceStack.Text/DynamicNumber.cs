@@ -13,6 +13,7 @@ namespace ServiceStack
         object ConvertFrom(object value);
         bool TryParse(string str, out object result);
         string ToString(object value);
+        object DefaultValue { get; }
 
         object add(object lhs, object rhs);
         object sub(object lhs, object rhs);
@@ -53,6 +54,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(sbyte);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -93,6 +95,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(byte);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -133,6 +136,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(short);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -173,6 +177,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(ushort);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -213,6 +218,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(int);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -253,6 +259,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(uint);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -293,6 +300,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(long);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -333,6 +341,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString();
+        public object DefaultValue => default(ulong);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -373,6 +382,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString("r", CultureInfo.InvariantCulture);
+        public object DefaultValue => default(float);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -413,6 +423,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString("r", CultureInfo.InvariantCulture);
+        public object DefaultValue => default(double);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);
@@ -453,6 +464,7 @@ namespace ServiceStack
         }
 
         public string ToString(object value) => Convert(value).ToString(CultureInfo.InvariantCulture);
+        public object DefaultValue => default(decimal);
 
         public object add(object lhs, object rhs) => Convert(lhs) + Convert(rhs);
         public object sub(object lhs, object rhs) => Convert(lhs) - Convert(rhs);

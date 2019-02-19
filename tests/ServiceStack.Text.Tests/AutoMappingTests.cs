@@ -1076,5 +1076,27 @@ namespace ServiceStack.Text.Tests
             Assert.That(new []{ new ViewModel { Public = "A"} }.ConvertTo<string>(), Is.Not.Empty);
             Assert.That(new []{ DayOfWeek.Monday }.ConvertTo<string>(), Is.Not.Empty);
         }
+        
+        [Test]
+        public void To_works_with_ValueTypes()
+        {
+            Assert.That(1.ToString().ConvertTo<int>(), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void To_on_null_or_empty_string_returns_default_value_supplied()
+        {
+            const string nullString = null;
+            Assert.That("".ConvertTo(1), Is.EqualTo(1));
+            Assert.That("".ConvertTo(default(int)), Is.EqualTo(default(int)));
+            Assert.That(nullString.ConvertTo(1), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void To_ValueType_on_null_or_empty_string_returns_default_value()
+        {
+            Assert.That("".ConvertTo<int>(), Is.EqualTo(default(int)));
+        }
+
     }
 }
