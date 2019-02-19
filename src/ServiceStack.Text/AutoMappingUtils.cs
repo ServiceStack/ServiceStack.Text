@@ -78,6 +78,11 @@ namespace ServiceStack
                 : null;
         }
 
+        public static T ConvertTo<T>(this object from, T defaultValue) =>
+            from == null || (from is string s && s == string.Empty)
+                ? defaultValue
+                : from.ConvertTo<T>();
+
         public static T ConvertTo<T>(this object from) => from.ConvertTo<T>(skipConverters:false);
         public static T ConvertTo<T>(this object from, bool skipConverters)
         {
