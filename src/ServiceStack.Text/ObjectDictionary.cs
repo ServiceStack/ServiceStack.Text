@@ -17,6 +17,9 @@ namespace ServiceStack
         protected ObjectDictionary(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
+    /// <summary>
+    /// UX friendly alternative alias of Dictionary&lt;string, string&gt;
+    /// </summary>
     public class StringDictionary : Dictionary<string, string>
     {
         public StringDictionary() { }
@@ -26,5 +29,25 @@ namespace ServiceStack
         public StringDictionary(IDictionary<string, string> dictionary) : base(dictionary) { }
         public StringDictionary(IDictionary<string, string> dictionary, IEqualityComparer<string> comparer) : base(dictionary, comparer) { }
         protected StringDictionary(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    }
+
+    /// <summary>
+    /// UX friendly alternative alias of List&lt;KeyValuePair&lt;string, object&gt;gt;
+    /// </summary>
+    public class KeyValuePairs : List<KeyValuePair<string, object>>
+    {
+        public KeyValuePairs() { }
+        public KeyValuePairs(int capacity) : base(capacity) { }
+        public KeyValuePairs(IEnumerable<KeyValuePair<string, object>> collection) : base(collection) { }
+    }
+
+    /// <summary>
+    /// UX friendly alternative alias of List&lt;KeyValuePair&lt;string, string&gt;gt;
+    /// </summary>
+    public class KeyValueStrings : List<KeyValuePair<string, string>>
+    {
+        public KeyValueStrings() { }
+        public KeyValueStrings(int capacity) : base(capacity) { }
+        public KeyValueStrings(IEnumerable<KeyValuePair<string, string>> collection) : base(collection) { }
     }
 }
