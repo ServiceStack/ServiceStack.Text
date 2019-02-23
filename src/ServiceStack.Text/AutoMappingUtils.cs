@@ -154,6 +154,9 @@ namespace ServiceStack
                 return listResult;
             }
 
+            if (from is IEnumerable<KeyValuePair<string, object>> objDict)
+                return objDict.FromObjectDictionary(toType);
+
             var to = toType.CreateInstance();
             return to.PopulateWithNonDefaultValues(from);
         }

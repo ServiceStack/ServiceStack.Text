@@ -129,6 +129,43 @@ namespace ServiceStack.Text.Tests
             Assert.That(request.Take, Is.EqualTo(5));
             Assert.That(request.Meta, Is.EquivalentTo(new Dictionary<string, object> {{"foo", "bar"}}));
         }
+        
+        public class PersonWithIdentities
+        {
+            public string Name { get; set; }
+            public List<OtherName> OtherNames { get;set; }
+        }
+
+        public class OtherName
+        {
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Can_Convert_from_ObjectDictionary_Containing_Another_Object_Dictionary()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "name", "Foo" },
+                { "otherNames", new List<object>
+                    {
+                        new Dictionary<string, object> { { "name", "Fu" } },
+                        new Dictionary<string, object> { { "name", "Fuey" } }
+                    }
+                }
+            };
+
+            var fromDict = map.FromObjectDictionary<PersonWithIdentities>();
+
+            Assert.That(fromDict.Name, Is.EqualTo("Foo"));
+            Assert.That(fromDict.OtherNames.Count, Is.EqualTo(2));
+            Assert.That(fromDict.OtherNames.First().Name, Is.EqualTo("Fu"));
+            Assert.That(fromDict.OtherNames.Last().Name, Is.EqualTo("Fuey"));
+
+            var toDict = fromDict.ToObjectDictionary();
+            Assert.That(toDict["Name"], Is.EqualTo("Foo"));
+            Assert.That(toDict["OtherNames"], Is.EqualTo(fromDict.OtherNames));
+        }
 
         public class Employee
         {
