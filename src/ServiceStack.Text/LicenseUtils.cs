@@ -241,6 +241,9 @@ namespace ServiceStack
                     }
                     catch (Exception exFallback)
                     {
+                        if (exFallback is FileNotFoundException || exFallback is FileLoadException || exFallback is BadImageFormatException) 
+                            throw;
+
                         throw new LicenseException(msg, exFallback).Trace();
                     }
                 }
