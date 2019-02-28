@@ -87,11 +87,10 @@ namespace ServiceStack
         public static T ConvertTo<T>(this object from, bool skipConverters)
         {
             if (from == null)
-                return default(T);
+                return default;
 
-            var fromType = from.GetType();
-            if (fromType == typeof(T))
-                return (T)from;
+            if (from is T t)
+                return t;
 
             return (T)ConvertTo(from, typeof(T), skipConverters);
         }
@@ -161,6 +160,32 @@ namespace ServiceStack
             return to.PopulateWithNonDefaultValues(from);
         }
 
+        public static MethodInfo GetImplicitCastMethod(Type fromType, Type toType)
+        {
+            foreach (var mi in fromType.GetMethods(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (mi.Name == "op_Implicit" && mi.ReturnType == toType &&
+                    mi.GetParameters().FirstOrDefault()?.ParameterType == fromType)
+                {
+                    return mi;
+                }
+            }
+            return null;
+        }
+        
+        public static MethodInfo GetExplicitCastMethod(Type fromType, Type toType)
+        {
+            foreach (var mi in toType.GetMethods(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (mi.Name == "op_Explicit" && mi.ReturnType == toType &&
+                    mi.GetParameters().FirstOrDefault()?.ParameterType == fromType)
+                {
+                    return mi;
+                }
+            }
+            return null;
+        }
+        
         public static object ChangeValueType(object from, Type toType)
         {
             var s = from as string;
@@ -200,7 +225,15 @@ namespace ServiceStack
                         return srcNumberType.ToString(from);
                 }
             }
-            
+
+            var mi = GetImplicitCastMethod(fromType, toType);
+            if (mi != null)
+                return mi.Invoke(null, new[] { from });
+
+            mi = GetExplicitCastMethod(fromType, toType);
+            if (mi != null)
+                return mi.Invoke(null, new[] { from });
+
             if (s != null)
                 return TypeSerializer.DeserializeFromString(s, toType);
 

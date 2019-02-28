@@ -1098,5 +1098,54 @@ namespace ServiceStack.Text.Tests
             Assert.That("".ConvertTo<int>(), Is.EqualTo(default(int)));
         }
 
+        struct A
+        {
+            public int Id { get; }
+            public A(int id) => Id = id;
+            public static implicit operator B(A from) => new B(from.Id);
+        }
+
+        struct B
+        {
+            public int Id { get; }
+            public B(int id) => Id = id;
+            public static implicit operator A(B from) => new A(from.Id);
+        }
+
+        [Test]
+        public void Can_convert_between_structs_with_implicit_casts()
+        {
+            var a = new A(1);
+            var b = a;
+            Assert.That(b.Id, Is.EqualTo(a.Id));
+
+            b = a.ConvertTo<B>();
+            Assert.That(b.Id, Is.EqualTo(a.Id));
+        }
+
+        struct C
+        {
+            public int Id { get; }
+            public C(int id) => Id = id;
+            public static explicit operator C(D from) => new C(from.Id);
+        }
+
+        struct D
+        {
+            public int Id { get; }
+            public D(int id) => Id = id;
+            public static explicit operator D(C from) => new D(from.Id);
+        }
+
+        [Test]
+        public void Can_convert_between_structs_with_explicit_casts()
+        {
+            var c = new C(1);
+            var d = (D)c;
+            Assert.That(d.Id, Is.EqualTo(c.Id));
+
+            d = c.ConvertTo<D>();
+            Assert.That(d.Id, Is.EqualTo(c.Id));
+        }
     }
 }
