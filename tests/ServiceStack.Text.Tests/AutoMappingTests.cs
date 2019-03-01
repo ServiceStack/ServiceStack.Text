@@ -1147,5 +1147,101 @@ namespace ServiceStack.Text.Tests
             d = c.ConvertTo<D>();
             Assert.That(d.Id, Is.EqualTo(c.Id));
         }
+        
+        [Test]
+        public void Can_Convert_from_ObjectDictionary_Containing_Another_Object_Dictionary()
+        {
+            var map = new Dictionary<string, object>
+            {
+                { "name", "Foo" },
+                { "otherNames", new List<object>
+                    {
+                        new Dictionary<string, object> { { "name", "Fu" } },
+                        new Dictionary<string, object> { { "name", "Fuey" } }
+                    }
+                }
+            };
+
+            var fromDict = map.ConvertTo<AutoMappingObjectDictionaryTests.PersonWithIdentities>();
+
+            Assert.That(fromDict.Name, Is.EqualTo("Foo"));
+            Assert.That(fromDict.OtherNames.Count, Is.EqualTo(2));
+            Assert.That(fromDict.OtherNames.First().Name, Is.EqualTo("Fu"));
+            Assert.That(fromDict.OtherNames.Last().Name, Is.EqualTo("Fuey"));
+
+            var toDict = fromDict.ConvertTo<Dictionary<string,object>>();
+            Assert.That(toDict["Name"], Is.EqualTo("Foo"));
+            Assert.That(toDict["OtherNames"], Is.EqualTo(fromDict.OtherNames));
+
+            var toObjDict = fromDict.ConvertTo<ObjectDictionary>();
+            Assert.That(toObjDict["Name"], Is.EqualTo("Foo"));
+            Assert.That(toObjDict["OtherNames"], Is.EqualTo(fromDict.OtherNames));
+        }
+
+        class Person
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            protected bool Equals(Person other) => Id == other.Id && string.Equals(Name, other.Name);
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj.GetType() == this.GetType() && Equals((Person) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (Id * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                }
+            }
+        }
+
+        [Test]
+        public void Can_convert_between_Poco_and_ObjectDictionary()
+        {
+            var person = new Person { Id = 1, Name = "foo" };
+
+            Assert.That(person.ConvertTo<Dictionary<string, object>>(), Is.EqualTo(new Dictionary<string, object> {
+                {"Id", 1},
+                {"Name", "foo"},
+            })); 
+            Assert.That(new Dictionary<string, object> {
+                {"Id", 1},
+                {"Name", "foo"},
+            }.ConvertTo<Person>(), Is.EqualTo(person));
+
+            Assert.That(person.ConvertTo<ObjectDictionary>(), Is.EqualTo(new ObjectDictionary {
+                {"Id", 1},
+                {"Name", "foo"},
+            })); 
+            Assert.That(new ObjectDictionary {
+                {"Id", 1},
+                {"Name", "foo"},
+            }.ConvertTo<Person>(), Is.EqualTo(person));
+
+            Assert.That(person.ConvertTo<Dictionary<string, string>>(), Is.EqualTo(new Dictionary<string, string> {
+                {"Id", "1"},
+                {"Name", "foo"},
+            })); 
+
+            Assert.That(new Dictionary<string, string> {
+                {"Id", "1"},
+                {"Name", "foo"},
+            }.ConvertTo<Person>(), Is.EqualTo(person)); 
+
+            Assert.That(person.ConvertTo<StringDictionary>(), Is.EqualTo(new StringDictionary {
+                {"Id", "1"},
+                {"Name", "foo"},
+            })); 
+            Assert.That(new StringDictionary {
+                {"Id", "1"},
+                {"Name", "foo"},
+            }.ConvertTo<Person>(), Is.EqualTo(person)); 
+        }
     }
 }

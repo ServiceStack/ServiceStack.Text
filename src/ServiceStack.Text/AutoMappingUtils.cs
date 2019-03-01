@@ -156,6 +156,9 @@ namespace ServiceStack
             if (from is IEnumerable<KeyValuePair<string, object>> objDict)
                 return objDict.FromObjectDictionary(toType);
 
+            if (from is IEnumerable<KeyValuePair<string, string>> strDict)
+                return strDict.ToObjectDictionary().FromObjectDictionary(toType);
+
             var to = toType.CreateInstance();
             return to.PopulateWithNonDefaultValues(from);
         }
@@ -949,6 +952,14 @@ namespace ServiceStack
                     var ret = TranslateListWithElements.TryTranslateCollections(to.GetType(), toType, to);
                     return ret ?? fromValue;
                 }
+            }
+            else if (fromType.IsClass && 
+                 (typeof(IDictionary).IsAssignableFrom(toType) || 
+                  typeof(IEnumerable<KeyValuePair<string,object>>).IsAssignableFrom(toType) || 
+                  typeof(IEnumerable<KeyValuePair<string,string>>).IsAssignableFrom(toType)))
+            {
+                var fromDict = fromValue.ToObjectDictionary();
+                return TryConvertCollections(fromType.GetType(), toType, fromDict);
             }
 
             var listResult = TranslateListWithElements.TryTranslateCollections(fromType, toType, fromValue);
