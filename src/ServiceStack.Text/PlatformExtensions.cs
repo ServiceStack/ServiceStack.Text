@@ -738,14 +738,15 @@ namespace ServiceStack
             
 
             if (obj is KeyValuePair<string, object> objKvp)
-                return new Dictionary<string, object> { {objKvp.Key, objKvp.Value} };
+                return new Dictionary<string, object> { { nameof(objKvp.Key), objKvp.Key }, { nameof(objKvp.Value), objKvp.Value } };
             if (obj is KeyValuePair<string, string> strKvp)
-                return new Dictionary<string, object> { {strKvp.Key, strKvp.Value} };
+                return new Dictionary<string, object> { { nameof(strKvp.Key), strKvp.Key }, { nameof(strKvp.Value), strKvp.Value } };
             
             if (type.GetKeyValuePairTypes(out _, out var _))
             {
                 return new Dictionary<string, object> {
-                    { TypeProperties.Get(type).GetPublicGetter("Key")(obj).ConvertTo<string>(), TypeProperties.Get(type).GetPublicGetter("Value")(obj) },
+                    { "Key", TypeProperties.Get(type).GetPublicGetter("Key")(obj).ConvertTo<string>() },
+                    { "Value", TypeProperties.Get(type).GetPublicGetter("Value")(obj) },
                 };
             }
 

@@ -1251,9 +1251,9 @@ namespace ServiceStack.Text.Tests
             var strKvp = new KeyValuePair<string, string>("A", "1");
             var intKvp = new KeyValuePair<string, int>("A", 1);
             
-            Assert.That(objKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
-            Assert.That(strKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", "1"} }));
-            Assert.That(intKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
+            Assert.That(objKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"Key", "A" }, { "Value", 1  } } ));
+            Assert.That(strKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"Key", "A" }, { "Value", "1"} } ));
+            Assert.That(intKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"Key", "A" }, { "Value", 1  } } ));
             
             var objKvp2 = new KeyValuePair<string, object>("B", 2);
             var strKvp2 = new KeyValuePair<string, string>("B", "2");
@@ -1271,9 +1271,9 @@ namespace ServiceStack.Text.Tests
             var strKvp = new KeyValuePair<string, string>("A", "1");
             var intKvp = new KeyValuePair<string, int>("A", 1);
             
-            Assert.That(objKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
-            Assert.That(strKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", "1"} }));
-            Assert.That(intKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
+            Assert.That(objKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"Key", "A" }, { "Value", 1  } } ));
+            Assert.That(strKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"Key", "A" }, { "Value", "1"} } ));
+            Assert.That(intKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"Key", "A" }, { "Value", 1  } } ));
             
             var objKvp2 = new KeyValuePair<string, object>("B", 2);
             var strKvp2 = new KeyValuePair<string, string>("B", "2");

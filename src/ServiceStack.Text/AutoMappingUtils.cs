@@ -260,12 +260,8 @@ namespace ServiceStack
                 {
                     
                     var toKvpArgs = toKvpType.GetGenericArguments();
-                    var toKeyType = toKvpArgs[0];
-                    var toValueType = toKvpArgs[1];
                     var toCtor = toKvpType.GetConstructor(toKvpArgs);
-                    var toKey = fromKey.ConvertTo(toKeyType);
-                    var toValue = fromValue.ConvertTo(toValueType);
-                    var to = toCtor.Invoke(new[] {toKey,toValue});
+                    var to = toCtor.Invoke(new[] { fromKey.ConvertTo(toKvpArgs[0]), fromValue.ConvertTo(toKvpArgs[1]) });
                     return to;
                 }
 
@@ -277,7 +273,8 @@ namespace ServiceStack
                     var toValueType = toArgs[1];
                   
                     var to = (IDictionary)toType.CreateInstance();
-                    to[fromKey.ConvertTo(toKeyType)] = fromValue.ConvertTo(toValueType);
+                    to["Key"] = fromKey.ConvertTo(toKeyType);
+                    to["Value"] = fromValue.ConvertTo(toValueType);
                     return to;
                 }
             }
