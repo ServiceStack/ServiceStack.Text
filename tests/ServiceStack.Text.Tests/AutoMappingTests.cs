@@ -1243,5 +1243,45 @@ namespace ServiceStack.Text.Tests
                 {"Name", "foo"},
             }.ConvertTo<Person>(), Is.EqualTo(person)); 
         }
+
+        [Test]
+        public void Can_ToObjectDictionary_KVPs()
+        {
+            var objKvp = new KeyValuePair<string, object>("A", 1);
+            var strKvp = new KeyValuePair<string, string>("A", "1");
+            var intKvp = new KeyValuePair<string, int>("A", 1);
+            
+            Assert.That(objKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
+            Assert.That(strKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", "1"} }));
+            Assert.That(intKvp.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
+            
+            var objKvp2 = new KeyValuePair<string, object>("B", 2);
+            var strKvp2 = new KeyValuePair<string, string>("B", "2");
+            var intKvp2 = new KeyValuePair<string, int>("B", 2);
+
+            Assert.That(new[] { objKvp, objKvp2 }.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1}, {"B", 2} }));
+            Assert.That(new[] { strKvp, strKvp2 }.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", "1"}, {"B", "2"} }));
+            Assert.That(new[] { intKvp, intKvp2 }.ToObjectDictionary(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1}, {"B", 2} }));
+        }
+
+        [Test]
+        public void Can_convert_KVPs_to_ObjectDictionary()
+        {
+            var objKvp = new KeyValuePair<string, object>("A", 1);
+            var strKvp = new KeyValuePair<string, string>("A", "1");
+            var intKvp = new KeyValuePair<string, int>("A", 1);
+            
+            Assert.That(objKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
+            Assert.That(strKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", "1"} }));
+            Assert.That(intKvp.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1} }));
+            
+            var objKvp2 = new KeyValuePair<string, object>("B", 2);
+            var strKvp2 = new KeyValuePair<string, string>("B", "2");
+            var intKvp2 = new KeyValuePair<string, int>("B", 2);
+
+            Assert.That(new[] { objKvp, objKvp2 }.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1}, {"B", 2} }));
+            Assert.That(new[] { strKvp, strKvp2 }.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", "1"}, {"B", "2"} }));
+            Assert.That(new[] { intKvp, intKvp2 }.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1}, {"B", 2} }));
+        }
     }
 }

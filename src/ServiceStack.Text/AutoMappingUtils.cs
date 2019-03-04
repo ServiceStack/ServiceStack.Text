@@ -248,15 +248,16 @@ namespace ServiceStack
                 return Convert.ChangeType(from, toType, provider: null);
             }
 
-            var toKvpType = toType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
-            if (toKvpType != null)
+            var fromKvpType = fromType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+            if (fromKvpType != null)
             {
-                var fromKvpType = fromType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
-                if (fromKvpType != null)
+                var fromProps = TypeProperties.Get(fromKvpType);
+                var fromKey = fromProps.GetPublicGetter("Key")(from);
+                var fromValue = fromProps.GetPublicGetter("Value")(from);
+
+                var toKvpType = toType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+                if (toKvpType != null)
                 {
-                    var fromProps = TypeProperties.Get(fromKvpType);
-                    var fromKey = fromProps.GetPublicGetter("Key")(from);
-                    var fromValue = fromProps.GetPublicGetter("Value")(from);
                     
                     var toKvpArgs = toKvpType.GetGenericArguments();
                     var toKeyType = toKvpArgs[0];
@@ -265,6 +266,18 @@ namespace ServiceStack
                     var toKey = fromKey.ConvertTo(toKeyType);
                     var toValue = fromValue.ConvertTo(toValueType);
                     var to = toCtor.Invoke(new[] {toKey,toValue});
+                    return to;
+                }
+
+                if (typeof(IDictionary).IsAssignableFrom(toType))
+                {
+                    var genericDef = toType.GetTypeWithGenericTypeDefinitionOf(typeof(IDictionary<,>));
+                    var toArgs = genericDef.GetGenericArguments();
+                    var toKeyType = toArgs[0];
+                    var toValueType = toArgs[1];
+                  
+                    var to = (IDictionary)toType.CreateInstance();
+                    to[fromKey.ConvertTo(toKeyType)] = fromValue.ConvertTo(toValueType);
                     return to;
                 }
             }
@@ -887,7 +900,7 @@ namespace ServiceStack
                         
                         
                         // Fallback for handling any KVP combo
-                        var toKvpDefType = toType.GetKeyValuePairTypeDef();
+                        var toKvpDefType = toType.GetKeyValuePairsTypeDef();
                         switch (obj) {
                             case IDictionary toDict:
                             {

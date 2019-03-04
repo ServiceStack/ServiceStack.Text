@@ -676,9 +676,9 @@ namespace ServiceStack
             if (obj is IDictionary<string, object> interfaceDict)
                 return new Dictionary<string, object>(interfaceDict);
 
+            var to = new Dictionary<string, object>();
             if (obj is Dictionary<string, string> stringDict)
             {
-                var to = new Dictionary<string, object>();
                 foreach (var entry in stringDict)
                 {
                     to[entry.Key] = entry.Value;
@@ -688,7 +688,6 @@ namespace ServiceStack
 
             if (obj is IDictionary d)
             {
-                var to = new Dictionary<string, object>();
                 foreach (var key in d.Keys)
                 {
                     to[key.ToString()] = d[key];
@@ -698,7 +697,6 @@ namespace ServiceStack
 
             if (obj is NameValueCollection nvc)
             {
-                var to = new Dictionary<string, object>();
                 for (var i = 0; i < nvc.Count; i++)
                 {
                     to[nvc.GetKey(i)] = nvc.Get(i);
@@ -706,22 +704,63 @@ namespace ServiceStack
                 return to;
             }
 
+            if (obj is IEnumerable<KeyValuePair<string, object>> objKvps)
+            {
+                foreach (var kvp in objKvps)
+                {
+                    to[kvp.Key] = kvp.Value;
+                }
+                return to;
+            }
+            if (obj is IEnumerable<KeyValuePair<string, string>> strKvps)
+            {
+                foreach (var kvp in strKvps)
+                {
+                    to[kvp.Key] = kvp.Value;
+                }
+                return to;
+            }
+
             var type = obj.GetType();
+            if (type.GetKeyValuePairsTypes(out var keyType, out var valueType, out var kvpType) && obj is IEnumerable e)
+            {
+                var keyGetter = TypeProperties.Get(kvpType).GetPublicGetter("Key");
+                var valueGetter = TypeProperties.Get(kvpType).GetPublicGetter("Value");
+                
+                foreach (var entry in e)
+                {
+                    var key = keyGetter(entry);
+                    var value = valueGetter(entry);
+                    to[key.ConvertTo<string>()] = value;
+                }
+                return to;
+            }
+            
+
+            if (obj is KeyValuePair<string, object> objKvp)
+                return new Dictionary<string, object> { {objKvp.Key, objKvp.Value} };
+            if (obj is KeyValuePair<string, string> strKvp)
+                return new Dictionary<string, object> { {strKvp.Key, strKvp.Value} };
+            
+            if (type.GetKeyValuePairTypes(out _, out var _))
+            {
+                return new Dictionary<string, object> {
+                    { TypeProperties.Get(type).GetPublicGetter("Key")(obj).ConvertTo<string>(), TypeProperties.Get(type).GetPublicGetter("Value")(obj) },
+                };
+            }
 
             if (!toObjectMapCache.TryGetValue(type, out var def))
                 toObjectMapCache[type] = def = CreateObjectDictionaryDefinition(type);
 
-            var dict = new Dictionary<string, object>();
-
             foreach (var fieldDef in def.Fields)
             {
-                dict[fieldDef.Name] = fieldDef.GetValueFn(obj);
+                to[fieldDef.Name] = fieldDef.GetValueFn(obj);
             }
 
-            return dict;
+            return to;
         }
 
-        public static Type GetKeyValuePairTypeDef(this Type dictType)
+        public static Type GetKeyValuePairsTypeDef(this Type dictType)
         {
             //matches IDictionary<,>, IReadOnlyDictionary<,>, List<KeyValuePair<string, object>>
             var genericDef = dictType.GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
@@ -729,25 +768,39 @@ namespace ServiceStack
                 return null;
             
             var genericEnumType = genericDef.GetGenericArguments()[0];
-            return genericEnumType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+            return GetKeyValuePairTypeDef(genericEnumType);
         }
+
+        public static Type GetKeyValuePairTypeDef(this Type genericEnumType) => genericEnumType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+
+        public static bool GetKeyValuePairsTypes(this Type dictType, out Type keyType, out Type valueType) =>
+            dictType.GetKeyValuePairsTypes(out keyType, out valueType, out _);
         
-        public static bool GetKeyValuePairsTypes(this Type dictType, out Type keyType, out Type valueType)
+        public static bool GetKeyValuePairsTypes(this Type dictType, out Type keyType, out Type valueType, out Type kvpType)
         {
             //matches IDictionary<,>, IReadOnlyDictionary<,>, List<KeyValuePair<string, object>>
             var genericDef = dictType.GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
             if (genericDef != null)
             {
-                var genericEnumType = genericDef.GetGenericArguments()[0];
-                var genericKvps = genericEnumType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
-                if (genericKvps != null)
-                {
-                    var genericArgs = genericEnumType.GetGenericArguments();
-                    keyType = genericArgs[0];
-                    valueType = genericArgs[1];
+                kvpType = genericDef.GetGenericArguments()[0];
+                if (GetKeyValuePairTypes(kvpType, out keyType, out valueType)) 
                     return true;
-                }
             }
+            kvpType = keyType = valueType = null;
+            return false;
+        }
+
+        private static bool GetKeyValuePairTypes(this Type kvpType, out Type keyType, out Type valueType)
+        {
+            var genericKvps = kvpType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
+            if (genericKvps != null)
+            {
+                var genericArgs = kvpType.GetGenericArguments();
+                keyType = genericArgs[0];
+                valueType = genericArgs[1];
+                return true;
+            }
+
             keyType = valueType = null;
             return false;
         }
