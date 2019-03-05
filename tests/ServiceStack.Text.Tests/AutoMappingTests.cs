@@ -1340,5 +1340,87 @@ namespace ServiceStack.Text.Tests
             object[] arrayObjs = kvps.Cast<object>().ToArray();
             Assert.That(arrayObjs.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(arrayObjs));
         }
+
+        public enum TestEnum { A, B, C }
+
+        [Test]
+        public void Can_convert_between_list_of_value_types()
+        {
+            var enumArrays = new[]{ TestEnum.A, TestEnum.B, TestEnum.C };
+            var strArrays = new List<string> {"A","B","C"};
+            Assert.That(enumArrays.ConvertTo<List<TestEnum>>(), Is.EquivalentTo(enumArrays.ToList()));
+            Assert.That(enumArrays.ConvertTo<List<string>>(), Is.EquivalentTo(strArrays));
+
+            var strNums = new List<string> {"1","2","3"};
+            var intNums = new List<int> {1,2,3};
+            Assert.That(strNums.ConvertTo<List<int>>(), Is.EquivalentTo(intNums));
+            Assert.That(intNums.ConvertTo<List<string>>(), Is.EquivalentTo(strNums));
+        }
+        
+        public class TestClassA
+        {
+            public IList<string> IListStrings { get; set; }
+            public ArrayOfString ListStrings { get; set; }
+            public IList<TestEnum> ListEnums { get; set; }
+        }
+        public class TestClassB
+        {
+            public ArrayOfString IListStrings { get; set; }
+            public IList<string> ListStrings { get; set; }
+            public ArrayOfString ListEnums { get; set; }
+        }
+        public class TestClassC
+        {
+            public IList<string> ListStrings { get; protected set; }
+        }
+
+        [Test]
+        public void Can_translate_generic_lists()
+        {
+            
+            var values = new[] { "A", "B", "C" };
+            var testA = new TestClassA
+            {
+                IListStrings = new List<string>(values),
+                ListStrings = new ArrayOfString(values),
+                ListEnums = new List<TestEnum> { TestEnum.A, TestEnum.B, TestEnum.C },
+            };
+
+            var fromTestA = testA.ConvertTo<TestClassB>();
+
+            AssertAreEqual(testA, fromTestA);
+
+            var userFileTypeValues = testA.ListEnums.Map(x => x.ToString());
+            var testB = new TestClassB
+            {
+                IListStrings = new ArrayOfString(values),
+                ListStrings = new List<string>(values),
+                ListEnums = new ArrayOfString(userFileTypeValues),
+            };
+
+            var fromTestB = testB.ConvertTo<TestClassA>();
+            AssertAreEqual(fromTestB, testB);
+        }
+        
+        private static void AssertAreEqual(TestClassA testA, TestClassB testB)
+        {
+            Assert.That(testA, Is.Not.Null);
+            Assert.That(testB, Is.Not.Null);
+
+            Assert.That(testA.IListStrings, Is.Not.Null);
+            Assert.That(testB.IListStrings, Is.Not.Null);
+            Assert.That(testA.IListStrings,
+                Is.EquivalentTo(new List<string>(testB.IListStrings)));
+
+            Assert.That(testA.ListStrings, Is.Not.Null);
+            Assert.That(testB.ListStrings, Is.Not.Null);
+            Assert.That(testA.ListStrings, Is.EquivalentTo(testB.ListStrings));
+
+            Assert.That(testA.ListEnums, Is.Not.Null);
+            Assert.That(testB.ListEnums, Is.Not.Null);
+            Assert.That(testA.ListEnums,
+                Is.EquivalentTo(testB.ListEnums.ConvertAll(x => x.ToEnum<TestEnum>())));
+        }
+        
     }
 }
