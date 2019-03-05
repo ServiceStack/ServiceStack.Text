@@ -1283,5 +1283,62 @@ namespace ServiceStack.Text.Tests
             Assert.That(new[] { strKvp, strKvp2 }.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", "1"}, {"B", "2"} }));
             Assert.That(new[] { intKvp, intKvp2 }.ConvertTo<Dictionary<string,object>>(), Is.EquivalentTo(new Dictionary<string, object> { {"A", 1}, {"B", 2} }));
         }
+
+        [Test]
+        public void Can_convert_between_KVP_Objects_and_IEnumerable()
+        {
+            var kvps = new List<KeyValuePair<string, object>> {
+                new KeyValuePair<string, object>("A", 1),
+                new KeyValuePair<string, object>("B", 2),
+                new KeyValuePair<string, object>("C", 3),
+            };
+            
+            Assert.That(kvps.ConvertTo<IEnumerable<object>>(), Is.EqualTo(kvps));
+            Assert.That(kvps.ConvertTo<List<object>>(), Is.EqualTo(kvps));
+            Assert.That(kvps.ConvertTo<object[]>(), Is.EqualTo(kvps));
+
+            List<object> listObjs = kvps.Cast<object>().ToList();
+            Assert.That(listObjs.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(listObjs));
+            object[] arrayObjs = kvps.Cast<object>().ToArray();
+            Assert.That(arrayObjs.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(arrayObjs));
+        }
+
+        [Test]
+        public void Can_convert_between_KVP_Strings_and_IEnumerable()
+        {
+            var kvps = new List<KeyValuePair<string, string>> {
+                new KeyValuePair<string, string>("A", "1"),
+                new KeyValuePair<string, string>("B", "2"),
+                new KeyValuePair<string, string>("C", "3"),
+            };
+            
+            Assert.That(kvps.ConvertTo<IEnumerable<object>>(), Is.EqualTo(kvps));
+            Assert.That(kvps.ConvertTo<List<object>>(), Is.EqualTo(kvps));
+            Assert.That(kvps.ConvertTo<object[]>(), Is.EqualTo(kvps));
+
+            List<object> listObjs = kvps.Cast<object>().ToList();
+            Assert.That(listObjs.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(listObjs));
+            object[] arrayObjs = kvps.Cast<object>().ToArray();
+            Assert.That(arrayObjs.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(arrayObjs));
+        }
+
+        [Test]
+        public void Can_convert_between_KVP_ints_and_IEnumerable()
+        {
+            var kvps = new List<KeyValuePair<string, int>> {
+                new KeyValuePair<string, int>("A", 1),
+                new KeyValuePair<string, int>("B", 2),
+                new KeyValuePair<string, int>("C", 3),
+            };
+            
+            Assert.That(kvps.ConvertTo<IEnumerable<object>>(), Is.EqualTo(kvps));
+            Assert.That(kvps.ConvertTo<List<object>>(), Is.EqualTo(kvps));
+            Assert.That(kvps.ConvertTo<object[]>(), Is.EqualTo(kvps));
+
+            List<object> listObjs = kvps.Cast<object>().ToList();
+            Assert.That(listObjs.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(listObjs));
+            object[] arrayObjs = kvps.Cast<object>().ToArray();
+            Assert.That(arrayObjs.ConvertTo<List<KeyValuePair<string, object>>>(), Is.EquivalentTo(arrayObjs));
+        }
     }
 }

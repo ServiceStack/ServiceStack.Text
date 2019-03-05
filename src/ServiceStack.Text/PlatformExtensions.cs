@@ -791,7 +791,7 @@ namespace ServiceStack
             return false;
         }
 
-        private static bool GetKeyValuePairTypes(this Type kvpType, out Type keyType, out Type valueType)
+        public static bool GetKeyValuePairTypes(this Type kvpType, out Type keyType, out Type valueType)
         {
             var genericKvps = kvpType.GetTypeWithGenericTypeDefinitionOf(typeof(KeyValuePair<,>));
             if (genericKvps != null)

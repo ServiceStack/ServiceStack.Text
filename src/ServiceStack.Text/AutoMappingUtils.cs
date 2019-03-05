@@ -776,6 +776,25 @@ namespace ServiceStack
         {
             if (fromValue is IEnumerable values)
             {
+                var toEnumObjs = toType == typeof(IEnumerable<object>);
+                if (typeof(IList).IsAssignableFrom(toType) || toEnumObjs)
+                {
+                    var to = (IList) (toType.IsArray || toEnumObjs ? new List<object>() : toType.CreateInstance());
+                    var elType = toType.GetCollectionType();
+                    foreach (var item in values)
+                    {
+                        to.Add(elType != null ? item.ConvertTo(elType) : item);
+                    }
+                    if (elType != null && toType.IsArray)
+                    {
+                        var arr = Array.CreateInstance(elType, to.Count);
+                        to.CopyTo(arr, 0);
+                        return arr;
+                    }
+                    
+                    return to;
+                }
+                
                 if (fromValue is IDictionary d)
                 {
                     var obj = toType.CreateInstance();
@@ -784,18 +803,14 @@ namespace ServiceStack
                         case List<KeyValuePair<string, string>> toList: {
                             foreach (var key in d.Keys)
                             {
-                                var toKey = key.ConvertTo<string>();
-                                var toValue = d[key].ConvertTo<string>();
-                                toList.Add(new KeyValuePair<string, string>(toKey, toValue));
+                                toList.Add(new KeyValuePair<string, string>(key.ConvertTo<string>(), d[key].ConvertTo<string>()));
                             }
                             return toList;
                         }
                         case List<KeyValuePair<string, object>> toObjList: {
                             foreach (var key in d.Keys)
                             {
-                                var toKey = key.ConvertTo<string>();
-                                var toValue = d[key];
-                                toObjList.Add(new KeyValuePair<string, object>(toKey, toValue));
+                                toObjList.Add(new KeyValuePair<string, object>(key.ConvertTo<string>(), d[key]));
                             }
                             return toObjList;
                         }
