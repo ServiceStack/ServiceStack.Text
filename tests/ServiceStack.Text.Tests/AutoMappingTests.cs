@@ -1421,6 +1421,60 @@ namespace ServiceStack.Text.Tests
             Assert.That(testA.ListEnums,
                 Is.EquivalentTo(testB.ListEnums.ConvertAll(x => x.ToEnum<TestEnum>())));
         }
-        
+
+        class Company
+        {
+            public string Name { get; set; }
+            public Address Address { get; set; }
+        }
+
+        class Address
+        {
+            public string City { get; set; }
+            public string PostCode { get; set; }
+        }
+
+        [Test]
+        public void Can_register_converters_to_PopulateWithNonDefaultValues()
+        {
+            Company Create()
+            {
+                return new Company {
+                    Name = "Compnay1",
+                    Address = new Address {
+                        City = "NY",
+                        PostCode = "1234",
+                    }
+                };
+            }
+
+            var defaults = Create();
+            var original = Create();
+
+            original.PopulateWithNonDefaultValues(new Company {
+                Address = new Address {
+                    PostCode = "4321"
+                }
+            });
+            
+            Assert.That(original.Name, Is.EqualTo(defaults.Name));
+            Assert.That(original.Address.City, Is.Null);
+            Assert.That(original.Address.PostCode, Is.EqualTo("4321"));
+            
+            original = Create();
+
+            var updated = new Company {
+                Address = new Address {
+                    PostCode = "4321"
+                }
+            };
+            original.Address.PopulateWithNonDefaultValues(updated.Address);
+            updated.Address = null;
+            original.PopulateWithNonDefaultValues(updated);
+            
+            Assert.That(original.Name, Is.EqualTo(defaults.Name));
+            Assert.That(original.Address.City, Is.EqualTo(defaults.Address.City));
+            Assert.That(original.Address.PostCode, Is.EqualTo("4321"));
+        }
     }
 }

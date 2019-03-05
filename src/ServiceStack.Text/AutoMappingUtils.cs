@@ -123,9 +123,6 @@ namespace ServiceStack
                 return null;
 
             var fromType = from.GetType();
-            if (fromType == toType || toType == typeof(object))
-                return from;
-
             if (ShouldIgnoreMapping(fromType, toType))
                 return null;
 
@@ -135,6 +132,9 @@ namespace ServiceStack
                 if (converter != null)
                     return converter(from);
             }
+
+            if (fromType == toType || toType == typeof(object))
+                return from;
 
             if (fromType.IsValueType || toType.IsValueType)
                 return ChangeValueType(from, toType);
