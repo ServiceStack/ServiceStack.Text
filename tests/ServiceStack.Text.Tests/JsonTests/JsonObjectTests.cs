@@ -505,7 +505,45 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
             catch (FormatException) {}
         }
-        
+
+        class HasObjectDictionary
+        {
+            public Dictionary<string, object> Properties { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_unknown_ObjectDictionary()
+        {
+            JS.Configure();
+
+            Assert.That("{\"Properties\":{\"a\":1}}".FromJson<HasObjectDictionary>().Properties["a"], Is.EqualTo(1));
+            Assert.That("{\"Properties\":{\"a\":\"1\"}}".FromJson<HasObjectDictionary>().Properties["a"], Is.EqualTo("1"));
+            Assert.That("{\"Properties\":{\"a\":[\"1\",\"2\"]}}".FromJson<HasObjectDictionary>().Properties["a"], Is.EquivalentTo(new[]{"1","2"}));
+            Assert.That("{\"Properties\":{\"a\":[1,2]}}".FromJson<HasObjectDictionary>().Properties["a"], Is.EquivalentTo(new[]{1,2}));
+
+            JS.UnConfigure();
+        }
+
+        class HasObjectList
+        {
+            public List<object> Properties { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_unknown_ObjectList()
+        {
+            JS.Configure();
+
+            Assert.That("{\"Properties\":[\"1\"]}".FromJson<HasObjectList>().Properties[0], Is.EqualTo("1"));
+            Assert.That("{\"Properties\":[1]}".FromJson<HasObjectList>().Properties[0], Is.EqualTo(1));
+            Assert.That("{\"Properties\":[[\"1\",\"2\"]]}".FromJson<HasObjectList>().Properties[0], Is.EquivalentTo(new[]{"1","2"}));
+            Assert.That("{\"Properties\":[[1,2]]}".FromJson<HasObjectList>().Properties[0], Is.EquivalentTo(new[]{1,2}));
+            Assert.That("{\"Properties\":[{\"a\":1}]".FromJson<HasObjectList>().Properties[0], Is.EquivalentTo(new Dictionary<string,object> {
+                ["a"] = 1
+            }));
+
+            JS.UnConfigure();
+        }
         
     }
 }

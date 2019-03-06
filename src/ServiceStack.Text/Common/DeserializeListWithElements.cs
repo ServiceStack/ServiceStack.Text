@@ -269,6 +269,9 @@ namespace ServiceStack.Text.Common
 
             if (typeof(T) == typeof(List<int>))
                 return DeserializeListWithElements<TSerializer>.ParseIntList;
+            
+            if (typeof(T) == typeof(List<object>) && Json.JsonTypeSerializer.Instance.ObjectDeserializer != null)
+                return s => Json.JsonTypeSerializer.Instance.ObjectDeserializer(s);
 
             var elementType = listInterface.GetGenericArguments()[0];
 
