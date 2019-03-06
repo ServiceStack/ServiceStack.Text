@@ -161,15 +161,17 @@ namespace ServiceStack.Text.Common
 
         public static ICollection<T> ParseGenericList(ReadOnlySpan<char> value, Type createListType, ParseStringSpanDelegate parseFn)
         {
-            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)).IsEmpty) 
-                return null;
-
-            var isReadOnly = createListType != null
-                && (createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
-
+            var isReadOnly = createListType != null && (createListType.IsGenericType && createListType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
             var to = (createListType == null || isReadOnly)
                 ? new List<T>()
                 : (ICollection<T>)createListType.CreateInstance();
+
+            var objSerializer = Json.JsonTypeSerializer.Instance.ObjectDeserializer;
+            if (to is List<object> && objSerializer != null)
+                return (ICollection<T>)objSerializer(value);
+
+            if ((value = DeserializeListWithElements<TSerializer>.StripList(value)).IsEmpty) 
+                return null;
 
             if (value.IsNullOrEmpty())
                 return isReadOnly ? (ICollection<T>)Activator.CreateInstance(createListType, to) : to;
@@ -270,9 +272,6 @@ namespace ServiceStack.Text.Common
             if (typeof(T) == typeof(List<int>))
                 return DeserializeListWithElements<TSerializer>.ParseIntList;
             
-            if (typeof(T) == typeof(List<object>) && Json.JsonTypeSerializer.Instance.ObjectDeserializer != null)
-                return s => Json.JsonTypeSerializer.Instance.ObjectDeserializer(s);
-
             var elementType = listInterface.GetGenericArguments()[0];
 
             var supportedTypeParseMethod = DeserializeListWithElements<TSerializer>.Serializer.GetParseStringSpanFn(elementType);

@@ -45,14 +45,12 @@ namespace ServiceStack.Text.Common
                     return s => ParseIDictionary(s, type);
                 }
 
-                throw new ArgumentException(string.Format("Type {0} is not of type IDictionary<,>", type.FullName));
+                throw new ArgumentException($"Type {type.FullName} is not of type IDictionary<,>");
             }
 
             //optimized access for regularly used types
             if (type == typeof(Dictionary<string, string>))
                 return ParseStringDictionary;
-            if (type == typeof(Dictionary<string, object>) && Json.JsonTypeSerializer.Instance.ObjectDeserializer != null)
-                return s => Json.JsonTypeSerializer.Instance.ObjectDeserializer(s);
             if (type == typeof(JsonObject))
                 return ParseJsonObject;
             if (typeof(JsonObject).IsAssignableFrom(type))
@@ -229,6 +227,14 @@ namespace ServiceStack.Text.Common
         {
             if (value.IsEmpty) return null;
 
+            var to = (createMapType == null)
+                ? new Dictionary<TKey, TValue>()
+                : (IDictionary<TKey, TValue>)createMapType.CreateInstance();
+
+            var objDeserializer = Json.JsonTypeSerializer.Instance.ObjectDeserializer;
+            if (to is Dictionary<string, object> && objDeserializer != null)
+                return (IDictionary<TKey,TValue>) objDeserializer(value);
+
             var config = JsConfig.GetConfig();
 
             var tryToParseItemsAsDictionaries =
@@ -237,10 +243,6 @@ namespace ServiceStack.Text.Common
                 config.TryToParsePrimitiveTypeValues && typeof(TValue) == typeof(object);
 
             var index = VerifyAndGetStartIndex(value, createMapType);
-
-            var to = (createMapType == null)
-                ? new Dictionary<TKey, TValue>()
-                : (IDictionary<TKey, TValue>)createMapType.CreateInstance();
 
             if (Json.JsonTypeSerializer.IsEmptyMap(value, index)) return to;
 

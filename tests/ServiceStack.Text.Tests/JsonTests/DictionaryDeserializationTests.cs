@@ -12,17 +12,12 @@ namespace ServiceStack.Text.Tests.JsonTests
         {
             JsConfig.ConvertObjectTypesIntoStringDictionary = true;
 
-            var dict = new Dictionary<string, object>();
-
-            dict["ChildDict"] = new Dictionary<string, object>
-            {
-                {"age", 12},
-                {"name", "mike"}
+            var dict = new Dictionary<string, object> {
+                ["ChildDict"] = new Dictionary<string, object> {{"age", 12}, {"name", "mike"}},
+                ["ChildIntList"] = new List<int> {1, 2, 3},
+                ["ChildStringList"] = new List<string> {"a", "b", "c"},
+                ["ChildObjectList"] = new List<object> {1, "cat", new Dictionary<string, object> {{"s", "s"}, {"n", 1}}}
             };
-
-            dict["ChildIntList"] = new List<int> {1, 2, 3};
-            dict["ChildStringList"] = new List<string> {"a", "b", "c"};
-            dict["ChildObjectList"] = new List<object> {1, "cat", new Dictionary<string, object> {{"s", "s"}, {"n", 1}}};
 
             var serialized = JsonSerializer.SerializeToString(dict);
 

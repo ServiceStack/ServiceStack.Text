@@ -505,7 +505,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             }
             catch (FormatException) {}
         }
-
+        
         class HasObjectDictionary
         {
             public Dictionary<string, object> Properties { get; set; }
@@ -544,6 +544,5 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             JS.UnConfigure();
         }
-        
     }
 }
