@@ -388,6 +388,7 @@ namespace ServiceStack.Text
 
         public static ReadOnlyMemory<char> TrimStart(this ReadOnlyMemory<char> value)
         {
+            if (value.IsEmpty) return TypeConstants.NullStringMemory;
             var span = value.Span;
             int start = 0;
             for (; start < span.Length; start++)
@@ -400,6 +401,7 @@ namespace ServiceStack.Text
 
         public static ReadOnlyMemory<char> TrimEnd(this ReadOnlyMemory<char> value)
         {
+            if (value.IsEmpty) return TypeConstants.NullStringMemory;
             var span = value.Span;
             int end = span.Length - 1;
             for (; end >= 0; end--)
@@ -425,9 +427,10 @@ namespace ServiceStack.Text
 
         public static string SubstringWithEllipsis(this ReadOnlyMemory<char> value, int startIndex, int length)
         {
+            if (value.IsEmpty) return string.Empty;
             var str = value.Slice(startIndex, length);
             return str.Length == length
-                ? str.ToString() + "..."
+                ? str + "..."
                 : str.ToString();
         }
 

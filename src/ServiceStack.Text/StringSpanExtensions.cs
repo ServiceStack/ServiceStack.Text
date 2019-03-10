@@ -459,6 +459,7 @@ namespace ServiceStack.Text
 
         public static ReadOnlySpan<char> TrimEnd(this ReadOnlySpan<char> value, params char[] trimChars)
         {
+            if (value.IsEmpty) return TypeConstants.NullStringSpan;
             if (trimChars == null || trimChars.Length == 0)
                 return value.TrimHelper(1);
             return value.TrimHelper(trimChars, 1);
@@ -466,6 +467,7 @@ namespace ServiceStack.Text
 
         private static ReadOnlySpan<char> TrimHelper(this ReadOnlySpan<char> value, int trimType)
         {
+            if (value.IsEmpty) return TypeConstants.NullStringSpan;
             int end = value.Length - 1;
             int start = 0;
             if (trimType != 1)
@@ -485,6 +487,7 @@ namespace ServiceStack.Text
 
         private static ReadOnlySpan<char> TrimHelper(this ReadOnlySpan<char> value, char[] trimChars, int trimType)
         {
+            if (value.IsEmpty) return TypeConstants.NullStringSpan;
             int end = value.Length - 1;
             int start = 0;
             if (trimType != 1)
@@ -516,6 +519,7 @@ namespace ServiceStack.Text
 
         private static ReadOnlySpan<char> CreateTrimmedString(this ReadOnlySpan<char> value, int start, int end)
         {
+            if (value.IsEmpty) return TypeConstants.NullStringSpan;
             int length = end - start + 1;
             if (length == value.Length)
                 return value;
@@ -539,6 +543,7 @@ namespace ServiceStack.Text
 
         public static string SubstringWithEllipsis(this ReadOnlySpan<char> value, int startIndex, int length)
         {
+            if (value.IsEmpty) return string.Empty;
             var str = value.Slice(startIndex, length);
             return str.Length == length
                 ? str.ToString() + "..."
@@ -656,6 +661,5 @@ namespace ServiceStack.Text
             }
             return count;
         }
-
     }
 }
