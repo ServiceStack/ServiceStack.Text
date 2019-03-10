@@ -544,7 +544,7 @@ namespace ServiceStack.Text
         public static string SubstringWithEllipsis(this ReadOnlySpan<char> value, int startIndex, int length)
         {
             if (value.IsEmpty) return string.Empty;
-            var str = value.Slice(startIndex, length);
+            var str = value.SafeSlice(startIndex, length);
             return str.Length == length
                 ? str.ToString() + "..."
                 : str.ToString();
