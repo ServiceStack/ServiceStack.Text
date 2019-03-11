@@ -705,7 +705,8 @@ namespace ServiceStack
         private const int LowerCaseOffset = 'a' - 'A';
         public static string ToCamelCase(this string value)
         {
-            if (String.IsNullOrEmpty(value)) return value;
+            if (string.IsNullOrEmpty(value)) 
+                return value;
 
             var len = value.Length;
             var newValue = new char[len];
@@ -731,7 +732,8 @@ namespace ServiceStack
 
         public static string ToPascalCase(this string value)
         {
-            if (String.IsNullOrEmpty(value)) return value;
+            if (string.IsNullOrEmpty(value)) 
+                return value;
 
             if (value.IndexOf('_') >= 0)
             {
@@ -739,6 +741,8 @@ namespace ServiceStack
                 var sb = StringBuilderThreadStatic.Allocate();
                 foreach (var part in parts)
                 {
+                    if (string.IsNullOrEmpty(part))
+                        continue;
                     var str = part.ToCamelCase();
                     sb.Append(char.ToUpper(str[0]) + str.SafeSubstring(1, str.Length));
                 }

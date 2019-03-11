@@ -237,6 +237,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("lllUlllUlll".ToCamelCase(), Is.EqualTo("lllUlllUlll"));
             Assert.That("".ToCamelCase(), Is.EqualTo(""));
             Assert.That(((string)null).ToCamelCase(), Is.EqualTo((string)null));
+            Assert.That("__type".ToCamelCase(), Is.EqualTo("__type"));
         }
 
         [Test]
@@ -343,6 +344,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("aa_bb".ToPascalCase(), Is.EqualTo("AaBb"));
             Assert.That("Aa_Bb".ToPascalCase(), Is.EqualTo("AaBb"));
             Assert.That("AA_BB".ToPascalCase(), Is.EqualTo("AaBb"));
+            Assert.That("__type".ToPascalCase(), Is.EqualTo("Type"));
         }
 
         [Test]
