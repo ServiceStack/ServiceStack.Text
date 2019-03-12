@@ -21,17 +21,22 @@ namespace ServiceStack
 
         public static string AddQueryParam(this string url, string key, object val, bool encode = true)
         {
-            return url.AddQueryParam(key, val.ToString(), encode);
+            return url.AddQueryParam(key, val?.ToString(), encode);
         }
 
         public static string AddQueryParam(this string url, object key, string val, bool encode = true)
         {
-            return AddQueryParam(url, (key ?? "").ToString(), val, encode);
+            return AddQueryParam(url, key?.ToString(), val, encode);
         }
 
         public static string AddQueryParam(this string url, string key, string val, bool encode = true)
         {
-            if (string.IsNullOrEmpty(url)) return null;
+            if (url == null)
+                url = "";
+
+            if (key == null || val == null)
+                return url;
+            
             var prefix = string.Empty;
             if (!url.EndsWith("?") && !url.EndsWith("&"))
             {
@@ -42,7 +47,12 @@ namespace ServiceStack
 
         public static string SetQueryParam(this string url, string key, string val)
         {
-            if (string.IsNullOrEmpty(url)) return null;
+            if (url == null)
+                url = "";
+            
+            if (key == null || val == null)
+                return url;
+            
             var qsPos = url.IndexOf('?');
             if (qsPos != -1)
             {
@@ -69,19 +79,29 @@ namespace ServiceStack
 
         public static string AddHashParam(this string url, string key, object val)
         {
-            return url.AddHashParam(key, val.ToString());
+            return url.AddHashParam(key, val?.ToString());
         }
 
         public static string AddHashParam(this string url, string key, string val)
         {
-            if (string.IsNullOrEmpty(url)) return null;
+            if (url == null)
+                url = "";
+            
+            if (key == null || val == null)
+                return url;
+            
             var prefix = url.IndexOf('#') == -1 ? "#" : "/";
             return url + prefix + key + "=" + val.UrlEncode();
         }
 
         public static string SetHashParam(this string url, string key, string val)
         {
-            if (string.IsNullOrEmpty(url)) return null;
+            if (url == null)
+                url = "";
+            
+            if (key == null || val == null)
+                return url;
+            
             var hPos = url.IndexOf('#');
             if (hPos != -1)
             {
