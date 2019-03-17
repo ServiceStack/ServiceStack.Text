@@ -29,6 +29,8 @@ namespace ServiceStack
         public StringDictionary(IDictionary<string, string> dictionary) : base(dictionary) { }
         public StringDictionary(IDictionary<string, string> dictionary, IEqualityComparer<string> comparer) : base(dictionary, comparer) { }
         protected StringDictionary(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        
+        
     }
 
     /// <summary>
@@ -49,5 +51,8 @@ namespace ServiceStack
         public KeyValueStrings() { }
         public KeyValueStrings(int capacity) : base(capacity) { }
         public KeyValueStrings(IEnumerable<KeyValuePair<string, string>> collection) : base(collection) { }
+        
+        public static KeyValuePair<string,object> Create(string key, object value) => 
+            new KeyValuePair<string, object>(key, value);
     }
 }
