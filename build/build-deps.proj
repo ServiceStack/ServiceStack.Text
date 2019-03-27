@@ -31,6 +31,7 @@
 
     <Target Name="BuildSolutions">
         <CallTarget Targets="ClearNuGetRestoreCaches" />
+        <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Memory/ServiceStack.Memory.csproj" Targets="Restore" />
         <MSBuild Projects="$(BuildSolutionDir)/src/ServiceStack.Text/ServiceStack.Text.csproj" Targets="Restore" />
     </Target>
 
