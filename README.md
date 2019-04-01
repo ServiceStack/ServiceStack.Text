@@ -366,8 +366,7 @@ The JSON/JSV and CSV serialization can be customized globally by configuring the
 JsConfig.Init(new Config {
     DateHandler = DateHandler.ISO8601,
     AlwaysUseUtc = true,
-    EmitLowercaseUnderscoreNames = false,
-    EmitCamelCaseNames = false,
+    TextCase = TextCase.CamelCase,
     ExcludeDefaultValues = true,                
 });
 ```
@@ -437,30 +436,17 @@ using property initializers:
 
 ```csharp
 using (JsConfig.With(new Config { 
-    EmitLowercaseUnderscoreNames = true, 
-    EmitCamelCaseNames = false, 
-    PropertyConvention = PropertyConvention.Lenient))
+    TextCase == TextCase.CamelCase, 
+    PropertyConvention = PropertyConvention.Lenient
+}))
 {
-    return text.FromJson<T>();
-}
-```
-
-Or if preferred you use `JsConfig.BeginScope()` to populate scoped configuration properties individually:
-
-```csharp
-using (var scope = JsConfig.BeginScope())
-{
-    scope.EmitLowercaseUnderscoreNames = true;
-    scope.EmitCamelCaseNames = false;
-    scope.PropertyConvention = PropertyConvention.Lenient;
-
     return text.FromJson<T>();
 }
 ```
 
 #### Create Custom Scopes using String config
 
-You can also create a custion config scope from a string manually using `JsConfig.CreateScope()` where you can use the full config name or their aliases, e.g:
+You can also create a custom config scope from a string manually using `JsConfig.CreateScope()` where you can use the full config name or their aliases, e.g:
 
 ```csharp
 using (JsConfig.CreateScope("EmitLowercaseUnderscoreNames,EDV,dh:ut")) 
