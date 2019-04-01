@@ -377,8 +377,6 @@ The following is a list of `bool` options you can use to configure many popular 
     <thead>
         <tr><th>Name</th><th>Alias</th></tr>
     </thead>
-    <tr><td>EmitCamelCaseNames</td><td>eccn</td></tr>
-    <tr><td>EmitLowercaseUnderscoreNames</td><td>elun</td></tr>
     <tr><td>IncludeNullValues</td><td>inv</td></tr>
     <tr><td>IncludeNullValuesInDictionaries</td><td>invid</td></tr>
     <tr><td>IncludeDefaultEnums</td><td>ide</td></tr>
@@ -400,6 +398,8 @@ The following is a list of `bool` options you can use to configure many popular 
     <tr><td>AppendUtcOffset</td><td>auo</td></tr>
     <tr><td>EscapeHtmlChars</td><td>ehc</td></tr>
     <tr><td>EscapeUnicode</td><td>eu</td></tr>
+    <tr><td>EmitCamelCaseNames</td><td>eccn</td></tr>
+    <tr><td>EmitLowercaseUnderscoreNames</td><td>elun</td></tr>
 </table>
 
 ### DateHandler (dh)
@@ -420,6 +420,15 @@ The following is a list of `bool` options you can use to configure many popular 
 <table>
     <tr><td>DurationFormat</td><td>df</td></tr>
     <tr><td>StandardFormat</td><td>sf</td></tr>
+</table>
+
+### TextCase (tc)
+
+<table>
+    <tr><td>Default</td><td>d</td></tr>
+    <tr><td>PascalCase</td><td>pc</td></tr>
+    <tr><td>CamelCase</td><td>cc</td></tr>
+    <tr><td>SnakeCase</td><td>sc</td></tr>
 </table>
 
 ### PropertyConvention (pc)
@@ -449,7 +458,7 @@ using (JsConfig.With(new Config {
 You can also create a custom config scope from a string manually using `JsConfig.CreateScope()` where you can use the full config name or their aliases, e.g:
 
 ```csharp
-using (JsConfig.CreateScope("EmitLowercaseUnderscoreNames,EDV,dh:ut")) 
+using (JsConfig.CreateScope("IncludeNullValues,EDV,dh:ut")) 
 {
     var json = dto.ToJson();
 }
