@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Threading;
 using NUnit.Framework;
 
@@ -544,5 +545,42 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             JS.UnConfigure();
         }
+
+        [DataContract]
+        public class BrowseProtocolTemplateResponseLight
+        {
+            [DataMember(Name = "ProtocolTemplateId")]
+            public Guid Oid { get; set; }
+
+            [DataMember]
+            public string Name { get; set; }
+
+            [DataMember]
+            public string Title { get; set; }
+
+            [DataMember]
+            public string Description { get; set; }
+
+            [DataMember]
+            public List<object> ProtocolBusinessObjects { get; set; }
+
+            [DataMember]
+            public ResponseStatus ResponseStatus { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_JSV_List_object_when_ObjectDeserializer_is_configured()
+        {
+            JS.Configure();
+
+            var json = @"{ ProtocolTemplateId:d7f0aa3afd834e90aaa9a97b7efd0c03,Name: Rendezvényszervezés,Title: Test,Description: Rendezvényszervezés,ProtocolBusinessObjects:[[{ Oid: 3c229e70345f11e9bf726dd67bf32ebd,ObjectType: AwaitObject,Flags: 18,Name: AwaitObject1,Title: AwaitObject1,SecondaryTitle: AwaitObject1,Description: "",OwnerType: 1,Owner: { UserId: 2,DisplayName: System},DeadlineType: 2,DeadlineOffsetDays: 1,Priority: 2,PriorityToData: False,DeadlineToData: False,CompletedDateToData: False,OwnerToData: False,Visible: False,ProtocolTemplateId: d7f0aa3afd834e90aaa9a97b7efd0c03,ProtocolTemplateGroupId: e44dfc5da20942fe8532d6446ef0b76c,CreatedBy: { UserId: 4,DisplayName: Wiszt Máté},CreatedDateTime: 2019 - 03 - 21T15: 05:41.0929542 + 01:00}]]}";
+
+            var ret = json.FromJsv<BrowseProtocolTemplateResponseLight>();
+            
+            Assert.That(ret.ProtocolBusinessObjects.Count, Is.GreaterThan(0));
+
+            JS.UnConfigure();
+        }
+
     }
 }

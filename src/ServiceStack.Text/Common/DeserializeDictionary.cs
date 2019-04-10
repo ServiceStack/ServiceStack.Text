@@ -232,7 +232,7 @@ namespace ServiceStack.Text.Common
                 : (IDictionary<TKey, TValue>)createMapType.CreateInstance();
 
             var objDeserializer = Json.JsonTypeSerializer.Instance.ObjectDeserializer;
-            if (to is Dictionary<string, object> && objDeserializer != null)
+            if (to is Dictionary<string, object> && objDeserializer != null && typeof(TSerializer) == typeof(Json.JsonTypeSerializer))
                 return (IDictionary<TKey,TValue>) objDeserializer(value);
 
             var config = JsConfig.GetConfig();
