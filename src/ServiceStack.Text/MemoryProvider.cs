@@ -69,5 +69,6 @@ namespace ServiceStack.Text
 
         public abstract byte[] ToUtf8Bytes(ReadOnlySpan<char> source);
         public abstract string FromUtf8Bytes(ReadOnlySpan<byte> source);
+        public abstract MemoryStream ToMemoryStream(ReadOnlySpan<byte> source);
     }
 }
