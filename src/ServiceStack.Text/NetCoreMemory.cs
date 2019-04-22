@@ -189,6 +189,7 @@ namespace ServiceStack.Memory
         public override byte[] ToUtf8Bytes(ReadOnlySpan<char> source) => ToUtf8(source).ToArray();
 
         public override string FromUtf8Bytes(ReadOnlySpan<byte> source) => FromUtf8(source).ToString();
+
         public override MemoryStream ToMemoryStream(ReadOnlySpan<byte> source)
         {
             var ms = MemoryStreamFactory.GetStream(source.Length);
