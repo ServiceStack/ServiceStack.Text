@@ -421,7 +421,9 @@ namespace ServiceStack.Text.Json
 
         private static string UnescapeJsonString(string json, ref int index)
         {
-            return UnescapeJsonString(json.AsSpan(), ref index).ToString();
+            return json != null 
+                ? UnescapeJsonString(json.AsSpan(), ref index).ToString() 
+                : null;
         }
 
         private static ReadOnlySpan<char> UnescapeJsonString(ReadOnlySpan<char> json, ref int index) =>

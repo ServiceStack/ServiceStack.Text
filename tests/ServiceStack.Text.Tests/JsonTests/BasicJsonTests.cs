@@ -655,5 +655,21 @@ namespace ServiceStack.Text.Tests.JsonTests
             Assert.That(dto.Email, Is.EqualTo("invalidemail"));            
         }
 
+        class TestTrim
+        {
+            public string Description { get; set; }
+        }
+
+        [Test]
+        public void Can_deserialize_custom_string_deserializer()
+        {
+            JsConfig<string>.DeSerializeFn = str => str.Trim();
+            var json = "{\"description\":null}";
+            var dto = json.FromJson<TestTrim>();
+            Assert.That(dto.Description, Is.Null);
+            JsConfig<string>.DeSerializeFn = null;
+        }
+
+        
     }
 }
