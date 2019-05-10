@@ -1476,5 +1476,57 @@ namespace ServiceStack.Text.Tests
             Assert.That(original.Address.City, Is.EqualTo(defaults.Address.City));
             Assert.That(original.Address.PostCode, Is.EqualTo("4321"));
         }
+        
+        public class NavItem : IMeta
+        {
+            public string Label { get; set; }
+            public string Path { get; set; }
+        
+            /// <summary>
+            /// Whether Active class should only be added when paths are exact match
+            /// otherwise checks if ActivePath starts with Path
+            /// </summary>
+            public bool Exact { get; set; }
+
+            public string Id { get; set; }    // Emit id="{Id}"
+            public string Class { get; set; } // Override class="{Class}"
+        
+            public List<NavItem> Children { get; set; } = new List<NavItem>();
+        
+            public Dictionary<string, string> Meta { get; set; } = new Dictionary<string, string>();
+        }
+
+        [Test]
+        public void Does_convert_nested_collections()
+        {
+            var to = new[] {
+                new Dictionary<string,object> {
+                    ["id"] = "A1",
+                    ["children"] = new List<object>
+                    {
+                        new Dictionary<string,object>
+                        {
+                            ["id"] = "B1",
+                        },
+                        new Dictionary<string,object>
+                        {
+                            ["id"] = "B2",
+                            ["children"] = new List<object> {
+                                new Dictionary<string,object>
+                                {
+                                    ["id"] = "C1",
+                                },
+                            }
+                        },
+                    }
+                }
+            };
+
+            var navItems = to.ConvertTo<List<NavItem>>();
+            Assert.That(navItems[0].Id, Is.EqualTo("A1"));
+            Assert.That(navItems[0].Children[0].Id, Is.EqualTo("B1"));
+            Assert.That(navItems[0].Children[1].Id, Is.EqualTo("B2"));
+            Assert.That(navItems[0].Children[1].Children[0].Id, Is.EqualTo("C1"));
+        }
     }
 }
