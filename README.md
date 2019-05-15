@@ -157,10 +157,11 @@ ServiceStack.Text APIs for deserializing arbitrary JSON requires specifying the 
 [#Script](https://sharpscript.net/) implementation of JavaScript.
 
 ```csharp
-JSON.parse("1")      //= int 1 
-JSON.parse("1.1")    //= double 1.1
-JSON.parse("'a'")    //= string "a"
-JSON.parse("{a:1}")  //= new Dictionary<string, object> { {"a", 1 } }
+JSON.parse("1")       //= int 1 
+JSON.parse("1.1")     //= double 1.1
+JSON.parse("'a'")     //= string "a"
+JSON.parse("{a:1}")   //= new Dictionary<string, object> { {"a", 1 } }
+JSON.parse("[{a:1}]") //= new List<object> { new Dictionary<string, object> { { "a", 1 } } }
 ```
 
 #### Eval
