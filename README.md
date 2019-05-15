@@ -154,7 +154,7 @@ project. It provides a dynamic, but more succinct API than the above options.
 ### JS Utils
 
 ServiceStack.Text APIs for deserializing arbitrary JSON requires specifying the the Type to deserialize into. An alternative flexible approach to read any arbitrary JavaScript or JSON data structures is to use the high-performance and memory efficient JSON utils in 
-[ServiceStack Templates](http://templates.servicestack.net) implementation of JavaScript.
+[#Script](https://sharpscript.net/) implementation of JavaScript.
 
 ```csharp
 JSON.parse("1")      //= int 1 
@@ -165,18 +165,18 @@ JSON.parse("{a:1}")  //= new Dictionary<string, object> { {"a", 1 } }
 
 #### Eval
 
-Since JS Utils is an essential part of [ServiceStack Template language](http://templates.servicestack.net) it allows for advanced scenarios like implementing a text DSL or scripting language for executing custom logic or business rules you want to be able to change without having to compile or redeploy your App. It uses [Templates Sandbox](http://templates.servicestack.net/docs/sandbox) which lets you evaluate the script within a custom scope that defines what functions 
+Since JS Utils is an essential part of [#Script](https://sharpscript.net/) it allows for advanced scenarios like implementing a text DSL or scripting language for executing custom logic or business rules you want to be able to change without having to compile or redeploy your App. It uses [#Script Context](https://sharpscript.net/docs/methods) which lets you evaluate the script within a custom scope that defines what functions 
 and arguments it has access to, e.g:
 
 ```csharp
-public class CustomFilter : TemplateFilter
+public class CustomMethods : ScriptMethods
 {
     public string reverse(string text) => new string(text.Reverse().ToArray());
 }
 
 var scope = JS.CreateScope(
          args: new Dictionary<string, object> { { "arg", "value"} }, 
-    functions: new CustomFilter());
+    functions: new CustomMethods());
 
 JS.eval("arg", scope)                                        //= "value"
 JS.eval("reverse(arg)", scope)                               //= "eulav"
