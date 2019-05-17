@@ -1217,6 +1217,7 @@ namespace ServiceStack
 
         public const string Html = "text/html";
         public const string HtmlUtf8 = Html + Utf8Suffix;
+        public const string Css = "text/css";
         public const string Xml = "application/xml";
         public const string XmlText = "text/xml";
         public const string Json = "application/json";
