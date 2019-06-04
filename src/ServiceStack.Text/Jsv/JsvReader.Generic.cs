@@ -85,6 +85,8 @@ namespace ServiceStack.Text.Jsv
         {
             TypeConfig<T>.Init();
 
+            value = value.WithoutBom();
+
             if (ReadFn == null)
             {
                 if (typeof(T).IsInterface)

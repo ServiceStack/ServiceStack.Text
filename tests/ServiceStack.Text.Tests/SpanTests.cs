@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using ServiceStack.Text.Pools;
@@ -148,6 +149,25 @@ namespace ServiceStack.Text.Tests
             var to = (Person)await MemoryProvider.Instance.DeserializeAsync(ms, typeof(Person), JsonSerializer.DeserializeFromSpan);
             
             Assert.That(to, Is.EqualTo(from));
+        }
+
+        [Test]
+        public void Can_deserialize_JSON_with_UTF8_BOM()
+        {
+            var from = new Person { Id = 1, Name = "Foo" };
+            var json = from.ToJson();
+            var jsonBytes = json.ToUtf8Bytes();
+
+            var bytes = new List<byte>(new byte[] { 0xEF, 0xBB, 0xBF });
+            bytes.AddRange(jsonBytes);
+
+            var mergedBytes = bytes.ToArray();
+
+            var jsonWithBOM = mergedBytes.FromUtf8Bytes();
+
+            var fromJsonWithBOM = jsonWithBOM.FromJson<Person>();
+            
+            Assert.That(fromJsonWithBOM, Is.EqualTo(from));
         }
     }
 

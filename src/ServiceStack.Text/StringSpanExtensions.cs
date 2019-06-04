@@ -661,5 +661,20 @@ namespace ServiceStack.Text
             }
             return count;
         }
+
+        public static ReadOnlySpan<char> WithoutBom(this ReadOnlySpan<char> value)
+        {
+            return value.Length > 0 && value[0] == 65279 
+                ? value.Slice(1) 
+                : value;
+        }
+
+        public static ReadOnlySpan<byte> WithoutBom(this ReadOnlySpan<byte> value)
+        {
+            return value.Length > 3 && value[0] == 0xEF && value[1] == 0xBB && value[2] == 0xBF 
+                ? value.Slice(3) 
+                : value;
+        }
+
     }
 }

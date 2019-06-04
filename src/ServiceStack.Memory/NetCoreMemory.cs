@@ -177,6 +177,7 @@ namespace ServiceStack.Memory
 
         public override ReadOnlyMemory<char> FromUtf8(ReadOnlySpan<byte> source)
         {
+            source = source.WithoutBom();
             Memory<char> chars = new char[Encoding.UTF8.GetCharCount(source)];
             var charsWritten = Encoding.UTF8.GetChars(source, chars.Span);
             return chars.Slice(0, charsWritten);
@@ -184,11 +185,11 @@ namespace ServiceStack.Memory
 
         public override int ToUtf8(ReadOnlySpan<char> source, Span<byte> destination) => Encoding.UTF8.GetBytes(source, destination);
 
-        public override int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination) => Encoding.UTF8.GetChars(source, destination);
+        public override int FromUtf8(ReadOnlySpan<byte> source, Span<char> destination) => Encoding.UTF8.GetChars(source.WithoutBom(), destination);
 
         public override byte[] ToUtf8Bytes(ReadOnlySpan<char> source) => ToUtf8(source).ToArray();
 
-        public override string FromUtf8Bytes(ReadOnlySpan<byte> source) => FromUtf8(source).ToString();
+        public override string FromUtf8Bytes(ReadOnlySpan<byte> source) => FromUtf8(source.WithoutBom()).ToString();
 
         public override MemoryStream ToMemoryStream(ReadOnlySpan<byte> source)
         {

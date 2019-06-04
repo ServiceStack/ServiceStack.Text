@@ -270,7 +270,9 @@ namespace ServiceStack
         public static string FromUtf8Bytes(this byte[] bytes)
         {
             return bytes == null ? null
-                : Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+                : bytes.Length > 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF  
+                    ? Encoding.UTF8.GetString(bytes, 3, bytes.Length - 3)
+                    : Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
         public static byte[] ToUtf8Bytes(this string value)
