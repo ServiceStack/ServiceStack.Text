@@ -494,7 +494,7 @@ namespace ServiceStack.Text
             try
             {
                 var charsWritten = Encoding.UTF8.GetChars(bytes, 0, (int) ms.Length, utf8, 0);
-                var ret = deserializer(type, new ReadOnlySpan<char>(utf8, 0, charsWritten));
+                var ret = deserializer(type, new ReadOnlySpan<char>(utf8, 0, charsWritten).WithoutBom());
                 return ret;
             }
             finally

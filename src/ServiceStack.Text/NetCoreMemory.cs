@@ -141,7 +141,7 @@ namespace ServiceStack.Memory
 
         private static object Deserialize(MemoryStream memoryStream, bool fromPool, Type type, DeserializeStringSpanDelegate deserializer)
         {
-            var bytes = memoryStream.GetBufferAsSpan();
+            var bytes = memoryStream.GetBufferAsSpan().WithoutBom();
             var chars = CharPool.GetBuffer(Encoding.UTF8.GetCharCount(bytes));
             try
             {
