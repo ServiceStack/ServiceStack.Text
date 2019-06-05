@@ -305,6 +305,13 @@ namespace ServiceStack
             return FastToUtf8Bytes(doubleStr);
         }
 
+        public static string WithoutBom(this string value)
+        {
+            return value.Length > 0 && value[0] == 65279 
+                ? value.Substring(1) 
+                : value;
+        }
+
         // from JWT spec
         public static string ToBase64UrlSafe(this byte[] input)
         {

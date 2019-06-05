@@ -118,8 +118,10 @@ namespace ServiceStack.Text.Tests
                 Assert.That(bytes.ToArray(), Is.EquivalentTo(test.expectedBytes));
 
                 ReadOnlyMemory<char> chars = bytes.FromUtf8();
-                Assert.That(chars.Length, Is.EqualTo(test.expectedString.Length));
-                Assert.That(chars.ToString(), Is.EqualTo(test.expectedString));
+                Assert.That(chars.Length, Is.EqualTo(test.expectedString.Length)
+                    .Or.EqualTo(test.expectedString.WithoutBom().Length));
+                Assert.That(chars.ToString(), Is.EqualTo(test.expectedString)
+                    .Or.EqualTo(test.expectedString.WithoutBom()));
             }
         }
 
