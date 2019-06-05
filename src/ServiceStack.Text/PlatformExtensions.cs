@@ -133,10 +133,11 @@ namespace ServiceStack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this MethodInfo mi) => mi.AllAttributes().Any(x => x.GetType() == typeof(T));
 
-        private static Dictionary<MemberInfo, bool> hasAttributeCache = new Dictionary<MemberInfo, bool>();
+        private static Dictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = new Dictionary<Tuple<MemberInfo,Type>, bool>();
         public static bool HasAttributeCached<T>(this MemberInfo memberInfo)
         {
-            if (hasAttributeCache.TryGetValue(memberInfo, out var hasAttr))
+            var key = new Tuple<MemberInfo,Type>(memberInfo, typeof(T));
+            if (hasAttributeCache.TryGetValue(key , out var hasAttr))
                 return hasAttr;
 
             hasAttr = memberInfo is Type t 
@@ -149,12 +150,12 @@ namespace ServiceStack
                 ? mi.AllAttributes().Any(x => x.GetType() == typeof(T))
                 : throw new NotSupportedException(memberInfo.GetType().Name);
             
-            Dictionary<MemberInfo, bool> snapshot, newCache;
+            Dictionary<Tuple<MemberInfo,Type>, bool> snapshot, newCache;
             do
             {
                 snapshot = hasAttributeCache;
-                newCache = new Dictionary<MemberInfo, bool>(hasAttributeCache) {
-                    [memberInfo] = hasAttr
+                newCache = new Dictionary<Tuple<MemberInfo,Type>, bool>(hasAttributeCache) {
+                    [key ] = hasAttr
                 };
 
             } while (!ReferenceEquals(

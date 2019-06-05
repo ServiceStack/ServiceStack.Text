@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using ServiceStack;
+using ServiceStack.DataAnnotations;
 
 namespace ServiceStack.Text.Tests
 {
@@ -130,6 +131,21 @@ namespace ServiceStack.Text.Tests
             Assert.That(new[] { "" }.Select(x => new TestModel()).GetType().GetCollectionType(), Is.EqualTo(typeof(TestModel)));
         }
 
+        [EnumAsChar]
+        public enum CharEnum : int
+        {
+            Value1 = 'A', 
+            Value2 = 'B', 
+            Value3 = 'C', 
+            Value4 = 'D'
+        }
+
+        [Test]
+        public void Can_use_HasAttributeCached()
+        {
+            Assert.That(typeof(CharEnum).HasAttributeCached<EnumAsCharAttribute>());
+            Assert.That(typeof(CharEnum).HasAttribute<EnumAsCharAttribute>());
+        }
     }
 
     public class GenericType<T> { }
