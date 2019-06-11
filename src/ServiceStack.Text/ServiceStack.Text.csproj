@@ -16,8 +16,6 @@
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Threading" />
-    <Reference Include="System.Threading.Tasks" />
     <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="System.Memory" Version="4.5.2" />
   </ItemGroup>
