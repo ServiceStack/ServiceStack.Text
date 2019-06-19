@@ -17,18 +17,18 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-    <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.LightWeight" Version="4.3.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
 </Project>
