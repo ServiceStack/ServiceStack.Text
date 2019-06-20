@@ -66,6 +66,7 @@ namespace ServiceStack
         public static void Reset()
         {
             converters.Clear();
+            populators.Clear();
             ignoreMappings.Clear();
             AssignmentDefinitionCache.Clear();
         }

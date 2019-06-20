@@ -4,28 +4,24 @@ namespace ServiceStack.Text.Tests
 {
     public class AutoMappingPopulatorTests
     {
-        private static User CreateUser() =>
-            new User {
+        public class UserData
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public Car Car { get; set; }
+        }
+        
+        private static UserData CreateUser() =>
+            new UserData {
                 FirstName = "John",
                 LastName = "Doe",
                 Car = new Car {Name = "BMW X6", Age = 3}
             };
 
-        private static UsersData CreateUserData()
-        {
-            var user = CreateUser();
-            return new UsersData {
-                Id = 1,
-                User = user,
-                UsersList = {user},
-                UsersMap = {{1, user}}
-            };
-        }
-
         [Test]
         public void Does_call_populator_for_PopulateWith()
         {
-            AutoMapping.RegisterPopulator((UserDto target, User source) => 
+            AutoMapping.RegisterPopulator((UserDto target, UserData source) => 
                 target.LastName += "?!");
 
             var user = CreateUser();
@@ -38,7 +34,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_call_populator_for_PopulateWithNonDefaultValues()
         {
-            AutoMapping.RegisterPopulator((UserDto target, User source) => 
+            AutoMapping.RegisterPopulator((UserDto target, UserData source) => 
                 target.LastName += "?!");
 
             var user = CreateUser();
@@ -51,7 +47,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_call_populator_for_PopulateFromPropertiesWithoutAttribute()
         {
-            AutoMapping.RegisterPopulator((UserDto target, User source) => 
+            AutoMapping.RegisterPopulator((UserDto target, UserData source) => 
                 target.LastName += "?!");
 
             var user = CreateUser();
@@ -64,7 +60,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_call_populator_for_ConvertTo()
         {
-            AutoMapping.RegisterPopulator((UserDto target, User source) => 
+            AutoMapping.RegisterPopulator((UserDto target, UserData source) => 
                 target.LastName += "?!");
 
             var user = CreateUser();
