@@ -1265,6 +1265,98 @@ namespace ServiceStack
 
             throw new NotSupportedException("Unknown mimeType: " + mimeType);
         }
+        
+        //lowercases and trims left part of content-type prior ';'
+        public static string GetRealContentType(string contentType)
+        {
+            if (contentType == null)
+                return null;
+
+            int start = -1, end = -1;
+
+            for(int i=0; i < contentType.Length; i++)
+            {
+                if (!char.IsWhiteSpace(contentType[i]))
+                {
+                    if (contentType[i] == ';')
+                        break;
+                    if (start == -1)
+                    {
+                        start = i;
+                    }
+                    end = i;
+                }
+            }
+
+            return start != -1 
+                    ? contentType.Substring(start, end - start + 1).ToLowerInvariant()
+                    :  null;
+        }
+
+        //Compares two string from start to ';' char, case-insensitive,
+        //ignoring (trimming) spaces at start and end
+        public static bool MatchesContentType(string contentType, string matchesContentType)
+        {
+            if (contentType == null || matchesContentType == null)
+                return false;
+            
+            int start = -1, matchStart = -1, matchEnd = -1;
+
+            for (var i=0; i < contentType.Length; i++)
+            {
+                if (char.IsWhiteSpace(contentType[i])) 
+                    continue;
+                start = i;
+                break;
+            }
+
+            for (var i=0; i < matchesContentType.Length; i++)
+            {
+                if (char.IsWhiteSpace(matchesContentType[i])) 
+                    continue;
+                if (matchesContentType[i] == ';')
+                    break;
+                if (matchStart == -1)
+                    matchStart = i;
+                matchEnd = i;
+            }
+            
+            return start != -1 && matchStart != -1 && matchEnd != -1
+                  && string.Compare(contentType, start,
+                        matchesContentType, matchStart, matchEnd - matchStart + 1,
+                        StringComparison.OrdinalIgnoreCase) == 0;
+        }
+        
+        public static Func<string, bool?> IsBinaryFilter { get; set; }
+
+        public static bool IsBinary(string contentType)
+        {
+            var userFilter = IsBinaryFilter?.Invoke(contentType);
+            if (userFilter != null)
+                return userFilter.Value;
+            
+            var realContentType = GetRealContentType(contentType);
+            switch (realContentType)
+            {
+                case ProtoBuf:
+                case MsgPack:
+                case Binary:
+                case Bson:
+                case Wire:
+                    return true;
+            }
+
+            var primaryType = realContentType.LeftPart('/');
+            switch (primaryType)
+            {
+                case "image":
+                case "audio":
+                case "video":
+                    return true;
+            }
+
+            return false;
+        }
 
         public static string GetMimeType(string fileNameOrExt)
         {
@@ -1297,6 +1389,9 @@ namespace ServiceStack
 
                 case "svg":
                     return "image/svg+xml";
+                
+                case "ico":
+                    return "image/x-icon";
 
                 case "htm":
                 case "html":
