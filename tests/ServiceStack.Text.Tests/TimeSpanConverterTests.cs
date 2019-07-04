@@ -17,6 +17,7 @@ namespace ServiceStack.Text.Tests
         private readonly TimeSpan oneMilliSecond = new TimeSpan(0, 0, 0, 0, 1);
         private readonly TimeSpan oneDayHourMinuteSecondMilliSecond = new TimeSpan(1, 1, 1, 1, 1);
         private readonly TimeSpan threeThousandSixHundredAndFiveDays = TimeSpan.FromDays(3605);
+        private readonly TimeSpan ninetyThousandDays = TimeSpan.FromDays(90000);
         private readonly TimeSpan arbitraryTimeSpan = new TimeSpan(1, 2, 3, 4, 567).Add(TimeSpan.FromTicks(1));
 
         [Test]
@@ -48,6 +49,9 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(TimeSpanConverter.ToXsdDuration(threeThousandSixHundredAndFiveDays), Is.EqualTo("P3605D"));
             Assert.That(TimeSpanConverter.ToXsdDuration(-threeThousandSixHundredAndFiveDays), Is.EqualTo("-P3605D"));
+
+            Assert.That(TimeSpanConverter.ToXsdDuration(ninetyThousandDays), Is.EqualTo("P90000D"));
+            Assert.That(TimeSpanConverter.ToXsdDuration(-ninetyThousandDays), Is.EqualTo("-P90000D"));
         }
 
         [Test]
@@ -80,6 +84,9 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(TimeSpanConverter.FromXsdDuration("P3605D"), Is.EqualTo(threeThousandSixHundredAndFiveDays));
             Assert.That(TimeSpanConverter.FromXsdDuration("-P3605D"), Is.EqualTo(-threeThousandSixHundredAndFiveDays));
+
+            Assert.That(TimeSpanConverter.FromXsdDuration("P90000D"), Is.EqualTo(ninetyThousandDays));
+            Assert.That(TimeSpanConverter.FromXsdDuration("-P90000D"), Is.EqualTo(-ninetyThousandDays));
         }
 
         [Test]
@@ -111,6 +118,9 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(TimeSpanConverter.ToXsdDuration(threeThousandSixHundredAndFiveDays), Is.EqualTo("P3605D"));
             Assert.That(TimeSpanConverter.ToXsdDuration(-threeThousandSixHundredAndFiveDays), Is.EqualTo("-P3605D"));
+
+            Assert.That(TimeSpanConverter.ToXsdDuration(ninetyThousandDays), Is.EqualTo("P90000D"));
+            Assert.That(TimeSpanConverter.ToXsdDuration(-ninetyThousandDays), Is.EqualTo("-P90000D"));
         }
 
         [Test]
@@ -143,6 +153,9 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(TimeSpanConverter.FromXsdDuration("P3605D"), Is.EqualTo(threeThousandSixHundredAndFiveDays));
             Assert.That(TimeSpanConverter.FromXsdDuration("-P3605D"), Is.EqualTo(-threeThousandSixHundredAndFiveDays));
+
+            Assert.That(TimeSpanConverter.FromXsdDuration("P90000D"), Is.EqualTo(ninetyThousandDays));
+            Assert.That(TimeSpanConverter.FromXsdDuration("-P90000D"), Is.EqualTo(-ninetyThousandDays));
         }
     }
 }
