@@ -1363,9 +1363,7 @@ namespace ServiceStack
             if (string.IsNullOrEmpty(fileNameOrExt))
                 throw new ArgumentNullException(nameof(fileNameOrExt));
 
-            var parts = fileNameOrExt.Split('.');
-            var fileExt = parts[parts.Length - 1];
-
+            var fileExt = fileNameOrExt.LastRightPart('.');
             if (ExtensionMimeTypes.TryGetValue(fileExt, out var mimeType))
             {
                 return mimeType;
