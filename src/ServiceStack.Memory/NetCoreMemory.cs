@@ -90,6 +90,11 @@ namespace ServiceStack.Memory
             }
         }
 
+        public override string ToBase64(ReadOnlyMemory<byte> value)
+        {
+            return Convert.ToBase64String(value.Span);
+        }
+
         public override Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token=default)
         {
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen:true))

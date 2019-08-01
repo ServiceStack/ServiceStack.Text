@@ -48,6 +48,8 @@ namespace ServiceStack.Text
 
         public abstract byte[] ParseBase64(ReadOnlySpan<char> value);
 
+        public abstract string ToBase64(ReadOnlyMemory<byte> value);
+
         public abstract Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token = default);
         public abstract Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default);
 

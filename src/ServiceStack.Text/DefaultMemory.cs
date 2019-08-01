@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -509,6 +510,13 @@ namespace ServiceStack.Text
         public override byte[] ParseBase64(ReadOnlySpan<char> value)
         {
             return Convert.FromBase64String(value.ToString());
+        }
+
+        public override string ToBase64(ReadOnlyMemory<byte> value)
+        {
+            return MemoryMarshal.TryGetArray(value, out var segment)
+                ? Convert.ToBase64String(segment.Array, 0, segment.Count)
+                : Convert.ToBase64String(value.ToArray());
         }
 
         public override StringBuilder Append(StringBuilder sb, ReadOnlySpan<char> value)
