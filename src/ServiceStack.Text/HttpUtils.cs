@@ -1350,6 +1350,7 @@ namespace ServiceStack
                 case Cert:
                 case Excel:
                 case MsWord:
+                case Compressed:
                 case WebAssembly:
                     return true;
             }
