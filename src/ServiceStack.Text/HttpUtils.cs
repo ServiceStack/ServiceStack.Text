@@ -1350,6 +1350,7 @@ namespace ServiceStack
                 case Cert:
                 case Excel:
                 case MsWord:
+                case WebAssembly:
                     return true;
             }
 
@@ -1591,7 +1592,7 @@ namespace ServiceStack
                     return Binary;
                     
                 case "wasm":
-                    return "application/wasm";
+                    return WebAssembly;
 
                 default:
                     return "application/" + fileExt;
