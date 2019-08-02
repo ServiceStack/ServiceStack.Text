@@ -1240,7 +1240,11 @@ namespace ServiceStack
         public const string MarkdownText = "text/markdown";
         public const string MsgPack = "application/x-msgpack";
         public const string Wire = "application/x-wire";
+        public const string Compressed = "application/x-compressed";
         public const string NetSerializer = "application/x-netserializer";
+        public const string Excel = "application/excel";
+        public const string MsWord = "application/msword";
+        public const string Cert = "application/x-x509-ca-cert";
 
         public const string ImagePng = "image/png";
         public const string ImageGif = "image/gif";
@@ -1343,10 +1347,21 @@ namespace ServiceStack
                 case Binary:
                 case Bson:
                 case Wire:
+                case Cert:
+                case Excel:
+                case MsWord:
                     return true;
             }
 
+            // Text format exceptions to below heuristics
+            switch (realContentType)
+            {
+                case ImageSvg:
+                    return false;
+            }
+
             var primaryType = realContentType.LeftPart('/');
+            var secondaryType = realContentType.RightPart('/');
             switch (primaryType)
             {
                 case "image":
@@ -1354,6 +1369,12 @@ namespace ServiceStack
                 case "video":
                     return true;
             }
+
+            if (secondaryType.StartsWith("pkc")
+                || secondaryType.StartsWith("x-pkc")
+                || secondaryType.StartsWith("font")
+                || secondaryType.StartsWith("vnd.ms-"))
+                return true;
 
             return false;
         }
@@ -1386,7 +1407,7 @@ namespace ServiceStack
                     return "image/tiff";
 
                 case "svg":
-                    return "image/svg+xml";
+                    return ImageSvg;
                 
                 case "ico":
                     return "image/x-icon";
@@ -1406,21 +1427,33 @@ namespace ServiceStack
                     return "text/jsx";
 
                 case "csv":
+                    return Csv;
                 case "css":
+                    return Css;
+                    
                 case "sgml":
                     return "text/" + fileExt;
 
                 case "txt":
                     return "text/plain";
 
-                case "wav":
-                    return "audio/wav";
-
                 case "mp3":
                     return "audio/mpeg3";
 
+                case "au":
+                case "snd":
+                    return "audio/basic";
+                
+                case "aac":
+                case "ac3":
+                case "aiff":
+                case "m4a":
+                case "m4b":
+                case "m4p":
                 case "mid":
-                    return "audio/midi";
+                case "midi":
+                case "wav":
+                    return "audio/" + fileExt;
 
                 case "qt":
                 case "mov":
@@ -1429,14 +1462,17 @@ namespace ServiceStack
                 case "mpg":
                     return "video/mpeg";
 
-                case "avi":
-                case "mp4":
-                case "ogg":
-                case "webm":
-                    return "video/" + fileExt;
-
                 case "ogv":
                     return "video/ogg";
+
+                case "3gpp":
+                case "avi":
+                case "dv":
+                case "divx":
+                case "ogg":
+                case "mp4":
+                case "webm":
+                    return "video/" + fileExt;
 
                 case "rtf":
                     return "application/" + fileExt;
@@ -1444,7 +1480,7 @@ namespace ServiceStack
                 case "xls":
                 case "xlt":
                 case "xla":
-                    return "application/x-excel";
+                    return Excel;
 
                 case "xlsx":
                     return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -1453,7 +1489,7 @@ namespace ServiceStack
 
                 case "doc":
                 case "dot":
-                    return "application/msword";
+                    return MsWord;
 
                 case "docx":
                     return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -1475,10 +1511,36 @@ namespace ServiceStack
 
                 case "mdb":
                     return "application/vnd.ms-access";
+                
+                case "cer":
+                case "crt":
+                case "der":
+                    return Cert;
 
+                case "p10":
+                    return "application/pkcs10";
+                case "p12":
+                    return "application/x-pkcs12";
+                case "p7b":
+                case "spc":
+                    return "application/x-pkcs7-certificates";
+                case "p7c":
+                case "p7m":
+                    return "application/pkcs7-mime";
+                case "p7r":
+                    return "application/x-pkcs7-certreqresp";
+                case "p7s":
+                    return "application/pkcs7-signature";
+                case "sst":
+                    return "application/vnd.ms-pki.certstore";
+                
                 case "gz":
                 case "tgz":
-                    return "application/x-compressed";
+                case "zip":
+                case "rar":
+                case "lzh":
+                case "z":
+                    return Compressed;
 
                 case "eot":
                     return "application/vnd.ms-fontobject";
@@ -1491,8 +1553,42 @@ namespace ServiceStack
                 case "woff2":
                     return "application/font-woff2";
                     
+                case "aaf":
+                case "aca":
+                case "asd":
+                case "bin":
+                case "cab":
+                case "chm":
+                case "class":
+                case "cur":
+                case "dat":
+                case "deploy":
                 case "dll":
-                    return "application/octet-stream";
+                case "dsp":
+                case "exe":
+                case "fla":
+                case "ics":
+                case "inf":
+                case "java":
+                case "mix":
+                case "msi":
+                case "mso":
+                case "obj":
+                case "ocx":
+                case "prm":
+                case "prx":
+                case "psd":
+                case "psp":
+                case "qxd":
+                case "sea":
+                case "snp":
+                case "so":
+                case "toc":
+                case "u32":
+                case "xmp":
+                case "xsn":
+                case "xtp":
+                    return Binary;
                     
                 case "wasm":
                     return "application/wasm";
