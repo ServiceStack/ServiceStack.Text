@@ -126,8 +126,8 @@ namespace ServiceStack.Text
         public static string SerializeToString(object value, Type type)
         {
             if (value == null) return null;
-            if (type == typeof(string))
-                return value as string;
+            if (value is string str)
+                return str.EncodeJsv();
 
             var writer = StringWriterThreadStatic.Allocate();
             JsvWriter.GetWriteFn(type)(writer, value);
@@ -137,9 +137,9 @@ namespace ServiceStack.Text
         public static void SerializeToWriter<T>(T value, TextWriter writer)
         {
             if (value == null) return;
-            if (typeof(T) == typeof(string))
+            if (value is string str)
             {
-                writer.Write(value);
+                writer.Write(str.EncodeJsv());
             }
             else if (typeof(T) == typeof(object))
             {
@@ -160,9 +160,9 @@ namespace ServiceStack.Text
         public static void SerializeToWriter(object value, Type type, TextWriter writer)
         {
             if (value == null) return;
-            if (type == typeof(string))
+            if (value is string str)
             {
-                writer.Write(value);
+                writer.Write(str.EncodeJsv());
                 return;
             }
 
@@ -305,8 +305,7 @@ namespace ServiceStack.Text
 
         public static string SerializeAndFormat<T>(this T instance)
         {
-            var fn = instance as Delegate;
-            if (fn != null)
+            if (instance is Delegate fn)
                 return Dump(fn);
 
             var dtoStr = !HasCircularReferences(instance) 

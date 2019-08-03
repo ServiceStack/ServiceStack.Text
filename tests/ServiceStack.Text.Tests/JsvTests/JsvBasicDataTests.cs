@@ -102,5 +102,14 @@ namespace ServiceStack.Text.Tests.JsvTests
             fromJsv = jsv.FromJsv<ModelWithNullableFloatTypes>();
             Assert.That(fromJsv, Is.EqualTo(dto));
         }
+
+        [Test]
+        public void Does_encode_object_string_values_with_escaped_chars()
+        {
+            var url = "https://url.com";
+            Assert.That(url.ToJsv(), Is.EqualTo("\"https://url.com\""));
+            Assert.That(((object)url).ToJsv(), Is.EqualTo("\"https://url.com\""));
+        }
+
     }
 }
