@@ -1563,6 +1563,7 @@ namespace ServiceStack
                 case "chm":
                 case "class":
                 case "cur":
+                case "db":
                 case "dat":
                 case "deploy":
                 case "dll":
@@ -1585,6 +1586,7 @@ namespace ServiceStack
                 case "sea":
                 case "snp":
                 case "so":
+                case "sqlite":
                 case "toc":
                 case "u32":
                 case "xmp":
