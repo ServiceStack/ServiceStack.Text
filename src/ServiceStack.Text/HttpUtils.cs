@@ -801,7 +801,7 @@ namespace ServiceStack
             {
                 using (var req = PclExport.Instance.GetRequestStream(webReq))
                 {
-                    req.CopyTo(requestBody);
+                    requestBody.CopyTo(req);
                 }
             }
 
@@ -839,7 +839,7 @@ namespace ServiceStack
             {
                 using (var req = PclExport.Instance.GetRequestStream(webReq))
                 {
-                    await req.CopyToAsync(requestBody);
+                    await requestBody.CopyToAsync(req);
                 }
             }
 
