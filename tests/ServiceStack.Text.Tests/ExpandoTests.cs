@@ -176,7 +176,7 @@ namespace ServiceStack.Text.Tests
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;
             const string json = "{\"Id\":1}";
-            dynamic d = json.To<ExpandoObject>();
+            dynamic d = json.ConvertTo<ExpandoObject>();
             Assert.That(d.Id, Is.Not.Null);
             Assert.That(d.Id, Is.EqualTo(1));
         }

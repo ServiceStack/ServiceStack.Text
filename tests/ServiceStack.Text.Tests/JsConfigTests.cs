@@ -210,7 +210,7 @@ namespace ServiceStack.Text.Tests
         public void Does_create_scope_from_string()
         {
             var scope = JsConfig.CreateScope("emitlowercaseunderscorenames,IncludeNullValues:false,ExcludeDefaultValues:0,IncludeDefaultEnums:1");
-            Assert.That(scope.EmitLowercaseUnderscoreNames);
+            Assert.That(scope.TextCase, Is.EqualTo(TextCase.SnakeCase));
             Assert.That(!scope.IncludeNullValues);
             Assert.That(!scope.ExcludeDefaultValues);
             Assert.That(scope.IncludeDefaultEnums);
@@ -228,7 +228,7 @@ namespace ServiceStack.Text.Tests
         public void Does_create_scope_from_string_using_CamelCaseHumps()
         {
             var scope = JsConfig.CreateScope("eccn,inv:false,edv:0,ide:1");
-            Assert.That(scope.EmitCamelCaseNames);
+            Assert.That(scope.TextCase, Is.EqualTo(TextCase.CamelCase));
             Assert.That(!scope.IncludeNullValues);
             Assert.That(!scope.ExcludeDefaultValues);
             Assert.That(scope.IncludeDefaultEnums);

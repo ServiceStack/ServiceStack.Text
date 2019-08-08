@@ -152,7 +152,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("DoubleWord".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
             Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));
 
-            using (JsConfig.With(new Config { EmitLowercaseUnderscoreNames = true}))
+            using (JsConfig.With(new Config { TextCase = TextCase.SnakeCase }))
             {
                 Assert.That("Double_Word".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.DoubleWord));
                 Assert.That("Underscore_Words".FromJson<EnumStyles>(), Is.EqualTo(EnumStyles.Underscore_Words));

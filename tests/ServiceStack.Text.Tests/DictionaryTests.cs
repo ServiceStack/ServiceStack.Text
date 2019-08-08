@@ -529,7 +529,7 @@ namespace ServiceStack.Text.Tests
         public void Can_Deserialize_Object_To_Dictionary()
         {
             const string json = "{\"Id\":1}";
-            var d = json.To<Dictionary<string, string>>();
+            var d = json.ConvertTo<Dictionary<string, string>>();
             Assert.That(d.ContainsKey("Id"));
             Assert.That(d["Id"], Is.EqualTo("1"));
         }
