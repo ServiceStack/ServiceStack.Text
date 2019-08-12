@@ -181,10 +181,10 @@ var scope = JS.CreateScope(
 
 JS.eval("arg", scope)                                        //= "value"
 JS.eval("reverse(arg)", scope)                               //= "eulav"
-JS.eval("itemsOf(3, padRight(reverse(arg), 8, '_'))", scope) //= ["eulav___", "eulav___", "eulav___"]
+JS.eval("3.itemsOf(arg.reverse().padRight(8, '_'))", scope) //= ["eulav___", "eulav___", "eulav___"]
 
 //= { a: ["eulav___", "eulav___", "eulav___"] }
-JS.eval("{a: itemsOf(3, padRight(reverse(arg), 8, '_')) }", scope)
+JS.eval("{a: 3.itemsOf(arg.reverse().padRight(8, '_')) }", scope)
 ```
 
 ServiceStack's JS Utils is available in the [ServiceStack.Common](https://www.nuget.org/packages/ServiceStack.Common) NuGet package.
