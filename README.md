@@ -489,7 +489,7 @@ By default ServiceStack Serializers will try to deserialize as much as possible 
 Env.StrictMode = true;
 ```
 
-Where it will fail fast and throw Exceptions on deserialization errors.
+Where it will instead fail fast and throw Exceptions on deserialization errors.
 
 ## Custom Serialization
 
