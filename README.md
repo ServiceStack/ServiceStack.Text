@@ -318,7 +318,7 @@ All C# boolean and numeric data types are stored as-is without quotes.
 For the most compact output null values are omitted from the serialized by default. If you want to include null values set the global configuration:
 
 ```csharp
-JsConfig.IncludeNullValues = true;
+JsConfig.Init(new Config { IncludeNullValues = true });
 ```
 
 ### string type
@@ -480,6 +480,16 @@ JsConfig<Guid>.SerializeFn = guid => guid.ToString("D");
 JsConfig<TimeSpan>.SerializeFn = time => 
     (time.Ticks < 0 ? "-" : "") + time.ToString("hh':'mm':'ss'.'fffffff");
 ```
+
+## Strict Parsing
+
+By default ServiceStack Serializers will try to deserialize as much as possible without error, if you prefer you can opt-in to stricter parsing with:
+
+```csharp
+Env.StrictMode = true;
+```
+
+Where it will fail fast and throw Exceptions on deserialization errors.
 
 ## Custom Serialization
 
