@@ -198,10 +198,37 @@ namespace ServiceStack.Text.Tests
     }
 
     public class ReadOnlyAttribute : AttributeBase { }
+    
+    [EnumAsInt]
+    public enum MyEnumAsInt
+    {
+        ZeroValue = 0,
+        OneValue = 1,
+        DefaultValue = 2,
+    };
+
+    class MyEnumAsIntSource
+    {
+        public MyEnumAsInt MyEnumAsInt { get; set; } = MyEnumAsInt.DefaultValue;
+    }
+
+    class MyEnumAsIntTarget
+    {
+        public MyEnumAsInt MyEnumAsInt { get; set; } = MyEnumAsInt.DefaultValue;
+    }
 
     [TestFixture]
     public class AutoMappingTests
     {
+        [Test]
+        public void Can_convert_Default_Enum_Values()
+        {
+            var from = new MyEnumAsIntSource { MyEnumAsInt = MyEnumAsInt.ZeroValue };
+            var to = from.ConvertTo<MyEnumAsIntTarget>();
+            
+            Assert.That(to.MyEnumAsInt, Is.EqualTo(from.MyEnumAsInt));
+        }
+        
         [Test]
         public void Does_populate()
         {

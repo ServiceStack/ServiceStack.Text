@@ -178,7 +178,7 @@ namespace ServiceStack
                 return strDict.ToObjectDictionary().FromObjectDictionary(toType);
 
             var to = toType.CreateInstance();
-            return to.PopulateWithNonDefaultValues(from);
+            return to.PopulateWith(from);
         }
 
         public static MethodInfo GetImplicitCastMethod(Type fromType, Type toType)
