@@ -1153,7 +1153,7 @@ namespace ServiceStack
             var to = new Dictionary<string, string>();
             if (text == null) return to;
 
-            foreach (var parts in text.ReadLines().Select(line => line.SplitOnFirst(delimiter)))
+            foreach (var parts in text.ReadLines().Select(line => line.Trim().SplitOnFirst(delimiter)))
             {
                 var key = parts[0].Trim();
                 if (key.Length == 0 || key.StartsWith("#")) continue;
