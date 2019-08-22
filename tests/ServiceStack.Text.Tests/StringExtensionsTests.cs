@@ -301,7 +301,7 @@ namespace ServiceStack.Text.Tests
             Assert.That("a".ParseKeyValueText().Count, Is.EqualTo(1));
             Assert.That("a".ParseKeyValueText()["a"], Is.Null);
             Assert.That("a ".ParseKeyValueText().Count, Is.EqualTo(1));
-            Assert.That("a ".ParseKeyValueText()["a"], Is.EqualTo(""));
+            Assert.That("a ".ParseKeyValueText()["a"], Is.Null);
             Assert.That("a b".ParseKeyValueText()["a"], Is.EqualTo("b"));
             Assert.That("a b c".ParseKeyValueText()["a"], Is.EqualTo("b c"));
             Assert.That("a  b c ".ParseKeyValueText()["a"], Is.EqualTo("b c"));
