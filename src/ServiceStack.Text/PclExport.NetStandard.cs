@@ -162,7 +162,7 @@ namespace ServiceStack
 
         public override Assembly[] GetAllAssemblies()
         {
-            return new Assembly[0];
+            return AppDomain.CurrentDomain.GetAssemblies();
         }
 
         public override string GetAssemblyCodeBase(Assembly assembly)
