@@ -1163,6 +1163,21 @@ namespace ServiceStack
             return to;
         }
 
+        public static List<KeyValuePair<string,string>> ParseAsKeyValues(this string text, string delimiter=" ")
+        {
+            var to = new List<KeyValuePair<string,string>>();
+            if (text == null) return to;
+
+            foreach (var parts in text.ReadLines().Select(line => line.Trim().SplitOnFirst(delimiter)))
+            {
+                var key = parts[0].Trim();
+                if (key.Length == 0 || key.StartsWith("#")) continue;
+                to.Add(new KeyValuePair<string, string>(key, parts.Length == 2 ? parts[1].Trim() : null));
+            }
+
+            return to;
+        }
+
         public static IEnumerable<string> ReadLines(this string text)
         {
             string line;
