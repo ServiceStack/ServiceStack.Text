@@ -15,7 +15,7 @@ namespace ServiceStack.Text
     public static class StringSpanExtensions
     {
         /// <summary>
-        /// Returns null if Length == 0, string.Empty if value[0] == NonWidthWhitespace, otherise returns value.ToString()
+        /// Returns null if Length == 0, string.Empty if value[0] == NonWidthWhitespace, otherwise returns value.ToString()
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Value(this ReadOnlySpan<char> value) => value.IsEmpty 

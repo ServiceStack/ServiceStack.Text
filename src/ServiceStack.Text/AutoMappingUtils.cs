@@ -374,7 +374,7 @@ namespace ServiceStack
         private static object PopulateObjectInternal(object obj, Dictionary<Type, int> recursionInfo)
         {
             if (obj == null) return null;
-            if (obj is string) return obj; // prevents it from dropping into the char[] Chars property.  Sheesh
+            if (obj is string) return obj; // prevents it from dropping into the char[] Chars property.
             var type = obj.GetType();
 
             var members = type.GetPublicMembers();

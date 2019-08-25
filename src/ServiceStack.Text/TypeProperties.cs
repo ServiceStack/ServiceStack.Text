@@ -68,7 +68,7 @@ namespace ServiceStack
     {
         static Dictionary<Type, TypeProperties> CacheMap = new Dictionary<Type, TypeProperties>();
 
-        public static Type FactoryType = typeof(TypeProperties<>);
+        public static readonly Type FactoryType = typeof(TypeProperties<>);
 
         public static TypeProperties Get(Type type)
         {

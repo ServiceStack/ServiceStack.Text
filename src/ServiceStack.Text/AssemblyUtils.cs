@@ -26,8 +26,7 @@ namespace ServiceStack.Text
         /// <returns></returns>
         public static Type FindType(string typeName)
         {
-            Type type = null;
-            if (TypeCache.TryGetValue(typeName, out type)) return type;
+            if (TypeCache.TryGetValue(typeName, out var type)) return type;
 
             type = Type.GetType(typeName);
             if (type == null)
@@ -62,7 +61,7 @@ namespace ServiceStack.Text
                 var interfaceType = t.GetInterfaces().FirstOrDefault(i => !t.GetInterfaces().Any(i2 => i2.GetInterfaces().Contains(i)));
                 if (interfaceType != null) return interfaceType;
             }
-            return t; // not safe to use interface, as it might be a superclass's one.
+            return t; // not safe to use interface, as it might be a superclass one.
         }
 
         /// <summary>

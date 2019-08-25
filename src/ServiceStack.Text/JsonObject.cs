@@ -78,8 +78,8 @@ namespace ServiceStack.Text
         /// </summary>
         public new string this[string key]
         {
-            get { return this.Get(key); }
-            set { base[key] = value; }
+            get => this.Get(key);
+            set => base[key] = value;
         }
 
         public static JsonObject Parse(string json)

@@ -689,7 +689,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
     /// buffers.
     /// </summary>
     /// <remarks>
-    /// This class works in tandem with the RecylableMemoryStreamManager to supply MemoryStream
+    /// This class works in tandem with the RecyclableMemoryStreamManager to supply MemoryStream
     /// objects to callers, while avoiding these specific problems:
     /// 1. LOH allocations - since all large buffers are pooled, they will never incur a Gen2 GC
     /// 2. Memory waste - A standard memory stream doubles its size when it runs out of room. This

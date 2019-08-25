@@ -17,7 +17,7 @@ using ServiceStack.Text.Common;
 namespace ServiceStack.Text
 {
     /// <summary>
-    /// A fast, standards-based, serialization-issue free DateTime serailizer.
+    /// A fast, standards-based, serialization-issue free DateTime serializer.
     /// </summary>
     public static class DateTimeExtensions
     {

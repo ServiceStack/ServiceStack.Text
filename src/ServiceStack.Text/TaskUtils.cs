@@ -149,8 +149,7 @@ namespace ServiceStack
 
             i++;
 
-            if (iterationTask != null)
-                iterationTask.ContinueWith(next, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            iterationTask?.ContinueWith(next, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
         public static void Sleep(int timeMs)

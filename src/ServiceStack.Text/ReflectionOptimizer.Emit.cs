@@ -247,9 +247,9 @@ namespace ServiceStack.Text
         {
             try
             {
-                var isDyanmic = assembly is AssemblyBuilder
-                                || string.IsNullOrEmpty(assembly.Location);
-                return isDyanmic;
+                var isDynamic = assembly is AssemblyBuilder
+                    || string.IsNullOrEmpty(assembly.Location);
+                return isDynamic;
             }
             catch (NotSupportedException)
             {

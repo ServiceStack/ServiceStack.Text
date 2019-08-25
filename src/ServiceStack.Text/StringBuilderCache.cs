@@ -67,7 +67,7 @@ namespace ServiceStack.Text
         }
     }
 
-    //Use separate cache internally to avoid reallocations and cache misses
+    //Use separate cache internally to avoid re-allocations and cache misses
     internal static class StringBuilderThreadStatic
     {
         [ThreadStatic]
