@@ -219,7 +219,7 @@ namespace ServiceStack
                 var key = VerifyLicenseKeyText(licenseKeyText);
                 ValidateLicenseKey(key);
             }
-            catch (PlatformNotSupportedException pse)
+            catch (PlatformNotSupportedException)
             {
                 // Allow usage in environments like dotnet script
                 __activatedLicense = new __ActivatedLicense(new LicenseKey { Type = LicenseType.Indie });

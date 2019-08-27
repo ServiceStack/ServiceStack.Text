@@ -444,7 +444,15 @@ namespace ServiceStack.Text
             try
             {
                 value.CopyTo(bytes);
-                return stream.WriteAsync(bytes, 0, value.Length, token);
+                if (stream is MemoryStream ms)
+                {
+                    ms.Write(bytes, 0, value.Length);
+                    return TypeConstants.EmptyTask;
+                }
+                else
+                {
+                    return stream.WriteAsync(bytes, 0, value.Length, token);
+                }
             }
             finally
             {

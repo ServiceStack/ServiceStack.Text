@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using ServiceStack.Text.Json;
 using ServiceStack.Text.Jsv;
@@ -11,30 +12,42 @@ namespace ServiceStack.Text
         bool disposed;
         readonly JsConfigScope parent;
 
-        [ThreadStatic]
-        private static JsConfigScope head;
+#if NETSTANDARD2_0        
+        private static AsyncLocal<JsConfigScope> head = new AsyncLocal<JsConfigScope>();
+#else
+        [ThreadStatic] private static JsConfigScope head;
+#endif
 
         internal JsConfigScope()
         {
             PclExport.Instance.BeginThreadAffinity();
 
+#if NETSTANDARD2_0        
+            parent = head.Value;
+            head.Value = this;
+#else
             parent = head;
             head = this;
+#endif
         }
 
-        internal static JsConfigScope Current => head;
-
-        public static void DisposeCurrent()
-        {
-            head?.Dispose();
-        }
+        internal static JsConfigScope Current => 
+#if NETSTANDARD2_0        
+            head.Value;
+#else
+            head;
+#endif
 
         public void Dispose()
         {
             if (!disposed)
             {
                 disposed = true;
+#if NETSTANDARD2_0        
+                head.Value = parent;
+#else
                 head = parent;
+#endif
 
                 PclExport.Instance.EndThreadAffinity();
             }

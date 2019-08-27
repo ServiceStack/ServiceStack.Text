@@ -317,7 +317,8 @@ namespace ServiceStack
             MemoryProvider.Instance.WriteAsync(stream, value, token);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default) => stream.WriteAsync(bytes, 0, bytes.Length, token);
+        public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default) => 
+            MemoryProvider.Instance.WriteAsync(stream, bytes, token);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task CopyToAsync(this Stream input, Stream output, CancellationToken token = default) => input.CopyToAsync(output, AsyncBufferSize, token);

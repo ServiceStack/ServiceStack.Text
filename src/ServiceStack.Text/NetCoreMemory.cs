@@ -107,7 +107,14 @@ namespace ServiceStack.Memory
 
         public override async Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default)
         {
-            await stream.WriteAsync(value, token);
+            if (stream is MemoryStream ms)
+            {
+                ms.Write(value.Span);
+            }
+            else
+            {
+                await stream.WriteAsync(value, token);
+            }
         }
 
         public override object Deserialize(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
