@@ -355,5 +355,12 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(input.ContainsAny(testMatches, StringComparison.OrdinalIgnoreCase));
         }
+
+        [Test]
+        public void Does_ReplaceAll_from_Start()
+        {
+            Assert.That("/images".ReplaceAll("/",""), Is.EqualTo("images"));
+        }
+
     }
 }
