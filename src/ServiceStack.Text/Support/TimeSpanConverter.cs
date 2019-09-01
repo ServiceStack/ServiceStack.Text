@@ -6,13 +6,24 @@ namespace ServiceStack.Text.Support
 {
     public class TimeSpanConverter
     {
+        private const string MinSerializedValue = "-P10675199DT2H48M5.4775391S";
+        private const string MaxSerializedValue = "P10675199DT2H48M5.4775391S";
+        
         public static string ToXsdDuration(TimeSpan timeSpan)
         {
+            if (timeSpan == TimeSpan.MinValue)
+                return MinSerializedValue;
+            if (timeSpan == TimeSpan.MaxValue)
+                return MaxSerializedValue;
+            
             var sb = StringBuilderThreadStatic.Allocate();
 
             sb.Append(timeSpan.Ticks < 0 ? "-P" : "P");
 
-            double ticks = timeSpan.Ticks > 0 ? timeSpan.Ticks : timeSpan.Ticks * -1L;
+            double ticks = timeSpan.Ticks;
+            if (ticks < 0)
+                ticks = -ticks;
+
             double totalSeconds = ticks / TimeSpan.TicksPerSecond;
             long wholeSeconds = (long) totalSeconds;
             long seconds = wholeSeconds;
@@ -51,6 +62,11 @@ namespace ServiceStack.Text.Support
 
         public static TimeSpan FromXsdDuration(string xsdDuration)
         {
+            if (xsdDuration == MinSerializedValue)
+                return TimeSpan.MinValue;
+            if (xsdDuration == MaxSerializedValue)
+                return TimeSpan.MaxValue;
+            
             long days = 0;
             long hours = 0;
             long minutes = 0;
