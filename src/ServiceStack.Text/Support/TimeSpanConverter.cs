@@ -12,7 +12,7 @@ namespace ServiceStack.Text.Support
 
             sb.Append(timeSpan.Ticks < 0 ? "-P" : "P");
 
-            double ticks = Math.Abs(timeSpan.Ticks);
+            double ticks = timeSpan.Ticks > 0 ? timeSpan.Ticks : timeSpan.Ticks * -1L;
             double totalSeconds = ticks / TimeSpan.TicksPerSecond;
             long wholeSeconds = (long) totalSeconds;
             long seconds = wholeSeconds;
