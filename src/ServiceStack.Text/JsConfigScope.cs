@@ -56,6 +56,14 @@ namespace ServiceStack.Text
         public static void Init() => Init(null);
         public static void Init(Config config)
         {
+            if (config == null) {
+                //Create our new base config
+                config = new Config();
+                config.ExcludeTypeInfo = false;
+                config.IncludeTypeInfo = true;
+                config.IncludeNullValues = true;
+            }
+
             if (HasInit && Env.StrictMode)
                 throw new NotSupportedException($"JsConfig has already been initialized at: {InitStackTrace}");
             
@@ -158,12 +166,12 @@ namespace ServiceStack.Text
                                          ParseAsType.Int32 | ParseAsType.UInt32 | ParseAsType.Int64 | ParseAsType.UInt64,
             ExcludeDefaultValues = false,
             ExcludePropertyReferences = null,
-            IncludeNullValues = false,
+            IncludeNullValues = true,
             IncludeNullValuesInDictionaries = false,
             IncludeDefaultEnums = true,
             TreatEnumAsInteger = false,
             ExcludeTypeInfo = false,
-            IncludeTypeInfo = false,
+            IncludeTypeInfo = true,
             TypeAttr = JsWriter.TypeAttr,
             DateTimeFormat = null,
             JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(JsWriter.TypeAttr),
