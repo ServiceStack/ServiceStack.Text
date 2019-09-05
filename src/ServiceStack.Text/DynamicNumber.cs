@@ -22,6 +22,7 @@ namespace ServiceStack
         object mod(object lhs, object rhs);
         object pow(object lhs, object rhs);
         object log(object lhs, object rhs);
+        int compareTo(object lhs, object rhs);
         
         object bitwiseAnd(object lhs, object rhs);
         object bitwiseOr(object lhs, object rhs);
@@ -63,6 +64,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
         
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -104,6 +106,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -145,6 +148,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -186,6 +190,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -227,6 +232,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -268,6 +274,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -309,6 +316,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -350,6 +358,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => Convert(lhs) & Convert(rhs);
         public object bitwiseOr(object lhs, object rhs) => Convert(lhs) | Convert(rhs);
@@ -391,6 +400,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
@@ -432,6 +442,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow(Convert(lhs), Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log(Convert(lhs), Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
@@ -473,6 +484,7 @@ namespace ServiceStack
         public object mod(object lhs, object rhs) => Convert(lhs) % Convert(rhs);
         public object pow(object lhs, object rhs) => Math.Pow((double) Convert(lhs), (double) Convert(rhs));
         public object log(object lhs, object rhs) => Math.Log((double) Convert(lhs), (double) Convert(rhs));
+        public int compareTo(object lhs, object rhs) => Convert(lhs).CompareTo(Convert(rhs));
 
         public object bitwiseAnd(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
         public object bitwiseOr(object lhs, object rhs) => throw new NotSupportedException("Bitwise operators only supported on integer types");
@@ -628,6 +640,9 @@ namespace ServiceStack
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Log(object lhs, object rhs) => AssertNumbers(nameof(Log), lhs, rhs).log(lhs, rhs);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object CompareTo(object lhs, object rhs) => AssertNumbers(nameof(CompareTo), lhs, rhs).compareTo(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object BitwiseAnd(object lhs, object rhs) => AssertNumbers(nameof(BitwiseAnd), lhs, rhs).bitwiseAnd(lhs, rhs);
