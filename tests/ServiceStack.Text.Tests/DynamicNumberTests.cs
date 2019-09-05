@@ -203,5 +203,13 @@ namespace ServiceStack.Text.Tests
             Assert.That(number.ToString(null1), Is.EqualTo("1"));
         }
 
+        [Test]
+        public void Can_text_for_numbers()
+        {
+            object x = null;
+            Assert.That(DynamicNumber.TryParse("(", out x), Is.False);
+        }
+
+
     }
 }

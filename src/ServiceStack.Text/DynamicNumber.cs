@@ -674,7 +674,7 @@ namespace ServiceStack
             if (strValue.Length == 1)
             {
                 int singleDigit = strValue[0];
-                if (singleDigit >= 48 || singleDigit <= 57) // 0 - 9
+                if (singleDigit >= 48 && singleDigit <= 57) // 0 - 9
                 {
                     result = singleDigit - 48; // 0 
                     return true;
