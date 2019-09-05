@@ -642,7 +642,7 @@ namespace ServiceStack
         public static object Log(object lhs, object rhs) => AssertNumbers(nameof(Log), lhs, rhs).log(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object CompareTo(object lhs, object rhs) => AssertNumbers(nameof(CompareTo), lhs, rhs).compareTo(lhs, rhs);
+        public static int CompareTo(object lhs, object rhs) => AssertNumbers(nameof(CompareTo), lhs, rhs).compareTo(lhs, rhs);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object BitwiseAnd(object lhs, object rhs) => AssertNumbers(nameof(BitwiseAnd), lhs, rhs).bitwiseAnd(lhs, rhs);
