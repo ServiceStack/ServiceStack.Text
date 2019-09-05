@@ -1,6 +1,6 @@
 Follow [@ServiceStack](https://twitter.com/servicestack) or [view the docs](https://docs.servicestack.net), use [StackOverflow](http://stackoverflow.com/questions/ask) or the [Customer Forums](https://forums.servicestack.net/) for support.
 
-## FREE high-perf Text Serializers and Core Utils powering [servicestack.net](https://servicestack.net)
+## [FREE high-perf Text Serializers](https://docs.servicestack.net/releases/v4.0.62#servicestacktext-is-now-free) and Core Utils powering [servicestack.net](https://servicestack.net)
 
 ServiceStack.Text is an **independent, dependency-free** serialization library containing ServiceStack's core high-performance utils and text processing functionality, including:
 
