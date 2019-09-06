@@ -208,6 +208,7 @@ namespace ServiceStack.Text.Tests
         {
             object x = null;
             Assert.That(DynamicNumber.TryParse("(", out x), Is.False);
+            Assert.That(DynamicNumber.TryParse("-", out x), Is.False);
         }
 
 
