@@ -8,4 +8,9 @@
   <ItemGroup>
     <ProjectReference Include="..\ServiceStack.Text\ServiceStack.Text.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\ServiceStack.Text\NetCoreMemory.cs">
+      <Link>NetCoreMemory.cs</Link>
+    </Compile>
+  </ItemGroup>
 </Project>

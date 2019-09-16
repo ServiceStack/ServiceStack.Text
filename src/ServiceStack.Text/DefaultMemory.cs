@@ -422,8 +422,43 @@ namespace ServiceStack.Text
             return result;
         }
 
-        public override Task WriteAsync(Stream stream, ReadOnlySpan<char> value,
-            CancellationToken token = default(CancellationToken))
+        public override void Write(Stream stream, ReadOnlyMemory<char> value)
+        {
+            var bytes = BufferPool.GetBuffer(Encoding.UTF8.GetMaxByteCount(value.Length));
+            try
+            {
+                var chars = value.ToArray();
+                int bytesCount = Encoding.UTF8.GetBytes(chars, 0, chars.Length, bytes, 0);
+                stream.Write(bytes, 0, bytesCount);
+            }
+            finally
+            {
+                BufferPool.ReleaseBufferToPool(ref bytes);
+            }
+        }
+
+        public override void Write(Stream stream, ReadOnlyMemory<byte> value)
+        {
+            if (MemoryMarshal.TryGetArray(value, out var segment) && segment.Array != null)
+            {
+                byte[] bytes = BufferPool.GetBuffer(segment.Count);
+                try
+                {
+                    stream.Write(segment.Array, 0, segment.Count);
+                }
+                finally
+                {
+                    BufferPool.ReleaseBufferToPool(ref bytes);
+                }
+            }
+            else
+            {
+                var bytes = value.ToArray();
+                stream.Write(bytes, 0, value.Length);
+            }
+        }
+
+        public override Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token = default)
         {
             byte[] bytes = BufferPool.GetBuffer(Encoding.UTF8.GetMaxByteCount(value.Length));
             try
@@ -437,6 +472,9 @@ namespace ServiceStack.Text
                 BufferPool.ReleaseBufferToPool(ref bytes);
             }
         }
+
+        public override Task WriteAsync(Stream stream, ReadOnlyMemory<char> value, CancellationToken token = default) =>
+            WriteAsync(stream, value.Span, token);
 
         public override Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default)
         {

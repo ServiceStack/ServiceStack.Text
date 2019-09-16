@@ -95,26 +95,43 @@ namespace ServiceStack.Memory
             return Convert.ToBase64String(value.Span);
         }
 
+        public override void Write(Stream stream, ReadOnlyMemory<char> value)
+        {
+            var utf8 = ToUtf8(value.Span);
+            if (stream is MemoryStream ms)
+                ms.Write(utf8.Span);
+            else
+                stream.Write(utf8.Span);
+        }
+
+        public override void Write(Stream stream, ReadOnlyMemory<byte> value)
+        {
+            if (stream is MemoryStream ms)
+                ms.Write(value.Span);
+            else
+                stream.Write(value.Span);
+        }
+
+        public override Task WriteAsync(Stream stream, ReadOnlyMemory<char> value, CancellationToken token = default) =>
+            WriteAsync(stream, value.Span, token);
+
         public override Task WriteAsync(Stream stream, ReadOnlySpan<char> value, CancellationToken token=default)
         {
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen:true))
-            {
-                writer.Write(value);
-            }
-
+            var utf8 = ToUtf8(value);
+            if (stream is MemoryStream ms)
+                ms.Write(utf8.Span);
+            else
+                return Task.FromResult(stream.WriteAsync(utf8, token));
+            
             return TypeConstants.EmptyTask;
         }
 
         public override async Task WriteAsync(Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default)
         {
             if (stream is MemoryStream ms)
-            {
                 ms.Write(value.Span);
-            }
             else
-            {
                 await stream.WriteAsync(value, token);
-            }
         }
 
         public override object Deserialize(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
