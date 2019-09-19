@@ -21,6 +21,7 @@ namespace ServiceStack.Text
                 IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
                 IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
                 IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
+                IsNetCore3 = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Core 3");
                 
                 var fxDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
                 IsMono = fxDesc.Contains("Mono");
@@ -129,6 +130,8 @@ namespace ServiceStack.Text
         public static bool IsNetFramework { get; set; }
 
         public static bool IsNetCore { get; set; }
+        
+        public static bool IsNetCore3 { get; set; }
 
         public static bool SupportsExpressions { get; private set; }
 
