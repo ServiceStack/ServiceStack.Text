@@ -157,6 +157,10 @@ namespace ServiceStack
             if (fromType.IsValueType || toType.IsValueType)
                 return ChangeValueType(from, toType);
 
+            var mi = GetImplicitCastMethod(fromType, toType);
+            if (mi != null)
+                return mi.Invoke(null, new[] { from });
+
             if (from is string str)
                 return TypeSerializer.DeserializeFromString(str, toType);
             if (from is ReadOnlyMemory<char> rom)
@@ -191,12 +195,28 @@ namespace ServiceStack
                     return mi;
                 }
             }
+            foreach (var mi in toType.GetMethods(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (mi.Name == "op_Implicit" && mi.ReturnType == toType &&
+                    mi.GetParameters().FirstOrDefault()?.ParameterType == fromType)
+                {
+                    return mi;
+                }
+            }
             return null;
         }
         
         public static MethodInfo GetExplicitCastMethod(Type fromType, Type toType)
         {
             foreach (var mi in toType.GetMethods(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (mi.Name == "op_Explicit" && mi.ReturnType == toType &&
+                    mi.GetParameters().FirstOrDefault()?.ParameterType == fromType)
+                {
+                    return mi;
+                }
+            }
+            foreach (var mi in fromType.GetMethods(BindingFlags.Public | BindingFlags.Static))
             {
                 if (mi.Name == "op_Explicit" && mi.ReturnType == toType &&
                     mi.GetParameters().FirstOrDefault()?.ParameterType == fromType)

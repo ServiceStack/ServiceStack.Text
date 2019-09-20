@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+using System.Xml.Linq;
 #if !NETCORE
 using System.Web.Script.Serialization;
 #endif
@@ -1148,6 +1149,13 @@ namespace ServiceStack.Text.Tests
 
             b = a.ConvertTo<B>();
             Assert.That(b.Id, Is.EqualTo(a.Id));
+        }
+
+        [Test]
+        public void Can_convert_from_class_implicit_Casts()
+        {
+            var to = "test".ConvertTo<XName>();
+            Assert.That(to.LocalName, Is.EqualTo("test"));
         }
 
         struct C
