@@ -594,6 +594,13 @@ namespace ServiceStack
                 "IgnoreDataMemberAttribute",
                 "JsonIgnoreAttribute"
             };
+
+            JsConfig<Type>.SerializeFn = x => x?.ToString();
+            JsConfig<MethodInfo>.SerializeFn = x => x?.ToString();
+            JsConfig<PropertyInfo>.SerializeFn = x => x?.ToString();
+            JsConfig<FieldInfo>.SerializeFn = x => x?.ToString();
+            JsConfig<MemberInfo>.SerializeFn = x => x?.ToString();
+            JsConfig<ParameterInfo>.SerializeFn = x => x?.ToString();
         }
 
         public static PropertyInfo[] GetSerializableProperties(this Type type)
