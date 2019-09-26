@@ -24,6 +24,7 @@ namespace ServiceStack.Text
             JsConfig<PropertyInfo>.SerializeFn = x => x.ToString();
             JsConfig<FieldInfo>.SerializeFn = x => x.ToString();
             JsConfig<MemberInfo>.SerializeFn = x => x.ToString();
+            JsConfig<ParameterInfo>.SerializeFn = x => x.ToString();
             
             Reset();
             LicenseUtils.Init();
