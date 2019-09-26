@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 
@@ -213,5 +214,35 @@ namespace ServiceStack.Text.Tests
             JsConfig<Node>.OnDeserializedFn = null;
             JsConfig.Reset();
         }
+
+        public class ReflectionType
+        {
+            public string Name { get; set; } = "A";
+            public Type Type { get; set; }
+            public MethodInfo MethodInfo { get; set; }
+            public PropertyInfo PropertyInfo { get; set; }
+            public FieldInfo FieldInfo;
+            public MemberInfo MemberInfo { get; set; }
+            
+            public void Method() {}
+        }
+
+        [Test]
+        public void Can_serialize_POCO_with_Type()
+        {
+            var dto = new ReflectionType {
+                Type = typeof(ReflectionType),
+                MethodInfo = typeof(ReflectionType).GetMethod(nameof(ReflectionType.Method)),
+                PropertyInfo = typeof(ReflectionType).GetProperty(nameof(ReflectionType.PropertyInfo)),
+                FieldInfo = typeof(ReflectionType).GetPublicFields().FirstOrDefault(),
+                MemberInfo = typeof(ReflectionType).GetMembers().FirstOrDefault(),
+            };
+           
+            dto.Name.Print();
+            dto.ToJson().Print();
+            dto.ToJsv().Print();
+            dto.PrintDump();
+        }
+
     }
 }
