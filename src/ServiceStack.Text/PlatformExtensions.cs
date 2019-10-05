@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
@@ -133,7 +134,7 @@ namespace ServiceStack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this MethodInfo mi) => mi.AllAttributes().Any(x => x.GetType() == typeof(T));
 
-        private static Dictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = new Dictionary<Tuple<MemberInfo,Type>, bool>();
+        private static ImmutableDictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = ImmutableDictionary<Tuple<MemberInfo,Type>, bool>.Empty;
         public static bool HasAttributeCached<T>(this MemberInfo memberInfo)
         {
             var key = new Tuple<MemberInfo,Type>(memberInfo, typeof(T));
@@ -149,15 +150,14 @@ namespace ServiceStack
                 : memberInfo is MethodInfo mi
                 ? mi.AllAttributes().Any(x => x.GetType() == typeof(T))
                 : throw new NotSupportedException(memberInfo.GetType().Name);
-            
-            Dictionary<Tuple<MemberInfo,Type>, bool> snapshot, newCache;
+
+            ImmutableDictionary<Tuple<MemberInfo,Type>, bool> snapshot, newCache;
             do
             {
                 snapshot = hasAttributeCache;
-                newCache = new Dictionary<Tuple<MemberInfo,Type>, bool>(hasAttributeCache) {
-                    [key ] = hasAttr
-                };
-
+                if (snapshot.ContainsKey(key))
+                    break;
+                newCache = snapshot.Add(key, hasAttr);
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref hasAttributeCache, newCache, snapshot), snapshot));
 
