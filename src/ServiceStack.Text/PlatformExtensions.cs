@@ -133,7 +133,7 @@ namespace ServiceStack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this MethodInfo mi) => mi.AllAttributes().Any(x => x.GetType() == typeof(T));
 
-        private static Dictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = new Dictionary<Tuple<MemberInfo,Type>, bool>();
+        private static readonly ConcurrentDictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = new ConcurrentDictionary<Tuple<MemberInfo,Type>, bool>();
         public static bool HasAttributeCached<T>(this MemberInfo memberInfo)
         {
             var key = new Tuple<MemberInfo,Type>(memberInfo, typeof(T));
@@ -149,17 +149,8 @@ namespace ServiceStack
                 : memberInfo is MethodInfo mi
                 ? mi.AllAttributes().Any(x => x.GetType() == typeof(T))
                 : throw new NotSupportedException(memberInfo.GetType().Name);
-            
-            Dictionary<Tuple<MemberInfo,Type>, bool> snapshot, newCache;
-            do
-            {
-                snapshot = hasAttributeCache;
-                newCache = new Dictionary<Tuple<MemberInfo,Type>, bool>(hasAttributeCache) {
-                    [key ] = hasAttr
-                };
 
-            } while (!ReferenceEquals(
-                Interlocked.CompareExchange(ref hasAttributeCache, newCache, snapshot), snapshot));
+            hasAttributeCache[key] = hasAttr;
 
             return hasAttr;
         }
