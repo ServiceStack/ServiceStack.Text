@@ -1,7 +1,7 @@
 //Copyright (c) ServiceStack, Inc. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using System;
 using System.Collections.Generic;
 using System.IO;

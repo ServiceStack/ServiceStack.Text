@@ -1,8 +1,6 @@
 //Copyright (c) ServiceStack, Inc. All Rights Reserved.
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
-#if NET45 || NETCORE2_1
-
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -89,8 +87,6 @@ namespace ServiceStack
             return index;
         }
     }
-
-//TODO: Workout how to fix broken CoreCLR SL5 build that uses dynamic
 
     public class DynamicJson : DynamicObject
     {
@@ -184,6 +180,4 @@ namespace ServiceStack
             return StringBuilderCache.ReturnAndFree(sb).ToLowerInvariant();
         }
     }
-
 }
-#endif

@@ -14,7 +14,7 @@ namespace ServiceStack.Text
             if (PclExport.Instance == null)
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
-#if NETSTANDARD2_0 || NETCORE2_1
+#if NETSTANDARD
             IsNetStandard = true;
             try
             {
@@ -64,6 +64,16 @@ namespace ServiceStack.Text
 #if NETCORE2_1
             IsNetStandard = false;
             IsNetCore = true;
+            IsNetCore21 = true;
+            SupportsDynamic = true;
+#endif
+
+#if NETSTANDARD2_0
+            IsNetStandard20 = true;
+#endif
+
+#if NETSTANDARD2_1
+            IsNetStandard21 = true;
             SupportsDynamic = true;
 #endif
 
@@ -126,6 +136,10 @@ namespace ServiceStack.Text
         public static bool IsUWP { get; private set; }
 
         public static bool IsNetStandard { get; set; }
+
+        public static bool IsNetCore21 { get; set; }
+        public static bool IsNetStandard20 { get; set; }
+        public static bool IsNetStandard21 { get; set; }
 
         public static bool IsNetFramework { get; set; }
 
@@ -203,7 +217,7 @@ namespace ServiceStack.Text
             set => referenceAssemblyPath = value;
         }
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
         private static bool IsRunningAsUwp()
         {
             try

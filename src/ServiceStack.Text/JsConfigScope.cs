@@ -13,7 +13,7 @@ namespace ServiceStack.Text
         bool disposed;
         readonly JsConfigScope parent;
 
-#if NETSTANDARD2_0        
+#if NETSTANDARD        
         private static AsyncLocal<JsConfigScope> head = new AsyncLocal<JsConfigScope>();
 #else
         [ThreadStatic] private static JsConfigScope head;
@@ -23,7 +23,7 @@ namespace ServiceStack.Text
         {
             PclExport.Instance.BeginThreadAffinity();
 
-#if NETSTANDARD2_0        
+#if NETSTANDARD        
             parent = head.Value;
             head.Value = this;
 #else
@@ -33,7 +33,7 @@ namespace ServiceStack.Text
         }
 
         internal static JsConfigScope Current => 
-#if NETSTANDARD2_0        
+#if NETSTANDARD        
             head.Value;
 #else
             head;
@@ -44,7 +44,7 @@ namespace ServiceStack.Text
             if (!disposed)
             {
                 disposed = true;
-#if NETSTANDARD2_0        
+#if NETSTANDARD        
                 head.Value = parent;
 #else
                 head = parent;

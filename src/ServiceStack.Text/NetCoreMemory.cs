@@ -1,4 +1,4 @@
-﻿#if NETCORE2_1
+﻿#if NETCORE2_1 || NETSTANDARD2_1
 
 using System;
 using System.Buffers.Text;

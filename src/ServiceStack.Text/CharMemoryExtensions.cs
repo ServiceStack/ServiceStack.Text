@@ -381,6 +381,9 @@ namespace ServiceStack.Text
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EqualsOrdinal(this ReadOnlyMemory<char> value, ReadOnlyMemory<char> other) => value.Span.Equals(other.Span, StringComparison.Ordinal);
 
+#if !NETSTANDARD2_1
+        //Ambiguous definitions in .NET Core 3.0 System MemoryExtensions.cs 
+        
         public static ReadOnlyMemory<char> Trim(this ReadOnlyMemory<char> span)
         {
             return span.TrimStart().TrimEnd();
@@ -411,6 +414,7 @@ namespace ServiceStack.Text
             }
             return value.Slice(0, end + 1);
         }
+#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ReadOnlyMemory<char> SafeSlice(this ReadOnlyMemory<char> value, int startIndex) => SafeSlice(value, startIndex, value.Length);
