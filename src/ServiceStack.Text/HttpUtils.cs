@@ -1629,6 +1629,8 @@ namespace ServiceStack
 
         public const string XStatus = "X-Status";
 
+        public const string XPoweredBy = "X-Powered-By";
+        
         public const string Referer = "Referer";
 
         public const string CacheControl = "Cache-Control";
