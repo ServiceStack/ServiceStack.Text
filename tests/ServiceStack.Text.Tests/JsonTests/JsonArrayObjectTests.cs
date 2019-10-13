@@ -115,7 +115,7 @@ namespace ServiceStack.Text.Tests.JsonTests
             dto.PrintDump();
 
             using (JsConfig.With(new Config {
-                EmitLowercaseUnderscoreNames = true,
+                TextCase = TextCase.SnakeCase,
                 PropertyConvention = PropertyConvention.Lenient
             }))
             {

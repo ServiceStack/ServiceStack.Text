@@ -28,7 +28,7 @@ namespace ServiceStack.ServiceModel.Tests
             {
                 return new StringEnumerable
                 {
-                    Items = value.To<List<string>>()
+                    Items = value.ConvertTo<List<string>>()
                 };
             }
 

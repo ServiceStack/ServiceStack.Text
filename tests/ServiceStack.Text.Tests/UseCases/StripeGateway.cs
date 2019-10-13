@@ -680,8 +680,7 @@ namespace ServiceStack.Stripe
                 jsConfigScope = JsConfig.With(new Config {
                     DateHandler = DateHandler.UnixTime,
                     PropertyConvention = PropertyConvention.Lenient,
-                    EmitLowercaseUnderscoreNames = true,
-                    EmitCamelCaseNames = false
+                    TextCase = TextCase.SnakeCase,
                 });
 
                 holdQsStrategy = QueryStringSerializer.ComplexTypeStrategy;

@@ -12,7 +12,7 @@ namespace ServiceStack.Text.Tests.JsonTests
         [SetUp]
         public void SetUp()
         {
-            JsConfig.EmitCamelCaseNames = true;
+            JsConfig.TextCase = TextCase.CamelCase;
         }
 
         [TearDown]
