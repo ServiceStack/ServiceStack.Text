@@ -72,11 +72,6 @@ namespace ServiceStack.Text
             IsNetStandard20 = true;
 #endif
 
-#if NETSTANDARD2_1
-            IsNetStandard21 = true;
-            SupportsDynamic = true;
-#endif
-
             if (!IsUWP)
             {
                 try
@@ -139,7 +134,6 @@ namespace ServiceStack.Text
 
         public static bool IsNetCore21 { get; set; }
         public static bool IsNetStandard20 { get; set; }
-        public static bool IsNetStandard21 { get; set; }
 
         public static bool IsNetFramework { get; set; }
 
