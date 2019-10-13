@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace ServiceStack.Extensions
 {
@@ -39,8 +38,5 @@ namespace ServiceStack.Extensions
             }
             return value.Slice(0, end + 1);
         }
-
-        // Ambiguous with System.Linq v4.7.2
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> items) => new HashSet<T>(items);
     }
 }
