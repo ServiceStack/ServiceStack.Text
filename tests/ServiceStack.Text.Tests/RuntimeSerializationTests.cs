@@ -57,7 +57,7 @@ namespace ServiceStack.Text.Tests
         public object[] Objects { get; set; }
     }
 
-    public class RuntimeSerializtionTests
+    public class RuntimeSerializationTests
     {
         string CreateJson(Type type) => CreateJson(type.AssemblyQualifiedName);
         string CreateJson(string typeInfo) => "{\"Object\":{\"__type\":\"" + typeInfo + "\"}}";
