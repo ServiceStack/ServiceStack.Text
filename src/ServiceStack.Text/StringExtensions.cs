@@ -226,14 +226,12 @@ namespace ServiceStack
 
         public static string WithTrailingSlash(this string path)
         {
-            if (String.IsNullOrEmpty(path))
+            if (path == null)
                 throw new ArgumentNullException(nameof(path));
+            if (path == "")
+                return "/";
 
-            if (path[path.Length - 1] != '/')
-            {
-                return path + "/";
-            }
-            return path;
+            return path[path.Length - 1] != '/' ? path + "/" : path;
         }
 
         public static string AppendPath(this string uri, params string[] uriComponents)
