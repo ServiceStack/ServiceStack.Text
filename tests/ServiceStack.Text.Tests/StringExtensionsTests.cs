@@ -362,5 +362,39 @@ namespace ServiceStack.Text.Tests
             Assert.That("/images".ReplaceAll("/",""), Is.EqualTo("images"));
         }
 
+        [TestCase("", ExpectedResult = "/")]
+        [TestCase("/", ExpectedResult = "/")]
+        [TestCase("?p1=asdf", ExpectedResult = "/?p1=asdf")]
+        [TestCase("/page", ExpectedResult = "/page/")]
+        [TestCase("/page/", ExpectedResult = "/page/")]
+        [TestCase("/page?p1=asdf", ExpectedResult = "/page/?p1=asdf")]
+        [TestCase("/page?p1=asdf&p2=asdf", ExpectedResult = "/page/?p1=asdf&p2=asdf")]
+        [TestCase("/page/?p1=asdf&p2=asdf", ExpectedResult = "/page/?p1=asdf&p2=asdf")]
+
+        [TestCase("#here", ExpectedResult = "/#here")]
+        [TestCase("?p1=asdf#here", ExpectedResult = "/?p1=asdf#here")]
+        [TestCase("/page#here", ExpectedResult = "/page/#here")]
+        [TestCase("/page/#here", ExpectedResult = "/page/#here")]
+        [TestCase("/page?p1=asdf#here", ExpectedResult = "/page/?p1=asdf#here")]
+        [TestCase("/page?p1=asdf&p2=asdf#here", ExpectedResult = "/page/?p1=asdf&p2=asdf#here")]
+        [TestCase("/page/?p1=asdf&p2=asdf#here", ExpectedResult = "/page/?p1=asdf&p2=asdf#here")]
+
+        [TestCase("domain.com", ExpectedResult = "domain.com/")]
+        [TestCase("domain.com/", ExpectedResult = "domain.com/")]
+        [TestCase("domain.com?p1=asdf", ExpectedResult = "domain.com/?p1=asdf")]
+        [TestCase("domain.com/page?p1=asdf", ExpectedResult = "domain.com/page/?p1=asdf")]
+        [TestCase("domain.com/page?p1=asdf&p2=asdf", ExpectedResult = "domain.com/page/?p1=asdf&p2=asdf")]
+        [TestCase("domain.com/page/?p1=asdf&p2=asdf", ExpectedResult = "domain.com/page/?p1=asdf&p2=asdf")]
+
+        [TestCase("domain.com#here", ExpectedResult = "domain.com/#here")]
+        [TestCase("domain.com/#here", ExpectedResult = "domain.com/#here")]
+        [TestCase("domain.com?p1=asdf#here", ExpectedResult = "domain.com/?p1=asdf#here")]
+        [TestCase("domain.com/page?p1=asdf#here", ExpectedResult = "domain.com/page/?p1=asdf#here")]
+        [TestCase("domain.com/page?p1=asdf&p2=asdf#here", ExpectedResult = "domain.com/page/?p1=asdf&p2=asdf#here")]
+        [TestCase("domain.com/page/?p1=asdf&p2=asdf#here", ExpectedResult = "domain.com/page/?p1=asdf&p2=asdf#here")]
+        public string Does_UrlWithTrailingSlash(string url)
+        {
+            return url.UrlWithTrailingSlash();
+        }
     }
 }
