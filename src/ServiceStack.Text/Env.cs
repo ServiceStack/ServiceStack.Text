@@ -96,16 +96,16 @@ namespace ServiceStack.Text
                 ReflectionOptimizer.Instance = ExpressionReflectionOptimizer.Provider;
             }
 
-            ServerUserAgent = "ServiceStack/" +
-                ServiceStackVersion + " "
+            VersionString = ServiceStackVersion.ToString(CultureInfo.InvariantCulture);
+
+            ServerUserAgent = "ServiceStack/" 
+                + VersionString + " "
                 + PclExport.Instance.PlatformName
                 + (IsMono ? "/Mono" : "")
                 + (IsLinux ? "/Linux" : IsOSX ? "/OSX" : IsUnix ? "/Unix" : IsWindows ? "/Windows" : "/UnknownOS")
                 + (IsIOS ? "/iOS" : IsAndroid ? "/Android" : IsUWP ? "/UWP" : "");
 
-            VersionString = ServiceStackVersion.ToString(CultureInfo.InvariantCulture);
-
-            __releaseDate = new DateTime(2018,12,16);
+            __releaseDate = new DateTime(2001,01,01);
         }
 
         public static string VersionString { get; set; }
