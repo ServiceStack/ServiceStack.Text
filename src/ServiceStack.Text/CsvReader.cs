@@ -59,7 +59,8 @@ namespace ServiceStack.Text
             return rows;
         }
 
-        public static List<string> ParseFields(string line)
+        public static List<string> ParseFields(string line) => ParseFields(line, null);
+        public static List<string> ParseFields(string line, Func<string,string> parseFn)
         {
             var to = new List<string>();
             if (string.IsNullOrEmpty(line))
@@ -70,7 +71,7 @@ namespace ServiceStack.Text
             while (++i <= len)
             {
                 var value = EatValue(line, ref i);
-                to.Add(value.FromCsvField());
+                to.Add(parseFn != null ? parseFn(value.FromCsvField()) : value.FromCsvField());
             }
 
             return to;
@@ -355,7 +356,9 @@ namespace ServiceStack.Text
 
             List<string> headers = null;
             if (!CsvConfig<T>.OmitHeaders || Headers.Count == 0)
-                headers = CsvReader.ParseFields(rows[0]);
+            {
+                headers = CsvReader.ParseFields(rows[0], s => s.Trim());
+            }
 
             if (typeof(T).IsValueType || typeof(T) == typeof(string))
             {
