@@ -259,12 +259,16 @@ namespace ServiceStack.Text.Jsv
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object UnescapeStringAsObject(ReadOnlySpan<char> value)
         {
-            return value.FromCsvField().Value();
+            return UnescapeSafeString(value).Value();
         }
 
-        public string UnescapeSafeString(string value) => value.FromCsvField();
+        public string UnescapeSafeString(string value) => JsState.IsCsv
+            ? value
+            : value.FromCsvField();
 
-        public ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value) => value.FromCsvField();
+        public ReadOnlySpan<char> UnescapeSafeString(ReadOnlySpan<char> value) => JsState.IsCsv
+            ? value // already unescaped in CsvReader.ParseFields()
+            : value.FromCsvField();
 
         public string ParseRawString(string value) => value;
 

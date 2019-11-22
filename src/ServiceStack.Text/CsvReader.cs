@@ -71,7 +71,7 @@ namespace ServiceStack.Text
             while (++i <= len)
             {
                 var value = EatValue(line, ref i);
-                to.Add(parseFn != null ? parseFn(value) : value);
+                to.Add(parseFn != null ? parseFn(value.FromCsvField()) : value.FromCsvField());
             }
 
             return to;

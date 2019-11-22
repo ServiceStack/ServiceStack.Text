@@ -116,7 +116,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void Does_parse_fileds_with_unmatchedJsMark()
+        public void Does_parse_fields_with_unmatchedJsMark()
         {
             Assert.That(CsvReader.ParseFields("{A,B"), Is.EqualTo(new[] { "{A", "B" }));
             Assert.That(CsvReader.ParseFields("{A},B"), Is.EqualTo(new[] { "{A}", "B" }));
