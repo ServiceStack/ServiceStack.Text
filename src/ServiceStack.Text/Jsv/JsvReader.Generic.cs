@@ -33,8 +33,9 @@ namespace ServiceStack.Text.Jsv
             do
             {
                 snapshot = ParseFnCache;
-                newCache = new Dictionary<Type, ParseFactoryDelegate>(ParseFnCache);
-                newCache[type] = parseFactoryFn;
+                newCache = new Dictionary<Type, ParseFactoryDelegate>(ParseFnCache) {
+                    [type] = parseFactoryFn
+                };
 
             } while (!ReferenceEquals(
                 Interlocked.CompareExchange(ref ParseFnCache, newCache, snapshot), snapshot));

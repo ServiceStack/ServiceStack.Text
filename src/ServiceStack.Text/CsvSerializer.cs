@@ -270,9 +270,9 @@ namespace ServiceStack.Text
             bestCandidateEnumerableType = typeof(T).GetTypeWithGenericTypeDefinitionOf(typeof(IEnumerable<>));
             if (bestCandidateEnumerableType != null)
             {
-                var dictionarOrKvps = typeof(T).HasInterface(typeof(IEnumerable<KeyValuePair<string, object>>))
-                                   || typeof(T).HasInterface(typeof(IEnumerable<KeyValuePair<string, string>>));
-                if (dictionarOrKvps)
+                var dictionaryOrKvps = typeof(T).HasInterface(typeof(IEnumerable<KeyValuePair<string, object>>))
+                                    || typeof(T).HasInterface(typeof(IEnumerable<KeyValuePair<string, string>>));
+                if (dictionaryOrKvps)
                 {
                     return WriteSelf;
                 }
