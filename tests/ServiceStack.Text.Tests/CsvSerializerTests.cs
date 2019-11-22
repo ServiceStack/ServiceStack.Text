@@ -378,6 +378,20 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void Can_serialize_fields_with_double_quotes()
+        {
+            var person = new Person { Id = 1, Name = "\"Mr. Lee\"" };
+            Assert.That(person.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,Name\n1,\"\"\"Mr. Lee\"\"\""));
+            var fromCsv = person.ToCsv().FromCsv<Person>();
+            Assert.That(fromCsv, Is.EqualTo(person));
+            
+            person = new Person { Id = 1, Name = "\"Anon\" Review" };
+            Assert.That(person.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,Name\n1,\"\"\"Anon\"\" Review\""));
+            fromCsv = person.ToCsv().FromCsv<Person>();
+            Assert.That(fromCsv, Is.EqualTo(person));
+        }
+
+        [Test]
         public void serialize_Category()
         {
             SerializeAndDeserialize(NorthwindData.Categories[0]);
