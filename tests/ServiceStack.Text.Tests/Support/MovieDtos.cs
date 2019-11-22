@@ -14,6 +14,8 @@ namespace ServiceStack.Text.Tests.Support
             new Movie { ImdbId = "tt1375666", Title = "Inception", Rating = 9.2m, Director = "Christopher Nolan", ReleaseDate = new DateTime(2010,7,16), TagLine = "Your mind is the scene of the crime", Genres = new List<string>{"Action", "Mystery", "Sci-Fi", "Thriller"}, },
             new Movie { ImdbId = "tt0071562", Title = "The Godfather: Part II", Rating = 9.0m, Director = "Francis Ford Coppola", ReleaseDate = new DateTime(1974,12,20), Genres = new List<string> {"Crime","Drama", "Thriller"}, },
             new Movie { ImdbId = "tt0060196", Title = "The Good, the Bad and the Ugly", Rating = 9.0m, Director = "Sergio Leone", ReleaseDate = new DateTime(1967,12,29), TagLine = "They formed an alliance of hate to steal a fortune in dead man's gold", Genres = new List<string>{"Adventure","Western"}, },
+            new Movie { ImdbId = "tt0678100", Title = "\"Mr. Lee\"", Rating = 8.4m, Director = "Steven Long Mitchell", ReleaseDate = new DateTime(1999,2,6), Genres = new List<string> {"Drama", "Mystery", "Sci-Fi", "Thriller"}, },
+            new Movie { ImdbId = "tt9793324", Title = "\"Anon\" Review", Rating = 0.0m, Director = null, ReleaseDate = new DateTime(2018,11,15), Genres = new List<string> {"Sci-Fi"}, },
         };
 
     }
