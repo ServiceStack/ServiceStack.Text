@@ -1563,5 +1563,34 @@ namespace ServiceStack.Text.Tests
             Assert.That(navItems[0].Children[1].Id, Is.EqualTo("B2"));
             Assert.That(navItems[0].Children[1].Children[0].Id, Is.EqualTo("C1"));
         }
+
+        public class TestMethod
+        {
+            public void MyMethod(string myProp)
+            {
+                MyProp = myProp;
+            }
+            public string MyProp { get; set; }
+        }
+
+        public class TestMethod2
+        {
+            public void MyMethod()
+            {
+                MyProp = nameof(MyMethod);
+            }
+            public string MyProp { get; set; }
+        }
+
+        [Test]
+        public void Does_not_try_to_map_methods()
+        {
+            var from = new TestMethod();
+            var to = new TestMethod2();
+            from.MyProp = "Test";
+            to.PopulateFromPropertiesWithoutAttribute(from, typeof(IgnoreDataMemberAttribute));
+            Assert.That(from.MyProp, Is.EqualTo(to.MyProp));
+        }
+
     }
 }
