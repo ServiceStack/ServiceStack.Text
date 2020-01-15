@@ -507,37 +507,6 @@ namespace ServiceStack
                     map[info.Name] = new AssignmentMember(fieldInfo.FieldType, fieldInfo);
                     continue;
                 }
-
-                var methodInfo = info as MethodInfo;
-                if (methodInfo != null)
-                {
-                    var parameterInfos = methodInfo.GetParameters();
-                    if (isReadable)
-                    {
-                        if (parameterInfos.Length == 0 && methodInfo.ReturnType == typeof(object))
-                        {
-                            var name = info.Name.StartsWith("get_") ? info.Name.Substring(4) : info.Name;
-                            if (!map.ContainsKey(name))
-                            {
-                                map[name] = new AssignmentMember(methodInfo.ReturnType, methodInfo);
-                                continue;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (parameterInfos.Length == 1 && methodInfo.ReturnType == typeof(void) && 
-                            methodInfo.GetParameters()[0].ParameterType == typeof(object))
-                        {
-                            var name = info.Name.StartsWith("set_") ? info.Name.Substring(4) : info.Name;
-                            if (!map.ContainsKey(name))
-                            {
-                                map[name] = new AssignmentMember(parameterInfos[0].ParameterType, methodInfo);
-                                continue;
-                            }
-                        }
-                    }
-                }
             }
             return map;
         }
