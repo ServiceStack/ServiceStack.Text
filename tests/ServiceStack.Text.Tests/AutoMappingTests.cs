@@ -1566,22 +1566,22 @@ namespace ServiceStack.Text.Tests
 
         public class TestMethod
         {
-            public void MyMethod(string myProp)
+            public void MyMethod()
             {
-                MyProp = myProp;
+                MyProp = nameof(MyProp);
             }
             public string MyProp { get; set; }
         }
-
+        
         public class TestMethod2
         {
-            public void MyMethod()
+            public void MyMethod(string myProp)
             {
                 MyProp = nameof(MyMethod);
             }
             public string MyProp { get; set; }
         }
-
+        
         [Test]
         public void Does_not_try_to_map_methods()
         {
