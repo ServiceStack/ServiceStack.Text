@@ -72,9 +72,8 @@ namespace ServiceStack.Text.Common
         public static Action<TextWriter, object, WriteObjectDelegate, WriteObjectDelegate>
             GetWriteGenericDictionary(Type keyType, Type valueType)
         {
-            WriteMapDelegate writeFn;
             var mapKey = new MapKey(keyType, valueType);
-            if (CacheFns.TryGetValue(mapKey, out writeFn)) return writeFn.Invoke;
+            if (CacheFns.TryGetValue(mapKey, out var writeFn)) return writeFn.Invoke;
 
             var genericType = typeof(ToStringDictionaryMethods<,,>).MakeGenericType(keyType, valueType, typeof(TSerializer));
             var mi = genericType.GetStaticMethod("WriteIDictionary");
@@ -239,7 +238,6 @@ namespace ServiceStack.Text.Common
                     {
                         writeKeyFn(writer, kvp.Key);
                     }
-
                 }
                 finally
                 {

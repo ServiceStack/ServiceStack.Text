@@ -534,16 +534,11 @@ namespace ServiceStack
             return TypeSerializer.DeserializeFromSpan<T>(jsv);
         }
         
-        static readonly object semaphore = new object(); //tmp workaround async multi-threading 
-
         public static string ToJson<T>(this T obj)
         {
-            lock (semaphore)
-            {
-                return JsConfig.PreferInterfaces
-                    ? JsonSerializer.SerializeToString(obj, AssemblyUtils.MainInterface<T>())
-                    : JsonSerializer.SerializeToString(obj);
-            }
+            return JsConfig.PreferInterfaces
+                ? JsonSerializer.SerializeToString(obj, AssemblyUtils.MainInterface<T>())
+                : JsonSerializer.SerializeToString(obj);
         }
 
         public static string ToSafeJson<T>(this T obj)
