@@ -686,9 +686,14 @@ namespace ServiceStack
                                     pair => mapper(pair.Key, pair.Value));
         }
 
+        public static Dictionary<string, object> ToObjectDictionary(this object obj)
+        {
+            return ToObjectDictionary(obj, null);
+        }
+
         public static Dictionary<string, object> ToObjectDictionary(
                             this object obj,
-                            Func<string, object, object> mapper = null)
+                            Func<string, object, object> mapper)
         {
             if (obj == null)
                 return null;
