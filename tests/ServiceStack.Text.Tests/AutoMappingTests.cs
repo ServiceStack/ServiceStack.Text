@@ -131,6 +131,12 @@ namespace ServiceStack.Text.Tests
         public decimal? Amount { get; set; }
     }
 
+    public class DtoWithEnum
+    {
+        public string Name { get; set; }
+        public Color Color { get; set; }
+    }
+
     public class NullableEnumConversion
     {
         public Color Color { get; set; }
