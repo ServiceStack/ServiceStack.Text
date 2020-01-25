@@ -12,6 +12,16 @@ namespace ServiceStack.Text.Tests
     public class AutoMappingObjectDictionaryTests
     {
         [Test]
+        public void Can_convert_Car_to_ObjectDictionary_WithMapper()
+        {
+            var dto = new DtoWithEnum { Name = "Dan", Color = Color.Blue};
+            var map = dto.ToObjectDictionary((k,v) => k == nameof(Color) ? v.ToString().ToLower() : v);
+
+            Assert.That(map["Color"], Is.EqualTo(Color.Blue.ToString().ToLower()));
+            Assert.That(map["Name"], Is.EqualTo(dto.Name));
+        }
+
+        [Test]
         public void Can_convert_Car_to_ObjectDictionary()
         {
             var dto = new Car { Age = 10, Name = "ZCar" };

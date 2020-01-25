@@ -658,32 +658,74 @@ namespace ServiceStack
             }
         }
 
+        private static Dictionary<string, object> ConvertToDictionary<T>(
+                            IEnumerable<KeyValuePair<string, T>> collection,
+                            Func<string, object, object> mapper = null)
+        {
+            if (mapper != null)
+            {
+                return mapper.MapToDictionary(collection);
+            }
+
+            var to = new Dictionary<string, object>();
+            foreach (var entry in collection)
+            {
+                string key = entry.Key;
+                object value = entry.Value;
+                to[key] = value;
+            }
+            return to;
+        }
+
+        private static Dictionary<string, object> MapToDictionary<T>(
+            this Func<string, object, object> mapper, 
+            IEnumerable<KeyValuePair<string, T>> collection)
+        {
+            return collection.ToDictionary(
+                                    pair => pair.Key,
+                                    pair => mapper(pair.Key, pair.Value));
+        }
+
         public static Dictionary<string, object> ToObjectDictionary(this object obj)
+        {
+            return ToObjectDictionary(obj, null);
+        }
+
+        public static Dictionary<string, object> ToObjectDictionary(
+                            this object obj,
+                            Func<string, object, object> mapper)
         {
             if (obj == null)
                 return null;
 
             if (obj is Dictionary<string, object> alreadyDict)
+            {
+                if (mapper != null)
+                    return mapper.MapToDictionary(alreadyDict);
                 return alreadyDict;
+            }
 
             if (obj is IDictionary<string, object> interfaceDict)
+            {
+                if (mapper != null)
+                    return mapper.MapToDictionary(interfaceDict);
                 return new Dictionary<string, object>(interfaceDict);
+            }
 
             var to = new Dictionary<string, object>();
             if (obj is Dictionary<string, string> stringDict)
             {
-                foreach (var entry in stringDict)
-                {
-                    to[entry.Key] = entry.Value;
-                }
-                return to;
+                return ConvertToDictionary(stringDict, mapper);
             }
 
             if (obj is IDictionary d)
             {
                 foreach (var key in d.Keys)
                 {
-                    to[key.ToString()] = d[key];
+                    string k = key.ToString();
+                    object v = d[key];
+                    v = mapper?.Invoke(k, v) ?? v;
+                    to[k] = v;
                 }
                 return to;
             }
@@ -692,26 +734,21 @@ namespace ServiceStack
             {
                 for (var i = 0; i < nvc.Count; i++)
                 {
-                    to[nvc.GetKey(i)] = nvc.Get(i);
+                    string k = nvc.GetKey(i);
+                    object v = nvc.Get(i);
+                    v = mapper?.Invoke(k, v) ?? v;
+                    to[k] = v;
                 }
                 return to;
             }
 
             if (obj is IEnumerable<KeyValuePair<string, object>> objKvps)
             {
-                foreach (var kvp in objKvps)
-                {
-                    to[kvp.Key] = kvp.Value;
-                }
-                return to;
+                return ConvertToDictionary(objKvps, mapper);
             }
             if (obj is IEnumerable<KeyValuePair<string, string>> strKvps)
             {
-                foreach (var kvp in strKvps)
-                {
-                    to[kvp.Key] = kvp.Value;
-                }
-                return to;
+                return ConvertToDictionary(strKvps, mapper);
             }
 
             var type = obj.GetType();
@@ -724,22 +761,60 @@ namespace ServiceStack
                 {
                     var key = keyGetter(entry);
                     var value = valueGetter(entry);
-                    to[key.ConvertTo<string>()] = value;
+                    string k = key.ConvertTo<string>();
+                    value = mapper?.Invoke(k, value) ?? value;
+                    to[k] = value;
                 }
                 return to;
             }
-            
+
 
             if (obj is KeyValuePair<string, object> objKvp)
-                return new Dictionary<string, object> { { nameof(objKvp.Key), objKvp.Key }, { nameof(objKvp.Value), objKvp.Value } };
+            {
+                string kk = nameof(objKvp.Key);
+                object kv = objKvp.Key;
+                kv = mapper?.Invoke(kk, kv) ?? kv;
+
+                string vk = nameof(objKvp.Value);
+                object vv = objKvp.Value;
+                vv = mapper?.Invoke(vk, vv) ?? vv;
+
+                return new Dictionary<string, object> 
+                {
+                    [kk] = kv, 
+                    [vk] = vv
+                };
+            }
             if (obj is KeyValuePair<string, string> strKvp)
-                return new Dictionary<string, object> { { nameof(strKvp.Key), strKvp.Key }, { nameof(strKvp.Value), strKvp.Value } };
-            
+            {
+                string kk = nameof(objKvp.Key);
+                object kv = strKvp.Key;
+                kv = mapper?.Invoke(kk, kv) ?? kv;
+
+                string vk = nameof(strKvp.Value);
+                object vv = strKvp.Value;
+                vv = mapper?.Invoke(vk, vv) ?? vv;
+
+                return new Dictionary<string, object>
+                {
+                    [kk] = kv,
+                    [vk] = vv
+                };
+            }
             if (type.GetKeyValuePairTypes(out _, out var _))
             {
-                return new Dictionary<string, object> {
-                    { "Key", TypeProperties.Get(type).GetPublicGetter("Key")(obj).ConvertTo<string>() },
-                    { "Value", TypeProperties.Get(type).GetPublicGetter("Value")(obj) },
+                string kk = "Key";
+                object kv = TypeProperties.Get(type).GetPublicGetter("Key")(obj).ConvertTo<string>();
+                kv = mapper?.Invoke(kk, kv) ?? kv;
+
+                string vk = "Value";
+                object vv = TypeProperties.Get(type).GetPublicGetter("Value")(obj);
+                vv = mapper?.Invoke(vk, vv) ?? vv;
+
+                return new Dictionary<string, object>
+                {
+                    [kk] = kv,
+                    [vk] = vv
                 };
             }
 
@@ -748,7 +823,10 @@ namespace ServiceStack
 
             foreach (var fieldDef in def.Fields)
             {
-                to[fieldDef.Name] = fieldDef.GetValueFn(obj);
+                string k = fieldDef.Name;
+                object v = fieldDef.GetValueFn(obj);
+                v = mapper?.Invoke(k, v) ?? v;
+                to[k] = v;
             }
 
             return to;
