@@ -94,7 +94,9 @@ namespace ServiceStack.Text.Common
                 return primitiveType;
 
             if (Serializer.ObjectDeserializer != null && typeof(TSerializer) == typeof(Json.JsonTypeSerializer))
-                return Serializer.ObjectDeserializer(strType);
+                return !strType.IsNullOrEmpty()
+                    ? Serializer.ObjectDeserializer(strType)
+                    : strType.Value();
 
             return Serializer.UnescapeString(strType).Value();
         }
