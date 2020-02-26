@@ -48,6 +48,17 @@ namespace ServiceStack.Text.Tests
                 Is.EqualTo("A=%e5%b4%91%e2%a8%b9%e5%a0%a1%ea%81%80%e1%a2%96%e3%a4%b9%c3%ac%e3%ad%a1%ec%a4%aa%e9%8a%ac"));
         }
 
+        [Test]
+        public void Does_serialize_Poco_and_string_dictionary_with_encoded_data()
+        {
+            var msg = "Field with comma, to demo. ";
+            Assert.That(QueryStringSerializer.SerializeToString(new D { A = msg }),
+                Is.EqualTo("A=Field+with+comma,+to+demo.+"));
+
+            Assert.That(QueryStringSerializer.SerializeToString(new D { A = msg }.ToStringDictionary()),
+                Is.EqualTo("A=Field+with+comma,+to+demo.+"));
+        }
+
         class Empty { }
 
         [Test]
