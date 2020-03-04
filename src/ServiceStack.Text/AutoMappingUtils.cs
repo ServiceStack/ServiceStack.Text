@@ -416,7 +416,8 @@ namespace ServiceStack
 
         public static object GetDefaultValue(this Type type)
         {
-            if (!type.IsValueType) return null;
+            if (!type.IsValueType) 
+                return null;
 
             if (DefaultValueTypes.TryGetValue(type, out var defaultValue))
                 return defaultValue;
@@ -434,6 +435,10 @@ namespace ServiceStack
 
             return defaultValue;
         }
+
+        public static bool IsDefaultValue(object value) => IsDefaultValue(value, value?.GetType());
+        public static bool IsDefaultValue(object value, Type valueType) => value == null 
+            || (valueType.IsValueType && value.Equals(valueType.GetDefaultValue()));
 
         private static readonly ConcurrentDictionary<string, AssignmentDefinition> AssignmentDefinitionCache
             = new ConcurrentDictionary<string, AssignmentDefinition>();
