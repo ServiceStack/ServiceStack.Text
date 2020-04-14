@@ -42,6 +42,8 @@ namespace ServiceStack.Text
             set => JsConfig.UTF8Encoding = value;
         }
 
+        public static Action<object> OnSerialize { get; set; }
+
         public const string DoubleQuoteString = "\"\"";
 
         /// <summary>
@@ -129,6 +131,7 @@ namespace ServiceStack.Text
             if (value is string str)
                 return str.EncodeJsv();
 
+            OnSerialize?.Invoke(value);
             var writer = StringWriterThreadStatic.Allocate();
             JsvWriter.GetWriteFn(type)(writer, value);
             return StringWriterThreadStatic.ReturnAndFree(writer);
@@ -166,6 +169,7 @@ namespace ServiceStack.Text
                 return;
             }
 
+            OnSerialize?.Invoke(value);
             JsvWriter.GetWriteFn(type)(writer, value);
         }
 
@@ -192,6 +196,7 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object value, Type type, Stream stream)
         {
+            OnSerialize?.Invoke(value);
             var writer = new StreamWriter(stream, JsConfig.UTF8Encoding);
             JsvWriter.GetWriteFn(type)(writer, value);
             writer.Flush();

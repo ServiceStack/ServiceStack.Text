@@ -17,6 +17,8 @@ namespace ServiceStack.Text
         //Don't emit UTF8 BOM by default
         public static Encoding UseEncoding { get; set; } = PclExport.Instance.GetUTF8Encoding(false);
 
+        public static Action<object> OnSerialize { get; set; }
+
         private static Dictionary<Type, WriteObjectDelegate> WriteFnCache = new Dictionary<Type, WriteObjectDelegate>();
         internal static WriteObjectDelegate GetWriteFn(Type type)
         {
@@ -394,6 +396,7 @@ namespace ServiceStack.Text
             JsState.IsCsv = true;
             try
             {
+                CsvSerializer.OnSerialize?.Invoke(value);
                 WriteCacheFn(writer, value);
             }
             finally

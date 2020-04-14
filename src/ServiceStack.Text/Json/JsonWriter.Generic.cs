@@ -215,6 +215,7 @@ namespace ServiceStack.Text.Json
         public static void WriteRootObject(TextWriter writer, object value)
         {
             TypeConfig<T>.Init();
+            JsonSerializer.OnSerialize?.Invoke(value);
 
             JsState.Depth = 0;
             CacheFn(writer, value);

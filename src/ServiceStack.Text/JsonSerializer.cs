@@ -40,6 +40,8 @@ namespace ServiceStack.Text
             set => JsConfig.UTF8Encoding = value;
         }
 
+        public static Action<object> OnSerialize { get; set; }
+
         public static T DeserializeFromString<T>(string value)
         {
             return JsonReader<T>.Parse(value) is T obj ? obj : default(T);
@@ -112,6 +114,7 @@ namespace ServiceStack.Text
             }
             else
             {
+                OnSerialize?.Invoke(value);
                 JsonWriter.GetWriteFn(type)(writer, value);
             }
             return StringWriterThreadStatic.ReturnAndFree(writer);
@@ -149,6 +152,7 @@ namespace ServiceStack.Text
                 return;
             }
 
+            OnSerialize?.Invoke(value);
             JsonWriter.GetWriteFn(type)(writer, value);
         }
 
@@ -175,6 +179,7 @@ namespace ServiceStack.Text
 
         public static void SerializeToStream(object value, Type type, Stream stream)
         {
+            OnSerialize?.Invoke(value);
             var writer = new StreamWriter(stream, JsConfig.UTF8Encoding, BufferSize, leaveOpen:true);
             JsonWriter.GetWriteFn(type)(writer, value);
             writer.Flush();

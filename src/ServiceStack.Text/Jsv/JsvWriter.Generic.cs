@@ -162,6 +162,7 @@ namespace ServiceStack.Text.Jsv
             if (writer == null) return; //AOT
 
             TypeConfig<T>.Init();
+            TypeSerializer.OnSerialize?.Invoke(value);
 
             JsState.Depth = 0;
             CacheFn(writer, value);
