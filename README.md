@@ -192,7 +192,7 @@ ServiceStack's JS Utils is available in the [ServiceStack.Common](https://www.nu
 
     PM> Install-Package ServiceStack.Text
 
-> From v4.0.62+ [ServiceStack.Text is now free!](https://github.com/ServiceStack/ServiceStack/blob/master/docs/2016/v4.0.62.md#servicestacktext-is-now-free)
+> From v4.0.62+ [ServiceStack.Text is now free!](https://docs.servicestack.net/releases/v4.0.62#servicestacktext-is-now-free)
 
 ## Copying
 
