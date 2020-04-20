@@ -125,13 +125,25 @@ namespace ServiceStack
         public static bool HasAttribute<T>(this Type type) => type.AllAttributes().Any(x => x.GetType() == typeof(T));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasAttributeOf<T>(this Type type) => type.AllAttributes().Any(x => x is T);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this PropertyInfo pi) => pi.AllAttributes().Any(x => x.GetType() == typeof(T));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasAttributeOf<T>(this PropertyInfo pi) => pi.AllAttributes().Any(x => x is T);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this FieldInfo fi) => fi.AllAttributes().Any(x => x.GetType() == typeof(T));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasAttributeOf<T>(this FieldInfo fi) => fi.AllAttributes().Any(x => x is T);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this MethodInfo mi) => mi.AllAttributes().Any(x => x.GetType() == typeof(T));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasAttributeOf<T>(this MethodInfo mi) => mi.AllAttributes().Any(x => x is T);
 
         private static readonly ConcurrentDictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = new ConcurrentDictionary<Tuple<MemberInfo,Type>, bool>();
         public static bool HasAttributeCached<T>(this MemberInfo memberInfo)
@@ -151,6 +163,28 @@ namespace ServiceStack
                 : throw new NotSupportedException(memberInfo.GetType().Name);
 
             hasAttributeCache[key] = hasAttr;
+
+            return hasAttr;
+        }
+
+        private static readonly ConcurrentDictionary<Tuple<MemberInfo,Type>, bool> hasAttributeOfCache = new ConcurrentDictionary<Tuple<MemberInfo,Type>, bool>();
+        public static bool HasAttributeOfCached<T>(this MemberInfo memberInfo)
+        {
+            var key = new Tuple<MemberInfo,Type>(memberInfo, typeof(T));
+            if (hasAttributeOfCache.TryGetValue(key , out var hasAttr))
+                return hasAttr;
+
+            hasAttr = memberInfo is Type t 
+                ? t.AllAttributes().Any(x => x is T)
+                : memberInfo is PropertyInfo pi
+                ? pi.AllAttributes().Any(x => x is T)
+                : memberInfo is FieldInfo fi
+                ? fi.AllAttributes().Any(x => x is T)
+                : memberInfo is MethodInfo mi
+                ? mi.AllAttributes().Any(x => x is T)
+                : throw new NotSupportedException(memberInfo.GetType().Name);
+
+            hasAttributeOfCache[key] = hasAttr;
 
             return hasAttr;
         }
