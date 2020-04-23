@@ -96,7 +96,7 @@ JsonArrayObjects.Parse()
 
 ### Pretty Print JSON
 
-You an format JSON into a more readable format with the `IndentJson()` extension method, e.g: 
+You can format JSON into a more readable format with the `IndentJson()` extension method, e.g: 
 
 ```csharp
 var prettyJson = dto.ToJson().IndentJson();
