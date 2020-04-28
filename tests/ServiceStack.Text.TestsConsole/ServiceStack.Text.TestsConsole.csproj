@@ -18,7 +18,7 @@
     <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" />
     <ProjectReference Include="..\ServiceStack.Text.Tests\ServiceStack.Text.Tests.csproj" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="ServiceStack" Version="$(Version)" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
