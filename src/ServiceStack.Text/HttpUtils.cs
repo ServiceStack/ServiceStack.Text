@@ -1075,14 +1075,14 @@ namespace ServiceStack
 
             httpReq.ContentType = "multipart/form-data; boundary=\"" + boundary + "\"";
 
-            var boundarybytes = ("\r\n--" + boundary + "--\r\n").ToAsciiBytes();
+            var boundaryBytes = ("\r\n--" + boundary + "--\r\n").ToAsciiBytes();
 
             var header = "\r\n--" + boundary +
                          $"\r\nContent-Disposition: form-data; name=\"{field}\"; filename=\"{fileName}\"\r\nContent-Type: {mimeType}\r\n\r\n";
 
-            var headerbytes = header.ToAsciiBytes();
+            var headerBytes = header.ToAsciiBytes();
 
-            var contentLength = fileStream.Length + headerbytes.Length + boundarybytes.Length;
+            var contentLength = fileStream.Length + headerBytes.Length + boundaryBytes.Length;
             PclExport.Instance.InitHttpWebRequest(httpReq,
                 contentLength: contentLength, allowAutoRedirect: false, keepAlive: false);
 
@@ -1094,11 +1094,11 @@ namespace ServiceStack
 
             using (var outputStream = PclExport.Instance.GetRequestStream(httpReq))
             {
-                outputStream.Write(headerbytes, 0, headerbytes.Length);
+                outputStream.Write(headerBytes, 0, headerBytes.Length);
 
                 fileStream.CopyTo(outputStream, 4096);
 
-                outputStream.Write(boundarybytes, 0, boundarybytes.Length);
+                outputStream.Write(boundaryBytes, 0, boundaryBytes.Length);
 
                 PclExport.Instance.CloseStream(outputStream);
             }
