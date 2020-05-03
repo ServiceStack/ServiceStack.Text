@@ -294,7 +294,7 @@ new []{ 1, 2, 3 }.ToJson()   //= [1,2,3]
 
 ## JSON Format 
 
-JSON is a lightweight text serialization format with a spec that's so simple that it fits on one page: [http://www.json.org](json.org).
+JSON is a lightweight text serialization format with a spec that's so simple that it fits on one page: [https://www.json.org](https://www.json.org).
 
 The only valid values in JSON are:
 
