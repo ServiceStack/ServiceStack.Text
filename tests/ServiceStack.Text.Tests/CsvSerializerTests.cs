@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Threading;
+using System.Linq;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Text.Tests.Support;
@@ -389,6 +389,52 @@ namespace ServiceStack.Text.Tests
             Assert.That(person.ToCsv().NormalizeNewLines(), Is.EqualTo("Id,Name\n1,\"\"\"Anon\"\" Review\""));
             fromCsv = person.ToCsv().FromCsv<Person>();
             Assert.That(fromCsv, Is.EqualTo(person));
+        }
+        
+        public Order Clone(Order o) => new Order {
+            Id = o.Id,
+            CustomerId = o.CustomerId,
+            EmployeeId = o.EmployeeId,
+            OrderDate = o.OrderDate,
+            RequiredDate = o.RequiredDate,
+            ShippedDate = o.ShippedDate,
+            ShipVia = o.ShipVia,
+            Freight = o.Freight,
+            ShipName = o.ShipName,
+            ShipAddress = o.ShipAddress,
+            ShipCity = o.ShipCity,
+            ShipRegion = o.ShipRegion,
+            ShipPostalCode = o.ShipPostalCode,
+            ShipCountry = o.ShipCountry,
+        };
+
+        [Test]
+        public void Can_only_serialize_NonDefaultValues()
+        {
+            using var scope = JsConfig.With(new Config {
+                ExcludeDefaultValues = true
+            });
+
+            var orders = NorthwindData.Orders.Take(5).Map(Clone);
+            orders.ForEach(x => {
+                //non-default min values
+                x.RequiredDate = DateTime.MinValue;
+                x.ShipVia = 0;
+                
+                //default values
+                x.ShippedDate = null;
+                x.EmployeeId = default;
+                x.Freight = default;
+                x.ShipPostalCode = null;
+                x.ShipCountry = null;
+            });
+
+            var csv = orders.ToCsv();
+            // csv.Print();
+            var headers = csv.LeftPart('\r');
+            headers.Print();
+            Assert.That(headers, Is.EquivalentTo(
+                "Id,CustomerId,OrderDate,RequiredDate,ShipVia,ShipName,ShipAddress,ShipCity,ShipRegion"));
         }
 
         [Test]

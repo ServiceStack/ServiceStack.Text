@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using ServiceStack.Text.Common;
 
 namespace ServiceStack.Text
@@ -144,6 +145,7 @@ namespace ServiceStack.Text
         public static List<string> Headers { get; set; }
 
         internal static List<GetMemberDelegate<T>> PropertyGetters;
+        internal static List<PropertyInfo> PropertyInfos;
 
         private static readonly WriteObjectDelegate OptimizedWriter;
 
@@ -163,12 +165,15 @@ namespace ServiceStack.Text
             Headers = new List<string>();
 
             PropertyGetters = new List<GetMemberDelegate<T>>();
+            PropertyInfos = new List<PropertyInfo>();
             foreach (var propertyInfo in TypeConfig<T>.Properties)
             {
                 if (!propertyInfo.CanRead || propertyInfo.GetGetMethod(nonPublic:true) == null) continue;
                 if (!TypeSerializer.CanCreateFromString(propertyInfo.PropertyType)) continue;
 
                 PropertyGetters.Add(propertyInfo.CreateGetter<T>());
+                PropertyInfos.Add(propertyInfo);
+                
                 var propertyName = propertyInfo.Name;
                 var dcsDataMemberName = propertyInfo.GetDataMemberName();
                 if (dcsDataMemberName != null)
@@ -257,6 +262,7 @@ namespace ServiceStack.Text
         public static void Write(TextWriter writer, IEnumerable<T> records)
         {
             if (writer == null) return; //AOT
+            if (records == null) return;
 
             if (typeof(T) == typeof(Dictionary<string, string>) || typeof(T) == typeof(IDictionary<string, string>))
             {
@@ -277,10 +283,56 @@ namespace ServiceStack.Text
                 return;
             }
 
-            if (!CsvConfig<T>.OmitHeaders && Headers.Count > 0)
+            var recordsList = records.ToList();
+
+            var headers = Headers;
+            var propGetters = PropertyGetters;
+            var treatAsSingleRow = typeof(T).IsValueType || typeof(T) == typeof(string);
+            
+            if (!treatAsSingleRow && JsConfig.ExcludeDefaultValues)
+            {
+                var hasValues = new bool[headers.Count];
+                var defaultValues = new object[headers.Count];
+                for (var i = 0; i < PropertyInfos.Count; i++)
+                {
+                    defaultValues[i] = PropertyInfos[i].PropertyType.GetDefaultValue();
+                }
+
+                foreach (var record in recordsList)
+                {
+                    for (var i = 0; i < propGetters.Count; i++)
+                    {
+                        var propGetter = propGetters[i];
+                        var value = propGetter(record);
+                        
+                        if (value != null && !value.Equals(defaultValues[i]))
+                            hasValues[i] = true;
+                    }
+                }
+
+                if (hasValues.Any(x => x == false))
+                {
+                    var newHeaders = new List<string>();
+                    var newGetters = new List<GetMemberDelegate<T>>();
+
+                    for (int i = 0; i < hasValues.Length; i++)
+                    {
+                        if (hasValues[i])
+                        {
+                            newHeaders.Add(headers[i]);
+                            newGetters.Add(propGetters[i]);
+                        }
+                    }
+
+                    headers = newHeaders;
+                    propGetters = newGetters;
+                }
+            }
+            
+            if (!CsvConfig<T>.OmitHeaders && headers.Count > 0)
             {
                 var ranOnce = false;
-                foreach (var header in Headers)
+                foreach (var header in headers)
                 {
                     CsvWriter.WriteItemSeperatorIfRanOnce(writer, ref ranOnce);
 
@@ -289,25 +341,23 @@ namespace ServiceStack.Text
                 writer.Write(CsvConfig.RowSeparatorString);
             }
 
-            if (records == null) return;
-
-            if (typeof(T).IsValueType || typeof(T) == typeof(string))
+            if (treatAsSingleRow)
             {
-                var singleRow = GetSingleRow(records, typeof(T));
+                var singleRow = GetSingleRow(recordsList, typeof(T));
                 WriteRow(writer, singleRow);
                 return;
             }
 
-            var row = new string[Headers.Count];
-            foreach (var record in records)
+            var row = new string[headers.Count];
+            foreach (var record in recordsList)
             {
-                for (var i = 0; i < PropertyGetters.Count; i++)
+                for (var i = 0; i < propGetters.Count; i++)
                 {
-                    var propertyGetter = PropertyGetters[i];
-                    var value = propertyGetter(record) ?? "";
+                    var propGetter = propGetters[i];
+                    var value = propGetter(record) ?? "";
 
-                    var strValue = value is string
-                       ? (string)value
+                    var strValue = value is string s
+                       ? s
                        : TypeSerializer.SerializeToString(value).StripQuotes();
 
                     row[i] = strValue;

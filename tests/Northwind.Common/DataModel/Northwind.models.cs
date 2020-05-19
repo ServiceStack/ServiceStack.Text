@@ -523,7 +523,7 @@ namespace Northwind.Common.DataModel
     public class OrderDetail
         : IHasStringId, IEquatable<OrderDetail>
     {
-        public string Id { get { return this.OrderId + "/" + this.ProductId; } }
+        public string Id => this.OrderId + "/" + this.ProductId;
 
         [Index]
         [Alias("OrderID")]
