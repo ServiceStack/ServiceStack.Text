@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Northwind.Common.DataModel;
 using NUnit.Framework;
 using ServiceStack.Text.Json;
@@ -44,6 +45,23 @@ namespace ServiceStack.Text.Tests.Issues
             var fromMs = JsonSerializer.DeserializeFromStream<ObjectEmptyStringTest>(ms);
             Assert.That(fromMs.Name, Is.EqualTo(dto.Name));
             JS.UnConfigure();
+        }
+
+        [Test]
+        public void Does_serialize_object_dictionary()
+        {
+            JsConfig.ConvertObjectTypesIntoStringDictionary = true;
+            
+            var value = "{Number:10330,CountryKey:DE,FederalStateKey:\"\",Salutation:,City:''}";
+            var map = (Dictionary<string,object>) value.FromJsv<object>();
+            
+            Assert.That(map["Number"], Is.EqualTo("10330"));
+            Assert.That(map["CountryKey"], Is.EqualTo("DE"));
+            Assert.That(map["FederalStateKey"], Is.EqualTo(""));
+            Assert.That(map["Salutation"], Is.EqualTo(""));
+            Assert.That(map["City"], Is.EqualTo("''"));
+
+            JsConfig.ConvertObjectTypesIntoStringDictionary = false;
         }
     }
 }

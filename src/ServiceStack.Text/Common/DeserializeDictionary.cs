@@ -276,7 +276,7 @@ namespace ServiceStack.Text.Common
                     {
                         to[mapKey] = (TValue)(tryToParseItemsAsPrimitiveTypes && elementStartIndex < valueLength
                             ? DeserializeType<TSerializer>.ParsePrimitive(elementValue.Value(), value[elementStartIndex])
-                            : parseValueFn(elementValue));
+                            : parseValueFn(elementValue).Value());
                     }
                 }
                 else
@@ -288,7 +288,7 @@ namespace ServiceStack.Text.Common
                     }
                     else
                     {
-                        to[mapKey] = (TValue)parseValueFn(elementValue);
+                        to[mapKey] = (TValue)parseValueFn(elementValue).Value();
                     }
                 }
 

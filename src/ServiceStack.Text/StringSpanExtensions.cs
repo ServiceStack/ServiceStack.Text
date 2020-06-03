@@ -25,6 +25,12 @@ namespace ServiceStack.Text
                 : value.ToString();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static object Value(this object obj) =>
+            obj is string value && value.Length == 1 && value[0] == TypeConstants.NonWidthWhiteSpace
+                ? ""
+                : obj;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty(this ReadOnlySpan<char> value) => value.IsEmpty || (value.Length == 1 && value[0] == TypeConstants.NonWidthWhiteSpace);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
