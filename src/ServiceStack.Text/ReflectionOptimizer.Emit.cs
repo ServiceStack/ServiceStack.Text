@@ -11,7 +11,7 @@ namespace ServiceStack.Text
     public sealed class EmitReflectionOptimizer : ReflectionOptimizer
     {
         private static EmitReflectionOptimizer provider;
-        public static EmitReflectionOptimizer Provider => provider ?? (provider = new EmitReflectionOptimizer());
+        public static EmitReflectionOptimizer Provider => provider ??= new EmitReflectionOptimizer();
         private EmitReflectionOptimizer() { }
 
         public override Type UseType(Type type)
@@ -52,6 +52,8 @@ namespace ServiceStack.Text
             }
 
             var mi = propertyInfo.GetGetMethod(true);
+            if (mi == null)
+                return null;
             gen.Emit(mi.IsFinal ? OpCodes.Call : OpCodes.Callvirt, mi);
 
             if (propertyInfo.PropertyType.IsValueType)
@@ -70,6 +72,8 @@ namespace ServiceStack.Text
 
             var gen = getter.GetILGenerator();
             var mi = propertyInfo.GetGetMethod(true);
+            if (mi == null)
+                return null;
 
             if (typeof(T).IsValueType)
             {
