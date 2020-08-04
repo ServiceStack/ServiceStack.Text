@@ -202,7 +202,7 @@ namespace ServiceStack.Text
                         {
                             throw new FileNotFoundException(
                                 "Could not infer .NET Reference Assemblies path, e.g '{0}'.\n".Fmt(netFxReferenceBasePath + @"v4.0\") +
-                                "Provide path manually 'Env.ReferenceAssembyPath'.");
+                                "Provide path manually 'Env.ReferenceAssemblyPath'.");
                         }
                     }
                 }
