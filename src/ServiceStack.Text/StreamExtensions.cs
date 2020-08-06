@@ -119,7 +119,7 @@ namespace ServiceStack
         /// <summary>
         /// Reads the given stream up to the end, returning the MemoryStream Buffer as ReadOnlyMemory&lt;byte&gt;.
         /// </summary>
-        public static ReadOnlyMemory<byte> ReadFullyAsMemory(this Stream input) => 
+        public static ReadOnlyMemory<byte> ReadFullyAsMemory(this Stream input) =>
             ReadFullyAsMemory(input, DefaultBufferSize);
 
         /// <summary>
@@ -176,8 +176,8 @@ namespace ServiceStack
         }
 
         /// <summary>
-        /// Copies all the data from one stream into another, using the given 
-        /// buffer for transferring data. Note that the current contents of 
+        /// Copies all the data from one stream into another, using the given
+        /// buffer for transferring data. Note that the current contents of
         /// the buffer is ignored, so the buffer needn't be cleared beforehand.
         /// </summary>
         public static long CopyTo(this Stream input, Stream output, byte[] buffer)
@@ -313,18 +313,18 @@ namespace ServiceStack
         public static int AsyncBufferSize = 81920; // CopyToAsync() default value
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WriteAsync(this Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default) => 
+        public static Task WriteAsync(this Stream stream, ReadOnlyMemory<byte> value, CancellationToken token = default) =>
             MemoryProvider.Instance.WriteAsync(stream, value, token);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default) => 
+        public static Task WriteAsync(this Stream stream, byte[] bytes, CancellationToken token = default) =>
             MemoryProvider.Instance.WriteAsync(stream, bytes, token);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task CopyToAsync(this Stream input, Stream output, CancellationToken token = default) => input.CopyToAsync(output, AsyncBufferSize, token);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default) => 
+        public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default) =>
             MemoryProvider.Instance.WriteAsync(stream, text.AsSpan(), token);
 
         public static string ToMd5Hash(this Stream stream)
@@ -361,78 +361,66 @@ namespace ServiceStack
         public static string ReadToEnd(this MemoryStream ms, Encoding encoding)
         {
             ms.Position = 0;
-            try
+            if (ms.TryGetBuffer(out var buffer))
             {
-                var ret = encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
-                return ret;
+                return encoding.GetString(buffer.Array, buffer.Offset, buffer.Count);
             }
-            catch (UnauthorizedAccessException)
+
+            Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
+
+            using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen: true))
             {
-                Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
-                
-                using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen:true))
-                {
-                    return reader.ReadToEnd();
-                }
+                return reader.ReadToEnd();
             }
         }
 
         public static ReadOnlyMemory<byte> GetBufferAsMemory(this MemoryStream ms)
         {
-            try
+            if (ms.TryGetBuffer(out var buffer))
             {
-                return new ReadOnlyMemory<byte>(ms.GetBuffer(), 0, (int)ms.Length);
+                return new ReadOnlyMemory<byte>(buffer.Array, buffer.Offset, buffer.Count);
             }
-            catch (UnauthorizedAccessException)
-            {
-                Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
-                return new ReadOnlyMemory<byte>(ms.ToArray());
-            }
+
+            Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
+            return new ReadOnlyMemory<byte>(ms.ToArray());
         }
 
         public static ReadOnlySpan<byte> GetBufferAsSpan(this MemoryStream ms)
         {
-            try
+            if (ms.TryGetBuffer(out var buffer))
             {
-                return new ReadOnlySpan<byte>(ms.GetBuffer(), 0, (int)ms.Length);
+                return new ReadOnlySpan<byte>(buffer.Array, buffer.Offset, buffer.Count);
             }
-            catch (UnauthorizedAccessException)
-            {
-                Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
-                return new ReadOnlySpan<byte>(ms.ToArray());
-            }
+
+            Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
+            return new ReadOnlySpan<byte>(ms.ToArray());
         }
 
         public static byte[] GetBufferAsBytes(this MemoryStream ms)
         {
-            try
+            if (ms.TryGetBuffer(out var buffer))
             {
-                return ms.GetBuffer();
+                return buffer.Array;
             }
-            catch (UnauthorizedAccessException)
-            {
-                Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsBytes() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
-                return ms.ToArray();
-            }
+
+            Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsBytes() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
+            return ms.ToArray();
         }
 
         public static Task<string> ReadToEndAsync(this MemoryStream ms) => ReadToEndAsync(ms, JsConfig.UTF8Encoding);
         public static Task<string> ReadToEndAsync(this MemoryStream ms, Encoding encoding)
         {
             ms.Position = 0;
-            try
+            if (ms.TryGetBuffer(out var buffer))
             {
-                var ret = encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
-                return ret.InTask();
+                return encoding.GetString(buffer.Array, buffer.Offset, buffer.Count).InTask();
             }
-            catch (UnauthorizedAccessException)
+
+            Tracer.Instance.WriteWarning("MemoryStream in ReadToEndAsync() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
+
+            using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen: true))
             {
-                Tracer.Instance.WriteWarning("MemoryStream in ReadToEndAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
-                
-                using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen:true))
-                {
-                    return reader.ReadToEndAsync();
-                }
+                return reader.ReadToEndAsync();
             }
         }
 
@@ -446,7 +434,7 @@ namespace ServiceStack
             {
                 stream.Position = 0;
             }
-  
+
             using (var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true))
             {
                 return reader.ReadToEnd();
@@ -463,23 +451,23 @@ namespace ServiceStack
             {
                 stream.Position = 0;
             }
-  
+
             using (var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true))
             {
                 return reader.ReadToEndAsync();
             }
         }
 
-        public static Task WriteToAsync(this MemoryStream stream, Stream output, CancellationToken token=default(CancellationToken)) => 
+        public static Task WriteToAsync(this MemoryStream stream, Stream output, CancellationToken token=default(CancellationToken)) =>
             WriteToAsync(stream, output, JsConfig.UTF8Encoding, token);
-        
+
         public static async Task WriteToAsync(this MemoryStream stream, Stream output, Encoding encoding, CancellationToken token)
         {
-            try
+            if (stream.TryGetBuffer(out var buffer))
             {
-                await output.WriteAsync(stream.GetBuffer(), 0, (int) stream.Length, token).ConfigAwait();
+                await output.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token).ConfigAwait();
             }
-            catch (UnauthorizedAccessException)
+            else
             {
                 Tracer.Instance.WriteWarning("MemoryStream in WriteToAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
 
@@ -487,16 +475,16 @@ namespace ServiceStack
                 await output.WriteAsync(bytes, 0, bytes.Length, token).ConfigAwait();
             }
         }
-        
-        public static Task WriteToAsync(this Stream stream, Stream output, CancellationToken token=default(CancellationToken)) => 
+
+        public static Task WriteToAsync(this Stream stream, Stream output, CancellationToken token=default(CancellationToken)) =>
             WriteToAsync(stream, output, JsConfig.UTF8Encoding, token);
-        
-        
+
+
         public static Task WriteToAsync(this Stream stream, Stream output, Encoding encoding, CancellationToken token)
         {
             if (stream is MemoryStream ms)
                 return ms.WriteToAsync(output, encoding, token);
-            
+
             return stream.CopyToAsync(output, token);
         }
 
