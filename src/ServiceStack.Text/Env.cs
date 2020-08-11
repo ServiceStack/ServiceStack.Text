@@ -4,6 +4,9 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace ServiceStack.Text
 {
@@ -18,12 +21,12 @@ namespace ServiceStack.Text
             IsNetStandard = true;
             try
             {
-                IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
-                IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-                IsOSX  = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
-                IsNetCore3 = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Core 3");
+                IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+                IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+                IsOSX  = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+                IsNetCore3 = RuntimeInformation.FrameworkDescription.StartsWith(".NET Core 3");
                 
-                var fxDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+                var fxDesc = RuntimeInformation.FrameworkDescription;
                 IsMono = fxDesc.Contains("Mono");
                 IsNetCore = fxDesc.StartsWith(".NET Core", StringComparison.OrdinalIgnoreCase);
             }
@@ -79,7 +82,7 @@ namespace ServiceStack.Text
                     IsAndroid = AssemblyUtils.FindType("Android.Manifest") != null;
                     if (IsOSX && IsMono)
                     {
-                        var runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+                        var runtimeDir = RuntimeEnvironment.GetRuntimeDirectory();
                         //iOS detection no longer trustworthy so assuming iOS based on some current heuristics. TODO: improve iOS detection
                         IsIOS = runtimeDir.StartsWith("/private/var") ||
                                 runtimeDir.Contains("/CoreSimulator/Devices/"); 
@@ -99,11 +102,11 @@ namespace ServiceStack.Text
             VersionString = ServiceStackVersion.ToString(CultureInfo.InvariantCulture);
 
             ServerUserAgent = "ServiceStack/" 
-                + VersionString + " "
-                + PclExport.Instance.PlatformName
-                + (IsMono ? "/Mono" : "")
-                + (IsLinux ? "/Linux" : IsOSX ? "/OSX" : IsUnix ? "/Unix" : IsWindows ? "/Windows" : "/UnknownOS")
-                + (IsIOS ? "/iOS" : IsAndroid ? "/Android" : IsUWP ? "/UWP" : "");
+                              + VersionString + " "
+                              + PclExport.Instance.PlatformName
+                              + (IsMono ? "/Mono" : "")
+                              + (IsLinux ? "/Linux" : IsOSX ? "/OSX" : IsUnix ? "/Unix" : IsWindows ? "/Windows" : "/UnknownOS")
+                              + (IsIOS ? "/iOS" : IsAndroid ? "/Android" : IsUWP ? "/UWP" : "");
 
             __releaseDate = new DateTime(2001,01,01);
         }
@@ -216,7 +219,7 @@ namespace ServiceStack.Text
         {
             try
             {
-                IsNetNative = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Native", StringComparison.OrdinalIgnoreCase);
+                IsNetNative = RuntimeInformation.FrameworkDescription.StartsWith(".NET Native", StringComparison.OrdinalIgnoreCase);
                 return IsInAppContainer || IsNetNative;
             }
             catch (Exception) {}
@@ -294,9 +297,18 @@ namespace ServiceStack.Text
             }
         }
 
-        [System.Runtime.InteropServices.DllImport("kernel32.dll", ExactSpelling = true)]
+        [DllImport("kernel32.dll", ExactSpelling = true)]
         private static extern int GetCurrentApplicationUserModelId(ref uint applicationUserModelIdLength, byte[] applicationUserModelId);
  #endif
-        
+
+        public static bool ContinueOnCapturedContext = false;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ConfiguredTaskAwaitable ConfigAwait(this Task task) => 
+            task.ConfigureAwait(ContinueOnCapturedContext);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ConfiguredTaskAwaitable<object> ConfigAwait(this Task<object> task) => 
+            task.ConfigureAwait(ContinueOnCapturedContext);
     }
 }
