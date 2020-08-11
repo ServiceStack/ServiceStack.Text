@@ -311,6 +311,7 @@ namespace ServiceStack.Text
         public static ConfiguredTaskAwaitable<T> ConfigAwait<T>(this Task<T> task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);
 
+#if NETSTANDARD || NETCORE2_1
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConfiguredValueTaskAwaitable ConfigAwait(this ValueTask task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);
@@ -318,5 +319,7 @@ namespace ServiceStack.Text
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConfiguredValueTaskAwaitable<T> ConfigAwait<T>(this ValueTask<T> task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);
+#endif
+
     }
 }
