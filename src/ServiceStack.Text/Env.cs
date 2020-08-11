@@ -301,7 +301,7 @@ namespace ServiceStack.Text
         private static extern int GetCurrentApplicationUserModelId(ref uint applicationUserModelIdLength, byte[] applicationUserModelId);
  #endif
 
-        public static bool ContinueOnCapturedContext = false;
+        public const bool ContinueOnCapturedContext = false;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConfiguredTaskAwaitable ConfigAwait(this Task task) => 
@@ -309,6 +309,14 @@ namespace ServiceStack.Text
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConfiguredTaskAwaitable<T> ConfigAwait<T>(this Task<T> task) => 
+            task.ConfigureAwait(ContinueOnCapturedContext);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ConfiguredValueTaskAwaitable ConfigAwait(this ValueTask task) => 
+            task.ConfigureAwait(ContinueOnCapturedContext);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ConfiguredValueTaskAwaitable<T> ConfigAwait<T>(this ValueTask<T> task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);
     }
 }

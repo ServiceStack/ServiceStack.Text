@@ -477,14 +477,14 @@ namespace ServiceStack
         {
             try
             {
-                await output.WriteAsync(stream.GetBuffer(), 0, (int) stream.Length, token);
+                await output.WriteAsync(stream.GetBuffer(), 0, (int) stream.Length, token).ConfigAwait();
             }
             catch (UnauthorizedAccessException)
             {
                 Tracer.Instance.WriteWarning("MemoryStream in WriteToAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
 
                 var bytes = stream.ToArray();
-                await output.WriteAsync(bytes, 0, bytes.Length, token);
+                await output.WriteAsync(bytes, 0, bytes.Length, token).ConfigAwait();
             }
         }
         
@@ -511,7 +511,7 @@ namespace ServiceStack
         public static async Task<MemoryStream> CopyToNewMemoryStreamAsync(this Stream stream)
         {
             var ms = MemoryStreamFactory.GetStream();
-            await stream.CopyToAsync(ms);
+            await stream.CopyToAsync(ms).ConfigAwait();
             ms.Position = 0;
             return ms;
         }

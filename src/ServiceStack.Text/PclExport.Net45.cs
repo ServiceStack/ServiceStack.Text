@@ -156,8 +156,8 @@ namespace ServiceStack
 
         public override async Task WriteAndFlushAsync(Stream stream, byte[] bytes)
         {
-            await stream.WriteAsync(bytes, 0, bytes.Length);
-            await stream.FlushAsync();
+            await stream.WriteAsync(bytes, 0, bytes.Length).ConfigAwait();
+            await stream.FlushAsync().ConfigAwait();
         }
 
         public override void AddCompression(WebRequest webReq)

@@ -473,7 +473,7 @@ namespace ServiceStack.Text
         {
             try
             {
-                await stream.WriteAsync(bytes, offset, count, token);
+                await stream.WriteAsync(bytes, offset, count, token).ConfigAwait();
             }
             finally
             {
@@ -492,11 +492,12 @@ namespace ServiceStack.Text
                 value.CopyTo(bytes);
                 if (stream is MemoryStream ms)
                 {
+                    // ReSharper disable once MethodHasAsyncOverloadWithCancellation
                     ms.Write(bytes, 0, value.Length);
                 }
                 else
                 {
-                    await stream.WriteAsync(bytes, 0, value.Length, token);
+                    await stream.WriteAsync(bytes, 0, value.Length, token).ConfigAwait();
                 }
             }
             finally
@@ -534,7 +535,7 @@ namespace ServiceStack.Text
                 if (stream.CanSeek)
                     stream.Position = 0;
 
-                ms = await stream.CopyToNewMemoryStreamAsync();
+                ms = await stream.CopyToNewMemoryStreamAsync().ConfigAwait();
             }
 
             return Deserialize(ms, fromPool, type, deserializer);

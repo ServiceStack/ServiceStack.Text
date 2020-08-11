@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceStack.Text;
 
 namespace ServiceStack
 {
@@ -597,12 +598,12 @@ namespace ServiceStack
                 }
             }
 
-            using (var webRes = await webReq.GetResponseAsync())
+            using (var webRes = await webReq.GetResponseAsync().ConfigAwait())
             {
                 responseFilter?.Invoke((HttpWebResponse)webRes);
                 using (var stream = webRes.GetResponseStream())
                 {
-                    return await stream.ReadToEndAsync();
+                    return await stream.ReadToEndAsync().ConfigAwait();
                 }
             }
         }
@@ -720,7 +721,7 @@ namespace ServiceStack
                 }
             }
 
-            var webRes = await webReq.GetResponseAsync();
+            var webRes = await webReq.GetResponseAsync().ConfigAwait();
             responseFilter?.Invoke((HttpWebResponse)webRes);
 
             using (var stream = webRes.GetResponseStream())
@@ -837,13 +838,11 @@ namespace ServiceStack
 
             if (requestBody != null)
             {
-                using (var req = PclExport.Instance.GetRequestStream(webReq))
-                {
-                    await requestBody.CopyToAsync(req);
-                }
+                using var req = PclExport.Instance.GetRequestStream(webReq);
+                await requestBody.CopyToAsync(req).ConfigAwait();
             }
 
-            var webRes = await webReq.GetResponseAsync();
+            var webRes = await webReq.GetResponseAsync().ConfigAwait();
             responseFilter?.Invoke((HttpWebResponse)webRes);
 
             var stream = webRes.GetResponseStream();

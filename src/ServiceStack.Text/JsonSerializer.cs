@@ -202,7 +202,7 @@ namespace ServiceStack.Text
 
         public static async Task<T> DeserializeFromStreamAsync<T>(Stream stream)
         {
-            var obj = await MemoryProvider.Instance.DeserializeAsync(stream, typeof(T), DeserializeFromSpan);
+            var obj = await MemoryProvider.Instance.DeserializeAsync(stream, typeof(T), DeserializeFromSpan).ConfigAwait();
             return (T)obj;
         }
 

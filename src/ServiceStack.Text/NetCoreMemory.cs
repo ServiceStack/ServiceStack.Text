@@ -131,7 +131,7 @@ namespace ServiceStack.Memory
             if (stream is MemoryStream ms)
                 ms.Write(value.Span);
             else
-                await stream.WriteAsync(value, token);
+                await stream.WriteAsync(value, token).ConfigAwait();
         }
 
         public override object Deserialize(Stream stream, Type type, DeserializeStringSpanDelegate deserializer)
@@ -162,7 +162,7 @@ namespace ServiceStack.Memory
                 if (stream.CanSeek)
                     stream.Position = 0;
 
-                ms = await stream.CopyToNewMemoryStreamAsync();
+                ms = await stream.CopyToNewMemoryStreamAsync().ConfigAwait();
             }
 
             return Deserialize(ms, fromPool, type, deserializer);
