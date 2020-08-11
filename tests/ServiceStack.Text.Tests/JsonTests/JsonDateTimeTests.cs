@@ -452,7 +452,7 @@ namespace ServiceStack.Text.Tests.JsonTests
 
             using (JsConfig.With(new Config { AlwaysUseUtc = true }))
             {
-                Assert.AreEqual(DateTimeKind.Local, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
+                Assert.AreEqual(DateTimeKind.Utc, JsonSerializer.DeserializeFromString<Utils.DateTimeISO8601Tests.TestObject>(JsonSerializer.SerializeToString<Utils.DateTimeISO8601Tests.TestObject>(testObject)).Date.Kind);
             }
             using (JsConfig.With(new Config { AlwaysUseUtc = true, SkipDateTimeConversion = false }))
             {

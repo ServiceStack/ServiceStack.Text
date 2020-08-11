@@ -443,7 +443,7 @@ namespace ServiceStack.Text.Tests.Utils
 
             using (JsConfig.With(new Config { AlwaysUseUtc = true }))
             {
-                Assert.AreEqual(DateTimeKind.Local, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
+                Assert.AreEqual(DateTimeKind.Utc, TypeSerializer.DeserializeFromString<TestObject>(TypeSerializer.SerializeToString<TestObject>(testObject)).Date.Kind);
             }
             using (JsConfig.With(new Config { AlwaysUseUtc = true, SkipDateTimeConversion = false }))
             {
@@ -776,23 +776,33 @@ namespace ServiceStack.Text.Tests.Utils
     }
 
     [TestFixture]
-    public class UnixTimeScopeTests
+    public class ScopedDateTimeTests
     {
         [Test]
         public void Does_serialize_to_UnixTime_when_scoped()
         {
             var dto = new TestObject { Date = new DateTime(2001, 01, 01, 0, 0, 0, DateTimeKind.Utc) };
 
-            using (var config = JsConfig.BeginScope())
-            {
-                config.DateHandler = DateHandler.UnixTime;
+            using var config = JsConfig.With(new Config { DateHandler = DateHandler.UnixTime });
+            var json = dto.ToJson();
+            Assert.That(json, Is.EquivalentTo("{\"Date\":978307200}"));
 
-                var json = dto.ToJson();
-                Assert.That(json, Is.EquivalentTo("{\"Date\":978307200}"));
+            var fromJson = JsonSerializer.DeserializeFromString<TestObject>(json);
+            Assert.That(fromJson.Date, Is.EqualTo(dto.Date));
+        }
 
-                var fromJson = JsonSerializer.DeserializeFromString<TestObject>(json);
-                Assert.That(fromJson.Date, Is.EqualTo(dto.Date));
-            }
+        [Test]
+        [TestCase("2020-08-07T09:36:20.960Z")]
+        [TestCase("2020-08-07T09:36:20.96Z")]
+        [TestCase("2020-08-07T09:36:20.9Z")]
+        [TestCase("2020-08-07T09:36:20Z")]
+        public void Does_preserve_UTC_timezone_with_all_fractions(string dateFmt)
+        {
+            using var scope = JsConfig.CreateScope("AssumeUtc:false,AlwaysUseUtc:true,SkipDateTimeConversion:true");
+            var date = JsonSerializer.DeserializeFromString<DateTime>(dateFmt);
+            Assert.That(date.Kind, Is.EqualTo(DateTimeKind.Utc));
+            Assert.That(date, Is.EqualTo(new DateTime(2020, 08, 07, 9, 36, 20))
+                .Within(TimeSpan.FromSeconds(1)));
         }
     }
 }
