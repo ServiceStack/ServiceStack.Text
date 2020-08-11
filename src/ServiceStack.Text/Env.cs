@@ -308,7 +308,7 @@ namespace ServiceStack.Text
             task.ConfigureAwait(ContinueOnCapturedContext);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ConfiguredTaskAwaitable<object> ConfigAwait(this Task<object> task) => 
+        public static ConfiguredTaskAwaitable<T> ConfigAwait<T>(this Task<T> task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);
     }
 }
