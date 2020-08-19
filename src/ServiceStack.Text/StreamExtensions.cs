@@ -361,10 +361,21 @@ namespace ServiceStack
         public static string ReadToEnd(this MemoryStream ms, Encoding encoding)
         {
             ms.Position = 0;
+
+#if NETSTANDARD || NETCORE2_1
             if (ms.TryGetBuffer(out var buffer))
             {
                 return encoding.GetString(buffer.Array, buffer.Offset, buffer.Count);
             }
+#else
+            try
+            {
+                return encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length);
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+#endif
 
             Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
 
@@ -376,10 +387,20 @@ namespace ServiceStack
 
         public static ReadOnlyMemory<byte> GetBufferAsMemory(this MemoryStream ms)
         {
+#if NETSTANDARD || NETCORE2_1
             if (ms.TryGetBuffer(out var buffer))
             {
                 return new ReadOnlyMemory<byte>(buffer.Array, buffer.Offset, buffer.Count);
             }
+#else
+            try
+            {
+                return new ReadOnlyMemory<byte>(ms.GetBuffer(), 0, (int) ms.Length);
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+#endif
 
             Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
             return new ReadOnlyMemory<byte>(ms.ToArray());
@@ -387,10 +408,20 @@ namespace ServiceStack
 
         public static ReadOnlySpan<byte> GetBufferAsSpan(this MemoryStream ms)
         {
+#if NETSTANDARD || NETCORE2_1
             if (ms.TryGetBuffer(out var buffer))
             {
                 return new ReadOnlySpan<byte>(buffer.Array, buffer.Offset, buffer.Count);
             }
+#else
+            try
+            {
+                return new ReadOnlySpan<byte>(ms.GetBuffer(), 0, (int) ms.Length);
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+#endif
 
             Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsSpan() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
             return new ReadOnlySpan<byte>(ms.ToArray());
@@ -398,10 +429,20 @@ namespace ServiceStack
 
         public static byte[] GetBufferAsBytes(this MemoryStream ms)
         {
+#if NETSTANDARD || NETCORE2_1
             if (ms.TryGetBuffer(out var buffer))
             {
                 return buffer.Array;
             }
+#else
+            try
+            {
+                return ms.GetBuffer();
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+#endif
 
             Tracer.Instance.WriteWarning("MemoryStream in GetBufferAsBytes() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
             return ms.ToArray();
@@ -411,10 +452,21 @@ namespace ServiceStack
         public static Task<string> ReadToEndAsync(this MemoryStream ms, Encoding encoding)
         {
             ms.Position = 0;
+
+#if NETSTANDARD || NETCORE2_1
             if (ms.TryGetBuffer(out var buffer))
             {
                 return encoding.GetString(buffer.Array, buffer.Offset, buffer.Count).InTask();
             }
+#else
+            try
+            {
+                return encoding.GetString(ms.GetBuffer(), 0, (int) ms.Length).InTask();
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+#endif
 
             Tracer.Instance.WriteWarning("MemoryStream in ReadToEndAsync() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
 
@@ -463,17 +515,26 @@ namespace ServiceStack
 
         public static async Task WriteToAsync(this MemoryStream stream, Stream output, Encoding encoding, CancellationToken token)
         {
+#if NETSTANDARD || NETCORE2_1
             if (stream.TryGetBuffer(out var buffer))
             {
                 await output.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token).ConfigAwait();
+                return;
             }
-            else
+#else
+            try
             {
-                Tracer.Instance.WriteWarning("MemoryStream in WriteToAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
-
-                var bytes = stream.ToArray();
-                await output.WriteAsync(bytes, 0, bytes.Length, token).ConfigAwait();
+                await output.WriteAsync(stream.GetBuffer(), 0, (int) stream.Length, token).ConfigAwait();
+                return;
             }
+            catch (UnauthorizedAccessException)
+            {
+            }
+#endif
+            Tracer.Instance.WriteWarning("MemoryStream in WriteToAsync() wasn't created with a publiclyVisible:true byte[] bufffer, falling back to slow impl");
+
+            var bytes = stream.ToArray();
+            await output.WriteAsync(bytes, 0, bytes.Length, token).ConfigAwait();
         }
 
         public static Task WriteToAsync(this Stream stream, Stream output, CancellationToken token=default(CancellationToken)) =>
