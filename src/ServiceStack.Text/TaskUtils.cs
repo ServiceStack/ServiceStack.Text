@@ -12,20 +12,10 @@ namespace ServiceStack
     public static class TaskUtils
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<T> FromResult<T>(T result)
-        {
-            var taskSource = new TaskCompletionSource<T>();
-            taskSource.SetResult(result);
-            return taskSource.Task;
-        }
+        public static Task<T> FromResult<T>(T result) => Task.FromResult(result);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<T> InTask<T>(this T result)
-        {
-            var taskSource = new TaskCompletionSource<T>();
-            taskSource.SetResult(result);
-            return taskSource.Task;
-        }
+        public static Task<T> InTask<T>(this T result) => Task.FromResult(result);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<T> InTask<T>(this Exception ex)
@@ -36,15 +26,9 @@ namespace ServiceStack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsSuccess(this Task task)
-        {
-            return !task.IsFaulted && task.IsCompleted;
-        }
+        public static bool IsSuccess(this Task task) => !task.IsFaulted && task.IsCompleted;
 
-        public static Task<To> Cast<From, To>(this Task<From> task) where To : From
-        {
-            return task.Then(x => (To)x);
-        }
+        public static Task<To> Cast<From, To>(this Task<From> task) where To : From => task.Then(x => (To)x);
 
         public static TaskScheduler SafeTaskScheduler()
         {
