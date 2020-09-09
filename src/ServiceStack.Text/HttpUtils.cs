@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ServiceStack.Text;
 
@@ -935,7 +936,18 @@ namespace ServiceStack
                 return null;
 
             var errorResponse = (HttpWebResponse)webEx.Response;
-            return errorResponse.GetResponseStream().ReadToEnd(UseEncoding);
+            using var responseStream = errorResponse.GetResponseStream();
+            return responseStream.ReadToEnd(UseEncoding);
+        }
+
+        public static async Task<string> GetResponseBodyAsync(this Exception ex, CancellationToken token=default)
+        {
+            if (!(ex is WebException webEx) || webEx.Response == null || webEx.Status != WebExceptionStatus.ProtocolError) 
+                return null;
+
+            var errorResponse = (HttpWebResponse)webEx.Response;
+            using var responseStream = errorResponse.GetResponseStream();
+            return await responseStream.ReadToEndAsync(UseEncoding).ConfigAwait();
         }
 
         public static string ReadToEnd(this WebResponse webRes)
