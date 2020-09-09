@@ -549,23 +549,19 @@ namespace ServiceStack
 
             if (requestBody != null)
             {
-                using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
-                using (var writer = new StreamWriter(reqStream, UseEncoding))
-                {
-                    writer.Write(requestBody);
-                }
+                using var reqStream = PclExport.Instance.GetRequestStream(webReq);
+                using var writer = new StreamWriter(reqStream, UseEncoding);
+                writer.Write(requestBody);
             }
             else if (method != null && HasRequestBody(method))
             {
                 webReq.ContentLength = 0;
             }
 
-            using (var webRes = PclExport.Instance.GetResponse(webReq))
-            using (var stream = webRes.GetResponseStream())
-            {
-                responseFilter?.Invoke((HttpWebResponse)webRes);
-                return stream.ReadToEnd(UseEncoding);
-            }
+            using var webRes = webReq.GetResponse();
+            using var stream = webRes.GetResponseStream();
+            responseFilter?.Invoke((HttpWebResponse)webRes);
+            return stream.ReadToEnd(UseEncoding);
         }
 
         public static async Task<string> SendStringToUrlAsync(this string url, string method = null, string requestBody = null,
@@ -591,21 +587,15 @@ namespace ServiceStack
 
             if (requestBody != null)
             {
-                using (var reqStream = PclExport.Instance.GetRequestStream(webReq))
-                using (var writer = new StreamWriter(reqStream, UseEncoding))
-                {
-                    writer.Write(requestBody);
-                }
+                using var reqStream = PclExport.Instance.GetRequestStream(webReq);
+                using var writer = new StreamWriter(reqStream, UseEncoding);
+                await writer.WriteAsync(requestBody);
             }
 
-            using (var webRes = await webReq.GetResponseAsync().ConfigAwait())
-            {
-                responseFilter?.Invoke((HttpWebResponse)webRes);
-                using (var stream = webRes.GetResponseStream())
-                {
-                    return await stream.ReadToEndAsync().ConfigAwait();
-                }
-            }
+            using var webRes = await webReq.GetResponseAsync().ConfigAwait();
+            responseFilter?.Invoke((HttpWebResponse)webRes);
+            using var stream = webRes.GetResponseStream();
+            return await stream.ReadToEndAsync().ConfigAwait();
         }
 
         public static byte[] GetBytesFromUrl(this string url, string accept = "*/*",
@@ -950,22 +940,24 @@ namespace ServiceStack
 
         public static string ReadToEnd(this WebResponse webRes)
         {
-            using (var stream = webRes.GetResponseStream())
-            {
-                return stream.ReadToEnd(UseEncoding);
-            }
+            using var stream = webRes.GetResponseStream();
+            return stream.ReadToEnd(UseEncoding);
+        }
+
+        public static Task<string> ReadToEndAsync(this WebResponse webRes)
+        {
+            using var stream = webRes.GetResponseStream();
+            return stream.ReadToEndAsync(UseEncoding);
         }
 
         public static IEnumerable<string> ReadLines(this WebResponse webRes)
         {
-            using (var stream = webRes.GetResponseStream())
-            using (var reader = new StreamReader(stream, UseEncoding, true, 1024, leaveOpen:true))
+            using var stream = webRes.GetResponseStream();
+            using var reader = new StreamReader(stream, UseEncoding, true, 1024, leaveOpen:true);
+            string line;
+            while ((line = reader.ReadLine()) != null)
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    yield return line;
-                }
+                yield return line;
             }
         }
 
@@ -974,11 +966,24 @@ namespace ServiceStack
             try
             {
                 var webReq = WebRequest.Create(url);
-                using (var webRes = PclExport.Instance.GetResponse(webReq))
-                {
-                    webRes.ReadToEnd();
-                    return null;
-                }
+                using var webRes = PclExport.Instance.GetResponse(webReq);
+                webRes.ReadToEnd();
+                return null;
+            }
+            catch (WebException webEx)
+            {
+                return (HttpWebResponse)webEx.Response;
+            }
+        }
+
+        public static async Task<HttpWebResponse> GetErrorResponseAsync(this string url)
+        {
+            try
+            {
+                var webReq = WebRequest.Create(url);
+                using var webRes = await webReq.GetResponseAsync();
+                await webRes.ReadToEndAsync();
+                return null;
             }
             catch (WebException webEx)
             {
@@ -1091,16 +1096,11 @@ namespace ServiceStack
                 return;
             }
 
-            using (var outputStream = PclExport.Instance.GetRequestStream(httpReq))
-            {
-                outputStream.Write(headerBytes, 0, headerBytes.Length);
-
-                fileStream.CopyTo(outputStream, 4096);
-
-                outputStream.Write(boundaryBytes, 0, boundaryBytes.Length);
-
-                PclExport.Instance.CloseStream(outputStream);
-            }
+            using var outputStream = PclExport.Instance.GetRequestStream(httpReq);
+            outputStream.Write(headerBytes, 0, headerBytes.Length);
+            fileStream.CopyTo(outputStream, 4096);
+            outputStream.Write(boundaryBytes, 0, boundaryBytes.Length);
+            PclExport.Instance.CloseStream(outputStream);
         }
 
         public static void UploadFile(this WebRequest webRequest, Stream fileStream, string fileName)
@@ -1269,7 +1269,7 @@ namespace ServiceStack
             throw new NotSupportedException("Unknown mimeType: " + mimeType);
         }
         
-        //lowercases and trims left part of content-type prior ';'
+        //Lower cases and trims left part of content-type prior ';'
         public static string GetRealContentType(string contentType)
         {
             if (contentType == null)

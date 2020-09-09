@@ -43,13 +43,11 @@ namespace ServiceStack
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            using (var reader = new StreamReader(stream))
+            using var reader = new StreamReader(stream);
+            string line;
+            while ((line = reader.ReadLine()) != null)
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    yield return line;
-                }
+                yield return line;
             }
         }
 
@@ -103,17 +101,15 @@ namespace ServiceStack
 
             // We could do all our own work here, but using MemoryStream is easier
             // and likely to be just as efficient.
-            using (var tempStream = MemoryStreamFactory.GetStream())
+            using var tempStream = MemoryStreamFactory.GetStream();
+            CopyTo(input, tempStream, buffer);
+            // No need to copy the buffer if it's the right size
+            if (tempStream.Length == tempStream.GetBuffer().Length)
             {
-                CopyTo(input, tempStream, buffer);
-                // No need to copy the buffer if it's the right size
-                if (tempStream.Length == tempStream.GetBuffer().Length)
-                {
-                    return tempStream.GetBuffer();
-                }
-                // Okay, make a copy that's the right size
-                return tempStream.ToArray();
+                return tempStream.GetBuffer();
             }
+            // Okay, make a copy that's the right size
+            return tempStream.ToArray();
         }
 
         /// <summary>
@@ -379,10 +375,8 @@ namespace ServiceStack
 
             Tracer.Instance.WriteWarning("MemoryStream wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
 
-            using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen: true))
-            {
-                return reader.ReadToEnd();
-            }
+            using var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen: true);
+            return reader.ReadToEnd();
         }
 
         public static ReadOnlyMemory<byte> GetBufferAsMemory(this MemoryStream ms)
@@ -470,10 +464,8 @@ namespace ServiceStack
 
             Tracer.Instance.WriteWarning("MemoryStream in ReadToEndAsync() wasn't created with a publiclyVisible:true byte[] buffer, falling back to slow impl");
 
-            using (var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen: true))
-            {
-                return reader.ReadToEndAsync();
-            }
+            using var reader = new StreamReader(ms, encoding, true, DefaultBufferSize, leaveOpen: true);
+            return reader.ReadToEndAsync();
         }
 
         public static string ReadToEnd(this Stream stream) => ReadToEnd(stream, JsConfig.UTF8Encoding);
@@ -487,10 +479,8 @@ namespace ServiceStack
                 stream.Position = 0;
             }
 
-            using (var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true))
-            {
-                return reader.ReadToEnd();
-            }
+            using var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true);
+            return reader.ReadToEnd();
         }
 
         public static Task<string> ReadToEndAsync(this Stream stream) => ReadToEndAsync(stream, JsConfig.UTF8Encoding);
@@ -504,10 +494,8 @@ namespace ServiceStack
                 stream.Position = 0;
             }
 
-            using (var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true))
-            {
-                return reader.ReadToEndAsync();
-            }
+            using var reader = new StreamReader(stream, encoding, true, DefaultBufferSize, leaveOpen:true);
+            return reader.ReadToEndAsync();
         }
 
         public static Task WriteToAsync(this MemoryStream stream, Stream output, CancellationToken token=default(CancellationToken)) =>

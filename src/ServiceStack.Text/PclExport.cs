@@ -181,6 +181,11 @@ namespace ServiceStack
             }
         }
 
+        public virtual Task<WebResponse> GetResponseAsync(WebRequest webRequest)
+        {
+            return webRequest.GetResponseAsync();
+        }
+
         public virtual bool IsDebugBuild(Assembly assembly)
         {
             return assembly.AllAttributes()
