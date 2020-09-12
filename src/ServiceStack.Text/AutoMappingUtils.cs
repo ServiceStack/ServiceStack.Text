@@ -527,19 +527,6 @@ namespace ServiceStack
             return to;
         }
 
-        [Obsolete("Use PopulateWithNonDefaultValues")]
-        public static object PopulateInstance(this object to, object from)
-        {
-            if (to == null || from == null)
-                return null;
-
-            var assignmentDefinition = GetAssignmentDefinition(to.GetType(), from.GetType());
-
-            assignmentDefinition.PopulateWithNonDefaultValues(to, from);
-
-            return to;
-        }
-
         public static To PopulateWithNonDefaultValues<To, From>(this To to, From from)
         {
             if (Equals(to, default(To)) || Equals(from, default(From))) return default(To);

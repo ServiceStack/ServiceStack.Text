@@ -973,6 +973,30 @@ namespace ServiceStack
             }
         }
 
+        public static void PopulateInstance(this IEnumerable<KeyValuePair<string, string>> values, object instance)
+        {
+            if (values == null || instance == null)
+                return;
+            
+            PopulateInstanceInternal(values, instance, instance.GetType());
+        }
+
+        private static void PopulateInstanceInternal(IEnumerable<KeyValuePair<string, string>> values, object to, Type type)
+        {
+            if (!toObjectMapCache.TryGetValue(type, out var def))
+                toObjectMapCache[type] = def = CreateObjectDictionaryDefinition(type);
+
+            foreach (var entry in values)
+            {
+                if (!def.FieldsMap.TryGetValue(entry.Key, out var fieldDef) &&
+                    !def.FieldsMap.TryGetValue(entry.Key.ToPascalCase(), out fieldDef)
+                    || entry.Value == null)
+                    continue;
+                
+                fieldDef.SetValue(to, entry.Value);
+            }
+        }
+
         public static T FromObjectDictionary<T>(this IEnumerable<KeyValuePair<string, object>> values)
         {
             return (T)values.FromObjectDictionary(typeof(T));
