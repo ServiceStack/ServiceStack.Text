@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using ServiceStack.Web;
 
@@ -122,5 +123,13 @@ namespace ServiceStack.Text.Tests
             var dto = new RawRequest { Id = 1, RequestStream = new MemoryStream() };
             Serialize(dto, includeXml: false);
         }
+
+        [Test]
+        public void Serializing_Tasks_throws_NotSupportedException()
+        {
+            Assert.Throws<NotSupportedException>(() => Task.FromResult(1).ToJson());
+            Assert.Throws<NotSupportedException>(() => Task.FromResult(1).ToJsv());
+        }
+
     }
 }
