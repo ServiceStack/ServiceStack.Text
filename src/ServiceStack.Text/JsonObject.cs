@@ -17,13 +17,17 @@ namespace ServiceStack.Text
         /// <summary>
         /// Get JSON string value converted to T
         /// </summary>
-        public static T Get<T>(this Dictionary<string, string> map, string key, T defaultValue = default(T))
+        public static T Get<T>(this Dictionary<string, string> map, string key, T defaultValue = default)
         {
+            if (map == null)
+                return default;
             return map.TryGetValue(key, out var strVal) ? JsonSerializer.DeserializeFromString<T>(strVal) : defaultValue;
         }
 
         public static T[] GetArray<T>(this Dictionary<string, string> map, string key)
         {
+            if (map == null)
+                return TypeConstants<T>.EmptyArray;
             return map.TryGetValue(key, out var value) 
                 ? (map is JsonObject obj ? value.FromJson<T[]>() : value.FromJsv<T[]>()) 
                 : TypeConstants<T>.EmptyArray;
@@ -34,6 +38,8 @@ namespace ServiceStack.Text
         /// </summary>
         public static string Get(this Dictionary<string, string> map, string key)
         {
+            if (map == null)
+                return null;
             return map.TryGetValue(key, out var strVal) 
                 ? JsonTypeSerializer.Instance.UnescapeString(strVal) 
                 : null;
@@ -56,11 +62,11 @@ namespace ServiceStack.Text
             return results;
         }
 
-        public static T ConvertTo<T>(this JsonObject jsonObject, Func<JsonObject, T> converFn)
+        public static T ConvertTo<T>(this JsonObject jsonObject, Func<JsonObject, T> convertFn)
         {
             return jsonObject == null
-                ? default(T)
-                : converFn(jsonObject);
+                ? default
+                : convertFn(jsonObject);
         }
 
         public static Dictionary<string, string> ToDictionary(this JsonObject jsonObject)
