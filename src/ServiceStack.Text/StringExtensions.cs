@@ -1242,6 +1242,31 @@ namespace ServiceStack
         }
 #endif
 
+        public static string ToHex(this byte[] hashBytes, bool upper=false)
+        {
+            var len = hashBytes.Length * 2;
+            var chars = new char[len];
+            var i = 0;
+            var index = 0;
+            for (i = 0; i < len; i += 2)
+            {
+                var b = hashBytes[index++];
+                chars[i] = GetHexValue(b / 16, upper);
+                chars[i + 1] = GetHexValue(b % 16, upper);
+            }
+            return new string(chars);
+        }
+ 
+        private static char GetHexValue(int i, bool upper)
+        {
+            if (i < 0 || i > 15)
+                throw new ArgumentOutOfRangeException(nameof(i), "must be between 0 and 15");
+
+            return i < 10 
+                ? (char) (i + '0') 
+                : (char) (i - 10 + (upper ? 'A' : 'a'));
+        }
+        
     }
 }
 
