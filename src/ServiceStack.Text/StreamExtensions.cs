@@ -113,6 +113,62 @@ namespace ServiceStack
         }
 
         /// <summary>
+        /// Reads the given stream up to the end, returning the data as a byte array.
+        /// </summary>
+        public static Task<byte[]> ReadFullyAsync(this Stream input, CancellationToken token=default) => 
+            ReadFullyAsync(input, DefaultBufferSize, token);
+
+        /// <summary>
+        /// Reads the given stream up to the end, returning the data as a byte
+        /// array, using the given buffer size.
+        /// </summary>
+        public static async Task<byte[]> ReadFullyAsync(this Stream input, int bufferSize, CancellationToken token=default)
+        {
+            if (bufferSize < 1)
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
+
+            byte[] buffer = BufferPool.GetBuffer(bufferSize);
+            try
+            {
+                return await ReadFullyAsync(input, buffer, token);
+            }
+            finally
+            {
+                BufferPool.ReleaseBufferToPool(ref buffer);
+            }
+        }
+
+        /// <summary>
+        /// Reads the given stream up to the end, returning the data as a byte
+        /// array, using the given buffer for transferring data. Note that the
+        /// current contents of the buffer is ignored, so the buffer needn't
+        /// be cleared beforehand.
+        /// </summary>
+        public static async Task<byte[]> ReadFullyAsync(this Stream input, byte[] buffer, CancellationToken token=default)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            if (buffer.Length == 0)
+                throw new ArgumentException("Buffer has length of 0");
+
+            // We could do all our own work here, but using MemoryStream is easier
+            // and likely to be just as efficient.
+            using var tempStream = MemoryStreamFactory.GetStream();
+            await CopyToAsync(input, tempStream, buffer, token);
+            // No need to copy the buffer if it's the right size
+            if (tempStream.Length == tempStream.GetBuffer().Length)
+            {
+                return tempStream.GetBuffer();
+            }
+            // Okay, make a copy that's the right size
+            return tempStream.ToArray();
+        }
+
+        /// <summary>
         /// Reads the given stream up to the end, returning the MemoryStream Buffer as ReadOnlyMemory&lt;byte&gt;.
         /// </summary>
         public static ReadOnlyMemory<byte> ReadFullyAsMemory(this Stream input) =>
@@ -147,6 +203,44 @@ namespace ServiceStack
 
             var ms = new MemoryStream();
             CopyTo(input, ms, buffer);
+            return ms.GetBufferAsMemory();
+        }
+
+        /// <summary>
+        /// Reads the given stream up to the end, returning the MemoryStream Buffer as ReadOnlyMemory&lt;byte&gt;.
+        /// </summary>
+        public static Task<ReadOnlyMemory<byte>> ReadFullyAsMemoryAsync(this Stream input, CancellationToken token=default) =>
+            ReadFullyAsMemoryAsync(input, DefaultBufferSize, token);
+
+        /// <summary>
+        /// Reads the given stream up to the end, returning the MemoryStream Buffer as ReadOnlyMemory&lt;byte&gt;.
+        /// </summary>
+        public static async Task<ReadOnlyMemory<byte>> ReadFullyAsMemoryAsync(this Stream input, int bufferSize, CancellationToken token=default)
+        {
+            byte[] buffer = BufferPool.GetBuffer(bufferSize);
+            try
+            {
+                return await ReadFullyAsMemoryAsync(input, buffer, token);
+            }
+            finally
+            {
+                BufferPool.ReleaseBufferToPool(ref buffer);
+            }
+        }
+
+        public static async Task<ReadOnlyMemory<byte>> ReadFullyAsMemoryAsync(this Stream input, byte[] buffer, CancellationToken token=default)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            if (buffer.Length == 0)
+                throw new ArgumentException("Buffer has length of 0");
+
+            var ms = new MemoryStream();
+            await CopyToAsync(input, ms, buffer, token);
             return ms.GetBufferAsMemory();
         }
 
@@ -195,6 +289,35 @@ namespace ServiceStack
             while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
             {
                 output.Write(buffer, 0, read);
+                total += read;
+            }
+            return total;
+        }
+
+        /// <summary>
+        /// Copies all the data from one stream into another, using the given
+        /// buffer for transferring data. Note that the current contents of
+        /// the buffer is ignored, so the buffer needn't be cleared beforehand.
+        /// </summary>
+        public static async Task<long> CopyToAsync(this Stream input, Stream output, byte[] buffer, CancellationToken token=default)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            if (output == null)
+                throw new ArgumentNullException(nameof(output));
+
+            if (buffer.Length == 0)
+                throw new ArgumentException("Buffer has length of 0");
+
+            long total = 0;
+            int read;
+            while ((read = await input.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+            {
+                await output.WriteAsync(buffer, 0, read, token);
                 total += read;
             }
             return total;
