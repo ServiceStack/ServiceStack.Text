@@ -120,10 +120,27 @@ namespace ServiceStack.Text
         public bool TreatEnumAsInteger { get; set; }
         public bool ExcludeTypeInfo { get; set; }
         public bool IncludeTypeInfo { get; set; }
-        public string TypeAttr { get; set; }
+
+        private string typeAttr;
+        public string TypeAttr
+        {
+            get => typeAttr;
+            set
+            {
+                typeAttrSpan = null;
+                jsonTypeAttrInObject = null;
+                jsvTypeAttrInObject = null;
+                typeAttr = value;
+            }
+        }
+        ReadOnlyMemory<char>? typeAttrSpan = null;
+        public ReadOnlyMemory<char> TypeAttrMemory => typeAttrSpan ??= TypeAttr.AsMemory(); 
         public string DateTimeFormat { get; set; }
-        internal string JsonTypeAttrInObject { get; set; }
-        internal string JsvTypeAttrInObject { get; set; }
+        private string jsonTypeAttrInObject;
+        internal string JsonTypeAttrInObject => jsonTypeAttrInObject ??= JsonTypeSerializer.GetTypeAttrInObject(TypeAttr);
+        private string jsvTypeAttrInObject;
+        internal string JsvTypeAttrInObject => jsvTypeAttrInObject ??= JsvTypeSerializer.GetTypeAttrInObject(TypeAttr);
+        
         public Func<Type, string> TypeWriter { get; set; }
         public Func<string, Type> TypeFinder { get; set; }
         public Func<string, object> ParsePrimitiveFn { get; set; }
@@ -180,8 +197,6 @@ namespace ServiceStack.Text
             IncludeTypeInfo = false,
             TypeAttr = JsWriter.TypeAttr,
             DateTimeFormat = null,
-            JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(JsWriter.TypeAttr),
-            JsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(JsWriter.TypeAttr),
             TypeWriter = AssemblyUtils.WriteType,
             TypeFinder = AssemblyUtils.FindType,
             ParsePrimitiveFn = null,
@@ -222,8 +237,6 @@ namespace ServiceStack.Text
             IncludeTypeInfo = config.IncludeTypeInfo;
             TypeAttr = config.TypeAttr;
             DateTimeFormat = config.DateTimeFormat;
-            JsonTypeAttrInObject = config.JsonTypeAttrInObject;
-            JsvTypeAttrInObject = config.JsvTypeAttrInObject;
             TypeWriter = config.TypeWriter;
             TypeFinder = config.TypeFinder;
             ParsePrimitiveFn = config.ParsePrimitiveFn;

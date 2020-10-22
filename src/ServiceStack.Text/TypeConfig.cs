@@ -30,8 +30,7 @@ namespace ServiceStack.Text
     {
         internal static TypeConfig config;
 
-        static TypeConfig Config => 
-            config ?? (config = Create());
+        static TypeConfig Config => config ??= Create();
 
         public static PropertyInfo[] Properties
         {

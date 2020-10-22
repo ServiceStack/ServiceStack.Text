@@ -406,21 +406,17 @@ namespace ServiceStack.Text
             {
                 var config = Config.AssertNotInit();
                 config.TypeAttr = value;
-                config.JsonTypeAttrInObject = JsonTypeSerializer.GetTypeAttrInObject(value);
-                config.JsvTypeAttrInObject = JsvTypeSerializer.GetTypeAttrInObject(value);
             }
         }
 
         internal static string JsonTypeAttrInObject
         {
             get => JsConfigScope.Current != null ? JsConfigScope.Current.JsonTypeAttrInObject : Config.Instance.JsonTypeAttrInObject;
-            set => Config.AssertNotInit().JsonTypeAttrInObject = value;
         }
 
         internal static string JsvTypeAttrInObject
         {
             get => JsConfigScope.Current != null ? JsConfigScope.Current.JsvTypeAttrInObject : Config.Instance.JsvTypeAttrInObject;
-            set => Config.AssertNotInit().JsvTypeAttrInObject = value;
         }
 
         public static Func<Type, string> TypeWriter

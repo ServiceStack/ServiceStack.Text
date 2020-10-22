@@ -8,8 +8,6 @@ namespace ServiceStack.Text.Common
     {
         private static readonly JsonTypeSerializer Serializer = (JsonTypeSerializer)JsonTypeSerializer.Instance;
 
-        static readonly ReadOnlyMemory<char> typeAttr = JsWriter.TypeAttr.AsMemory();
-
         internal static object StringToType(ReadOnlySpan<char> strType,
             TypeConfig typeConfig,
             EmptyCtorDelegate ctorFn,
@@ -34,6 +32,7 @@ namespace ServiceStack.Text.Common
                 return ctorFn();
 
             var config = JsConfig.GetConfig();
+            var typeAttr = config.TypeAttrMemory;
 
             object instance = null;
             var lenient = config.PropertyConvention == PropertyConvention.Lenient;

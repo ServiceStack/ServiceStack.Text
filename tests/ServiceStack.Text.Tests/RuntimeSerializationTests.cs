@@ -300,6 +300,37 @@ namespace ServiceStack.Text.Tests
             JS.UnConfigure();
         }
 
+        [Test]
+        public void ServiceStack_AllowRuntimeType()
+        {
+            // Initialize static delegate to allow all types to be deserialized with the type attribute
+            JsConfig.AllowRuntimeType = _ => true;
+            JsConfig.TypeAttr = "$type";
+            var example = new Example { Property = new MyProperty { Value = "Hello serializer" } };
 
+            var serialized = JsonSerializer.SerializeToString(example);
+            var deserialized = JsonSerializer.DeserializeFromString<Example>(serialized);
+            Assert.IsNotNull(deserialized?.Property);
+
+            // Now the same process with a config scope that has a TypeAttr that differs from the global TypeAttr value
+            using var scope = JsConfig.With(new Config { TypeAttr = "_type" });
+            serialized = JsonSerializer.SerializeToString(example);
+            deserialized = JsonSerializer.DeserializeFromString<Example>(serialized);
+            Assert.IsNotNull(deserialized?.Property);
+            
+            JsConfig.Reset();
+        }
+
+        private class Example
+        {
+            public IProperty Property { get; set; }
+        }
+        private interface IProperty
+        {
+        }
+        private class MyProperty : IProperty
+        {
+            public string Value { get; set; }
+        }
     }
 }
