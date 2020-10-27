@@ -1076,6 +1076,15 @@ namespace ServiceStack
             return tcs.Task;
         }
 
+        private static byte[] GetHeaderBytes(string fileName, string mimeType, string field, string boundary)
+        {
+            var header = "\r\n--" + boundary +
+                         $"\r\nContent-Disposition: form-data; name=\"{field}\"; filename=\"{fileName}\"\r\nContent-Type: {mimeType}\r\n\r\n";
+
+            var headerBytes = header.ToAsciiBytes();
+            return headerBytes;
+        }
+
         public static void UploadFile(this WebRequest webRequest, Stream fileStream, string fileName, string mimeType,
             string accept = null, Action<HttpWebRequest> requestFilter = null, string method = "POST", string field = "file")
         {
@@ -1093,10 +1102,7 @@ namespace ServiceStack
 
             var boundaryBytes = ("\r\n--" + boundary + "--\r\n").ToAsciiBytes();
 
-            var header = "\r\n--" + boundary +
-                         $"\r\nContent-Disposition: form-data; name=\"{field}\"; filename=\"{fileName}\"\r\nContent-Type: {mimeType}\r\n\r\n";
-
-            var headerBytes = header.ToAsciiBytes();
+            var headerBytes = GetHeaderBytes(fileName, mimeType, field, boundary);
 
             var contentLength = fileStream.Length + headerBytes.Length + boundaryBytes.Length;
             PclExport.Instance.InitHttpWebRequest(httpReq,
@@ -1115,6 +1121,43 @@ namespace ServiceStack
             PclExport.Instance.CloseStream(outputStream);
         }
 
+        public static async Task UploadFileAsync(this WebRequest webRequest, Stream fileStream, string fileName, string mimeType,
+            string accept = null, Action<HttpWebRequest> requestFilter = null, string method = "POST", string field = "file", 
+            CancellationToken token=default)
+        {
+            var httpReq = (HttpWebRequest)webRequest;
+            httpReq.Method = method;
+
+            if (accept != null)
+                httpReq.Accept = accept;
+
+            requestFilter?.Invoke(httpReq);
+
+            var boundary = Guid.NewGuid().ToString("N");
+
+            httpReq.ContentType = "multipart/form-data; boundary=\"" + boundary + "\"";
+
+            var boundaryBytes = ("\r\n--" + boundary + "--\r\n").ToAsciiBytes();
+
+            var headerBytes = GetHeaderBytes(fileName, mimeType, field, boundary);
+
+            var contentLength = fileStream.Length + headerBytes.Length + boundaryBytes.Length;
+            PclExport.Instance.InitHttpWebRequest(httpReq,
+                contentLength: contentLength, allowAutoRedirect: false, keepAlive: false);
+
+            if (ResultsFilter != null)
+            {
+                ResultsFilter.UploadStream(httpReq, fileStream, fileName);
+                return;
+            }
+
+            using var outputStream = PclExport.Instance.GetRequestStream(httpReq);
+            await outputStream.WriteAsync(headerBytes, 0, headerBytes.Length, token).ConfigAwait();
+            await fileStream.CopyToAsync(outputStream, 4096, token).ConfigAwait();
+            await outputStream.WriteAsync(boundaryBytes, 0, boundaryBytes.Length, token).ConfigAwait();
+            PclExport.Instance.CloseStream(outputStream);
+        }
+
         public static void UploadFile(this WebRequest webRequest, Stream fileStream, string fileName)
         {
             if (fileName == null)
@@ -1124,6 +1167,17 @@ namespace ServiceStack
                 throw new ArgumentException("Mime-type not found for file: " + fileName);
 
             UploadFile(webRequest, fileStream, fileName, mimeType);
+        }
+
+        public static async Task UploadFileAsync(this WebRequest webRequest, Stream fileStream, string fileName, CancellationToken token=default)
+        {
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName));
+            var mimeType = MimeTypes.GetMimeType(fileName);
+            if (mimeType == null)
+                throw new ArgumentException("Mime-type not found for file: " + fileName);
+
+            await UploadFileAsync(webRequest, fileStream, fileName, mimeType, token: token).ConfigAwait();
         }
 
         public static string PostXmlToUrl(this string url, object data,
@@ -1152,6 +1206,114 @@ namespace ServiceStack
         {
             return SendStringToUrl(url, method: "PUT", requestBody: data.ToCsv(), contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
                 requestFilter: requestFilter, responseFilter: responseFilter);
+        }
+        
+        public static WebResponse PostFileToUrl(this string url,
+            FileInfo uploadFileInfo, string uploadFileMimeType,
+            string accept = null,
+            Action<HttpWebRequest> requestFilter = null)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            using (var fileStream = uploadFileInfo.OpenRead())
+            {
+                var fileName = uploadFileInfo.Name;
+
+                webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "POST");
+            }
+
+            if (ResultsFilter != null)
+                return null;
+
+            return webReq.GetResponse();
+        }
+        
+        public static async Task<WebResponse> PostFileToUrlAsync(this string url,
+            FileInfo uploadFileInfo, string uploadFileMimeType,
+            string accept = null,
+            Action<HttpWebRequest> requestFilter = null, CancellationToken token=default)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            using (var fileStream = uploadFileInfo.OpenRead())
+            {
+                var fileName = uploadFileInfo.Name;
+
+                await webReq.UploadFileAsync(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "POST", token: token);
+            }
+
+            if (ResultsFilter != null)
+                return null;
+
+            return await webReq.GetResponseAsync();
+        }
+
+        public static WebResponse PutFileToUrl(this string url,
+            FileInfo uploadFileInfo, string uploadFileMimeType,
+            string accept = null,
+            Action<HttpWebRequest> requestFilter = null)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            using (var fileStream = uploadFileInfo.OpenRead())
+            {
+                var fileName = uploadFileInfo.Name;
+
+                webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "PUT");
+            }
+
+            if (ResultsFilter != null)
+                return null;
+
+            return webReq.GetResponse();
+        }
+
+        public static async Task<WebResponse> PutFileToUrlAsync(this string url,
+            FileInfo uploadFileInfo, string uploadFileMimeType,
+            string accept = null,
+            Action<HttpWebRequest> requestFilter = null, CancellationToken token=default)
+        {
+            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            using (var fileStream = uploadFileInfo.OpenRead())
+            {
+                var fileName = uploadFileInfo.Name;
+
+                await webReq.UploadFileAsync(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "PUT", token: token);
+            }
+
+            if (ResultsFilter != null)
+                return null;
+
+            return await webReq.GetResponseAsync();
+        }
+
+        public static WebResponse UploadFile(this WebRequest webRequest,
+            FileInfo uploadFileInfo, string uploadFileMimeType)
+        {
+            using (var fileStream = uploadFileInfo.OpenRead())
+            {
+                var fileName = uploadFileInfo.Name;
+
+                webRequest.UploadFile(fileStream, fileName, uploadFileMimeType);
+            }
+
+            if (ResultsFilter != null)
+                return null;
+
+            return webRequest.GetResponse();
+        }
+
+        public static async Task<WebResponse> UploadFileAsync(this WebRequest webRequest,
+            FileInfo uploadFileInfo, string uploadFileMimeType)
+        {
+            using (var fileStream = uploadFileInfo.OpenRead())
+            {
+                var fileName = uploadFileInfo.Name;
+
+                await webRequest.UploadFileAsync(fileStream, fileName, uploadFileMimeType);
+            }
+
+            if (ResultsFilter != null)
+                return null;
+
+            return await webRequest.GetResponseAsync();
         }
     }
 

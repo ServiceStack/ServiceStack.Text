@@ -535,61 +535,6 @@ namespace ServiceStack
 
     public static class PclExportExt
     {
-        //HttpUtils
-        public static WebResponse PostFileToUrl(this string url,
-            FileInfo uploadFileInfo, string uploadFileMimeType,
-            string accept = null,
-            Action<HttpWebRequest> requestFilter = null)
-        {
-            var webReq = (HttpWebRequest)WebRequest.Create(url);
-            using (var fileStream = uploadFileInfo.OpenRead())
-            {
-                var fileName = uploadFileInfo.Name;
-
-                webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "POST");
-            }
-
-            if (HttpUtils.ResultsFilter != null)
-                return null;
-
-            return webReq.GetResponse();
-        }
-
-        public static WebResponse PutFileToUrl(this string url,
-            FileInfo uploadFileInfo, string uploadFileMimeType,
-            string accept = null,
-            Action<HttpWebRequest> requestFilter = null)
-        {
-            var webReq = (HttpWebRequest)WebRequest.Create(url);
-            using (var fileStream = uploadFileInfo.OpenRead())
-            {
-                var fileName = uploadFileInfo.Name;
-
-                webReq.UploadFile(fileStream, fileName, uploadFileMimeType, accept: accept, requestFilter: requestFilter, method: "PUT");
-            }
-
-            if (HttpUtils.ResultsFilter != null)
-                return null;
-
-            return webReq.GetResponse();
-        }
-
-        public static WebResponse UploadFile(this WebRequest webRequest,
-            FileInfo uploadFileInfo, string uploadFileMimeType)
-        {
-            using (var fileStream = uploadFileInfo.OpenRead())
-            {
-                var fileName = uploadFileInfo.Name;
-
-                webRequest.UploadFile(fileStream, fileName, uploadFileMimeType);
-            }
-
-            if (HttpUtils.ResultsFilter != null)
-                return null;
-
-            return webRequest.GetResponse();
-        }
-
         //XmlSerializer
         public static void CompressToStream<TXmlDto>(TXmlDto from, Stream stream)
         {
