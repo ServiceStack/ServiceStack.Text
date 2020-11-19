@@ -74,7 +74,7 @@ namespace ServiceStack.Text.Common
                     keyValue = (TKey)parseKeyFn(keyElementValue);
                 else if (key.CompareIgnoreCase("value".AsSpan()))
                     valueValue = (TValue)parseValueFn(keyElementValue);
-                else
+                else if (!key.SequenceEqual(JsConfig.TypeAttr.AsSpan()))
                     throw new SerializationException("Incorrect KeyValuePair property: " + key.ToString());
 
                 Serializer.EatItemSeperatorOrMapEndChar(value, ref index);

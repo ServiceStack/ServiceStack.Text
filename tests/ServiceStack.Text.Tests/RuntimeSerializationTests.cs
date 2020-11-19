@@ -332,5 +332,14 @@ namespace ServiceStack.Text.Tests
         {
             public string Value { get; set; }
         }
+
+        [Test]
+        public void Can_deserialize_object_into_string_dictionary()
+        {
+            var json = "{\"__type\":\"System.Collections.Generic.KeyValuePair`2[[System.String, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib\",\"Key\":\"A\",\"Value\":\"B\"}";
+            var dto = json.FromJson<KeyValuePair<string, string>>();
+            Assert.That(dto.Key, Is.EqualTo("A"));
+            Assert.That(dto.Value, Is.EqualTo("B"));
+        }
     }
 }
