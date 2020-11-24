@@ -358,6 +358,53 @@ JsonSerializer also supports serialization of anonymous types in much the same w
 
     {"A":1,"B":2,"C":3,"D":4}
 
+### Parsing JSON Dates
+
+The default WCF Date that's returned in ServiceStack.Text can be converted with:
+
+```js
+function todate (s) { 
+    return new Date(parseFloat(/Date\(([^)]+)\)/.exec(s)[1])); 
+};
+```
+
+Which if you're using the [servicestack-client](https://docs.servicestack.net/servicestack-client-umd) npm package can be resolved with:
+
+```ts
+import { todate } from "servicestack-client";
+var date = todate(wcfDateString);
+```
+
+Or if using [ss-utils.js](https://docs.servicestack.net/ss-utils-js) that's built into ServiceStack:
+
+```js
+var date = $.ss.todate(wcfDateString);
+```
+
+If you change ServiceStack.Text default serialization of Date to either use the ISO8601 date format:
+
+```csharp
+JsConfig.DateHandler = DateHandler.ISO8601;
+```
+
+It can be parsed natively with:
+
+```js
+new Date(dateString)
+```
+
+Likewise when configured to return:
+
+```csharp
+JsConfig.DateHandler = DateHandler.UnixTimeMs;
+```
+
+It can also be converted natively with:
+
+```js
+new Date(unixTimeMs)
+```
+
 ## Global Default JSON Configuration
 
 The JSON/JSV and CSV serialization can be customized globally by configuring the `JsConfig` or type-specific `JsConfig<T>` static classes with your preferred defaults. Global static configuration can be configured once on **Startup** using `JsConfig.Init()`, e.g:
