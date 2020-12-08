@@ -1,7 +1,8 @@
 using System;
 using System.IO;
+using ServiceStack.Text;
 
-namespace ServiceStack.Text
+namespace ServiceStack
 {
     /// <summary>
     /// Helper utility for inspecting variables
