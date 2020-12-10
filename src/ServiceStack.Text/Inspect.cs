@@ -11,13 +11,24 @@ namespace ServiceStack
     {
         public static class Config
         {
+            public const string VarsName = "vars.json";
+            
             public static Action<object> VarsFilter { get; set; } = DefaultVarsFilter;
 
             public static void DefaultVarsFilter(object anonArgs)
             {
                 try
                 {
-                    File.WriteAllText("vars.json", anonArgs.ToSafeJson());
+                    var inspectVarsPath = Environment.GetEnvironmentVariable("INSPECT_VARS");
+                    if (inspectVarsPath == "0") // Disable
+                        return;
+                    
+                    var varsPath = inspectVarsPath?.Length > 0
+                        ? Path.PathSeparator == '\\'
+                            ? inspectVarsPath.Replace('/','\\')
+                            : inspectVarsPath.Replace('\\','/')
+                        : VarsName;
+                    File.WriteAllText(varsPath, anonArgs.ToSafeJson());
                 }
                 catch (Exception ex)
                 {
