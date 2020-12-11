@@ -24,12 +24,12 @@ namespace ServiceStack
                         return;
                     
                     var varsPath = inspectVarsPath?.Length > 0
-                        ? Path.PathSeparator == '\\'
+                        ? Path.DirectorySeparatorChar == '\\'
                             ? inspectVarsPath.Replace('/','\\')
                             : inspectVarsPath.Replace('\\','/')
                         : VarsName;
 
-                    if (varsPath.IndexOf(Path.PathSeparator) >= 0)
+                    if (varsPath.IndexOf(Path.DirectorySeparatorChar) >= 0)
                         Path.GetDirectoryName(varsPath).AssertDir();
                     
                     File.WriteAllText(varsPath, anonArgs.ToSafeJson());
