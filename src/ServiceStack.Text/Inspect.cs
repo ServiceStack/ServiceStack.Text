@@ -45,6 +45,7 @@ namespace ServiceStack
         /// Dump serialized values to 'vars.json'
         /// </summary>
         /// <param name="anonArgs">Anonymous object with named value</param>
-        public static void Vars(object anonArgs) => Config.VarsFilter?.Invoke(anonArgs);
+        // ReSharper disable once InconsistentNaming
+        public static void vars(object anonArgs) => Config.VarsFilter?.Invoke(anonArgs);
     }
 }
