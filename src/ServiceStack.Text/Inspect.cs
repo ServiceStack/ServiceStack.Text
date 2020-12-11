@@ -28,6 +28,10 @@ namespace ServiceStack
                             ? inspectVarsPath.Replace('/','\\')
                             : inspectVarsPath.Replace('\\','/')
                         : VarsName;
+
+                    if (varsPath.IndexOf(Path.PathSeparator) >= 0)
+                        Path.GetDirectoryName(varsPath).AssertDir();
+                    
                     File.WriteAllText(varsPath, anonArgs.ToSafeJson());
                 }
                 catch (Exception ex)
