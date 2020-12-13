@@ -20,14 +20,12 @@ namespace ServiceStack
                 try
                 {
                     var inspectVarsPath = Environment.GetEnvironmentVariable("INSPECT_VARS");
-                    if (inspectVarsPath == "0") // Disable
+                    if (string.IsNullOrEmpty(inspectVarsPath)) // Disable
                         return;
                     
-                    var varsPath = inspectVarsPath?.Length > 0
-                        ? Path.DirectorySeparatorChar == '\\'
-                            ? inspectVarsPath.Replace('/','\\')
-                            : inspectVarsPath.Replace('\\','/')
-                        : VarsName;
+                    var varsPath = Path.DirectorySeparatorChar == '\\'
+                        ? inspectVarsPath.Replace('/','\\')
+                        : inspectVarsPath.Replace('\\','/');
 
                     if (varsPath.IndexOf(Path.DirectorySeparatorChar) >= 0)
                         Path.GetDirectoryName(varsPath).AssertDir();
