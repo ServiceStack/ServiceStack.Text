@@ -14,6 +14,8 @@ namespace ServiceStack
             public const string VarsName = "vars.json";
             
             public static Action<object> VarsFilter { get; set; } = DefaultVarsFilter;
+            
+            public static Func<object,string> DumpTableFilter { get; set; }
 
             public static void DefaultVarsFilter(object anonArgs)
             {
@@ -34,7 +36,7 @@ namespace ServiceStack
                 }
                 catch (Exception ex)
                 {
-                    Tracer.Instance.WriteError("Inspect.Vars() Error: " + ex);
+                    Tracer.Instance.WriteError("Inspect.vars() Error: " + ex);
                 }
             }
         }
@@ -45,5 +47,27 @@ namespace ServiceStack
         /// <param name="anonArgs">Anonymous object with named value</param>
         // ReSharper disable once InconsistentNaming
         public static void vars(object anonArgs) => Config.VarsFilter?.Invoke(anonArgs);
+
+        /// <summary>
+        /// Recursively prints the contents of any POCO object in a human-friendly, readable format
+        /// </summary>
+        public static string dump<T>(this T instance) => instance.Dump();
+
+        /// <summary>
+        /// Print Dump to Console.WriteLine
+        /// </summary>
+        public static void printDump<T>(this T instance) => instance.PrintDump();
+        
+        /// <summary>
+        /// Dump object in Ascii Markdown table
+        /// </summary>
+        public static string dumpTable(object instance) => Config.DumpTableFilter != null
+            ? Config.DumpTableFilter(instance)
+            : throw new NotImplementedException("Config.DumpTableFilter is not configured, call JS.Configure()"); 
+        
+        /// <summary>
+        /// Print Dump object in Ascii Markdown table
+        /// </summary>
+        public static void printDumpTable(this object target) => PclExport.Instance.WriteLine(dumpTable(target)); 
     }
 }
