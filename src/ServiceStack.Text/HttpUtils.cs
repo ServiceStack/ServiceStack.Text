@@ -1391,6 +1391,7 @@ namespace ServiceStack
         public const string ProtoBuf = "application/x-protobuf";
         public const string JavaScript = "text/javascript";
         public const string WebAssembly = "application/wasm";
+        public const string Jar = "application/java-archive";
 
         public const string FormUrlEncoded = "application/x-www-form-urlencoded";
         public const string MultiPartFormData = "multipart/form-data";
@@ -1515,6 +1516,7 @@ namespace ServiceStack
                 case MsWord:
                 case Compressed:
                 case WebAssembly:
+                case Jar:
                     return true;
             }
 
@@ -1717,6 +1719,9 @@ namespace ServiceStack
                     return "application/font-woff";
                 case "woff2":
                     return "application/font-woff2";
+                
+                case "jar":
+                    return Jar;
                     
                 case "aaf":
                 case "aca":
