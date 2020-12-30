@@ -1560,12 +1560,17 @@ namespace ServiceStack
             switch (fileExt)
             {
                 case "jpeg":
+                    return "image/jpeg";
                 case "gif":
+                    return "image/gif";
                 case "png":
+                    return "image/png";
                 case "tiff":
+                    return "image/tiff";
                 case "bmp":
+                    return "image/bmp";
                 case "webp":
-                    return "image/" + fileExt;
+                    return "image/webp";
 
                 case "jpg":
                     return "image/jpeg";
@@ -1586,10 +1591,8 @@ namespace ServiceStack
 
                 case "js":
                     return "text/javascript";
-
                 case "ts":
-                    return "text/x.typescript";
-
+                    return "text/typescript";
                 case "jsx":
                     return "text/jsx";
 
@@ -1598,11 +1601,48 @@ namespace ServiceStack
                 case "css":
                     return Css;
                     
-                case "sgml":
-                    return "text/" + fileExt;
+                case "cs":
+                    return "text/x-csharp";
+                case "fs":
+                    return "text/x-fsharp";
+                case "vb":
+                    return "text/x-vb";
+                case "dart":
+                    return "application/dart";
+                case "go":
+                    return "text/x-go";
+                case "kt":
+                case "kts":
+                    return "text/x-kotlin";
+                case "java":
+                    return "text/x-java";
+                case "py":
+                    return "text/x-python";
+                case "groovy":
+                case "gradle":
+                    return "text/x-groovy";
+                
+                case "yml":
+                case "yaml":
+                    return YamlText;
+
+                case "sh":
+                    return "text/x-sh";
+                case "bat":
+                case "cmd":
+                    return "application/bat";
+
+                case "xml":
+                case "csproj":
+                case "fsproj":
+                case "vbproj":
+                    return "text/xml";
 
                 case "txt":
                     return "text/plain";
+
+                case "sgml":
+                    return "text/sgml";
 
                 case "mp3":
                     return "audio/mpeg3";
@@ -1722,7 +1762,7 @@ namespace ServiceStack
                 
                 case "jar":
                     return Jar;
-                    
+
                 case "aaf":
                 case "aca":
                 case "asd":
@@ -1740,7 +1780,6 @@ namespace ServiceStack
                 case "fla":
                 case "ics":
                 case "inf":
-                case "java":
                 case "mix":
                 case "msi":
                 case "mso":
