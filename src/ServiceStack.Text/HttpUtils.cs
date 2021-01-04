@@ -1639,6 +1639,7 @@ namespace ServiceStack
                     return "text/xml";
 
                 case "txt":
+                case "ps1":
                     return "text/plain";
 
                 case "sgml":
