@@ -641,6 +641,12 @@ namespace ServiceStack.Text
             set => Config.AssertNotInit().ExcludeTypes = value;
         }
 
+        public static HashSet<string> ExcludeTypeNames
+        {
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.ExcludeTypeNames : Config.Instance.ExcludeTypeNames;
+            set => Config.AssertNotInit().ExcludeTypeNames = value;
+        }
+
         public static string[] IgnoreAttributesNamed
         {
             set => ReflectionExtensions.IgnoreAttributesNamed = value;

@@ -637,7 +637,8 @@ namespace ServiceStack
                         var name = attr.GetType().Name;
                         return !IgnoreAttributesNamed.Contains(name);
                     }))
-                .Where(prop => !JsConfig.ExcludeTypes.Contains(prop.PropertyType))
+                .Where(prop => !(JsConfig.ExcludeTypes.Contains(prop.PropertyType) ||
+                                 JsConfig.ExcludeTypeNames.Contains(prop.PropertyType.FullName)))
                 .ToArray();
         }
 

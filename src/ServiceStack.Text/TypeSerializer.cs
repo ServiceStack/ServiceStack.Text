@@ -346,7 +346,7 @@ namespace ServiceStack.Text
         {
             var type = value?.GetType();
             
-            if (type == null || !type.IsClass || value is string)
+            if (type == null || !type.IsClass || value is string || value is Type)
                 return false;
 
             if (parentValues == null)

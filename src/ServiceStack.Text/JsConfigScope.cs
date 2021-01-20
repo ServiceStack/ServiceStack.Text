@@ -58,7 +58,7 @@ namespace ServiceStack.Text
     public class Config
     {
         private static Config instance;
-        internal static Config Instance => instance ?? (instance = new Config(Defaults));
+        internal static Config Instance => instance ??= new Config(Defaults);
         internal static bool HasInit = false;
 
         public static Config AssertNotInit() => HasInit
@@ -176,6 +176,7 @@ namespace ServiceStack.Text
         public EmptyCtorFactoryDelegate ModelFactory { get; set; }
         public string[] ExcludePropertyReferences { get; set; }
         public HashSet<Type> ExcludeTypes { get; set; }
+        public HashSet<string> ExcludeTypeNames { get; set; }
         public bool EscapeUnicode { get; set; }
         public bool EscapeHtmlChars { get; set; }
 
@@ -216,7 +217,11 @@ namespace ServiceStack.Text
             MaxDepth = 50,
             OnDeserializationError = null,
             ModelFactory = ReflectionExtensions.GetConstructorMethodToCache,
-            ExcludeTypes = new HashSet<Type> { typeof(System.IO.Stream) },
+            ExcludeTypes = new HashSet<Type> {
+                typeof(System.IO.Stream),
+                typeof(System.Reflection.MethodBase),
+            },
+            ExcludeTypeNames = new HashSet<string> {}
         };
 
         public Config Populate(Config config)
@@ -257,6 +262,7 @@ namespace ServiceStack.Text
             OnDeserializationError = config.OnDeserializationError;
             ModelFactory = config.ModelFactory;
             ExcludeTypes = config.ExcludeTypes;
+            ExcludeTypeNames = config.ExcludeTypeNames;
             return this;
         }
     }
