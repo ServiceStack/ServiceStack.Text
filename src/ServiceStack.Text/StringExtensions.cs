@@ -853,10 +853,13 @@ namespace ServiceStack
             return str.EndsWith(endsWith, PclExport.Instance.InvariantComparison);
         }
 
-        private static readonly Regex InvalidVarCharsRegex = new Regex(@"[^A-Za-z0-9_]", RegexOptions.Compiled);
-        private static readonly Regex InvalidVarRefCharsRegex = new Regex(@"[^A-Za-z0-9._]", RegexOptions.Compiled);
-        private static readonly Regex SplitCamelCaseRegex = new Regex("([A-Z]|[0-9]+)", RegexOptions.Compiled);
-        private static readonly Regex HttpRegex = new Regex(@"^http://",
+        private static readonly Regex InvalidVarCharsRegex = new(@"[^A-Za-z0-9_]", RegexOptions.Compiled);
+        private static readonly Regex ValidVarCharsRegex = new(@"^[A-Za-z0-9_]+$", RegexOptions.Compiled);
+        private static readonly Regex InvalidVarRefCharsRegex = new(@"[^A-Za-z0-9._]", RegexOptions.Compiled);
+        private static readonly Regex ValidVarRefCharsRegex = new(@"^[A-Za-z0-9._]+$", RegexOptions.Compiled);
+        
+        private static readonly Regex SplitCamelCaseRegex = new("([A-Z]|[0-9]+)", RegexOptions.Compiled);
+        private static readonly Regex HttpRegex = new(@"^http://",
             PclExport.Instance.RegexOptions | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
         public static T ToEnum<T>(this string value)
@@ -951,8 +954,8 @@ namespace ServiceStack
             return false;
         }
       
-        public static bool IsValidVarName(this string name) => InvalidVarCharsRegex.IsMatch(name);
-        public static bool IsValidVarRef(this string name) => InvalidVarRefCharsRegex.IsMatch(name);
+        public static bool IsValidVarName(this string name) => ValidVarCharsRegex.IsMatch(name);
+        public static bool IsValidVarRef(this string name) => ValidVarRefCharsRegex.IsMatch(name);
 
         public static string SafeVarName(this string text) => !string.IsNullOrEmpty(text) 
             ? InvalidVarCharsRegex.Replace(text, "_") : null;
