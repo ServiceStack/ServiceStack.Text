@@ -952,6 +952,7 @@ namespace ServiceStack
         }
       
         public static bool IsValidVarName(this string name) => InvalidVarCharsRegex.IsMatch(name);
+        public static bool IsValidVarRef(this string name) => InvalidVarRefCharsRegex.IsMatch(name);
 
         public static string SafeVarName(this string text) => !string.IsNullOrEmpty(text) 
             ? InvalidVarCharsRegex.Replace(text, "_") : null;
