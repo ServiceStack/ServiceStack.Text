@@ -698,7 +698,8 @@ namespace ServiceStack
             return string.IsNullOrEmpty(text) || text.Length < 2
                 ? text
                 : (text[0] == '"' && text[text.Length - 1] == '"') ||
-                  (text[0] == '\'' && text[text.Length - 1] == '\'')
+                  (text[0] == '\'' && text[text.Length - 1] == '\'') ||
+                  (text[0] == '`' && text[text.Length - 1] == '`')
                     ? text.Substring(1, text.Length - 2)
                     : text;
         }
