@@ -146,9 +146,50 @@ namespace ServiceStack.Text.Tests
             Assert.That(typeof(CharEnum).HasAttributeCached<EnumAsCharAttribute>());
             Assert.That(typeof(CharEnum).HasAttribute<EnumAsCharAttribute>());
         }
+
+        [Test]
+        public void Can_use_lazy_HasAttributeOf_APIs()
+        {
+            var props = typeof(DeclarativeValidationTest).GetPublicProperties();
+            Assert.That(props.Length, Is.EqualTo(3));
+
+            var locationsProp = props.FirstOrDefault(x =>
+                x.PropertyType != typeof(string) && x.PropertyType.GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>)) != null);
+            
+            Assert.That(locationsProp.Name, Is.EqualTo(nameof(DeclarativeValidationTest.Locations)));
+
+            var genericDef = locationsProp.PropertyType.GetTypeWithGenericInterfaceOf(typeof(IEnumerable<>));
+            var elementType = genericDef.GetGenericArguments()[0];
+            var elementProps = elementType.GetPublicProperties();
+            var hasAnyChildValidators = elementProps 
+                .Any(elProp => elProp.HasAttributeOf<ValidateAttribute>());
+            Assert.That(hasAnyChildValidators);
+        }
     }
 
     public class GenericType<T> { }
     public class GenericType<T1, T2> { }
     public class GenericType<T1, T2, T3> { }
+    
+    public class Location
+    {
+        public string Name { get; set; }
+        [ValidateMaximumLength(20)]
+        public string Value { get; set; }
+    } 
+
+    public class DeclarativeValidationTest : IReturn<EmptyResponse>
+    {
+        [ValidateNotEmpty]
+        [ValidateMaximumLength(20)]
+        public string Site { get; set; }
+        public List<Location> Locations { get; set; } // **** here's the example
+        public List<NoValidators> NoValidators { get; set; }
+    }
+
+    public class NoValidators
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
+    }
 }
