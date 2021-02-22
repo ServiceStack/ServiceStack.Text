@@ -131,7 +131,7 @@ namespace ServiceStack
         public static bool HasAttribute<T>(this PropertyInfo pi) => pi.AllAttributes().Any(x => x.GetType() == typeof(T));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasAttributeOf<T>(this PropertyInfo pi) => pi.AllAttributes().Any(x => x is T);
+        public static bool HasAttributeOf<T>(this PropertyInfo pi) => pi.AllAttributesLazy().Any(x => x is T);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttribute<T>(this FieldInfo fi) => fi.AllAttributes().Any(x => x.GetType() == typeof(T));
@@ -145,7 +145,7 @@ namespace ServiceStack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasAttributeOf<T>(this MethodInfo mi) => mi.AllAttributes().Any(x => x is T);
 
-        private static readonly ConcurrentDictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = new ConcurrentDictionary<Tuple<MemberInfo,Type>, bool>();
+        private static readonly ConcurrentDictionary<Tuple<MemberInfo,Type>, bool> hasAttributeCache = new();
         public static bool HasAttributeCached<T>(this MemberInfo memberInfo)
         {
             var key = new Tuple<MemberInfo,Type>(memberInfo, typeof(T));
@@ -200,7 +200,7 @@ namespace ServiceStack
         public static bool HasAttributeNamed(this PropertyInfo pi, string name)
         {
             var normalizedAttr = name.Replace("Attribute", "").ToLower();
-            return pi.AllAttributes().Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
+            return pi.AllAttributesLazy().Any(x => x.GetType().Name.Replace("Attribute", "").ToLower() == normalizedAttr);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -241,11 +241,9 @@ namespace ServiceStack
             type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
         //Should only register Runtime Attributes on StartUp, So using non-ThreadSafe Dictionary is OK
-        static Dictionary<string, List<Attribute>> propertyAttributesMap
-            = new Dictionary<string, List<Attribute>>();
+        static Dictionary<string, List<Attribute>> propertyAttributesMap = new();
 
-        static Dictionary<Type, List<Attribute>> typeAttributesMap
-            = new Dictionary<Type, List<Attribute>>();
+        static Dictionary<Type, List<Attribute>> typeAttributesMap = new();
 
         public static void ClearRuntimeAttributes()
         {
@@ -335,6 +333,20 @@ namespace ServiceStack
             return runtimeAttrs.Cast<object>().ToArray();
         }
 
+        public static IEnumerable<object> AllAttributesLazy(this PropertyInfo propertyInfo)
+        {
+            var attrs = propertyInfo.GetCustomAttributes(true);
+            var runtimeAttrs = propertyInfo.GetAttributes();
+            foreach (var attr in runtimeAttrs)
+            {
+                yield return attr;
+            }
+            foreach (var attr in attrs)
+            {
+                yield return attr;
+            }
+        }
+
         public static object[] AllAttributes(this PropertyInfo propertyInfo, Type attrType)
         {
             var attrs = propertyInfo.GetCustomAttributes(attrType, true);
@@ -344,6 +356,18 @@ namespace ServiceStack
 
             runtimeAttrs.AddRange(attrs.Cast<Attribute>());
             return runtimeAttrs.Cast<object>().ToArray();
+        }
+
+        public static IEnumerable<object> AllAttributesLazy(this PropertyInfo propertyInfo, Type attrType)
+        {
+            foreach (var attr in propertyInfo.GetAttributes(attrType))
+            {
+                yield return attr;
+            }
+            foreach (var attr in propertyInfo.GetCustomAttributes(attrType, true))
+            {
+                yield return attr;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -374,6 +398,15 @@ namespace ServiceStack
         public static object[] AllAttributes(this Type type) => type.GetCustomAttributes(true).Union(type.GetRuntimeAttributes()).ToArray();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<object> AllAttributesLazy(this Type type)
+        {
+            foreach (var attr in type.GetRuntimeAttributes())
+                yield return attr;
+            foreach (var attr in type.GetCustomAttributes(true))
+                yield return attr;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object[] AllAttributes(this Type type, Type attrType) => 
             type.GetCustomAttributes(attrType, true).Union(type.GetRuntimeAttributes(attrType)).ToArray();
 
@@ -393,6 +426,9 @@ namespace ServiceStack
         public static TAttr[] AllAttributes<TAttr>(this PropertyInfo pi) => pi.AllAttributes(typeof(TAttr)).Cast<TAttr>().ToArray();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<TAttr> AllAttributesLazy<TAttr>(this PropertyInfo pi) => pi.AllAttributesLazy(typeof(TAttr)).Cast<TAttr>();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static IEnumerable<T> GetRuntimeAttributes<T>(this Type type) => typeAttributesMap.TryGetValue(type, out var attrs)
             ? attrs.OfType<T>()
             : new List<T>();
@@ -409,6 +445,19 @@ namespace ServiceStack
                 .OfType<TAttr>()
                 .Union(type.GetRuntimeAttributes<TAttr>())
                 .ToArray();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<TAttr> AllAttributesLazy<TAttr>(this Type type)
+        {
+            foreach (var attr in type.GetCustomAttributes(typeof(TAttr), true).OfType<TAttr>())
+            {
+                yield return attr;
+            }
+            foreach (var attr in type.GetRuntimeAttributes<TAttr>())
+            {
+                yield return attr;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -432,10 +481,8 @@ namespace ServiceStack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo)
-        {
-            return propertyInfo.AllAttributes<TAttribute>().FirstOrDefault();
-        }
+        public static TAttribute FirstAttribute<TAttribute>(this PropertyInfo propertyInfo) => 
+            propertyInfo.AllAttributesLazy<TAttribute>().FirstOrDefault();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type FirstGenericTypeDefinition(this Type type)
