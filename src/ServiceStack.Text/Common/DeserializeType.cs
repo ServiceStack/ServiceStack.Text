@@ -74,7 +74,9 @@ namespace ServiceStack.Text.Common
 
             if (config.ConvertObjectTypesIntoStringDictionary && !strType.IsNullOrEmpty())
             {
-                if (strType[0] == JsWriter.MapStartChar)
+                var firstChar = strType[0];
+                var endChar = strType[strType.Length - 1];
+                if (firstChar == JsWriter.MapStartChar && endChar == JsWriter.MapEndChar)
                 {
                     var dynamicMatch = DeserializeDictionary<TSerializer>.ParseDictionary<string, object>(strType, null, v => Serializer.UnescapeString(v).ToString(), v => Serializer.UnescapeString(v).ToString());
                     if (dynamicMatch != null && dynamicMatch.Count > 0)
@@ -83,7 +85,7 @@ namespace ServiceStack.Text.Common
                     }
                 }
 
-                if (strType[0] == JsWriter.ListStartChar)
+                if (firstChar == JsWriter.ListStartChar && endChar == JsWriter.ListEndChar)
                 {
                     return DeserializeList<List<object>, TSerializer>.ParseStringSpan(strType);
                 }

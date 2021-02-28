@@ -77,5 +77,18 @@ namespace ServiceStack.Text.Tests.JsonTests
             var phone2 = dyn.obj.phones[1].number;
             Assert.AreEqual(phone2, "39967");
         }
+
+        [Test]
+        public void Deserialize_dynamic_json_with_keys_starting_with_object_literal()
+        {
+            using (JsConfig.With(new Config {ConvertObjectTypesIntoStringDictionary = true}))
+            {
+                var json = @"{""prop1"": ""value1"", ""prop2"": ""{tag} value2"", ""prop3"": { ""A"" : 1 } }";
+                var obj = json.FromJson<Dictionary<string, object>>();
+                Assert.That(obj["prop1"], Is.EqualTo("value1"));
+                Assert.That(obj["prop2"], Is.EqualTo("{tag} value2"));
+                Assert.That(obj["prop3"], Is.EqualTo(new Dictionary<string,object> { ["A"] = "1" }));
+            }
+        }
     }
 }
