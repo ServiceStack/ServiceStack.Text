@@ -599,7 +599,7 @@ namespace ServiceStack.Text.Tests
             Assert.That(MatchesUsers(array, from.Collection.ConvertTo<User[]>()));
             Assert.That(MatchesUsers(array, from.Collection.ConvertTo<HashSet<User>>()));
 
-            var hashset = from.Collection.ToHashSet();
+            var hashset = from.Collection.ToSet();
             Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<IEnumerable<User>>()));
             Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<List<User>>()));
             Assert.That(MatchesUsers(hashset, from.Collection.ConvertTo<User[]>()));
