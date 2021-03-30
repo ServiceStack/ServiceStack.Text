@@ -1034,8 +1034,10 @@ namespace ServiceStack
 
         public static int ToInt(this string text, int defaultValue) => int.TryParse(text, out var ret) ? ret : defaultValue;
 
+        public static long ToLong(this string text) => long.Parse(text);
         public static long ToInt64(this string text) => long.Parse(text);
 
+        public static long ToLong(this string text, long defaultValue) => long.TryParse(text, out var ret) ? ret : defaultValue;
         public static long ToInt64(this string text, long defaultValue) => long.TryParse(text, out var ret) ? ret : defaultValue;
 
         public static float ToFloat(this string text) => text == null ? default(float) : float.Parse(text);
