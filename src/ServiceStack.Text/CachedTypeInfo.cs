@@ -36,7 +36,7 @@ namespace ServiceStack.Text
             EnumInfo = EnumInfo.GetEnumInfo(type);
         }
 
-        internal readonly EnumInfo EnumInfo;
+        public EnumInfo EnumInfo { get; }
     }
     
     public class EnumInfo
