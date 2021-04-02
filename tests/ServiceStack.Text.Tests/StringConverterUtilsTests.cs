@@ -38,7 +38,7 @@ namespace ServiceStack.ServiceModel.Tests
         public void Create_super_list_type_of_int_from_string()
         {
             var textValue = "1,2,3";
-            var convertedValue = textValue.Split(',').ToList().ConvertAll(x => Convert.ToInt32(x));
+            var convertedValue = textValue.Split(',').ToList().ConvertAll(Convert.ToInt32);
             var result = TypeSerializer.DeserializeFromString<ArrayOfIntId>(textValue);
             Assert.That(result, Is.EquivalentTo(convertedValue));
         }

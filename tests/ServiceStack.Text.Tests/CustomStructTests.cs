@@ -49,16 +49,8 @@ namespace ServiceStack.Text.Tests
             return userStat;
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0}:{1}:{2}:{3}:{4}:{5}",
-                this.UserId.ToString("n"),
-                TimesRecommended,
-                TimesPurchased,
-                TimesRecommended,
-                TimesPreviewed,
-                GetWeightedValue());
-        }
+        public override string ToString() => 
+            $"{this.UserId:n}:{TimesRecommended}:{TimesPurchased}:{TimesRecommended}:{TimesPreviewed}:{GetWeightedValue()}";
     }
 
     [TestFixture]
