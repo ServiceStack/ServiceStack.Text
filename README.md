@@ -326,7 +326,7 @@ All other scalar values are stored as strings that are surrounded with double qu
 
 ### C# Structs and Value Types
 
-Because a C# struct is a value type whose public properties are normally just convenience properties around a single scalar value, they are ignored instead the **TStruct.ToString()** method is used to serialize and either the **static TStruct.Parse()**** method or **new TStruct(string)** constructor will be used to deserialize the value type if it exists.
+Because a C# struct is a value type whose public properties are normally just convenience properties around a single scalar value, they are ignored instead the **TStruct.ToString()** method is used to serialize and either the **static TStruct.Parse()** method or **new TStruct(string)** constructor will be used to deserialize the value type if it exists.
 
 ### array type
 
