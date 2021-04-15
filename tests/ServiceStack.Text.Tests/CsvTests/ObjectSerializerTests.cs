@@ -191,6 +191,40 @@ namespace ServiceStack.Text.Tests.CsvTests
             Assert.That(des[0].Prop4, Is.EqualTo(src[0].Prop4));
             Assert.That(des[0].Prop5, Is.EqualTo(src[0].Prop5));
         }
+
+        [Test]
+        public void Can_serialize_csv_and_deserialize_List_string()
+        {
+            var list = new List<string>
+            {
+                "one",
+                "two",
+                "three"
+            };
+
+            var flatList = list.ToCsv();
+
+            var originalList = flatList.FromCsv<List<string>>();
+
+            Assert.That(originalList.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void Can_serialize_csv_and_deserialize_List_primitives()
+        {
+            var list = new List<int>
+            {
+                1,
+                2,
+                3
+            };
+
+            var flatList = list.ToCsv();
+
+            var originalList = flatList.FromCsv<List<int>>();
+
+            Assert.That(originalList.Count, Is.EqualTo(3));
+        }
     }
 
     public class POCO

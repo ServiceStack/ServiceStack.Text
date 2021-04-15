@@ -272,6 +272,21 @@ namespace ServiceStack.Text
             return row;
         }
 
+        private static List<T> ParseSingleRow(string row, Type recordType)
+        {
+            var results = new List<T>();
+            var itemRows = CsvReader.ParseFields(row);
+            foreach (var itemRow in itemRows)
+            {
+                var to = recordType == typeof(string)
+                    ? (T)(object)itemRow
+                    : TypeSerializer.DeserializeFromString<T>(itemRow);
+                
+                results.Add(to);
+            }
+            return results;
+        }
+
         public static List<T> GetRows(IEnumerable<string> records)
         {
             var rows = new List<T>();
@@ -358,6 +373,11 @@ namespace ServiceStack.Text
             if (!CsvConfig<T>.OmitHeaders || Headers.Count == 0)
             {
                 headers = CsvReader.ParseFields(rows[0], s => s.Trim());
+            }
+
+            if (typeof(T).IsValueType || (typeof(T) == typeof(string)) && rows.Count == 1)
+            {
+                return ParseSingleRow(rows[0], typeof(T));
             }
 
             if (typeof(T).IsValueType || typeof(T) == typeof(string))
