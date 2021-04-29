@@ -116,6 +116,7 @@ namespace ServiceStack
                     return;
                 }
             }
+            catch (NotSupportedException) { return; } // Ignore Unity/IL2CPP Exception
             catch (Exception ex)
             {
                 licenceKeyText = Environment.GetEnvironmentVariable(EnvironmentKey)?.Trim();
