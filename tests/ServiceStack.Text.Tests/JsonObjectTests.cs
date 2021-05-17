@@ -113,6 +113,7 @@ namespace ServiceStack.Text.Tests
             var result4 = SerializeToStream2(item);
 
             Assert.That(result1, Is.EqualTo(result2));
+            Assert.That(result3, Is.EqualTo(result4));
         }
         
         // Serialize using TypeSerializer.SerializeToStream<T>(T, Stream)
