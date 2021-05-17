@@ -466,9 +466,10 @@ namespace ServiceStack.Text.Common
         private static void WriteLateboundProperties(TextWriter writer, object value, Type valueType)
         {
             var writeFn = Serializer.GetWriteFn(valueType);
+            var prevState = JsState.IsWritingDynamic;
             if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = true;
             writeFn(writer, value);
-            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = false;
+            if (!JsConfig<T>.ExcludeTypeInfo.GetValueOrDefault()) JsState.IsWritingDynamic = prevState;
         }
 
         internal static string GetPropertyName(string propertyName, Config config)

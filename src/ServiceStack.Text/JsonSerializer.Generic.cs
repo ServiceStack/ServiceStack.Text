@@ -48,9 +48,10 @@ namespace ServiceStack.Text
             if (value == null) return null;
             if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
             {
+                var prevState = JsState.IsWritingDynamic;
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
                 var result = JsonSerializer.SerializeToString(value, value.GetType());
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = prevState;
                 return result;
             }
 
@@ -64,9 +65,10 @@ namespace ServiceStack.Text
             if (value == null) return;
             if (typeof(T) == typeof(object) || typeof(T).IsAbstract || typeof(T).IsInterface)
             {
+                var prevState = JsState.IsWritingDynamic;
                 if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = true;
                 JsonSerializer.SerializeToWriter(value, value.GetType(), writer);
-                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = false;
+                if (typeof(T).IsAbstract || typeof(T).IsInterface) JsState.IsWritingDynamic = prevState;
                 return;
             }
 
