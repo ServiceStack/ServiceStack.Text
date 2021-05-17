@@ -47,6 +47,7 @@ namespace ServiceStack.Text.Common
 
         public static void WriteDynamic(Action callback)
         {
+            var prevState = JsState.IsWritingDynamic;
             JsState.IsWritingDynamic = true;
             try
             {
@@ -54,7 +55,7 @@ namespace ServiceStack.Text.Common
             }
             finally
             {
-                JsState.IsWritingDynamic = false;
+                JsState.IsWritingDynamic = prevState;
             }
         }
 
