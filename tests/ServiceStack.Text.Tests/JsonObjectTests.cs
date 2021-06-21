@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -88,6 +91,45 @@ namespace ServiceStack.Text.Tests
 
                 System.Diagnostics.Debug.WriteLine(copy1["test"]);
             }
+        }
+        
+        public interface IFoo
+        {
+            string Property { get; }
+        }
+
+        public class FooA : IFoo
+        {
+            public string Property { get; set; } = "A";
+        }
+
+        [Test]
+        public void Can_consistently_serialize_stream()
+        {
+            var item = new FooA();
+            var result1 = SerializeToStream1(item);
+            var result2 = SerializeToStream2(item);
+            var result3 = SerializeToStream1(item);
+            var result4 = SerializeToStream2(item);
+
+            Assert.That(result1, Is.EqualTo(result2));
+            Assert.That(result3, Is.EqualTo(result4));
+        }
+        
+        // Serialize using TypeSerializer.SerializeToStream<T>(T, Stream)
+        public static string SerializeToStream1(IFoo item)
+        {
+            using var stream = new MemoryStream();
+            TypeSerializer.SerializeToStream(item, stream);
+            return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+        }
+
+        // Serialize using TypeSerializer.SerializeToStream(object, Type, Stream)
+        public static string SerializeToStream2(IFoo item)
+        {
+            using var stream = new MemoryStream();
+            TypeSerializer.SerializeToStream(item, item.GetType(), stream);
+            return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
         }
 
         [Test]

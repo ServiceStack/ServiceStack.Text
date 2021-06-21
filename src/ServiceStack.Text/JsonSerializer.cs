@@ -85,9 +85,10 @@ namespace ServiceStack.Text
             }
             if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
+                var prevState = JsState.IsWritingDynamic;
                 JsState.IsWritingDynamic = true;
                 var result = SerializeToString(value, value.GetType());
-                JsState.IsWritingDynamic = false;
+                JsState.IsWritingDynamic = prevState;
                 return result;
             }
 
@@ -133,9 +134,10 @@ namespace ServiceStack.Text
             }
             else if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
+                var prevState = JsState.IsWritingDynamic;
                 JsState.IsWritingDynamic = false;
                 SerializeToWriter(value, value.GetType(), writer);
-                JsState.IsWritingDynamic = true;
+                JsState.IsWritingDynamic = prevState;
             }
             else
             {
@@ -165,9 +167,10 @@ namespace ServiceStack.Text
             }
             else if (typeof(T).IsAbstract || typeof(T).IsInterface)
             {
+                var prevState = JsState.IsWritingDynamic;
                 JsState.IsWritingDynamic = false;
                 SerializeToStream(value, value.GetType(), stream);
-                JsState.IsWritingDynamic = true;
+                JsState.IsWritingDynamic = prevState;
             }
             else
             {
