@@ -922,20 +922,9 @@ namespace ServiceStack
             return haystack.Substring(0, pos) + replacement + haystack.Substring(pos + needle.Length);
         }
 
-        public static string ReplaceAll(this string haystack, string needle, string replacement)
-        {
-            int pos;
-            // Avoid a possible infinite loop
-            if (needle == replacement) 
-                return haystack;
-            while ((pos = haystack.IndexOf(needle, StringComparison.Ordinal)) >= 0)
-            {
-                haystack = haystack.Substring(0, pos)
-                    + replacement
-                    + haystack.Substring(pos + needle.Length);
-            }
-            return haystack;
-        }
+        [Obsolete("Use built-in string.Replace()")]
+        public static string ReplaceAll(this string haystack, string needle, string replacement) => 
+            haystack.Replace(needle, replacement);
 
         public static bool ContainsAny(this string text, params string[] testMatches)
         {
