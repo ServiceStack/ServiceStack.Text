@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace ServiceStack.Text.Tests
@@ -360,6 +361,20 @@ namespace ServiceStack.Text.Tests
         public void Does_ReplaceAll_from_Start()
         {
             Assert.That("/images".ReplaceAll("/",""), Is.EqualTo("images"));
+        }
+
+        [Test]
+        public void Does_ReplaceAll_Avoid_Infinite_Loops()
+        {
+            var input = "image";
+            var output = input;
+
+            Task.Factory.StartNew(() =>
+            {
+                output = input.ReplaceAll("image", "images");
+            }).Wait(TimeSpan.FromSeconds(1));
+
+            Assert.That(output, Is.EqualTo("images"));
         }
 
         [TestCase("", ExpectedResult = "/")]
