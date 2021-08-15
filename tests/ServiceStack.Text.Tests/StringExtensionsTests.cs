@@ -360,7 +360,7 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_ReplaceAll_from_Start()
         {
-            Assert.That("/images".ReplaceAll("/",""), Is.EqualTo("images"));
+            Assert.That("/images".Replace("/",""), Is.EqualTo("images"));
         }
 
         [Test]
@@ -369,7 +369,7 @@ namespace ServiceStack.Text.Tests
             var input = "image";
             var output = input;
 
-            output = input.ReplaceAll("image", "images");
+            output = input.Replace("image", "images");
 
             Assert.That(output, Is.EqualTo("images"));
         }
