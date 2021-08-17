@@ -1,9 +1,8 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
+    "version": "2.0.0",
     "command": "dotnet",
-    "isShellCommand": true,
     "args": [],
     "options": {
         "env": {
@@ -12,11 +11,20 @@
     },    
     "tasks": [
         {
-            "taskName": "build",
-            "args": [ "src/ServiceStack.Text.sln", "-v", "m" ],
-            "isBuildCommand": true,
-            "showOutput": "silent",
-            "problemMatcher": "$msCompile"
+            "label": "build",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "src/ServiceStack.Text.sln",
+                "-v",
+                "m"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "_id": "build",
+                "isDefault": false
+            }
         }
     ]
 }
