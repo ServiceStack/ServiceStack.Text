@@ -167,6 +167,7 @@ namespace ServiceStack.Text.Json
             CacheFn = typeof(T) == typeof(object)
                 ? JsonWriter.WriteLateBoundObject
                 : JsonWriter.Instance.GetWriteFn<T>();
+            JsConfig.AddUniqueType(typeof(T));
         }
 
         public static WriteObjectDelegate WriteFn()
