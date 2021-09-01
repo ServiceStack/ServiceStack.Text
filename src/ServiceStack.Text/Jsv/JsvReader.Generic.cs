@@ -70,6 +70,7 @@ namespace ServiceStack.Text.Jsv
                 return;
 
             ReadFn = JsvReader.Instance.GetParseStringSpanFn<T>();
+            JsConfig.AddUniqueType(typeof(T));
         }
 
         public static ParseStringDelegate GetParseFn() => ReadFn != null

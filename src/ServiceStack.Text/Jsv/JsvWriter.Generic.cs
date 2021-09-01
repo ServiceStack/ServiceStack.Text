@@ -124,6 +124,7 @@ namespace ServiceStack.Text.Jsv
             CacheFn = typeof(T) == typeof(object)
                 ? JsvWriter.WriteLateBoundObject
                 : JsvWriter.Instance.GetWriteFn<T>();
+            JsConfig.AddUniqueType(typeof(T));
         }
 
         public static WriteObjectDelegate WriteFn()

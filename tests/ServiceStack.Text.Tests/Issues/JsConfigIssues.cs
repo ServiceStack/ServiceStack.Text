@@ -22,6 +22,11 @@ namespace ServiceStack.Text.Tests.Issues
             {
                 _value = value;
             }
+
+            public override string ToString()
+            {
+                return _value.ToString();
+            }
         }
 
         class Dto
@@ -43,6 +48,18 @@ namespace ServiceStack.Text.Tests.Issues
             JsConfig<Dto>.RefreshRead();
 
             TestRoundTripValue(dto);
+        }
+        
+        [Test]
+        public void CallReset_AfterSerializingOnce_WithCustomSerializationForProperty_MustClearCustomSerialization()
+        {
+            var dto = new Dto { CustomFormatTypeProperty = new CustomFormatType(12345) };
+            JsConfig<CustomFormatType>.DeSerializeFn = str => 
+                new CustomFormatType(int.Parse(str));
+            var json = dto.ToJson();
+            JsConfig.Reset();
+            var fromJson = json.FromJson<Dto>();
+            Assert.That(fromJson.CustomFormatTypeProperty.Value, Is.EqualTo(0));
         }
 
         private static void ConfigureCustomFormatType()
