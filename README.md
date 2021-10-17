@@ -17,10 +17,10 @@ ServiceStack.Text is an **independent, dependency-free** serialization library c
 
 ### Try out [ServiceStack.Text Live](https://gist.cafe/c71b3f0123b3d9d08c1b11c98c2ff379)
 
-A great way to try out ServiceStack.Text is on [gistlyn.com](http://gistlyn.com) which lets you immediately 
+A great way to try out ServiceStack.Text is on [gist.cafe](https://gist.cafe) which lets you immediately 
 run and explore all ServiceStack.Text features from the comfort of your browser with zero software install:
 
-[![](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/gistlyn/home-screenshot.png)](http://gistlyn.com/text)
+[![](https://raw.githubusercontent.com/ServiceStack/docs/master/docs/images/gistcafe/gistcafe-csharp.png)](https://gist.cafe/c71b3f0123b3d9d08c1b11c98c2ff379)
 
 ## Simple API
 
