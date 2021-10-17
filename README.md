@@ -5,17 +5,17 @@ Follow [@ServiceStack](https://twitter.com/servicestack), [view the docs](https:
 ServiceStack.Text is an **independent, dependency-free** serialization library containing ServiceStack's core high-performance utils and text processing functionality, including:
 
  - [JSON](https://github.com/ServiceStack/ServiceStack.Text), 
- [JSV](http://docs.servicestack.net/jsv-format) and 
- [CSV](http://docs.servicestack.net/csv-format) Text Serializers
- - [AutoMapping Utils](http://docs.servicestack.net/auto-mapping)
- - [HTTP Utils](http://docs.servicestack.net/http-utils)
- - [Dump Utils](http://docs.servicestack.net/dump-utils)
- - [Fast Reflection Utils](http://docs.servicestack.net/reflection-utils)
+ [JSV](https://docs.servicestack.net/jsv-format) and 
+ [CSV](https://docs.servicestack.net/csv-format) Text Serializers
+ - [AutoMapping Utils](https://docs.servicestack.net/auto-mapping)
+ - [HTTP Utils](https://docs.servicestack.net/http-utils)
+ - [Dump Utils](https://docs.servicestack.net/dump-utils)
+ - [Fast Reflection Utils](https://docs.servicestack.net/reflection-utils)
  - Several String Extensions, Collection extensions, Reflection Utils and lots more.
 
 ### [Mobile Apps Support](https://github.com/ServiceStackApps/HelloMobile)
 
-### Try out [ServiceStack.Text Live](http://gistlyn.com/text)
+### Try out [ServiceStack.Text Live](https://gist.cafe/c71b3f0123b3d9d08c1b11c98c2ff379)
 
 A great way to try out ServiceStack.Text is on [gistlyn.com](http://gistlyn.com) which lets you immediately 
 run and explore all ServiceStack.Text features from the comfort of your browser with zero software install:
@@ -511,7 +511,7 @@ using (JsConfig.CreateScope("IncludeNullValues,EDV,dh:ut"))
 }
 ```
 
-This feature is used to provide a number of different [JSON customizations in ServiceStack Services](http://docs.servicestack.net/customize-json-responses).
+This feature is used to provide a number of different [JSON customizations in ServiceStack Services](https://docs.servicestack.net/customize-json-responses).
 
 ### Type Configuration
 
