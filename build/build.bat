@@ -1,3 +1,3 @@
-SET MSBUILD="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe"
+SET MSBUILD="C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Current\Bin\MSBuild.exe"
 
-%MSBUILD% build.proj /property:Configuration=Release;MinorVersion=4;PatchVersion=1
+%MSBUILD% build.proj /p:Configuration=Release /p:MinorVersion=12 /p:PatchVersion=1
