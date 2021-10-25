@@ -499,7 +499,7 @@ namespace ServiceStack
 
         public static LicenseKey VerifyLicenseKeyText(string licenseKeyText)
         {
-#if NET45 || NETCORE2_1
+#if NET45 || NETCORE2_1 || NET6_0
             LicenseKey key;
             try
             {

@@ -64,11 +64,14 @@ namespace ServiceStack.Text
             SupportsDynamic = true;
 #endif
 
-#if NETCORE2_1
+#if NETCORE2_1 || NET6_0
             IsNetStandard = false;
             IsNetCore = true;
-            IsNetCore21 = true;
             SupportsDynamic = true;
+            IsNetCore21 = true;
+#endif
+#if NET6_0
+            IsNet6 = true;
 #endif
 
 #if NETSTANDARD2_0
@@ -136,6 +139,7 @@ namespace ServiceStack.Text
         public static bool IsNetStandard { get; set; }
 
         public static bool IsNetCore21 { get; set; }
+        public static bool IsNet6 { get; set; }
         public static bool IsNetStandard20 { get; set; }
 
         public static bool IsNetFramework { get; set; }
@@ -311,7 +315,7 @@ namespace ServiceStack.Text
         public static ConfiguredTaskAwaitable<T> ConfigAwait<T>(this Task<T> task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);
 
-#if NETSTANDARD || NETCORE2_1
+#if NETSTANDARD || NETCORE2_1 || NET6_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConfiguredValueTaskAwaitable ConfigAwait(this ValueTask task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);

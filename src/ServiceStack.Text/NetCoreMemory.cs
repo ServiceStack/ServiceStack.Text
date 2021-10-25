@@ -1,4 +1,4 @@
-﻿#if NETCORE2_1
+﻿#if NETCORE2_1 || NET6_0
 
 using System;
 using System.Buffers.Text;
@@ -16,7 +16,7 @@ namespace ServiceStack.Memory
     public sealed class NetCoreMemory : MemoryProvider
     {
         private static NetCoreMemory provider;
-        public static NetCoreMemory Provider => provider ?? (provider = new NetCoreMemory());
+        public static NetCoreMemory Provider => provider ??= new NetCoreMemory();
         private NetCoreMemory() { }
         
         public static void Configure() => Instance = Provider;
