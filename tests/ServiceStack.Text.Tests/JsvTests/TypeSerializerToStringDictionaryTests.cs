@@ -8,7 +8,7 @@ using ServiceStack.Common.Tests.Models;
 namespace ServiceStack.Text.Tests.JsvTests
 {
     [TestFixture]
-#if NETCORE_SUPPORT
+#if NETCORE
     [Ignore("Fix Northwind.dll")]
 #endif
     public class TypeSerializerToStringDictionaryTests

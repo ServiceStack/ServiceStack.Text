@@ -1,4 +1,4 @@
-#if NETCORE2_1 || NET6_0
+#if NETCORE && !NETSTANDARD2_0
 
 using System;
 using ServiceStack.Text;

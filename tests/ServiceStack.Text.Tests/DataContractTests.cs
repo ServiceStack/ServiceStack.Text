@@ -258,7 +258,7 @@ namespace ServiceStack.Text.Tests
             Assert.IsTrue (t.Bytes.AreEqual (new byte[] { 0x61, 0x62 }));
         }
 
-#if !NETCORE_SUPPORT
+#if !NETCORE
         [Test]
         public void Can_get_weak_DataMember()
         {
@@ -279,7 +279,7 @@ namespace ServiceStack.Text.Tests
             public string Title { get; set; }
         }
 
-#if !NETCORE_SUPPORT
+#if !NETCORE
         [Test]
         public void Can_get_weak_DataContract()
         {

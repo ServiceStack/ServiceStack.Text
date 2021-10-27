@@ -120,7 +120,7 @@ namespace ServiceStack.Text.Tests
             public Dictionary<string, IAuthTokens> ProviderOAuthAccess { get; set; }
         }
 
-#if !NETCORE_SUPPORT
+#if !NETCORE
         [Test]
         public void Can_Serialize_User_OAuthSession_map()
         {

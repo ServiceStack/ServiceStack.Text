@@ -481,7 +481,7 @@ namespace ServiceStack
         {
             ms.Position = 0;
 
-#if NETSTANDARD || NETCORE2_1 || NET6_0
+#if NETCORE
             if (ms.TryGetBuffer(out var buffer))
             {
                 return encoding.GetString(buffer.Array, buffer.Offset, buffer.Count);
@@ -504,7 +504,7 @@ namespace ServiceStack
 
         public static ReadOnlyMemory<byte> GetBufferAsMemory(this MemoryStream ms)
         {
-#if NETSTANDARD || NETCORE2_1 || NET6_0
+#if NETCORE
             if (ms.TryGetBuffer(out var buffer))
             {
                 return new ReadOnlyMemory<byte>(buffer.Array, buffer.Offset, buffer.Count);
@@ -525,7 +525,7 @@ namespace ServiceStack
 
         public static ReadOnlySpan<byte> GetBufferAsSpan(this MemoryStream ms)
         {
-#if NETSTANDARD || NETCORE2_1 || NET6_0
+#if NETCORE
             if (ms.TryGetBuffer(out var buffer))
             {
                 return new ReadOnlySpan<byte>(buffer.Array, buffer.Offset, buffer.Count);
@@ -546,7 +546,7 @@ namespace ServiceStack
 
         public static byte[] GetBufferAsBytes(this MemoryStream ms)
         {
-#if NETSTANDARD || NETCORE2_1 || NET6_0
+#if NETCORE
             if (ms.TryGetBuffer(out var buffer))
             {
                 return buffer.Array;
@@ -570,7 +570,7 @@ namespace ServiceStack
         {
             ms.Position = 0;
 
-#if NETSTANDARD || NETCORE2_1 || NET6_0
+#if NETCORE
             if (ms.TryGetBuffer(out var buffer))
             {
                 return encoding.GetString(buffer.Array, buffer.Offset, buffer.Count).InTask();
@@ -626,7 +626,7 @@ namespace ServiceStack
 
         public static async Task WriteToAsync(this MemoryStream stream, Stream output, Encoding encoding, CancellationToken token)
         {
-#if NETSTANDARD || NETCORE2_1 || NET6_0
+#if NETCORE
             if (stream.TryGetBuffer(out var buffer))
             {
                 await output.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token).ConfigAwait();

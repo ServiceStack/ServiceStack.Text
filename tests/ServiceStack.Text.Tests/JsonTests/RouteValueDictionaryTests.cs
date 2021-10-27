@@ -1,4 +1,4 @@
-﻿#if !NETCORE_SUPPORT
+﻿#if !NETCORE
 using System;
 using System.Runtime.Serialization;
 using System.Web.Routing;

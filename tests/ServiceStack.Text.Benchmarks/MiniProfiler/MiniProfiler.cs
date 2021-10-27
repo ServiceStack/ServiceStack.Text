@@ -280,7 +280,7 @@ namespace StackExchange.Profiling
             }
         }
 
-#if !NETSTANDARD
+#if !NETCORE
         /// <summary>
         /// Create a DEEP clone of this MiniProfiler.
         /// </summary>

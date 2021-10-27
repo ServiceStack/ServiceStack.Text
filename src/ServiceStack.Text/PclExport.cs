@@ -29,10 +29,10 @@ namespace ServiceStack
         public static PclExport Instance
 #if NET45
           = new Net45PclExport()
-#elif NETCORE2_1 || NET6_0
-          = new NetCorePclExport()
-#else
+#elif NETSTANDARD2_0
           = new NetStandardPclExport()
+#elif NETCORE
+          = new NetCorePclExport()
 #endif
         ;
 

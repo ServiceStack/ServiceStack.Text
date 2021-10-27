@@ -1,4 +1,4 @@
-﻿#if NET45 || NETCORE2_1 || NET6_0
+﻿#if NET45 || (NETCORE && !NETSTANDARD2_0)
 
 using System;
 using System.Linq;
@@ -324,7 +324,7 @@ namespace ServiceStack.Text
         static DynamicProxy()
         {
             var assemblyName = new AssemblyName("DynImpl");
-#if NETSTANDARD
+#if NETCORE
             DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #else
             DynamicAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
@@ -348,7 +348,7 @@ namespace ServiceStack.Text
             foreach (var face in targetType.GetInterfaces())
                 IncludeType(face, typeBuilder);
 
-#if NETSTANDARD
+#if NETCORE
             return typeBuilder.CreateTypeInfo().AsType();
 #else
             return typeBuilder.CreateType();

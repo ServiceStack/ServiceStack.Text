@@ -11,6 +11,6 @@
     <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-    <DefineConstants>$(DefineConstants);NETSTANDARD;NETCORE2_1</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETSTANDARD;NETCORE;NETCORE2_1</DefineConstants>
   </PropertyGroup>
 </Project>

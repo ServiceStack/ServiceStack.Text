@@ -17,7 +17,7 @@ namespace ServiceStack.Text
             if (PclExport.Instance == null)
                 throw new ArgumentException("PclExport.Instance needs to be initialized");
 
-#if NETSTANDARD
+#if NETCORE
             IsNetStandard = true;
             try
             {
@@ -64,7 +64,7 @@ namespace ServiceStack.Text
             SupportsDynamic = true;
 #endif
 
-#if NETCORE2_1 || NET6_0
+#if NETCORE
             IsNetStandard = false;
             IsNetCore = true;
             SupportsDynamic = true;
@@ -73,7 +73,6 @@ namespace ServiceStack.Text
 #if NET6_0
             IsNet6 = true;
 #endif
-
 #if NETSTANDARD2_0
             IsNetStandard20 = true;
 #endif
@@ -218,7 +217,7 @@ namespace ServiceStack.Text
             set => referenceAssemblyPath = value;
         }
 
-#if NETSTANDARD
+#if NETCORE
         private static bool IsRunningAsUwp()
         {
             try
@@ -315,7 +314,7 @@ namespace ServiceStack.Text
         public static ConfiguredTaskAwaitable<T> ConfigAwait<T>(this Task<T> task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);
 
-#if NETSTANDARD || NETCORE2_1 || NET6_0
+#if NETCORE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConfiguredValueTaskAwaitable ConfigAwait(this ValueTask task) => 
             task.ConfigureAwait(ContinueOnCapturedContext);

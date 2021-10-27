@@ -36,7 +36,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
     {
         public static bool UseRecyclableMemoryStream { get; set; }
 
-        public static RecyclableMemoryStreamManager RecyclableInstance = new RecyclableMemoryStreamManager();
+        public static RecyclableMemoryStreamManager RecyclableInstance = new();
 
         public static MemoryStream GetStream()
         {
@@ -67,7 +67,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
         }
     }
     
-#if !NETSTANDARD    
+#if !NETCORE
     public enum EventLevel
     {
         LogAlways = 0,
@@ -1039,7 +1039,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCORE && !NETSTANDARD2_0
         /// <summary>
         /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
@@ -1697,7 +1697,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             return amountRead;
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if !NETSTANDARD2_0 && NETCORE
         /// <summary>
         /// Reads from the current position into the provided buffer
         /// </summary>
@@ -1800,7 +1800,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             this.length = Math.Max(this.position, this.length);
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if !NETSTANDARD2_0 && NETCORE
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
@@ -2117,7 +2117,7 @@ namespace ServiceStack.Text //Internalize to avoid conflicts
             return amountToCopy;
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCORE
         private int InternalRead(Span<byte> buffer, int fromPosition)
         {
             if (this.length - fromPosition <= 0)
