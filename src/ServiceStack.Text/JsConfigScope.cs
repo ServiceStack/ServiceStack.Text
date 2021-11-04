@@ -120,6 +120,7 @@ namespace ServiceStack.Text
         public bool TreatEnumAsInteger { get; set; }
         public bool ExcludeTypeInfo { get; set; }
         public bool IncludeTypeInfo { get; set; }
+        public bool Indent { get; set; }
 
         private string typeAttr;
         public string TypeAttr
@@ -196,6 +197,7 @@ namespace ServiceStack.Text
             TreatEnumAsInteger = false,
             ExcludeTypeInfo = false,
             IncludeTypeInfo = false,
+            Indent = false,
             TypeAttr = JsWriter.TypeAttr,
             DateTimeFormat = null,
             TypeWriter = AssemblyUtils.WriteType,
@@ -240,6 +242,7 @@ namespace ServiceStack.Text
             TreatEnumAsInteger = config.TreatEnumAsInteger;
             ExcludeTypeInfo = config.ExcludeTypeInfo;
             IncludeTypeInfo = config.IncludeTypeInfo;
+            Indent = config.Indent;
             TypeAttr = config.TypeAttr;
             DateTimeFormat = config.DateTimeFormat;
             TypeWriter = config.TypeWriter;

@@ -96,6 +96,11 @@ namespace ServiceStack.Text
                     case "includetypeinfo":
                         scope.IncludeTypeInfo = boolValue;
                         break;
+                    case "i":
+                    case "pp": //pretty-print
+                    case "indent":
+                        scope.Indent = boolValue;
+                        break;
                     case "eccn":
                     case "emitcamelcasenames":
                         scope.TextCase = boolValue ? TextCase.CamelCase : scope.TextCase;
@@ -397,6 +402,12 @@ namespace ServiceStack.Text
         {
             get => JsConfigScope.Current != null ? JsConfigScope.Current.IncludeTypeInfo : Config.Instance.IncludeTypeInfo;
             set => Config.AssertNotInit().IncludeTypeInfo = value;
+        }
+
+        public static bool Indent
+        {
+            get => JsConfigScope.Current != null ? JsConfigScope.Current.Indent : Config.Instance.Indent;
+            set => Config.AssertNotInit().Indent = value;
         }
 
         public static string TypeAttr

@@ -201,6 +201,19 @@ namespace ServiceStack.Text.Tests
         }
 
         private const string AssertMessageFormat = "Cannot find correct property value ({0})";
+
+        [Test]
+        public void Can_indent_in_scoped_json()
+        {
+            var obj = new TestObject { Id = 1 };
+            using (JsConfig.With(new Config { Indent = true }))
+            {
+                var scopedJson = obj.ToJson();
+                Assert.That(scopedJson.NormalizeNewLines(), Is.EqualTo("{\n    \"Id\": 1,\n    \"RootId\": 0\n}"));
+            }
+            var json = obj.ToJson();
+            Assert.That(json, Is.EqualTo("{\"Id\":1,\"RootId\":0}"));
+        }
     }
 
     [TestFixture]
@@ -209,11 +222,12 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_create_scope_from_string()
         {
-            var scope = JsConfig.CreateScope("emitlowercaseunderscorenames,IncludeNullValues:false,ExcludeDefaultValues:0,IncludeDefaultEnums:1");
+            var scope = JsConfig.CreateScope("emitlowercaseunderscorenames,IncludeNullValues:false,ExcludeDefaultValues:0,IncludeDefaultEnums:1,indent");
             Assert.That(scope.TextCase, Is.EqualTo(TextCase.SnakeCase));
             Assert.That(!scope.IncludeNullValues);
             Assert.That(!scope.ExcludeDefaultValues);
             Assert.That(scope.IncludeDefaultEnums);
+            Assert.That(scope.Indent);
             scope.Dispose();
 
             scope = JsConfig.CreateScope("DateHandler:ISO8601,timespanhandler:durationformat,PropertyConvention:strict,TextCase:CamelCase");
@@ -227,11 +241,12 @@ namespace ServiceStack.Text.Tests
         [Test]
         public void Does_create_scope_from_string_using_CamelCaseHumps()
         {
-            var scope = JsConfig.CreateScope("eccn,inv:false,edv:0,ide:1");
+            var scope = JsConfig.CreateScope("eccn,inv:false,edv:0,ide:1,pp");
             Assert.That(scope.TextCase, Is.EqualTo(TextCase.CamelCase));
             Assert.That(!scope.IncludeNullValues);
             Assert.That(!scope.ExcludeDefaultValues);
             Assert.That(scope.IncludeDefaultEnums);
+            Assert.That(scope.Indent);
             scope.Dispose();
 
             scope = JsConfig.CreateScope("dh:ISO8601,tsh:df,pc:strict,tc:cc");
@@ -274,7 +289,7 @@ namespace ServiceStack.Text.Tests
 
             Env.StrictMode = true;
             
-            Assert.Throws<NotSupportedException>(() => JsConfig.Init());
+            Assert.Throws<NotSupportedException>(JsConfig.Init);
         }
 
         [Test]

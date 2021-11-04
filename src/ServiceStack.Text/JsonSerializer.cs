@@ -99,7 +99,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                JsonWriter<T>.WriteRootObject(writer, value);
+                WriteObjectToWriter(value, JsonWriter<T>.GetRootObjectWriteFn(value), writer);
             }
             return StringWriterThreadStatic.ReturnAndFree(writer);
         }
@@ -116,7 +116,7 @@ namespace ServiceStack.Text
             else
             {
                 OnSerialize?.Invoke(value);
-                JsonWriter.GetWriteFn(type)(writer, value);
+                WriteObjectToWriter(value, JsonWriter.GetWriteFn(type), writer);
             }
             return StringWriterThreadStatic.ReturnAndFree(writer);
         }
@@ -141,7 +141,7 @@ namespace ServiceStack.Text
             }
             else
             {
-                JsonWriter<T>.WriteRootObject(writer, value);
+                WriteObjectToWriter(value, JsonWriter<T>.GetRootObjectWriteFn(value), writer);
             }
         }
 
@@ -155,7 +155,7 @@ namespace ServiceStack.Text
             }
 
             OnSerialize?.Invoke(value);
-            JsonWriter.GetWriteFn(type)(writer, value);
+            WriteObjectToWriter(value, JsonWriter.GetWriteFn(type), writer);
         }
 
         public static void SerializeToStream<T>(T value, Stream stream)
@@ -175,7 +175,7 @@ namespace ServiceStack.Text
             else
             {
                 var writer = new StreamWriter(stream, JsConfig.UTF8Encoding, BufferSize, leaveOpen:true);
-                JsonWriter<T>.WriteRootObject(writer, value);
+                WriteObjectToWriter(value, JsonWriter<T>.GetRootObjectWriteFn(value), writer);
                 writer.Flush();
             }
         }
@@ -184,10 +184,27 @@ namespace ServiceStack.Text
         {
             OnSerialize?.Invoke(value);
             var writer = new StreamWriter(stream, JsConfig.UTF8Encoding, BufferSize, leaveOpen:true);
-            JsonWriter.GetWriteFn(type)(writer, value);
+            WriteObjectToWriter(value, JsonWriter.GetWriteFn(type), writer);
             writer.Flush();
         }
 
+        private static void WriteObjectToWriter(object value, WriteObjectDelegate serializeFn, TextWriter writer)
+        {
+            if (!JsConfig.Indent)
+            {
+                serializeFn(writer, value);
+            }
+            else
+            {
+                var sb = StringBuilderCache.Allocate();
+                using var captureJson = new StringWriter(sb);
+                serializeFn(captureJson, value);
+                captureJson.Flush();
+                var json = StringBuilderCache.ReturnAndFree(sb);
+                var indentJson = json.IndentJson();
+                writer.Write(indentJson);
+            }
+        }
         public static T DeserializeFromStream<T>(Stream stream)
         {
             return (T)MemoryProvider.Instance.Deserialize(stream, typeof(T), DeserializeFromSpan);
