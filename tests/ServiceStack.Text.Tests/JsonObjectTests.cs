@@ -487,6 +487,34 @@ namespace ServiceStack.Text.Tests
                     Assert.That(entry.Value, Is.EqualTo("b\\c"));
                 }
             }
+            
+            var asEnumerable = (IEnumerable<KeyValuePair<string, string>>)obj;
+            foreach (var entry in asEnumerable)
+            {
+                if (entry.Key == "a")
+                {
+                    Assert.That(entry.Value, Is.EqualTo("b\\c"));
+                }
+            }
+            
+            var asIDict = (IDictionary<string, string>)obj;
+            foreach (var entry in asIDict)
+            {
+                if (entry.Key == "a")
+                {
+                    Assert.That(entry.Value, Is.EqualTo("b\\c"));
+                }
+            }
+
+            // Warning: can't override concrete Dictionary<string, string> enumerator
+            // var asDict = (Dictionary<string, string>)obj;
+            // foreach (var entry in asDict)
+            // {
+            //     if (entry.Key == "a")
+            //     {
+            //         Assert.That(entry.Value, Is.EqualTo("b\\c"));
+            //     }
+            // }
         }
 
     }

@@ -78,7 +78,7 @@ namespace ServiceStack.Text
         }
     }
 
-    public class JsonObject : Dictionary<string, string>
+    public class JsonObject : Dictionary<string, string>, IEnumerable<KeyValuePair<string, string>>
     {
         /// <summary>
         /// Get JSON string value
@@ -89,7 +89,7 @@ namespace ServiceStack.Text
             set => base[key] = value;
         }
 
-        public Enumerator GetEnumerator()
+        public new Enumerator GetEnumerator()
         {
             var to = new Dictionary<string, string>();
             foreach (var key in Keys)
@@ -98,6 +98,9 @@ namespace ServiceStack.Text
             }
             return to.GetEnumerator();
         }
+
+        IEnumerator<KeyValuePair<string, string>> IEnumerable<KeyValuePair<string, string>>.GetEnumerator()
+            => GetEnumerator();
 
         public static JsonObject Parse(string json)
         {
