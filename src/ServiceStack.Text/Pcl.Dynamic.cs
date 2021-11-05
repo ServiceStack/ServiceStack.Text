@@ -102,7 +102,7 @@ namespace ServiceStack
         {
             // Support arbitrary nesting by using JsonObject
             var deserialized = JsonSerializer.DeserializeFromString<JsonObject>(json);
-            var hash = deserialized.ToDictionary<KeyValuePair<string, string>, string, object>(entry => entry.Key, entry => entry.Value);
+            var hash = deserialized.ToUnescapedDictionary().ToObjectDictionary();
             return new DynamicJson(hash);
         }
 

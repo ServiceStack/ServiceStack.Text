@@ -205,6 +205,10 @@ namespace ServiceStack.Text.Common
                 writer.Write(JsonUtils.Null);
                 return;
             }
+
+            if (map is JsonObject jsonObject)
+                map = (IDictionary<TKey,TValue>) jsonObject.ToUnescapedDictionary();
+            
             writer.Write(JsWriter.MapStartChar);
 
             var encodeMapKey = Serializer.GetTypeInfo(typeof(TKey)).EncodeMapKey;

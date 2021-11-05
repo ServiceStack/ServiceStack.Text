@@ -102,6 +102,17 @@ namespace ServiceStack.Text
         IEnumerator<KeyValuePair<string, string>> IEnumerable<KeyValuePair<string, string>>.GetEnumerator()
             => GetEnumerator();
 
+        public Dictionary<string, string> ToUnescapedDictionary()
+        {
+            var to = new Dictionary<string, string>();
+            var enumerateAsConcreteDict = (Dictionary<string, string>)this;
+            foreach (var entry in enumerateAsConcreteDict)
+            {
+                to[entry.Key] = entry.Value;
+            }
+            return to;
+        }
+
         public static JsonObject Parse(string json)
         {
             return JsonSerializer.DeserializeFromString<JsonObject>(json);
