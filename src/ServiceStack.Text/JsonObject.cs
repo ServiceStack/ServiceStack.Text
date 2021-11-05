@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -86,6 +87,16 @@ namespace ServiceStack.Text
         {
             get => this.Get(key);
             set => base[key] = value;
+        }
+
+        public Enumerator GetEnumerator()
+        {
+            var to = new Dictionary<string, string>();
+            foreach (var key in Keys)
+            {
+                to[key] = this[key];
+            }
+            return to.GetEnumerator();
         }
 
         public static JsonObject Parse(string json)

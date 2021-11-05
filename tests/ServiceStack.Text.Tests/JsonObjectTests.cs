@@ -474,5 +474,20 @@ namespace ServiceStack.Text.Tests
             Assert.That(nested.ToJson(), Is.EqualTo("{\"Prop\":{\"a\":{\"text\":\"line\\nbreak\"}}}"));
         }
 
+        [Test]
+        public void Enumerating_JsonObject_returns_same_unescaped_value_as_indexer()
+        {
+            var obj = JsonObject.Parse(@"{""a"":""b\\c""}");
+            Assert.That(obj["a"], Is.EqualTo("b\\c"));
+
+            foreach (var entry in obj)
+            {
+                if (entry.Key == "a")
+                {
+                    Assert.That(entry.Value, Is.EqualTo("b\\c"));
+                }
+            }
+        }
+
     }
 }
