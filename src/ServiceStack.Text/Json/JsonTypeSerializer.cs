@@ -138,7 +138,6 @@ namespace ServiceStack.Text.Json
 
         public void WriteNullableTimeSpan(TextWriter writer, object oTimeSpan)
         {
-
             if (oTimeSpan == null) return;
             WriteTimeSpan(writer, ((TimeSpan?)oTimeSpan).Value);
         }
@@ -288,6 +287,50 @@ namespace ServiceStack.Text.Json
             else
                 JsWriter.WriteEnumFlags(writer, enumValue);
         }
+
+
+#if NET6_0
+        public void WriteDateOnly(TextWriter writer, object oDateOnly)
+        {
+            var dateOnly = (DateOnly)oDateOnly;
+            switch (JsConfig.DateHandler)
+            {
+                case DateHandler.UnixTime:
+                    writer.Write(dateOnly.ToUnixTime());
+                    break;
+                case DateHandler.UnixTimeMs:
+                    writer.Write(dateOnly.ToUnixTimeMs());
+                    break;
+                default:
+                    writer.Write(JsWriter.QuoteString);
+                    writer.Write(dateOnly.ToString("O"));
+                    writer.Write(JsWriter.QuoteString);
+                    break;
+            }
+        }
+
+        public void WriteNullableDateOnly(TextWriter writer, object oDateOnly)
+        {
+            if (oDateOnly == null)
+                writer.Write(JsonUtils.Null);
+            else
+                WriteDateOnly(writer, oDateOnly);
+        }
+
+        public void WriteTimeOnly(TextWriter writer, object oTimeOnly)
+        {
+            var stringValue = JsConfig.TimeSpanHandler == TimeSpanHandler.StandardFormat
+                ? oTimeOnly.ToString()
+                : DateTimeSerializer.ToXsdTimeSpanString(((TimeOnly)oTimeOnly).ToTimeSpan());
+            WriteRawString(writer, stringValue);
+        }
+
+        public void WriteNullableTimeOnly(TextWriter writer, object oTimeOnly)
+        {
+            if (oTimeOnly == null) return;
+            WriteTimeSpan(writer, ((TimeOnly?)oTimeOnly).Value.ToTimeSpan());
+        }
+#endif        
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ParseStringDelegate GetParseFn<T>()

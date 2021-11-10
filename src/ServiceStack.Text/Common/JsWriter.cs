@@ -278,6 +278,24 @@ namespace ServiceStack.Text.Common
 
                 if (type == typeof(Guid?))
                     return Serializer.WriteNullableGuid;
+
+#if NET6_0
+                if (type == typeof(DateOnly))
+                    if (isNullable)
+                        return Serializer.WriteNullableDateOnly;
+                    else
+                        return Serializer.WriteDateOnly;
+                if (type == typeof(DateOnly?))
+                    return Serializer.WriteDateOnly;
+                
+                if (type == typeof(TimeOnly))
+                    if (isNullable)
+                        return Serializer.WriteNullableTimeOnly;
+                    else
+                        return Serializer.WriteTimeOnly;
+                if (type == typeof(TimeOnly?))
+                    return Serializer.WriteTimeOnly;
+#endif
             }
             else
             {

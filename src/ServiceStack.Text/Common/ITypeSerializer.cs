@@ -30,8 +30,8 @@ namespace ServiceStack.Text.Common
         void WriteNullableDateTime(TextWriter writer, object dateTime);
         void WriteDateTimeOffset(TextWriter writer, object oDateTimeOffset);
         void WriteNullableDateTimeOffset(TextWriter writer, object dateTimeOffset);
-        void WriteTimeSpan(TextWriter writer, object dateTimeOffset);
-        void WriteNullableTimeSpan(TextWriter writer, object dateTimeOffset);
+        void WriteTimeSpan(TextWriter writer, object timeSpan);
+        void WriteNullableTimeSpan(TextWriter writer, object timeSpan);
         void WriteGuid(TextWriter writer, object oValue);
         void WriteNullableGuid(TextWriter writer, object oValue);
         void WriteBytes(TextWriter writer, object oByteValue);
@@ -49,6 +49,13 @@ namespace ServiceStack.Text.Common
         void WriteDouble(TextWriter writer, object doubleValue);
         void WriteDecimal(TextWriter writer, object decimalValue);
         void WriteEnum(TextWriter writer, object enumValue);
+
+#if NET6_0_OR_GREATER
+        void WriteDateOnly(TextWriter writer, object oDateOnly);
+        void WriteNullableDateOnly(TextWriter writer, object oDateOnly);
+        void WriteTimeOnly(TextWriter writer, object oTimeOnly);
+        void WriteNullableTimeOnly(TextWriter writer, object oTimeOnly);
+#endif
 
         ParseStringDelegate GetParseFn<T>();
         ParseStringSpanDelegate GetParseStringSpanFn<T>();

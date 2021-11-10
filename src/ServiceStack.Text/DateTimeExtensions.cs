@@ -76,6 +76,11 @@ namespace ServiceStack.Text
             return (ticks - UnixEpoch) / TimeSpan.TicksPerMillisecond;
         }
 
+#if NET6_0
+        public static long ToUnixTimeMs(this DateOnly dateOnly) => dateOnly.ToDateTime(default, DateTimeKind.Utc).ToUnixTimeMs(); 
+        public static long ToUnixTime(this DateOnly dateOnly) => dateOnly.ToDateTime(default, DateTimeKind.Utc).ToUnixTime(); 
+#endif
+
         public static DateTime FromUnixTimeMs(this double msSince1970)
         {
             return UnixEpochDateTimeUtc + TimeSpan.FromMilliseconds(msSince1970);
