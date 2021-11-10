@@ -250,7 +250,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void deserizes_to_decimal_by_default()
+        public void Deserializes_to_decimal_by_default()
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;
 
@@ -279,7 +279,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void deserizes_signed_bytes_into_to_best_fit_numeric()
+        public void Deserializes_signed_bytes_into_to_best_fit_numeric()
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.TryToParseNumericType = true;
@@ -292,8 +292,9 @@ namespace ServiceStack.Text.Tests
             Assert.That(deserializedDict["max"], Is.EqualTo(sbyte.MaxValue));
         }
 
+#if NETFX
         [Test]
-        public void deserizes_floats_into_to_best_fit_floating_point()
+        public void Deserializes_floats_into_to_best_fit_floating_point()
         {
             JsConfig.TryToParsePrimitiveTypeValues = true;
             JsConfig.TryToParseNumericType = true;
@@ -301,7 +302,8 @@ namespace ServiceStack.Text.Tests
 
             float floatValue = 1.1f;
             //TODO find a number that doesn't suck which throws in float.Parse() but not double.Parse()
-            double doubleValue = double.MaxValue - Math.Pow(2, 1000);
+            double Offset = Math.Pow(2, 1000);
+            double doubleValue = double.MaxValue - Offset;
             var intValue = int.MaxValue;
             var longValue = long.MaxValue;
 
@@ -311,7 +313,7 @@ namespace ServiceStack.Text.Tests
             var toFloatValue = float.Parse(floatValue.ToString());
             Assert.AreEqual(toFloatValue, floatValue, 1);
             var toDoubleValue = double.Parse(doubleValue.ToString());
-            Assert.AreEqual(toDoubleValue, doubleValue, Math.Pow(2, 1000));
+            Assert.AreEqual(toDoubleValue, doubleValue, Offset);
 
             var json = "{{\"float\":{0},\"double\":{1},\"int\":{2},\"long\":{3}}}"
                 .Fmt(CultureInfo.InvariantCulture, floatValue, doubleValue, intValue, longValue);
@@ -319,9 +321,9 @@ namespace ServiceStack.Text.Tests
 
             Assert.That(map["float"], Is.TypeOf<float>());
             Assert.That(map["float"], Is.EqualTo(floatValue));
-
+ 
             Assert.That(map["double"], Is.TypeOf<double>());
-            Assert.AreEqual((double)map["double"], doubleValue, Math.Pow(2, 1000));
+            Assert.AreEqual((double)map["double"], doubleValue, Offset);
 
             Assert.That(map["int"], Is.TypeOf<int>());
             Assert.That(map["int"], Is.EqualTo(intValue));
@@ -331,9 +333,10 @@ namespace ServiceStack.Text.Tests
 
             JsConfig.Reset();
         }
+#endif
 
         [Test]
-        public void deserizes_signed_types_into_to_best_fit_numeric()
+        public void Deserializes_signed_types_into_to_best_fit_numeric()
         {
             var unsignedTypes = new[]
                 {
@@ -365,7 +368,7 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
-        public void deserizes_unsigned_types_into_to_best_fit_numeric()
+        public void Deserializes_unsigned_types_into_to_best_fit_numeric()
         {
             var unsignedTypes = new[]
                 {

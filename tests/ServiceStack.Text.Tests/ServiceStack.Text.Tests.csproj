@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <AssemblyName>ServiceStack.Text.Tests</AssemblyName>
     <OutputType>Library</OutputType>
@@ -16,7 +16,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <DebugType Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netcoreapp2.1'">Full</DebugType>
+    <DebugType Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'net6.0'">Full</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceStack.Text\ServiceStack.Text.csproj" />
@@ -36,10 +36,10 @@
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="ServiceStack" Version="5.*" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <DefineConstants>$(DefineConstants);NETFX</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Threading" />
     <Reference Include="System.Threading.Tasks" />
@@ -49,10 +49,10 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <DefineConstants>$(DefineConstants);NETCORE;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <ProjectReference Include="..\..\src\ServiceStack.Memory\ServiceStack.Memory.csproj" />
     <PackageReference Include="System.Collections.Specialized" Version="4.*" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.*" />
