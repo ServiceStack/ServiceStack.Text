@@ -67,7 +67,7 @@ public class NullableTimeOnlyDto
 public class Net6TypeTests
 {
     [Test]
-    public void Can_serialize_DateOnly()
+    public void Can_json_serialize_DateOnly()
     {
         var date = new DateOnly(2001, 1, 13);
         var json = date.ToJson();
@@ -90,7 +90,30 @@ public class Net6TypeTests
     }
 
     [Test]
-    public void Can_serialize_DateOnly_UnixTime()
+    public void Can_jsv_serialize_DateOnly()
+    {
+        var date = new DateOnly(2001, 1, 13);
+        var json = date.ToJsv();
+        Assert.That(json, Is.EqualTo("2001-01-13"));
+
+        var fromJson = json.FromJsv<DateOnly>();
+        Assert.That(fromJson, Is.EqualTo(date));
+        
+        var dto = new DateOnlyDto { Date = date };
+        json = dto.ToJsv();
+        Assert.That(json, Is.EqualTo("{Date:2001-01-13}"));
+        var fromJsonDto = json.FromJsv<DateOnlyDto>();
+        Assert.That(fromJsonDto, Is.EqualTo(dto));
+
+        var nullableDto = new NullableDateOnlyDto { Date = date };
+        json = nullableDto.ToJsv();
+        Assert.That(json, Is.EqualTo("{Date:2001-01-13}"));
+        var fromJsonNullableDto = json.FromJsv<NullableDateOnlyDto>();
+        Assert.That(fromJsonNullableDto, Is.EqualTo(nullableDto));
+    }
+
+    [Test]
+    public void Can_json_serialize_DateOnly_UnixTime()
     {
         using (JsConfig.With(new Config { DateHandler = DateHandler.UnixTime }))
         {
@@ -110,9 +133,31 @@ public class Net6TypeTests
             Assert.That(json, Is.EqualTo("{\"Date\":979344000}"));
         }
     }
+
+    [Test]
+    public void Can_jsv_serialize_DateOnly_UnixTime()
+    {
+        using (JsConfig.With(new Config { DateHandler = DateHandler.UnixTime }))
+        {
+            var date = new DateOnly(2001, 1, 13);
+            var json = date.ToJsv();
+            Assert.That(json, Is.EqualTo("979344000"));
+
+            var fromJson = json.FromJsv<DateOnly>();
+            Assert.That(fromJson, Is.EqualTo(date));
+
+            var dto = new DateOnlyDto { Date = date };
+            json = dto.ToJsv();
+            Assert.That(json, Is.EqualTo("{Date:979344000}"));
+
+            var nullableDto = new NullableDateOnlyDto { Date = date };
+            json = nullableDto.ToJsv();
+            Assert.That(json, Is.EqualTo("{Date:979344000}"));
+        }
+    }
     
     [Test]
-    public void Can_serialize_TimeOnly()
+    public void Can_json_serialize_TimeOnly()
     {
         var time = new TimeOnly(13, 13, 13);
         var json = time.ToJson();
@@ -131,6 +176,29 @@ public class Net6TypeTests
         json = nullableDto.ToJson();
         Assert.That(json, Is.EqualTo("{\"Time\":\"PT13H13M13S\"}"));
         var fromJsonNullableDto = json.FromJson<NullableTimeOnlyDto>();
+        Assert.That(fromJsonNullableDto, Is.EqualTo(nullableDto));
+    }
+    
+    [Test]
+    public void Can_jsv_serialize_TimeOnly()
+    {
+        var time = new TimeOnly(13, 13, 13);
+        var json = time.ToJsv();
+        Assert.That(json, Is.EqualTo("PT13H13M13S"));
+
+        var fromJson = json.FromJsv<TimeOnly>();
+        Assert.That(fromJson, Is.EqualTo(time));
+        
+        var dto = new TimeOnlyDto { Time = time };
+        json = dto.ToJsv();
+        Assert.That(json, Is.EqualTo("{Time:PT13H13M13S}"));
+        var fromJsonDto = json.FromJsv<TimeOnlyDto>();
+        Assert.That(fromJsonDto, Is.EqualTo(dto));
+
+        var nullableDto = new NullableTimeOnlyDto { Time = time };
+        json = nullableDto.ToJsv();
+        Assert.That(json, Is.EqualTo("{Time:PT13H13M13S}"));
+        var fromJsonNullableDto = json.FromJsv<NullableTimeOnlyDto>();
         Assert.That(fromJsonNullableDto, Is.EqualTo(nullableDto));
     }
 
