@@ -42,6 +42,7 @@
     <Target Name="ClearNuGetRestoreCaches">
         <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
         <RemoveDir Directories="$(SrcDir)/ServiceStack.Memory/obj" />
+        <RemoveDir Directories="$(TestsDir)/ServiceStack.Text.Tests/obj" />
         <RemoveDir Directories="$(TestsDir)/ServiceStack.Text.TestsConsole/obj" />
     </Target>
 

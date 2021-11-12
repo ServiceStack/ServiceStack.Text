@@ -12,6 +12,7 @@
     <PropertyGroup>
         <BuildSolutionDir>$(MSBuildProjectDirectory)/..</BuildSolutionDir>
         <SrcDir>$(BuildSolutionDir)/src</SrcDir>
+        <TestsDir>$(BuildSolutionDir)/tests</TestsDir>
         <Configuration Condition="$(Configuration) == ''">Release</Configuration>
         <NuGetPackageDir>$(BuildSolutionDir)/NuGet/</NuGetPackageDir>
         <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)</PackageVersion>
@@ -47,6 +48,8 @@
     <Target Name="ClearNuGetRestoreCaches">
         <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
         <RemoveDir Directories="$(SrcDir)/ServiceStack.Memory/obj" />
+        <RemoveDir Directories="$(TestsDir)/ServiceStack.Text.Tests/obj" />
+        <RemoveDir Directories="$(TestsDir)/ServiceStack.Text.TestsConsole/obj" />
     </Target>
 
     <Target Name="UpdateVersion">
