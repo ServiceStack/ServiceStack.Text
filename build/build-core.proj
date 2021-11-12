@@ -41,6 +41,7 @@
     <!-- need to remove old caches from nuget restore from .Core csproj's -->
     <Target Name="ClearNuGetRestoreCaches">
         <RemoveDir Directories="$(SrcDir)/ServiceStack.Text/obj" />
+        <RemoveDir Directories="$(SrcDir)/ServiceStack.Memory/obj" />
         <RemoveDir Directories="$(TestsDir)/ServiceStack.Text.TestsConsole/obj" />
     </Target>
 
