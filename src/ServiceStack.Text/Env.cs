@@ -108,14 +108,15 @@ namespace ServiceStack.Text
                               + PclExport.Instance.PlatformName
                               + (IsMono ? "/Mono" : "")
                               + (IsLinux ? "/Linux" : IsOSX ? "/OSX" : IsUnix ? "/Unix" : IsWindows ? "/Windows" : "/UnknownOS")
-                              + (IsIOS ? "/iOS" : IsAndroid ? "/Android" : IsUWP ? "/UWP" : "");
+                              + (IsIOS ? "/iOS" : IsAndroid ? "/Android" : IsUWP ? "/UWP" : "")
+                              + (IsNet6 ? "/net6" : IsNetStandard20 ? "/std2.0" : IsNetFramework ? "netfx" : "");
 
             __releaseDate = new DateTime(2001,01,01);
         }
 
         public static string VersionString { get; set; }
 
-        public static decimal ServiceStackVersion = 5.130m;
+        public static decimal ServiceStackVersion = 5.131m;
 
         public static bool IsLinux { get; set; }
 
@@ -271,7 +272,7 @@ namespace ServiceStack.Text
                             break;
                         case 0:     // ERROR_SUCCESS
                         case 122:   // ERROR_INSUFFICIENT_BUFFER
-                                    // Success is actually insufficent buffer as we're really only looking for
+                                    // Success is actually insufficient buffer as we're really only looking for
                                     // not NO_APPLICATION and we're not actually giving a buffer here. The
                                     // API will always return NO_APPLICATION if we're not running under a
                                     // WinRT process, no matter what size the buffer is.
