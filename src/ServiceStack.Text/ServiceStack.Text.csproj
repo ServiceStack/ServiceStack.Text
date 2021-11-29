@@ -10,6 +10,7 @@
       https://github.com/ServiceStack/ServiceStack.Text
     </PackageDescription>
     <PackageTags>JSON;Text;Serializer;CSV;JSV;HTTP;Auto Mapping;Dump;Reflection;JS;Utils;Fast</PackageTags>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <DefineConstants>$(DefineConstants);NETCORE;NETCORE2_1</DefineConstants>
