@@ -2,8 +2,7 @@
   <PropertyGroup>
     <PackageId>ServiceStack.Text</PackageId>
     <AssemblyName>ServiceStack.Text</AssemblyName>
-    <!--TargetFrameworks>net45;netstandard2.0;netcoreapp2.1</TargetFrameworks-->
-    <TargetFrameworks>net45;netstandard2.0;netcoreapp2.1;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1;net6.0</TargetFrameworks>
     <Title>.NET's fastest JSON Serializer by ServiceStack</Title>
     <PackageDescription>
       .NET's fastest JSON, JSV and CSV Text Serializers. Fast, Light, Resilient.
@@ -15,18 +14,12 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <DefineConstants>$(DefineConstants);NETCORE;NETCORE2_1</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <DefineConstants>$(DefineConstants);NETCORE;NET6_0;NET6_0_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETSTANDARD;NET6_0</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Runtime" Version="4.3.1" />
