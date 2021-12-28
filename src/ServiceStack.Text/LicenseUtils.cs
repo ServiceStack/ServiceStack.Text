@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace ServiceStack
     public enum LicenseType
     {
         Free,
+        FreeIndividual,
+        FreeOpenSource,
         Indie,
         Business,
         Enterprise,
@@ -210,6 +213,12 @@ namespace ServiceStack
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             try
             {
+                if (IsFreeLicenseKey(licenseKeyText))
+                {
+                    ValidateFreeLicenseKey(licenseKeyText);
+                    return;
+                }
+                
                 var parts = licenseKeyText.SplitOnFirst('-');
                 subId = parts[0];
 
@@ -227,7 +236,7 @@ namespace ServiceStack
             catch (Exception ex)
             {
                 //bubble unrelated project Exceptions
-                if (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException) 
+                if (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException || ex is NotSupportedException) 
                     throw;
                 
                 if (ex is LicenseException)
@@ -276,6 +285,162 @@ namespace ServiceStack
             LicenseWarningMessage = GetLicenseWarningMessage();
             if (LicenseWarningMessage != null)
                 Console.WriteLine(LicenseWarningMessage);
+        }
+        
+        private const string IndividualPrefix = "Individual (c) ";
+        private const string OpenSourcePrefix = "OSS ";
+
+        private static bool IsFreeLicenseKey(string licenseText) =>
+            licenseText.StartsWith(IndividualPrefix) || licenseText.StartsWith(OpenSourcePrefix);
+
+        private static void ValidateFreeLicenseKey(string licenseText)
+        {
+            if (!IsFreeLicenseKey(licenseText))
+                throw new NotSupportedException("Not a free License Key");
+            
+            var envKey = Environment.GetEnvironmentVariable("SERVICESTACK_LICENSE");
+            if (envKey == licenseText)
+                throw new LicenseException("Cannot use SERVICESTACK_LICENSE Environment variable with free License Keys, " +
+                                           "please use Licensing.RegisterLicense() in source code.");
+
+            LicenseKey key = null;
+            if (licenseText.StartsWith(IndividualPrefix))
+            {
+                key = VerifyIndividualLicense(licenseText);
+                if (key == null)
+                    throw new LicenseException("Individual License Key is invalid.");
+            }
+            else if (licenseText.StartsWith(OpenSourcePrefix))
+            {
+                key = VerifyOpenSourceLicense(licenseText);
+                if (key == null)
+                    throw new LicenseException("Open Source License Key is invalid.");
+            }
+            else throw new NotSupportedException("Not a free License Key");
+
+            var releaseDate = Env.GetReleaseDate();
+            if (releaseDate > key.Expiry)
+                throw new LicenseException($"This license has expired on {key.Expiry:d} and is not valid for use with this release.\n"
+                                          + "Check https://servicestack.net/free for eligible renewals.").Trace();
+
+            __activatedLicense = new __ActivatedLicense(key);
+        }
+
+        internal static string Info => __activatedLicense?.LicenseKey == null
+            ? "NO"
+            : __activatedLicense.LicenseKey.Type switch {
+                LicenseType.Free => "FR",
+                LicenseType.FreeIndividual => "FI",
+                LicenseType.FreeOpenSource => "FO",
+                LicenseType.Indie => "IN",
+                LicenseType.Business => "BU",
+                LicenseType.Enterprise => "EN",
+                LicenseType.TextIndie => "TI",
+                LicenseType.TextBusiness => "TB",
+                LicenseType.OrmLiteIndie => "OI",
+                LicenseType.OrmLiteBusiness => "OB",
+                LicenseType.RedisIndie => "RI",
+                LicenseType.RedisBusiness => "RB",
+                LicenseType.AwsIndie => "AI",
+                LicenseType.AwsBusiness => "AB",
+                LicenseType.Trial => "TR",
+                LicenseType.Site => "SI",
+                LicenseType.TextSite => "TS",
+                LicenseType.RedisSite => "RS",
+                LicenseType.OrmLiteSite => "OS",
+                _ => "UN",
+            };
+
+        private static LicenseKey VerifyIndividualLicense(string licenseKey)
+        {
+            if (licenseKey == null)
+                return null;
+            if (licenseKey.Length < 100)
+                return null;
+            if (!licenseKey.StartsWith(IndividualPrefix))
+                return null;
+            var keyText = licenseKey.LastLeftPart(' ');
+            var keySign = licenseKey.LastRightPart(' ');
+            if (keySign.Length < 48)
+                return null;
+
+            try
+            {
+                var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.FromXml(LicensePublicKey);
+
+#if !NETCORE
+                var verified = ((System.Security.Cryptography.RSACryptoServiceProvider)rsa)
+                    .VerifyData(keyText.ToUtf8Bytes(), "SHA256", Convert.FromBase64String(keySign));
+#else
+                var verified = rsa.VerifyData(keyText.ToUtf8Bytes(), 
+                    Convert.FromBase64String(keySign), 
+                    System.Security.Cryptography.HashAlgorithmName.SHA256, 
+                    System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+#endif
+                if (verified)
+                {
+                    var yearStr = keyText.Substring(IndividualPrefix.Length).LeftPart(' ');
+                    if (yearStr.Length == 4 && int.TryParse(yearStr, out var year))
+                    {
+                        return new LicenseKey {
+                            Expiry = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                            Hash = keySign,
+                            Name = keyText,
+                            Type = LicenseType.FreeIndividual,
+                        };
+                    }
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        private static LicenseKey VerifyOpenSourceLicense(string licenseKey)
+        {
+            if (licenseKey == null)
+                return null;
+            if (licenseKey.Length < 100)
+                return null;
+            if (!licenseKey.StartsWith(OpenSourcePrefix))
+                return null;
+            var keyText = licenseKey.LastLeftPart(' ');
+            var keySign = licenseKey.LastRightPart(' ');
+            if (keySign.Length < 48)
+                return null;
+
+            try
+            {
+                var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.FromXml(LicensePublicKey);
+
+#if !NETCORE
+                var verified = ((System.Security.Cryptography.RSACryptoServiceProvider)rsa)
+                    .VerifyData(keyText.ToUtf8Bytes(), "SHA256", Convert.FromBase64String(keySign));
+#else
+                var verified = rsa.VerifyData(keyText.ToUtf8Bytes(), 
+                    Convert.FromBase64String(keySign), 
+                    System.Security.Cryptography.HashAlgorithmName.SHA256, 
+                    System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+#endif
+                if (verified)
+                {
+                    var yearStr = keyText.Substring(OpenSourcePrefix.Length).RightPart(' ').LeftPart(' ');
+                    if (yearStr.Length == 4 && int.TryParse(yearStr, out var year))
+                    {
+                        return new LicenseKey {
+                            Expiry = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                            Hash = keySign,
+                            Name = keyText,
+                            Type = LicenseType.FreeOpenSource,
+                        };
+                    }
+                }
+            }
+            catch { }
+
+            return null;
         }
 
         public static void RemoveLicense()
@@ -382,6 +547,8 @@ namespace ServiceStack
                 case LicenseType.Free:
                     return LicenseFeature.Free;
                 
+                case LicenseType.FreeIndividual:
+                case LicenseType.FreeOpenSource:
                 case LicenseType.Indie:
                 case LicenseType.Business:
                 case LicenseType.Enterprise:

@@ -109,7 +109,8 @@ namespace ServiceStack.Text
                               + (IsMono ? "/Mono" : "")
                               + (IsLinux ? "/Linux" : IsOSX ? "/OSX" : IsUnix ? "/Unix" : IsWindows ? "/Windows" : "/UnknownOS")
                               + (IsIOS ? "/iOS" : IsAndroid ? "/Android" : IsUWP ? "/UWP" : "")
-                              + (IsNet6 ? "/net6" : IsNetStandard20 ? "/std2.0" : IsNetFramework ? "netfx" : "");
+                              + (IsNet6 ? "/net6" : IsNetStandard20 ? "/std2.0" : IsNetFramework ? "netfx" : "")
+                              + ($"/{LicenseUtils.Info}");
 
             __releaseDate = new DateTime(2001,01,01);
         }
