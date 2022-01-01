@@ -76,6 +76,17 @@ namespace ServiceStack.Text.Tests
         }
 
         [Test]
+        public void TestJsonDataWithJsConfigScope_ext()
+        {
+            Assert.That(CreateObject().ToJson(config => config.TextCase = TextCase.SnakeCase),
+                Is.EqualTo("{\"id\":1,\"root_id\":100,\"display_name\":\"Test object\"}"));
+            Assert.That(CreateObject().ToJson(config => config.TextCase = TextCase.CamelCase),
+                Is.EqualTo("{\"id\":1,\"rootId\":100,\"displayName\":\"Test object\"}"));
+            Assert.That(CreateObject().ToJson(config => config.TextCase = TextCase.PascalCase),
+                Is.EqualTo("{\"Id\":1,\"RootId\":100,\"DisplayName\":\"Test object\"}"));
+        }
+
+        [Test]
         public void TestCloneObjectWithJsConfigScope()
         {
             using (JsConfig.With(new Config { TextCase = TextCase.SnakeCase, PropertyConvention = PropertyConvention.Lenient}))

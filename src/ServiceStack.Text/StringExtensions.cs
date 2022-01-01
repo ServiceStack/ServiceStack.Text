@@ -517,6 +517,16 @@ namespace ServiceStack
             return TypeSerializer.SerializeToString(obj);
         }
 
+        public static string ToJsv<T>(this T obj, Action<Config> configure)
+        {
+            var config = new Config();
+            configure(config);
+            using (JsConfig.With(config))
+            {
+                return ToJsv(obj);
+            }
+        }
+
         public static string ToSafeJsv<T>(this T obj)
         {
             return TypeSerializer.HasCircularReferences(obj)
@@ -532,6 +542,16 @@ namespace ServiceStack
         public static T FromJsvSpan<T>(this ReadOnlySpan<char> jsv)
         {
             return TypeSerializer.DeserializeFromSpan<T>(jsv);
+        }
+
+        public static string ToJson<T>(this T obj, Action<Config> configure)
+        {
+            var config = new Config();
+            configure(config);
+            using (JsConfig.With(config))
+            {
+                return ToJson(obj);
+            }
         }
         
         public static string ToJson<T>(this T obj)
@@ -561,6 +581,16 @@ namespace ServiceStack
         public static string ToCsv<T>(this T obj)
         {
             return CsvSerializer.SerializeToString(obj);
+        }
+
+        public static string ToCsv<T>(this T obj, Action<Config> configure)
+        {
+            var config = new Config();
+            configure(config);
+            using (JsConfig.With(config))
+            {
+                return ToCsv(obj);
+            }
         }
 
         public static T FromCsv<T>(this string csv)
