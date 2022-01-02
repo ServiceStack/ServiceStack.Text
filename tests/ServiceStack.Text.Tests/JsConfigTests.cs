@@ -131,7 +131,6 @@ namespace ServiceStack.Text.Tests
         {
             JsConfig.TextCase = TextCase.Default;
             JsConfig<TestObject>.TextCase = TextCase.SnakeCase;
-            JsConfig.PropertyConvention = PropertyConvention.Lenient;
 
             AssertObject();
 

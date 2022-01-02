@@ -14,6 +14,15 @@ namespace ServiceStack.Text
         internal FieldInfo[] Fields;
         internal Func<object, string, object, object> OnDeserializing;
         internal bool IsUserType { get; set; }
+        internal Func<TextCase> TextCaseResolver;
+        internal TextCase? TextCase 
+        {
+            get
+            {
+                var result = TextCaseResolver?.Invoke();
+                return result is null or Text.TextCase.Default ? null : result;
+            }
+        }
 
         internal TypeConfig(Type type)
         {
@@ -77,7 +86,9 @@ namespace ServiceStack.Text
 
         static TypeConfig Create()
         {
-            config = new TypeConfig(typeof(T));
+            config = new TypeConfig(typeof(T)) {
+                TextCaseResolver = () => JsConfig<T>.TextCase
+            };
 
             var excludedProperties = JsConfig<T>.ExcludePropertyNames ?? TypeConstants.EmptyStringArray;
 

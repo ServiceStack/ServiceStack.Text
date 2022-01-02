@@ -35,7 +35,8 @@ namespace ServiceStack.Text.Common
             var typeAttr = config.TypeAttrMemory;
 
             object instance = null;
-            var lenient = config.PropertyConvention == PropertyConvention.Lenient;
+            var textCase = typeConfig.TextCase.GetValueOrDefault(config.TextCase);
+            var lenient = config.PropertyConvention == PropertyConvention.Lenient || textCase == TextCase.SnakeCase;
 
             for (; index < strTypeLength; index++) { if (!JsonUtils.IsWhiteSpace(buffer[index])) break; } //Whitespace inline
 

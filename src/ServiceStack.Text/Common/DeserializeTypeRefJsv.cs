@@ -32,7 +32,7 @@ namespace ServiceStack.Text.Common
             var config = JsConfig.GetConfig();
 
             object instance = null;
-            var lenient = config.PropertyConvention == PropertyConvention.Lenient;
+            var lenient = config.PropertyConvention == PropertyConvention.Lenient || config.TextCase == TextCase.SnakeCase;
 
             var strTypeLength = strType.Length;
             while (index < strTypeLength)
