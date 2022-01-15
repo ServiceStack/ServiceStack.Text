@@ -52,5 +52,15 @@ namespace ServiceStack.Text.Tests
                 Assert.That(ssString, Is.EqualTo(expected));
             }
         }
+
+        [Test]
+        public void Can_create_MD5_hashes_from_Stream()
+        {
+            var md5Hash = "35f184b0e35d7f5629e79cb4bc802893";
+            var utf8Bytes = nameof(Can_create_MD5_hashes_from_Stream).ToUtf8Bytes();
+            var ms = new MemoryStream(utf8Bytes);
+            Assert.That(utf8Bytes.ToMd5Hash(), Is.EqualTo(md5Hash));
+            Assert.That(ms.ToMd5Bytes().ToHex(), Is.EqualTo(md5Hash));
+        }
     }
 }

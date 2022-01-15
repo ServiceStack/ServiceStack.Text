@@ -446,27 +446,23 @@ namespace ServiceStack
         public static Task WriteAsync(this Stream stream, string text, CancellationToken token = default) =>
             MemoryProvider.Instance.WriteAsync(stream, text.AsSpan(), token);
 
-        public static string ToMd5Hash(this Stream stream)
+        public static byte[] ToMd5Bytes(this Stream stream)
         {
-            var hash = System.Security.Cryptography.MD5.Create().ComputeHash(stream);
-            var sb = StringBuilderCache.Allocate();
-            foreach (byte b in hash)
+#if NET6_0_OR_GREATER
+            if (stream is MemoryStream ms)
+                return System.Security.Cryptography.MD5.HashData(ms.GetBufferAsSpan());
+#endif
+            if (stream.CanSeek)
             {
-                sb.Append(b.ToString("x2"));
+                stream.Position = 0;
             }
-            return StringBuilderCache.ReturnAndFree(sb);
+            return System.Security.Cryptography.MD5.Create().ComputeHash(stream);
         }
 
-        public static string ToMd5Hash(this byte[] bytes)
-        {
-            var hash = System.Security.Cryptography.MD5.Create().ComputeHash(bytes);
-            var sb = StringBuilderCache.Allocate();
-            foreach (byte b in hash)
-            {
-                sb.Append(b.ToString("x2"));
-            }
-            return StringBuilderCache.ReturnAndFree(sb);
-        }
+        public static string ToMd5Hash(this Stream stream) => ToMd5Bytes(stream).ToHex();
+
+        public static string ToMd5Hash(this byte[] bytes) =>
+            System.Security.Cryptography.MD5.Create().ComputeHash(bytes).ToHex();
 
         /// <summary>
         /// Returns bytes in publiclyVisible MemoryStream
