@@ -2015,18 +2015,23 @@ namespace ServiceStack
             GZip,
         };
 
+#if NET6_0_OR_GREATER        
+        public const string Default = Brotli;
+#else
         public const string Default = Deflate;
+#endif
+
         public const string Brotli = "br";
         public const string Deflate = "deflate";
         public const string GZip = "gzip";
 
         public static bool IsValid(string compressionType)
         {
-            return compressionType is Deflate or GZip
 #if NET6_0_OR_GREATER        
-                    or Brotli
+            return compressionType is Deflate or GZip or Brotli;
+#else
+            return compressionType is Deflate or GZip;
 #endif
-                ;
         }
 
         public static void AssertIsValid(string compressionType)
