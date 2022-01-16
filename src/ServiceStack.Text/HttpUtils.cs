@@ -1375,7 +1375,7 @@ namespace ServiceStack
 {
     public static class MimeTypes
     {
-        public static Dictionary<string, string> ExtensionMimeTypes = new Dictionary<string, string>();
+        public static Dictionary<string, string> ExtensionMimeTypes = new();
         public const string Utf8Suffix = "; charset=utf-8";
 
         public const string Html = "text/html";
@@ -1957,7 +1957,7 @@ namespace ServiceStack
         public const string Host = "Host";
         public const string UserAgent = "User-Agent";
 
-        public static HashSet<string> RestrictedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        public static HashSet<string> RestrictedHeaders = new(StringComparer.OrdinalIgnoreCase)
         {
             Accept,
             Connection,
@@ -1990,7 +1990,7 @@ namespace ServiceStack
             "POLL",  "SUBSCRIBE", "UNSUBSCRIBE" //MS Exchange WebDav: http://msdn.microsoft.com/en-us/library/aa142917.aspx
         };
 
-        public static HashSet<string> AllVerbs = new HashSet<string>(allVerbs);
+        public static HashSet<string> AllVerbs = new(allVerbs);
 
         public static bool Exists(string httpMethod) => AllVerbs.Contains(httpMethod.ToUpper());
         public static bool HasVerb(string httpVerb) => Exists(httpVerb);
@@ -2034,7 +2034,7 @@ namespace ServiceStack
             if (!IsValid(compressionType))
             {
                 throw new NotSupportedException(compressionType
-                    + " is not a supported compression type. Valid types: gzip, deflate, br.");
+                    + " is not a supported compression type. Valid types: " + string.Join(", ", AllCompressionTypes));
             }
         }
 
@@ -2057,7 +2057,7 @@ namespace ServiceStack
     {
         public static string GetStatusDescription(int statusCode)
         {
-            if (statusCode >= 100 && statusCode < 600)
+            if (statusCode is >= 100 and < 600)
             {
                 int i = statusCode / 100;
                 int j = statusCode % 100;
@@ -2069,7 +2069,7 @@ namespace ServiceStack
             return string.Empty;
         }
 
-        private static readonly string[][] Descriptions = new string[][]
+        private static readonly string[][] Descriptions = 
         {
             null,
             new[]
