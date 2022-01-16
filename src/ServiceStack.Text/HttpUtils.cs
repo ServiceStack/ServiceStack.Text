@@ -2006,16 +2006,29 @@ namespace ServiceStack
 
     public static class CompressionTypes
     {
-        public static readonly string[] AllCompressionTypes = { Deflate, GZip };
+        public static readonly string[] AllCompressionTypes =
+        {
+#if NET6_0_OR_GREATER        
+            Brotli,
+#endif
+            Deflate, 
+            GZip,
+        };
 
         public const string Default = Deflate;
+#if NET6_0_OR_GREATER        
         public const string Brotli = "br";
+#endif
         public const string Deflate = "deflate";
         public const string GZip = "gzip";
 
         public static bool IsValid(string compressionType)
         {
-            return compressionType is Deflate or GZip or Brotli;
+            return compressionType is Deflate or GZip
+#if NET6_0_OR_GREATER        
+                    or Brotli
+#endif
+                ;
         }
 
         public static void AssertIsValid(string compressionType)
@@ -2031,7 +2044,9 @@ namespace ServiceStack
         {
             switch (compressionType)
             {
+#if NET6_0_OR_GREATER        
                 case Brotli:
+#endif
                 case Deflate:
                 case GZip:
                     return "." + compressionType;
