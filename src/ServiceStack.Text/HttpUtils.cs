@@ -2016,9 +2016,7 @@ namespace ServiceStack
         };
 
         public const string Default = Deflate;
-#if NET6_0_OR_GREATER        
         public const string Brotli = "br";
-#endif
         public const string Deflate = "deflate";
         public const string GZip = "gzip";
 
@@ -2044,9 +2042,7 @@ namespace ServiceStack
         {
             switch (compressionType)
             {
-#if NET6_0_OR_GREATER        
                 case Brotli:
-#endif
                 case Deflate:
                 case GZip:
                     return "." + compressionType;
