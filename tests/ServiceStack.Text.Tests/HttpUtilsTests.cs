@@ -64,5 +64,14 @@ namespace ServiceStack.Text.Tests
             Assert.That("http://example.com#s=rf/f=1".SetHashParam("f", "2"), Is.EqualTo("http://example.com#s=rf/f=2"));
             Assert.That("http://example.com#ab=0".SetHashParam("a", "1"), Is.EqualTo("http://example.com#ab=0/a=1"));
         }
+
+        [Test]
+        public void Can_get_MimeType_file_extension()
+        {
+            Assert.That(MimeTypes.GetExtension(MimeTypes.Html), Is.EqualTo(".html"));
+            Assert.That(MimeTypes.GetExtension(MimeTypes.HtmlUtf8), Is.EqualTo(".html"));
+            Assert.That(MimeTypes.GetExtension(MimeTypes.ImagePng), Is.EqualTo(".png"));
+            Assert.That(MimeTypes.GetExtension(MimeTypes.ImageSvg), Is.EqualTo(".svg"));
+        }
     }
 }

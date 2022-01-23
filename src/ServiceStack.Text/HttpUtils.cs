@@ -12,7 +12,12 @@ using ServiceStack.Text;
 
 namespace ServiceStack
 {
-    public static class HttpUtils
+    public static partial class HttpUtils
+    {
+        
+    }
+    
+    public static partial class HttpUtils
     {
         public static string UserAgent = "ServiceStack.Text";
 
@@ -781,10 +786,8 @@ namespace ServiceStack
 
             if (requestBody != null)
             {
-                using (var req = PclExport.Instance.GetRequestStream(webReq))
-                {
-                    requestBody.CopyTo(req);
-                }
+                using var req = PclExport.Instance.GetRequestStream(webReq);
+                requestBody.CopyTo(req);
             }
 
             var webRes = PclExport.Instance.GetResponse(webReq);
@@ -1431,8 +1434,8 @@ namespace ServiceStack
             }
 
             var parts = mimeType.Split('/');
-            if (parts.Length == 1) return "." + parts[0];
-            if (parts.Length == 2) return "." + parts[1];
+            if (parts.Length == 1) return "." + parts[0].LeftPart('+').LeftPart(';');
+            if (parts.Length == 2) return "." + parts[1].LeftPart('+').LeftPart(';');
 
             throw new NotSupportedException("Unknown mimeType: " + mimeType);
         }
