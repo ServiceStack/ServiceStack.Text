@@ -14,11 +14,6 @@ namespace ServiceStack
 {
     public static partial class HttpUtils
     {
-        
-    }
-    
-    public static partial class HttpUtils
-    {
         public static string UserAgent = "ServiceStack.Text";
 
         public static Encoding UseEncoding { get; set; } = PclExport.Instance.GetUTF8Encoding(false);
