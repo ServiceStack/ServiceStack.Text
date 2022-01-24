@@ -21,8 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceStack.Text.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceStack.Text.TestsConsole", "..\tests\ServiceStack.Text.TestsConsole\ServiceStack.Text.TestsConsole.csproj", "{DD3BEB33-2509-423A-8545-CE1A83684530}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Memory", "ServiceStack.Memory\ServiceStack.Memory.csproj", "{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Benchmarks", "..\tests\ServiceStack.Text.Benchmarks\ServiceStack.Text.Benchmarks.csproj", "{FF1E5617-FD95-496F-B591-17DA6E0B364F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Common", "..\tests\Northwind.Common\Northwind.Common.csproj", "{573926E5-F332-462D-A740-31706708A032}"
@@ -45,10 +43,6 @@ Global
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD3BEB33-2509-423A-8545-CE1A83684530}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7128E4DB-6C8B-4EFC-A04D-DDDF8A58BB53}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF1E5617-FD95-496F-B591-17DA6E0B364F}.Release|Any CPU.ActiveCfg = Release|Any CPU

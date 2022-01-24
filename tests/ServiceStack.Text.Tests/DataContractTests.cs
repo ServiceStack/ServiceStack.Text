@@ -258,39 +258,12 @@ namespace ServiceStack.Text.Tests
             Assert.IsTrue (t.Bytes.AreEqual (new byte[] { 0x61, 0x62 }));
         }
 
-#if !NETCORE
-        [Test]
-        public void Can_get_weak_DataMember()
-        {
-            var dto = new ClassOne();
-            var dataMemberAttr = dto.GetType().GetProperty("Id").GetWeakDataMember();
-            Assert.That(dataMemberAttr.Name, Is.Null);
-
-            dataMemberAttr = dto.GetType().GetProperty("List").GetWeakDataMember();
-            Assert.That(dataMemberAttr.Name, Is.EqualTo("listClassTwo"));
-            Assert.That(dataMemberAttr.Order, Is.EqualTo(1));
-        }
-#endif
-
         [DataContract(Name = "my-class", Namespace = "http://schemas.ns.com")]
         public class MyClass
         {
             [DataMember(Name = "some-title")]
             public string Title { get; set; }
         }
-
-#if !NETCORE
-        [Test]
-        public void Can_get_weak_DataContract()
-        {
-            var mc = new MyClass { Title = "Some random title" };
-
-            var attr = mc.GetType().GetWeakDataContract();
-
-            Assert.That(attr.Name, Is.EqualTo("my-class"));
-            Assert.That(attr.Namespace, Is.EqualTo("http://schemas.ns.com"));
-        }
-#endif
 
         [Test]
         public void Does_use_DataMember_Name()

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using BenchmarkDotNet.Attributes;
-using ServiceStack.Memory;
 
 namespace ServiceStack.Text.Benchmarks
 {

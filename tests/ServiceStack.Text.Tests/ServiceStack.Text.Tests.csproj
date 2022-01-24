@@ -54,7 +54,6 @@
     <DefineConstants>$(DefineConstants);NETCORE;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <ProjectReference Include="..\..\src\ServiceStack.Memory\ServiceStack.Memory.csproj" />
     <PackageReference Include="System.Collections.Specialized" Version="4.*" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.*" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.*" />
