@@ -1,4 +1,4 @@
-﻿#if NET45 || (NETCORE && !NETSTANDARD2_0)
+﻿#if NETFX || (NETCORE && !NETSTANDARD2_0)
 
 using System;
 using System.Linq;
