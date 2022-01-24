@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
 using ServiceStack.Common.Tests;
-using ServiceStack.OrmLite;
+//using ServiceStack.OrmLite;
 using ServiceStack.Reflection;
 
 namespace ServiceStack.Text.TestsConsole
@@ -14,7 +14,7 @@ namespace ServiceStack.Text.TestsConsole
     {
         public static void Main(string[] args)
         {
-            PrintDumpColumnSchema();
+            // PrintDumpColumnSchema();
             
             //var da = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("dyn"),  AssemblyBuilderAccess.Save);
 
@@ -62,19 +62,19 @@ namespace ServiceStack.Text.TestsConsole
 
         public static object SimpleConcat(string text) => "Hi " + text;
 
-        public static void PrintDumpColumnSchema()
-        {
-            var dbFactory = new OrmLiteConnectionFactory(":memory:",
-                SqliteDialect.Provider);
-
-            using var db = dbFactory.Open();
-            db.CreateTableIfNotExists<Person>();
-
-            ColumnSchema[] columnSchemas = db.GetTableColumns<Person>();
-                
-            columnSchemas.Each(x => x.ToString().Print());
-            columnSchemas.Each(x => x.PrintDump());
-        }
+        // public static void PrintDumpColumnSchema()
+        // {
+        //     var dbFactory = new OrmLiteConnectionFactory(":memory:",
+        //         SqliteDialect.Provider);
+        //
+        //     using var db = dbFactory.Open();
+        //     db.CreateTableIfNotExists<Person>();
+        //
+        //     ColumnSchema[] columnSchemas = db.GetTableColumns<Person>();
+        //         
+        //     columnSchemas.Each(x => x.ToString().Print());
+        //     columnSchemas.Each(x => x.PrintDump());
+        // }
 
         public class Person
         {
