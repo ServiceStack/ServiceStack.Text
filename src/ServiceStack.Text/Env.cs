@@ -34,7 +34,7 @@ namespace ServiceStack.Text
             IsUnix = IsOSX || IsLinux;
             HasMultiplePlatformTargets = true;
             IsUWP = IsRunningAsUwp();
-#elif NET45
+#elif NETFX
             IsNetFramework = true;
             switch (Environment.OSVersion.Platform)
             {
