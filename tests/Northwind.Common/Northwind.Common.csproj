@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <PackageReference Include="protobuf-net" Version="3.0.101" />
-    <PackageReference Include="ServiceStack.Interfaces" Version="$(Version)" />
+    <PackageReference Include="ServiceStack.Interfaces" Version="6.*" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">

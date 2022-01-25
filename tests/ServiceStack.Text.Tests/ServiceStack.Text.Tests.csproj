@@ -35,7 +35,7 @@
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="ServiceStack" Version="$(Version)" />
+    <PackageReference Include="ServiceStack" Version="6.*" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <DefineConstants>$(DefineConstants);NETFX</DefineConstants>
