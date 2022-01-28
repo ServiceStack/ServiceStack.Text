@@ -1073,9 +1073,29 @@ public static partial class HttpUtils
         return headerBytes;
     }
 
+    public static string GetHeader(this HttpWebRequest res, string name) =>
+        res.Headers.Get(name);
+    public static string GetHeader(this HttpWebResponse res, string name) =>
+        res.Headers.Get(name);
+
+    public static void DownloadFileTo(this string downloadUrl, string fileName, 
+        Dictionary<string,string> headers = null)
+    {
+        var webClient = new WebClient();
+        if (headers != null)
+        {
+            foreach (var entry in headers)
+            {
+                webClient.Headers[entry.Key] = entry.Value;
+            }
+        }
+        webClient.DownloadFile(downloadUrl, fileName);
+    }
+    
     public static HttpWebRequest With(this HttpWebRequest httpReq,
         string accept = null,
         string userAgent = null,
+        KeyValuePair<string,string>? authorization = null,
         Dictionary<string,string> headers = null)
     {
         if (accept != null)
@@ -1083,6 +1103,11 @@ public static partial class HttpUtils
 
         if (userAgent != null)
             httpReq.UserAgent = userAgent;
+
+        if (authorization != null)
+        {
+            httpReq.Headers[HttpHeaders.Authorization] = authorization.Value.Key + " " + authorization.Value.Value;
+        }
 
         if (headers != null)
         {

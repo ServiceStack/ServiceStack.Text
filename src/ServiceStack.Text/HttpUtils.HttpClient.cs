@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ServiceStack.Text;
@@ -16,14 +16,34 @@ namespace ServiceStack;
 
 public static partial class HttpUtils
 {
-    public static Func<HttpMessageHandler> HandlerFactory { get; set; } =
-        () => new HttpClientHandler {
-            UseDefaultCredentials = true,
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-        };
+    private class HttpClientFactory
+    {
+        private readonly Lazy<HttpMessageHandler> lazyHandler;
+        internal HttpClientFactory(HttpClientHandler handler) => 
+            lazyHandler = new Lazy<HttpMessageHandler>(() => handler, LazyThreadSafetyMode.ExecutionAndPublication);
+        public HttpClient CreateClient() => new(lazyHandler.Value, disposeHandler: false);
+    }
 
-    public static Func<string, HttpClient> ClientFactory { get; set; } =
-        url => new HttpClient(HandlerFactory(), disposeHandler:true);
+    // Ok to use HttpClientHandler which now uses SocketsHttpHandler
+    // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Http/src/System/Net/Http/HttpClientHandler.cs#L16
+    public static HttpClientHandler HttpClientHandler { get; set; } = new() {
+        UseDefaultCredentials = true,
+        AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.Deflate | DecompressionMethods.GZip,
+    };
+
+    // This was the least desirable end to this sadness https://github.com/dotnet/aspnetcore/issues/28385
+    // Requires <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" /> 
+    // public static IHttpClientFactory ClientFactory { get; set; } = new ServiceCollection()
+    //     .AddHttpClient()
+    //     .Configure<HttpClientFactoryOptions>(options => 
+    //         options.HttpMessageHandlerBuilderActions.Add(builder => builder.PrimaryHandler = HandlerFactory))
+    //     .BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+    
+    // Escape & BYO IHttpClientFactory
+    private static HttpClientFactory clientFactory = new(HttpClientHandler);
+    public static Func<HttpClient> CreateClient { get; set; } = () => clientFactory.CreateClient(); 
+
+    public static HttpClient Create() => CreateClient();
 
     public static string GetJsonFromUrl(this string url,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
@@ -67,22 +87,23 @@ public static partial class HttpUtils
     public static string GetStringFromUrl(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        return SendStringToUrl(url, method:HttpMethods.Get, accept: accept, 
+            requestFilter: requestFilter, responseFilter: responseFilter);
     }
 
     public static Task<string> GetStringFromUrlAsync(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter,
-            token: token);
+        return SendStringToUrlAsync(url, method:HttpMethods.Get, accept: accept, 
+            requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
 
     public static string PostStringToUrl(this string url, string? requestBody = null,
         string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST",
+        return SendStringToUrl(url, method:HttpMethods.Post,
             requestBody: requestBody, contentType: contentType,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -92,7 +113,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "POST",
+        return SendStringToUrlAsync(url, method:HttpMethods.Post,
             requestBody: requestBody, contentType: contentType,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -100,7 +121,7 @@ public static partial class HttpUtils
     public static string PostToUrl(this string url, string? formData = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST",
+        return SendStringToUrl(url, method:HttpMethods.Post,
             contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -109,7 +130,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "POST",
+        return SendStringToUrlAsync(url, method:HttpMethods.Post,
             contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -119,7 +140,7 @@ public static partial class HttpUtils
     {
         string? postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
-        return SendStringToUrl(url, method: "POST",
+        return SendStringToUrl(url, method:HttpMethods.Post,
             contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -130,7 +151,7 @@ public static partial class HttpUtils
     {
         string? postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
-        return SendStringToUrlAsync(url, method: "POST",
+        return SendStringToUrlAsync(url, method:HttpMethods.Post,
             contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -138,7 +159,7 @@ public static partial class HttpUtils
     public static string PostJsonToUrl(this string url, string json,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST", requestBody: json, contentType: MimeTypes.Json,
+        return SendStringToUrl(url, method:HttpMethods.Post, requestBody: json, contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -147,7 +168,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "POST", requestBody: json, contentType: MimeTypes.Json,
+        return SendStringToUrlAsync(url, method:HttpMethods.Post, requestBody: json, contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -155,7 +176,7 @@ public static partial class HttpUtils
     public static string PostJsonToUrl(this string url, object data,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST", requestBody: data.ToJson(), contentType: MimeTypes.Json,
+        return SendStringToUrl(url, method:HttpMethods.Post, requestBody: data.ToJson(), contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -164,7 +185,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "POST", requestBody: data.ToJson(), contentType: MimeTypes.Json,
+        return SendStringToUrlAsync(url, method:HttpMethods.Post, requestBody: data.ToJson(), contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -172,7 +193,7 @@ public static partial class HttpUtils
     public static string PostXmlToUrl(this string url, string xml,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+        return SendStringToUrl(url, method:HttpMethods.Post, requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
 
@@ -180,7 +201,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "POST", requestBody: xml, contentType: MimeTypes.Xml,
+        return SendStringToUrlAsync(url, method:HttpMethods.Post, requestBody: xml, contentType: MimeTypes.Xml,
             accept: MimeTypes.Xml,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -188,7 +209,7 @@ public static partial class HttpUtils
     public static string PostCsvToUrl(this string url, string csv,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
+        return SendStringToUrl(url, method:HttpMethods.Post, requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
 
@@ -196,7 +217,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "POST", requestBody: csv, contentType: MimeTypes.Csv,
+        return SendStringToUrlAsync(url, method:HttpMethods.Post, requestBody: csv, contentType: MimeTypes.Csv,
             accept: MimeTypes.Csv,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -205,7 +226,7 @@ public static partial class HttpUtils
         string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT",
+        return SendStringToUrl(url, method:HttpMethods.Put,
             requestBody: requestBody, contentType: contentType,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -215,7 +236,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PUT",
+        return SendStringToUrlAsync(url, method:HttpMethods.Put,
             requestBody: requestBody, contentType: contentType,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -223,7 +244,7 @@ public static partial class HttpUtils
     public static string PutToUrl(this string url, string? formData = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT",
+        return SendStringToUrl(url, method:HttpMethods.Put,
             contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -232,7 +253,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PUT",
+        return SendStringToUrlAsync(url, method:HttpMethods.Put,
             contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -242,7 +263,7 @@ public static partial class HttpUtils
     {
         string? postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
-        return SendStringToUrl(url, method: "PUT",
+        return SendStringToUrl(url, method:HttpMethods.Put,
             contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -253,7 +274,7 @@ public static partial class HttpUtils
     {
         string? postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
-        return SendStringToUrlAsync(url, method: "PUT",
+        return SendStringToUrlAsync(url, method:HttpMethods.Put,
             contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -261,7 +282,7 @@ public static partial class HttpUtils
     public static string PutJsonToUrl(this string url, string json,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT", requestBody: json, contentType: MimeTypes.Json,
+        return SendStringToUrl(url, method:HttpMethods.Put, requestBody: json, contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -270,7 +291,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PUT", requestBody: json, contentType: MimeTypes.Json,
+        return SendStringToUrlAsync(url, method:HttpMethods.Put, requestBody: json, contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -278,7 +299,7 @@ public static partial class HttpUtils
     public static string PutJsonToUrl(this string url, object data,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT", requestBody: data.ToJson(), contentType: MimeTypes.Json,
+        return SendStringToUrl(url, method:HttpMethods.Put, requestBody: data.ToJson(), contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -287,7 +308,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PUT", requestBody: data.ToJson(), contentType: MimeTypes.Json,
+        return SendStringToUrlAsync(url, method:HttpMethods.Put, requestBody: data.ToJson(), contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -295,7 +316,7 @@ public static partial class HttpUtils
     public static string PutXmlToUrl(this string url, string xml,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
+        return SendStringToUrl(url, method:HttpMethods.Put, requestBody: xml, contentType: MimeTypes.Xml, accept: MimeTypes.Xml,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
 
@@ -303,7 +324,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PUT", requestBody: xml, contentType: MimeTypes.Xml,
+        return SendStringToUrlAsync(url, method:HttpMethods.Put, requestBody: xml, contentType: MimeTypes.Xml,
             accept: MimeTypes.Xml,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -311,7 +332,7 @@ public static partial class HttpUtils
     public static string PutCsvToUrl(this string url, string csv,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT", requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
+        return SendStringToUrl(url, method:HttpMethods.Put, requestBody: csv, contentType: MimeTypes.Csv, accept: MimeTypes.Csv,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
 
@@ -319,7 +340,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PUT", requestBody: csv, contentType: MimeTypes.Csv,
+        return SendStringToUrlAsync(url, method:HttpMethods.Put, requestBody: csv, contentType: MimeTypes.Csv,
             accept: MimeTypes.Csv,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -328,7 +349,7 @@ public static partial class HttpUtils
         string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PATCH",
+        return SendStringToUrl(url, method:HttpMethods.Patch,
             requestBody: requestBody, contentType: contentType,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -338,7 +359,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PATCH",
+        return SendStringToUrlAsync(url, method:HttpMethods.Patch,
             requestBody: requestBody, contentType: contentType,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -346,7 +367,7 @@ public static partial class HttpUtils
     public static string PatchToUrl(this string url, string? formData = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PATCH",
+        return SendStringToUrl(url, method:HttpMethods.Patch,
             contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -355,7 +376,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PATCH",
+        return SendStringToUrlAsync(url, method:HttpMethods.Patch,
             contentType: MimeTypes.FormUrlEncoded, requestBody: formData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -365,7 +386,7 @@ public static partial class HttpUtils
     {
         string? postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
-        return SendStringToUrl(url, method: "PATCH",
+        return SendStringToUrl(url, method:HttpMethods.Patch,
             contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -376,7 +397,7 @@ public static partial class HttpUtils
     {
         string? postFormData = formData != null ? QueryStringSerializer.SerializeToString(formData) : null;
 
-        return SendStringToUrlAsync(url, method: "PATCH",
+        return SendStringToUrlAsync(url, method:HttpMethods.Patch,
             contentType: MimeTypes.FormUrlEncoded, requestBody: postFormData,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -384,7 +405,7 @@ public static partial class HttpUtils
     public static string PatchJsonToUrl(this string url, string json,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PATCH", requestBody: json, contentType: MimeTypes.Json,
+        return SendStringToUrl(url, method:HttpMethods.Patch, requestBody: json, contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -393,7 +414,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PATCH", requestBody: json, contentType: MimeTypes.Json,
+        return SendStringToUrlAsync(url, method:HttpMethods.Patch, requestBody: json, contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -401,7 +422,7 @@ public static partial class HttpUtils
     public static string PatchJsonToUrl(this string url, object data,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PATCH", requestBody: data.ToJson(), contentType: MimeTypes.Json,
+        return SendStringToUrl(url, method:HttpMethods.Patch, requestBody: data.ToJson(), contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -410,7 +431,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "PATCH", requestBody: data.ToJson(), contentType: MimeTypes.Json,
+        return SendStringToUrlAsync(url, method:HttpMethods.Patch, requestBody: data.ToJson(), contentType: MimeTypes.Json,
             accept: MimeTypes.Json,
             requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -418,7 +439,7 @@ public static partial class HttpUtils
     public static string DeleteFromUrl(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "DELETE", accept: accept, requestFilter: requestFilter,
+        return SendStringToUrl(url, method:HttpMethods.Delete, accept: accept, requestFilter: requestFilter,
             responseFilter: responseFilter);
     }
 
@@ -426,14 +447,14 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "DELETE", accept: accept, requestFilter: requestFilter,
+        return SendStringToUrlAsync(url, method:HttpMethods.Delete, accept: accept, requestFilter: requestFilter,
             responseFilter: responseFilter, token: token);
     }
 
     public static string OptionsFromUrl(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "OPTIONS", accept: accept, requestFilter: requestFilter,
+        return SendStringToUrl(url, method:HttpMethods.Options, accept: accept, requestFilter: requestFilter,
             responseFilter: responseFilter);
     }
 
@@ -441,14 +462,14 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "OPTIONS", accept: accept, requestFilter: requestFilter,
+        return SendStringToUrlAsync(url, method:HttpMethods.Options, accept: accept, requestFilter: requestFilter,
             responseFilter: responseFilter, token: token);
     }
 
     public static string HeadFromUrl(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "HEAD", accept: accept, requestFilter: requestFilter,
+        return SendStringToUrl(url, method:HttpMethods.Head, accept: accept, requestFilter: requestFilter,
             responseFilter: responseFilter);
     }
 
@@ -456,15 +477,21 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStringToUrlAsync(url, method: "HEAD", accept: accept, requestFilter: requestFilter,
+        return SendStringToUrlAsync(url, method:HttpMethods.Head, accept: accept, requestFilter: requestFilter,
             responseFilter: responseFilter, token: token);
     }
-    
+
     public static string SendStringToUrl(this string url, string method = HttpMethods.Post,
         string? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        var client = ClientFactory(url);
+        return Create().SendStringToUrl(url, method, requestBody, contentType, accept, requestFilter, responseFilter);
+    }
+
+    public static string SendStringToUrl(this HttpClient client, string url, string method = HttpMethods.Post,
+        string? requestBody = null, string? contentType = null, string accept = "*/*",
+        Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
+    {
         var httpReq = new HttpRequestMessage(new HttpMethod(method), url);
         httpReq.Headers.Add(HttpHeaders.Accept, accept);
 
@@ -482,12 +509,20 @@ public static partial class HttpUtils
         return httpRes.Content.ReadAsStream().ReadToEnd(UseEncoding);
     }
 
-    public static async Task<string> SendStringToUrlAsync(this string url, string method = HttpMethods.Post,
+    public static Task<string> SendStringToUrlAsync(this string url,
+        string method = HttpMethods.Post, string? requestBody = null,
+        string? contentType = null, string accept = "*/*", Action<HttpRequestMessage>? requestFilter = null,
+        Action<HttpResponseMessage>? responseFilter = null, CancellationToken token = default)
+    {
+        return Create().SendStringToUrlAsync(url, method, requestBody, contentType, accept,
+            requestFilter, responseFilter, token);
+    }
+    
+    public static async Task<string> SendStringToUrlAsync(this HttpClient client, string url, string method = HttpMethods.Post,
         string? requestBody = null,
         string? contentType = null, string accept = "*/*", Action<HttpRequestMessage>? requestFilter = null,
         Action<HttpResponseMessage>? responseFilter = null, CancellationToken token = default)
     {
-        var client = ClientFactory(url);
         var httpReq = new HttpRequestMessage(new HttpMethod(method), url);
         httpReq.Headers.Add(HttpHeaders.Accept, accept);
 
@@ -523,7 +558,7 @@ public static partial class HttpUtils
         string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendBytesToUrl(url, method: "POST",
+        return SendBytesToUrl(url, method:HttpMethods.Post,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -533,7 +568,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendBytesToUrlAsync(url, method: "POST",
+        return SendBytesToUrlAsync(url, method:HttpMethods.Post,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -542,7 +577,7 @@ public static partial class HttpUtils
         string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendBytesToUrl(url, method: "PUT",
+        return SendBytesToUrl(url, method:HttpMethods.Put,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -552,7 +587,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendBytesToUrlAsync(url, method: "PUT",
+        return SendBytesToUrlAsync(url, method:HttpMethods.Put,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -561,7 +596,14 @@ public static partial class HttpUtils
         byte[]? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        var client = ClientFactory(url);
+        return Create().SendBytesToUrl(url, method, requestBody, contentType, accept,
+            requestFilter, responseFilter);
+    }
+
+    public static byte[] SendBytesToUrl(this HttpClient client, string url, string method = HttpMethods.Post,
+        byte[]? requestBody = null, string? contentType = null, string accept = "*/*",
+        Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
+    {
         var httpReq = new HttpRequestMessage(new HttpMethod(method), url);
         httpReq.Headers.Add(HttpHeaders.Accept, accept);
 
@@ -579,12 +621,20 @@ public static partial class HttpUtils
         return httpRes.Content.ReadAsStream().ReadFully();
     }
 
-    public static async Task<byte[]> SendBytesToUrlAsync(this string url, string method = HttpMethods.Post,
+    public static Task<byte[]> SendBytesToUrlAsync(this string url, string method = HttpMethods.Post,
         byte[]? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        var client = ClientFactory(url);
+        return Create().SendBytesToUrlAsync(url, method, requestBody, contentType, accept,
+            requestFilter, responseFilter, token);
+    }
+    
+    public static async Task<byte[]> SendBytesToUrlAsync(this HttpClient client, string url, string method = HttpMethods.Post,
+        byte[]? requestBody = null, string? contentType = null, string accept = "*/*",
+        Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
+        CancellationToken token = default)
+    {
         var httpReq = new HttpRequestMessage(new HttpMethod(method), url);
         httpReq.Headers.Add(HttpHeaders.Accept, accept);
 
@@ -620,7 +670,7 @@ public static partial class HttpUtils
         string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStreamToUrl(url, method: "POST",
+        return SendStreamToUrl(url, method:HttpMethods.Post,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -630,7 +680,7 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStreamToUrlAsync(url, method: "POST",
+        return SendStreamToUrlAsync(url, method:HttpMethods.Post,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
@@ -639,7 +689,7 @@ public static partial class HttpUtils
         string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStreamToUrl(url, method: "PUT",
+        return SendStreamToUrl(url, method:HttpMethods.Put,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -649,19 +699,23 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return SendStreamToUrlAsync(url, method: "PUT",
+        return SendStreamToUrlAsync(url, method:HttpMethods.Put,
             contentType: contentType, requestBody: requestBody,
             accept: accept, requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
 
-    /// <summary>
-    /// Returns HttpWebResponse Stream which must be disposed
-    /// </summary>
     public static Stream SendStreamToUrl(this string url, string method = HttpMethods.Post,
         Stream? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        var client = ClientFactory(url);
+        return Create().SendStreamToUrl(url, method, requestBody, contentType, accept,
+            requestFilter, responseFilter);
+    }
+
+    public static Stream SendStreamToUrl(this HttpClient client, string url, string method = HttpMethods.Post,
+        Stream? requestBody = null, string? contentType = null, string accept = "*/*",
+        Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
+    {
         var httpReq = new HttpRequestMessage(new HttpMethod(method), url);
         httpReq.Headers.Add(HttpHeaders.Accept, accept);
 
@@ -679,15 +733,20 @@ public static partial class HttpUtils
         return httpRes.Content.ReadAsStream();
     }
 
-    /// <summary>
-    /// Returns HttpWebResponse Stream which must be disposed
-    /// </summary>
-    public static async Task<Stream> SendStreamToUrlAsync(this string url, string method = HttpMethods.Post,
+    public static Task<Stream> SendStreamToUrlAsync(this string url, string method = HttpMethods.Post,
         Stream? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        var client = ClientFactory(url);
+        return Create().SendStreamToUrlAsync(url, method, requestBody, contentType, accept,
+            requestFilter, responseFilter, token);
+    }
+    
+    public static async Task<Stream> SendStreamToUrlAsync(this HttpClient client, string url, string method = HttpMethods.Post,
+        Stream? requestBody = null, string? contentType = null, string accept = "*/*",
+        Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
+        CancellationToken token = default)
+    {
         var httpReq = new HttpRequestMessage(new HttpMethod(method), url);
         httpReq.Headers.Add(HttpHeaders.Accept, accept);
 
@@ -709,7 +768,7 @@ public static partial class HttpUtils
     {
         try
         {
-            var client = ClientFactory(url);
+            var client = Create();
             var httpReq = new HttpRequestMessage(new HttpMethod(HttpMethods.Get), url);
             httpReq.Headers.Add(HttpHeaders.Accept, "*/*");
             var httpRes = client.Send(httpReq);
@@ -723,7 +782,7 @@ public static partial class HttpUtils
 
     public static HttpResponseMessage? GetErrorResponse(this string url)
     {
-        var client = ClientFactory(url);
+        var client = Create();
         var httpReq = new HttpRequestMessage(new HttpMethod(HttpMethods.Get), url);
         httpReq.Headers.Add(HttpHeaders.Accept, "*/*");
         var httpRes = client.Send(httpReq);
@@ -734,7 +793,7 @@ public static partial class HttpUtils
 
     public static async Task<HttpResponseMessage?> GetErrorResponseAsync(this string url, CancellationToken token=default)
     {
-        var client = ClientFactory(url);
+        var client = Create();
         var httpReq = new HttpRequestMessage(new HttpMethod(HttpMethods.Get), url);
         httpReq.Headers.Add(HttpHeaders.Accept, "*/*");
         var httpRes = await client.SendAsync(httpReq, token).ConfigAwait();
@@ -766,8 +825,17 @@ public static partial class HttpUtils
         }
     }
 
-    public static HttpResponseMessage UploadFile(this HttpRequestMessage httpReq, Stream fileStream, string fileName, 
-        string? mimeType = null, string accept = "*/*", string method = HttpMethods.Post, string field = "file",
+    public static HttpResponseMessage UploadFile(this HttpRequestMessage httpReq, Stream fileStream,
+        string fileName, string? mimeType = null, string accept = "*/*", string method = HttpMethods.Post, string field = "file",
+        Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
+    {
+        return Create().UploadFile(httpReq, fileStream, fileName, mimeType, accept, method, field,
+            requestFilter, responseFilter);
+    }
+    
+
+    public static HttpResponseMessage UploadFile(this HttpClient client, HttpRequestMessage httpReq, Stream fileStream, 
+        string fileName, string? mimeType = null, string accept = "*/*", string method = HttpMethods.Post, string field = "file",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
         if (httpReq.RequestUri == null)
@@ -788,14 +856,24 @@ public static partial class HttpUtils
         fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(mimeType ?? MimeTypes.GetMimeType(fileName));
         content.Add(fileContent, "file", fileName);
 
-        var client = ClientFactory(httpReq.RequestUri!.ToString());
         var httpRes = client.Send(httpReq);
         responseFilter?.Invoke(httpRes);
         httpRes.EnsureSuccessStatusCode();
         return httpRes;
     }
 
-    public static async Task<HttpResponseMessage> UploadFileAsync(this HttpRequestMessage httpReq, Stream fileStream, string fileName,
+    public static Task<HttpResponseMessage> UploadFileAsync(this HttpRequestMessage httpReq, Stream fileStream,
+        string fileName,
+        string? mimeType = null, string accept = "*/*", string method = HttpMethods.Post, string field = "file",
+        Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
+        CancellationToken token = default)
+    {
+        return Create().UploadFileAsync(httpReq, fileStream, fileName, mimeType, accept, method, field,
+            requestFilter, responseFilter, token);
+    }
+
+    public static async Task<HttpResponseMessage> UploadFileAsync(this HttpClient client, 
+        HttpRequestMessage httpReq, Stream fileStream, string fileName,
         string? mimeType = null, string accept = "*/*", string method = HttpMethods.Post, string field = "file",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null, 
         CancellationToken token = default)
@@ -818,7 +896,6 @@ public static partial class HttpUtils
         fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(mimeType ?? MimeTypes.GetMimeType(fileName));
         content.Add(fileContent, "file", fileName);
 
-        var client = ClientFactory(httpReq.RequestUri!.ToString());
         var httpRes = await client.SendAsync(httpReq, token).ConfigAwait();
         responseFilter?.Invoke(httpRes);
         httpRes.EnsureSuccessStatusCode();
@@ -851,7 +928,7 @@ public static partial class HttpUtils
     public static string PostXmlToUrl(this string url, object data,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST", requestBody: data.ToXml(), contentType: MimeTypes.Xml,
+        return SendStringToUrl(url, method:HttpMethods.Post, requestBody: data.ToXml(), contentType: MimeTypes.Xml,
             accept: MimeTypes.Xml,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -859,7 +936,7 @@ public static partial class HttpUtils
     public static string PostCsvToUrl(this string url, object data,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "POST", requestBody: data.ToCsv(), contentType: MimeTypes.Csv,
+        return SendStringToUrl(url, method:HttpMethods.Post, requestBody: data.ToCsv(), contentType: MimeTypes.Csv,
             accept: MimeTypes.Csv,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -867,7 +944,7 @@ public static partial class HttpUtils
     public static string PutXmlToUrl(this string url, object data,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT", requestBody: data.ToXml(), contentType: MimeTypes.Xml,
+        return SendStringToUrl(url, method:HttpMethods.Put, requestBody: data.ToXml(), contentType: MimeTypes.Xml,
             accept: MimeTypes.Xml,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -875,7 +952,7 @@ public static partial class HttpUtils
     public static string PutCsvToUrl(this string url, object data,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return SendStringToUrl(url, method: "PUT", requestBody: data.ToCsv(), contentType: MimeTypes.Csv,
+        return SendStringToUrl(url, method:HttpMethods.Put, requestBody: data.ToCsv(), contentType: MimeTypes.Csv,
             accept: MimeTypes.Csv,
             requestFilter: requestFilter, responseFilter: responseFilter);
     }
@@ -930,28 +1007,79 @@ public static partial class HttpUtils
             method: HttpMethods.Post, requestFilter: requestFilter, responseFilter: responseFilter, token: token).ConfigAwait();
     }
 
+    public static string? GetHeader(this HttpRequestMessage res, string name) =>
+        res.Headers.TryGetValues(name, out var values) ? values.FirstOrDefault() : null;
+    
+    public static string? GetHeader(this HttpResponseMessage res, string name) =>
+        res.Headers.TryGetValues(name, out var values) ? values.FirstOrDefault() : null;
+
+    public static HttpRequestMessage WithHeader(this HttpRequestMessage httpReq, string name, string value)
+    {
+        if (name.Equals(HttpHeaders.Authorization, StringComparison.OrdinalIgnoreCase))
+        {
+            httpReq.Headers.Authorization =
+                new AuthenticationHeaderValue(value.LeftPart(' '), value.RightPart(' '));
+        }
+        else if (name.Equals(HttpHeaders.UserAgent))
+        {
+            if (value.IndexOf('/') >= 0)
+            {
+                var product = value.LastLeftPart('/');
+                var version = value.LastRightPart('/');
+                httpReq.Headers.UserAgent.Add(new ProductInfoHeaderValue(product, version));                
+            }
+            else
+            {
+                // Avoid format excetions
+                var commentFmt = value[0] == '(' && value[^1] == ')' ? value : $"({value})";
+                httpReq.Headers.UserAgent.Add(new ProductInfoHeaderValue(commentFmt));                
+            }
+        }
+        else
+        {
+            httpReq.Headers.Add(name, value);
+        }
+        return httpReq;
+    }
+
     public static HttpRequestMessage With(this HttpRequestMessage httpReq,
         string? accept = null,
         string? userAgent = null,
-        Dictionary<string,string>? headers = null)
+        KeyValuePair<string,string>? authorization = null,
+        Dictionary<string, string>? headers = null)
     {
-        if (accept != null)
-            httpReq.Headers.Add(HttpHeaders.Accept, accept);
-            
-        if (userAgent != null)
-            httpReq.Headers.UserAgent.Add(new ProductInfoHeaderValue(userAgent));
+        headers ??= new Dictionary<string, string>();
 
-        if (headers != null)
+        if (accept != null)
+            headers[HttpHeaders.Accept] = accept;
+        if (userAgent != null)
+            headers[HttpHeaders.UserAgent] = userAgent;
+        if (authorization != null)
+            httpReq.Headers.Authorization =
+                new AuthenticationHeaderValue(authorization.Value.Key, authorization.Value.Value);
+
+        foreach (var entry in headers)
         {
-            foreach (var entry in headers)
-            {
-                httpReq.Headers.Add(entry.Key, entry.Value);
-            }
+            httpReq.WithHeader(entry.Key, entry.Value);
         }
         
         return httpReq;
     }
-    
+
+    public static void DownloadFileTo(this string downloadUrl, string fileName, 
+        Dictionary<string,string>? headers = null)
+    {
+        var client = Create();
+        var httpReq = new HttpRequestMessage(HttpMethod.Get, downloadUrl)
+            .With(accept:"*/*", headers:headers);
+
+        var httpRes = client.Send(httpReq);
+        httpRes.EnsureSuccessStatusCode();
+
+        using var fs = new FileStream(fileName, FileMode.CreateNew);
+        var bytes = httpRes.Content.ReadAsStream().ReadFully();
+        fs.Write(bytes);
+    }
 }
 
 #endif
