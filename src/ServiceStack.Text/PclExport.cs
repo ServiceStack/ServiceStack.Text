@@ -26,13 +26,13 @@ namespace ServiceStack
             public const string Net45 = "Net45";
         }
 
-        public static PclExport Instance
+        public static PclExport Instance =
 #if NETFX
-          = new Net45PclExport()
+          new Net45PclExport()
 #elif NETSTANDARD2_0
-          = new NetStandardPclExport()
-#elif NETCORE
-          = new NetCorePclExport()
+          new NetStandardPclExport()
+#elif NETCORE || NET6_0_OR_GREATER
+          new NetCorePclExport()
 #endif
         ;
 

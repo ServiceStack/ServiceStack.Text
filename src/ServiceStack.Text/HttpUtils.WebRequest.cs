@@ -1,3 +1,4 @@
+#if !NET6_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -773,54 +774,6 @@ public static partial class HttpUtils
         return stream;
     }
 
-    public static bool IsAny300(this Exception ex)
-    {
-        var status = ex.GetStatus();
-        return status >= HttpStatusCode.MultipleChoices && status < HttpStatusCode.BadRequest;
-    }
-
-    public static bool IsAny400(this Exception ex)
-    {
-        var status = ex.GetStatus();
-        return status >= HttpStatusCode.BadRequest && status < HttpStatusCode.InternalServerError;
-    }
-
-    public static bool IsAny500(this Exception ex)
-    {
-        var status = ex.GetStatus();
-        return status >= HttpStatusCode.InternalServerError && (int)status < 600;
-    }
-
-    public static bool IsNotModified(this Exception ex)
-    {
-        return GetStatus(ex) == HttpStatusCode.NotModified;
-    }
-
-    public static bool IsBadRequest(this Exception ex)
-    {
-        return GetStatus(ex) == HttpStatusCode.BadRequest;
-    }
-
-    public static bool IsNotFound(this Exception ex)
-    {
-        return GetStatus(ex) == HttpStatusCode.NotFound;
-    }
-
-    public static bool IsUnauthorized(this Exception ex)
-    {
-        return GetStatus(ex) == HttpStatusCode.Unauthorized;
-    }
-
-    public static bool IsForbidden(this Exception ex)
-    {
-        return GetStatus(ex) == HttpStatusCode.Forbidden;
-    }
-
-    public static bool IsInternalServerError(this Exception ex)
-    {
-        return GetStatus(ex) == HttpStatusCode.InternalServerError;
-    }
-
     public static HttpStatusCode? GetResponseStatus(this string url)
     {
         try
@@ -835,74 +788,6 @@ public static partial class HttpUtils
         catch (Exception ex)
         {
             return ex.GetStatus();
-        }
-    }
-
-    public static HttpStatusCode? GetStatus(this Exception ex)
-    {
-        if (ex == null)
-            return null;
-
-        if (ex is WebException webEx)
-            return GetStatus(webEx);
-
-        if (ex is IHasStatusCode hasStatus)
-            return (HttpStatusCode)hasStatus.StatusCode;
-
-        return null;
-    }
-
-    public static HttpStatusCode? GetStatus(this WebException webEx)
-    {
-        var httpRes = webEx?.Response as HttpWebResponse;
-        return httpRes?.StatusCode;
-    }
-
-    public static bool HasStatus(this Exception ex, HttpStatusCode statusCode)
-    {
-        return GetStatus(ex) == statusCode;
-    }
-
-    public static string GetResponseBody(this Exception ex)
-    {
-        if (!(ex is WebException webEx) || webEx.Response == null || webEx.Status != WebExceptionStatus.ProtocolError)
-            return null;
-
-        var errorResponse = (HttpWebResponse)webEx.Response;
-        using var responseStream = errorResponse.GetResponseStream();
-        return responseStream.ReadToEnd(UseEncoding);
-    }
-
-    public static async Task<string> GetResponseBodyAsync(this Exception ex, CancellationToken token = default)
-    {
-        if (!(ex is WebException webEx) || webEx.Response == null || webEx.Status != WebExceptionStatus.ProtocolError)
-            return null;
-
-        var errorResponse = (HttpWebResponse)webEx.Response;
-        using var responseStream = errorResponse.GetResponseStream();
-        return await responseStream.ReadToEndAsync(UseEncoding).ConfigAwait();
-    }
-
-    public static string ReadToEnd(this WebResponse webRes)
-    {
-        using var stream = webRes.GetResponseStream();
-        return stream.ReadToEnd(UseEncoding);
-    }
-
-    public static Task<string> ReadToEndAsync(this WebResponse webRes)
-    {
-        using var stream = webRes.GetResponseStream();
-        return stream.ReadToEndAsync(UseEncoding);
-    }
-
-    public static IEnumerable<string> ReadLines(this WebResponse webRes)
-    {
-        using var stream = webRes.GetResponseStream();
-        using var reader = new StreamReader(stream, UseEncoding, true, 1024, leaveOpen: true);
-        string line;
-        while ((line = reader.ReadLine()) != null)
-        {
-            yield return line;
         }
     }
 
@@ -1187,8 +1072,29 @@ public static partial class HttpUtils
         var headerBytes = header.ToAsciiBytes();
         return headerBytes;
     }
-}
 
+    public static HttpWebRequest With(this HttpWebRequest httpReq,
+        string accept = null,
+        string userAgent = null,
+        Dictionary<string,string> headers = null)
+    {
+        if (accept != null)
+            httpReq.Headers.Add(HttpHeaders.Accept, accept);
+
+        if (userAgent != null)
+            httpReq.UserAgent = userAgent;
+
+        if (headers != null)
+        {
+            foreach (var entry in headers)
+            {
+                httpReq.Headers[entry.Key] = entry.Value;
+            }
+        }
+        
+        return httpReq;
+    }
+}
 
 public interface IHttpResultsFilter : IDisposable
 {
@@ -1241,3 +1147,4 @@ public class HttpResultsFilter : IHttpResultsFilter
         UploadFileFn?.Invoke(webRequest, fileStream, fileName);
     }
 }
+#endif

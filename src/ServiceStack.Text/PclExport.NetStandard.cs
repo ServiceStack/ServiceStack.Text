@@ -19,10 +19,9 @@ namespace ServiceStack
 {
     public class NetStandardPclExport : PclExport
     {
-        public static NetStandardPclExport Provider = new NetStandardPclExport();
+        public static NetStandardPclExport Provider = new();
 
-        static string[] allDateTimeFormats = new string[]
-        {
+        static string[] allDateTimeFormats = {
             "yyyy-MM-ddTHH:mm:ss.FFFFFFFzzzzzz",
             "yyyy-MM-ddTHH:mm:ss.FFFFFFF",
             "yyyy-MM-ddTHH:mm:ss.FFFFFFFZ",

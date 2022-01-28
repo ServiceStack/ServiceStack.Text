@@ -821,10 +821,8 @@ namespace ServiceStack
 
         public static bool VerifySha1Data(this System.Security.Cryptography.RSACryptoServiceProvider RSAalg, byte[] unsignedData, byte[] encryptedData)
         {
-            using (var sha = new System.Security.Cryptography.SHA1CryptoServiceProvider())
-            {
-                return RSAalg.VerifyData(unsignedData, sha, encryptedData);
-            }
+            using var sha = System.Security.Cryptography.SHA1.Create();
+            return RSAalg.VerifyData(unsignedData, sha, encryptedData);
         }        
     }
 }

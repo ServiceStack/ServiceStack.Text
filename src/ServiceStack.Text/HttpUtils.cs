@@ -2,18 +2,31 @@
 //License: https://raw.github.com/ServiceStack/ServiceStack/master/license.txt
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using ServiceStack.Text;
 
 namespace ServiceStack;
 
 public static partial class HttpUtils
 {
-    public static string UserAgent = "ServiceStack.Text" + Text.Env.PlatformModifier;
+    public static string UserAgent = "ServiceStack.Text" +
+#if NET6_0_OR_GREATER
+        "/net6"
+#elif NETSTANDARD2_0
+        "/std2.0"
+#elif NETFX
+        "/net472"
+#else 
+        "/unknown"
+#endif
+;
 
-    public static Encoding UseEncoding { get; set; } = PclExport.Instance.GetUTF8Encoding(false);
+    public static Encoding UseEncoding { get; set; } = new UTF8Encoding(false);
 
     public static string AddQueryParam(this string url, string key, object val, bool encode = true)
     {
@@ -207,6 +220,128 @@ public static partial class HttpUtils
         }
 
         return tcs.Task;
+    }
+    
+    public static bool IsAny300(this Exception ex)
+    {
+        var status = ex.GetStatus();
+        return status is >= HttpStatusCode.MultipleChoices and < HttpStatusCode.BadRequest;
+    }
+
+    public static bool IsAny400(this Exception ex)
+    {
+        var status = ex.GetStatus();
+        return status is >= HttpStatusCode.BadRequest and < HttpStatusCode.InternalServerError;
+    }
+
+    public static bool IsAny500(this Exception ex)
+    {
+        var status = ex.GetStatus();
+        return status >= HttpStatusCode.InternalServerError && (int)status < 600;
+    }
+
+    public static bool IsNotModified(this Exception ex)
+    {
+        return GetStatus(ex) == HttpStatusCode.NotModified;
+    }
+
+    public static bool IsBadRequest(this Exception ex)
+    {
+        return GetStatus(ex) == HttpStatusCode.BadRequest;
+    }
+
+    public static bool IsNotFound(this Exception ex)
+    {
+        return GetStatus(ex) == HttpStatusCode.NotFound;
+    }
+
+    public static bool IsUnauthorized(this Exception ex)
+    {
+        return GetStatus(ex) == HttpStatusCode.Unauthorized;
+    }
+
+    public static bool IsForbidden(this Exception ex)
+    {
+        return GetStatus(ex) == HttpStatusCode.Forbidden;
+    }
+
+    public static bool IsInternalServerError(this Exception ex)
+    {
+        return GetStatus(ex) == HttpStatusCode.InternalServerError;
+    }
+
+    public static HttpStatusCode? GetStatus(this Exception ex)
+    {
+#if NET6_0_OR_GREATER        
+        if (ex is System.Net.Http.HttpRequestException httpEx)
+            return GetStatus(httpEx);
+#endif
+
+        if (ex is WebException webEx)
+            return GetStatus(webEx);
+
+        if (ex is IHasStatusCode hasStatus)
+            return (HttpStatusCode)hasStatus.StatusCode;
+
+        return null;
+    }
+
+#if NET6_0_OR_GREATER        
+    public static HttpStatusCode? GetStatus(this System.Net.Http.HttpRequestException ex) => ex.StatusCode;
+#endif
+
+    public static HttpStatusCode? GetStatus(this WebException webEx)
+    {
+        var httpRes = webEx?.Response as HttpWebResponse;
+        return httpRes?.StatusCode;
+    }
+
+    public static bool HasStatus(this Exception ex, HttpStatusCode statusCode)
+    {
+        return GetStatus(ex) == statusCode;
+    }
+
+    public static string GetResponseBody(this Exception ex)
+    {
+        if (!(ex is WebException webEx) || webEx.Response == null || webEx.Status != WebExceptionStatus.ProtocolError)
+            return null;
+
+        var errorResponse = (HttpWebResponse)webEx.Response;
+        using var responseStream = errorResponse.GetResponseStream();
+        return responseStream.ReadToEnd(UseEncoding);
+    }
+
+    public static async Task<string> GetResponseBodyAsync(this Exception ex, CancellationToken token = default)
+    {
+        if (!(ex is WebException webEx) || webEx.Response == null || webEx.Status != WebExceptionStatus.ProtocolError)
+            return null;
+
+        var errorResponse = (HttpWebResponse)webEx.Response;
+        using var responseStream = errorResponse.GetResponseStream();
+        return await responseStream.ReadToEndAsync(UseEncoding).ConfigAwait();
+    }
+
+    public static string ReadToEnd(this WebResponse webRes)
+    {
+        using var stream = webRes.GetResponseStream();
+        return stream.ReadToEnd(UseEncoding);
+    }
+
+    public static Task<string> ReadToEndAsync(this WebResponse webRes)
+    {
+        using var stream = webRes.GetResponseStream();
+        return stream.ReadToEndAsync(UseEncoding);
+    }
+
+    public static IEnumerable<string> ReadLines(this WebResponse webRes)
+    {
+        using var stream = webRes.GetResponseStream();
+        using var reader = new StreamReader(stream, UseEncoding, true, 1024, leaveOpen: true);
+        string line;
+        while ((line = reader.ReadLine()) != null)
+        {
+            yield return line;
+        }
     }
 }
 
