@@ -1007,6 +1007,9 @@ public static partial class HttpUtils
             method: HttpMethods.Post, requestFilter: requestFilter, responseFilter: responseFilter, token: token).ConfigAwait();
     }
 
+    public static void AddHeader(this HttpRequestMessage res, string name, string value) =>
+        res.WithHeader(name, value);
+
     public static string? GetHeader(this HttpRequestMessage res, string name) =>
         res.Headers.TryGetValues(name, out var values) ? values.FirstOrDefault() : null;
     
@@ -1020,7 +1023,13 @@ public static partial class HttpUtils
             httpReq.Headers.Authorization =
                 new AuthenticationHeaderValue(value.LeftPart(' '), value.RightPart(' '));
         }
-        else if (name.Equals(HttpHeaders.UserAgent))
+        else if (name.Equals(HttpHeaders.ContentType, StringComparison.OrdinalIgnoreCase))
+        {
+            if (httpReq.Content == null)
+                throw new NotSupportedException("Can't set ContentType before Content is populated");
+            httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(value);
+        }
+        else if (name.Equals(HttpHeaders.UserAgent, StringComparison.OrdinalIgnoreCase))
         {
             if (value.IndexOf('/') >= 0)
             {
@@ -1030,7 +1039,7 @@ public static partial class HttpUtils
             }
             else
             {
-                // Avoid format excetions
+                // Avoid format exceptions
                 var commentFmt = value[0] == '(' && value[^1] == ')' ? value : $"({value})";
                 httpReq.Headers.UserAgent.Add(new ProductInfoHeaderValue(commentFmt));                
             }
@@ -1042,22 +1051,24 @@ public static partial class HttpUtils
         return httpReq;
     }
 
-    public static HttpRequestMessage With(this HttpRequestMessage httpReq,
-        string? accept = null,
-        string? userAgent = null,
-        KeyValuePair<string,string>? authorization = null,
-        Dictionary<string, string>? headers = null)
+    public static HttpRequestMessage With(this HttpRequestMessage httpReq, Action<HttpRequestConfig> configure)
     {
-        headers ??= new Dictionary<string, string>();
+        var config = new HttpRequestConfig();
+        configure(config);
+        
+        config.Headers ??= new Dictionary<string, string>();
+        var headers = config.Headers;
 
-        if (accept != null)
-            headers[HttpHeaders.Accept] = accept;
-        if (userAgent != null)
-            headers[HttpHeaders.UserAgent] = userAgent;
-        if (authorization != null)
+        if (config.Accept != null)
+            headers[HttpHeaders.Accept] = config.Accept;
+        if (config.UserAgent != null)
+            headers[HttpHeaders.UserAgent] = config.UserAgent;
+        if (config.ContentType != null)
+            headers[HttpHeaders.ContentType] = config.ContentType;
+        if (config.Authorization != null)
             httpReq.Headers.Authorization =
-                new AuthenticationHeaderValue(authorization.Value.Key, authorization.Value.Value);
-
+                new AuthenticationHeaderValue(config.Authorization.Value.Key, config.Authorization.Value.Value);
+        
         foreach (var entry in headers)
         {
             httpReq.WithHeader(entry.Key, entry.Value);
@@ -1071,7 +1082,10 @@ public static partial class HttpUtils
     {
         var client = Create();
         var httpReq = new HttpRequestMessage(HttpMethod.Get, downloadUrl)
-            .With(accept:"*/*", headers:headers);
+            .With(c => {
+                c.Accept = "*/*"; 
+                c.Headers = headers;
+            });
 
         var httpRes = client.Send(httpReq);
         httpRes.EnsureSuccessStatusCode();

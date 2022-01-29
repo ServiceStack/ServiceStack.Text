@@ -1073,11 +1073,6 @@ public static partial class HttpUtils
         return headerBytes;
     }
 
-    public static string GetHeader(this HttpWebRequest res, string name) =>
-        res.Headers.Get(name);
-    public static string GetHeader(this HttpWebResponse res, string name) =>
-        res.Headers.Get(name);
-
     public static void DownloadFileTo(this string downloadUrl, string fileName, 
         Dictionary<string,string> headers = null)
     {
@@ -1091,27 +1086,41 @@ public static partial class HttpUtils
         }
         webClient.DownloadFile(downloadUrl, fileName);
     }
-    
-    public static HttpWebRequest With(this HttpWebRequest httpReq,
-        string accept = null,
-        string userAgent = null,
-        KeyValuePair<string,string>? authorization = null,
-        Dictionary<string,string> headers = null)
+
+    public static void AddHeader(this HttpWebRequest res, string name, string value) =>
+        res.Headers[name] = value;
+    public static string GetHeader(this HttpWebRequest res, string name) =>
+        res.Headers.Get(name);
+    public static string GetHeader(this HttpWebResponse res, string name) =>
+        res.Headers.Get(name);
+
+    public static HttpWebRequest WithHeader(this HttpWebRequest httpReq, string name, string value)
     {
-        if (accept != null)
-            httpReq.Headers.Add(HttpHeaders.Accept, accept);
+        httpReq.Headers[name] = value;
+        return httpReq;
+    }
 
-        if (userAgent != null)
-            httpReq.UserAgent = userAgent;
+    public static HttpWebRequest With(this HttpWebRequest httpReq, Action<HttpRequestConfig> configure)
+    {
+        var config = new HttpRequestConfig();
+        configure(config);
+        
+        if (config.Accept != null)
+            httpReq.Headers.Add(HttpHeaders.Accept, config.Accept);
 
-        if (authorization != null)
+        if (config.UserAgent != null)
+            httpReq.UserAgent = config.UserAgent;
+
+        if (config.ContentType != null)
+            httpReq.ContentType = config.ContentType;
+
+        if (config.Authorization != null)
+            httpReq.Headers[HttpHeaders.Authorization] = 
+                config.Authorization.Value.Key + " " + config.Authorization.Value.Value;
+
+        if (config.Headers != null)
         {
-            httpReq.Headers[HttpHeaders.Authorization] = authorization.Value.Key + " " + authorization.Value.Value;
-        }
-
-        if (headers != null)
-        {
-            foreach (var entry in headers)
+            foreach (var entry in config.Headers)
             {
                 httpReq.Headers[entry.Key] = entry.Value;
             }

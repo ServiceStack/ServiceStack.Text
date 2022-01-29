@@ -38,7 +38,7 @@ namespace ServiceStack.Text.Tests.UseCases
         {
             var url = GithubApiBaseUrl.AppendUrlPathsRaw(route.Fmt(routeArgs));
             return url
-                .GetJsonFromUrl(requestFilter:x => x.With(userAgent:$"ServiceStack/{Env.VersionString}"))
+                .GetJsonFromUrl(requestFilter:x => x.With(c => c.UserAgent = $"ServiceStack/{Env.VersionString}"))
                 .FromJson<T>();
         }
 
