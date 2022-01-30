@@ -1012,9 +1012,28 @@ public static partial class HttpUtils
 
     public static string? GetHeader(this HttpRequestMessage res, string name) =>
         res.Headers.TryGetValues(name, out var values) ? values.FirstOrDefault() : null;
-    
-    public static string? GetHeader(this HttpResponseMessage res, string name) =>
-        res.Headers.TryGetValues(name, out var values) ? values.FirstOrDefault() : null;
+
+    public static Dictionary<string, Func<HttpResponseMessage, string?>> HeadersResolver { get; set; } = new(StringComparer.OrdinalIgnoreCase)
+    {
+        [HttpHeaders.ContentType] = res => res.Content.Headers.ContentType?.MediaType, 
+        [HttpHeaders.Expires] = res => res.Content.Headers.Expires?.ToString(), 
+        [HttpHeaders.ContentDisposition] = res => res.Content.Headers.ContentDisposition?.ToString(), 
+        [HttpHeaders.ContentEncoding] = res => res.Content.Headers.ContentEncoding?.ToString(), 
+        [HttpHeaders.ContentLength] = res => res.Content.Headers.ContentLength?.ToString(), 
+        [HttpHeaders.ETag] = res => res.Headers.ETag?.Tag.ToString(), 
+        [HttpHeaders.Vary] = res => string.Join(',', res.Headers.Vary), 
+        [HttpHeaders.CacheControl] = res => res.Headers.CacheControl?.ToString(), 
+    };
+
+    public static string? GetHeader(this HttpResponseMessage res, string name)
+    {
+        if (HeadersResolver.TryGetValue(name, out var fn))
+            return fn(res);
+        
+        return res.Headers.TryGetValues(name, out var values) 
+            ? values.FirstOrDefault() 
+            : null;
+    }
 
     public static HttpRequestMessage WithHeader(this HttpRequestMessage httpReq, string name, string value)
     {
