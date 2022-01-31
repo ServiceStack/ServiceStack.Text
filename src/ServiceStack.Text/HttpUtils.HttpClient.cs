@@ -1122,6 +1122,9 @@ public static class HttpClientExt
 {
     public static bool MatchesContentType(this HttpResponseMessage res, string matchesContentType) => 
         MimeTypes.MatchesContentType(res.GetHeader(HttpHeaders.ContentType), matchesContentType);
+
+    public static long? GetContentLength(this HttpResponseMessage res) =>
+        res.Content.Headers.ContentLength;
 }
 
 #endif

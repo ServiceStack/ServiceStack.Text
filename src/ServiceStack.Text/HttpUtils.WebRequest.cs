@@ -1186,5 +1186,8 @@ public static class HttpClientExt
 {
     public static bool MatchesContentType(this HttpWebResponse res, string matchesContentType) => 
         MimeTypes.MatchesContentType(res.Headers[HttpHeaders.ContentType], matchesContentType);
+
+    public static long? GetContentLength(this HttpWebResponse res) =>
+        res.ContentLength == -1 ? null : res.ContentLength;
 }
 #endif
