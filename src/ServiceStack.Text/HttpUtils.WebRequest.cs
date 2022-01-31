@@ -1100,6 +1100,10 @@ public static partial class HttpUtils
         return httpReq;
     }
 
+    /// <summary>
+    /// Populate HttpRequestMessage with a simpler, untyped API
+    /// Syntax compatible with HttpClient's HttpRequestMessage
+    /// </summary>
     public static HttpWebRequest With(this HttpWebRequest httpReq, Action<HttpRequestConfig> configure)
     {
         var config = new HttpRequestConfig();
@@ -1184,9 +1188,16 @@ public class HttpResultsFilter : IHttpResultsFilter
 
 public static class HttpClientExt
 {
+    /// <summary>
+    /// Case-insensitive, trimmed compare of two content types from start to ';', i.e. without charset suffix 
+    /// </summary>
     public static bool MatchesContentType(this HttpWebResponse res, string matchesContentType) => 
         MimeTypes.MatchesContentType(res.Headers[HttpHeaders.ContentType], matchesContentType);
-
+    
+    /// <summary>
+    /// Returns null for unknown Content-length
+    /// Syntax + Behavior compatible with HttpClient HttpResponseMessage 
+    /// </summary>
     public static long? GetContentLength(this HttpWebResponse res) =>
         res.ContentLength == -1 ? null : res.ContentLength;
 }

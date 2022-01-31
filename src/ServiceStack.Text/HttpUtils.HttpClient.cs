@@ -1010,6 +1010,9 @@ public static partial class HttpUtils
     public static void AddHeader(this HttpRequestMessage res, string name, string value) =>
         res.WithHeader(name, value);
 
+    /// <summary>
+    /// Returns first Request Header in HttpRequestMessage Headers and Content.Headers
+    /// </summary>
     public static string? GetHeader(this HttpRequestMessage req, string name)
     {
         if (RequestHeadersResolver.TryGetValue(name, out var fn))
@@ -1026,6 +1029,10 @@ public static partial class HttpUtils
     };
     public static Dictionary<string, Func<HttpResponseMessage, string?>> ResponseHeadersResolver { get; set; } = new(StringComparer.OrdinalIgnoreCase) {
     };
+    
+    /// <summary>
+    /// Returns first Response Header in HttpResponseMessage Headers and Content.Headers
+    /// </summary>
     public static string? GetHeader(this HttpResponseMessage res, string name)
     {
         if (ResponseHeadersResolver.TryGetValue(name, out var fn))
@@ -1073,6 +1080,10 @@ public static partial class HttpUtils
         return httpReq;
     }
 
+    /// <summary>
+    /// Populate HttpRequestMessage with a simpler, untyped API
+    /// Syntax compatible with HttpWebRequest
+    /// </summary>
     public static HttpRequestMessage With(this HttpRequestMessage httpReq, Action<HttpRequestConfig> configure)
     {
         var config = new HttpRequestConfig();
@@ -1120,6 +1131,9 @@ public static partial class HttpUtils
 
 public static class HttpClientExt
 {
+    /// <summary>
+    /// Case-insensitive, trimmed compare of two content types from start to ';', i.e. without charset suffix 
+    /// </summary>
     public static bool MatchesContentType(this HttpResponseMessage res, string matchesContentType) => 
         MimeTypes.MatchesContentType(res.GetHeader(HttpHeaders.ContentType), matchesContentType);
 
