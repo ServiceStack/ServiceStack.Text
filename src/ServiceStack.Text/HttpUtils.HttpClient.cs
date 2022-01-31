@@ -543,14 +543,14 @@ public static partial class HttpUtils
     public static byte[] GetBytesFromUrl(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return url.SendBytesToUrl(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        return url.SendBytesToUrl(method:HttpMethods.Get, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
     }
 
     public static Task<byte[]> GetBytesFromUrlAsync(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return url.SendBytesToUrlAsync(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter,
+        return url.SendBytesToUrlAsync(method:HttpMethods.Get, accept: accept, requestFilter: requestFilter, responseFilter: responseFilter,
             token: token);
     }
 
@@ -596,8 +596,8 @@ public static partial class HttpUtils
         byte[]? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return Create().SendBytesToUrl(url, method, requestBody, contentType, accept,
-            requestFilter, responseFilter);
+        return Create().SendBytesToUrl(url, method:method, requestBody:requestBody, contentType:contentType, accept:accept,
+            requestFilter:requestFilter, responseFilter:responseFilter);
     }
 
     public static byte[] SendBytesToUrl(this HttpClient client, string url, string method = HttpMethods.Post,
@@ -655,15 +655,16 @@ public static partial class HttpUtils
     public static Stream GetStreamFromUrl(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return url.SendStreamToUrl(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter);
+        return url.SendStreamToUrl(method:HttpMethods.Get, accept: accept, 
+            requestFilter: requestFilter, responseFilter: responseFilter);
     }
 
     public static Task<Stream> GetStreamFromUrlAsync(this string url, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return url.SendStreamToUrlAsync(accept: accept, requestFilter: requestFilter, responseFilter: responseFilter,
-            token: token);
+        return url.SendStreamToUrlAsync(method:HttpMethods.Get, accept: accept, 
+            requestFilter: requestFilter, responseFilter: responseFilter, token: token);
     }
 
     public static Stream PostStreamToUrl(this string url, Stream? requestBody = null, string? contentType = null,
@@ -708,8 +709,8 @@ public static partial class HttpUtils
         Stream? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return Create().SendStreamToUrl(url, method, requestBody, contentType, accept,
-            requestFilter, responseFilter);
+        return Create().SendStreamToUrl(url, method:method, requestBody:requestBody, contentType:contentType, accept:accept,
+            requestFilter:requestFilter, responseFilter:responseFilter);
     }
 
     public static Stream SendStreamToUrl(this HttpClient client, string url, string method = HttpMethods.Post,
@@ -738,8 +739,8 @@ public static partial class HttpUtils
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return Create().SendStreamToUrlAsync(url, method, requestBody, contentType, accept,
-            requestFilter, responseFilter, token);
+        return Create().SendStreamToUrlAsync(url, method:method, requestBody:requestBody, contentType:contentType, accept:accept,
+            requestFilter:requestFilter, responseFilter:responseFilter, token);
     }
     
     public static async Task<Stream> SendStreamToUrlAsync(this HttpClient client, string url, string method = HttpMethods.Post,
@@ -826,7 +827,7 @@ public static partial class HttpUtils
     }
 
     public static HttpResponseMessage UploadFile(this HttpRequestMessage httpReq, Stream fileStream,
-        string fileName, string? mimeType = null, string accept = "*/*", string method = HttpMethods.Post, string field = "file",
+        string fileName, string mimeType, string accept = "*/*", string method = HttpMethods.Post, string field = "file",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
         return Create().UploadFile(httpReq, fileStream, fileName, mimeType, accept, method, field,
