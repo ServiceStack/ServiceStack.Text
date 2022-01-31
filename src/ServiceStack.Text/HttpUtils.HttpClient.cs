@@ -1086,7 +1086,10 @@ public static partial class HttpUtils
         var headers = config.Headers;
 
         if (config.Accept != null)
-            headers.Add(new(HttpHeaders.Accept, config.Accept));
+        {
+            httpReq.Headers.Accept.Clear(); //override or consistent behavior
+            httpReq.Headers.Accept.Add(new(config.Accept));
+        }
         if (config.UserAgent != null)
             headers.Add(new(HttpHeaders.UserAgent, config.UserAgent));
         if (config.ContentType != null)
