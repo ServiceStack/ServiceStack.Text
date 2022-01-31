@@ -455,6 +455,21 @@ public static partial class HttpUtils
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
     {
         var webReq = (HttpWebRequest)WebRequest.Create(url);
+        return SendStringToUrl(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter);
+    }
+
+    public static async Task<string> SendStringToUrlAsync(this string url, string method = null,
+        string requestBody = null,
+        string contentType = null, string accept = "*/*", Action<HttpWebRequest> requestFilter = null,
+        Action<HttpWebResponse> responseFilter = null, CancellationToken token = default)
+    {
+        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        return await SendStringToUrlAsync(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter);
+    }
+
+    public static string SendStringToUrl(this HttpWebRequest webReq, string method, string requestBody, string contentType,
+        string accept, Action<HttpWebRequest> requestFilter, Action<HttpWebResponse> responseFilter)
+    {
         if (method != null)
             webReq.Method = method;
         if (contentType != null)
@@ -486,13 +501,11 @@ public static partial class HttpUtils
         responseFilter?.Invoke((HttpWebResponse)webRes);
         return stream.ReadToEnd(UseEncoding);
     }
-
-    public static async Task<string> SendStringToUrlAsync(this string url, string method = null,
-        string requestBody = null,
-        string contentType = null, string accept = "*/*", Action<HttpWebRequest> requestFilter = null,
-        Action<HttpWebResponse> responseFilter = null, CancellationToken token = default)
+    
+    public static async Task<string> SendStringToUrlAsync(this HttpWebRequest webReq, 
+        string method, string requestBody, string contentType, string accept,
+        Action<HttpWebRequest> requestFilter, Action<HttpWebResponse> responseFilter)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
         if (method != null)
             webReq.Method = method;
         if (contentType != null)
@@ -583,6 +596,21 @@ public static partial class HttpUtils
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
     {
         var webReq = (HttpWebRequest)WebRequest.Create(url);
+        return SendBytesToUrl(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter);
+    }
+
+    public static async Task<byte[]> SendBytesToUrlAsync(this string url, string method = null,
+        byte[] requestBody = null, string contentType = null, string accept = "*/*",
+        Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null,
+        CancellationToken token = default)
+    {
+        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        return await SendBytesToUrlAsync(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter, token);
+    }
+
+    public static byte[] SendBytesToUrl(this HttpWebRequest webReq, string method, byte[] requestBody, string contentType,
+        string accept, Action<HttpWebRequest> requestFilter, Action<HttpWebResponse> responseFilter)
+    {
         if (method != null)
             webReq.Method = method;
 
@@ -611,13 +639,10 @@ public static partial class HttpUtils
         using var stream = webRes.GetResponseStream();
         return stream.ReadFully();
     }
-
-    public static async Task<byte[]> SendBytesToUrlAsync(this string url, string method = null,
-        byte[] requestBody = null, string contentType = null, string accept = "*/*",
-        Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null,
-        CancellationToken token = default)
+ 
+    public static async Task<byte[]> SendBytesToUrlAsync(this HttpWebRequest webReq, string method, byte[] requestBody,
+        string contentType, string accept, Action<HttpWebRequest> requestFilter, Action<HttpWebResponse> responseFilter, CancellationToken token)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
         if (method != null)
             webReq.Method = method;
         if (contentType != null)
@@ -646,7 +671,7 @@ public static partial class HttpUtils
         using var stream = webRes.GetResponseStream();
         return await stream.ReadFullyAsync(token).ConfigAwait();
     }
-
+   
     public static Stream GetStreamFromUrl(this string url, string accept = "*/*",
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
     {
@@ -779,11 +804,9 @@ public static partial class HttpUtils
         try
         {
             var webReq = (HttpWebRequest)WebRequest.Create(url);
-            using (var webRes = PclExport.Instance.GetResponse(webReq))
-            {
-                var httpRes = webRes as HttpWebResponse;
-                return httpRes?.StatusCode;
-            }
+            using var webRes = PclExport.Instance.GetResponse(webReq);
+            var httpRes = webRes as HttpWebResponse;
+            return httpRes?.StatusCode;
         }
         catch (Exception ex)
         {
