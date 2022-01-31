@@ -1112,7 +1112,7 @@ public static partial class HttpUtils
     }
 
     public static void DownloadFileTo(this string downloadUrl, string fileName, 
-        List<HttpHeader>? headers = null)
+        List<NameValue>? headers = null)
     {
         var client = Create();
         var httpReq = new HttpRequestMessage(HttpMethod.Get, downloadUrl)

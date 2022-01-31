@@ -11,25 +11,25 @@ public class HttpRequestConfig
     public string? Accept { get; set; } 
     public string? UserAgent { get; set; } 
     public string? ContentType { get; set; }
-    public HttpHeader? Authorization { get; set; }
-    public RangeHeader? Range { get; set; }
-    public List<HttpHeader> Headers { get; set; } = new();
+    public NameValue? Authorization { get; set; }
+    public LongRange? Range { get; set; }
+    public List<NameValue> Headers { get; set; } = new();
 
     public string AuthBearer
     {
         set => Authorization = new("Bearer", value);
     }
     
-    public HttpHeader AuthBasic
+    public NameValue AuthBasic
     {
         set => Authorization = new("Basic",
             Convert.ToBase64String(Encoding.UTF8.GetBytes(value.Name + ":" + value.Value)));
     }
 }
 
-public record HttpHeader
+public record NameValue
 {
-    public HttpHeader(string name, string value)
+    public NameValue(string name, string value)
     {
         this.Name = name;
         this.Value = value;
@@ -45,9 +45,9 @@ public record HttpHeader
     }
 }
 
-public record RangeHeader
+public record LongRange
 {
-    public RangeHeader(long from, long? to = null)
+    public LongRange(long from, long? to = null)
     {
         this.From = from;
         this.To = to;
