@@ -1058,7 +1058,10 @@ public static partial class HttpUtils
         {
             if (httpReq.Content == null)
                 throw new NotSupportedException("Can't set ContentType before Content is populated");
-            httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(value);
+            httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(value.LeftPart(';'));
+            var charset = value.RightPart(';');
+            if (charset != null && charset.IndexOf("charset", StringComparison.OrdinalIgnoreCase) >= 0)
+                httpReq.Content.Headers.ContentType.CharSet = charset.RightPart('=');
         }
         else if (name.Equals(HttpHeaders.Referer, StringComparison.OrdinalIgnoreCase))
         {
