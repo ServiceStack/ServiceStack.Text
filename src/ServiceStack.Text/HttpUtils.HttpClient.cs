@@ -1111,6 +1111,16 @@ public static partial class HttpUtils
         if (config.Expect != null)
             httpReq.Headers.Expect.Add(new(config.Expect));
         
+        if (config.TransferEncodingChunked != null)
+            httpReq.Headers.TransferEncodingChunked = config.TransferEncodingChunked.Value;
+        else if (config.TransferEncoding?.Length > 0)
+        {
+            foreach (var enc in config.TransferEncoding)
+            {
+                httpReq.Headers.TransferEncoding.Add(new(enc));
+            }
+        }
+        
         foreach (var entry in headers)
         {
             httpReq.WithHeader(entry.Name, entry.Value);

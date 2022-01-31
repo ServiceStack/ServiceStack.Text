@@ -1139,6 +1139,11 @@ public static partial class HttpUtils
         if (config.Expect != null)
             httpReq.Expect = config.Expect;
 
+        if (config.TransferEncodingChunked != null)
+            httpReq.TransferEncoding = "chunked";
+        else if (config.TransferEncoding?.Length > 0)
+            httpReq.TransferEncoding = string.Join(", ", config.TransferEncoding);
+
         foreach (var entry in config.Headers)
         {
             httpReq.Headers[entry.Name] = entry.Value;

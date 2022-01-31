@@ -12,7 +12,9 @@ public class HttpRequestConfig
     public string? UserAgent { get; set; } 
     public string? ContentType { get; set; }
     public string? Referer { get; set; }
-    public string? Expect { get; set; } 
+    public string? Expect { get; set; }
+    public string[]? TransferEncoding { get; set; }
+    public bool? TransferEncodingChunked { get; set; }
     public NameValue? Authorization { get; set; }
     public LongRange? Range { get; set; }
     public List<NameValue> Headers { get; set; } = new();
