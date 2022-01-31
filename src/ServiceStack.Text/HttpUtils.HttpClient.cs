@@ -500,7 +500,7 @@ public static partial class HttpUtils
         {
             httpReq.Content = new StringContent(requestBody, UseEncoding);
             if (contentType != null)
-                httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         requestFilter?.Invoke(httpReq);
 
@@ -531,7 +531,7 @@ public static partial class HttpUtils
         {
             httpReq.Content = new StringContent(requestBody, UseEncoding);
             if (contentType != null)
-                httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         requestFilter?.Invoke(httpReq);
 
@@ -612,7 +612,7 @@ public static partial class HttpUtils
         {
             httpReq.Content = new ReadOnlyMemoryContent(requestBody);
             if (contentType != null)
-                httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         requestFilter?.Invoke(httpReq);
 
@@ -643,7 +643,7 @@ public static partial class HttpUtils
         {
             httpReq.Content = new ReadOnlyMemoryContent(requestBody);
             if (contentType != null)
-                httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         requestFilter?.Invoke(httpReq);
 
@@ -725,7 +725,7 @@ public static partial class HttpUtils
         {
             httpReq.Content = new StreamContent(requestBody);
             if (contentType != null)
-                httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         requestFilter?.Invoke(httpReq);
 
@@ -756,7 +756,7 @@ public static partial class HttpUtils
         {
             httpReq.Content = new StreamContent(requestBody);
             if (contentType != null)
-                httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         requestFilter?.Invoke(httpReq);
 
@@ -1058,10 +1058,7 @@ public static partial class HttpUtils
         {
             if (httpReq.Content == null)
                 throw new NotSupportedException("Can't set ContentType before Content is populated");
-            httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(value.LeftPart(';'));
-            var charset = value.RightPart(';');
-            if (charset != null && charset.IndexOf("charset", StringComparison.OrdinalIgnoreCase) >= 0)
-                httpReq.Content.Headers.ContentType.CharSet = charset.RightPart('=');
+            httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(value);
         }
         else if (name.Equals(HttpHeaders.Referer, StringComparison.OrdinalIgnoreCase))
         {
@@ -1097,7 +1094,11 @@ public static partial class HttpUtils
         if (config.UserAgent != null)
             headers.Add(new(HttpHeaders.UserAgent, config.UserAgent));
         if (config.ContentType != null)
-            headers.Add(new(HttpHeaders.ContentType, config.ContentType));
+        {
+            if (httpReq.Content == null)
+                throw new NotSupportedException("Can't set ContentType before Content is populated");
+            httpReq.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(config.ContentType);
+        }
         if (config.Referer != null)
             httpReq.Headers.Referrer = new Uri(config.Referer);
         if (config.Authorization != null)
