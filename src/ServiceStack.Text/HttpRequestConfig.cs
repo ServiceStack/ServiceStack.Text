@@ -15,16 +15,10 @@ public class HttpRequestConfig
     public LongRange? Range { get; set; }
     public List<NameValue> Headers { get; set; } = new();
 
-    public string AuthBearer
-    {
-        set => Authorization = new("Bearer", value);
-    }
-    
-    public NameValue AuthBasic
-    {
-        set => Authorization = new("Basic",
-            Convert.ToBase64String(Encoding.UTF8.GetBytes(value.Name + ":" + value.Value)));
-    }
+    public void SetAuthBearer(string value) => Authorization = new("Bearer", value);
+    public void SetAuthBasic(string name, string value) => 
+        Authorization = new("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(name + ":" + value)));
+    public void SetRange(long from, long? to = null) => Range = new(from, to);
 }
 
 public record NameValue
