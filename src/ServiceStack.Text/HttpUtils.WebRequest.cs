@@ -1074,17 +1074,39 @@ public static partial class HttpUtils
     }
 
     public static void DownloadFileTo(this string downloadUrl, string fileName, 
-        Dictionary<string,string> headers = null)
+        List<HttpHeader> headers = null)
     {
         var webClient = new WebClient();
         if (headers != null)
         {
-            foreach (var entry in headers)
+            foreach (var header in headers)
             {
-                webClient.Headers[entry.Key] = entry.Value;
+                webClient.Headers[header.Name] = header.Value;
             }
         }
         webClient.DownloadFile(downloadUrl, fileName);
+    }
+    
+    public static void SetRange(this HttpWebRequest request, long from, long? to) 
+    {
+        var rangeSpecifier = "bytes";
+        var curRange = request.Headers[HttpRequestHeader.Range];
+ 
+        if (string.IsNullOrEmpty(curRange)) 
+        {
+            curRange = rangeSpecifier + "=";
+        }
+        else
+        {
+            if (string.Compare(curRange.Substring(0, curRange.IndexOf('=')), rangeSpecifier, StringComparison.OrdinalIgnoreCase) != 0)
+                throw new NotSupportedException("Invalid Range: " + curRange);
+            curRange = string.Empty;
+        }
+        curRange += from.ToString();
+        if (to != null) {
+            curRange += "-" + to;
+        }
+        request.Headers[HttpRequestHeader.Range] = curRange;
     }
 
     public static void AddHeader(this HttpWebRequest res, string name, string value) =>
@@ -1120,14 +1142,14 @@ public static partial class HttpUtils
 
         if (config.Authorization != null)
             httpReq.Headers[HttpHeaders.Authorization] = 
-                config.Authorization.Value.Key + " " + config.Authorization.Value.Value;
+                config.Authorization.Name + " " + config.Authorization.Value;
+        
+        if (config.Range != null)
+            httpReq.SetRange(config.Range.From, config.Range.To);
 
-        if (config.Headers != null)
+        foreach (var entry in config.Headers)
         {
-            foreach (var entry in config.Headers)
-            {
-                httpReq.Headers[entry.Key] = entry.Value;
-            }
+            httpReq.Headers[entry.Name] = entry.Value;
         }
         
         return httpReq;

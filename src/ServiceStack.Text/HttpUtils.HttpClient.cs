@@ -1089,35 +1089,36 @@ public static partial class HttpUtils
         var config = new HttpRequestConfig();
         configure(config);
         
-        config.Headers ??= new Dictionary<string, string>();
         var headers = config.Headers;
 
         if (config.Accept != null)
-            headers[HttpHeaders.Accept] = config.Accept;
+            headers.Add(new(HttpHeaders.Accept, config.Accept));
         if (config.UserAgent != null)
-            headers[HttpHeaders.UserAgent] = config.UserAgent;
+            headers.Add(new(HttpHeaders.UserAgent, config.UserAgent));
         if (config.ContentType != null)
-            headers[HttpHeaders.ContentType] = config.ContentType;
+            headers.Add(new(HttpHeaders.ContentType, config.ContentType));
         if (config.Authorization != null)
             httpReq.Headers.Authorization =
-                new AuthenticationHeaderValue(config.Authorization.Value.Key, config.Authorization.Value.Value);
+                new AuthenticationHeaderValue(config.Authorization.Name, config.Authorization.Value);
+        if (config.Range != null)
+            httpReq.Headers.Range = new RangeHeaderValue(config.Range.From, config.Range.To);
         
         foreach (var entry in headers)
         {
-            httpReq.WithHeader(entry.Key, entry.Value);
+            httpReq.WithHeader(entry.Name, entry.Value);
         }
         
         return httpReq;
     }
 
     public static void DownloadFileTo(this string downloadUrl, string fileName, 
-        Dictionary<string,string>? headers = null)
+        List<HttpHeader>? headers = null)
     {
         var client = Create();
         var httpReq = new HttpRequestMessage(HttpMethod.Get, downloadUrl)
             .With(c => {
                 c.Accept = "*/*"; 
-                c.Headers = headers;
+                if (headers != null) c.Headers = headers;
             });
 
         var httpRes = client.Send(httpReq);

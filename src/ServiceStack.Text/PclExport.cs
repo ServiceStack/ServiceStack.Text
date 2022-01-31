@@ -142,11 +142,6 @@ namespace ServiceStack
         {
         }
 
-        public virtual HttpWebRequest CreateWebRequest(string requestUri, bool? emulateHttpViaPost = null)
-        {
-            return (HttpWebRequest)WebRequest.Create(requestUri);
-        }
-
         public virtual void Config(HttpWebRequest req,
             bool? allowAutoRedirect = null,
             TimeSpan? timeout = null,
