@@ -1065,18 +1065,7 @@ public static partial class HttpUtils
         }
         else if (name.Equals(HttpHeaders.UserAgent, StringComparison.OrdinalIgnoreCase))
         {
-            if (value.IndexOf('/') >= 0)
-            {
-                var product = value.LastLeftPart('/');
-                var version = value.LastRightPart('/');
-                httpReq.Headers.UserAgent.Add(new ProductInfoHeaderValue(product, version));                
-            }
-            else
-            {
-                // Avoid format exceptions
-                var commentFmt = value[0] == '(' && value[^1] == ')' ? value : $"({value})";
-                httpReq.Headers.UserAgent.Add(new ProductInfoHeaderValue(commentFmt));                
-            }
+            httpReq.Headers.UserAgent.ParseAdd(value);
         }
         else
         {
