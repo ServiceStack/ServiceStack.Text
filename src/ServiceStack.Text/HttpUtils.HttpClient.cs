@@ -1108,6 +1108,8 @@ public static partial class HttpUtils
                 new AuthenticationHeaderValue(config.Authorization.Name, config.Authorization.Value);
         if (config.Range != null)
             httpReq.Headers.Range = new RangeHeaderValue(config.Range.From, config.Range.To);
+        if (config.Expect != null)
+            httpReq.Headers.Expect.Add(new(config.Expect));
         
         foreach (var entry in headers)
         {

@@ -1118,7 +1118,7 @@ public static partial class HttpUtils
         configure(config);
         
         if (config.Accept != null)
-            httpReq.Headers.Add(HttpHeaders.Accept, config.Accept);
+            httpReq.Accept = config.Accept;
 
         if (config.UserAgent != null)
             httpReq.UserAgent = config.UserAgent;
@@ -1135,6 +1135,9 @@ public static partial class HttpUtils
         
         if (config.Range != null)
             httpReq.SetRange(config.Range.From, config.Range.To);
+
+        if (config.Expect != null)
+            httpReq.Expect = config.Expect;
 
         foreach (var entry in config.Headers)
         {
