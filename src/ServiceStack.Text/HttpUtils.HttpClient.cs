@@ -485,7 +485,8 @@ public static partial class HttpUtils
         string? requestBody = null, string? contentType = null, string accept = "*/*",
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return Create().SendStringToUrl(url, method, requestBody, contentType, accept, requestFilter, responseFilter);
+        return Create().SendStringToUrl(url, method:method, requestBody:requestBody, 
+            contentType:contentType, accept:accept, requestFilter:requestFilter, responseFilter:responseFilter);
     }
 
     public static string SendStringToUrl(this HttpClient client, string url, string method = HttpMethods.Post,
@@ -514,8 +515,8 @@ public static partial class HttpUtils
         string? contentType = null, string accept = "*/*", Action<HttpRequestMessage>? requestFilter = null,
         Action<HttpResponseMessage>? responseFilter = null, CancellationToken token = default)
     {
-        return Create().SendStringToUrlAsync(url, method, requestBody, contentType, accept,
-            requestFilter, responseFilter, token);
+        return Create().SendStringToUrlAsync(url, method:method, requestBody:requestBody, contentType:contentType, accept:accept,
+            requestFilter:requestFilter, responseFilter:responseFilter, token);
     }
     
     public static async Task<string> SendStringToUrlAsync(this HttpClient client, string url, string method = HttpMethods.Post,
