@@ -1089,24 +1089,10 @@ public static partial class HttpUtils
     
     public static void SetRange(this HttpWebRequest request, long from, long? to) 
     {
-        var rangeSpecifier = "bytes";
-        var curRange = request.Headers[HttpRequestHeader.Range];
- 
-        if (string.IsNullOrEmpty(curRange)) 
-        {
-            curRange = rangeSpecifier + "=";
-        }
+        if (to != null)
+            request.AddRange(from, to.Value);
         else
-        {
-            if (string.Compare(curRange.Substring(0, curRange.IndexOf('=')), rangeSpecifier, StringComparison.OrdinalIgnoreCase) != 0)
-                throw new NotSupportedException("Invalid Range: " + curRange);
-            curRange = string.Empty;
-        }
-        curRange += from.ToString();
-        if (to != null) {
-            curRange += "-" + to;
-        }
-        request.Headers[HttpRequestHeader.Range] = curRange;
+            request.AddRange(from);
     }
 
     public static void AddHeader(this HttpWebRequest res, string name, string value) =>
