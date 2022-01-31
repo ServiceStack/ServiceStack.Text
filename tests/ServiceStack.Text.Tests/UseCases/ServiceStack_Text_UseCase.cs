@@ -1,5 +1,4 @@
-﻿#if !NETCORE
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using NUnit.Framework;
@@ -25,18 +24,22 @@ namespace ServiceStack.Text.Tests.UseCases
         {
             var orgName = "ServiceStack";
 
-            var orgRepos = "https://api.github.com/orgs/{0}/repos".Fmt(orgName)
-                .GetJsonFromUrl(httpReq => httpReq.UserAgent = "ServiceStack.Text")
+            var orgRepos = $"https://api.github.com/orgs/{orgName}/repos"
+                .GetJsonFromUrl(req => req.With(c => c.UserAgent = "ServiceStack.Text"),
+                    responseFilter: res =>
+                    {
+                        var contentType = res.GetHeader(HttpHeaders.ContentType);
+                        Assert.That(res.MatchesContentType(MimeTypes.Json));
+                    })
                 .FromJson<List<GithubRepository>>();
 
-            "Writing {0} Github Repositories:".Print(orgName);
+            $"Writing {orgName} Github Repositories:".Print();
             orgRepos.PrintDump(); //recursive, pretty-format dump of any C# POCOs
 
-            var csvFilePath = "~/{0}-repos.csv".Fmt(orgName).MapAbsolutePath();
+            var csvFilePath = $"~/{orgName}-repos.csv".MapAbsolutePath();
             File.WriteAllText(csvFilePath, orgRepos.ToCsv());
 
-            Process.Start(csvFilePath);
+            if (Env.IsNetFramework) Process.Start(csvFilePath);
         }
     }
 }
-#endif

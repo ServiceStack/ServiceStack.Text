@@ -1181,4 +1181,10 @@ public class HttpResultsFilter : IHttpResultsFilter
         UploadFileFn?.Invoke(webRequest, fileStream, fileName);
     }
 }
+
+public static class HttpClientExt
+{
+    public static bool MatchesContentType(this HttpWebResponse res, string matchesContentType) => 
+        MimeTypes.MatchesContentType(res.Headers[HttpHeaders.ContentType], matchesContentType);
+}
 #endif
