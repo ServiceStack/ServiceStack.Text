@@ -454,7 +454,7 @@ public static partial class HttpUtils
         string requestBody = null, string contentType = null, string accept = "*/*",
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         return SendStringToUrl(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter);
     }
 
@@ -463,7 +463,7 @@ public static partial class HttpUtils
         string contentType = null, string accept = "*/*", Action<HttpWebRequest> requestFilter = null,
         Action<HttpWebResponse> responseFilter = null, CancellationToken token = default)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         return await SendStringToUrlAsync(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter);
     }
 
@@ -595,7 +595,7 @@ public static partial class HttpUtils
         byte[] requestBody = null, string contentType = null, string accept = "*/*",
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         return SendBytesToUrl(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter);
     }
 
@@ -604,7 +604,7 @@ public static partial class HttpUtils
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null,
         CancellationToken token = default)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         return await SendBytesToUrlAsync(webReq, method, requestBody, contentType, accept, requestFilter, responseFilter, token);
     }
 
@@ -731,7 +731,7 @@ public static partial class HttpUtils
         Stream requestBody = null, string contentType = null, string accept = "*/*",
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         if (method != null)
             webReq.Method = method;
 
@@ -769,7 +769,7 @@ public static partial class HttpUtils
         Action<HttpWebRequest> requestFilter = null, Action<HttpWebResponse> responseFilter = null,
         CancellationToken token = default)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         if (method != null)
             webReq.Method = method;
         if (contentType != null)
@@ -803,7 +803,7 @@ public static partial class HttpUtils
     {
         try
         {
-            var webReq = (HttpWebRequest)WebRequest.Create(url);
+            var webReq = WebRequest.CreateHttp(url);
             using var webRes = PclExport.Instance.GetResponse(webReq);
             var httpRes = webRes as HttpWebResponse;
             return httpRes?.StatusCode;
@@ -980,7 +980,7 @@ public static partial class HttpUtils
         string accept = null,
         Action<HttpWebRequest> requestFilter = null)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         using (var fileStream = uploadFileInfo.OpenRead())
         {
             var fileName = uploadFileInfo.Name;
@@ -1000,7 +1000,7 @@ public static partial class HttpUtils
         string accept = null,
         Action<HttpWebRequest> requestFilter = null, CancellationToken token = default)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         using (var fileStream = uploadFileInfo.OpenRead())
         {
             var fileName = uploadFileInfo.Name;
@@ -1020,7 +1020,7 @@ public static partial class HttpUtils
         string accept = null,
         Action<HttpWebRequest> requestFilter = null)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         using (var fileStream = uploadFileInfo.OpenRead())
         {
             var fileName = uploadFileInfo.Name;
@@ -1040,7 +1040,7 @@ public static partial class HttpUtils
         string accept = null,
         Action<HttpWebRequest> requestFilter = null, CancellationToken token = default)
     {
-        var webReq = (HttpWebRequest)WebRequest.Create(url);
+        var webReq = WebRequest.CreateHttp(url);
         using (var fileStream = uploadFileInfo.OpenRead())
         {
             var fileName = uploadFileInfo.Name;
