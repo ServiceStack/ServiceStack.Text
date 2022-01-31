@@ -48,40 +48,40 @@ public static partial class HttpUtils
     public static string GetJsonFromUrl(this string url,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return url.GetStringFromUrl(MimeTypes.Json, requestFilter, responseFilter);
+        return url.GetStringFromUrl(accept:MimeTypes.Json, requestFilter, responseFilter);
     }
 
     public static Task<string> GetJsonFromUrlAsync(this string url,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return url.GetStringFromUrlAsync(MimeTypes.Json, requestFilter, responseFilter, token: token);
+        return url.GetStringFromUrlAsync(accept:MimeTypes.Json, requestFilter, responseFilter, token: token);
     }
 
     public static string GetXmlFromUrl(this string url,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return url.GetStringFromUrl(MimeTypes.Xml, requestFilter, responseFilter);
+        return url.GetStringFromUrl(accept:MimeTypes.Xml, requestFilter, responseFilter);
     }
 
     public static Task<string> GetXmlFromUrlAsync(this string url,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return url.GetStringFromUrlAsync(MimeTypes.Xml, requestFilter, responseFilter, token: token);
+        return url.GetStringFromUrlAsync(accept:MimeTypes.Xml, requestFilter, responseFilter, token: token);
     }
 
     public static string GetCsvFromUrl(this string url,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null)
     {
-        return url.GetStringFromUrl(MimeTypes.Csv, requestFilter, responseFilter);
+        return url.GetStringFromUrl(accept:MimeTypes.Csv, requestFilter, responseFilter);
     }
 
     public static Task<string> GetCsvFromUrlAsync(this string url,
         Action<HttpRequestMessage>? requestFilter = null, Action<HttpResponseMessage>? responseFilter = null,
         CancellationToken token = default)
     {
-        return url.GetStringFromUrlAsync(MimeTypes.Csv, requestFilter, responseFilter, token: token);
+        return url.GetStringFromUrlAsync(accept:MimeTypes.Csv, requestFilter, responseFilter, token: token);
     }
 
     public static string GetStringFromUrl(this string url, string accept = "*/*",
