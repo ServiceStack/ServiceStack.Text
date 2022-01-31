@@ -19,6 +19,8 @@ public class HttpRequestConfig
     public void SetAuthBasic(string name, string value) => 
         Authorization = new("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(name + ":" + value)));
     public void SetRange(long from, long? to = null) => Range = new(from, to);
+
+    public void AddHeader(string name, string value) => Headers.Add(new(name, value));
 }
 
 public record NameValue
