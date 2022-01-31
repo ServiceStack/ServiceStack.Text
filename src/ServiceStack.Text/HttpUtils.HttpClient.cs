@@ -1058,6 +1058,10 @@ public static partial class HttpUtils
                 throw new NotSupportedException("Can't set ContentType before Content is populated");
             httpReq.Content.Headers.ContentType = new MediaTypeHeaderValue(value);
         }
+        else if (name.Equals(HttpHeaders.Referer, StringComparison.OrdinalIgnoreCase))
+        {
+            httpReq.Headers.Referrer = new Uri(value);
+        }
         else if (name.Equals(HttpHeaders.UserAgent, StringComparison.OrdinalIgnoreCase))
         {
             if (value.IndexOf('/') >= 0)
@@ -1097,6 +1101,8 @@ public static partial class HttpUtils
             headers.Add(new(HttpHeaders.UserAgent, config.UserAgent));
         if (config.ContentType != null)
             headers.Add(new(HttpHeaders.ContentType, config.ContentType));
+        if (config.Referer != null)
+            httpReq.Headers.Referrer = new Uri(config.Referer);
         if (config.Authorization != null)
             httpReq.Headers.Authorization =
                 new AuthenticationHeaderValue(config.Authorization.Name, config.Authorization.Value);

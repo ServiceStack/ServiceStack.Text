@@ -11,6 +11,7 @@ public class HttpRequestConfig
     public string? Accept { get; set; } 
     public string? UserAgent { get; set; } 
     public string? ContentType { get; set; }
+    public string? Referer { get; set; }
     public NameValue? Authorization { get; set; }
     public LongRange? Range { get; set; }
     public List<NameValue> Headers { get; set; } = new();

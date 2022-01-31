@@ -1126,6 +1126,9 @@ public static partial class HttpUtils
         if (config.ContentType != null)
             httpReq.ContentType = config.ContentType;
 
+        if (config.Referer != null)
+            httpReq.Referer = config.Referer;
+
         if (config.Authorization != null)
             httpReq.Headers[HttpHeaders.Authorization] = 
                 config.Authorization.Name + " " + config.Authorization.Value;
