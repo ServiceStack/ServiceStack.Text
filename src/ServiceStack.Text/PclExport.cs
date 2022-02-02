@@ -21,18 +21,18 @@ namespace ServiceStack
     {
         public static class Platforms
         {
-            public const string NetStandard = "NETStandard";
-            public const string NetCore = "NetCore";
-            public const string Net45 = "Net45";
+            public const string NetStandard = "NETStd";
+            public const string Net6 = "NET6";
+            public const string NetFX = "NETFX";
         }
 
         public static PclExport Instance =
 #if NETFX
-          new Net45PclExport()
+          new NetFxPclExport()
 #elif NETSTANDARD2_0
           new NetStandardPclExport()
 #elif NETCORE || NET6_0_OR_GREATER
-          new NetCorePclExport()
+          new Net6PclExport()
 #endif
         ;
 

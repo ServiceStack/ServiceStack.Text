@@ -23,11 +23,11 @@ using System.Reflection.Emit;
 
 namespace ServiceStack
 {
-    public class Net45PclExport : PclExport
+    public class NetFxPclExport : PclExport
     {
-        public static Net45PclExport Provider = new Net45PclExport();
+        public static NetFxPclExport Provider = new NetFxPclExport();
 
-        public Net45PclExport()
+        public NetFxPclExport()
         {
             this.DirSep = Path.DirectorySeparatorChar;
             this.AltDirSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
@@ -37,7 +37,7 @@ namespace ServiceStack
             this.InvariantComparer = StringComparer.InvariantCulture;
             this.InvariantComparerIgnoreCase = StringComparer.InvariantCultureIgnoreCase;
 
-            this.PlatformName = Platforms.Net45;
+            this.PlatformName = Platforms.NetFX;
             ReflectionOptimizer.Instance = EmitReflectionOptimizer.Provider;
         }
 

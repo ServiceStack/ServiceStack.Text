@@ -6,11 +6,11 @@ using ServiceStack.Text.Common;
 
 namespace ServiceStack 
 {
-    public class NetCorePclExport : NetStandardPclExport
+    public class Net6PclExport : NetStandardPclExport
     {
-        public NetCorePclExport()
+        public Net6PclExport()
         {
-            this.PlatformName = Platforms.NetCore;
+            this.PlatformName = Platforms.Net6;
             ReflectionOptimizer.Instance = EmitReflectionOptimizer.Provider;            
         }
 
