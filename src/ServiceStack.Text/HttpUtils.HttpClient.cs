@@ -19,14 +19,14 @@ public static partial class HttpUtils
     private class HttpClientFactory
     {
         private readonly Lazy<HttpMessageHandler> lazyHandler;
-        internal HttpClientFactory(HttpClientHandler handler) => 
-            lazyHandler = new Lazy<HttpMessageHandler>(() => handler, LazyThreadSafetyMode.ExecutionAndPublication);
+        internal HttpClientFactory(Func<HttpClientHandler> handler) => 
+            lazyHandler = new Lazy<HttpMessageHandler>(() => handler(), LazyThreadSafetyMode.ExecutionAndPublication);
         public HttpClient CreateClient() => new(lazyHandler.Value, disposeHandler: false);
     }
 
     // Ok to use HttpClientHandler which now uses SocketsHttpHandler
     // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Http/src/System/Net/Http/HttpClientHandler.cs#L16
-    public static HttpClientHandler HttpClientHandler { get; set; } = new() {
+    public static Func<HttpClientHandler> HttpClientHandlerFactory { get; set; } = () => new() {
         UseDefaultCredentials = true,
         AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.Deflate | DecompressionMethods.GZip,
     };
@@ -38,10 +38,21 @@ public static partial class HttpUtils
     //     .Configure<HttpClientFactoryOptions>(options => 
     //         options.HttpMessageHandlerBuilderActions.Add(builder => builder.PrimaryHandler = HandlerFactory))
     //     .BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
-    
+
     // Escape & BYO IHttpClientFactory
-    private static HttpClientFactory clientFactory = new(HttpClientHandler);
-    public static Func<HttpClient> CreateClient { get; set; } = () => clientFactory.CreateClient(); 
+    private static HttpClientFactory? clientFactory;
+    public static Func<HttpClient> CreateClient { get; set; } = () => { 
+        try
+        {
+            clientFactory ??= new(HttpClientHandlerFactory);
+            return clientFactory.CreateClient();
+        }
+        catch (Exception ex)
+        {
+            Tracer.Instance.WriteError(ex);
+            return new HttpClient();
+        }
+    }; 
 
     public static HttpClient Create() => CreateClient();
 
